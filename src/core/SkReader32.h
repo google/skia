@@ -106,10 +106,6 @@ public:
     int32_t readS32() { return this->readInt(); }
     uint32_t readU32() { return this->readInt(); }
 
-    bool readPath(SkPath* path) {
-        return this->readObjectFromMemory(path);
-    }
-
     bool readMatrix(SkMatrix* matrix) {
         return this->readObjectFromMemory(matrix);
     }

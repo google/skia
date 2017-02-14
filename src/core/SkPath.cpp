@@ -12,7 +12,10 @@
 #include "SkMath.h"
 #include "SkPathPriv.h"
 #include "SkPathRef.h"
+#include "SkReadBuffer.h"
 #include "SkRRect.h"
+#include "SkWriteBuffer.h"
+
 
 static float poly_eval(float A, float B, float C, float t) {
     return (A * t + B) * t + C;
@@ -2032,19 +2035,8 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
-    Format in compressed buffer: [ptCount, verbCount, pts[], verbs[]]
-*/
-
-size_t SkPath::writeToMemory(void* storage) const {
+void SkPath::flatten(SkWriteBuffer& buffer) const {
     SkDEBUGCODE(this->validate();)
-
-    if (nullptr == storage) {
-        const int byteCount = sizeof(int32_t) * 2 + fPathRef->writeSize();
-        return SkAlign4(byteCount);
-    }
-
-    SkWBuffer   buffer(storage);
 
     int32_t packed = (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
@@ -2055,58 +2047,58 @@ size_t SkPath::writeToMemory(void* storage) const {
     buffer.write32(packed);
     buffer.write32(fLastMoveToIndex);
 
-    fPathRef->writeToBuffer(&buffer);
-
-    buffer.padToAlign4();
-    return buffer.pos();
+    fPathRef->flatten(buffer);
 }
 
-size_t SkPath::readFromMemory(const void* storage, size_t length) {
-    SkRBuffer buffer(storage, length);
+bool SkPath::MakeFromBuffer(SkReadBuffer& reader, SkPath* result) {
 
-    int32_t packed;
-    if (!buffer.readS32(&packed)) {
-        return 0;
+    int32_t packed = reader.readInt();
+    if (!reader.isValid()) {
+        result->reset();
+        return false;
     }
 
     unsigned version = packed & 0xFF;
-    if (version >= kPathPrivLastMoveToIndex_Version && !buffer.readS32(&fLastMoveToIndex)) {
-        return 0;
+    if (version >= kPathPrivLastMoveToIndex_Version) {
+        result->fLastMoveToIndex = reader.readInt();
+        if (!reader.isValid()) {
+            result->reset();
+            return false;
+        }
     }
 
-    fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
-    fFillType = (packed >> kFillType_SerializationShift) & 0x3;
-    uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
-    fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
-    SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
-    if (!pathRef) {
-        return 0;
-    }
+    result->fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
+    result->fFillType = (packed >> kFillType_SerializationShift) & 0x3;
+    Direction dir = (Direction)((packed >> kDirection_SerializationShift) & 0x3);
+    result->fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
 
-    fPathRef.reset(pathRef);
-    SkDEBUGCODE(this->validate();)
-    buffer.skipToAlign4();
+    result->fPathRef = SkPathRef::MakeFromBuffer(reader);
+    if (!result->fPathRef) {
+        result->reset();
+        return false;
+    }
 
     // compatibility check
     if (version < kPathPrivFirstDirection_Version) {
         switch (dir) {  // old values
             case 0:
-                fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+                result->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
                 break;
             case 1:
-                fFirstDirection = SkPathPriv::kCW_FirstDirection;
+                result->fFirstDirection = SkPathPriv::kCW_FirstDirection;
                 break;
             case 2:
-                fFirstDirection = SkPathPriv::kCCW_FirstDirection;
+                result->fFirstDirection = SkPathPriv::kCCW_FirstDirection;
                 break;
             default:
                 SkASSERT(false);
         }
     } else {
-        fFirstDirection = dir;
+        result->fFirstDirection = dir;
     }
 
-    return buffer.pos();
+    SkDEBUGCODE(result->validate();)
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

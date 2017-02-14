@@ -71,6 +71,7 @@ public:
         kGradientShaderFloatColor_Version  = 49,
         kXfermodeToBlendMode_Version       = 50,
         kXfermodeToBlendMode2_Version      = 51,
+        kAlignedPathVerbData_Version       = 52,
     };
 
     /**
@@ -135,7 +136,7 @@ public:
     virtual void readRRect(SkRRect* rrect);
     virtual void readRegion(SkRegion* region);
 
-    virtual void readPath(SkPath* path);
+    virtual bool SK_WARN_UNUSED_RESULT readPath(SkPath* path);
     virtual void readPaint(SkPaint* paint) { paint->unflatten(*this); }
 
     virtual SkFlattenable* readFlattenable(SkFlattenable::Type);
@@ -152,12 +153,37 @@ public:
     sk_sp<SkXfermode> readXfermode() { return this->readFlattenable<SkXfermode>(); }
 
     // binary data and arrays
-    virtual bool readByteArray(void* value, size_t size);
-    virtual bool readColorArray(SkColor* colors, size_t size);
-    virtual bool readColor4fArray(SkColor4f* colors, size_t size);
-    virtual bool readIntArray(int32_t* values, size_t size);
-    virtual bool readPointArray(SkPoint* points, size_t size);
-    virtual bool readScalarArray(SkScalar* values, size_t size);
+    bool readByteArray(void* value, size_t size) {
+        return this->readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
+    }
+
+    bool readRawByteArray(void* value, size_t size) {
+        return this->readRawArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
+    }
+
+    bool readColorArray(SkColor* colors, size_t size) {
+        return this->readArray(colors, size, sizeof(SkColor));
+    }
+
+    bool readColor4fArray(SkColor4f* colors, size_t size) {
+        return this->readArray(colors, size, sizeof(SkColor4f));
+    }
+
+    bool readIntArray(int32_t* values, size_t size) {
+        return this->readArray(values, size, sizeof(int32_t));
+    }
+
+    bool readPointArray(SkPoint* points, size_t size) {
+        return this->readArray(points, size, sizeof(SkPoint));
+    }
+
+    bool readRawPointArray(SkPoint* points, size_t size) {
+        return this->readRawArray(points, size, sizeof(SkPoint));
+    }
+
+    bool readScalarArray(SkScalar* values, size_t size) {
+        return this->readArray(values, size, sizeof(SkScalar));
+    }
 
     sk_sp<SkData> readByteArrayAsData() {
         size_t len = this->getArrayCount();
@@ -165,7 +191,10 @@ public:
             return SkData::MakeEmpty();
         }
         void* buffer = sk_malloc_throw(len);
-        this->readByteArray(buffer, len);
+        if (!this->readByteArray(buffer, len)) {
+            sk_free(buffer);
+            return SkData::MakeEmpty();
+        }
         return SkData::MakeFromMalloc(buffer, len);
     }
 
@@ -243,7 +272,10 @@ protected:
     SkTHashMap<uint32_t, SkString> fFlattenableDict;
 
 private:
-    bool readArray(void* value, size_t size, size_t elementSize);
+    virtual bool readArray(void* dest, size_t size, size_t elementSize);
+    // Read an array whose count is stored elsewhere. This is needed for the case where
+    // the destination storage is allocated together.
+    virtual bool readRawArray(void* dest, size_t size, size_t elementSize);
 
     uint32_t fFlags;
     int fVersion;

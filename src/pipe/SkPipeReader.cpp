@@ -288,8 +288,9 @@ static void clipPath_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas
     SkClipOp op = (SkClipOp)(unpack_verb_extra(packedVerb) >> 1);
     bool isAA = unpack_verb_extra(packedVerb) & 1;
     SkPath path;
-    reader.readPath(&path);
-    canvas->clipPath(path, op, isAA);
+    if (reader.readPath(&path)) {
+        canvas->clipPath(path, op, isAA);
+    }
 }
 
 static void clipRegion_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
@@ -390,14 +391,16 @@ static void drawTextOnPath_handler(SkPipeReader& reader, uint32_t packedVerb, Sk
     }
     const void* text = reader.skip(SkAlign4(byteLength));
     SkPath path;
-    reader.readPath(&path);
+    bool validPath = reader.readPath(&path);
     const SkMatrix* matrix = nullptr;
     SkMatrix matrixStorage;
     if (tm != SkMatrix::kIdentity_Mask) {
         matrixStorage = read_sparse_matrix(reader, tm);
         matrix = &matrixStorage;
     }
-    canvas->drawTextOnPath(text, byteLength, path, matrix, read_paint(reader));
+    if (validPath) {
+        canvas->drawTextOnPath(text, byteLength, path, matrix, read_paint(reader));
+    }
 }
 
 static void drawTextBlob_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
@@ -474,8 +477,9 @@ static void drawRRect_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
 static void drawPath_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawPath == unpack_verb(packedVerb));
     SkPath path;
-    reader.readPath(&path);
-    canvas->drawPath(path, read_paint(reader));
+    if (reader.readPath(&path)) {
+        canvas->drawPath(path, read_paint(reader));
+    }
 }
 
 static void drawPoints_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {

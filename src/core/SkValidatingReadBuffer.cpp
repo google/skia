@@ -172,15 +172,12 @@ void SkValidatingReadBuffer::readRegion(SkRegion* region) {
     }
 }
 
-void SkValidatingReadBuffer::readPath(SkPath* path) {
-    size_t size = 0;
-    if (!fError) {
-        size = path->readFromMemory(fReader.peek(), fReader.available());
-        this->validate((SkAlign4(size) == size) && (0 != size));
+bool SkValidatingReadBuffer::readPath(SkPath* path) {
+    if (!fError && SkPath::MakeFromBuffer(*this, path)) {
+        return true;
     }
-    if (!fError) {
-        (void)this->skip(size);
-    }
+
+    return false;
 }
 
 bool SkValidatingReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
@@ -198,28 +195,16 @@ bool SkValidatingReadBuffer::readArray(void* value, size_t size, size_t elementS
     return false;
 }
 
-bool SkValidatingReadBuffer::readByteArray(void* value, size_t size) {
-    return this->readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
-}
-
-bool SkValidatingReadBuffer::readColorArray(SkColor* colors, size_t size) {
-    return this->readArray(colors, size, sizeof(SkColor));
-}
-
-bool SkValidatingReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
-    return this->readArray(colors, size, sizeof(SkColor4f));
-}
-
-bool SkValidatingReadBuffer::readIntArray(int32_t* values, size_t size) {
-    return this->readArray(values, size, sizeof(int32_t));
-}
-
-bool SkValidatingReadBuffer::readPointArray(SkPoint* points, size_t size) {
-    return this->readArray(points, size, sizeof(SkPoint));
-}
-
-bool SkValidatingReadBuffer::readScalarArray(SkScalar* values, size_t size) {
-    return this->readArray(values, size, sizeof(SkScalar));
+bool SkValidatingReadBuffer::readRawArray(void* value, size_t count, size_t elementSize) {
+    const uint64_t byteLength64 = sk_64_mul(count, elementSize);
+    const size_t byteLength = count * elementSize;
+    this->validate(byteLength == byteLength64);
+    const void* ptr = this->skip(SkAlign4(byteLength));
+    if (!fError) {
+        memcpy(value, ptr, byteLength);
+        return true;
+    }
+    return false;
 }
 
 uint32_t SkValidatingReadBuffer::getArrayCount() {

@@ -9,6 +9,8 @@
 #include "SkOnce.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include <limits>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -218,71 +220,137 @@ static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr
     return true;
 }
 
-SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
-    SkPathRef* ref = new SkPathRef;
+void SkPathRef::flatten(SkWriteBuffer& buffer) const {
+    SkDEBUGCODE(this->validate();)
 
-    int32_t packed;
-    if (!buffer->readS32(&packed)) {
-        delete ref;
+    // Call getBounds() to ensure (as a side-effect) that fBounds
+    // and fIsFinite are computed.
+    const SkRect& bounds = this->getBounds();
+
+    int32_t packed = ((fRRectOrOvalStartIdx & 7) << kRRectOrOvalStartIdx_SerializationShift) |
+                     ((fRRectOrOvalIsCCW & 1) << kRRectOrOvalIsCCW_SerializationShift) |
+                     ((fIsFinite & 1) << kIsFinite_SerializationShift) |
+                     ((fIsOval & 1) << kIsOval_SerializationShift) |
+                     ((fIsRRect & 1) << kIsRRect_SerializationShift) |
+                     (fSegmentMask << kSegmentMask_SerializationShift);
+    buffer.writeInt(packed);
+
+    buffer.writeUInt(buffer.isCrossProcess() ? 0 : fGenerationID);
+    buffer.writeInt(fVerbCnt);
+    buffer.writeInt(fPointCnt);
+    buffer.writeRawByteArray((const void *) verbsMemBegin(), fVerbCnt);
+    buffer.writeRawPointArray(fPoints, fPointCnt);
+    buffer.writeScalarArray(fConicWeights.begin(), fConicWeights.count());
+    buffer.writeRect(bounds);
+}
+
+sk_sp<SkPathRef> SkPathRef::MakeFromBuffer(SkReadBuffer& reader) {
+    int32_t packed = reader.readInt();
+    if (!reader.isValid()) {
         return nullptr;
     }
 
-    ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
+    bool isFinite = (packed >> kIsFinite_SerializationShift) & 1;
     uint8_t segmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
     bool isOval  = (packed >> kIsOval_SerializationShift) & 1;
     bool isRRect  = (packed >> kIsRRect_SerializationShift) & 1;
     bool rrectOrOvalIsCCW = (packed >> kRRectOrOvalIsCCW_SerializationShift) & 1;
     unsigned rrectOrOvalStartIdx = (packed >> kRRectOrOvalStartIdx_SerializationShift) & 0x7;
 
-    int32_t verbCount, pointCount, conicCount;
+    uint32_t genID = reader.readUInt();
+    int32_t verbCount = reader.readInt();
+    int32_t pointCount = reader.readInt();
+
     ptrdiff_t maxPtrDiff = std::numeric_limits<ptrdiff_t>::max();
-    if (!buffer->readU32(&(ref->fGenerationID)) ||
-        !buffer->readS32(&verbCount) ||
-        verbCount < 0 ||
-        static_cast<uint32_t>(verbCount) > maxPtrDiff/sizeof(uint8_t) ||
-        !buffer->readS32(&pointCount) ||
-        pointCount < 0 ||
-        static_cast<uint32_t>(pointCount) > maxPtrDiff/sizeof(SkPoint) ||
+
+    if (!reader.isValid() ||
+        verbCount < 0 || static_cast<uint32_t>(verbCount) > maxPtrDiff/sizeof(uint8_t) ||
+        pointCount < 0 || static_cast<uint32_t>(pointCount) > maxPtrDiff/sizeof(SkPoint) ||
         sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount >
-            static_cast<size_t>(maxPtrDiff) ||
-        !buffer->readS32(&conicCount) ||
-        conicCount < 0) {
-        delete ref;
+                                                            static_cast<size_t>(maxPtrDiff)) {
         return nullptr;
     }
 
-    ref->resetToSize(verbCount, pointCount, conicCount);
-    SkASSERT(verbCount == ref->countVerbs());
-    SkASSERT(pointCount == ref->countPoints());
-    SkASSERT(conicCount == ref->fConicWeights.count());
+    sk_sp<SkPathRef> result(new SkPathRef);
 
-    if (!buffer->read(ref->verbsMemWritable(), verbCount * sizeof(uint8_t)) ||
-        !buffer->read(ref->fPoints, pointCount * sizeof(SkPoint)) ||
-        !buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar)) ||
-        !buffer->read(&ref->fBounds, sizeof(SkRect))) {
-        delete ref;
-        return nullptr;
+    result->fIsFinite = isFinite;
+    result->fGenerationID = genID;
+
+    result->resetToSize(verbCount, pointCount, 0);
+    SkASSERT(verbCount == result->countVerbs());
+    SkASSERT(pointCount == result->countPoints());
+
+    if (reader.isVersionLT(SkReadBuffer::kAlignedPathVerbData_Version)) {
+        int32_t conicCount = reader.readInt();
+        if (!reader.isValid() || conicCount < 0) {
+            return nullptr;
+        }
+
+        result->fConicWeights.setCount(conicCount);
+        SkASSERT(conicCount == result->fConicWeights.count());
+
+        // The legacy writing code leaves the verbs unpadded so the points & weights can
+        // be unaligned
+        int verbSize = verbCount * sizeof(uint8_t);
+        int pointSize = pointCount * sizeof(SkPoint);
+        int conicSize = conicCount * sizeof(SkScalar);
+        int rectSize = sizeof(SkRect);
+        int totSize = verbSize + pointSize + conicSize + rectSize;
+
+        SkAutoTMalloc<char> tmp(totSize);
+
+        if (!reader.readRawByteArray(tmp.get(), totSize)) {
+            return nullptr;
+        }
+
+        memcpy(result->verbsMemWritable(), tmp.get(), verbSize);
+        memcpy(result->fPoints, &tmp[verbSize], pointSize);
+        memcpy(result->fConicWeights.begin(), &tmp[verbSize+pointSize], conicSize);
+        memcpy(&result->fBounds, &tmp[verbSize+pointSize+conicSize], rectSize);
+    } else {
+        if (!reader.readRawByteArray(result->verbsMemWritable(), verbCount) ||
+            !reader.readRawPointArray(result->fPoints, pointCount)) {
+            return nullptr;
+        }
+
+        int conicCount = reader.getArrayCount();
+        if (!reader.isValid() || conicCount < 0) {
+            return nullptr;
+        }
+
+        result->fConicWeights.setCount(conicCount);
+        SkASSERT(conicCount == result->fConicWeights.count());
+
+        if (!reader.readScalarArray(result->fConicWeights.begin(), conicCount)) {
+            return nullptr;
+        }
+
+        reader.readRect(&result->fBounds);
+        if (!reader.isValid()) {
+            return nullptr;
+        }
     }
 
     // Check that the verbs are valid, and imply the correct number of pts and conics
     {
         int pCount, cCount;
-        if (!deduce_pts_conics(ref->verbsMemBegin(), ref->countVerbs(), &pCount, &cCount) ||
-            pCount != ref->countPoints() || cCount != ref->fConicWeights.count()) {
-            delete ref;
+        if (!deduce_pts_conics(result->verbsMemBegin(), result->countVerbs(), &pCount, &cCount) ||
+            pCount != result->countPoints() || cCount != result->fConicWeights.count()) {
             return nullptr;
         }
     }
-    
-    ref->fBoundsIsDirty = false;
+
+    result->fBoundsIsDirty = false;
 
     // resetToSize clears fSegmentMask and fIsOval
-    ref->fSegmentMask = segmentMask;
-    ref->fIsOval = isOval;
-    ref->fIsRRect = isRRect;
-    ref->fRRectOrOvalIsCCW = rrectOrOvalIsCCW;
-    ref->fRRectOrOvalStartIdx = rrectOrOvalStartIdx;
-    return ref;
+    result->fSegmentMask = segmentMask;
+    result->fIsOval = isOval;
+    result->fIsRRect = isRRect;
+    result->fRRectOrOvalIsCCW = rrectOrOvalIsCCW;
+    result->fRRectOrOvalStartIdx = rrectOrOvalStartIdx;
+
+    SkDEBUGCODE(result->validate();)
+    return result;
 }
 
 void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
@@ -352,44 +420,6 @@ bool SkPathRef::operator== (const SkPathRef& ref) const {
         return false;
     }
     return true;
-}
-
-void SkPathRef::writeToBuffer(SkWBuffer* buffer) const {
-    SkDEBUGCODE(this->validate();)
-    SkDEBUGCODE(size_t beforePos = buffer->pos();)
-
-    // Call getBounds() to ensure (as a side-effect) that fBounds
-    // and fIsFinite are computed.
-    const SkRect& bounds = this->getBounds();
-
-    int32_t packed = ((fRRectOrOvalStartIdx & 7) << kRRectOrOvalStartIdx_SerializationShift) |
-                     ((fRRectOrOvalIsCCW & 1) << kRRectOrOvalIsCCW_SerializationShift) |
-                     ((fIsFinite & 1) << kIsFinite_SerializationShift) |
-                     ((fIsOval & 1) << kIsOval_SerializationShift) |
-                     ((fIsRRect & 1) << kIsRRect_SerializationShift) |
-                     (fSegmentMask << kSegmentMask_SerializationShift);
-    buffer->write32(packed);
-
-    // TODO: write gen ID here. Problem: We don't know if we're cross process or not from
-    // SkWBuffer. Until this is fixed we write 0.
-    buffer->write32(0);
-    buffer->write32(fVerbCnt);
-    buffer->write32(fPointCnt);
-    buffer->write32(fConicWeights.count());
-    buffer->write(verbsMemBegin(), fVerbCnt * sizeof(uint8_t));
-    buffer->write(fPoints, fPointCnt * sizeof(SkPoint));
-    buffer->write(fConicWeights.begin(), fConicWeights.bytes());
-    buffer->write(&bounds, sizeof(bounds));
-
-    SkASSERT(buffer->pos() - beforePos == (size_t) this->writeSize());
-}
-
-uint32_t SkPathRef::writeSize() const {
-    return uint32_t(5 * sizeof(uint32_t) +
-                    fVerbCnt * sizeof(uint8_t) +
-                    fPointCnt * sizeof(SkPoint) +
-                    fConicWeights.bytes() +
-                    sizeof(SkRect));
 }
 
 void SkPathRef::copy(const SkPathRef& ref,
