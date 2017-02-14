@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "767678ef_d7f224c6",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-14T22:18:44Z",
+      "side": 1,
+      "message": "Is sRGB Linear any different with or without linear blending?",
+      "range": {
+        "startLine": 134,
+        "startChar": 12,
+        "endLine": 134,
+        "endChar": 83
+      },
+      "revId": "a47af379e58c7aac41e69b8f1b321f59cd2c8038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
