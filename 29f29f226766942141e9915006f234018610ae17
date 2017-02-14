@@ -68,6 +68,30 @@
       "revId": "29f29f226766942141e9915006f234018610ae17",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de73fb71_a91bcb11",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-14T21:22:20Z",
+      "side": 1,
+      "message": "More of we don\u0027t currently have a case where we have the same texure and sampler combo that would be used in both spots. Having visibilities on sampler descriptor sets that are combination of stages increases the variations we need to create since they are no longer \"compatible\"",
+      "parentUuid": "7d3bae6d_688160ad",
+      "range": {
+        "startLine": 204,
+        "startChar": 33,
+        "endLine": 204,
+        "endChar": 44
+      },
+      "revId": "29f29f226766942141e9915006f234018610ae17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
