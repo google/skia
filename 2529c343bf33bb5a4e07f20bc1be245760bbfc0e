@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1abf96e_b7e9011d",
+        "filename": "samplecode/SampleAndroidShadows.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-14T20:10:38Z",
+      "side": 1,
+      "message": "return false here, so that the sample doesn\u0027t eat ALL characters (and prevent viewer\u0027s other keys from working)?",
+      "revId": "2529c343bf33bb5a4e07f20bc1be245760bbfc0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
