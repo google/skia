@@ -175,7 +175,7 @@ static int chop_conic(const SkPoint src[3], SkConic dst[4], const SkScalar weigh
 static int is_degen_quad_or_conic(const SkPoint p[3], SkScalar* dsqd) {
     static const SkScalar gDegenerateToLineTol = GrPathUtils::kDefaultTolerance;
     static const SkScalar gDegenerateToLineTolSqd =
-        SkScalarMul(gDegenerateToLineTol, gDegenerateToLineTol);
+        gDegenerateToLineTol * gDegenerateToLineTol;
 
     if (p[0].distanceToSqd(p[1]) < gDegenerateToLineTolSqd ||
         p[1].distanceToSqd(p[2]) < gDegenerateToLineTolSqd) {
@@ -212,7 +212,7 @@ static int num_quad_subdivs(const SkPoint p[3]) {
     // maybe different when do this using gpu (geo or tess shaders)
     static const SkScalar gSubdivTol = 175 * SK_Scalar1;
 
-    if (dsqd <= SkScalarMul(gSubdivTol, gSubdivTol)) {
+    if (dsqd <= gSubdivTol * gSubdivTol) {
         return 0;
     } else {
         static const int kMaxSub = 4;
@@ -431,15 +431,14 @@ static void intersect_lines(const SkPoint& ptA, const SkVector& normA,
     SkScalar lineAW = -normA.dot(ptA);
     SkScalar lineBW = -normB.dot(ptB);
 
-    SkScalar wInv = SkScalarMul(normA.fX, normB.fY) -
-        SkScalarMul(normA.fY, normB.fX);
+    SkScalar wInv = normA.fX * normB.fY - normA.fY * normB.fX;
     wInv = SkScalarInvert(wInv);
 
-    result->fX = SkScalarMul(normA.fY, lineBW) - SkScalarMul(lineAW, normB.fY);
-    result->fX = SkScalarMul(result->fX, wInv);
+    result->fX = normA.fY * lineBW - lineAW * normB.fY;
+    result->fX *= wInv;
 
-    result->fY = SkScalarMul(lineAW, normB.fX) - SkScalarMul(normA.fX, lineBW);
-    result->fY = SkScalarMul(result->fY, wInv);
+    result->fY = lineAW * normB.fX - normA.fX * lineBW;
+    result->fY *= wInv;
 }
 
 static void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kQuadNumVertices]) {

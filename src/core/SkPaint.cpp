@@ -6,6 +6,7 @@
  */
 
 #include "SkPaint.h"
+#include "SkPaintPriv.h"
 #include "SkAutoKern.h"
 #include "SkColorFilter.h"
 #include "SkData.h"
@@ -945,17 +946,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     paint.descriptorProc(nullptr, kNone_ScalerContextFlags, zoomPtr, FontMetricsDescProc, metrics);
 
     if (scale) {
-        metrics->fTop *= scale;
-        metrics->fAscent *= scale;
-        metrics->fDescent *= scale;
-        metrics->fBottom *= scale;
-        metrics->fLeading *= scale;
-        metrics->fAvgCharWidth *= scale;
-        metrics->fXMin *= scale;
-        metrics->fXMax *= scale;
-        metrics->fXHeight *= scale;
-        metrics->fUnderlineThickness *= scale;
-        metrics->fUnderlinePosition *= scale;
+        SkPaintPriv::ScaleFontMetrics(metrics, scale);
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }

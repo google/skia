@@ -116,8 +116,7 @@ SkRect SkDropShadowImageFilter::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
     SkRect shadowBounds = bounds;
     shadowBounds.offset(fDx, fDy);
-    shadowBounds.outset(SkScalarMul(fSigmaX, SkIntToScalar(3)),
-                        SkScalarMul(fSigmaY, SkIntToScalar(3)));
+    shadowBounds.outset(fSigmaX * 3, fSigmaY * 3);
     if (fShadowMode == kDrawShadowAndForeground_ShadowMode) {
         bounds.join(shadowBounds);
     } else {
@@ -138,8 +137,8 @@ SkIRect SkDropShadowImageFilter::onFilterNodeBounds(const SkIRect& src, const Sk
     SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
     ctm.mapVectors(&sigma, 1);
     dst.outset(
-        SkScalarCeilToInt(SkScalarAbs(SkScalarMul(sigma.x(), SkIntToScalar(3)))),
-        SkScalarCeilToInt(SkScalarAbs(SkScalarMul(sigma.y(), SkIntToScalar(3)))));
+        SkScalarCeilToInt(SkScalarAbs(sigma.x() * 3)),
+        SkScalarCeilToInt(SkScalarAbs(sigma.y() * 3)));
     if (fShadowMode == kDrawShadowAndForeground_ShadowMode) {
         dst.join(src);
     }

@@ -570,6 +570,7 @@ void SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
 }
 
 void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* fm) {
+    SkASSERT(fm);
     this->generateFontMetrics(fm);
 }
 

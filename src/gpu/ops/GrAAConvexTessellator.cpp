@@ -19,7 +19,7 @@
 
 // The tolerance for fusing vertices and eliminating colinear lines (It is in device space).
 static const SkScalar kClose = (SK_Scalar1 / 16);
-static const SkScalar kCloseSqd = SkScalarMul(kClose, kClose);
+static const SkScalar kCloseSqd = kClose * kClose;
 
 // tesselation tolerance values, in device space pixels
 static const SkScalar kQuadTolerance = 0.2f;
@@ -503,9 +503,9 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
     int prev = numPts - 1;
     int lastPerpIdx = -1, firstPerpIdx = -1;
 
-    const SkScalar outsetSq = SkScalarMul(outset, outset);
-    SkScalar miterLimitSq = SkScalarMul(outset, fMiterLimit);
-    miterLimitSq = SkScalarMul(miterLimitSq, miterLimitSq);
+    const SkScalar outsetSq = outset * outset;
+    SkScalar miterLimitSq = outset * fMiterLimit;
+    miterLimitSq = miterLimitSq * miterLimitSq;
     for (int cur = 0; cur < numPts; ++cur) {
         int originalIdx = previousRing.index(cur);
         // For each vertex of the original polygon we add at least two points to the

@@ -298,7 +298,7 @@ private:
                     const SkPath& path,
                     SkScalar srcSpaceTol,
                     bool isIndexed) const {
-            SkScalar srcSpaceTolSqd = SkScalarMul(srcSpaceTol, srcSpaceTol);
+            SkScalar srcSpaceTolSqd = srcSpaceTol * srcSpaceTol;
 
             uint16_t indexOffsetU16 = (uint16_t)indexOffset;
             uint16_t vertexOffsetU16 = (uint16_t)vertexOffset;
