@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ac84c1f_2fc9b5ee",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-14T15:58:42Z",
+      "side": 1,
+      "message": "unused var in release?",
+      "range": {
+        "startLine": 199,
+        "startChar": 16,
+        "endLine": 199,
+        "endChar": 19
+      },
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba3ee609_c535eca2",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-14T15:58:42Z",
+      "side": 1,
+      "message": "is this supposed to be commented out?",
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c78555b_52663a2a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-14T15:58:42Z",
+      "side": 1,
+      "message": "merge w/ above ifdef block?",
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27449fd5_e0d67528",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-14T15:58:42Z",
+      "side": 1,
+      "message": "instead of syncing the CTM on every mutation, would it work to pass it as an arg to the device clip methods?",
+      "range": {
+        "startLine": 1469,
+        "startChar": 36,
+        "endLine": 1469,
+        "endChar": 48
+      },
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
