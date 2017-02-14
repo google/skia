@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2490a6f5_82abec9a",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-14T18:07:28Z",
+      "side": 0,
+      "message": "It feels like we should return nullptr here if SkColorSpace is nullptr...  But we can\u0027t actually do that without further refactoring since PictureShader uses a picture backed SkImage (and does not necessarily want to snap to particular color space).\n\nSo clients can still create untagged picture images by passing nullptr for the SkColorSpace.",
+      "revId": "8572d853514e3c73077540341edbf62a3f486605",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
