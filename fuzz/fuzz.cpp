@@ -487,7 +487,11 @@ static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
                                                               SkString((const char*) bytes->data()),
                                                               settings);
     if (!program || !compiler.toGLSL(*program, &output)) {
-        SkDebugf("[terminated] Couldn't compile input.\n");
+        SkDebugf("[terminated] Couldn't compile input to GLSL.\n");
+        return;
+    }
+    if (!compiler.toSPIRV(*program, &output)) {
+        SkDebugf("[terminated] Couldn't compile input to SPIRV.\n");
         return;
     }
     SkDebugf("[terminated] Success! Compiled input.\n");
