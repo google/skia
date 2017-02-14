@@ -341,14 +341,14 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
 }
 
 void InstancedRendering::Op::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
-    input->pipelineColorInput()->setKnownFourComponents(this->getSingleInstance().fColor);
+    input->pipelineColorInput()->setToConstant(this->getSingleInstance().fColor);
 
     if (AntialiasMode::kCoverage == fInfo.fAntialiasMode ||
         (AntialiasMode::kNone == fInfo.fAntialiasMode &&
          !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineCoverageInput()->setToUnknown();
     } else {
-        input->pipelineCoverageInput()->setKnownSingleComponent(255);
+        input->pipelineCoverageInput()->setToSolidCoverage();
     }
 }
 
