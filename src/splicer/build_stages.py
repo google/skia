@@ -53,7 +53,7 @@ subprocess.check_call(['clang++'] + cflags + armv7 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'armv7.o'])
 
-def parse_object_file(dot_o, array_type, jump, ret, target=None):
+def parse_object_file(dot_o, array_type, jump, target=None):
   prefix = dot_o.replace('.o', '_')
   cmd = [ objdump, '-d', '--insn-width=8', dot_o]
   if target:
@@ -83,17 +83,14 @@ def parse_object_file(dot_o, array_type, jump, ret, target=None):
       assert 'rip' not in arg  # TODO: detect on aarch64 too
 
     # At the end of every stage function there's a jump to next().
-    # We replace that with a ret to make these stages work with an interpreter.
+    # This marks the splice point.
     if code == jump:
-      code = ret
-      inst = 'return'
-      args = ''
+      print '};'
+      continue
 
     hexed = ''.join('0x'+x+',' for x in code.split(' '))
     print '    ' + hexed + ' '*(44-len(hexed)) + \
           '//  ' + inst  + (' '*(14-len(inst)) + args if args else '')
-    if code == ret:
-      print '};'
 
 print '''/*
  * Copyright 2017 Google Inc.
@@ -108,10 +105,10 @@ print '''/*
 // This file is generated semi-automatically with this command:
 //   $ src/splicer/build_stages.py
 '''
-parse_object_file('aarch64.o', 'unsigned int', '14000000', 'd65f03c0')
-parse_object_file(  'armv7.o', 'unsigned int', 'eafffffe', 'e12fff1e',
+parse_object_file('aarch64.o', 'unsigned int', '14000000')
+parse_object_file(  'armv7.o', 'unsigned int', 'eafffffe',
                   target='elf32-littlearm')
-parse_object_file( 'sse2.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
-#parse_object_file('sse41.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
-parse_object_file(  'hsw.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
+parse_object_file( 'sse2.o', 'unsigned char', 'e9 00 00 00 00')
+#parse_object_file('sse41.o', 'unsigned char', 'e9 00 00 00 00')
+parse_object_file(  'hsw.o', 'unsigned char', 'e9 00 00 00 00')
 print '#endif//SkSplicer_generated_DEFINED'

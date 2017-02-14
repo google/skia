@@ -55,13 +55,6 @@ namespace {
         buf->write(&val, sizeof(val));
     }
 
-    // Splice up to (but not including) the final return instruction in code.
-    template <typename T, size_t N>
-    static void splice_until_ret(SkWStream* buf, const T (&code)[N]) {
-        // On all platforms we splice today, return is a single T (byte on x86, u32 on ARM).
-        buf->write(&code, sizeof(T) * (N-1));
-    }
-
 #if defined(__aarch64__)
     static constexpr int kStride = 4;
     static void set_ctx(SkWStream* buf, void* ctx) {
@@ -243,7 +236,7 @@ namespace {
     }
 #endif
 
-#define CASE(prefix, st) case SkRasterPipeline::st: splice_until_ret(buf, prefix##_##st); break
+#define CASE(prefix, st) case SkRasterPipeline::st: splice(buf, prefix##_##st); break
 #define DEFINE_SPLICE_STAGE(prefix)                                                        \
     static bool prefix##_##splice_stage(SkWStream* buf, SkRasterPipeline::StockStage st) { \
         switch (st) {                                                                      \
@@ -302,14 +295,14 @@ namespace {
 
         #if defined(__aarch64__)
             auto splice_stage = aarch64_splice_stage;
-            auto inc_x = [](SkWStream* buf) { splice_until_ret(buf, aarch64_inc_x); };
+            auto inc_x = [](SkWStream* buf) { splice(buf, aarch64_inc_x); };
         #elif defined(__ARM_NEON__)
             // Late generation ARMv7, e.g. Cortex A15 or Krait.
             if (!SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
                 return;
             }
             auto splice_stage = armv7_splice_stage;
-            auto inc_x = [](SkWStream* buf) { splice_until_ret(buf, armv7_inc_x); };
+            auto inc_x = [](SkWStream* buf) { splice(buf, armv7_inc_x); };
         #else
             // To keep things simple, only x86-64 supported.
             if (sizeof(void*) != 8) {
@@ -319,8 +312,8 @@ namespace {
 
             auto splice_stage = hsw ? hsw_splice_stage : sse2_splice_stage;
             auto inc_x = [hsw](SkWStream* buf) {
-                if (hsw) { splice_until_ret(buf,  hsw_inc_x); }
-                else     { splice_until_ret(buf, sse2_inc_x); }
+                if (hsw) { splice(buf,  hsw_inc_x); }
+                else     { splice(buf, sse2_inc_x); }
             };
             auto ret = [hsw](SkWStream* buf) {
                 static const uint8_t vzeroupper[] = { 0xc5, 0xf8, 0x77 };
