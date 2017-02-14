@@ -107,11 +107,11 @@ GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType p
 
 void GrDrawVerticesOp::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
     if (this->requiresPerVertexColors()) {
-        input->pipelineColorInput()->setUnknownFourComponents();
+        input->pipelineColorInput()->setToUnknown();
     } else {
-        input->pipelineColorInput()->setKnownFourComponents(fMeshes[0].fColor);
+        input->pipelineColorInput()->setToConstant(fMeshes[0].fColor);
     }
-    input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    input->pipelineCoverageInput()->setToSolidCoverage();
 }
 
 void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {

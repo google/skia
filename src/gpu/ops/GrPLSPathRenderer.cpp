@@ -782,8 +782,8 @@ private:
     }
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setToConstant(fColor);
+        input->pipelineCoverageInput()->setToUnknown();
         input->setUsesPLSDstRead();
     }
 

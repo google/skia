@@ -22,23 +22,24 @@ class GrPrimitiveProcessor;
  */
 class GrProcOptInfo {
 public:
-    GrProcOptInfo() { this->reset(0, kNone_GrColorComponentFlags); }
+    GrProcOptInfo() = default;
 
-    GrProcOptInfo(GrColor color, GrColorComponentFlags colorFlags) {
-        this->reset(color, colorFlags);
+    GrProcOptInfo(const GrPipelineInput& input) : GrProcOptInfo() {
+        fIsLCDCoverage = input.isLCDCoverage();
+        fIsOpaque = input.isOpaque();
+        GrColor color;
+        if (input.isConstant(&color)) {
+            fLastKnownOutputColor = GrColor4f::FromGrColor(color);
+            fProcessorsVisitedWithKnownOutput = 0;
+        }
     }
 
-    void resetToLCDCoverage(GrColor color, GrColorComponentFlags colorFlags) {
-        this->internalReset(color, colorFlags, true);
+    void resetToLCDCoverage() {
+        *this = GrProcOptInfo();
+        fIsLCDCoverage = true;
     }
 
-    void reset(GrColor color, GrColorComponentFlags colorFlags) {
-        this->internalReset(color, colorFlags, false);
-    }
-
-    void reset(const GrPipelineInput& input) {
-        this->internalReset(input.fColor, input.fValidFlags, input.fIsLCDCoverage);
-    }
+    void reset(const GrPipelineInput& input) { *this = GrProcOptInfo(input); }
 
     /**
      * Runs through a series of processors and updates calculated values. This can be called
@@ -85,25 +86,12 @@ public:
     }
 
 private:
-    void internalReset(GrColor color, GrColorComponentFlags colorFlags, bool isLCDCoverage) {
-        fTotalProcessorsVisited = 0;
-        fIsLCDCoverage = isLCDCoverage;
-        fIsOpaque = (kA_GrColorComponentFlag & colorFlags) && GrColorIsOpaque(color);
-        fAllProcessorsModulatePremul = true;
-        if (kRGBA_GrColorComponentFlags == colorFlags) {
-            fProcessorsVisitedWithKnownOutput = 0;
-            fLastKnownOutputColor = GrColor4f::FromGrColor(color);
-        } else {
-            // -1 so that we know that even without adding processors that the color is not known.
-            fProcessorsVisitedWithKnownOutput = -1;
-        }
-    }
-
-    int fTotalProcessorsVisited;
-    int fProcessorsVisitedWithKnownOutput;
-    bool fIsLCDCoverage;
-    bool fIsOpaque;
-    bool fAllProcessorsModulatePremul;
+    int fTotalProcessorsVisited = 0;
+    // negative one means even the color is unknown before adding the first processor.
+    int fProcessorsVisitedWithKnownOutput = -1;
+    bool fIsLCDCoverage = false;
+    bool fIsOpaque = false;
+    bool fAllProcessorsModulatePremul = true;
     GrColor4f fLastKnownOutputColor;
 };
 
