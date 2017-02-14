@@ -8,7 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkConfig8888.h"
+#include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImageInfoPriv.h"
 #include "SkHalf.h"
@@ -97,8 +97,8 @@ const {
 
     const void* srcPixels = this->addr(rec.fX, rec.fY);
     const SkImageInfo srcInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
-    SkPixelInfo::CopyPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels,
-                            this->rowBytes(), this->ctable());
+    SkConvertPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels, this->rowBytes(),
+                    this->ctable());
     return true;
 }
 

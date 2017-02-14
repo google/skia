@@ -30,7 +30,7 @@
 #include "GrVkTransferBuffer.h"
 #include "GrVkVertexBuffer.h"
 
-#include "SkConfig8888.h"
+#include "SkConvertPixels.h"
 #include "SkMipMap.h"
 
 #include "vk/GrVkInterface.h"

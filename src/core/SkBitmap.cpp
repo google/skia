@@ -8,7 +8,7 @@
 #include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-#include "SkConfig8888.h"
+#include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkFilterQuality.h"
 #include "SkHalf.h"
@@ -726,8 +726,8 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
 
     void* dstPixels = this->getAddr(rec.fX, rec.fY);
     const SkImageInfo dstInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
-    SkPixelInfo::CopyPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels,
-                            rec.fRowBytes, src.ctable());
+    SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes,
+                    src.ctable());
     return true;
 }
 
@@ -847,8 +847,8 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
         return false;
     }
     const SkPixmap& pmap = apl.pixmap();
-    SkPixelInfo::CopyPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                            pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable());
+    SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
+                    pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable());
     return true;
 }
 

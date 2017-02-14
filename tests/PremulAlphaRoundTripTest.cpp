@@ -6,7 +6,6 @@
  */
 
 #include "SkCanvas.h"
-#include "SkConfig8888.h"
 #include "SkSurface.h"
 #include "Test.h"
 #include "sk_tool_utils.h"

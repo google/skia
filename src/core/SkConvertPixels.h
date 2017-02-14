@@ -5,19 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkPixelInfo_DEFINED
-#define SkPixelInfo_DEFINED
+#ifndef SkConvertPixels_DEFINED
+#define SkConvertPixels_DEFINED
 
 #include "SkImageInfo.h"
 #include "SkTemplates.h"
 
 class SkColorTable;
 
-namespace SkPixelInfo {
-    void CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes,
-                    SkColorTable* srcCTable = nullptr);
-};
+void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                     const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes,
+                     SkColorTable* srcCTable = nullptr);
 
 static inline void SkRectMemcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
                                 size_t bytesPerRow, int rowCount) {

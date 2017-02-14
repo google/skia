@@ -19,7 +19,7 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureContext.h"
 
-#include "SkConfig8888.h"
+#include "SkConvertPixels.h"
 #include "SkGrPriv.h"
 #include "SkUnPreMultiplyPriv.h"
 
