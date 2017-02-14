@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfb1628e_8775ae6a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-14T18:06:41Z",
+      "side": 1,
+      "message": "Will this eventually be baked in to SKSL? If so maybe add a comment here say that.",
+      "range": {
+        "startLine": 873,
+        "startChar": 4,
+        "endLine": 873,
+        "endChar": 59
+      },
+      "revId": "81b8fd081ac311e1895b5d3dbae142131e2169e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
