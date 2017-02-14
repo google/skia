@@ -75,30 +75,14 @@ private:
 };
 #define SkAutoBlitterChoose(...) SK_REQUIRE_LOCAL_VAR(SkAutoBlitterChoose)
 
-/**
- *  Since we are providing the storage for the shader (to avoid the perf cost
- *  of calling new) we insist that in our destructor we can account for all
- *  owners of the shader.
- */
-class SkAutoBitmapShaderInstall : SkNoncopyable {
-public:
-    SkAutoBitmapShaderInstall(const SkBitmap& src, const SkPaint& paint,
-                              const SkMatrix* localMatrix = nullptr)
-            : fPaint(paint) /* makes a copy of the paint */ {
-
-        fPaint.setShader(SkMakeBitmapShader(src, SkShader::kClamp_TileMode,
-                                            SkShader::kClamp_TileMode, localMatrix,
-                                            kNever_SkCopyPixelsMode));
-    }
-
-    // return the new paint that has the shader applied
-    const SkPaint& paintWithShader() const { return fPaint; }
-
-private:
-    // copy of caller's paint (which we then modify)
-    SkPaint             fPaint;
-};
-#define SkAutoBitmapShaderInstall(...) SK_REQUIRE_LOCAL_VAR(SkAutoBitmapShaderInstall)
+static SkPaint make_paint_with_image(
+    const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
+    SkPaint paint(origPaint);
+    paint.setShader(SkMakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
+                                       SkShader::kClamp_TileMode, matrix,
+                                       kNever_SkCopyPixelsMode));
+    return paint;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1249,11 +1233,11 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
             SkPaint tmpPaint;
             tmpPaint.setFlags(paint.getFlags());
             tmpPaint.setFilterQuality(paint.getFilterQuality());
-            SkAutoBitmapShaderInstall install(bitmap, tmpPaint);
+            SkPaint paintWithShader = make_paint_with_image(tmpPaint, bitmap);
             SkRect rr;
             rr.set(0, 0, SkIntToScalar(bitmap.width()),
                    SkIntToScalar(bitmap.height()));
-            c.drawRect(rr, install.paintWithShader());
+            c.drawRect(rr, paintWithShader);
         }
         this->drawDevMask(mask, paint);
     }
@@ -1335,8 +1319,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter()) {
         draw.drawBitmapAsMask(bitmap, *paint);
     } else {
-        SkAutoBitmapShaderInstall install(bitmap, *paint);
-        const SkPaint& paintWithShader = install.paintWithShader();
+        SkPaint paintWithShader = make_paint_with_image(*paint, bitmap);
         const SkRect srcBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
         if (dstBounds) {
             this->drawRect(srcBounds, paintWithShader, &prematrix, dstBounds);
@@ -1390,15 +1373,13 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
 
     // create shader with offset
     matrix.setTranslate(r.fLeft, r.fTop);
-    SkAutoBitmapShaderInstall install(bitmap, paint, &matrix);
-    const SkPaint& shaderPaint = install.paintWithShader();
-
+    SkPaint paintWithShader = make_paint_with_image(paint, bitmap, &matrix);
     SkDraw draw(*this);
     matrix.reset();
     draw.fMatrix = &matrix;
     // call ourself with a rect
     // is this OK if paint has a rasterizer?
-    draw.drawRect(r, shaderPaint);
+    draw.drawRect(r, paintWithShader);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
