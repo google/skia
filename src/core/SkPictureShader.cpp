@@ -15,6 +15,7 @@
 #include "SkImageShader.h"
 #include "SkMatrixUtils.h"
 #include "SkPicture.h"
+#include "SkPictureImageGenerator.h"
 #include "SkReadBuffer.h"
 #include "SkResourceCache.h"
 
@@ -226,9 +227,9 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
         tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
                                  SkMatrix::kFill_ScaleToFit);
 
-        sk_sp<SkImage> tileImage(
-            SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix, nullptr,
-                                     SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
+        sk_sp<SkImage> tileImage = SkImage::MakeFromGenerator(
+                SkPictureImageGenerator::Create(tileSize, fPicture.get(), &tileMatrix, nullptr,
+                                                SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
         if (!tileImage) {
             return nullptr;
         }
