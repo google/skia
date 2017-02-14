@@ -32,9 +32,23 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     , fSurfaceProps(surfaceProps)
 {
     fOrigin.setZero();
+    fCTM.reset();
 }
 
 SkBaseDevice::~SkBaseDevice() {}
+
+void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
+    fOrigin.set(x, y);
+    fCTM = globalCTM;
+    fCTM.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+}
+
+void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
+    fCTM = ctm;
+    if (fOrigin.fX | fOrigin.fY) {
+        fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+    }
+}
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
                                                          TileUsage tileUsage,
@@ -519,6 +533,10 @@ void SkBaseDevice::drawTextRSXform(const SkDraw& draw, const void* text, size_t 
         localM.setRSXform(*xform++);
         currM.setConcat(*draw.fMatrix, localM);
         localD.fMatrix = &currM;
+#ifdef SK_USE_DEVICE_CLIPPING
+        SkAutoDeviceCTMRestore adc(this, currM);
+#endif
+
         int subLen = proc((const char*)text);
         this->drawText(localD, text, subLen, 0, 0, paint);
         text = (const char*)text + subLen;
