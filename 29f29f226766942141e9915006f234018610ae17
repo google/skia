@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d44b572_73eeef7f",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-14T21:05:24Z",
+      "side": 1,
+      "message": "call the other version of CreateSamplerManager() here instead?",
+      "range": {
+        "startLine": 35,
+        "startChar": 15,
+        "endLine": 35,
+        "endChar": 39
+      },
+      "revId": "29f29f226766942141e9915006f234018610ae17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "675470c1_d6b62f56",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-14T21:05:24Z",
+      "side": 1,
+      "message": "Nice, this is a lot cleaner.",
+      "range": {
+        "startLine": 280,
+        "startChar": 8,
+        "endLine": 280,
+        "endChar": 37
+      },
+      "revId": "29f29f226766942141e9915006f234018610ae17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d3bae6d_688160ad",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-14T21:05:24Z",
+      "side": 1,
+      "message": "Can\u0027t be kVertex_GrShaderFlag | kGeometry_GrShaderFlag?",
+      "range": {
+        "startLine": 204,
+        "startChar": 33,
+        "endLine": 204,
+        "endChar": 44
+      },
+      "revId": "29f29f226766942141e9915006f234018610ae17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
