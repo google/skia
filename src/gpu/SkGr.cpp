@@ -6,6 +6,7 @@
  */
 
 #include "SkGr.h"
+
 #include "SkGrPriv.h"
 
 #include "GrBitmapTextureMaker.h"
@@ -22,7 +23,7 @@
 #include "SkBlendModePriv.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkConfig8888.h"
+#include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImageInfoPriv.h"
 #include "SkMaskFilter.h"
