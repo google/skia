@@ -260,29 +260,29 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         this->makePaths();
 
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    SkRandom rand;
-    canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        SkRandom rand;
+        canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
 
-    // As we've added more paths this has gotten pretty big. Scale the whole thing down.
-    canvas->scale(2 * SK_Scalar1 / 3, 2 * SK_Scalar1 / 3);
+        // As we've added more paths this has gotten pretty big. Scale the whole thing down.
+        canvas->scale(2 * SK_Scalar1 / 3, 2 * SK_Scalar1 / 3);
 
-    for (int i = 0; i < fPaths.count(); ++i) {
-        canvas->save();
-        // position the path, and make it at off-integer coords.
-        canvas->translate(SK_Scalar1 * 200 * (i % 5) + SK_Scalar1 / 10,
-                          SK_Scalar1 * 200 * (i / 5) + 9 * SK_Scalar1 / 10);
-        SkColor color = rand.nextU();
-        color |= 0xff000000;
-        paint.setColor(color);
-#if 0 // This hitting on 32bit Linux builds for some paths. Temporarily disabling while it is
-      // debugged.
-        SkASSERT(fPaths[i].isConvex());
+        for (int i = 0; i < fPaths.count(); ++i) {
+            canvas->save();
+            // position the path, and make it at off-integer coords.
+            canvas->translate(SK_Scalar1 * 200 * (i % 5) + SK_Scalar1 / 10,
+                              SK_Scalar1 * 200 * (i / 5) + 9 * SK_Scalar1 / 10);
+            SkColor color = rand.nextU();
+            color |= 0xff000000;
+            paint.setColor(color);
+#if 0       // This hitting on 32bit Linux builds for some paths. Temporarily disabling while it is
+            // debugged.
+            SkASSERT(fPaths[i].isConvex());
 #endif
-        canvas->drawPath(fPaths[i], paint);
-        canvas->restore();
-    }
+            canvas->drawPath(fPaths[i], paint);
+            canvas->restore();
+        }
     }
 
 private:
