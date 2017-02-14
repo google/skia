@@ -75,7 +75,11 @@ def parse_object_file(dot_o, array_type, jump, ret, target=None):
       inst = columns[2]
       args = columns[3]
     else:
-      inst, args = columns[2].split(' ', 1)
+      #print >>sys.stderr, columns[2], ' ' in columns[2]
+      if ' ' in columns[2]:
+        inst, args = columns[2].split(' ', 1)
+      else:
+        inst, args = columns[2], ''
     code, inst, args = code.strip(), inst.strip(), args.strip()
 
     # We can't splice code that uses ip-relative addressing.

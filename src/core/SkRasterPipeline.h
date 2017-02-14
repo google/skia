@@ -133,6 +133,7 @@ public:
 
 private:
     std::function<void(size_t, size_t)> jit() const;
+    void interpret(size_t, size_t) const;
 
     std::vector<Stage> fStages;
 };

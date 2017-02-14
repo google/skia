@@ -490,3 +490,23 @@ STAGE(linear_gradient_2stops) {
     b = fma(t, c.dc[2], c.c0[2]);
     a = fma(t, c.dc[3], c.c0[3]);
 }
+
+#if defined(__SSE2__)
+
+C void interpreter_loop(size_t x, size_t limit, void* vstages, K* k) {
+    struct Stage {
+        void (*fn)(size_t, size_t, void*, K*);
+        void* ctx;
+    };
+
+    do {
+        auto stages = (Stage*)vstages;
+        while (stages->fn) {
+            stages->fn(x,limit,stages->ctx,k);
+            stages++;
+        }
+        x += sizeof(F) / sizeof(float);
+    } while (x < limit);
+}
+
+#endif

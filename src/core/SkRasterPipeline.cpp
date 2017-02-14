@@ -22,6 +22,9 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 
 void SkRasterPipeline::run(size_t x, size_t n) const {
     if (!fStages.empty()) {
+#ifdef SK_RASTER_PIPELINE_HAS_JIT
+        return this->interpret(x, n);
+#endif
         SkOpts::run_pipeline(x,n, fStages.data(), SkToInt(fStages.size()));
     }
 }

@@ -1532,6 +1532,44 @@ static const unsigned char sse2_linear_gradient_2stops[] = {
     0x41,0x0f,0x28,0xc0,                        //  movaps        %xmm8,%xmm0
     0xc3,                                       //  return
 };
+static const unsigned char sse2_interpreter_loop[] = {
+    0x55,                                       //  push          %rbp
+    0x41,0x57,                                  //  push          %r15
+    0x41,0x56,                                  //  push          %r14
+    0x41,0x55,                                  //  push          %r13
+    0x41,0x54,                                  //  push          %r12
+    0x53,                                       //  push          %rbx
+    0x50,                                       //  push          %rax
+    0x49,0x89,0xcf,                             //  mov           %rcx,%r15
+    0x49,0x89,0xd6,                             //  mov           %rdx,%r14
+    0x49,0x89,0xf4,                             //  mov           %rsi,%r12
+    0x48,0x89,0xfb,                             //  mov           %rdi,%rbx
+    0x4d,0x8d,0x6e,0x10,                        //  lea           0x10(%r14),%r13
+    0x49,0x8b,0x06,                             //  mov           (%r14),%rax
+    0x48,0x85,0xc0,                             //  test          %rax,%rax
+    0x4c,0x89,0xed,                             //  mov           %r13,%rbp
+    0x74,0x1c,                                  //  je            932 <_interpreter_loop+0x42>
+    0x48,0x8b,0x55,0xf8,                        //  mov           -0x8(%rbp),%rdx
+    0x48,0x89,0xdf,                             //  mov           %rbx,%rdi
+    0x4c,0x89,0xe6,                             //  mov           %r12,%rsi
+    0x4c,0x89,0xf9,                             //  mov           %r15,%rcx
+    0xff,0xd0,                                  //  callq         *%rax
+    0x48,0x8b,0x45,0x00,                        //  mov           0x0(%rbp),%rax
+    0x48,0x83,0xc5,0x10,                        //  add           $0x10,%rbp
+    0x48,0x85,0xc0,                             //  test          %rax,%rax
+    0x75,0xe4,                                  //  jne           916 <_interpreter_loop+0x26>
+    0x48,0x83,0xc3,0x04,                        //  add           $0x4,%rbx
+    0x4c,0x39,0xe3,                             //  cmp           %r12,%rbx
+    0x72,0xd0,                                  //  jb            90b <_interpreter_loop+0x1b>
+    0x48,0x83,0xc4,0x08,                        //  add           $0x8,%rsp
+    0x5b,                                       //  pop           %rbx
+    0x41,0x5c,                                  //  pop           %r12
+    0x41,0x5d,                                  //  pop           %r13
+    0x41,0x5e,                                  //  pop           %r14
+    0x41,0x5f,                                  //  pop           %r15
+    0x5d,                                       //  pop           %rbp
+    0xc3,                                       //  retq
+};
 static const unsigned char hsw_inc_x[] = {
     0x48,0x83,0xc7,0x08,                        //  add           $0x8,%rdi
     0xc3,                                       //  return
@@ -1924,5 +1962,42 @@ static const unsigned char hsw_linear_gradient_2stops[] = {
     0xc4,0xc2,0x7d,0xb8,0xd9,                   //  vfmadd231ps   %ymm9,%ymm0,%ymm3
     0xc5,0x7c,0x29,0xc0,                        //  vmovaps       %ymm8,%ymm0
     0xc3,                                       //  return
+};
+static const unsigned char hsw_interpreter_loop[] = {
+    0x55,                                       //  push          %rbp
+    0x41,0x57,                                  //  push          %r15
+    0x41,0x56,                                  //  push          %r14
+    0x41,0x55,                                  //  push          %r13
+    0x41,0x54,                                  //  push          %r12
+    0x53,                                       //  push          %rbx
+    0x50,                                       //  push          %rax
+    0x49,0x89,0xcf,                             //  mov           %rcx,%r15
+    0x49,0x89,0xd6,                             //  mov           %rdx,%r14
+    0x49,0x89,0xf4,                             //  mov           %rsi,%r12
+    0x48,0x89,0xfb,                             //  mov           %rdi,%rbx
+    0x4d,0x8d,0x6e,0x10,                        //  lea           0x10(%r14),%r13
+    0x49,0x8b,0x06,                             //  mov           (%r14),%rax
+    0x4c,0x89,0xed,                             //  mov           %r13,%rbp
+    0xeb,0x17,                                  //  jmp           6a4 <_interpreter_loop+0x3a>
+    0x48,0x8b,0x55,0xf8,                        //  mov           -0x8(%rbp),%rdx
+    0x48,0x89,0xdf,                             //  mov           %rbx,%rdi
+    0x4c,0x89,0xe6,                             //  mov           %r12,%rsi
+    0x4c,0x89,0xf9,                             //  mov           %r15,%rcx
+    0xff,0xd0,                                  //  callq         *%rax
+    0x48,0x8b,0x45,0x00,                        //  mov           0x0(%rbp),%rax
+    0x48,0x83,0xc5,0x10,                        //  add           $0x10,%rbp
+    0x48,0x85,0xc0,                             //  test          %rax,%rax
+    0x75,0xe4,                                  //  jne           68d <_interpreter_loop+0x23>
+    0x48,0x83,0xc3,0x08,                        //  add           $0x8,%rbx
+    0x4c,0x39,0xe3,                             //  cmp           %r12,%rbx
+    0x72,0xd3,                                  //  jb            685 <_interpreter_loop+0x1b>
+    0x48,0x83,0xc4,0x08,                        //  add           $0x8,%rsp
+    0x5b,                                       //  pop           %rbx
+    0x41,0x5c,                                  //  pop           %r12
+    0x41,0x5d,                                  //  pop           %r13
+    0x41,0x5e,                                  //  pop           %r14
+    0x41,0x5f,                                  //  pop           %r15
+    0x5d,                                       //  pop           %rbp
+    0xc3,                                       //  retq
 };
 #endif//SkSplicer_generated_DEFINED

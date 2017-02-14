@@ -403,3 +403,67 @@ namespace {
 std::function<void(size_t, size_t)> SkRasterPipeline::jit() const {
     return Spliced(fStages.data(), SkToInt(fStages.size()));
 }
+
+void SkRasterPipeline::interpret(size_t x, size_t n) const {
+    auto backup_plan = [&] {
+        //SkDebugf("calling backup plan (%zu %zu %p %d)\n",
+        //         x,n, fStages.data(), SkToInt(fStages.size()));
+        SkOpts::run_pipeline(x,n, fStages.data(), SkToInt(fStages.size()));
+    };
+
+    struct { void* fn; void* ctx; } stackStages[128];
+
+    if (fStages.size() >= SK_ARRAY_COUNT(stackStages)) {
+        return backup_plan();
+    }
+
+#if defined(__SSE2__)
+    for (size_t i = 0; i < fStages.size(); i++) {
+        stackStages[i].ctx = fStages[i].ctx;
+        switch (fStages[i].stage) {
+            default: return backup_plan();
+        #define CASE(st) case SkRasterPipeline::st: stackStages[i].fn = (void*)sse2_##st; break
+            CASE(seed_shader);
+            CASE(constant_color);
+            CASE(clear);
+            CASE(plus_);
+            CASE(srcover);
+            CASE(dstover);
+            CASE(clamp_0);
+            CASE(clamp_1);
+            CASE(clamp_a);
+            CASE(swap);
+            CASE(move_src_dst);
+            CASE(move_dst_src);
+            CASE(premul);
+            CASE(unpremul);
+            CASE(from_srgb);
+            CASE(to_srgb);
+            CASE(scale_u8);
+            CASE(load_tables);
+            CASE(load_8888);
+            CASE(store_8888);
+            CASE(load_f16);
+            CASE(store_f16);
+            CASE(matrix_2x3);
+            CASE(matrix_3x4);
+            CASE(clamp_x);
+            CASE(clamp_y);
+            CASE(linear_gradient_2stops);
+        #undef CASE
+        }
+    }
+    stackStages[fStages.size()].fn = nullptr;
+
+    auto interpreter_loop = (void(*)(size_t, size_t, void*, const SkSplicer_constants*))
+        sse2_interpreter_loop;
+
+    size_t body = n/kStride*kStride;
+    if (body) {
+        interpreter_loop(x, x+body, stackStages, &kConstants);
+        x += body;
+        n -= body;
+    }
+#endif
+    return backup_plan();
+}
