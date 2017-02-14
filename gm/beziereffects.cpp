@@ -145,8 +145,8 @@ protected:
                 if (!gp) {
                     continue;
                 }
-                SkScalar x = SkScalarMul(col, w);
-                SkScalar y = SkScalarMul(row, h);
+                SkScalar x = col * w;
+                SkScalar y = row * h;
                 SkPoint controlPts[] = {
                     {x + baseControlPts[0].fX, y + baseControlPts[0].fY},
                     {x + baseControlPts[1].fX, y + baseControlPts[1].fY},
@@ -281,8 +281,8 @@ protected:
                     continue;
                 }
 
-                SkScalar x = SkScalarMul(col, w);
-                SkScalar y = SkScalarMul(row, h);
+                SkScalar x = col * w;
+                SkScalar y = row * h;
                 SkPoint controlPts[] = {
                     {x + baseControlPts[0].fX, y + baseControlPts[0].fY},
                     {x + baseControlPts[1].fX, y + baseControlPts[1].fY},
@@ -498,8 +498,8 @@ protected:
                     continue;
                 }
 
-                SkScalar x = SkScalarMul(col, w);
-                SkScalar y = SkScalarMul(row, h);
+                SkScalar x = col * w;
+                SkScalar y = row * h;
                 SkPoint controlPts[] = {
                     {x + baseControlPts[0].fX, y + baseControlPts[0].fY},
                     {x + baseControlPts[1].fX, y + baseControlPts[1].fY},

@@ -272,10 +272,8 @@ public:
         SkRandom rand (12);
         int i;
         for (i = 0; i < 100; i++) {
-            path->quadTo(SkScalarMul(rand.nextUScalar1(), SkIntToScalar(640)),
-                         SkScalarMul(rand.nextUScalar1(), SkIntToScalar(480)),
-                         SkScalarMul(rand.nextUScalar1(), SkIntToScalar(640)),
-                         SkScalarMul(rand.nextUScalar1(), SkIntToScalar(480)));
+            path->quadTo(rand.nextUScalar1() * 640, rand.nextUScalar1() * 480,
+                         rand.nextUScalar1() * 640, rand.nextUScalar1() * 480);
         }
         path->close();
     }

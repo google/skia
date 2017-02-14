@@ -37,11 +37,10 @@ protected:
     static SkPoint3 GetDistantDirection() {
         static SkScalar azimuthRad = SkDegreesToRadians(SkIntToScalar(225));
         static SkScalar elevationRad = SkDegreesToRadians(SkIntToScalar(5));
-        static SkPoint3 distantDirection = SkPoint3::Make(SkScalarMul(SkScalarCos(azimuthRad),
-                                                                      SkScalarCos(elevationRad)),
-                                                          SkScalarMul(SkScalarSin(azimuthRad),
-                                                                      SkScalarCos(elevationRad)),
-                                                          SkScalarSin(elevationRad));
+        static SkPoint3 distantDirection = SkPoint3::Make(
+                                              SkScalarCos(azimuthRad) * SkScalarCos(elevationRad),
+                                              SkScalarSin(azimuthRad) * SkScalarCos(elevationRad),
+                                              SkScalarSin(elevationRad));
         return distantDirection;
     }
 

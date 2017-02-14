@@ -73,10 +73,8 @@ protected:
                                                 SkIntToScalar(10));
         SkScalar elevationRad = SkDegreesToRadians(SkIntToScalar(5));
 
-        SkPoint3 distantDirection = SkPoint3::Make(SkScalarMul(cosAzimuth,
-                                                               SkScalarCos(elevationRad)),
-                                                   SkScalarMul(sinAzimuth,
-                                                               SkScalarCos(elevationRad)),
+        SkPoint3 distantDirection = SkPoint3::Make(cosAzimuth * SkScalarCos(elevationRad),
+                                                   sinAzimuth * SkScalarCos(elevationRad),
                                                    SkScalarSin(elevationRad));
         SkScalar cutoffAngle = SkIntToScalar(15);
         SkScalar kd = SkIntToScalar(2);

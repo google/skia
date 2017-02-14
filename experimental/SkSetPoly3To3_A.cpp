@@ -32,10 +32,10 @@ static void computeOuterProduct(SkScalar op[4],
         SkScalar y0 = pts0[i].fY - ave0.fY;
         SkScalar x1 = pts1[i].fX - ave1.fX;
         SkScalar y1 = pts1[i].fY - ave1.fY;
-        op[0] += SkScalarMul(x0, x1);
-        op[1] += SkScalarMul(x0, y1);
-        op[2] += SkScalarMul(y0, x1);
-        op[3] += SkScalarMul(y0, y1);
+        op[0] += x0 * x1;
+        op[1] += x0 * y1;
+        op[2] += y0 * x1;
+        op[3] += y0 * y1;
     }
 }
 
