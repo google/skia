@@ -80,17 +80,9 @@ public:
     }
 
     /**
-     * Returns true if the pipeline's color output will be affected by the existing render target
-     * destination pixel values (meaning we need to be careful with overlapping draws). Note that we
-     * can conflate coverage and color, so the destination color may still bleed into pixels that
-     * have partial coverage, even if this function returns false.
-     *
-     * The above comment seems incorrect for the use case. This function is used to turn two
-     * overlapping draws into a single draw (really to stencil multiple paths and do a single
-     * cover). It seems that what really matters is whether the dst is read for color OR for
-     * coverage.
+     * Returns true if the color written to the output pixel depends on the pixels previous value.
      */
-    bool willColorBlendWithDst() const { return SkToBool(kWillColorBlendWithDst_Flag & fFlags); }
+    bool xpReadsDst() const { return SkToBool(kXPReadsDst_Flag & fFlags); }
 
 private:
     enum {
@@ -105,7 +97,7 @@ private:
         // output color. If not set fOverrideColor is to be ignored.
         kUseOverrideColor_Flag = 0x4,
 
-        kWillColorBlendWithDst_Flag = 0x8,
+        kXPReadsDst_Flag = 0x8,
     };
 
     uint32_t    fFlags;

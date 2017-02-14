@@ -23,10 +23,6 @@ class GrPorterDuffXPFactory : public GrXPFactory {
 public:
     static const GrXPFactory* Get(SkBlendMode blendMode);
 
-    void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
-                                  GrXPFactory::InvariantBlendedColor*) const override;
-
-
     /** Because src-over is so common we special case it for performance reasons. If this returns
         null then the SimpleSrcOverXP() below should be used. */
     static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
@@ -41,20 +37,25 @@ public:
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static void SrcOverInvariantBlendedColor(const GrProcOptInfo&,
-                                             GrXPFactory::InvariantBlendedColor*);
+    static bool WillSrcOverReadDst(const GrProcOptInfo& colorInput,
+                                   const GrProcOptInfo& coverageInput);
+    static bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
+                                                         GrColor* color);
 
     static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
+    bool isPreCoverageBlendedColorConstant(const GrProcOptInfo&, GrColor*) const override;
+    bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override;
+
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstColor(const GrCaps&, ColorType, CoverageType) const override;
+    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);
