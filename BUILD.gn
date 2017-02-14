@@ -67,7 +67,6 @@ skia_public_includes = [
   "include/svg",
   "include/utils",
   "include/utils/mac",
-  "include/xml",
 ]
 
 # Skia public API, generally provided by :skia.
@@ -112,6 +111,7 @@ config("skia_private") {
     "src/sksl",
     "src/utils",
     "src/utils/win",
+    "src/xml",
     "third_party/etc1",
     "third_party/gif",
     "third_party/ktx",

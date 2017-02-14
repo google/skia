@@ -20,7 +20,7 @@ class SkDOMParser;
 class SkStream;
 class SkXMLParser;
 
-class SK_API SkDOM : public SkNoncopyable {
+class SkDOM : public SkNoncopyable {
 public:
     SkDOM();
     ~SkDOM();
