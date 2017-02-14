@@ -25,6 +25,10 @@ static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& src
         return false;
     }
 
+    if (kAlpha_8_SkColorType == dstInfo.colorType()) {
+        return true;
+    }
+
     if (dstInfo.alphaType() != srcInfo.alphaType() &&
         kOpaque_SkAlphaType != dstInfo.alphaType() &&
         kOpaque_SkAlphaType != srcInfo.alphaType())
@@ -85,7 +89,7 @@ void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
 }
 
 // Default: Use the pipeline.
-static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
+static void copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
                                  const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
                                  bool isColorAware) {
     SkRasterPipeline pipeline;
@@ -106,8 +110,12 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
         case kGray_8_SkColorType:
             pipeline.append(SkRasterPipeline::load_g8, &srcRow);
             break;
+        case kARGB_4444_SkColorType:
+            pipeline.append(SkRasterPipeline::load_4444, &srcRow);
+            break;
         default:
-            return false;
+            SkASSERT(false);
+            break;
     }
 
     if (isColorAware && srcInfo.gammaCloseToSRGB()) {
@@ -146,8 +154,15 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::store_f16, &dstRow);
             break;
+        case kAlpha_8_SkColorType:
+            pipeline.append(SkRasterPipeline::store_a8, &dstRow);
+            break;
+        case kARGB_4444_SkColorType:
+            pipeline.append(SkRasterPipeline::store_4444, &dstRow);
+            break;
         default:
-            return false;
+            SkASSERT(false);
+            break;
     }
 
     auto p = pipeline.compile();
@@ -159,67 +174,9 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
         dstRow = SkTAddOffset<void>(dstRow, dstRB);
         srcRow = SkTAddOffset<const void>(srcRow, srcRB);
     }
-    return true;
 }
 
-static bool extract_alpha(void* dst, size_t dstRB, const void* src, size_t srcRB,
-                          const SkImageInfo& srcInfo, SkColorTable* ctable) {
-    uint8_t* SK_RESTRICT dst8 = (uint8_t*)dst;
-
-    const int w = srcInfo.width();
-    const int h = srcInfo.height();
-    if (srcInfo.isOpaque()) {
-        // src is opaque, so just fill alpha with 0xFF
-        for (int y = 0; y < h; ++y) {
-           memset(dst8, 0xFF, w);
-           dst8 += dstRB;
-        }
-        return true;
-    }
-    switch (srcInfo.colorType()) {
-        case kN32_SkColorType: {
-            const SkPMColor* SK_RESTRICT src32 = (const SkPMColor*)src;
-            for (int y = 0; y < h; ++y) {
-                for (int x = 0; x < w; ++x) {
-                    dst8[x] = SkGetPackedA32(src32[x]);
-                }
-                dst8 += dstRB;
-                src32 = (const SkPMColor*)((const char*)src32 + srcRB);
-            }
-            break;
-        }
-        case kARGB_4444_SkColorType: {
-            const SkPMColor16* SK_RESTRICT src16 = (const SkPMColor16*)src;
-            for (int y = 0; y < h; ++y) {
-                for (int x = 0; x < w; ++x) {
-                    dst8[x] = SkPacked4444ToA32(src16[x]);
-                }
-                dst8 += dstRB;
-                src16 = (const SkPMColor16*)((const char*)src16 + srcRB);
-            }
-            break;
-        }
-        case kIndex_8_SkColorType: {
-            if (nullptr == ctable) {
-                return false;
-            }
-            const SkPMColor* SK_RESTRICT table = ctable->readColors();
-            const uint8_t* SK_RESTRICT src8 = (const uint8_t*)src;
-            for (int y = 0; y < h; ++y) {
-                for (int x = 0; x < w; ++x) {
-                    dst8[x] = SkGetPackedA32(table[src8[x]]);
-                }
-                dst8 += dstRB;
-                src8 += srcRB;
-            }
-            break;
-        }
-        default:
-            return false;
-    }
-    return true;
-}
-
+// Fast Path 3: Color space xform.
 static inline bool optimized_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
     if (kUnpremul_SkAlphaType == dstInfo.alphaType() && kPremul_SkAlphaType == srcInfo.alphaType())
     {
@@ -287,19 +244,61 @@ static inline void apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
     }
 }
 
-bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+// Fast Path 4: Index 8 sources.
+template <typename T>
+void do_index8(const SkImageInfo& dstInfo, T* dstPixels, size_t dstRB,
+               const SkImageInfo& srcInfo, const uint8_t* srcPixels, size_t srcRB,
+               SkColorTable* ctable) {
+    T dstCTable[256];
+    int count = ctable->count();
+    SkImageInfo srcInfo8888 = srcInfo.makeColorType(kN32_SkColorType).makeWH(count, 1);
+    SkImageInfo dstInfoCT = dstInfo.makeWH(count, 1);
+    size_t rowBytes = count * sizeof(T);
+    SkPixelInfo::CopyPixels(dstInfoCT, dstCTable, rowBytes, srcInfo8888, ctable->readColors(),
+                            rowBytes, nullptr);
+
+    for (int y = 0; y < dstInfo.height(); y++) {
+        for (int x = 0; x < dstInfo.width(); x++) {
+            dstPixels[x] = dstCTable[srcPixels[x]];
+        }
+        dstPixels = SkTAddOffset<T>(dstPixels, dstRB);
+        srcPixels = SkTAddOffset<const uint8_t>(srcPixels, srcRB);
+    }
+}
+
+void xform_from_index8(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+                       const SkImageInfo& srcInfo, const uint8_t* srcPixels, size_t srcRB,
+                       SkColorTable* ctable) {
+    switch (dstInfo.colorType()) {
+        case kAlpha_8_SkColorType:
+            do_index8(dstInfo, (uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable);
+            break;
+        case kRGB_565_SkColorType:
+        case kARGB_4444_SkColorType:
+            do_index8(dstInfo, (uint16_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable);
+            break;
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            do_index8(dstInfo, (uint32_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable);
+            break;
+        case kRGBA_F16_SkColorType:
+            do_index8(dstInfo, (uint64_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable);
+            break;
+        default:
+            SkASSERT(false);
+    }
+}
+
+void SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                              const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
                              SkColorTable* ctable) {
     SkASSERT(dstInfo.dimensions() == srcInfo.dimensions());
     SkASSERT(SkImageInfoValidConversion(dstInfo, srcInfo));
 
-    const int width = srcInfo.width();
-    const int height = srcInfo.height();
-
     // Fast Path 1: The memcpy() case.
     if (can_memcpy(dstInfo, srcInfo)) {
         SkRectMemcpy(dstPixels, dstRB, srcPixels, srcRB, dstInfo.minRowBytes(), dstInfo.height());
-        return true;
+        return;
     }
 
     const bool isColorAware = dstInfo.colorSpace();
@@ -308,88 +307,23 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
     // Fast Path 2: Simple swizzles and premuls.
     if (4 == srcInfo.bytesPerPixel() && 4 == dstInfo.bytesPerPixel() && !isColorAware) {
         swizzle_and_multiply(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
-        return true;
+        return;
     }
 
+    // Fast Path 3: Color space xform.
     if (isColorAware && optimized_color_xform(dstInfo, srcInfo)) {
         apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
-        return true;
+        return;
     }
 
-    /*
-     *  Begin section where we try to change colorTypes along the way. Not all combinations
-     *  are supported.
-     */
-
-    if (kAlpha_8_SkColorType == dstInfo.colorType() &&
-        extract_alpha(dstPixels, dstRB, srcPixels, srcRB, srcInfo, ctable)) {
-        return true;
+    // Fast Path 4: Index 8 sources.
+    if (kIndex_8_SkColorType == srcInfo.colorType()) {
+        SkASSERT(ctable);
+        xform_from_index8(dstInfo, dstPixels, dstRB, srcInfo, (const uint8_t*) srcPixels, srcRB,
+                          ctable);
+        return;
     }
 
-    //  Try the pipeline
-    //
-    if (copy_pipeline_pixels(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, isColorAware)) {
-        return true;
-    }
-
-    // Can no longer draw directly into 4444, but we can manually whack it for a few combinations
-    if (kARGB_4444_SkColorType == dstInfo.colorType() &&
-        (kN32_SkColorType == srcInfo.colorType() || kIndex_8_SkColorType == srcInfo.colorType())) {
-        if (srcInfo.alphaType() == kUnpremul_SkAlphaType) {
-            // Our method for converting to 4444 assumes premultiplied.
-            return false;
-        }
-
-        const SkPMColor* table = nullptr;
-        if (kIndex_8_SkColorType == srcInfo.colorType()) {
-            SkASSERT(ctable);
-            table = ctable->readColors();
-        }
-
-        for (int y = 0; y < height; ++y) {
-            DITHER_4444_SCAN(y);
-            SkPMColor16* SK_RESTRICT dstRow = (SkPMColor16*)dstPixels;
-            if (table) {
-                const uint8_t* SK_RESTRICT srcRow = (const uint8_t*)srcPixels;
-                for (int x = 0; x < width; ++x) {
-                    dstRow[x] = SkDitherARGB32To4444(table[srcRow[x]], DITHER_VALUE(x));
-                }
-            } else {
-                const SkPMColor* SK_RESTRICT srcRow = (const SkPMColor*)srcPixels;
-                for (int x = 0; x < width; ++x) {
-                    dstRow[x] = SkDitherARGB32To4444(srcRow[x], DITHER_VALUE(x));
-                }
-            }
-            dstPixels = (char*)dstPixels + dstRB;
-            srcPixels = (const char*)srcPixels + srcRB;
-        }
-        return true;
-    }
-
-    if (dstInfo.alphaType() == kUnpremul_SkAlphaType) {
-        // We do not support drawing to unpremultiplied bitmaps.
-        return false;
-    }
-
-    // Final fall-back, draw with a canvas
-    //
-    // Always clear the dest in case one of the blitters accesses it
-    // TODO: switch the allocation of tmpDst to call sk_calloc_throw
-    {
-        SkBitmap bm;
-        if (!bm.installPixels(srcInfo, const_cast<void*>(srcPixels), srcRB, ctable, nullptr, nullptr)) {
-            return false;
-        }
-        std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(dstInfo, dstPixels, dstRB);
-        if (!canvas) {
-            return false;
-        }
-
-        SkPaint  paint;
-        paint.setDither(true);
-
-        canvas->clear(0);
-        canvas->drawBitmap(bm, 0, 0, &paint);
-        return true;
-    }
+    // Default: Use the pipeline.
+    copy_pipeline_pixels(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, isColorAware);
 }

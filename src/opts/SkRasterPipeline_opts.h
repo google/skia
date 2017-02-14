@@ -538,6 +538,17 @@ STAGE_CTX(store_565, uint16_t**) {
                                    | SkNf_round(b, SK_B16_MASK) << SK_B16_SHIFT), ptr);
 }
 
+STAGE_CTX(load_4444, const uint16_t**) {
+    auto ptr = *ctx + x;
+    from_4444(load(tail, ptr), &r,&g,&b,&a);
+}
+STAGE_CTX(store_4444, uint16_t**) {
+    auto ptr = *ctx + x;
+    store(tail, SkNx_cast<uint16_t>( SkNf_round(r, 0xF) << SK_R4444_SHIFT
+                                   | SkNf_round(g, 0xF) << SK_G4444_SHIFT
+                                   | SkNf_round(b, 0xF) << SK_B4444_SHIFT
+                                   | SkNf_round(a, 0xF) << SK_A4444_SHIFT), ptr);
+}
 
 STAGE_CTX(load_f16, const uint64_t**) {
     auto ptr = *ctx + x;

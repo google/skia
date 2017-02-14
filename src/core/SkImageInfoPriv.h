@@ -19,6 +19,11 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
         return false;
     }
 
+    const int kMaxDimension = SK_MaxS32 >> 2;
+    if (info.width() > kMaxDimension || info.height() > kMaxDimension) {
+        return false;
+    }
+
     if (kUnknown_SkColorType == info.colorType() || kUnknown_SkAlphaType == info.alphaType()) {
         return false;
     }
@@ -44,8 +49,8 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
 /**
  *  Returns true if Skia has defined a pixel conversion from the |src| to the |dst|.
  *  Returns false otherwise.  Some discussion of false cases:
- *      We will not convert to kIndex8 when the |src| is not kIndex8 in the same color space
- *      (color tables are immutable).
+ *      We will not convert to kIndex8 unless it exactly matches the src, since color tables
+ *      are immutable.
  *      We do not convert to kGray8 when the |src| is not kGray8 in the same color space.
  *      We may add this feature - it just requires some work to convert to luminance while
  *      handling color spaces correctly.  Currently no one is asking for this.
@@ -64,16 +69,30 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
         return false;
     }
 
-    if (kIndex_8_SkColorType == dst.colorType() && kIndex_8_SkColorType != src.colorType() &&
-        dst.colorSpace() && !SkColorSpace::Equals(dst.colorSpace(), src.colorSpace()))
-    {
-        return false;
+    if (kIndex_8_SkColorType == dst.colorType()) {
+        if (kIndex_8_SkColorType != src.colorType()) {
+            return false;
+        }
+
+        if ((kPremul_SkAlphaType == dst.alphaType() && kUnpremul_SkAlphaType == src.alphaType()) ||
+            (kUnpremul_SkAlphaType == dst.alphaType() && kPremul_SkAlphaType == src.alphaType()))
+        {
+            return false;
+        }
+
+        if (dst.colorSpace() && !SkColorSpace::Equals(dst.colorSpace(), src.colorSpace())) {
+            return false;
+        }
     }
 
-    if (kGray_8_SkColorType == dst.colorType() && kGray_8_SkColorType != src.colorType() &&
-        dst.colorSpace() && !SkColorSpace::Equals(dst.colorSpace(), src.colorSpace()))
-    {
-        return false;
+    if (kGray_8_SkColorType == dst.colorType()) {
+        if (kGray_8_SkColorType != src.colorType()) {
+            return false;
+        }
+
+        if (dst.colorSpace() && !SkColorSpace::Equals(dst.colorSpace(), src.colorSpace())) {
+            return false;
+        }
     }
 
     if (kAlpha_8_SkColorType != dst.colorType() && kAlpha_8_SkColorType == src.colorType()) {
