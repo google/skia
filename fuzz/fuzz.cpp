@@ -13,6 +13,7 @@
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
+#include "SkMD5.h"
 #include "SkPath.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -40,11 +41,12 @@ static int fuzz_file(const char* path);
 static uint8_t calculate_option(SkData*);
 
 static void fuzz_api(sk_sp<SkData>);
-static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
-static void fuzz_skp(sk_sp<SkData>);
-static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_color_deserialize(sk_sp<SkData>);
+static void fuzz_icc(sk_sp<SkData>);
+static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
+static void fuzz_md5(sk_sp<SkData>);
 static void fuzz_path_deserialize(sk_sp<SkData>);
+static void fuzz_skp(sk_sp<SkData>);
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
@@ -98,6 +100,10 @@ static int fuzz_file(const char* path) {
         }
         if (0 == strcmp("image_mode", FLAGS_type[0])) {
             fuzz_img(bytes, 0, option);
+            return 0;
+        }
+        if (0 == strcmp("md5", FLAGS_type[0])) {
+            fuzz_md5(bytes);
             return 0;
         }
         if (0 == strcmp("path_deserialize", FLAGS_type[0])) {
@@ -465,6 +471,17 @@ static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
         return;
     }
     SkDebugf("[terminated] Success! deserialized Colorspace.\n");
+}
+
+static void fuzz_md5(sk_sp<SkData> bytes) {
+    SkMD5 md5;
+    if (!md5.write(bytes->data(), bytes->size())) {
+        SkDebugf("[terminated] Couldn't compute md5.\n");
+        return;
+    }
+    SkMD5::Digest digest;
+    md5.finish(digest);
+    SkDebugf("[terminated] Success! computed md5.\n");
 }
 
 static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
