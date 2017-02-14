@@ -764,40 +764,33 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
     SkASSERT(!dstTexture || !dstTexture->texture());
     return new PorterDuffXferProcessor(blendFormula);
 }
-
-void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
-                                                     InvariantBlendedColor* blendedColor) const {
-    // Find the blended color info based on the formula that does not have coverage.
-    BlendFormula colorFormula = gBlendTable[colorPOI.isOpaque()][0][(int)fBlendMode];
-    if (colorFormula.usesDstColor()) {
-        blendedColor->fWillBlendWithDst = true;
-        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-        return;
-    }
-
-    blendedColor->fWillBlendWithDst = false;
-
+bool GrPorterDuffXPFactory::isPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
+                                                              GrColor* color) const {
+    BlendFormula colorFormula = gBlendTable[colorInput.isOpaque()][0][(int)fBlendMode];
     SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
-
+    if (colorFormula.usesDstColor()) {
+        return false;
+    }
     switch (colorFormula.fSrcCoeff) {
         case kZero_GrBlendCoeff:
-            blendedColor->fKnownColor = 0;
-            blendedColor->fKnownColorFlags = kRGBA_GrColorComponentFlags;
-            return;
+            *color = GrColor_TRANSPARENT_BLACK;
+            return true;
         case kOne_GrBlendCoeff:
-            blendedColor->fKnownColorFlags =
-                    colorPOI.hasKnownOutputColor(&blendedColor->fKnownColor)
-                            ? kRGBA_GrColorComponentFlags
-                            : kNone_GrColorComponentFlags;
-            return;
+            return colorInput.hasKnownOutputColor(color);
         default:
-            blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-            return;
+            return false;
     }
 }
 
-bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps, ColorType colorType,
-                                             CoverageType coverageType) const {
+bool GrPorterDuffXPFactory::willReadsDst(const GrProcOptInfo& colorInput,
+                                         const GrProcOptInfo& coverageInput) const {
+    BlendFormula colorFormula = gBlendTable[colorInput.isOpaque()][0][(int)fBlendMode];
+    SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
+    return (colorFormula.usesDstColor() || !coverageInput.isSolidWhite());
+}
+
+bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps, ColorType colorType,
+                                                CoverageType coverageType) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
@@ -900,19 +893,17 @@ sk_sp<GrXferProcessor> GrPorterDuffXPFactory::CreateNoCoverageXP(SkBlendMode ble
     return sk_make_sp<PorterDuffXferProcessor>(formula);
 }
 
-void GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(
-        const GrProcOptInfo& colorPOI, GrXPFactory::InvariantBlendedColor* blendedColor) {
-    if (!colorPOI.isOpaque()) {
-        blendedColor->fWillBlendWithDst = true;
-        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-        return;
+bool GrPorterDuffXPFactory::WillSrcOverReadDst(const GrProcOptInfo& colorInput,
+                                               const GrProcOptInfo& coverageInput) {
+    return !coverageInput.isSolidWhite() || !colorInput.isOpaque();
+}
+
+bool GrPorterDuffXPFactory::IsSrcOverPreCoverageBlendedColorConstant(
+        const GrProcOptInfo& colorInput, GrColor* color) {
+    if (!colorInput.isOpaque()) {
+        return false;
     }
-    blendedColor->fWillBlendWithDst = false;
-    if (colorPOI.hasKnownOutputColor(&blendedColor->fKnownColor)) {
-        blendedColor->fKnownColorFlags = kRGBA_GrColorComponentFlags;
-    } else {
-        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-    }
+    return colorInput.hasKnownOutputColor(color);
 }
 
 bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,

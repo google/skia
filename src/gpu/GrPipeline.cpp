@@ -144,15 +144,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         optimizations->fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
     }
 
-    GrXPFactory::InvariantBlendedColor blendedColor;
-    if (xpFactory) {
-        xpFactory->getInvariantBlendedColor(args.fAnalysis.fColorPOI, &blendedColor);
-    } else {
-        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fAnalysis.fColorPOI,
-                                                            &blendedColor);
-    }
-    if (blendedColor.fWillBlendWithDst) {
-        optimizations->fFlags |= GrPipelineOptimizations::kWillColorBlendWithDst_Flag;
+    if (GrXPFactory::WillReadDst(xpFactory, args.fAnalysis.fColorPOI,
+                                 args.fAnalysis.fCoveragePOI)) {
+        optimizations->fFlags |= GrPipelineOptimizations::kXPReadsDst_Flag;
     }
 
     return pipeline;

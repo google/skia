@@ -23,16 +23,21 @@ class GrDisableColorXPFactory : public GrXPFactory {
 public:
     static const GrXPFactory* Get();
 
-    void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
-                                  GrXPFactory::InvariantBlendedColor* blendedColor) const override {
-        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-        blendedColor->fWillBlendWithDst = false;
+private:
+    bool isPreCoverageBlendedColorConstant(const GrProcOptInfo&, GrColor*) const override {
+        return false;
     }
 
-private:
+    bool willReadsDst(const GrProcOptInfo& colorInput,
+                      const GrProcOptInfo& coverageInput) const override {
+        return false;
+    }
+
     constexpr GrDisableColorXPFactory() {}
 
-    bool willReadDstColor(const GrCaps&, ColorType, CoverageType) const override { return false; }
+    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override {
+        return false;
+    }
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineAnalysis&,
