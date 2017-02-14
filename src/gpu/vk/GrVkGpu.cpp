@@ -7,6 +7,7 @@
 
 #include "GrVkGpu.h"
 
+#include "../../core/SkConvertPixels.h"
 #include "GrContextOptions.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -30,7 +31,6 @@
 #include "GrVkTransferBuffer.h"
 #include "GrVkVertexBuffer.h"
 
-#include "SkConfig8888.h"
 #include "SkMipMap.h"
 
 #include "vk/GrVkInterface.h"

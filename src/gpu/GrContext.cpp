@@ -6,6 +6,8 @@
  */
 
 #include "GrContext.h"
+
+#include "../core/SkConvertPixels.h"
 #include "GrContextPriv.h"
 #include "GrContextOptions.h"
 #include "GrDrawingManager.h"
@@ -19,7 +21,6 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureContext.h"
 
-#include "SkConfig8888.h"
 #include "SkGrPriv.h"
 #include "SkUnPreMultiplyPriv.h"
 

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "../src/core/SkConvertPixels.h"
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkConfig8888.h"
 #include "SkString.h"
 #include "sk_tool_utils.h"
 

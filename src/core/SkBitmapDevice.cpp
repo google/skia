@@ -6,7 +6,8 @@
  */
 
 #include "SkBitmapDevice.h"
-#include "SkConfig8888.h"
+
+#include "SkConvertPixels.h"
 #include "SkDraw.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
