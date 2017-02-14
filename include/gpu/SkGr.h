@@ -18,6 +18,7 @@
 class GrCaps;
 class GrColorSpaceXform;
 class GrContext;
+class GrSurfaceProxy;
 class GrTexture;
 class SkBitmap;
 
@@ -88,6 +89,8 @@ GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
                                            const GrSamplerParams&, SkScalar scaleAdjust[2]);
+
+sk_sp<GrSurfaceProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap);
 
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
 GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps);

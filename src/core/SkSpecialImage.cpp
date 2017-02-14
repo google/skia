@@ -103,16 +103,19 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
         return SkSpecialImage::MakeFromRaster(SkIRect::MakeEmpty(), bmp, &this->props());
     }
 
-    sk_sp<GrTexture> resultTex(
-        GrRefCachedBitmapTexture(context, bmp, GrSamplerParams::ClampNoFilter(), nullptr));
-    if (!resultTex) {
+    // Hmm - ignoring bounds of the bmp?
+    sk_sp<GrSurfaceProxy> proxy = GrMakeCachedBitmapProxy(context, bmp);
+    if (!proxy) {
         return nullptr;
     }
 
-    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(resultTex->width(), resultTex->height()),
-                                       this->uniqueID(),
-                                       resultTex, sk_ref_sp(this->getColorSpace()), &this->props(),
-                                       this->alphaType());
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               SkIRect::MakeWH(proxy->width(), proxy->height()),
+                                               this->uniqueID(),
+                                               std::move(proxy),
+                                               sk_ref_sp(this->getColorSpace()),
+                                               &this->props(),
+                                               this->alphaType());
 #else
     return nullptr;
 #endif
