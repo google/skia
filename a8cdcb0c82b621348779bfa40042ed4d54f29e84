@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "6e2b333d_927ddef4",
+        "filename": "include/gpu/GrXferProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-14T15:23:43Z",
+      "side": 1,
+      "message": "Done",
+      "range": {
+        "startLine": 359,
+        "startChar": 44,
+        "endLine": 359,
+        "endChar": 61
+      },
+      "revId": "a8cdcb0c82b621348779bfa40042ed4d54f29e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ec20975_1e115845",
         "filename": "src/gpu/GrXferProcessor.cpp",
         "patchSetId": 7
@@ -36,6 +59,30 @@
       "writtenOn": "2017-02-14T14:57:48Z",
       "side": 1,
       "message": "if we know factory is false seems weird to pass it in here. Does this call ever look at the factor?",
+      "range": {
+        "startLine": 211,
+        "startChar": 53,
+        "endLine": 211,
+        "endChar": 60
+      },
+      "revId": "a8cdcb0c82b621348779bfa40042ed4d54f29e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "351f808e_3581c9b1",
+        "filename": "src/gpu/GrXferProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-14T15:23:43Z",
+      "side": 1,
+      "message": "duh. I wrote this while in several meetings and should have given a more careful self review!",
+      "parentUuid": "3ec20975_1e115845",
       "range": {
         "startLine": 211,
         "startChar": 53,

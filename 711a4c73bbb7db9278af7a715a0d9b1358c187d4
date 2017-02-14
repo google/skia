@@ -22,6 +22,30 @@
       "revId": "711a4c73bbb7db9278af7a715a0d9b1358c187d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca695203_ef48af52",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-14T15:23:43Z",
+      "side": 1,
+      "message": "Right this what I tried to explain in the comments (code review comments, not code comments). Some of the implementations of getInvariantBlendedColor considered coverage when deciding \"reads dst\" and some didn\u0027t. I think it is correct to consider it. If there is coverage when NVPR is used then it isn\u0027t coming from edge antialiasing and I don\u0027t think we can ignore it when deciding whether to bulk stencil with a single cover. However, it is also a very rare circumstance where there would be coverage when NVPR is used so I don\u0027t think we lose anything.",
+      "parentUuid": "38b06c59_1cf0a05e",
+      "range": {
+        "startLine": 789,
+        "startChar": 40,
+        "endLine": 789,
+        "endChar": 74
+      },
+      "revId": "711a4c73bbb7db9278af7a715a0d9b1358c187d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
