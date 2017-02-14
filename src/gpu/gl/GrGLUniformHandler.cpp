@@ -23,8 +23,6 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
                                                                             int arrayCount,
                                                                             const char** outName) {
     SkASSERT(name && strlen(name));
-    SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
-    SkASSERT(0 == (~kVisMask & visibility));
     SkASSERT(0 != visibility);
     SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
 
@@ -59,8 +57,6 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(uint32_t visi
                                                                    GrSLPrecision precision,
                                                                    const char* name) {
     SkASSERT(name && strlen(name));
-    SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
-    SkASSERT(0 == (~kVisMask & visibility));
     SkASSERT(0 != visibility);
 
     SkString mangleName;
@@ -84,8 +80,6 @@ GrGLSLUniformHandler::ImageStorageHandle GrGLUniformHandler::addImageStorage(
         uint32_t visibility, GrSLType type, GrImageStorageFormat format, GrSLMemoryModel model,
         GrSLRestrict restrict, GrIOType ioType, const char* name) {
     SkASSERT(name && strlen(name));
-    SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
-    SkASSERT(0 == (~kVisMask & visibility));
     SkASSERT(0 != visibility);
     SkString mangleName;
     char prefix = 'u';
