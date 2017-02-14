@@ -17,14 +17,22 @@ objdump = 'gobjdump'
 #ndk = '/home/mtklein/ndk/'
 #objdump = '/home/mtklein/binutils-2.27/binutils/objdump'
 
-cflags = '-std=c++11 -Os -fomit-frame-pointer'.split()
+cflags = '-std=c++11 -Os -fomit-frame-pointer -DSPLICER'.split()
+
+# This won't stay here long-term.
+# It's a stand-in for building SkSplicer_stages.cpp into Skia.
+portable = '-USPLICER'.split()
+subprocess.check_call(['clang++'] + cflags + portable +
+                      ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
+                      ['-o', 'portable.o'])
 
 sse2 = '-mno-red-zone -msse2 -mno-sse3 -mno-ssse3 -mno-sse4.1'.split()
 subprocess.check_call(['clang++'] + cflags + sse2 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'sse2.o'])
 
-sse41 = '-mno-red-zone -msse4.1'.split()
+# We're not using sse41.o right now, so use it to test -DJUMPER.
+sse41 = '-mno-red-zone -msse4.1 -USPLICER -DJUMPER'.split()
 subprocess.check_call(['clang++'] + cflags + sse41 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'sse41.o'])
