@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c9f0dbb9_6e7e3099",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-14T16:21:55Z",
+      "side": 1,
+      "message": "Only if the source was gray8.  Gray will hit the memcpy() case or return false, for now.",
+      "parentUuid": "fb7d8bf2_905f322a",
+      "range": {
+        "startLine": 163,
+        "startChar": 8,
+        "endLine": 163,
+        "endChar": 15
+      },
+      "revId": "3a21aa2ce4b04a8854e883a3b8588edd48518dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4f37311_d6a98cbc",
         "filename": "src/core/SkConfig8888.cpp",
         "patchSetId": 6
@@ -71,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "af69d6c0_fbb5dab8",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-14T16:21:55Z",
+      "side": 1,
+      "message": "Yes it did...  I\u0027m having all kinds of trouble naming this - hopefully the new ones are better.",
+      "parentUuid": "a4f37311_d6a98cbc",
+      "range": {
+        "startLine": 249,
+        "startChar": 15,
+        "endLine": 249,
+        "endChar": 18
+      },
+      "revId": "3a21aa2ce4b04a8854e883a3b8588edd48518dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c04b7f19_7526a4b1",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-14T16:21:55Z",
+      "side": 1,
+      "message": "Nice, done.",
+      "parentUuid": "a5d426f5_afdbce44",
+      "range": {
+        "startLine": 249,
+        "startChar": 47,
+        "endLine": 249,
+        "endChar": 62
+      },
+      "revId": "3a21aa2ce4b04a8854e883a3b8588edd48518dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd97a023_363f1251",
         "filename": "src/core/SkConfig8888.h",
         "patchSetId": 6
@@ -82,6 +154,30 @@
       "writtenOn": "2017-02-14T16:06:12Z",
       "side": 1,
       "message": "Didn\u0027t you mean to make this void?",
+      "range": {
+        "startLine": 17,
+        "startChar": 4,
+        "endLine": 17,
+        "endChar": 19
+      },
+      "revId": "3a21aa2ce4b04a8854e883a3b8588edd48518dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ff80660_dd6d9381",
+        "filename": "src/core/SkConfig8888.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-14T16:21:55Z",
+      "side": 1,
+      "message": "I was going to do this in a follow-up CL, but might as well do it now.",
+      "parentUuid": "dd97a023_363f1251",
       "range": {
         "startLine": 17,
         "startChar": 4,
