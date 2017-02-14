@@ -21,6 +21,8 @@ public:
     void draw(SkCanvas* canvas) override;
     bool animate(const SkAnimTimer&) override;
 
+    bool onChar(SkUnichar c) override;
+
 private:
     skiagm::GM* fGM;
 };

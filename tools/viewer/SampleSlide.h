@@ -26,6 +26,8 @@ public:
         return false;
     }
 
+    bool onChar(SkUnichar c) override;
+
 private:
     const SkViewFactory*   fViewFactory;
     SkView*                fView;

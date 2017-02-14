@@ -30,3 +30,7 @@ void GMSlide::draw(SkCanvas* canvas) {
 bool GMSlide::animate(const SkAnimTimer& timer) {
     return fGM->animate(timer);
 }
+
+bool GMSlide::onChar(SkUnichar c) {
+    return fGM->handleKey(c);
+}

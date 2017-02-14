@@ -36,6 +36,12 @@ void SampleSlide::unload() {
     fView = nullptr;
 }
 
+bool SampleSlide::onChar(SkUnichar c) {
+    SkEvent evt(gCharEvtName);
+    evt.setFast32(c);
+    return fView->doQuery(&evt);
+}
+
 #if defined(SK_BUILD_FOR_ANDROID)
 // these are normally defined in SkOSWindow_unix, but we don't
 // want to include that

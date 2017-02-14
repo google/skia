@@ -70,32 +70,43 @@ protected:
 
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
+            bool handled = false;
             switch (uni) {
                 case 'W':
                     fShowAmbient = !fShowAmbient;
+                    handled = true;
                     break;
                 case 'S':
                     fShowSpot = !fShowSpot;
+                    handled = true;
                     break;
                 case 'T':
                     fUseAlt = !fUseAlt;
+                    handled = true;
                     break;
                 case 'O':
                     fShowObject = !fShowObject;
+                    handled = true;
                     break;
                 case '>':
                     fZDelta += 0.5f;
+                    handled = true;
                     break;
                 case '<':
                     fZDelta -= 0.5f;
+                    handled = true;
                     break;
                 case '?':
                     fIgnoreShadowAlpha = !fIgnoreShadowAlpha;
+                    handled = true;
                     break;
                 default:
                     break;
             }
-            this->inval(nullptr);
+            if (handled) {
+                this->inval(nullptr);
+                return true;
+            }
         }
         return this->INHERITED::onQuery(evt);
     }
@@ -503,7 +514,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
