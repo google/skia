@@ -26,13 +26,10 @@ class GrVkDescriptorSetManager {
 public:
     GR_DEFINE_RESOURCE_HANDLE_CLASS(Handle);
 
-    GrVkDescriptorSetManager(GrVkGpu* gpu,
-                             VkDescriptorType,
-                             const GrVkUniformHandler* handler = nullptr);
-
-    GrVkDescriptorSetManager(GrVkGpu* gpu,
-                             VkDescriptorType,
-                             const SkTArray<uint32_t>& visibilities);
+    static GrVkDescriptorSetManager* CreateUniformManager(GrVkGpu* gpu);
+    static GrVkDescriptorSetManager* CreateSamplerManager(GrVkGpu* gpu, const GrVkUniformHandler&);
+    static GrVkDescriptorSetManager* CreateSamplerManager(GrVkGpu* gpu,
+                                                          const SkTArray<uint32_t>& visibilities);
 
     ~GrVkDescriptorSetManager() {}
 
@@ -51,8 +48,6 @@ public:
 
 private:
     struct DescriptorPoolManager {
-        DescriptorPoolManager(VkDescriptorType type, GrVkGpu* gpu,
-                              const GrVkUniformHandler* handler = nullptr);
         DescriptorPoolManager(VkDescriptorType type, GrVkGpu* gpu,
                               const SkTArray<uint32_t>& visibilities);
 
@@ -81,11 +76,13 @@ private:
             kStartNumDescriptors = 16, // must be less than kMaxUniformDescriptors
         };
 
-        void init(GrVkGpu* gpu, VkDescriptorType type, const GrVkUniformHandler* uniformHandler,
-                  const SkTArray<uint32_t>* visibilities);
-
         void getNewPool(GrVkGpu* gpu);
     };
+
+    GrVkDescriptorSetManager(GrVkGpu* gpu,
+                             VkDescriptorType,
+                             const SkTArray<uint32_t>& visibilities);
+
 
     DescriptorPoolManager                    fPoolManager;
     SkTArray<const GrVkDescriptorSet*, true> fFreeSets;

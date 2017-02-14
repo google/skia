@@ -11,13 +11,13 @@
 #include "GrVkUniformBuffer.h"
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                           uint32_t vertexUniformSize,
+                                                           uint32_t geometryUniformSize,
                                                            uint32_t fragmentUniformSize)
-    : fVertexUniformSize(vertexUniformSize)
+    : fGeometryUniformSize(geometryUniformSize)
     , fFragmentUniformSize(fragmentUniformSize)
-    , fVertexUniformsDirty(false)
+    , fGeometryUniformsDirty(false)
     , fFragmentUniformsDirty(false) {
-    fVertexUniformData.reset(vertexUniformSize);
+    fGeometryUniformData.reset(geometryUniformSize);
     fFragmentUniformData.reset(fragmentUniformSize);
     int count = uniforms.count();
     fUniforms.push_back_n(count);
@@ -32,20 +32,24 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
             uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
             uniform.fType = uniformInfo.fVariable.getType();
         );
-        uniform.fBinding =
-            (kVertex_GrShaderFlag == uniformInfo.fVisibility) ? GrVkUniformHandler::kVertexBinding
-                                                              : GrVkUniformHandler::kFragBinding;
+
+        if (kVertex_GrShaderFlag == uniformInfo.fVisibility ||
+            kGeometry_GrShaderFlag == uniformInfo.fVisibility) {
+            uniform.fBinding = GrVkUniformHandler::kGeometryBinding;
+        } else {
+            SkASSERT(kFragment_GrShaderFlag == uniformInfo.fVisibility);
+            uniform.fBinding = GrVkUniformHandler::kFragBinding;
+        }
         uniform.fOffset = uniformInfo.fUBOffset;
     }
 }
 
 void* GrVkPipelineStateDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
     void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-        fVertexUniformsDirty = true;
-    }
-    else {
+    if (GrVkUniformHandler::kGeometryBinding == uni.fBinding) {
+        buffer = fGeometryUniformData.get();
+        fGeometryUniformsDirty = true;
+    } else {
         SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
         buffer = fFragmentUniformData.get();
         fFragmentUniformsDirty = true;
@@ -233,9 +237,9 @@ template<int N> inline void GrVkPipelineStateDataManager::setMatrices(UniformHan
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer;
-    if (GrVkUniformHandler::kVertexBinding == uni.fBinding) {
-        buffer = fVertexUniformData.get();
-        fVertexUniformsDirty = true;
+    if (GrVkUniformHandler::kGeometryBinding == uni.fBinding) {
+        buffer = fGeometryUniformData.get();
+        fGeometryUniformsDirty = true;
     } else {
         SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
         buffer = fFragmentUniformData.get();
@@ -268,19 +272,19 @@ template<> struct set_uniform_matrix<4> {
 };
 
 bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
-                                                        GrVkUniformBuffer* vertexBuffer,
+                                                        GrVkUniformBuffer* geometryBuffer,
                                                         GrVkUniformBuffer* fragmentBuffer) const {
     bool updatedBuffer = false;
-    if (vertexBuffer && fVertexUniformsDirty) {
-        SkAssertResult(vertexBuffer->updateData(gpu, fVertexUniformData.get(), fVertexUniformSize,
-                                                &updatedBuffer));
-        fVertexUniformsDirty = false;
+    if (geometryBuffer && fGeometryUniformsDirty) {
+        SkAssertResult(geometryBuffer->updateData(gpu, fGeometryUniformData.get(),
+                                                  fGeometryUniformSize, &updatedBuffer));
+        fGeometryUniformsDirty = false;
     }
-
     if (fragmentBuffer && fFragmentUniformsDirty) {
         SkAssertResult(fragmentBuffer->updateData(gpu, fFragmentUniformData.get(),
                                                   fFragmentUniformSize, &updatedBuffer));
         fFragmentUniformsDirty = false;
     }
+
     return updatedBuffer;
 }
