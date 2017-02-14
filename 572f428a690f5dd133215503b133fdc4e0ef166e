@@ -124,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "3baa0532_0897dda8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T15:13:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6824b27_0aa18e55",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7c261d0_ad1298ae",
         "filename": "src/core/SkDevice.cpp",
         "patchSetId": 13
