@@ -180,6 +180,24 @@
       "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecc4dad7_d97221ff",
+        "filename": "src/core/SkRasterClipStack.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T19:22:44Z",
+      "side": 1,
+      "message": "Cool. Didn\u0027t know about that one.",
+      "parentUuid": "d428bb81_705b8295",
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
