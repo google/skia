@@ -134,9 +134,6 @@ SkScalar SkScalarSinCos(SkScalar radians, SkScalar* cosValue);
 
 static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
-#define SkScalarMul(a, b)       ((SkScalar)(a) * (b))
-#define SkScalarMulAdd(a, b, c) ((SkScalar)(a) * (b) + (c))
-#define SkScalarMulDiv(a, b, c) ((SkScalar)(a) * (b) / (c))
 #define SkScalarInvert(x)       (SK_Scalar1 / (x))
 #define SkScalarFastInvert(x)   (SK_Scalar1 / (x))
 #define SkScalarAve(a, b)       (((a) + (b)) * SK_ScalarHalf)
@@ -217,5 +214,11 @@ static inline bool SkScalarsEqual(const SkScalar a[], const SkScalar b[], int n)
     }
     return true;
 }
+
+#ifdef SK_SUPPORT_LEGACY_SCALARMUL
+    #define SkScalarMul(a, b)       ((SkScalar)(a) * (b))
+    #define SkScalarMulAdd(a, b, c) ((SkScalar)(a) * (b) + (c))
+    #define SkScalarMulDiv(a, b, c) ((SkScalar)(a) * (b) / (c))
+#endif
 
 #endif

@@ -98,7 +98,7 @@ private:
 };
 
 static sk_sp<SkColorFilter> make_brightness(float amount) {
-    SkScalar amount255 = SkScalarMul(amount, SkIntToScalar(255));
+    SkScalar amount255 = amount * 255;
     SkScalar matrix[20] = { 1, 0, 0, 0, amount255,
                             0, 1, 0, 0, amount255,
                             0, 0, 1, 0, amount255,

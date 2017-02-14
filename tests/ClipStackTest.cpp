@@ -979,8 +979,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             bool doSave = r.nextBool();
 
             SkSize size = SkSize::Make(
-                SkScalarMul(kBounds.width(), r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac)),
-                SkScalarMul(kBounds.height(), r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac)));
+                kBounds.width()  * r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac),
+                kBounds.height() * r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac));
 
             SkPoint xy = {r.nextRangeScalar(kBounds.fLeft, kBounds.fRight - size.fWidth),
                           r.nextRangeScalar(kBounds.fTop, kBounds.fBottom - size.fHeight)};

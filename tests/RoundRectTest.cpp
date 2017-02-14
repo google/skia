@@ -660,18 +660,18 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
     // Radii are scaled.
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.radii((SkRRect::Corner) i).fX,
-                                    SkScalarMul(orig.radii((SkRRect::Corner) i).fX, xScale)));
+                                    orig.radii((SkRRect::Corner) i).fX * xScale));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.radii((SkRRect::Corner) i).fY,
-                                    SkScalarMul(orig.radii((SkRRect::Corner) i).fY, yScale)));
+                                    orig.radii((SkRRect::Corner) i).fY * yScale));
     }
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.rect().width(),
-                                                  SkScalarMul(orig.rect().width(), xScale)));
+                                                  orig.rect().width() * xScale));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.rect().height(),
-                                                  SkScalarMul(orig.rect().height(), yScale)));
+                                                  orig.rect().height() * yScale));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.rect().left(),
-                                                  SkScalarMul(orig.rect().left(), xScale)));
+                                                  orig.rect().left() * xScale));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.rect().top(),
-                                                  SkScalarMul(orig.rect().top(), yScale)));
+                                                  orig.rect().top() * yScale));
 }
 
 static void test_round_rect_transform(skiatest::Reporter* reporter) {

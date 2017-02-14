@@ -1305,30 +1305,30 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
     string.appendf("(%i, %i)", fMouseX, fMouseY);
     SkScalar left = dest.fLeft + SkIntToScalar(3);
     SkScalar i = SK_Scalar1;
-    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    drawText(canvas, string, left, lineHeight * i + dest.fTop, paint);
     // Alpha
     i += SK_Scalar1;
     string.reset();
     string.appendf("A: %X", SkColorGetA(color));
-    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    drawText(canvas, string, left, lineHeight * i + dest.fTop, paint);
     // Red
     i += SK_Scalar1;
     string.reset();
     string.appendf("R: %X", SkColorGetR(color));
     paint.setColor(SK_ColorRED);
-    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    drawText(canvas, string, left, lineHeight * i + dest.fTop, paint);
     // Green
     i += SK_Scalar1;
     string.reset();
     string.appendf("G: %X", SkColorGetG(color));
     paint.setColor(0xFF008800);
-    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    drawText(canvas, string, left, lineHeight * i + dest.fTop, paint);
     // Blue
     i += SK_Scalar1;
     string.reset();
     string.appendf("B: %X", SkColorGetB(color));
     paint.setColor(SK_ColorBLUE);
-    drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+    drawText(canvas, string, left, lineHeight * i + dest.fTop, paint);
     canvas->restoreToCount(count);
 }
 
