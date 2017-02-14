@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkColorTable.h"
 #include "SkData.h"
+#include "SkImageInfoPriv.h"
 #include "SkImagePriv.h"
 #include "SkPixelRef.h"
 #include "SkSurface.h"
@@ -34,22 +35,7 @@ class SkImage_Raster : public SkImage_Base {
 public:
     static bool ValidArgs(const Info& info, size_t rowBytes, bool hasColorTable,
                           size_t* minSize) {
-        const int maxDimension = SK_MaxS32 >> 2;
-
-        if (info.width() <= 0 || info.height() <= 0) {
-            return false;
-        }
-        if (info.width() > maxDimension || info.height() > maxDimension) {
-            return false;
-        }
-        if ((unsigned)info.colorType() > (unsigned)kLastEnum_SkColorType) {
-            return false;
-        }
-        if ((unsigned)info.alphaType() > (unsigned)kLastEnum_SkAlphaType) {
-            return false;
-        }
-
-        if (kUnknown_SkColorType == info.colorType()) {
+        if (!SkImageInfoIsValid(info)) {
             return false;
         }
 
@@ -293,7 +279,9 @@ sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> da
 sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc proc,
                                        ReleaseContext ctx) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(), false, &size) || !pmap.addr()) {
+    if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(), pmap.ctable(), &size) ||
+        !pmap.addr())
+    {
         return nullptr;
     }
 
