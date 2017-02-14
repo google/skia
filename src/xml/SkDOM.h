@@ -8,8 +8,8 @@
 #ifndef SkDOM_DEFINED
 #define SkDOM_DEFINED
 
-#include "../private/SkChunkAlloc.h"
 #include "../private/SkTemplates.h"
+#include "SkArenaAlloc.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 
@@ -84,7 +84,7 @@ public:
     };
 
 private:
-    SkChunkAlloc                 fAlloc;
+    SkArenaAlloc                 fAlloc;
     Node*                        fRoot;
     std::unique_ptr<SkDOMParser> fParser;
 

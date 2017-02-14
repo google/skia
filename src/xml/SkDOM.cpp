@@ -48,16 +48,17 @@ struct SkDOMNode {
     const char* fName;
     SkDOMNode*  fFirstChild;
     SkDOMNode*  fNextSibling;
+    SkDOMAttr*  fAttrs;
     uint16_t    fAttrCount;
     uint8_t     fType;
     uint8_t     fPad;
 
     const SkDOMAttr* attrs() const {
-        return (const SkDOMAttr*)(this + 1);
+        return fAttrs;
     }
 
     SkDOMAttr* attrs() {
-        return (SkDOMAttr*)(this + 1);
+        return fAttrs;
     }
 };
 
@@ -175,17 +176,17 @@ const char* SkDOM::AttrIter::next(const char** value) {
 #include "SkXMLParser.h"
 #include "SkTDArray.h"
 
-static char* dupstr(SkChunkAlloc* chunk, const char src[]) {
+static char* dupstr(SkArenaAlloc* chunk, const char src[]) {
     SkASSERT(chunk && src);
     size_t  len = strlen(src);
-    char*   dst = (char*)chunk->alloc(len + 1, SkChunkAlloc::kThrow_AllocFailType);
+    char*   dst = chunk->makeArrayDefault<char>(len + 1);
     memcpy(dst, src, len + 1);
     return dst;
 }
 
 class SkDOMParser : public SkXMLParser {
 public:
-    SkDOMParser(SkChunkAlloc* chunk) : SkXMLParser(&fParserError), fAlloc(chunk) {
+    SkDOMParser(SkArenaAlloc* chunk) : SkXMLParser(&fParserError), fAlloc(chunk) {
         fAlloc->reset();
         fRoot = nullptr;
         fLevel = 0;
@@ -200,12 +201,13 @@ protected:
 
         int attrCount = fAttrs.count();
 
-        SkDOM::Node* node = (SkDOM::Node*)fAlloc->alloc(sizeof(SkDOM::Node) + attrCount * sizeof(SkDOM::Attr),
-                                                        SkChunkAlloc::kThrow_AllocFailType);
+        SkDOMAttr* attrs = fAlloc->makeArrayDefault<SkDOMAttr>(attrCount);
+        SkDOM::Node* node = fAlloc->make<SkDOM::Node>();
 
         node->fName = fElemName;
         node->fFirstChild = nullptr;
         node->fAttrCount = SkToU16(attrCount);
+        node->fAttrs = attrs;
         node->fType = fElemType;
 
         if (fRoot == nullptr) {
@@ -278,7 +280,7 @@ private:
     }
 
     SkTDArray<SkDOM::Node*> fParentStack;
-    SkChunkAlloc*           fAlloc;
+    SkArenaAlloc*           fAlloc;
     SkDOM::Node*            fRoot;
     bool                    fNeedToFlush;
 
