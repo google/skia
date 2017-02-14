@@ -34,6 +34,14 @@ static const unsigned int aarch64_seed_shader[] = {
     0x6f00e407,                                 //  movi          v7.2d, #0x0
     0xd65f03c0,                                 //  return
 };
+static const unsigned int aarch64_constant_color[] = {
+    0x3dc00043,                                 //  ldr           q3, [x2]
+    0x4e040460,                                 //  dup           v0.4s, v3.s[0]
+    0x4e0c0461,                                 //  dup           v1.4s, v3.s[1]
+    0x4e140462,                                 //  dup           v2.4s, v3.s[2]
+    0x4e1c0463,                                 //  dup           v3.4s, v3.s[3]
+    0xd65f03c0,                                 //  return
+};
 static const unsigned int aarch64_clear[] = {
     0x6f00e400,                                 //  movi          v0.2d, #0x0
     0x6f00e401,                                 //  movi          v1.2d, #0x0
@@ -475,6 +483,14 @@ static const unsigned int armv7_seed_shader[] = {
     0xf2806010,                                 //  vmov.i32      d6, #0
     0xf2030da0,                                 //  vadd.f32      d0, d19, d16
     0xf2807010,                                 //  vmov.i32      d7, #0
+    0xe12fff1e,                                 //  return
+};
+static const unsigned int armv7_constant_color[] = {
+    0xf4620a0f,                                 //  vld1.8        {d16-d17}, [r2]
+    0xf3b40c20,                                 //  vdup.32       d0, d16[0]
+    0xf3bc1c20,                                 //  vdup.32       d1, d16[1]
+    0xf3b42c21,                                 //  vdup.32       d2, d17[0]
+    0xf3bc3c21,                                 //  vdup.32       d3, d17[1]
     0xe12fff1e,                                 //  return
 };
 static const unsigned int armv7_clear[] = {
@@ -958,6 +974,17 @@ static const unsigned char sse2_seed_shader[] = {
     0x0f,0x57,0xed,                             //  xorps         %xmm5,%xmm5
     0x0f,0x57,0xf6,                             //  xorps         %xmm6,%xmm6
     0x0f,0x57,0xff,                             //  xorps         %xmm7,%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_constant_color[] = {
+    0x0f,0x10,0x1a,                             //  movups        (%rdx),%xmm3
+    0x0f,0x28,0xc3,                             //  movaps        %xmm3,%xmm0
+    0x0f,0xc6,0xc0,0x00,                        //  shufps        $0x0,%xmm0,%xmm0
+    0x0f,0x28,0xcb,                             //  movaps        %xmm3,%xmm1
+    0x0f,0xc6,0xc9,0x55,                        //  shufps        $0x55,%xmm1,%xmm1
+    0x0f,0x28,0xd3,                             //  movaps        %xmm3,%xmm2
+    0x0f,0xc6,0xd2,0xaa,                        //  shufps        $0xaa,%xmm2,%xmm2
+    0x0f,0xc6,0xdb,0xff,                        //  shufps        $0xff,%xmm3,%xmm3
     0xc3,                                       //  return
 };
 static const unsigned char sse2_clear[] = {
@@ -1525,6 +1552,13 @@ static const unsigned char hsw_seed_shader[] = {
     0xc5,0xd4,0x57,0xed,                        //  vxorps        %ymm5,%ymm5,%ymm5
     0xc5,0xcc,0x57,0xf6,                        //  vxorps        %ymm6,%ymm6,%ymm6
     0xc5,0xc4,0x57,0xff,                        //  vxorps        %ymm7,%ymm7,%ymm7
+    0xc3,                                       //  return
+};
+static const unsigned char hsw_constant_color[] = {
+    0xc4,0xe2,0x7d,0x18,0x02,                   //  vbroadcastss  (%rdx),%ymm0
+    0xc4,0xe2,0x7d,0x18,0x4a,0x04,              //  vbroadcastss  0x4(%rdx),%ymm1
+    0xc4,0xe2,0x7d,0x18,0x52,0x08,              //  vbroadcastss  0x8(%rdx),%ymm2
+    0xc4,0xe2,0x7d,0x18,0x5a,0x0c,              //  vbroadcastss  0xc(%rdx),%ymm3
     0xc3,                                       //  return
 };
 static const unsigned char hsw_clear[] = {

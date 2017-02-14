@@ -249,6 +249,7 @@ namespace {
         switch (st) {                                                                      \
             default: return false;                                                         \
             CASE(prefix, seed_shader);                                                     \
+            CASE(prefix, constant_color);                                                  \
             CASE(prefix, clear);                                                           \
             CASE(prefix, plus_);                                                           \
             CASE(prefix, srcover);                                                         \

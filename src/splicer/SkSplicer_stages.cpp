@@ -112,6 +112,8 @@ static T unaligned_load(const P* p) {
     return v;
 }
 
+using F4 = float __attribute__((ext_vector_type(4)));
+
 // We'll be compiling this file to an object file, then extracting parts of it into
 // SkSplicer_generated.h.  It's easier to do if the function names are not C++ mangled.
 #define C extern "C"
@@ -181,6 +183,14 @@ STAGE(seed_shader) {
     b = k->_1;
     a = 0;
     dr = dg = db = da = 0;
+}
+
+STAGE(constant_color) {
+    auto rgba = unaligned_load<F4>(ctx);
+    r = rgba[0];
+    g = rgba[1];
+    b = rgba[2];
+    a = rgba[3];
 }
 
 STAGE(clear) {
@@ -471,8 +481,6 @@ STAGE(matrix_3x4) {
 }
 
 STAGE(linear_gradient_2stops) {
-    using F4 = float __attribute__((ext_vector_type(4)));
-
     struct Ctx { F4 c0, dc; };
     auto c = unaligned_load<Ctx>(ctx);
 
