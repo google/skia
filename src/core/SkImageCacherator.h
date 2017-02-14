@@ -24,8 +24,8 @@ class SkImage;
  */
 class SkImageCacherator {
 public:
-    // Takes ownership of the generator
-    static SkImageCacherator* NewFromGenerator(SkImageGenerator*, const SkIRect* subset = nullptr);
+    static SkImageCacherator* NewFromGenerator(std::unique_ptr<SkImageGenerator>,
+                                               const SkIRect* subset = nullptr);
 
     ~SkImageCacherator();
 
@@ -93,12 +93,16 @@ private:
     // among several cacherators.
     class SharedGenerator final : public SkNVRefCnt<SharedGenerator> {
     public:
-        static sk_sp<SharedGenerator> Make(SkImageGenerator* gen) {
-            return gen ? sk_sp<SharedGenerator>(new SharedGenerator(gen)) : nullptr;
+        static sk_sp<SharedGenerator> Make(std::unique_ptr<SkImageGenerator> gen) {
+            return gen ? sk_sp<SharedGenerator>(new SharedGenerator(std::move(gen))) : nullptr;
         }
 
     private:
-        explicit SharedGenerator(SkImageGenerator* gen) : fGenerator(gen) { SkASSERT(gen); }
+        explicit SharedGenerator(std::unique_ptr<SkImageGenerator> gen)
+            : fGenerator(std::move(gen))
+        {
+            SkASSERT(gen);
+        }
 
         friend class ScopedGenerator;
         friend class SkImageCacherator;

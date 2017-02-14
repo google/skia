@@ -73,7 +73,11 @@ public:
      *
      *  If a subset is specified, it must be contained within the generator's bounds.
      */
+    static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator>,
+                                            const SkIRect* subset = nullptr);
+#ifdef SK_SUPPORT_BARE_PTR_IMAGEGENERATOR
     static sk_sp<SkImage> MakeFromGenerator(SkImageGenerator*, const SkIRect* subset = nullptr);
+#endif
 
     /**
      *  Construct a new SkImage based on the specified encoded data. Returns NULL on failure,

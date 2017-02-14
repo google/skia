@@ -344,9 +344,8 @@ static SkImageGenerator* gen_picture(const SkImageInfo& info) {
     SkPictureRecorder recorder;
     draw_opaque_contents(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
-    return SkImageGenerator::NewFromPicture(info.dimensions(), pict.get(), nullptr, nullptr,
-                                            SkImage::BitDepth::kU8,
-                                            SkColorSpace::MakeSRGB());
+    return SkImageGenerator::MakeFromPicture(info.dimensions(), std::move(pict), nullptr, nullptr,
+                                             SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB()).release();
 }
 
 static SkImageGenerator* gen_png(const SkImageInfo& info) {

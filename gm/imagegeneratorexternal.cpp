@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkImage.h"
 #include "SkImageGenerator.h"
+#include "SkMakeUnique.h"
 #include "SkMutex.h"
 #include "SkSurface.h"
 #include "SkTArray.h"
@@ -133,8 +134,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fImage = SkImage::MakeFromGenerator(new ExternalGenerator(SkISize::Make(kGeneratorSize,
-                                                                                kGeneratorSize)));
+        fImage = SkImage::MakeFromGenerator(skstd::make_unique<ExternalGenerator>(SkISize::Make(kGeneratorSize, kGeneratorSize)));
     }
 
     void onDraw(SkCanvas* canvas) override {

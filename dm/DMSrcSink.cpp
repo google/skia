@@ -931,7 +931,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
     // Test deferred decoding path on GPU
     if (fIsGpu) {
-        sk_sp<SkImage> image(SkImage::MakeFromGenerator(gen.release(), nullptr));
+        sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen), nullptr));
         if (!image) {
             return "Could not create image from codec image generator.";
         }
