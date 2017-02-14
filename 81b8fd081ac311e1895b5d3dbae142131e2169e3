@@ -2,6 +2,63 @@
   "comments": [
     {
       "key": {
+        "uuid": "b3023f2c_3c2ca436",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 856,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-14T18:13:35Z",
+      "side": 1,
+      "message": "This is baked into sksl as well, correct?",
+      "range": {
+        "startLine": 856,
+        "startChar": 20,
+        "endLine": 856,
+        "endChar": 44
+      },
+      "revId": "81b8fd081ac311e1895b5d3dbae142131e2169e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5646ff46_b4498dbc",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-14T18:13:35Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "81b8fd081ac311e1895b5d3dbae142131e2169e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54884d46_a746e3a0",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-14T18:13:35Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "81b8fd081ac311e1895b5d3dbae142131e2169e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dfb1628e_8775ae6a",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -13,6 +70,30 @@
       "writtenOn": "2017-02-14T18:06:41Z",
       "side": 1,
       "message": "Will this eventually be baked in to SKSL? If so maybe add a comment here say that.",
+      "range": {
+        "startLine": 873,
+        "startChar": 4,
+        "endLine": 873,
+        "endChar": 59
+      },
+      "revId": "81b8fd081ac311e1895b5d3dbae142131e2169e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0470881a_70cb8e2b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-14T18:13:35Z",
+      "side": 1,
+      "message": "I believe the other flags around here are also baked into sksl. Should we add comments there as well?",
+      "parentUuid": "dfb1628e_8775ae6a",
       "range": {
         "startLine": 873,
         "startChar": 4,
