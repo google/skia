@@ -26,8 +26,8 @@ class VertexAllocator {
 public:
     VertexAllocator(size_t stride) : fStride(stride) {}
     virtual ~VertexAllocator() {}
-    virtual void* lock(int vertexCount) = 0;
-    virtual void unlock(int actualCount) = 0;
+    virtual bool lock(int vertexCount, int indexCount, void** vertices, uint16_t** indices) = 0;
+    virtual void unlock(int actualVertexCount, int actualIndexCount) = 0;
     size_t stride() const { return fStride; }
 private:
     size_t fStride;

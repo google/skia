@@ -143,6 +143,7 @@ struct Vertex {
     : fPoint(point), fPrev(nullptr), fNext(nullptr)
     , fFirstEdgeAbove(nullptr), fLastEdgeAbove(nullptr)
     , fFirstEdgeBelow(nullptr), fLastEdgeBelow(nullptr)
+    , fIndex(-1)
     , fProcessed(false)
     , fAlpha(alpha)
 #if LOGGING_ENABLED
@@ -156,6 +157,7 @@ struct Vertex {
     Edge*   fLastEdgeAbove;   // "
     Edge*   fFirstEdgeBelow;  // Linked list of edges below this vertex.
     Edge*   fLastEdgeBelow;   // "
+    uint16_t fIndex;
     bool    fProcessed;       // Has this vertex been seen in simplify()?
     uint8_t fAlpha;
 #if LOGGING_ENABLED
@@ -214,23 +216,23 @@ inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
     return d;
 }
 
-void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, const AAParams* aaParams, void* data) {
+uint16_t* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, const AAParams* aaParams, uint16_t* indices) {
     LOG("emit_triangle (%g, %g) %d\n", v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
     LOG("              (%g, %g) %d\n", v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
     LOG("              (%g, %g) %d\n", v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
 #if TESSELLATOR_WIREFRAME
-    data = emit_vertex(v0, aaParams, data);
-    data = emit_vertex(v1, aaParams, data);
-    data = emit_vertex(v1, aaParams, data);
-    data = emit_vertex(v2, aaParams, data);
-    data = emit_vertex(v2, aaParams, data);
-    data = emit_vertex(v0, aaParams, data);
+    *indices++ = v0->fIndex;
+    *indices++ = v1->fIndex;
+    *indices++ = v1->fIndex;
+    *indices++ = v2->fIndex;
+    *indices++ = v2->fIndex;
+    *indices++ = v0->fIndex;
 #else
-    data = emit_vertex(v0, aaParams, data);
-    data = emit_vertex(v1, aaParams, data);
-    data = emit_vertex(v2, aaParams, data);
+    *indices++ = v0->fIndex;
+    *indices++ = v1->fIndex;
+    *indices++ = v2->fIndex;
 #endif
-    return data;
+    return indices;
 }
 
 struct VertexList {
@@ -481,7 +483,7 @@ struct Poly {
             }
         }
 
-        void* emit(const AAParams* aaParams, void* data) {
+        uint16_t* emit(const AAParams* aaParams, uint16_t* indices) {
             Edge* e = fFirstEdge;
             e->fTop->fPrev = e->fTop->fNext = nullptr;
             VertexList vertices;
@@ -508,7 +510,7 @@ struct Poly {
                 double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
                 double by = static_cast<double>(next->fPoint.fY) - curr->fPoint.fY;
                 if (ax * by - ay * bx >= 0.0) {
-                    data = emit_triangle(prev, curr, next, aaParams, data);
+                    indices = emit_triangle(prev, curr, next, aaParams, indices);
                     v->fPrev->fNext = v->fNext;
                     v->fNext->fPrev = v->fPrev;
                     if (v->fPrev == first) {
@@ -520,7 +522,7 @@ struct Poly {
                     v = v->fNext;
                 }
             }
-            return data;
+            return indices;
         }
     };
     Poly* addEdge(Edge* e, Side side, SkArenaAlloc& alloc) {
@@ -564,15 +566,15 @@ struct Poly {
         }
         return poly;
     }
-    void* emit(const AAParams* aaParams, void *data) {
+    uint16_t* emit(const AAParams* aaParams, uint16_t *indices) {
         if (fCount < 3) {
-            return data;
+            return indices;
         }
         LOG("emit() %d, size %d\n", fID, fCount);
         for (MonotonePoly* m = fHead; m != nullptr; m = m->fNext) {
-            data = m->emit(aaParams, data);
+            indices = m->emit(aaParams, indices);
         }
-        return data;
+        return indices;
     }
     Vertex* lastVertex() const { return fTail ? fTail->fLastEdge->fBottom : fFirstVertex; }
     Vertex* fFirstVertex;
@@ -1684,7 +1686,7 @@ Poly* mesh_to_polys(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc) {
 
 Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fillType,
                         const SkRect& pathBounds, bool antialias,
-                        SkArenaAlloc& alloc) {
+                        VertexList* mesh, SkArenaAlloc& alloc) {
     Comparator c;
     if (pathBounds.width() > pathBounds.height()) {
         c.sweep_lt = sweep_lt_horiz;
@@ -1693,37 +1695,37 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fill
         c.sweep_lt = sweep_lt_vert;
         c.sweep_gt = sweep_gt_vert;
     }
-    VertexList mesh;
-    contours_to_mesh(contours, contourCnt, antialias, &mesh, c, alloc);
-    Poly* polys = mesh_to_polys(&mesh, c, alloc);
+    contours_to_mesh(contours, contourCnt, antialias, mesh, c, alloc);
+    Poly* polys = mesh_to_polys(mesh, c, alloc);
     if (antialias) {
-        EdgeList* boundaries = extract_boundaries(mesh, fillType, alloc);
-        VertexList aaMesh;
+        EdgeList* boundaries = extract_boundaries(*mesh, fillType, alloc);
+        mesh->fHead = mesh->fTail = nullptr;
         for (EdgeList* boundary = boundaries; boundary != nullptr; boundary = boundary->fNext) {
             simplify_boundary(boundary, c, alloc);
             if (boundary->fCount > 2) {
-                boundary_to_aa_mesh(boundary, &aaMesh, c, alloc);
+                boundary_to_aa_mesh(boundary, mesh, c, alloc);
             }
         }
-        sort_and_simplify(&aaMesh, c, alloc);
-        return tessellate(aaMesh, alloc);
+        sort_and_simplify(mesh, c, alloc);
+        return tessellate(*mesh, alloc);
     }
     return polys;
 }
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
-void* polys_to_triangles(Poly* polys, SkPath::FillType fillType, const AAParams* aaParams,
-                         void* data) {
+uint16_t* polys_to_triangles(Poly* polys, SkPath::FillType fillType, const AAParams* aaParams,
+                         uint16_t* indices) {
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly)) {
-            data = poly->emit(aaParams, data);
+            indices = poly->emit(aaParams, indices);
         }
     }
-    return data;
+    return indices;
 }
 
 Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    int contourCnt, SkArenaAlloc& alloc, bool antialias, bool* isLinear) {
+                    int contourCnt, SkArenaAlloc& alloc, bool antialias, bool* isLinear,
+                    VertexList* mesh) {
     SkPath::FillType fillType = path.getFillType();
     if (SkPath::IsInverseFillType(fillType)) {
         contourCnt++;
@@ -1732,7 +1734,7 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 
     path_to_contours(path, tolerance, clipBounds, contours.get(), alloc, isLinear);
     return contours_to_polys(contours.get(), contourCnt, path.getFillType(), path.getBounds(),
-                             antialias, alloc);
+                             antialias, mesh, alloc);
 }
 
 void get_contour_count_and_size_estimate(const SkPath& path, SkScalar tolerance, int* contourCnt,
@@ -1754,6 +1756,7 @@ void get_contour_count_and_size_estimate(const SkPath& path, SkScalar tolerance,
     *sizeEstimate = maxPts * (3 * sizeof(Vertex) + sizeof(Edge));
 }
 
+#if 0
 int count_points(Poly* polys, SkPath::FillType fillType) {
     int count = 0;
     for (Poly* poly = polys; poly; poly = poly->fNext) {
@@ -1762,6 +1765,20 @@ int count_points(Poly* polys, SkPath::FillType fillType) {
         }
     }
     return count;
+}
+#endif
+
+void count_points(Poly* polys, const VertexList& vertices, SkPath::FillType fillType, int *vertexCount, int* indexCount) {
+    *vertexCount = 0;
+    for (Vertex* v = vertices.fHead; v; v = v->fNext) {
+        (*vertexCount)++;
+    }
+    *indexCount = 0;
+    for (Poly* poly = polys; poly; poly = poly->fNext) {
+        if (apply_fill_type(fillType, poly) && poly->fCount >= 3) {
+            *indexCount += (poly->fCount - 2) * (TESSELLATOR_WIREFRAME ? 6 : 3);
+        }
+    }
 }
 
 } // namespace
@@ -1781,35 +1798,44 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
         return 0;
     }
     SkArenaAlloc alloc(sizeEstimate);
+    VertexList vertices;
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, antialias,
-                                isLinear);
+                                isLinear, &vertices);
     SkPath::FillType fillType = antialias ? SkPath::kWinding_FillType : path.getFillType();
-    int count = count_points(polys, fillType);
-    if (0 == count) {
+    int vertexCount, indexCount;
+    count_points(polys, vertices, fillType, &vertexCount, &indexCount);
+    if (0 == vertexCount || 0 == indexCount) {
         return 0;
     }
 
-    void* verts = vertexAllocator->lock(count);
-    if (!verts) {
+    void* verts;
+    uint16_t* indices;
+    if (!vertexAllocator->lock(vertexCount, indexCount, &verts, &indices)) {
         SkDebugf("Could not allocate vertices\n");
         return 0;
     }
 
-    LOG("emitting %d verts\n", count);
+    LOG("emitting %d indices\n", indexCount);
     AAParams aaParams;
     aaParams.fTweakAlpha = canTweakAlphaForCoverage;
     aaParams.fColor = color;
 
-    void* end = polys_to_triangles(polys, fillType, antialias ? &aaParams : nullptr, verts);
-    int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
-                                       / vertexAllocator->stride());
-    SkASSERT(actualCount <= count);
-    vertexAllocator->unlock(actualCount);
-    return actualCount;
+    uint16_t index = 0;
+    void* data = verts;
+    for (Vertex* v = vertices.fHead; v; v = v->fNext) {
+        v->fIndex = index++;
+        data = emit_vertex(v, antialias ? &aaParams : nullptr, data);
+    }
+    uint16_t* end = polys_to_triangles(polys, fillType, antialias ? &aaParams : nullptr, indices);
+    int actualIndexCount = static_cast<int>(end - indices);
+    SkASSERT(actualIndexCount <= indexCount);
+    vertexAllocator->unlock(vertexCount, actualIndexCount);
+    return actualIndexCount;
 }
 
 int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    GrTessellator::WindingVertex** verts) {
+#if 0
     int contourCnt;
     int sizeEstimate;
     get_contour_count_and_size_estimate(path, tolerance, &contourCnt, &sizeEstimate);
@@ -1818,7 +1844,8 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     }
     SkArenaAlloc alloc(sizeEstimate);
     bool isLinear;
-    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, false, &isLinear);
+    VertexList vertices;
+    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, false, &isLinear, &vertices);
     SkPath::FillType fillType = path.getFillType();
     int count = count_points(polys, fillType);
     if (0 == count) {
@@ -1847,6 +1874,8 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     SkASSERT(pointsEnd - points == actualCount);
     delete[] points;
     return actualCount;
+#endif
+    return 0;
 }
 
 } // namespace

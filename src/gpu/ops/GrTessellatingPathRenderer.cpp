@@ -70,58 +70,97 @@ public:
       , fCanMapVB(canMapVB)
       , fVertices(nullptr) {
     }
-    void* lock(int vertexCount) override {
-        size_t size = vertexCount * stride();
+    bool lock(int vertexCount, int indexCount, void** vertices, uint16_t** indices) override {
+        size_t vertexSize = vertexCount * stride();
         fVertexBuffer.reset(fResourceProvider->createBuffer(
-            size, kVertex_GrBufferType, kStatic_GrAccessPattern, 0));
+            vertexSize, kVertex_GrBufferType, kStatic_GrAccessPattern, 0));
         if (!fVertexBuffer.get()) {
-            return nullptr;
+            return false;
+        }
+        fIndexBuffer.reset(fResourceProvider->createBuffer(
+            indexCount * sizeof(uint16_t), kIndex_GrBufferType, kStatic_GrAccessPattern, 0));
+        if (!fIndexBuffer.get()) {
+            return false;
         }
         if (fCanMapVB) {
             fVertices = fVertexBuffer->map();
+            fIndices = static_cast<uint16_t*>(fIndexBuffer->map());
         } else {
             fVertices = sk_malloc_throw(vertexCount * stride());
+            fIndices = static_cast<uint16_t*>(sk_malloc_throw(indexCount * sizeof(uint16_t)));
         }
-        return fVertices;
+        *vertices = fVertices;
+        *indices = fIndices;
+        return true;
     }
-    void unlock(int actualCount) override {
+    void unlock(int actualVertexCount, int actualIndexCount) override {
         if (fCanMapVB) {
             fVertexBuffer->unmap();
+            fIndexBuffer->unmap();
         } else {
-            fVertexBuffer->updateData(fVertices, actualCount * stride());
+            fVertexBuffer->updateData(fVertices, actualVertexCount * stride());
+            fIndexBuffer->updateData(fVertices, actualIndexCount);
             sk_free(fVertices);
+            sk_free(fIndices);
         }
+        fVertexCount = actualVertexCount;
+        fIndexCount = actualIndexCount;
         fVertices = nullptr;
+        fIndices = nullptr;
     }
     GrBuffer* vertexBuffer() { return fVertexBuffer.get(); }
+    GrBuffer* indexBuffer() { return fIndexBuffer.get(); }
+    int vertexCount() const { return fVertexCount; }
+    int indexCount() const { return fIndexCount; }
 private:
     sk_sp<GrBuffer> fVertexBuffer;
+    sk_sp<GrBuffer> fIndexBuffer;
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
     void* fVertices;
+    uint16_t* fIndices;
+    int fVertexCount;
+    int fIndexCount;
 };
 
 class DynamicVertexAllocator : public GrTessellator::VertexAllocator {
 public:
     DynamicVertexAllocator(size_t stride, GrMeshDrawOp::Target* target)
         : VertexAllocator(stride), fTarget(target), fVertexBuffer(nullptr), fVertices(nullptr) {}
-    void* lock(int vertexCount) override {
+    bool lock(int vertexCount, int indexCount, void** vertices, uint16_t** indices) override {
         fVertexCount = vertexCount;
         fVertices = fTarget->makeVertexSpace(stride(), vertexCount, &fVertexBuffer, &fFirstVertex);
-        return fVertices;
+        fIndices = fTarget->makeIndexSpace(indexCount, &fIndexBuffer, &fFirstIndex);
+        *vertices = fVertices;
+        *indices = fIndices;
+        fVertexCount = vertexCount;
+        fIndexCount = indexCount;
+        return fVertices && fIndices;
     }
-    void unlock(int actualCount) override {
-        fTarget->putBackVertices(fVertexCount - actualCount, stride());
+    void unlock(int actualVertexCount, int actualIndexCount) override {
+        fTarget->putBackVertices(fVertexCount - actualVertexCount, stride());
+        fTarget->putBackIndices(fIndexCount - actualIndexCount);
+        fVertexCount = actualVertexCount;
+        fIndexCount = actualIndexCount;
         fVertices = nullptr;
+        fIndices = nullptr;
     }
     const GrBuffer* vertexBuffer() const { return fVertexBuffer; }
+    const GrBuffer* indexBuffer() const { return fIndexBuffer; }
     int firstVertex() const { return fFirstVertex; }
+    int firstIndex() const { return fFirstIndex; }
+    int vertexCount() const { return fVertexCount; }
+    int indexCount() const { return fIndexCount; }
 private:
     GrMeshDrawOp::Target* fTarget;
     const GrBuffer* fVertexBuffer;
+    const GrBuffer* fIndexBuffer;
     int fVertexCount;
+    int fIndexCount;
     int fFirstVertex;
+    int fFirstIndex;
     void* fVertices;
+    uint16_t* fIndices;
 };
 
 }  // namespace
@@ -203,26 +242,40 @@ private:
         GrResourceProvider* rp = target->resourceProvider();
         bool inverseFill = fShape.inverseFilled();
         // construct a cache key from the path's genID and the view matrix
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey key;
+        static const GrUniqueKey::Domain kVertexDomain = GrUniqueKey::GenerateDomain();
+        static const GrUniqueKey::Domain kIndexDomain = GrUniqueKey::GenerateDomain();
+        GrUniqueKey vertexKey, indexKey;
         static constexpr int kClipBoundsCnt = sizeof(fDevClipBounds) / sizeof(uint32_t);
         int shapeKeyDataCnt = fShape.unstyledKeySize();
         SkASSERT(shapeKeyDataCnt >= 0);
-        GrUniqueKey::Builder builder(&key, kDomain, shapeKeyDataCnt + kClipBoundsCnt);
-        fShape.writeUnstyledKey(&builder[0]);
+        GrUniqueKey::Builder vertexBuilder(&vertexKey, kVertexDomain, shapeKeyDataCnt + kClipBoundsCnt);
+        fShape.writeUnstyledKey(&vertexBuilder[0]);
         // For inverse fills, the tessellation is dependent on clip bounds.
         if (inverseFill) {
-            memcpy(&builder[shapeKeyDataCnt], &fDevClipBounds, sizeof(fDevClipBounds));
+            memcpy(&vertexBuilder[shapeKeyDataCnt], &fDevClipBounds, sizeof(fDevClipBounds));
         } else {
-            memset(&builder[shapeKeyDataCnt], 0, sizeof(fDevClipBounds));
+            memset(&vertexBuilder[shapeKeyDataCnt], 0, sizeof(fDevClipBounds));
         }
-        builder.finish();
-        sk_sp<GrBuffer> cachedVertexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
-        int actualCount;
+        vertexBuilder.finish();
+        sk_sp<GrBuffer> cachedVertexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(vertexKey));
+
+        // FIXME: refactor with the above
+        GrUniqueKey::Builder indexBuilder(&indexKey, kIndexDomain, shapeKeyDataCnt + kClipBoundsCnt);
+        fShape.writeUnstyledKey(&indexBuilder[0]);
+        // For inverse fills, the tessellation is dependent on clip bounds.
+        if (inverseFill) {
+            memcpy(&indexBuilder[shapeKeyDataCnt], &fDevClipBounds, sizeof(fDevClipBounds));
+        } else {
+            memset(&indexBuilder[shapeKeyDataCnt], 0, sizeof(fDevClipBounds));
+        }
+        indexBuilder.finish();
+        sk_sp<GrBuffer> cachedIndexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(indexKey));
+        int vertexCount, indexCount;
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
-        if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-            this->drawVertices(target, gp, cachedVertexBuffer.get(), 0, actualCount);
+        if (cache_match(cachedVertexBuffer.get(), tol, &vertexCount) &&
+            cache_match(cachedIndexBuffer.get(), tol, &indexCount)) {
+            this->drawVertices(target, gp, cachedVertexBuffer.get(), cachedIndexBuffer.get(), 0, 0, vertexCount, indexCount);
             return;
         }
 
@@ -241,12 +294,14 @@ private:
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, gp, allocator.vertexBuffer(), 0, count);
+        this->drawVertices(target, gp, allocator.vertexBuffer(), allocator.indexBuffer(), 0, 0, allocator.vertexCount(), allocator.indexCount());
         TessInfo info;
         info.fTolerance = isLinear ? 0 : tol;
         info.fCount = count;
-        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
-        rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
+        vertexKey.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
+        indexKey.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
+        rp->assignUniqueKeyToResource(vertexKey, allocator.vertexBuffer());
+        rp->assignUniqueKeyToResource(indexKey, allocator.indexBuffer());
     }
 
     void drawAA(Target* target, const GrGeometryProcessor* gp) const {
@@ -266,7 +321,7 @@ private:
         if (count == 0) {
             return;
         }
-        drawVertices(target, gp, allocator.vertexBuffer(), allocator.firstVertex(), count);
+        drawVertices(target, gp, allocator.vertexBuffer(), allocator.indexBuffer(), allocator.firstVertex(), allocator.firstIndex(), allocator.vertexCount(), allocator.indexCount());
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -304,12 +359,12 @@ private:
         }
     }
 
-    void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrBuffer* vb,
-                      int firstVertex, int count) const {
+    void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrBuffer* vb, const GrBuffer* ib,
+                      int firstVertex, int firstIndex, int vertexCount, int indexCount) const {
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType
                                                               : kTriangles_GrPrimitiveType;
         GrMesh mesh;
-        mesh.init(primitiveType, vb, firstVertex, count);
+        mesh.initIndexed(primitiveType, vb, ib, firstVertex, firstIndex, vertexCount, indexCount);
         target->draw(gp, mesh);
     }
 
