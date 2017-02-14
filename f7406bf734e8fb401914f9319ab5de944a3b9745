@@ -163,6 +163,23 @@
       "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d428bb81_705b8295",
+        "filename": "src/core/SkRasterClipStack.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-14T18:29:50Z",
+      "side": 1,
+      "message": "nit: return fRootBounds.size();",
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
