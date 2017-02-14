@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1d0676f_17e8752c",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-14T22:47:48Z",
+      "side": 1,
+      "message": "...stacktraces.  The...",
+      "range": {
+        "startLine": 15,
+        "startChar": 9,
+        "endLine": 15,
+        "endChar": 29
+      },
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76159764_4ef80248",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-14T22:47:48Z",
+      "side": 1,
+      "message": "when running this script ?",
+      "range": {
+        "startLine": 17,
+        "startChar": 56,
+        "endLine": 17,
+        "endChar": 75
+      },
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
