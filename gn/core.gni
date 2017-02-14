@@ -144,6 +144,7 @@ skia_core_sources = [
   "$_src/core/SkFontDescriptor.h",
   "$_src/core/SkFontStream.cpp",
   "$_src/core/SkFontStream.h",
+  "$_src/core/SkFutureDrawable.cpp",
   "$_src/core/SkFuzzLogging.h",
   "$_src/core/SkGeometry.cpp",
   "$_src/core/SkGeometry.h",
