@@ -7,6 +7,9 @@
 
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkColorSpace_Base.h"
+#include "SkHalf.h"
+#include "SkImageInfoPriv.h"
 #include "SkMathPriv.h"
 #include "SkSurface.h"
 #include "Test.h"
@@ -484,3 +487,158 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
     }
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static const uint32_t kNumPixels = 5;
+
+// The five reference pixels are: red, green, blue, white, black.
+// Five is an interesting number to test because we'll exercise a full 4-wide SIMD vector
+// plus a tail pixel.
+static const uint32_t rgba[kNumPixels] = {
+        0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF, 0xFF000000
+};
+static const uint32_t bgra[kNumPixels] = {
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFF000000
+};
+static const uint16_t rgb565[kNumPixels] = {
+        SK_R16_MASK_IN_PLACE, SK_G16_MASK_IN_PLACE, SK_B16_MASK_IN_PLACE, 0xFFFF, 0x0
+};
+
+static const uint16_t rgba4444[kNumPixels] = { 0xF00F, 0x0F0F, 0x00FF, 0xFFFF, 0x000F };
+
+static const uint64_t kRed      = (uint64_t) SK_Half1 <<  0;
+static const uint64_t kGreen    = (uint64_t) SK_Half1 << 16;
+static const uint64_t kBlue     = (uint64_t) SK_Half1 << 32;
+static const uint64_t kAlpha    = (uint64_t) SK_Half1 << 48;
+static const uint64_t f16[kNumPixels] = {
+        kAlpha | kRed, kAlpha | kGreen, kAlpha | kBlue, kAlpha | kBlue | kGreen | kRed, kAlpha
+};
+
+#ifdef SK_PMCOLOR_IS_RGBA
+static const SkPMColor index8colors[kNumPixels] = {
+        0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF, 0xFF000000
+};
+#else
+static const SkPMColor index8colors[kNumPixels] = {
+        0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF, 0xFF000000
+};
+#endif
+static const uint8_t index8[kNumPixels] = { 0, 1, 2, 3, 4 };
+static const uint8_t alpha8[kNumPixels] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static const uint8_t gray8[kNumPixels] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+static const void* five_reference_pixels(SkColorType colorType) {
+    switch (colorType) {
+        case kUnknown_SkColorType:
+            return nullptr;
+        case kAlpha_8_SkColorType:
+            return alpha8;
+        case kRGB_565_SkColorType:
+            return rgb565;
+        case kARGB_4444_SkColorType:
+            return rgba4444;
+        case kRGBA_8888_SkColorType:
+            return rgba;
+        case kBGRA_8888_SkColorType:
+            return bgra;
+        case kIndex_8_SkColorType:
+            return index8;
+        case kGray_8_SkColorType:
+            return gray8;
+        case kRGBA_F16_SkColorType:
+            return f16;
+    }
+
+    SkASSERT(false);
+    return nullptr;
+}
+
+static void test_conversion(skiatest::Reporter* r, const SkImageInfo& dstInfo,
+                            const SkImageInfo& srcInfo) {
+    if (!SkImageInfoIsValid(srcInfo)) {
+        return;
+    }
+
+    sk_sp<SkColorTable> srcColorTable = (kIndex_8_SkColorType == srcInfo.colorType())
+            ? sk_make_sp<SkColorTable>(index8colors, 5)
+            : nullptr;
+    sk_sp<SkColorTable> dstColorTable = (kIndex_8_SkColorType == dstInfo.colorType())
+            ? sk_make_sp<SkColorTable>(index8colors, 5)
+            : nullptr;
+
+    const void* srcPixels = five_reference_pixels(srcInfo.colorType());
+    SkPixmap srcPixmap(srcInfo, srcPixels, srcInfo.minRowBytes(), srcColorTable.get());
+    sk_sp<SkImage> src = SkImage::MakeFromRaster(srcPixmap, nullptr, nullptr);
+    REPORTER_ASSERT(r, src);
+
+    // Enough space for 5 pixels when color type is F16, more than enough space in other cases.
+    uint64_t dstPixels[kNumPixels];
+    SkPixmap dstPixmap(dstInfo, dstPixels, dstInfo.minRowBytes(), dstColorTable.get());
+    bool success = src->readPixels(dstPixmap, 0, 0);
+    REPORTER_ASSERT(r, success == SkImageInfoValidConversion(dstInfo, srcInfo));
+
+    if (success) {
+        if (kGray_8_SkColorType == srcInfo.colorType() &&
+            kGray_8_SkColorType != dstInfo.colorType())
+        {
+            // This conversion is legal, but we won't get the "reference" pixels since we cannot
+            // represent colors in kGray8.
+            return;
+        }
+
+        REPORTER_ASSERT(r, 0 == memcmp(dstPixels, five_reference_pixels(dstInfo.colorType()),
+                                       kNumPixels * SkColorTypeBytesPerPixel(dstInfo.colorType())));
+
+    }
+}
+
+DEF_TEST(ReadPixels_ValidConversion, reporter) {
+    const SkColorType kColorTypes[] = {
+            kUnknown_SkColorType,
+            kAlpha_8_SkColorType,
+            kRGB_565_SkColorType,
+            kARGB_4444_SkColorType,
+            kRGBA_8888_SkColorType,
+            kBGRA_8888_SkColorType,
+            kIndex_8_SkColorType,
+            kGray_8_SkColorType,
+            kRGBA_F16_SkColorType,
+    };
+
+    const SkAlphaType kAlphaTypes[] = {
+            kUnknown_SkAlphaType,
+            kOpaque_SkAlphaType,
+            kPremul_SkAlphaType,
+            kUnpremul_SkAlphaType,
+    };
+
+    const sk_sp<SkColorSpace> kColorSpaces[] = {
+            nullptr,
+            SkColorSpace::MakeSRGB(),
+    };
+
+    for (SkColorType dstCT : kColorTypes) {
+        for (SkAlphaType dstAT: kAlphaTypes) {
+            for (sk_sp<SkColorSpace> dstCS : kColorSpaces) {
+                for (SkColorType srcCT : kColorTypes) {
+                    for (SkAlphaType srcAT: kAlphaTypes) {
+                        for (sk_sp<SkColorSpace> srcCS : kColorSpaces) {
+                            if (kRGBA_F16_SkColorType == dstCT && dstCS) {
+                                dstCS = as_CSB(dstCS)->makeLinearGamma();
+                            }
+
+                            if (kRGBA_F16_SkColorType == srcCT && srcCS) {
+                                srcCS = as_CSB(srcCS)->makeLinearGamma();
+                            }
+
+                            test_conversion(reporter,
+                                            SkImageInfo::Make(kNumPixels, 1, dstCT, dstAT, dstCS),
+                                            SkImageInfo::Make(kNumPixels, 1, srcCT, srcAT, srcCS));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

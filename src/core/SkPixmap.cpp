@@ -97,8 +97,9 @@ const {
 
     const void* srcPixels = this->addr(rec.fX, rec.fY);
     const SkImageInfo srcInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
-    return SkPixelInfo::CopyPixels(rec.fInfo, rec.fPixels, rec.fRowBytes,
-                                   srcInfo, srcPixels, this->rowBytes(), this->ctable());
+    SkPixelInfo::CopyPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels,
+                            this->rowBytes(), this->ctable());
+    return true;
 }
 
 static uint16_t pack_8888_to_4444(unsigned a, unsigned r, unsigned g, unsigned b) {

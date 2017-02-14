@@ -726,8 +726,9 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
 
     void* dstPixels = this->getAddr(rec.fX, rec.fY);
     const SkImageInfo dstInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
-    return SkPixelInfo::CopyPixels(dstInfo, dstPixels, this->rowBytes(),
-                                   rec.fInfo, rec.fPixels, rec.fRowBytes, src.ctable());
+    SkPixelInfo::CopyPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels,
+                            rec.fRowBytes, src.ctable());
+    return true;
 }
 
 bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc) const {
