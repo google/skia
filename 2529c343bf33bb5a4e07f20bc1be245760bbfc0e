@@ -16,6 +16,24 @@
       "revId": "2529c343bf33bb5a4e07f20bc1be245760bbfc0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c69de31d_d77c6cec",
+        "filename": "samplecode/SampleAndroidShadows.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-14T20:17:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1abf96e_b7e9011d",
+      "revId": "2529c343bf33bb5a4e07f20bc1be245760bbfc0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
