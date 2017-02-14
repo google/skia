@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "631805a9_10c86721",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 1543,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "Intentionally non-const\u0026 ?",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0776c34_0b86e26d",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "add a \u0027\\n\u0027 somewhere ?",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a247800_c2c29dcf",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "Maybe a comment here: // \u0027rgn\u0027 is in global device space this must be xlated to the device\u0027s translated device space ?",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6824b27_0aa18e55",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "IIUC, doesn\u0027t this have to be a loop?",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7c261d0_ad1298ae",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "It seems like this method and the end of the prior method should match up more",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f7424fc_e86ecd89",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "// Big comment.\n\nCan this be Android only ?",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b81ec333_cac9bb03",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "Add \"Restore\" in this name ?",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72f5c128_11697204",
+        "filename": "src/core/SkRasterClipStack.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "Shouldn\u0027t there be some wacky syntax here ?",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "289ec76a_4dbe765a",
+        "filename": "src/core/SkRasterClipStack.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "add \u0027\\n\u0027 ?",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47b4e681_82d9a7d4",
+        "filename": "src/core/SkRasterClipStack.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-14T13:31:48Z",
+      "side": 1,
+      "message": "I would think this would be smaller",
+      "revId": "572f428a690f5dd133215503b133fdc4e0ef166e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
