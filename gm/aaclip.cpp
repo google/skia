@@ -51,13 +51,16 @@ DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
     canvas->saveLayer(&r, nullptr);
     canvas->drawColor(SK_ColorRED);
 
-    SkRect r0 = SkRect::MakeXYWH(r.left(), r.top(), r.width(), r.height()/2);
+    SkRect r0 = { 20, 20, 100, 55 };
+    SkRect r1 = { 20, 65, 100, 100 };
 
     SkCanvas::SaveLayerRec rec;
     rec.fPaint = nullptr;
     rec.fBounds = &r0;
     rec.fBackdrop = nullptr;
     rec.fSaveLayerFlags = 1 << 31;//SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag;
+    canvas->saveLayer(rec);
+    rec.fBounds = &r1;
     canvas->saveLayer(rec);
     do_draw(canvas, r);
     canvas->restore();
