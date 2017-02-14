@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bfd0d99_c4af3776",
+        "filename": "include/gpu/GrXferProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-14T14:57:48Z",
+      "side": 1,
+      "message": "comments for this and willReadDst are flipped",
+      "range": {
+        "startLine": 359,
+        "startChar": 44,
+        "endLine": 359,
+        "endChar": 61
+      },
+      "revId": "a8cdcb0c82b621348779bfa40042ed4d54f29e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ec20975_1e115845",
+        "filename": "src/gpu/GrXferProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-14T14:57:48Z",
+      "side": 1,
+      "message": "if we know factory is false seems weird to pass it in here. Does this call ever look at the factor?",
+      "range": {
+        "startLine": 211,
+        "startChar": 53,
+        "endLine": 211,
+        "endChar": 60
+      },
+      "revId": "a8cdcb0c82b621348779bfa40042ed4d54f29e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31d517b7_393d4a46",
+        "filename": "src/gpu/GrXferProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-14T14:57:48Z",
+      "side": 1,
+      "message": "same as above comment on factory",
+      "range": {
+        "startLine": 220,
+        "startChar": 75,
+        "endLine": 220,
+        "endChar": 82
+      },
+      "revId": "a8cdcb0c82b621348779bfa40042ed4d54f29e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
