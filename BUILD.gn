@@ -1304,6 +1304,8 @@ if (skia_enable_tools) {
       "fuzz/FuzzPathop.cpp",
       "fuzz/FuzzScaleToSides.cpp",
       "fuzz/fuzz.cpp",
+
+      "fuzz/FuzzCanvas.cpp",
     ]
     deps = [
       ":flags",
