@@ -22,8 +22,6 @@ public:
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
                      int* ctableCount) override;
-    bool onComputeScaledDimensions(SkScalar scale, SupportedSizes*) override;
-    bool onGenerateScaledPixels(const SkPixmap&) override;
 
 #if SK_SUPPORT_GPU
     GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) override;
@@ -97,41 +95,6 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
     SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
     canvas.drawPicture(fPicture.get(), &fMatrix, fPaint.getMaybeNull());
 
-    return true;
-}
-
-bool SkPictureImageGenerator::onComputeScaledDimensions(SkScalar scale,
-                                                        SupportedSizes* sizes) {
-    SkASSERT(scale > 0 && scale <= 1);
-    const int w = this->getInfo().width();
-    const int h = this->getInfo().height();
-    const int sw = SkScalarRoundToInt(scale * w);
-    const int sh = SkScalarRoundToInt(scale * h);
-    if (sw > 0 && sh > 0) {
-        sizes->fSizes[0].set(sw, sh);
-        sizes->fSizes[1].set(sw, sh);
-        return true;
-    }
-    return false;
-}
-
-bool SkPictureImageGenerator::onGenerateScaledPixels(const SkPixmap& scaledPixels) {
-    int w = scaledPixels.width();
-    int h = scaledPixels.height();
-
-    const SkScalar scaleX = SkIntToScalar(w) / this->getInfo().width();
-    const SkScalar scaleY = SkIntToScalar(h) / this->getInfo().height();
-    SkMatrix matrix = SkMatrix::MakeScale(scaleX, scaleY);
-
-    SkBitmap bitmap;
-    if (!bitmap.installPixels(scaledPixels)) {
-        return false;
-    }
-
-    bitmap.eraseColor(SK_ColorTRANSPARENT);
-    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
-    matrix.preConcat(fMatrix);
-    canvas.drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
     return true;
 }
 
