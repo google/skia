@@ -412,10 +412,8 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
                 weight = SkMinScalar(sqDist, SK_Scalar1);
             }
 
-            SkScalar x_interp = SkScalarMul(weight, (fSrcRect.x() + x * invXZoom)) +
-                           (SK_Scalar1 - weight) * x;
-            SkScalar y_interp = SkScalarMul(weight, (fSrcRect.y() + y * invYZoom)) +
-                           (SK_Scalar1 - weight) * y;
+            SkScalar x_interp = weight * (fSrcRect.x() + x * invXZoom) + (1 - weight) * x;
+            SkScalar y_interp = weight * (fSrcRect.y() + y * invYZoom) + (1 - weight) * y;
 
             int x_val = SkTPin(bounds.x() + SkScalarFloorToInt(x_interp), 0, inputBM.width() - 1);
             int y_val = SkTPin(bounds.y() + SkScalarFloorToInt(y_interp), 0, inputBM.height() - 1);

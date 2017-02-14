@@ -68,19 +68,16 @@ void computeDisplacement(const SkVector& scale, SkBitmap* dst,
     static const SkScalar Inv8bit = SkScalarInvert(255);
     const int srcW = src.width();
     const int srcH = src.height();
-    const SkVector scaleForColor = SkVector::Make(SkScalarMul(scale.fX, Inv8bit),
-                                                  SkScalarMul(scale.fY, Inv8bit));
-    const SkVector scaleAdj = SkVector::Make(SK_ScalarHalf - SkScalarMul(scale.fX, SK_ScalarHalf),
-                                             SK_ScalarHalf - SkScalarMul(scale.fY, SK_ScalarHalf));
+    const SkVector scaleForColor = SkVector::Make(scale.fX * Inv8bit, scale.fY * Inv8bit);
+    const SkVector scaleAdj = SkVector::Make(SK_ScalarHalf - scale.fX * SK_ScalarHalf,
+                                             SK_ScalarHalf - scale.fY * SK_ScalarHalf);
     const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
     SkPMColor* dstPtr = dst->getAddr32(0, 0);
     for (int y = bounds.top(); y < bounds.bottom(); ++y) {
         const SkPMColor* displPtr = displ.getAddr32(bounds.left() + offset.fX, y + offset.fY);
         for (int x = bounds.left(); x < bounds.right(); ++x, ++displPtr) {
-            const SkScalar displX = SkScalarMul(scaleForColor.fX,
-                SkIntToScalar(getValue<typeX>(*displPtr, table))) + scaleAdj.fX;
-            const SkScalar displY = SkScalarMul(scaleForColor.fY,
-                SkIntToScalar(getValue<typeY>(*displPtr, table))) + scaleAdj.fY;
+            SkScalar displX = scaleForColor.fX * getValue<typeX>(*displPtr, table) + scaleAdj.fX;
+            SkScalar displY = scaleForColor.fY * getValue<typeY>(*displPtr, table) + scaleAdj.fY;
             // Truncate the displacement values
             const int srcX = x + SkScalarTruncToInt(displX);
             const int srcY = y + SkScalarTruncToInt(displY);

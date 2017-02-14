@@ -47,10 +47,7 @@ inline int checkNoise(int noiseValue, int limitValue, int newValue) {
 }
 
 inline SkScalar smoothCurve(SkScalar t) {
-    static const SkScalar SK_Scalar3 = 3.0f;
-
-    // returns t * t * (3 - 2 * t)
-    return SkScalarMul(SkScalarSquare(t), SK_Scalar3 - 2 * t);
+    return t * t * (3 - 2 * t);
 }
 
 } // end namespace
@@ -188,16 +185,14 @@ private:
         for (int channel = 0; channel < 4; ++channel) {
             for (int i = 0; i < kBlockSize; ++i) {
                 fGradient[channel][i] = SkPoint::Make(
-                    SkScalarMul(SkIntToScalar(fNoise[channel][i][0] - kBlockSize),
-                                gInvBlockSizef),
-                    SkScalarMul(SkIntToScalar(fNoise[channel][i][1] - kBlockSize),
-                                gInvBlockSizef));
+                    (fNoise[channel][i][0] - kBlockSize) * gInvBlockSizef,
+                    (fNoise[channel][i][1] - kBlockSize) * gInvBlockSizef);
                 fGradient[channel][i].normalize();
                 // Put the normalized gradient back into the noise data
-                fNoise[channel][i][0] = SkScalarRoundToInt(SkScalarMul(
-                    fGradient[channel][i].fX + SK_Scalar1, gHalfMax16bits));
-                fNoise[channel][i][1] = SkScalarRoundToInt(SkScalarMul(
-                    fGradient[channel][i].fY + SK_Scalar1, gHalfMax16bits));
+                fNoise[channel][i][0] = SkScalarRoundToInt(
+                                                (fGradient[channel][i].fX + 1) * gHalfMax16bits);
+                fNoise[channel][i][1] = SkScalarRoundToInt(
+                                                (fGradient[channel][i].fY + 1) * gHalfMax16bits);
             }
         }
     }
@@ -385,8 +380,8 @@ SkScalar SkPerlinNoiseShader::PerlinNoiseShaderContext::calculateTurbulenceValue
         stitchData = fPaintingData->fStitchDataInit;
     }
     SkScalar turbulenceFunctionResult = 0;
-    SkPoint noiseVector(SkPoint::Make(SkScalarMul(point.x(), fPaintingData->fBaseFrequency.fX),
-                                      SkScalarMul(point.y(), fPaintingData->fBaseFrequency.fY)));
+    SkPoint noiseVector(SkPoint::Make(point.x() * fPaintingData->fBaseFrequency.fX,
+                                      point.y() * fPaintingData->fBaseFrequency.fY));
     SkScalar ratio = SK_Scalar1;
     for (int octave = 0; octave < perlinNoiseShader.fNumOctaves; ++octave) {
         SkScalar noise = noise2D(channel, stitchData, noiseVector);
@@ -408,8 +403,7 @@ SkScalar SkPerlinNoiseShader::PerlinNoiseShaderContext::calculateTurbulenceValue
     // The value of turbulenceFunctionResult comes from ((turbulenceFunctionResult) + 1) / 2
     // by fractalNoise and (turbulenceFunctionResult) by turbulence.
     if (perlinNoiseShader.fType == kFractalNoise_Type) {
-        turbulenceFunctionResult =
-            SkScalarMul(turbulenceFunctionResult, SK_ScalarHalf) + SK_ScalarHalf;
+        turbulenceFunctionResult = turbulenceFunctionResult * SK_ScalarHalf + SK_ScalarHalf;
     }
 
     if (channel == 3) { // Scale alpha by paint value

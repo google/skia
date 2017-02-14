@@ -141,7 +141,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 static const double kClose = (SK_Scalar1 / 16.0);
-static const double kCloseSqd = SkScalarMul(kClose, kClose);
+static const double kCloseSqd = kClose * kClose;
 static const double kNearlyZero = (SK_Scalar1 / (1 << 18));
 static const double kTangentTolerance = (SK_Scalar1 / (1 << 11));
 static const float  kConicTolerance = 0.25f;

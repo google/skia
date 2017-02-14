@@ -52,8 +52,7 @@ static void set_matrix_edge_conical(const SkTwoPointConicalGradient& shader,
     if (0 != diffLen) {
         SkScalar invDiffLen = SkScalarInvert(diffLen);
         SkMatrix rot;
-        rot.setSinCos(-SkScalarMul(invDiffLen, diff.fY),
-                       SkScalarMul(invDiffLen, diff.fX));
+        rot.setSinCos(-invDiffLen * diff.fY, invDiffLen * diff.fX);
         invLMatrix->postConcat(rot);
     }
 }
@@ -111,13 +110,13 @@ private:
         //    float b = -2.0 * (fCenterX1 * x + fRadius0 * fDiffRadius * z)
         fBTransform = this->getCoordTransform();
         SkMatrix& bMatrix = *fBTransform.accessMatrix();
-        SkScalar r0dr = SkScalarMul(fRadius0, fDiffRadius);
-        bMatrix[SkMatrix::kMScaleX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMScaleX]) +
-                                            SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp0]));
-        bMatrix[SkMatrix::kMSkewX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMSkewX]) +
-                                           SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp1]));
-        bMatrix[SkMatrix::kMTransX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMTransX]) +
-                                            SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp2]));
+        SkScalar r0dr = fRadius0 * fDiffRadius;
+        bMatrix[SkMatrix::kMScaleX] = -2 * (fCenterX1 * bMatrix[SkMatrix::kMScaleX] +
+                                            r0dr * bMatrix[SkMatrix::kMPersp0]);
+        bMatrix[SkMatrix::kMSkewX] = -2 * (fCenterX1 * bMatrix[SkMatrix::kMSkewX] +
+                                           r0dr * bMatrix[SkMatrix::kMPersp1]);
+        bMatrix[SkMatrix::kMTransX] = -2 * (fCenterX1 * bMatrix[SkMatrix::kMTransX] +
+                                            r0dr * bMatrix[SkMatrix::kMPersp2]);
         this->addCoordTransform(&fBTransform);
     }
 
@@ -295,8 +294,7 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::onSetData(
     if (fCachedRadius != radius0 ||
         fCachedDiffRadius != diffRadius) {
 
-        pdman.set3f(fParamUni, SkScalarToFloat(radius0),
-                    SkScalarToFloat(SkScalarMul(radius0, radius0)), SkScalarToFloat(diffRadius));
+        pdman.set3f(fParamUni, radius0, radius0 * radius0, diffRadius);
         fCachedRadius = radius0;
         fCachedDiffRadius = diffRadius;
     }
@@ -334,8 +332,7 @@ static ConicalType set_matrix_focal_conical(const SkTwoPointConicalGradient& sha
     if (0.f != *focalX) {
         SkScalar invFocalX = SkScalarInvert(*focalX);
         SkMatrix rot;
-        rot.setSinCos(-SkScalarMul(invFocalX, focalTrans.fY),
-                      SkScalarMul(invFocalX, focalTrans.fX));
+        rot.setSinCos(-invFocalX * focalTrans.fY, invFocalX * focalTrans.fX);
         matrix.postConcat(rot);
     }
 
@@ -350,7 +347,7 @@ static ConicalType set_matrix_focal_conical(const SkTwoPointConicalGradient& sha
     }
 
     // Scale factor 1 / (1 - focalX * focalX)
-    SkScalar oneMinusF2 = 1.f - SkScalarMul(*focalX, *focalX);
+    SkScalar oneMinusF2 = 1.f - *focalX * *focalX;
     SkScalar s = SkScalarInvert(oneMinusF2);
 
 
@@ -566,7 +563,7 @@ void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::onSetDat
     SkScalar focal = data.focal();
 
     if (fCachedFocal != focal) {
-        SkScalar oneMinus2F = 1.f - SkScalarMul(focal, focal);
+        SkScalar oneMinus2F = 1.f - focal * focal;
 
         pdman.set2f(fParamUni, SkScalarToFloat(focal), SkScalarToFloat(oneMinus2F));
         fCachedFocal = focal;

@@ -73,7 +73,7 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
                                                     kStdFakeBoldInterpKeys,
                                                     kStdFakeBoldInterpValues,
                                                     kStdFakeBoldInterpLength);
-        SkScalar width = SkScalarMul(result.getTextSize(), fakeBoldScale);
+        SkScalar width = result.getTextSize() * fakeBoldScale;
         if (result.getStyle() == SkPaint::kFill_Style) {
             result.setStyle(SkPaint::kStrokeAndFill_Style);
         } else {
@@ -343,8 +343,7 @@ void GraphicStackState::updateDrawingState(const SkPDFDevice::GraphicStateEntry&
 
     if (state.fTextScaleX) {
         if (state.fTextScaleX != currentEntry()->fTextScaleX) {
-            SkScalar pdfScale = SkScalarMul(state.fTextScaleX,
-                                            SkIntToScalar(100));
+            SkScalar pdfScale = state.fTextScaleX * 1000;
             SkPDFUtils::AppendScalar(pdfScale, fContentStream);
             fContentStream->writeText(" Tz\n");
             currentEntry()->fTextScaleX = state.fTextScaleX;

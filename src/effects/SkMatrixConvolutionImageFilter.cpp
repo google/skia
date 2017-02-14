@@ -182,19 +182,19 @@ void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
                                                       bounds);
                     SkScalar k = fKernel[cy * fKernelSize.fWidth + cx];
                     if (convolveAlpha) {
-                        sumA += SkScalarMul(SkIntToScalar(SkGetPackedA32(s)), k);
+                        sumA += SkGetPackedA32(s) * k;
                     }
-                    sumR += SkScalarMul(SkIntToScalar(SkGetPackedR32(s)), k);
-                    sumG += SkScalarMul(SkIntToScalar(SkGetPackedG32(s)), k);
-                    sumB += SkScalarMul(SkIntToScalar(SkGetPackedB32(s)), k);
+                    sumR += SkGetPackedR32(s) * k;
+                    sumG += SkGetPackedG32(s) * k;
+                    sumB += SkGetPackedB32(s) * k;
                 }
             }
             int a = convolveAlpha
-                  ? SkClampMax(SkScalarFloorToInt(SkScalarMul(sumA, fGain) + fBias), 255)
+                  ? SkClampMax(SkScalarFloorToInt(sumA * fGain + fBias), 255)
                   : 255;
-            int r = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumR, fGain) + fBias), a);
-            int g = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumG, fGain) + fBias), a);
-            int b = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumB, fGain) + fBias), a);
+            int r = SkClampMax(SkScalarFloorToInt(sumR * fGain + fBias), a);
+            int g = SkClampMax(SkScalarFloorToInt(sumG * fGain + fBias), a);
+            int b = SkClampMax(SkScalarFloorToInt(sumB * fGain + fBias), a);
             if (!convolveAlpha) {
                 a = SkGetPackedA32(PixelFetcher::fetch(src, x, y, bounds));
                 *dptr++ = SkPreMultiplyARGB(a, r, g, b);

@@ -441,8 +441,9 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
                 detABSqd = SkScalarSquare(detABSqd);
                 SkScalar detDCSqd = dc.cross(da);
                 detDCSqd = SkScalarSquare(detDCSqd);
-                if (SkScalarMul(detABSqd, invDALengthSqd) < toleranceSqd &&
-                    SkScalarMul(detDCSqd, invDALengthSqd) < toleranceSqd) {
+                if (detABSqd * invDALengthSqd < toleranceSqd &&
+                    detDCSqd * invDALengthSqd < toleranceSqd)
+                {
                     doQuads = true;
                 }
             }
@@ -499,9 +500,9 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
             SkScalar z0 = -ab.dot(p[0]);
             dc.setOrthog(dc);
             SkScalar z1 = -dc.dot(p[3]);
-            cAvg.fX = SkScalarMul(ab.fY, z1) - SkScalarMul(z0, dc.fY);
-            cAvg.fY = SkScalarMul(z0, dc.fX) - SkScalarMul(ab.fX, z1);
-            SkScalar z = SkScalarMul(ab.fX, dc.fY) - SkScalarMul(ab.fY, dc.fX);
+            cAvg.fX = ab.fY * z1 - z0 * dc.fY;
+            cAvg.fY = z0 * dc.fX - ab.fX * z1;
+            SkScalar z = ab.fX * dc.fY - ab.fY * dc.fX;
             z = SkScalarInvert(z);
             cAvg.fX *= z;
             cAvg.fY *= z;
@@ -512,7 +513,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
                 // the distances and tolerance can't be negative.
                 // (d0 + d1)^2 > toleranceSqd
                 // d0Sqd + 2*d0*d1 + d1Sqd > toleranceSqd
-                SkScalar d0d1 = SkScalarSqrt(SkScalarMul(d0Sqd, d1Sqd));
+                SkScalar d0d1 = SkScalarSqrt(d0Sqd * d1Sqd);
                 subdivide = 2 * d0d1 + d0Sqd + d1Sqd > toleranceSqd;
             }
         }

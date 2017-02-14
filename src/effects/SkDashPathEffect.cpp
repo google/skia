@@ -47,7 +47,7 @@ static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
         radius = SK_Scalar1;    // hairlines
     }
     if (SkPaint::kMiter_Join == rec.getJoin()) {
-        radius = SkScalarMul(radius, rec.getMiter());
+        radius *= rec.getMiter();
     }
     rect->outset(radius, radius);
 }
@@ -280,8 +280,8 @@ bool SkDashPathEffect::asPoints(PointData* results,
                 if (clampedInitialDashLength > 0) {
                     // partial first block
                     SkASSERT(SkPaint::kRound_Cap != rec.getCap()); // can't handle partial circles
-                    SkScalar x = pts[0].fX + SkScalarMul(tangent.fX, SkScalarHalf(clampedInitialDashLength));
-                    SkScalar y = pts[0].fY + SkScalarMul(tangent.fY, SkScalarHalf(clampedInitialDashLength));
+                    SkScalar x = pts[0].fX + tangent.fX * SkScalarHalf(clampedInitialDashLength);
+                    SkScalar y = pts[0].fY + tangent.fY * SkScalarHalf(clampedInitialDashLength);
                     SkScalar halfWidth, halfHeight;
                     if (isXAxis) {
                         halfWidth = SkScalarHalf(clampedInitialDashLength);
@@ -313,8 +313,8 @@ bool SkDashPathEffect::asPoints(PointData* results,
             distance += SkScalarHalf(fIntervals[0]);
 
             for (int i = 0; i < numMidPoints; ++i) {
-                SkScalar x = pts[0].fX + SkScalarMul(tangent.fX, distance);
-                SkScalar y = pts[0].fY + SkScalarMul(tangent.fY, distance);
+                SkScalar x = pts[0].fX + tangent.fX * distance;
+                SkScalar y = pts[0].fY + tangent.fY * distance;
 
                 SkASSERT(curPt < results->fNumPoints);
                 results->fPoints[curPt].set(x, y);
@@ -331,8 +331,8 @@ bool SkDashPathEffect::asPoints(PointData* results,
             SkASSERT(SkPaint::kRound_Cap != rec.getCap()); // can't handle partial circles
             SkScalar temp = length - distance;
             SkASSERT(temp < fIntervals[0]);
-            SkScalar x = pts[0].fX + SkScalarMul(tangent.fX, distance + SkScalarHalf(temp));
-            SkScalar y = pts[0].fY + SkScalarMul(tangent.fY, distance + SkScalarHalf(temp));
+            SkScalar x = pts[0].fX + tangent.fX * (distance + SkScalarHalf(temp));
+            SkScalar y = pts[0].fY + tangent.fY * (distance + SkScalarHalf(temp));
             SkScalar halfWidth, halfHeight;
             if (isXAxis) {
                 halfWidth = SkScalarHalf(temp);

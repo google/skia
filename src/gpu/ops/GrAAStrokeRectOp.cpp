@@ -58,8 +58,8 @@ static void compute_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* 
 
     const SkScalar dx = devStrokeSize.fX;
     const SkScalar dy = devStrokeSize.fY;
-    const SkScalar rx = SkScalarMul(dx, SK_ScalarHalf);
-    const SkScalar ry = SkScalarMul(dy, SK_ScalarHalf);
+    const SkScalar rx = SkScalarHalf(dx);
+    const SkScalar ry = SkScalarHalf(dy);
 
     *devOutside = devRect;
     *devOutsideAssist = devRect;

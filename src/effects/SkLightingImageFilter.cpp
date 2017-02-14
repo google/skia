@@ -84,7 +84,7 @@ public:
         : fKD(kd) {}
     SkPMColor light(const SkPoint3& normal, const SkPoint3& surfaceTolight,
                     const SkPoint3& lightColor) const {
-        SkScalar colorScale = SkScalarMul(fKD, normal.dot(surfaceTolight));
+        SkScalar colorScale = fKD * normal.dot(surfaceTolight);
         colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
         SkPoint3 color = lightColor.makeScale(colorScale);
         return SkPackARGB32(255,
@@ -109,8 +109,7 @@ public:
         SkPoint3 halfDir(surfaceTolight);
         halfDir.fZ += SK_Scalar1;        // eye position is always (0, 0, 1)
         fast_normalize(&halfDir);
-        SkScalar colorScale = SkScalarMul(fKS,
-            SkScalarPow(normal.dot(halfDir), fShininess));
+        SkScalar colorScale = fKS * SkScalarPow(normal.dot(halfDir), fShininess);
         colorScale = SkScalarClampMax(colorScale, SK_Scalar1);
         SkPoint3 color = lightColor.makeScale(colorScale);
         return SkPackARGB32(SkClampMax(SkScalarRoundToInt(max_component(color)), 255),
@@ -124,13 +123,11 @@ private:
 };
 
 inline SkScalar sobel(int a, int b, int c, int d, int e, int f, SkScalar scale) {
-    return SkScalarMul(SkIntToScalar(-a + b - 2 * c + 2 * d -e + f), scale);
+    return (-a + b - 2 * c + 2 * d -e + f) * scale;
 }
 
 inline SkPoint3 pointToNormal(SkScalar x, SkScalar y, SkScalar surfaceScale) {
-    SkPoint3 vector = SkPoint3::Make(SkScalarMul(-x, surfaceScale),
-                                     SkScalarMul(-y, surfaceScale),
-                                     SK_Scalar1);
+    SkPoint3 vector = SkPoint3::Make(-x * surfaceScale, -y * surfaceScale, 1);
     fast_normalize(&vector);
     return vector;
 }
@@ -855,8 +852,7 @@ public:
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {
         SkPoint3 direction = SkPoint3::Make(fLocation.fX - SkIntToScalar(x),
                                             fLocation.fY - SkIntToScalar(y),
-                                            fLocation.fZ - SkScalarMul(SkIntToScalar(z),
-                                                                       surfaceScale));
+                                            fLocation.fZ - SkIntToScalar(z) * surfaceScale);
         fast_normalize(&direction);
         return direction;
     }
@@ -959,8 +955,7 @@ public:
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {
         SkPoint3 direction = SkPoint3::Make(fLocation.fX - SkIntToScalar(x),
                                             fLocation.fY - SkIntToScalar(y),
-                                            fLocation.fZ - SkScalarMul(SkIntToScalar(z),
-                                                                       surfaceScale));
+                                            fLocation.fZ - SkIntToScalar(z) * surfaceScale);
         fast_normalize(&direction);
         return direction;
     }
@@ -970,8 +965,7 @@ public:
         if (cosAngle >= fCosOuterConeAngle) {
             scale = SkScalarPow(cosAngle, fSpecularExponent);
             if (cosAngle < fCosInnerConeAngle) {
-                scale = SkScalarMul(scale, cosAngle - fCosOuterConeAngle);
-                scale *= fConeScale;
+                scale *= (cosAngle - fCosOuterConeAngle) * fConeScale;
             }
         }
         return this->color().makeScale(scale);
@@ -1342,7 +1336,7 @@ sk_sp<GrFragmentProcessor> SkDiffuseLightingImageFilter::makeFragmentProcessor(
                                                    const SkMatrix& matrix,
                                                    const SkIRect* srcBounds,
                                                    BoundaryMode boundaryMode) const {
-    SkScalar scale = SkScalarMul(this->surfaceScale(), SkIntToScalar(255));
+    SkScalar scale = this->surfaceScale() * 255;
     return GrDiffuseLightingEffect::Make(texture, this->light(), scale, matrix, this->kd(),
                                          boundaryMode, srcBounds);
 }
@@ -1507,7 +1501,7 @@ sk_sp<GrFragmentProcessor> SkSpecularLightingImageFilter::makeFragmentProcessor(
                                                     const SkMatrix& matrix,
                                                     const SkIRect* srcBounds,
                                                     BoundaryMode boundaryMode) const {
-    SkScalar scale = SkScalarMul(this->surfaceScale(), SkIntToScalar(255));
+    SkScalar scale = this->surfaceScale() * 255;
     return GrSpecularLightingEffect::Make(texture, this->light(), scale, matrix, this->ks(),
                                           this->shininess(), boundaryMode, srcBounds);
 }
