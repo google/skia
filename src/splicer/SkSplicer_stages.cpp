@@ -118,39 +118,58 @@ using F4 = float __attribute__((ext_vector_type(4)));
 // SkSplicer_generated.h.  It's easier to do if the function names are not C++ mangled.
 #define C extern "C"
 
-// Stages all fit a common interface that allows SkSplicer to splice them together.
-using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
+#if defined(SPLICER)
+    // Splicer Stages all fit a common interface that allows SkSplicer to splice them together.
+    // (This is just for reference... nothing uses this type when we're in Splicer mode.)
+    using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 
-// Stage's arguments act as the working set of registers within the final spliced function.
-// Here's a little primer on the x86-64/aarch64 ABIs:
-//   x:         rdi/x0          x and limit work to drive the loop, see loop_start in SkSplicer.cpp.
-//   limit:     rsi/x1
-//   ctx:       rdx/x2          Look for set_ctx in SkSplicer.cpp to see how this works.
-//   k:         rcx/x3
-//   vectors:   ymm0-ymm7/v0-v7
+    // Stage's arguments act as the working set of registers within the final spliced function.
+    // Here's a little primer on the x86-64/aarch64 ABIs:
+    //   x:         rdi/x0   x and limit work to drive the loop, see loop_start in SkSplicer.cpp.
+    //   limit:     rsi/x1
+    //   ctx:       rdx/x2   Look for set_ctx in SkSplicer.cpp to see how this works.
+    //   k:         rcx/x3
+    //   vectors:   ymm0-ymm7/v0-v7
 
+    // done() is the key to this entire splicing strategy.
+    //
+    // It matches the signature of Stage, so all the registers are kept live.
+    // Every Stage calls done() and so will end in a single jmp (i.e. tail-call) into done(),
+    // which marks the point where we can splice one Stage onto the next.
+    //
+    // The lovely bit is that we don't have to define done(), just declare it.
+    C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
 
-// done() is the key to this entire splicing strategy.
-//
-// It matches the signature of Stage, so all the registers are kept live.
-// Every Stage calls done() and so will end in a single jmp (i.e. tail-call) into done(),
-// which marks the point where we can splice one Stage onto the next.
-//
-// The lovely bit is that we don't have to define done(), just declare it.
-C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
+    // This should feel familiar to anyone who's read SkRasterPipeline_opts.h.
+    // It's just a convenience to make a valid, spliceable Stage, nothing magic.
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t& x, size_t limit, void* ctx, K* k,            \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        C void name(size_t x, size_t limit, void* ctx, K* k,                      \
+                    F r, F g, F b, F a, F dr, F dg, F db, F da) {                 \
+            name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                        \
+            done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                        \
+        }                                                                         \
+        static void name##_k(size_t& x, size_t limit, void* ctx, K* k,            \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#else
+    // Jumper Stages tail call between each other by following program,
+    // an interlaced sequence of Stage pointers and context pointers.
+    using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
 
-// This should feel familiar to anyone who's read SkRasterPipeline_opts.h.
-// It's just a convenience to make a valid, spliceable Stage, nothing magic.
-#define STAGE(name)                                                           \
-    static void name##_k(size_t& x, size_t limit, void* ctx, K* k,            \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    C void name(size_t x, size_t limit, void* ctx, K* k,                      \
-                F r, F g, F b, F a, F dr, F dg, F db, F da) {                 \
-        name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                        \
-        done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                        \
-    }                                                                         \
-    static void name##_k(size_t& x, size_t limit, void* ctx, K* k,            \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t& x, void* ctx, K* k,                          \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        C void name(size_t x, void** program, K* k,                               \
+                    F r, F g, F b, F a, F dr, F dg, F db, F da) {                 \
+            auto ctx = *program++;                                                \
+            name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
+            auto fn = (Stage*)*program++;                                         \
+            fn(x,program,k, r,g,b,a, dr,dg,db,da);                                \
+        }                                                                         \
+        static void name##_k(size_t& x, void* ctx, K* k,                          \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#endif
 
 // We can now define Stages!
 
