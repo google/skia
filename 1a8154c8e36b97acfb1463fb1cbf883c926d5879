@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "176f0a4f_552d9b14",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-14T13:51:40Z",
+      "side": 1,
+      "message": "Ack.\n\nI\u0027m thinking I\u0027ll probably drop this stage and add a special case for Index8 sources anyway.",
+      "parentUuid": "dddc0779_990d5d39",
+      "revId": "1a8154c8e36b97acfb1463fb1cbf883c926d5879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "31315c56_7cc586e6",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-14T13:03:05Z",
       "side": 1,
       "message": "So far we\u0027ve been using swap_rb to let all these other stages assume RGBA.  Does that not work here?",
+      "revId": "1a8154c8e36b97acfb1463fb1cbf883c926d5879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beb31f8f_890f21cf",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-14T13:51:40Z",
+      "side": 1,
+      "message": "It could work.  Color tables are always PM color order, so I would need to put platform specific code somewhere (but it could be where the pipeline is built).",
+      "parentUuid": "31315c56_7cc586e6",
       "revId": "1a8154c8e36b97acfb1463fb1cbf883c926d5879",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
