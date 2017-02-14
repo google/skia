@@ -230,11 +230,15 @@ struct DeviceCM {
             fMatrixStorage.postTranslate(SkIntToScalar(-x),
                                          SkIntToScalar(-y));
             fMatrix = &fMatrixStorage;
-
             totalClip.translate(-x, -y, &fClip);
         }
 
         fClip.op(SkIRect::MakeWH(width, height), SkRegion::kIntersect_Op);
+
+#ifdef SK_USE_DEVICE_CLIPPING
+        SkASSERT(*fMatrix == fDevice->ctm());
+//        fDevice->validateDevBounds(fClip.getBounds());
+#endif
 
         // intersect clip, but don't translate it (yet)
 
@@ -392,7 +396,9 @@ private:
         DeviceCM* layer = fMCRec->fTopLayer;        \
         while (layer) {                             \
             SkBaseDevice* device = layer->fDevice;  \
-            code;                                   \
+            if (device) {                           \
+                code;                               \
+            }                                       \
             layer = layer->fNext;                   \
         }                                           \
     } while (0)
@@ -694,6 +700,10 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
         fMCRec->fLayer->fDevice = SkRef(device);
         fMCRec->fRasterClip.setRect(device->getGlobalBounds());
         fDeviceClipBounds = qr_clip_bounds(device->getGlobalBounds());
+
+#ifdef SK_USE_DEVICE_CLIPPING
+        device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
+#endif
     }
 
     return device;
@@ -720,7 +730,7 @@ public:
     SkNoPixelsBitmapDevice(const SkIRect& bounds, const SkSurfaceProps& surfaceProps)
         : INHERITED(make_nopixels(bounds.width(), bounds.height()), surfaceProps)
     {
-        this->setOrigin(bounds.x(), bounds.y());
+        this->setOrigin(SkMatrix::I(), bounds.x(), bounds.y());
     }
 
 private:
@@ -1006,9 +1016,6 @@ void SkCanvas::doSave() {
     SkASSERT(fMCRec->fDeferredSaveCount > 0);
     fMCRec->fDeferredSaveCount -= 1;
     this->internalSave();
-#ifdef SK_USE_DEVICE_CLIPPING
-    FOR_EACH_TOP_DEVICE(device->save());
-#endif
 }
 
 void SkCanvas::restore() {
@@ -1024,9 +1031,6 @@ void SkCanvas::restore() {
             fSaveCount -= 1;
             this->internalRestore();
             this->didRestore();
-#ifdef SK_USE_DEVICE_CLIPPING
-            FOR_EACH_TOP_DEVICE(device->restore(fMCRec->fMatrix));
-#endif
         }
     }
 }
@@ -1049,6 +1053,9 @@ void SkCanvas::internalSave() {
     fMCRec = newTop;
 
     fClipStack->save();
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->save());
+#endif
 }
 
 bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
@@ -1123,8 +1130,8 @@ int SkCanvas::saveLayer(const SaveLayerRec& origRec) {
 }
 
 void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
-                                    SkBaseDevice* dst, const SkMatrix& ctm,
-                                    const SkClipStack* clipStack) {
+                                    SkBaseDevice* dst, const SkIPoint& dstOrigin,
+                                    const SkMatrix& ctm, const SkClipStack* clipStack) {
     SkDraw draw;
     SkRasterClip rc;
     rc.setRect(SkIRect::MakeWH(dst->width(), dst->height()));
@@ -1139,8 +1146,8 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     SkPaint p;
     p.setImageFilter(filter->makeWithLocalMatrix(ctm));
 
-    int x = src->getOrigin().x() - dst->getOrigin().x();
-    int y = src->getOrigin().y() - dst->getOrigin().y();
+    int x = src->getOrigin().x() - dstOrigin.x();
+    int y = src->getOrigin().y() - dstOrigin.y();
     auto special = src->snapSpecial();
     if (special) {
         dst->drawSpecial(draw, special.get(), x, y, p);
@@ -1252,7 +1259,9 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             return;
         }
     }
-    newDevice->setOrigin(ir.fLeft, ir.fTop);
+#ifndef SK_USE_DEVICE_CLIPPING
+    newDevice->setOrigin(fMCRec->fMatrix, ir.fLeft, ir.fTop);
+#endif
 
     DeviceCM* layer =
             new DeviceCM(newDevice.get(), paint, this, fConservativeRasterClip, stashedMatrix);
@@ -1263,9 +1272,25 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
     if (rec.fBackdrop) {
-        DrawDeviceWithFilter(priorDevice, rec.fBackdrop, newDevice.get(),
+        DrawDeviceWithFilter(priorDevice, rec.fBackdrop, newDevice.get(), { ir.fLeft, ir.fTop },
                              fMCRec->fMatrix, this->getClipStack());
     }
+
+#ifdef SK_USE_DEVICE_CLIPPING
+    newDevice->setOrigin(fMCRec->fMatrix, ir.fLeft, ir.fTop);
+#endif
+
+#ifdef SK_USE_DEVICE_CLIPPING
+    newDevice->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
+    if (layer->fNext) {
+        // need to punch a hole in the previous device, so we don't draw there, given that
+        // the new top-layer will allow drawing to happen "below" it.
+        SkRegion hole(SkIRect::MakeXYWH(ir.fLeft, ir.fTop,
+                                        newDevice->width(), newDevice->height()));
+        hole.setRect(ir);
+        priorDevice->clipRegion(hole, SkClipOp::kDifference);
+    }
+#endif
 }
 
 int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
@@ -1294,6 +1319,12 @@ void SkCanvas::internalRestore() {
     fMCRec->~MCRec();       // balanced in save()
     fMCStack.pop_back();
     fMCRec = (MCRec*)fMCStack.back();
+
+#ifdef SK_USE_DEVICE_CLIPPING
+    if (fMCRec) {
+        FOR_EACH_TOP_DEVICE(device->restore(fMCRec->fMatrix));
+    }
+#endif
 
     /*  Time to draw the layer's offscreen. We can't call the public drawSprite,
         since if we're being recorded, we don't want to record this (the
@@ -1433,6 +1464,10 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
         // Translate shouldn't affect the is-scale-translateness of the matrix.
         SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
 
+#ifdef SK_USE_DEVICE_CLIPPING
+        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+#endif
+
         this->didTranslate(dx,dy);
     }
 }
@@ -1482,6 +1517,10 @@ void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fMCRec->fMatrix = matrix;
     fIsScaleTranslate = matrix.isScaleTranslate();
+
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+#endif
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
@@ -1542,6 +1581,10 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     fClipStack->setDeviceClipRestriction(fClipRestrictionRect);
     if (!fClipRestrictionRect.isEmpty()) {
         this->checkForDeferredSave();
+#ifdef SK_USE_DEVICE_CLIPPING
+        SkRegion restrictRgn(fClipRestrictionRect);
+        FOR_EACH_TOP_DEVICE(device->clipRegion(restrictRgn, SkClipOp::kIntersect));
+#endif
         AutoValidateClip avc(this);
         fClipStack->clipDevRect(fClipRestrictionRect, kIntersect_SkClipOp);
         fMCRec->fRasterClip.op(fClipRestrictionRect, SkRegion::kIntersect_Op);
