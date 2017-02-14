@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb7d8bf2_905f322a",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-14T16:06:12Z",
+      "side": 1,
+      "message": "Do we not support copy to G8?  Or only if the source was G8?",
+      "range": {
+        "startLine": 163,
+        "startChar": 8,
+        "endLine": 163,
+        "endChar": 15
+      },
+      "revId": "3a21aa2ce4b04a8854e883a3b8588edd48518dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4f37311_d6a98cbc",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-14T16:06:12Z",
+      "side": 1,
+      "message": "Kind of unclear what bpp is meant to mean.  Did this used to be templated on \u003csize_t bpp\u003e ?",
+      "range": {
+        "startLine": 249,
+        "startChar": 15,
+        "endLine": 249,
+        "endChar": 18
+      },
+      "revId": "3a21aa2ce4b04a8854e883a3b8588edd48518dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5d426f5_afdbce44",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-14T16:06:12Z",
+      "side": 1,
+      "message": "You might consider passing T* instead of void* for dstPixels.  That way you write\n\n   do_index8_bpp(..., (uint8_t*)dstPixels, ...);\n\ninstead of\n\n   do_index8_bpp\u003cuint8_t\u003e(..., dstPixels, ...);\n\nAnd then you don\u0027t need any cast inside do_index8_bpp().",
+      "range": {
+        "startLine": 249,
+        "startChar": 47,
+        "endLine": 249,
+        "endChar": 62
+      },
+      "revId": "3a21aa2ce4b04a8854e883a3b8588edd48518dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd97a023_363f1251",
+        "filename": "src/core/SkConfig8888.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-14T16:06:12Z",
+      "side": 1,
+      "message": "Didn\u0027t you mean to make this void?",
+      "range": {
+        "startLine": 17,
+        "startChar": 4,
+        "endLine": 17,
+        "endChar": 19
+      },
+      "revId": "3a21aa2ce4b04a8854e883a3b8588edd48518dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
