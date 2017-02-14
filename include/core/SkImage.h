@@ -161,14 +161,6 @@ public:
 
     /**
      *  Create a new image from the specified picture.
-     *  This SkImage has no defined BitDepth or SkColorSpace, it is a flexible container for
-     *  draw commands.
-     */
-    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
-                                          const SkMatrix* matrix, const SkPaint* paint);
-
-    /**
-     *  Create a new image from the specified picture.
      *  On creation of the SkImage, snap the SkPicture to a particular BitDepth and SkColorSpace.
      */
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,

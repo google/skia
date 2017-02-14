@@ -80,20 +80,13 @@ static void draw_contents(SkCanvas* canvas) {
     canvas->drawCircle(60, 60, 35, paint);
 }
 
-static sk_sp<SkImage> make_tagged_picture_image() {
+static sk_sp<SkImage> make_picture_image() {
     SkPictureRecorder recorder;
     draw_contents(recorder.beginRecording(SkRect::MakeIWH(kWidth, kHeight)));
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
                                     SkISize::Make(kWidth, kHeight), nullptr, nullptr,
                                     SkImage::BitDepth::kU8,
                                     SkColorSpace::MakeSRGB());
-}
-
-static sk_sp<SkImage> make_untagged_picture_image() {
-    SkPictureRecorder recorder;
-    draw_contents(recorder.beginRecording(SkRect::MakeIWH(kWidth, kHeight)));
-    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
-                                    SkISize::Make(kWidth, kHeight), nullptr, nullptr);
 }
 
 static sk_sp<SkColorSpace> make_srgb_transfer_fn(const SkColorSpacePrimaries& primaries) {
@@ -290,8 +283,7 @@ protected:
         }
 
         const sk_sp<SkImage> images[] = {
-                make_tagged_picture_image(),
-                make_untagged_picture_image(),
+                make_picture_image(),
         };
         const SkAlphaType alphaTypes[] = {
                 kUnpremul_SkAlphaType,
