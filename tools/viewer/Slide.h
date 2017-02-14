@@ -28,6 +28,8 @@ public:
     virtual void load(SkScalar winWidth, SkScalar winHeight) {}
     virtual void unload() {}
 
+    virtual bool onChar(SkUnichar c) { return false; }
+
     SkString getName() { return fName; }
 
 protected:
