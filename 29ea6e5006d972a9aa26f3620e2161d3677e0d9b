@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5e2c554d_bfcdf2c8",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T01:46:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4aa43192_77f703e3",
+      "range": {
+        "startLine": 760,
+        "startChar": 8,
+        "endLine": 760,
+        "endChar": 29
+      },
+      "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cda292ef_c8a3fcd6",
         "filename": "src/core/SkScalerContext.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05f391df_3e4f13ac",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T01:46:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cda292ef_c8a3fcd6",
+      "range": {
+        "startLine": 576,
+        "startChar": 8,
+        "endLine": 576,
+        "endChar": 25
+      },
+      "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "587f5898_087c6769",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T01:46:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b77d2d9_4d4df13c",
+      "range": {
+        "startLine": 252,
+        "startChar": 53,
+        "endLine": 252,
+        "endChar": 72
+      },
+      "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5739996_f0144341",
         "filename": "src/effects/SkPerlinNoiseShader.cpp",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a778dcda_85cdbc89",
+        "filename": "src/effects/SkPerlinNoiseShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T01:46:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5739996_f0144341",
+      "range": {
+        "startLine": 193,
+        "startChar": 100,
+        "endLine": 193,
+        "endChar": 108
+      },
+      "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
