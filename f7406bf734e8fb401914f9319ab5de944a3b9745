@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "95aa73c9_08d71341",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T17:05:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ac84c1f_2fc9b5ee",
+      "range": {
+        "startLine": 199,
+        "startChar": 16,
+        "endLine": 199,
+        "endChar": 19
+      },
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba3ee609_c535eca2",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 15
@@ -39,6 +63,24 @@
       "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d34df49_a91532bb",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T17:05:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba3ee609_c535eca2",
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "133169c3_6d8e1749",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T17:05:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c78555b_52663a2a",
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "27449fd5_e0d67528",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 15
@@ -70,6 +130,30 @@
       "writtenOn": "2017-02-14T15:58:42Z",
       "side": 1,
       "message": "instead of syncing the CTM on every mutation, would it work to pass it as an arg to the device clip methods?",
+      "range": {
+        "startLine": 1469,
+        "startChar": 36,
+        "endLine": 1469,
+        "endChar": 48
+      },
+      "revId": "f7406bf734e8fb401914f9319ab5de944a3b9745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63462665_606ff571",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-14T17:05:54Z",
+      "side": 1,
+      "message": "Started that way, but every draw call needs the ctm as well, and one goal/opportunity is to remove the SkDraw parameter entirely from those.",
+      "parentUuid": "27449fd5_e0d67528",
       "range": {
         "startLine": 1469,
         "startChar": 36,
