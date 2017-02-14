@@ -13,6 +13,7 @@
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkColorShader.h"
 #include "SkDevice.h"
 #include "SkDeviceLooper.h"
 #include "SkFindAndPlaceGlyph.h"
@@ -33,6 +34,7 @@
 #include "SkTemplates.h"
 #include "SkTextMapStateProc.h"
 #include "SkTLazy.h"
+#include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
 
@@ -1853,6 +1855,52 @@ void SkTriColorShader::toString(SkString* str) const {
 }
 #endif
 
+static sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint verts[],
+                                         const SkPoint texs[], const SkPaint& paint,
+                                         SkColorSpace* dstColorSpace,
+                                         SkArenaAlloc* alloc) {
+    SkASSERT(paint.getShader());
+
+    const auto& p0 = texs[state.f0],
+                p1 = texs[state.f1],
+                p2 = texs[state.f2];
+
+    if (p0 != p1 || p0 != p2) {
+        // Common case (non-collapsed texture coordinates).
+        // Map the texture to vertices using a local transform.
+        SkMatrix localMatrix;
+        return texture_to_matrix(state, verts, texs, &localMatrix)
+            ? alloc->makeSkSp<SkLocalMatrixShader>(paint.refShader(), localMatrix)
+            : nullptr;
+    }
+
+    // Collapsed texture coordinates special case.
+    // The texture is a solid color, sampled at the given point.
+    SkMatrix shaderInvLocalMatrix;
+    SkAssertResult(paint.getShader()->getLocalMatrix().invert(&shaderInvLocalMatrix));
+
+    const auto sample       = SkPoint::Make(0.5f, 0.5f);
+    const auto mappedSample = shaderInvLocalMatrix.mapXY(sample.x(), sample.y()),
+               mappedPoint  = shaderInvLocalMatrix.mapXY(p0.x(), p0.y());
+    const auto localMatrix  = SkMatrix::MakeTrans(mappedSample.x() - mappedPoint.x(),
+                                                  mappedSample.y() - mappedPoint.y());
+
+    SkShader::ContextRec rec(paint, SkMatrix::I(), &localMatrix,
+                             SkShader::ContextRec::kPMColor_DstType, dstColorSpace);
+    auto* ctx = paint.getShader()->makeContext(rec, alloc);
+    if (!ctx) {
+        return nullptr;
+    }
+
+    SkPMColor pmColor;
+    ctx->shadeSpan(SkScalarFloorToInt(sample.x()), SkScalarFloorToInt(sample.y()), &pmColor, 1);
+
+    // no need to keep this temp context around.
+    alloc->reset();
+
+    return alloc->makeSkSp<SkColorShader>(SkUnPreMultiply::PMColorToColor(pmColor));
+}
+
 void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                           const SkPoint vertices[], const SkPoint textures[],
                           const SkColor colors[], SkBlendMode bmode,
@@ -1922,18 +1970,28 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         while (vertProc(&state)) {
             auto* blitterPtr = blitter.get();
 
-            SkTLazy<SkLocalMatrixShader> localShader;
-            SkTLazy<SkAutoBlitterChoose> localBlitter;
+            // We're going to allocate at most
+            //
+            //   * one SkLocalMatrixShader OR one SkColorShader
+            //   * one SkComposeShader
+            //   * one SkAutoBlitterChoose
+            //
+            static constexpr size_t kAllocSize =
+                sizeof(SkAutoBlitterChoose) + sizeof(SkComposeShader) +
+                SkTMax(sizeof(SkLocalMatrixShader), sizeof(SkColorShader));
+            char allocBuffer[kAllocSize];
+            SkArenaAlloc alloc(allocBuffer);
 
             if (textures) {
-                SkMatrix tempM;
-                if (texture_to_matrix(state, vertices, textures, &tempM)) {
-                    localShader.init(p.refShader(), tempM);
-
+                sk_sp<SkShader> texShader = MakeTextureShader(state, vertices, textures, paint,
+                                                              fDst.colorSpace(), &alloc);
+                if (texShader) {
                     SkPaint localPaint(p);
-                    localPaint.setShader(sk_ref_sp(localShader.get()));
+                    localPaint.setShader(colors
+                        ? alloc.makeSkSp<SkComposeShader>(triShader, std::move(texShader), bmode)
+                        : std::move(texShader));
 
-                    blitterPtr = localBlitter.init(fDst, *fMatrix, localPaint)->get();
+                    blitterPtr = alloc.make<SkAutoBlitterChoose>(fDst, *fMatrix, localPaint)->get();
                     if (blitterPtr->isNullBlitter()) {
                         continue;
                     }
