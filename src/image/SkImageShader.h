@@ -15,7 +15,7 @@
 class SkImageShader : public SkShader {
 public:
     static sk_sp<SkShader> Make(sk_sp<SkImage>, TileMode tx, TileMode ty,
-                                const SkMatrix* localMatrix, SkTBlitterAllocator* = nullptr);
+                                const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
 

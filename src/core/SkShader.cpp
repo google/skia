@@ -232,7 +232,7 @@ sk_sp<SkShader> SkShader::MakeBitmapShader(const SkBitmap& src, TileMode tmx, Ti
     if (localMatrix && !localMatrix->invert(nullptr)) {
         return nullptr;
     }
-    return SkMakeBitmapShader(src, tmx, tmy, localMatrix, kIfMutable_SkCopyPixelsMode, nullptr);
+    return SkMakeBitmapShader(src, tmx, tmy, localMatrix, kIfMutable_SkCopyPixelsMode);
 }
 
 sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,

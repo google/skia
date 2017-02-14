@@ -85,23 +85,10 @@ public:
     SkAutoBitmapShaderInstall(const SkBitmap& src, const SkPaint& paint,
                               const SkMatrix* localMatrix = nullptr)
             : fPaint(paint) /* makes a copy of the paint */ {
-        // TODO(herb): Move this over to SkArenaAlloc when arena alloc has a
-        // facility to return sk_sps.
+
         fPaint.setShader(SkMakeBitmapShader(src, SkShader::kClamp_TileMode,
                                             SkShader::kClamp_TileMode, localMatrix,
-                                            kNever_SkCopyPixelsMode,
-                                            &fAllocator));
-        // we deliberately left the shader with an owner-count of 2
-        fPaint.getShader()->ref();
-        SkASSERT(2 == fPaint.getShader()->getRefCnt());
-    }
-
-    ~SkAutoBitmapShaderInstall() {
-        // since fAllocator will destroy shader, we insist that owners == 2
-        SkASSERT(2 == fPaint.getShader()->getRefCnt());
-
-        fPaint.setShader(nullptr); // unref the shader by 1
-
+                                            kNever_SkCopyPixelsMode));
     }
 
     // return the new paint that has the shader applied
@@ -110,8 +97,6 @@ public:
 private:
     // copy of caller's paint (which we then modify)
     SkPaint             fPaint;
-    // Stores the shader.
-    SkTBlitterAllocator fAllocator;
 };
 #define SkAutoBitmapShaderInstall(...) SK_REQUIRE_LOCAL_VAR(SkAutoBitmapShaderInstall)
 
