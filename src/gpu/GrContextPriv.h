@@ -57,6 +57,8 @@ public:
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* = nullptr);
 
+    bool disableGpuYUVConversion() const { return fContext->fDisableGpuYUVConversion; }
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&) {} // unimpl
