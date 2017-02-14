@@ -97,6 +97,7 @@ tests_sources = [
   "$_tests/GrTextureStripAtlasTest.cpp",
   "$_tests/GrTRecorderTest.cpp",
   "$_tests/HashTest.cpp",
+  "$_tests/HighContrastFilterTest.cpp",
   "$_tests/HSVRoundTripTest.cpp",
   "$_tests/image-bitmap.cpp",
   "$_tests/ICCTest.cpp",

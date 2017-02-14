@@ -776,6 +776,48 @@ STAGE(luminance_to_alpha) {
     r = g = b = 0;
 }
 
+STAGE(rgb_to_hsl) {
+    auto max = SkNf::Max(SkNf::Max(r, g), b);
+    auto min = SkNf::Min(SkNf::Min(r, g), b);
+    auto l = 0.5f * (max + min);
+
+    auto d = max - min;
+    auto d_inv = 1.0f/d;
+    auto s = (max == min).thenElse(0.0f,
+        d/(l > 0.5f).thenElse(2.0f - max - min, max + min));
+    SkNf h = (max != r).thenElse(0.0f,
+        (g - b)*d_inv + (g < b).thenElse(6.0f, 0.0f));
+    h = (max == g).thenElse((b - r)*d_inv + 2.0f, h);
+    h = (max == b).thenElse((r - g)*d_inv + 4.0f, h);
+    h *= (1/6.0f);
+
+    h = (max == min).thenElse(0.0f, h);
+
+    r = h;
+    g = s;
+    b = l;
+}
+
+STAGE(hsl_to_rgb) {
+    auto h = r;
+    auto s = g;
+    auto l = b;
+    auto q = (l < 0.5f).thenElse(l*(1.0f + s), l + s - l*s);
+    auto p = 2.0f*l - q;
+
+    auto hue_to_rgb = [](const SkNf& p, const SkNf& q, const SkNf& t) {
+        auto t2 = (t < 0.0f).thenElse(t + 1.0f, (t > 1.0f).thenElse(t - 1.0f, t));
+        return (t2 < (1/6.0f)).thenElse(
+            p + (q - p)*6.0f*t, (t2 < (3/6.0f)).thenElse(
+                q, (t2 < (4/6.0f)).thenElse(
+                    p + (q - p)*((4/6.0f) - t2)*6.0f, p)));
+    };
+
+    r = (s == 0.f).thenElse(l, hue_to_rgb(p, q, h + (1/3.0f)));
+    g = (s == 0.f).thenElse(l, hue_to_rgb(p, q, h));
+    b = (s == 0.f).thenElse(l, hue_to_rgb(p, q, h - (1/3.0f)));
+}
+
 STAGE_CTX(matrix_2x3, const float*) {
     auto m = ctx;
 
