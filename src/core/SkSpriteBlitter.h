@@ -11,7 +11,6 @@
 #include "SkBlitter.h"
 #include "SkPixmap.h"
 #include "SkShader.h"
-#include "SkSmallAllocator.h"
 
 class SkPaint;
 
