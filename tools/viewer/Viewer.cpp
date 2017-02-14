@@ -113,6 +113,9 @@ static DEFINE_string2(match, m, nullptr,
                "If a bench does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
 
+DEFINE_string(slide, "", "Start on this sample.");
+DEFINE_bool(list, false, "List samples?");
+
 #ifdef SK_VULKAN
 #    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
 #else
@@ -169,6 +172,7 @@ const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
+    , fSetupFirstFrame(false)
     , fDisplayStats(false)
     , fRefresh(false)
     , fShowImGuiDebugWindow(false)
@@ -319,12 +323,12 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     // set up slides
     this->initSlides();
+    this->setStartupSlide();
+    if (FLAGS_list) {
+        this->listNames();
+    }
 
     fAnimTimer.run();
-
-    // set up first frame
-    fCurrentSlide = 0;
-    setupCurrentSlide(-1);
 
     // ImGui initialization:
     ImGuiIO& io = ImGui::GetIO();
@@ -467,6 +471,32 @@ void Viewer::updateTitle() {
 
     title.append(kBackendTypeStrings[fBackendType]);
     fWindow->setTitle(title.c_str());
+}
+
+void Viewer::setStartupSlide() {
+
+    if (!FLAGS_slide.isEmpty()) {
+        int count = fSlides.count();
+        for (int i = 0; i < count; i++) {
+            if (fSlides[i]->getName().equals(FLAGS_slide[0])) {
+                fCurrentSlide = i;
+                return;
+            }
+        }
+
+        fprintf(stderr, "Unknown slide \"%s\"\n", FLAGS_slide[0]);
+        this->listNames();
+    }
+
+    fCurrentSlide = 0;
+}
+
+void Viewer::listNames() {
+    int count = fSlides.count();
+    SkDebugf("All Slides:\n");
+    for (int i = 0; i < count; i++) {
+        SkDebugf("    %s\n", fSlides[i]->getName().c_str());
+    }
 }
 
 void Viewer::setupCurrentSlide(int previousSlide) {
@@ -613,6 +643,13 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
+    // We have to wait until the first draw to make sure the window size is set correctly
+    if (!fSetupFirstFrame) {
+        // set up first frame
+        setupCurrentSlide(-1);
+        fSetupFirstFrame = true;
+    }
+
     // Update ImGui input
     ImGuiIO& io = ImGui::GetIO();
     io.DeltaTime = 1.0f / 60.0f;
@@ -949,5 +986,10 @@ bool Viewer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, ui
 }
 
 bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
+    if (fSlides[fCurrentSlide]->onChar(c)) {
+        fWindow->inval();
+        return true;
+    }
+
     return fCommands.onChar(c, modifiers);
 }

@@ -96,6 +96,7 @@ protected:
                     break;
             }
             this->inval(nullptr);
+            return true;
         }
         return this->INHERITED::onQuery(evt);
     }
@@ -503,7 +504,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

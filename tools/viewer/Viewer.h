@@ -34,7 +34,9 @@ private:
     void initSlides();
     void updateTitle();
     void setColorMode(SkColorType, sk_sp<SkColorSpace>);
+    void setStartupSlide();
     void setupCurrentSlide(int previousSlide);
+    void listNames();
 
     void updateUIState();
 
@@ -56,6 +58,7 @@ private:
     SkAnimTimer            fAnimTimer;
     SkTArray<sk_sp<Slide>> fSlides;
     int                    fCurrentSlide;
+    bool                   fSetupFirstFrame;
 
     bool                   fDisplayStats;
     bool                   fRefresh; // whether to continuously refresh for measuring render time
