@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbf3cbfc_38a7f1c8",
+        "filename": "src/core/SkRecordedDrawable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-14T13:07:02Z",
+      "side": 1,
+      "message": "This change could be pulled out as its own CL.",
+      "revId": "1329b5ce349f88589f63026c824218a1e9c0a5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
