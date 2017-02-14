@@ -34,7 +34,7 @@ bin/sync
 bin/fetch-gn
 
 #TODO: make this work with Clang.
-ARGS='cc="gcc" cxx="g++" extra_cflags="--coverage" extra_ldflags="--coverage"'
+ARGS='cc="gcc" cxx="g++" extra_cflags=["--coverage"] extra_ldflags=["--coverage"]'
 gn gen --args="$ARGS" "$BUILD"
 
 ninja -C "$BUILD" "$EXECUTABLE"
