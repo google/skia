@@ -868,6 +868,10 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     if (shaderCaps->fFBFetchSupport && kQualcomm_GrGLVendor == ctxInfo.vendor()) {
         shaderCaps->fRequiresLocalOutputColorForFBFetch = true;
     }
+
+#ifdef SK_BUILD_FOR_MAC
+    shaderCaps->fMustImplementGSInvocationsWithLoop = true;
+#endif
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
