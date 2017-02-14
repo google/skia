@@ -13,6 +13,7 @@
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
+#include "SkMD5.h"
 #include "SkPath.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -40,11 +41,11 @@ static int fuzz_file(const char* path);
 static uint8_t calculate_option(SkData*);
 
 static void fuzz_api(sk_sp<SkData>);
-static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
-static void fuzz_skp(sk_sp<SkData>);
-static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_color_deserialize(sk_sp<SkData>);
+static void fuzz_icc(sk_sp<SkData>);
+static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
+static void fuzz_skp(sk_sp<SkData>);
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
