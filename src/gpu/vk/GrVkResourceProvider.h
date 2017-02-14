@@ -255,7 +255,7 @@ private:
     // Cache of GrVkPipelineStates
     PipelineStateCache* fPipelineStateCache;
 
-    SkSTArray<4, GrVkDescriptorSetManager, true> fDescriptorSetManagers;
+    SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
 };

@@ -50,7 +50,8 @@ void GrVkResourceProvider::init() {
     }
 
     // Init uniform descriptor objects
-    fDescriptorSetManagers.emplace_back(fGpu, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    GrVkDescriptorSetManager* dsm = GrVkDescriptorSetManager::CreateUniformManager(fGpu);
+    fDescriptorSetManagers.emplace_back(dsm);
     SkASSERT(1 == fDescriptorSetManagers.count());
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
 }
@@ -187,15 +188,16 @@ void GrVkResourceProvider::getSamplerDescriptorSetHandle(const GrVkUniformHandle
                                                          GrVkDescriptorSetManager::Handle* handle) {
     SkASSERT(handle);
     for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        if (fDescriptorSetManagers[i].isCompatible(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                                   &uniformHandler)) {
+        if (fDescriptorSetManagers[i]->isCompatible(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                    &uniformHandler)) {
            *handle = GrVkDescriptorSetManager::Handle(i);
            return;
         }
     }
 
-    fDescriptorSetManagers.emplace_back(fGpu, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                        &uniformHandler);
+    GrVkDescriptorSetManager* dsm = GrVkDescriptorSetManager::CreateSamplerManager(fGpu,
+                                                                                   uniformHandler);
+    fDescriptorSetManagers.emplace_back(dsm);
     *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.count() - 1);
 }
 
@@ -203,39 +205,40 @@ void GrVkResourceProvider::getSamplerDescriptorSetHandle(const SkTArray<uint32_t
                                                          GrVkDescriptorSetManager::Handle* handle) {
     SkASSERT(handle);
     for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        if (fDescriptorSetManagers[i].isCompatible(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        if (fDescriptorSetManagers[i]->isCompatible(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                                    visibilities)) {
             *handle = GrVkDescriptorSetManager::Handle(i);
             return;
         }
     }
 
-    fDescriptorSetManagers.emplace_back(fGpu, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                        visibilities);
+    GrVkDescriptorSetManager* dsm = GrVkDescriptorSetManager::CreateSamplerManager(fGpu,
+                                                                                   visibilities);
+    fDescriptorSetManagers.emplace_back(dsm);
     *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.count() - 1);
 }
 
 VkDescriptorSetLayout GrVkResourceProvider::getUniformDSLayout() const {
     SkASSERT(fUniformDSHandle.isValid());
-    return fDescriptorSetManagers[fUniformDSHandle.toIndex()].layout();
+    return fDescriptorSetManagers[fUniformDSHandle.toIndex()]->layout();
 }
 
 VkDescriptorSetLayout GrVkResourceProvider::getSamplerDSLayout(
         const GrVkDescriptorSetManager::Handle& handle) const {
     SkASSERT(handle.isValid());
-    return fDescriptorSetManagers[handle.toIndex()].layout();
+    return fDescriptorSetManagers[handle.toIndex()]->layout();
 }
 
 const GrVkDescriptorSet* GrVkResourceProvider::getUniformDescriptorSet() {
     SkASSERT(fUniformDSHandle.isValid());
-    return fDescriptorSetManagers[fUniformDSHandle.toIndex()].getDescriptorSet(fGpu,
-                                                                               fUniformDSHandle);
+    return fDescriptorSetManagers[fUniformDSHandle.toIndex()]->getDescriptorSet(fGpu,
+                                                                                fUniformDSHandle);
 }
 
 const GrVkDescriptorSet* GrVkResourceProvider::getSamplerDescriptorSet(
         const GrVkDescriptorSetManager::Handle& handle) {
     SkASSERT(handle.isValid());
-    return fDescriptorSetManagers[handle.toIndex()].getDescriptorSet(fGpu, handle);
+    return fDescriptorSetManagers[handle.toIndex()]->getDescriptorSet(fGpu, handle);
 }
 
 void GrVkResourceProvider::recycleDescriptorSet(const GrVkDescriptorSet* descSet,
@@ -244,7 +247,7 @@ void GrVkResourceProvider::recycleDescriptorSet(const GrVkDescriptorSet* descSet
     SkASSERT(handle.isValid());
     int managerIdx = handle.toIndex();
     SkASSERT(managerIdx < fDescriptorSetManagers.count());
-    fDescriptorSetManagers[managerIdx].recycleDescriptorSet(descSet);
+    fDescriptorSetManagers[managerIdx]->recycleDescriptorSet(descSet);
 }
 
 GrVkPrimaryCommandBuffer* GrVkResourceProvider::findOrCreatePrimaryCommandBuffer() {
@@ -356,7 +359,7 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     // We must release/destroy all command buffers and pipeline states before releasing the
     // GrVkDescriptorSetManagers
     for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        fDescriptorSetManagers[i].release(fGpu);
+        fDescriptorSetManagers[i]->release(fGpu);
     }
     fDescriptorSetManagers.reset();
 
@@ -416,7 +419,7 @@ void GrVkResourceProvider::abandonResources() {
     // We must abandon all command buffers and pipeline states before abandoning the
     // GrVkDescriptorSetManagers
     for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        fDescriptorSetManagers[i].abandon();
+        fDescriptorSetManagers[i]->abandon();
     }
     fDescriptorSetManagers.reset();
 
