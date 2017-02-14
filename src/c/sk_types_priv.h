@@ -48,7 +48,7 @@ class SkPaint;
 class SkShader;
 class GrContext;
 struct GrContextOptions;
-class GrGLInterface;
+struct GrGLInterface;
 
 static inline const SkPaint& AsPaint(const sk_paint_t& cpaint) {
     return reinterpret_cast<const SkPaint&>(cpaint);
