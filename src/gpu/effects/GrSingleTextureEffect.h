@@ -54,15 +54,17 @@ protected:
                           sk_sp<GrColorSpaceXform>, const SkMatrix&, const GrSamplerParams&);
 
     /**
-     * Can be used as a helper to implement subclass onOptimizationFlags(). It assumes that
-     * the subclass output color will be a modulation of the input color with a value read from the
-     * texture.
+     * Can be used as a helper to decide which fragment processor OptimizationFlags should be set.
+     * This assumes that the subclass output color will be a modulation of the input color with a
+     * value read from the texture and that the texture contains premultiplied color or alpha values
+     * that are in range.
      */
     static OptimizationFlags ModulationFlags(GrPixelConfig config) {
         if (GrPixelConfigIsOpaque(config)) {
-            return kModulatesInput_OptimizationFlag | kPreservesOpaqueInput_OptimizationFlag;
+            return kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+                   kPreservesOpaqueInput_OptimizationFlag;
         } else {
-            return kModulatesInput_OptimizationFlag;
+            return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
         }
     }
 
