@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e7dbec9_741e75bf",
+        "filename": "src/sksl/SkSLParser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-15T19:46:22Z",
+      "side": 1,
+      "message": "nit: Does this belong in Context?",
+      "range": {
+        "startLine": 223,
+        "startChar": 4,
+        "endLine": 223,
+        "endChar": 56
+      },
+      "revId": "d7254700a3d1d82d1b63677fd1771f1ab20eab8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
