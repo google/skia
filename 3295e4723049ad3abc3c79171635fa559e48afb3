@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9d38c65_9a5ace44",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-02-15T16:19:34Z",
+      "side": 1,
+      "message": "What does std::ostringstream buy you over the std::string? Why not leave as string and then you won\u0027t need to construct the std::string on line 202?",
+      "revId": "3295e4723049ad3abc3c79171635fa559e48afb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
