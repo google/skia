@@ -374,6 +374,10 @@ def dm_flags(bot):
     # skia:6092
     match.append('~GPUMemorySize')
 
+  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Ubuntu' in bot:
+    # skia:6245
+    match.append('~VkHeapTests')
+
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~IntTexture') # skia:6086
     blacklist(['_', 'gm', '_', 'discard']) # skia:6141
