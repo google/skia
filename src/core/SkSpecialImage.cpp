@@ -103,16 +103,24 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
         return SkSpecialImage::MakeFromRaster(SkIRect::MakeEmpty(), bmp, &this->props());
     }
 
-    sk_sp<GrTexture> resultTex(
-        GrRefCachedBitmapTexture(context, bmp, GrSamplerParams::ClampNoFilter(), nullptr));
-    if (!resultTex) {
+    // TODO: this is a tight copy of 'bmp' but it doesn't have to be (given SkSpecialImage's
+    // semantics). Since this is cached though we would have to bake the fit into the cache key.
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(context, bmp);
+    if (!proxy) {
         return nullptr;
     }
 
-    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(resultTex->width(), resultTex->height()),
-                                       this->uniqueID(),
-                                       resultTex, sk_ref_sp(this->getColorSpace()), &this->props(),
-                                       this->alphaType());
+    const SkIRect rect = SkIRect::MakeWH(proxy->width(), proxy->height());
+
+    // GrMakeCachedBitmapProxy has uploaded only the specified subset of 'bmp' so we need not
+    // bother with SkBitmap::getSubset
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               rect,
+                                               this->uniqueID(),
+                                               std::move(proxy),
+                                               sk_ref_sp(this->getColorSpace()),
+                                               &this->props(),
+                                               this->alphaType());
 #else
     return nullptr;
 #endif
