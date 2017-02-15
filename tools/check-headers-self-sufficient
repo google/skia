@@ -7,6 +7,33 @@
 
 cd "$(dirname "$0")/.."
 
+compile_standalone_header() {
+    # test heade for self-sufficiency and idempotency.
+    printf '#include "%s"\n#include "%s"\n' "$1" "$1" | \
+        c++ --std=c++11 -o /dev/null -c -x c++ -
+}
+
+compile_public_header() {
+    # test header for self-sufficiency and idempotency.
+    printf '#include "%s"\n#include "%s"\n' "$1" "$1" | \
+        c++ --std=c++11 \
+        -Iinclude/core \
+        -Iinclude/config \
+        -Iinclude/android \
+        -Iinclude/codec \
+        -Iinclude/effects \
+        -Iinclude/gpu \
+        -Iinclude/gpu/gl \
+        -Iinclude/pathops \
+        -Iinclude/ports \
+        -Iinclude/private \
+        -Iinclude/svg \
+        -Iinclude/utils \
+        -Iinclude/utils/mac \
+        -Iinclude/views \
+        -o /dev/null -c -x c++ -
+}
+
 compile_header() {
     # test each header for self-sufficiency and idempotency.
     printf '#include "%s"\n#include "%s"\n' "$1" "$1" | \
@@ -26,7 +53,6 @@ compile_header() {
         -Iinclude/utils \
         -Iinclude/utils/mac \
         -Iinclude/views \
-        -Iinclude/xml \
         -Isrc/codec \
         -Isrc/core \
         -Isrc/effects \
@@ -43,6 +69,7 @@ compile_header() {
         -Isrc/sksl \
         -Isrc/utils \
         -Isrc/utils/win \
+        -Isrc/xml \
         -Igm \
         -Itests \
         -Itools \
@@ -59,6 +86,32 @@ compile_header() {
 }
 
 FAIL=0
+
+for header in $(find include/c -name '*.h'); do
+    if ! compile_standalone_header "$header"; then
+        echo "FAILURE: $header"
+        FAIL=1
+    fi
+done
+
+for header in $(find include -type f -name '*.h'); do
+    case $header in
+        include/config/*)                     continue;;
+        include/core/SkPostConfig.h)          continue;;
+        include/gpu/vk/*)                     continue;;
+        include/ports/SkFontMgr_android.h)    continue;;
+        include/ports/SkFontMgr_fontconfig.h) continue;;
+        include/ports/SkTypeface_win.h)       continue;;
+        include/private/*)                    continue;;
+        include/utils/mac/*)                  continue;;
+        include/views/*)                      continue;;
+    esac
+    if ! compile_public_header "$header"; then
+        echo "FAILURE: $header"
+        FAIL=1
+    fi
+done
+
 for header in $(git ls-files | grep '\.h$'); do
     # The following headers don't pass this test for one reason or another.
     case $header in

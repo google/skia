@@ -8,6 +8,7 @@
 #ifndef SkRasterClipStack_DEFINED
 #define SkRasterClipStack_DEFINED
 
+#include "SkClipOp.h"
 #include "SkDeque.h"
 #include "SkRasterClip.h"
 
