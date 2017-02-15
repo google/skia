@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bb882a2_a9c3821a",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-02-15T14:41:03Z",
+      "side": 1,
+      "message": "Should be able to remove this var due to my comment on line 53.",
+      "revId": "8a62c1180987c001532209e315de315dc9ee4a11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31244f76_a29c68cb",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-02-15T14:41:03Z",
+      "side": 1,
+      "message": "Instead of using \u0027err\u0027 might be cleaner to use retcode \u003d 0 here and then set that to err.returncode under the except.",
+      "revId": "8a62c1180987c001532209e315de315dc9ee4a11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07ae603c_ed304518",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-02-15T14:41:03Z",
+      "side": 1,
+      "message": "Since anything useful here only happens if logs are populated maybe move this whole section under the block at line:34.\nThen you will be able to loop through err.output.splitlines()",
+      "revId": "8a62c1180987c001532209e315de315dc9ee4a11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
