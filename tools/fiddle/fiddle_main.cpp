@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <sstream>
 #include <string>
 
 #include "fiddle_main.h"
@@ -15,19 +16,18 @@
 SkBitmap source;
 sk_sp<SkImage> image;
 
-// Globals used by the local impl of SkDebugf.
-char formatbuffer[1024];
-std::string textoutput("");
+// Global used by the local impl of SkDebugf.
+std::ostringstream gTextOutput;
 
 void SkDebugf(const char * fmt, ...) {
-    int n;
     va_list args;
     va_start(args, fmt);
-    n = vsnprintf(formatbuffer, sizeof(formatbuffer), fmt, args);
+    char formatbuffer[1024];
+    int n = vsnprintf(formatbuffer, sizeof(formatbuffer), fmt, args);
     va_end(args);
     if (n>=0 && n<=int(sizeof(formatbuffer))) {
-        textoutput.append(formatbuffer);
-        textoutput.append("\n");
+        gTextOutput.write(formatbuffer, n);
+        gTextOutput << '\n';
     }
 }
 
@@ -64,20 +64,19 @@ static void encode_to_base64(const void* data, size_t size, FILE* out) {
     }
 }
 
+
+static void dump_output(const void* data, size_t size,
+                        const char* name, bool last = true) {
+    printf("\t\"%s\": \"", name);
+    encode_to_base64(data, size, stdout);
+    fputs(last ? "\"\n" : "\",\n", stdout);
+}
+
 static void dump_output(const sk_sp<SkData>& data,
                         const char* name, bool last = true) {
     if (data) {
-        printf("\t\"%s\": \"", name);
-        encode_to_base64(data->data(), data->size(), stdout);
-        fputs(last ? "\"\n" : "\",\n", stdout);
+        dump_output(data->data(), data->size(), name, last);
     }
-}
-
-static void dump_text(const std::string& s,
-                        const char* name, bool last = true) {
-    printf("\t\"%s\": \"", name);
-    encode_to_base64(s.c_str(), s.length(), stdout);
-    fputs(last ? "\"\n" : "\",\n", stdout);
 }
 
 static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
@@ -200,7 +199,8 @@ int main() {
         dump_output(pdfData, "Pdf", !skpData);
         dump_output(skpData, "Skp");
     } else {
-        dump_text(textoutput, "Text");
+        std::string textoutput = gTextOutput.str();
+        dump_output(textoutput.c_str(), textoutput.length(), "Text");
     }
     printf("}\n");
 
