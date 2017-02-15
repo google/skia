@@ -324,7 +324,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            proxy, nullptr));
+                                                            sk_ref_sp(proxy->asTextureProxy()),
+                                                            nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
@@ -333,7 +334,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
                                                                context,
                                                                subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                               proxy, nullptr));
+                                                               sk_ref_sp(proxy->asTextureProxy()),
+                                                               nullptr));
         test_image(subSImg1, reporter, context, true, kPad, kFullSize);
     }
 

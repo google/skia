@@ -94,12 +94,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
 }
 
 sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef() const {
-    sk_sp<GrSurfaceProxy> sProxy = GrSurfaceProxy::MakeWrapped(fTexture);
-    if (!sProxy) {
-        return nullptr;
-    }
-
-    return sk_ref_sp(sProxy->asTextureProxy());
+    return GrSurfaceProxy::MakeWrapped(fTexture);
 }
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
