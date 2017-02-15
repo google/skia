@@ -380,10 +380,6 @@ private:
         *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
     }
 
-    bool drawExternallyScaledImage(const SkDraw& draw, const SkImage* image, const SkRect* src,
-                                   const SkRect& dst, const SkPaint& paint,
-                                   SkCanvas::SrcRectConstraint constraint);
-
     SkIPoint             fOrigin;
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;

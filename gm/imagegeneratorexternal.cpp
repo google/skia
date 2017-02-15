@@ -14,10 +14,6 @@
 
 namespace {
 
-void release_proc(void*, void* releaseCtx) {
-    reinterpret_cast<SkImage*>(releaseCtx)->unref();
-}
-
 class ExternalGenerator : public SkImageGenerator {
 public:
     ExternalGenerator(const SkISize size)
@@ -39,40 +35,6 @@ protected:
         sk_sp<SkSurface> s = SkSurface::MakeRasterDirect(info, pixels, rowBytes);
         s->getCanvas()->clear(SK_ColorTRANSPARENT);
         DrawRings(s->getCanvas(), SK_ColorRED);
-        return true;
-    }
-
-    bool onAccessScaledImage(const SkRect& src, const SkMatrix& matrix, SkFilterQuality,
-                             ScaledImageRec* rec) override {
-        // Not strictly needed for this immutable class.
-        SkAutoExclusive lock(fMutex);
-
-        SkSize scaleSize;
-        if (!matrix.decomposeScale(&scaleSize, nullptr)) {
-            return false;
-        }
-        scaleSize.set(scaleSize.width()  * this->getInfo().width()  / kMaxSize,
-                      scaleSize.height() * this->getInfo().height() / kMaxSize);
-
-        const SkScalar scale = SkTMin(scaleSize.width(), scaleSize.height());
-        const int lvl = SkScalarFloorToInt(-SkScalarLog2(scale));
-
-        const sk_sp<SkImage>& img = fMips[SkTPin(lvl, 0, fMips.count())];
-        SkAssertResult(img->peekPixels(&rec->fPixmap));
-
-        const SkRect origBounds = SkRect::Make(this->getInfo().bounds());
-        const SkRect  newBounds = SkRect::Make(img->bounds());
-
-        SkMatrix srcMap = SkMatrix::MakeScale(newBounds.width()  / origBounds.width(),
-                                              newBounds.height() / origBounds.height());
-        srcMap.preTranslate(src.x(), src.y());
-        srcMap.mapRect(&rec->fSrcRect, SkRect::MakeWH(src.width(), src.height()));
-
-        rec->fQuality = kLow_SkFilterQuality;
-
-        rec->fReleaseProc = release_proc;
-        rec->fReleaseCtx  = SkRef(img.get());
-
         return true;
     }
 
