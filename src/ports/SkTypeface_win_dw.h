@@ -104,15 +104,19 @@ protected:
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 PerGlyphInfo, const uint32_t*, uint32_t) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
-    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
-                                uint16_t glyphs[], int glyphCount) const override;
+    int onCharsToGlyphs(const void* chars, Encoding encoding,
+                        uint16_t glyphs[], int glyphCount) const override;
     int onCountGlyphs() const override;
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
+    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
+                                     int coordinateCount) const override
+    {
+        return -1;
+    }
     int onGetTableTags(SkFontTableTag tags[]) const override;
-    virtual size_t onGetTableData(SkFontTableTag, size_t offset,
-                                  size_t length, void* data) const override;
+    size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
 
 private:
     typedef SkTypeface INHERITED;
