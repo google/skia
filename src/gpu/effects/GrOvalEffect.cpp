@@ -57,7 +57,10 @@ sk_sp<GrFragmentProcessor> CircleEffect::Make(GrPrimitiveEdgeType edgeType, cons
 }
 
 CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar r)
-        : INHERITED(kModulatesInput_OptimizationFlag), fCenter(c), fRadius(r), fEdgeType(edgeType) {
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        , fCenter(c)
+        , fRadius(r)
+        , fEdgeType(edgeType) {
     this->initClassID<CircleEffect>();
 }
 
@@ -219,7 +222,7 @@ sk_sp<GrFragmentProcessor> EllipseEffect::Make(GrPrimitiveEdgeType edgeType,
 
 EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar rx,
                              SkScalar ry)
-        : INHERITED(kModulatesInput_OptimizationFlag)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fCenter(c)
         , fRadii(SkVector::Make(rx, ry))
         , fEdgeType(edgeType) {

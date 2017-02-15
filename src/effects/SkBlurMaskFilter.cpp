@@ -973,7 +973,7 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
 
 GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture* blurProfile,
                                    GrSLPrecision precision)
-        : INHERITED(kModulatesInput_OptimizationFlag)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRect(rect)
         , fSigma(sigma)
         , fBlurProfileSampler(blurProfile)
@@ -1197,7 +1197,7 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
 }
 
 GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTexture* ninePatchTexture)
-        : INHERITED(kModulatesInput_OptimizationFlag)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRRect(rrect)
         , fSigma(sigma)
         , fNinePatchSampler(ninePatchTexture) {
