@@ -21,7 +21,7 @@
 class SkRasterPipelineBlitter : public SkBlitter {
 public:
     static SkBlitter* Create(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
-                             SkArenaAlloc*, bool blendCorrectly);
+                             SkArenaAlloc*);
 
     SkRasterPipelineBlitter(SkPixmap dst, SkBlendMode blend, SkPM4f paintColor, bool blendCorrectly)
         : fDst(dst)
@@ -69,9 +69,8 @@ private:
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
-                                         SkArenaAlloc* alloc,
-                                         bool blendCorrectly) {
-    return SkRasterPipelineBlitter::Create(dst, paint, ctm, alloc, blendCorrectly);
+                                         SkArenaAlloc* alloc) {
+    return SkRasterPipelineBlitter::Create(dst, paint, ctm, alloc);
 }
 
 static bool supported(const SkImageInfo& info) {
@@ -87,8 +86,8 @@ static bool supported(const SkImageInfo& info) {
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            const SkMatrix& ctm,
-                                           SkArenaAlloc* alloc,
-                                           bool blendCorrectly) {
+                                           SkArenaAlloc* alloc) {
+    bool blendCorrectly = !(dst.colorSpace() && as_CSB(dst.colorSpace())->nonLinearBlending());
     auto blitter = alloc->make<SkRasterPipelineBlitter>(
             dst,
             paint.getBlendMode(),
