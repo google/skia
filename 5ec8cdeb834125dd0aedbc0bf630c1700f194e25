@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8761a997_9049f245",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T14:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1d0676f_17e8752c",
+      "range": {
+        "startLine": 15,
+        "startChar": 9,
+        "endLine": 15,
+        "endChar": 29
+      },
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "76159764_4ef80248",
         "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
         "patchSetId": 20
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f30ab931_614ad7ec",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T14:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76159764_4ef80248",
+      "range": {
+        "startLine": 17,
+        "startChar": 56,
+        "endLine": 17,
+        "endChar": 75
+      },
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2bb3eda_1779ceb1",
         "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
         "patchSetId": 20
@@ -62,6 +110,24 @@
       "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5877f3f5_03a48e5a",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T14:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2bb3eda_1779ceb1",
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "378b8562_4ceadfeb",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T14:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32f45d98_97938f0d",
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2e31e61c_7d395f43",
         "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
         "patchSetId": 20
@@ -93,6 +177,24 @@
       "writtenOn": "2017-02-15T13:13:33Z",
       "side": 1,
       "message": "What are you protecting against here?",
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc8e25e2_63a7bc57",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T14:33:45Z",
+      "side": 1,
+      "message": "Whoops - that was left over from local testing.",
+      "parentUuid": "2e31e61c_7d395f43",
       "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -116,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "2e37138f_ce48b81d",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T14:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4fbeb3f_5706be7f",
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "936eb2d1_2d4b5cbb",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 20
@@ -133,6 +253,24 @@
     },
     {
       "key": {
+        "uuid": "f990ba48_c69f1030",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T14:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "936eb2d1_2d4b5cbb",
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "869bb228_1509b66d",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 20
@@ -147,6 +285,24 @@
       "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bfbe5e3_9e0e61e5",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T14:33:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "869bb228_1509b66d",
+      "revId": "5ec8cdeb834125dd0aedbc0bf630c1700f194e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
