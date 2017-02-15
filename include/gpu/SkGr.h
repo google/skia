@@ -18,6 +18,7 @@
 class GrCaps;
 class GrColorSpaceXform;
 class GrContext;
+class GrSurfaceProxy;
 class GrTexture;
 class SkBitmap;
 

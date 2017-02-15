@@ -36,7 +36,7 @@ enum {
  * This is a restricted form of SkImage solely intended for internal use. It
  * differs from SkImage in that:
  *      - it can only be backed by raster or gpu (no generators)
- *      - it can be backed by a GrTexture larger than its nominal bounds
+ *      - it can be backed by a GrTextureProxy larger than its nominal bounds
  *      - it can't be drawn tiled
  *      - it can't be drawn with MIPMAPs
  * It is similar to SkImage in that it abstracts how the pixels are stored/represented.
@@ -79,13 +79,6 @@ public:
                                                 const SkBitmap&,
                                                 const SkSurfaceProps* = nullptr);
 #if SK_SUPPORT_GPU
-    static sk_sp<SkSpecialImage> MakeFromGpu(const SkIRect& subset,
-                                             uint32_t uniqueID,
-                                             sk_sp<GrTexture>,
-                                             sk_sp<SkColorSpace>,
-                                             const SkSurfaceProps* = nullptr,
-                                             SkAlphaType at = kPremul_SkAlphaType);
-
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
