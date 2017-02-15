@@ -228,8 +228,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
                                  SkMatrix::kFill_ScaleToFit);
 
         sk_sp<SkImage> tileImage = SkImage::MakeFromGenerator(
-                SkPictureImageGenerator::Create(tileSize, fPicture.get(), &tileMatrix, nullptr,
-                                                SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
+                SkPictureImageGenerator::Make(tileSize, fPicture, &tileMatrix, nullptr,
+                                              SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
         if (!tileImage) {
             return nullptr;
         }

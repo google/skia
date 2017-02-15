@@ -18,10 +18,7 @@ public:
      * If this data represents an encoded image that we know how to decode,
      * return an SkCodecImageGenerator.  Otherwise return nullptr.
      */
-    static SkImageGenerator* NewFromEncodedCodec(sk_sp<SkData>);
-    static SkImageGenerator* NewFromEncodedCodec(SkData* data) {
-        return NewFromEncodedCodec(sk_ref_sp(data));
-    }
+    static std::unique_ptr<SkImageGenerator> MakeFromEncodedCodec(sk_sp<SkData>);
 
 protected:
     SkData* onRefEncodedData(GrContext* ctx) override;

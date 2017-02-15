@@ -146,17 +146,26 @@ public:
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
      *  the caller is still responsible for managing their ownership of the data.
      */
-    static SkImageGenerator* NewFromEncoded(SkData*);
+    static std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData>);
 
     /** Return a new image generator backed by the specified picture.  If the size is empty or
      *  the picture is NULL, this returns NULL.
      *  The optional matrix and paint arguments are passed to drawPicture() at rasterization
      *  time.
      */
-    static SkImageGenerator* NewFromPicture(const SkISize&, const SkPicture*, const SkMatrix*,
-                                            const SkPaint*, SkImage::BitDepth, sk_sp<SkColorSpace>);
+    static std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&, sk_sp<SkPicture>,
+                                                             const SkMatrix*, const SkPaint*,
+                                                             SkImage::BitDepth,
+                                                             sk_sp<SkColorSpace>);
 
     bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator);
+
+#ifdef SK_SUPPORT_BARE_PTR_IMAGEGENERATOR
+    static SkImageGenerator* NewFromPicture(const SkISize& size, const SkPicture* picture,
+                                            const SkMatrix* matrix, const SkPaint* paint,
+                                            SkImage::BitDepth depth, sk_sp<SkColorSpace> cs);
+    static SkImageGenerator* NewFromEncoded(SkData* data);
+#endif
 
 protected:
     enum {
@@ -188,7 +197,7 @@ private:
     // This is our default impl, which may be different on different platforms.
     // It is called from NewFromEncoded() after it has checked for any runtime factory.
     // The SkData will never be NULL, as that will have been checked by NewFromEncoded.
-    static SkImageGenerator* NewFromEncodedImpl(SkData*);
+    static std::unique_ptr<SkImageGenerator> MakeFromEncodedImpl(sk_sp<SkData>);
 };
 
 #endif  // SkImageGenerator_DEFINED

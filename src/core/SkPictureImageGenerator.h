@@ -10,10 +10,11 @@
 #include "SkImageGenerator.h"
 #include "SkTLazy.h"
 
-class SkPictureImageGenerator : SkImageGenerator {
+class SkPictureImageGenerator : public SkImageGenerator {
 public:
-    static SkImageGenerator* Create(const SkISize&, const SkPicture*, const SkMatrix*,
-                                    const SkPaint*, SkImage::BitDepth, sk_sp<SkColorSpace>);
+    static std::unique_ptr<SkImageGenerator> Make(const SkISize&, sk_sp<SkPicture>, const SkMatrix*,
+                                                  const SkPaint*, SkImage::BitDepth,
+                                                  sk_sp<SkColorSpace>);
 
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
@@ -24,12 +25,12 @@ protected:
 #endif
 
 private:
-    SkPictureImageGenerator(const SkImageInfo& info, const SkPicture*, const SkMatrix*,
+    SkPictureImageGenerator(const SkImageInfo& info, sk_sp<SkPicture>, const SkMatrix*,
                             const SkPaint*);
 
-    sk_sp<const SkPicture> fPicture;
-    SkMatrix               fMatrix;
-    SkTLazy<SkPaint>       fPaint;
+    sk_sp<SkPicture>    fPicture;
+    SkMatrix            fMatrix;
+    SkTLazy<SkPaint>    fPaint;
 
     typedef SkImageGenerator INHERITED;
 };

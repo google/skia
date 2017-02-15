@@ -12,6 +12,7 @@
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
+#include "SkMakeUnique.h"
 #include "SkResourceCache.h"
 #include "SkStream.h"
 #include "SkUtils.h"
@@ -106,8 +107,8 @@ DEF_TEST(Image_NewFromGenerator, r) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(testTypes); ++i) {
         TestImageGenerator::TestType test = testTypes[i];
         for (const SkColorType testColorType : testColorTypes) {
-            SkImageGenerator* gen = new TestImageGenerator(test, r, testColorType);
-            sk_sp<SkImage> image(SkImage::MakeFromGenerator(gen));
+            auto gen = skstd::make_unique<TestImageGenerator>(test, r, testColorType);
+            sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen)));
             if (nullptr == image) {
                 ERRORF(r, "SkImage::NewFromGenerator unexpecedly failed ["
                     SK_SIZE_T_SPECIFIER "]", i);

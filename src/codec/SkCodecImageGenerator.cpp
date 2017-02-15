@@ -6,14 +6,15 @@
  */
 
 #include "SkCodecImageGenerator.h"
+#include "SkMakeUnique.h"
 
-SkImageGenerator* SkCodecImageGenerator::NewFromEncodedCodec(sk_sp<SkData> data) {
+std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
     SkCodec* codec = SkCodec::NewFromData(data);
     if (nullptr == codec) {
         return nullptr;
     }
 
-    return new SkCodecImageGenerator(codec, data);
+    return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(codec, data));
 }
 
 static SkImageInfo make_premul(const SkImageInfo& info) {

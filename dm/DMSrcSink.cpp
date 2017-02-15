@@ -907,7 +907,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     std::unique_ptr<SkImageGenerator> gen(nullptr);
     switch (fMode) {
         case kCodec_Mode:
-            gen.reset(SkCodecImageGenerator::NewFromEncodedCodec(encoded.get()));
+            gen = SkCodecImageGenerator::MakeFromEncodedCodec(encoded);
             if (!gen) {
                 return "Could not create codec image generator.";
             }
@@ -931,7 +931,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
     // Test deferred decoding path on GPU
     if (fIsGpu) {
-        sk_sp<SkImage> image(SkImage::MakeFromGenerator(gen.release(), nullptr));
+        sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen), nullptr));
         if (!image) {
             return "Could not create image from codec image generator.";
         }

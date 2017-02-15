@@ -8,6 +8,6 @@
 #include "SkData.h"
 #include "SkCodecImageGenerator.h"
 
-SkImageGenerator* SkImageGenerator::NewFromEncodedImpl(SkData* data) {
-    return SkCodecImageGenerator::NewFromEncodedCodec(data);
+std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromEncodedImpl(sk_sp<SkData> data) {
+    return SkCodecImageGenerator::MakeFromEncodedCodec(std::move(data));
 }

@@ -29,7 +29,7 @@ void SetResourcePath(const char* resource) {
 bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     SkString resourcePath = GetResourcePath(resource);
     sk_sp<SkData> resourceData(SkData::MakeFromFileName(resourcePath.c_str()));
-    std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(resourceData.get()));
+    std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::MakeFromEncoded(resourceData));
     if (!gen) {
         return false;
     }

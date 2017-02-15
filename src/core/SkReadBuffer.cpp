@@ -10,6 +10,7 @@
 #include "SkImage.h"
 #include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
+#include "SkMakeUnique.h"
 #include "SkReadBuffer.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -28,7 +29,7 @@ namespace {
 
     static sk_sp<SkImage> MakeEmptyImage(int width, int height) {
         return SkImage::MakeFromGenerator(
-            new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height)));
+              skstd::make_unique<EmptyImageGenerator>(SkImageInfo::MakeN32Premul(width, height)));
     }
 
 } // anonymous namespace

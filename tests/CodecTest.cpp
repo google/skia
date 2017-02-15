@@ -436,7 +436,7 @@ static void check(skiatest::Reporter* r,
         std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
         sk_sp<SkData> fullData(SkData::MakeFromStream(stream.get(), stream->getLength()));
         std::unique_ptr<SkImageGenerator> gen(
-                SkCodecImageGenerator::NewFromEncodedCodec(fullData.get()));
+                SkCodecImageGenerator::MakeFromEncodedCodec(fullData));
         SkBitmap bm;
         bm.allocPixels(info);
         SkAutoLockPixels autoLockPixels(bm);
