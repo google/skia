@@ -101,9 +101,9 @@ SkImageCacherator::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRec
     }
 }
 
-SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
+SkImageCacherator* SkImageCacherator::NewFromGenerator(std::unique_ptr<SkImageGenerator> gen,
                                                        const SkIRect* subset) {
-    Validator validator(SharedGenerator::Make(gen), subset);
+    Validator validator(SharedGenerator::Make(std::move(gen)), subset);
 
     return validator ? new SkImageCacherator(&validator) : nullptr;
 }

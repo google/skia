@@ -10,6 +10,7 @@
 #include "SkAutoPixmapStorage.h"
 #include "SkData.h"
 #include "SkCanvas.h"
+#include "SkMakeUnique.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"
