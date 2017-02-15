@@ -9,6 +9,7 @@
 #define SkImage_Gpu_DEFINED
 
 #include "GrClip.h"
+#include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
