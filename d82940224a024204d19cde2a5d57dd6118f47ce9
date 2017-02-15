@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "097b055a_141c6b83",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-15T20:29:30Z",
+      "side": 1,
+      "message": "I was thinking that it\u0027s worth checking whenever we run the analysis. Also, I\u0027m not sure GrPipeline::CreateAt has much life left.",
+      "parentUuid": "03637161_d91b1884",
+      "range": {
+        "startLine": 318,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 6
+      },
+      "revId": "d82940224a024204d19cde2a5d57dd6118f47ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c97a9ec1_bbbc8cda",
         "filename": "src/gpu/effects/GrCustomXfermode.cpp",
         "patchSetId": 2
@@ -59,6 +83,30 @@
       "writtenOn": "2017-02-15T19:54:50Z",
       "side": 1,
       "message": "So do we want to be doing this check every time here even though we know it always true? Obviously this will be correct in all cases and is safer, but if we never hit hit....",
+      "range": {
+        "startLine": 469,
+        "startChar": 12,
+        "endLine": 469,
+        "endChar": 81
+      },
+      "revId": "d82940224a024204d19cde2a5d57dd6118f47ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f1f61b8_08993ad8",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-15T20:29:30Z",
+      "side": 1,
+      "message": "I don\u0027t think we\u0027re saying it is illegal to have a non-modulating coverage fp, just unexpected and worthy of a diagnostic print. I wouldn\u0027t expect a performance impact for the check here as this is just checking a bool and this branch should be well predicted.",
+      "parentUuid": "37ef3bba_c9ffd1b3",
       "range": {
         "startLine": 469,
         "startChar": 12,
