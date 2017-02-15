@@ -101,8 +101,6 @@ public:
     enum Flags {
         kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
         kDither_Flag          = 0x04,   //!< mask to enable dithering
-        kUnderlineText_Flag   = 0x08,   //!< mask to enable underline text
-        kStrikeThruText_Flag  = 0x10,   //!< mask to enable strike-thru text
         kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
         kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
         kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
@@ -225,32 +223,6 @@ public:
      *  horizontally.
      */
     void setVerticalText(bool);
-
-    /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
-        @return true if the underlineText bit is set in the paint's flags.
-    */
-    bool isUnderlineText() const {
-        return SkToBool(this->getFlags() & kUnderlineText_Flag);
-    }
-
-    /** Helper for setFlags(), setting or clearing the kUnderlineText_Flag bit
-        @param underlineText true to set the underlineText bit in the paint's
-                             flags, false to clear it.
-    */
-    void setUnderlineText(bool underlineText);
-
-    /** Helper for getFlags(), returns true if kStrikeThruText_Flag bit is set
-        @return true if the strikeThruText bit is set in the paint's flags.
-    */
-    bool isStrikeThruText() const {
-        return SkToBool(this->getFlags() & kStrikeThruText_Flag);
-    }
-
-    /** Helper for setFlags(), setting or clearing the kStrikeThruText_Flag bit
-        @param strikeThruText   true to set the strikeThruText bit in the
-                                paint's flags, false to clear it.
-    */
-    void setStrikeThruText(bool strikeThruText);
 
     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.

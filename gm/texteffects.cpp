@@ -212,13 +212,6 @@ DEF_SIMPLE_GM(textunderstrike, canvas, 460, 680) {
     };
 
     drawText();
-    paint.setUnderlineText(true);
-    drawText();
-    paint.setUnderlineText(false);
-    paint.setStrikeThruText(true);
-    drawText();
-    paint.setUnderlineText(true);
-    drawText();
     paint.setColor(SK_ColorWHITE);
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawText("Hello", 5, 100, 50, paint);

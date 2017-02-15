@@ -186,8 +186,6 @@ public:
         font.setTextAlign(SkPaint::kCenter_Align);
         font.setHinting(SkPaint::kFull_Hinting);
         font.setAntiAlias(true);
-        font.setUnderlineText(true);
-        font.setStrikeThruText(true);
         font.setFakeBoldText(true);
         font.setLinearText(true);
         font.setSubpixelText(true);
@@ -207,8 +205,6 @@ public:
         REPORTER_ASSERT(reporter, defaultPaint.getTextAlign() != font.getTextAlign());
         REPORTER_ASSERT(reporter, defaultPaint.getHinting() != font.getHinting());
         REPORTER_ASSERT(reporter, defaultPaint.isAntiAlias() != font.isAntiAlias());
-        REPORTER_ASSERT(reporter, defaultPaint.isUnderlineText() != font.isUnderlineText());
-        REPORTER_ASSERT(reporter, defaultPaint.isStrikeThruText() != font.isStrikeThruText());
         REPORTER_ASSERT(reporter, defaultPaint.isFakeBoldText() != font.isFakeBoldText());
         REPORTER_ASSERT(reporter, defaultPaint.isLinearText() != font.isLinearText());
         REPORTER_ASSERT(reporter, defaultPaint.isSubpixelText() != font.isSubpixelText());
@@ -238,8 +234,6 @@ public:
             REPORTER_ASSERT(reporter, paint.getTextAlign() == font.getTextAlign());
             REPORTER_ASSERT(reporter, paint.getHinting() == font.getHinting());
             REPORTER_ASSERT(reporter, paint.isAntiAlias() == font.isAntiAlias());
-            REPORTER_ASSERT(reporter, paint.isUnderlineText() == font.isUnderlineText());
-            REPORTER_ASSERT(reporter, paint.isStrikeThruText() == font.isStrikeThruText());
             REPORTER_ASSERT(reporter, paint.isFakeBoldText() == font.isFakeBoldText());
             REPORTER_ASSERT(reporter, paint.isLinearText() == font.isLinearText());
             REPORTER_ASSERT(reporter, paint.isSubpixelText() == font.isSubpixelText());
