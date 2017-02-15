@@ -35,22 +35,39 @@ static const char* output_type_name(GrGLSLGeometryBuilder::OutputType out) {
 
 GrGLSLGeometryBuilder::GrGLSLGeometryBuilder(GrGLSLProgramBuilder* program)
     : INHERITED(program)
-    , fIsConfigured(false) {
+    , fNumInvocations(0) {
 }
 
 void GrGLSLGeometryBuilder::configure(InputType inputType, OutputType outputType, int maxVertices,
                                       int numInvocations) {
-    SkASSERT(!fIsConfigured);
+    SkASSERT(!this->isConfigured());
+    fNumInvocations = numInvocations;
+    if (this->getProgramBuilder()->shaderCaps()->mustImplementGSInvocationsWithLoop()) {
+        maxVertices *= numInvocations;
+        numInvocations = 1;
+    }
     this->addLayoutQualifier(input_type_name(inputType), kIn_InterfaceQualifier);
     this->addLayoutQualifier(SkStringPrintf("invocations = %i", numInvocations).c_str(),
                              kIn_InterfaceQualifier);
     this->addLayoutQualifier(output_type_name(outputType), kOut_InterfaceQualifier);
     this->addLayoutQualifier(SkStringPrintf("max_vertices = %i", maxVertices).c_str(),
                              kOut_InterfaceQualifier);
-    fIsConfigured = true;
 }
 
 void GrGLSLGeometryBuilder::onFinalize() {
-    SkASSERT(fIsConfigured);
+    SkASSERT(this->isConfigured());
     fProgramBuilder->varyingHandler()->getGeomDecls(&this->inputs(), &this->outputs());
+    GrShaderVar sk_InvocationID("sk_InvocationID", kInt_GrSLType);
+    this->declareGlobal(sk_InvocationID);
+    SkASSERT(sk_InvocationID.getName() == SkString("sk_InvocationID"));
+    if (this->getProgramBuilder()->shaderCaps()->mustImplementGSInvocationsWithLoop()) {
+        SkString invokeFn;
+        this->emitFunction(kVoid_GrSLType, "invoke", 0, nullptr, this->code().c_str(), &invokeFn);
+        this->code().printf("for (sk_InvocationID = 0; sk_InvocationID < %i; ++sk_InvocationID) {"
+                                "%s();"
+                                "EndPrimitive();"
+                            "}", fNumInvocations, invokeFn.c_str());
+    } else {
+        this->codePrependf("sk_InvocationID = gl_InvocationID;");
+    }
 }
