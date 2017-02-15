@@ -176,6 +176,9 @@ public:
 
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
+    // On MacBook, geometry shaders break if they have more than one invocation.
+    bool mustImplementGSInvocationsWithLoop() const { return fMustImplementGSInvocationsWithLoop; }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -304,6 +307,7 @@ private:
     bool fMustForceNegatedAtanParamToFloat : 1;
     bool fAtan2ImplementedAsAtanYOverX : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
+    bool fMustImplementGSInvocationsWithLoop : 1;
 
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
     int fPixelLocalStorageSize;

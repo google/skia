@@ -870,6 +870,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     if (shaderCaps->fFBFetchSupport && kQualcomm_GrGLVendor == ctxInfo.vendor()) {
         shaderCaps->fRequiresLocalOutputColorForFBFetch = true;
     }
+
+#ifdef SK_BUILD_FOR_MAC
+    // On at least some MacBooks, geometry shaders fall apart if we use more than one invocation. To
+    // work around this, we always use a single invocation and wrap the shader in a loop. The long-
+    // term plan for this WAR is for it to eventually be baked into SkSL.
+    shaderCaps->fMustImplementGSInvocationsWithLoop = true;
+#endif
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

@@ -31,11 +31,12 @@ public:
     };
 
     void configure(InputType, OutputType, int maxVertices, int numInvocations = 1);
+    bool isConfigured() const { return fNumInvocations; }
 
 private:
     void onFinalize() override;
 
-    bool fIsConfigured;
+    int fNumInvocations;
 
     friend class GrGLProgramBuilder;
 
