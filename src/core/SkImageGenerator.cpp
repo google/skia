@@ -86,26 +86,6 @@ GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& 
     return this->onGenerateTexture(ctx, info, origin);
 }
 
-bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SupportedSizes* sizes) {
-    if (scale > 0 && scale <= 1) {
-        return this->onComputeScaledDimensions(scale, sizes);
-    }
-    return false;
-}
-
-bool SkImageGenerator::generateScaledPixels(const SkPixmap& scaledPixels) {
-    if (scaledPixels.width() <= 0 || scaledPixels.height() <= 0) {
-        return false;
-    }
-    return this->onGenerateScaledPixels(scaledPixels);
-}
-
-bool SkImageGenerator::accessScaledImage(const SkRect& src, const SkMatrix& matrix,
-                                         SkFilterQuality fq, ScaledImageRec* rec) {
-    SkASSERT(fInfo.bounds().contains(src));
-    return this->onAccessScaledImage(src, matrix, fq, rec);
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 SkData* SkImageGenerator::onRefEncodedData(GrContext* ctx) {
