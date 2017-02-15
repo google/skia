@@ -40,7 +40,7 @@ struct GrPipelineInput {
 
     void setToSolidCoverage() {
         fColor = GrColor_WHITE;
-        fFlags = kColorIsKnown_Flag | kColorIsKnown_Flag;
+        fFlags = kColorIsKnown_Flag | kIsOpaque_Flag;
     }
 
     void setToScalar(uint8_t alpha) {
