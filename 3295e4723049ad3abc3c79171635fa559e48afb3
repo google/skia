@@ -16,6 +16,24 @@
       "revId": "3295e4723049ad3abc3c79171635fa559e48afb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a340f11_0688e45b",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-15T19:10:07Z",
+      "side": 1,
+      "message": "ostringstream is always optimized for appending,  std::string is not.\n\nhttps://www.google.com/search?q\u003dostringstream+versus+string",
+      "parentUuid": "c9d38c65_9a5ace44",
+      "revId": "3295e4723049ad3abc3c79171635fa559e48afb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
