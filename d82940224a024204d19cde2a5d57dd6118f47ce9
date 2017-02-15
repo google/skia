@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03637161_d91b1884",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-15T19:54:50Z",
+      "side": 1,
+      "message": "is GrPipeline::CreateAt where we set the flag for the Op a better place for this?",
+      "range": {
+        "startLine": 318,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 6
+      },
+      "revId": "d82940224a024204d19cde2a5d57dd6118f47ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c97a9ec1_bbbc8cda",
+        "filename": "src/gpu/effects/GrCustomXfermode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-15T19:54:50Z",
+      "side": 1,
+      "message": "same as porter duff",
+      "range": {
+        "startLine": 304,
+        "startChar": 8,
+        "endLine": 304,
+        "endChar": 74
+      },
+      "revId": "d82940224a024204d19cde2a5d57dd6118f47ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37ef3bba_c9ffd1b3",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-15T19:54:50Z",
+      "side": 1,
+      "message": "So do we want to be doing this check every time here even though we know it always true? Obviously this will be correct in all cases and is safer, but if we never hit hit....",
+      "range": {
+        "startLine": 469,
+        "startChar": 12,
+        "endLine": 469,
+        "endChar": 81
+      },
+      "revId": "d82940224a024204d19cde2a5d57dd6118f47ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
