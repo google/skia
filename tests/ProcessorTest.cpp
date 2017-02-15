@@ -316,7 +316,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         for (int j = 0; j < timesToInvokeFactory; ++j) {
             fp = FPFactory::MakeIdx(i, &testData);
             if (!fp->hasConstantOutputForConstantInput() && !fp->preservesOpaqueInput() &&
-                !fp->modulatesInput()) {
+                !fp->compatibleWithCoverageAsAlpha()) {
                 continue;
             }
             test_draw_op(rtc.get(), fp, dataTexture.get());
@@ -340,7 +340,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 for (int x = 0; x < 256 && passing; ++x) {
                     GrColor input = texel_color(x, y);
                     GrColor output = rgbaData.get()[y * 256 + x];
-                    if (fp->modulatesInput()) {
+                    if (fp->compatibleWithCoverageAsAlpha()) {
                         // A modulating processor is allowed to modulate either the input color or
                         // just the input alpha.
                         bool legalColorModulation =

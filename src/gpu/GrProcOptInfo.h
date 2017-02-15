@@ -52,7 +52,9 @@ public:
                fLastKnownOutputColor == GrColor4f::OpaqueWhite();
     }
     bool isOpaque() const { return fIsOpaque; }
-    bool allProcessorsModulateByPremul() const { return fAllProcessorsModulatePremul; }
+    bool allProcessorsCompatibleWithCoverageAsAlpha() const {
+        return fAllProcessorsCompatibleWithCoverageAsAlpha;
+    }
     bool isLCDCoverage() const { return fIsLCDCoverage; }
 
     /**
@@ -91,7 +93,7 @@ private:
     int fProcessorsVisitedWithKnownOutput = -1;
     bool fIsLCDCoverage = false;
     bool fIsOpaque = false;
-    bool fAllProcessorsModulatePremul = true;
+    bool fAllProcessorsCompatibleWithCoverageAsAlpha = true;
     GrColor4f fLastKnownOutputColor;
 };
 

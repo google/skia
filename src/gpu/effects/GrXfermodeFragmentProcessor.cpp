@@ -289,9 +289,12 @@ private:
             case SkBlendMode::kSrcIn:
             case SkBlendMode::kDstIn:
             case SkBlendMode::kModulate:
-                flags = fp->preservesOpaqueInput()
-                        ? kPreservesOpaqueInput_OptimizationFlag | kModulatesInput_OptimizationFlag
-                        : kModulatesInput_OptimizationFlag;
+                if (fp->preservesOpaqueInput()) {
+                    flags = kPreservesOpaqueInput_OptimizationFlag |
+                            kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+                } else {
+                    flags = kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+                }
                 break;
 
             // Produces zero when both are opaque, indeterminate if one is opaque.

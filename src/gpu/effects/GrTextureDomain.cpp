@@ -251,9 +251,9 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrTexture* texture,
 inline GrFragmentProcessor::OptimizationFlags GrTextureDomainEffect::OptFlags(
         GrPixelConfig config, GrTextureDomain::Mode mode) {
     if (mode == GrTextureDomain::kDecal_Mode || !GrPixelConfigIsOpaque(config)) {
-        return GrFragmentProcessor::kModulatesInput_OptimizationFlag;
+        return GrFragmentProcessor::kCompatibleWithCoverageAsAlpha_OptimizationFlag;
     } else {
-        return GrFragmentProcessor::kModulatesInput_OptimizationFlag |
+        return GrFragmentProcessor::kCompatibleWithCoverageAsAlpha_OptimizationFlag |
                GrFragmentProcessor::kPreservesOpaqueInput_OptimizationFlag;
     }
 }
@@ -398,7 +398,7 @@ sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(GrTe
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
         GrTexture* texture, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
-        : INHERITED(kModulatesInput_OptimizationFlag)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fTextureSampler(texture, GrSamplerParams::ClampNoFilter())
         , fTextureDomain(texture, GrTextureDomain::MakeTexelDomain(subset),
                          GrTextureDomain::kDecal_Mode) {
@@ -422,7 +422,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
         sk_sp<GrTextureProxy> proxy,
         const SkIRect& subset,
         const SkIPoint& deviceSpaceOffset)
-        : INHERITED(kModulatesInput_OptimizationFlag)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fTextureSampler(context->textureProvider(), proxy, GrSamplerParams::ClampNoFilter())
         , fTextureDomain(proxy.get(), GrTextureDomain::MakeTexelDomain(subset),
                          GrTextureDomain::kDecal_Mode) {

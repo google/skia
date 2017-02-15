@@ -86,7 +86,7 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(const SkRect& circl
                                                              float textureRadius,
                                                              float solidRadius,
                                                              GrTexture* blurProfile)
-        : INHERITED(kModulatesInput_OptimizationFlag)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fCircle(circle)
         , fSolidRadius(solidRadius)
         , fTextureRadius(textureRadius)

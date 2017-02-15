@@ -99,11 +99,20 @@ public:
     }
 
     /**
-     * True if the processor's output is a modulation of its input color or alpha with a computed
-     * premultiplied color or alpha in the 0..1 range. If true and the blend mode allows it we may
-     * fold coverage into the first color fragment processor's input.
+     * A GrDrawOp may premultiply its antialiasing coverage into its GrGeometryProcessor's color
+     * output under the following scenario:
+     *   * all the color fragment processors report true to this query,
+     *   * all the coverage fragment processors report true to this query,
+     *   * the blend mode arithmetic allows for it it.
+     * To be compatible a fragment processor's output must be a modulation of its input color or
+     * alpha with a computed premultiplied color or alpha that is in 0..1 range. The computed color
+     * or alpha that is modulated against the input cannot depend on the input's alpha. The computed
+     * value cannot depend on the input's color channels unless it unpremultiplies the input color
+     * channels by the input alpha.
      */
-    bool modulatesInput() const { return SkToBool(fFlags & kModulatesInput_OptimizationFlag); }
+    bool compatibleWithCoverageAsAlpha() const {
+        return SkToBool(fFlags & kCompatibleWithCoverageAsAlpha_OptimizationFlag);
+    }
 
     /**
      * If this is true then all opaque input colors to the processor produce opaque output colors.
@@ -207,10 +216,10 @@ public:
 protected:
     enum OptimizationFlags : uint32_t {
         kNone_OptimizationFlags,
-        kModulatesInput_OptimizationFlag = 0x1,
+        kCompatibleWithCoverageAsAlpha_OptimizationFlag = 0x1,
         kPreservesOpaqueInput_OptimizationFlag = 0x2,
         kConstantOutputForConstantInput_OptimizationFlag = 0x4,
-        kAll_OptimizationFlags = kModulatesInput_OptimizationFlag |
+        kAll_OptimizationFlags = kCompatibleWithCoverageAsAlpha_OptimizationFlag |
                                  kPreservesOpaqueInput_OptimizationFlag |
                                  kConstantOutputForConstantInput_OptimizationFlag
     };

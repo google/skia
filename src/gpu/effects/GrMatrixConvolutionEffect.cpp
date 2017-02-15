@@ -159,7 +159,8 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha)
         // To advertise the preserves opaqueness optimization we'd have to examine the parameters.
-        : INHERITED(texture, nullptr, SkMatrix::I(), kModulatesInput_OptimizationFlag)
+        : INHERITED(texture, nullptr, SkMatrix::I(),
+                    kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fKernelSize(kernelSize)
         , fGain(SkScalarToFloat(gain))
         , fBias(SkScalarToFloat(bias) / 255.0f)

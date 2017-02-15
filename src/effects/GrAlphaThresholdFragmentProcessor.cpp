@@ -32,9 +32,10 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::Make(
 
 inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor::OptFlags(float outerThreshold) {
     if (outerThreshold >= 1.f) {
-        return kPreservesOpaqueInput_OptimizationFlag | kModulatesInput_OptimizationFlag;
+        return kPreservesOpaqueInput_OptimizationFlag |
+               kCompatibleWithCoverageAsAlpha_OptimizationFlag;
     } else {
-        return kModulatesInput_OptimizationFlag;
+        return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
     }
 }
 

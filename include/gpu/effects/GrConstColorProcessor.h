@@ -46,7 +46,7 @@ private:
     static OptimizationFlags OptFlags(GrColor4f color, InputMode mode) {
         OptimizationFlags flags = kConstantOutputForConstantInput_OptimizationFlag;
         if (mode != kIgnore_InputMode) {
-            flags |= kModulatesInput_OptimizationFlag;
+            flags |= kCompatibleWithCoverageAsAlpha_OptimizationFlag;
         }
         if (color.isOpaque()) {
             flags |= kPreservesOpaqueInput_OptimizationFlag;

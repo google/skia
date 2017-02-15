@@ -1691,7 +1691,7 @@ GrLightingEffect::GrLightingEffect(GrTexture* texture,
                                    const SkMatrix& matrix,
                                    BoundaryMode boundaryMode,
                                    const SkIRect* srcBounds)
-        // Perhaps this could advertise the opaque or modulating optimizations?
+        // Perhaps this could advertise the opaque or coverage-as-alpha optimizations?
         : INHERITED(texture, nullptr, SkMatrix::I(), kNone_OptimizationFlags)
         , fLight(light)
         , fSurfaceScale(surfaceScale)

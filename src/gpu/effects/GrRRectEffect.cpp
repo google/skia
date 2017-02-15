@@ -88,7 +88,7 @@ sk_sp<GrFragmentProcessor> CircularRRectEffect::Make(GrPrimitiveEdgeType edgeTyp
 
 CircularRRectEffect::CircularRRectEffect(GrPrimitiveEdgeType edgeType, uint32_t circularCornerFlags,
                                          const SkRRect& rrect)
-        : INHERITED(kModulatesInput_OptimizationFlag)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRRect(rrect)
         , fEdgeType(edgeType)
         , fCircularCornerFlags(circularCornerFlags) {
@@ -421,7 +421,9 @@ EllipticalRRectEffect::Make(GrPrimitiveEdgeType edgeType, const SkRRect& rrect) 
 }
 
 EllipticalRRectEffect::EllipticalRRectEffect(GrPrimitiveEdgeType edgeType, const SkRRect& rrect)
-        : INHERITED(kModulatesInput_OptimizationFlag), fRRect(rrect), fEdgeType(edgeType) {
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        , fRRect(rrect)
+        , fEdgeType(edgeType) {
     this->initClassID<EllipticalRRectEffect>();
 }
 

@@ -465,7 +465,7 @@ GrXferProcessor::OptFlags PorterDuffXferProcessor::onGetOptimizations(
         if (!fBlendFormula.usesInputColor()) {
             optFlags |= GrXferProcessor::kIgnoreColor_OptFlag;
         }
-        if (analysis.fColorPOI.allProcessorsModulateByPremul() &&
+        if (analysis.fColorPOI.allProcessorsCompatibleWithCoverageAsAlpha() &&
             fBlendFormula.canTweakAlphaForCoverage() && !analysis.fCoveragePOI.isLCDCoverage()) {
             optFlags |= GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag;
         }

@@ -12,7 +12,7 @@
 void GrProcOptInfo::analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt) {
     for (int i = 0; i < cnt; ++i) {
         bool knowCurrentOutput = fProcessorsVisitedWithKnownOutput == fTotalProcessorsVisited;
-        if (!knowCurrentOutput && !fAllProcessorsModulatePremul && !fIsOpaque) {
+        if (!knowCurrentOutput && !fAllProcessorsCompatibleWithCoverageAsAlpha && !fIsOpaque) {
             fTotalProcessorsVisited += cnt - i;
             return;
         }
@@ -24,8 +24,8 @@ void GrProcOptInfo::analyzeProcessors(const GrFragmentProcessor* const* processo
         } else if (fIsOpaque && !fp->preservesOpaqueInput()) {
             fIsOpaque = false;
         }
-        if (fAllProcessorsModulatePremul && !fp->modulatesInput()) {
-            fAllProcessorsModulatePremul = false;
+        if (fAllProcessorsCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
+            fAllProcessorsCompatibleWithCoverageAsAlpha = false;
         }
         ++fTotalProcessorsVisited;
     }

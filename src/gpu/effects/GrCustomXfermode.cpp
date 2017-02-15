@@ -300,7 +300,7 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrPipelineAnalysis&
      */
 
     OptFlags flags = kNone_OptFlags;
-    if (analysis.fColorPOI.allProcessorsModulateByPremul()) {
+    if (analysis.fColorPOI.allProcessorsCompatibleWithCoverageAsAlpha()) {
         flags |= kCanTweakAlphaForCoverage_OptFlag;
     }
     return flags;
