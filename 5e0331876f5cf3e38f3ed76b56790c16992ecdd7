@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09cb7c7a_37375bd6",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-15T17:30:00Z",
+      "side": 1,
+      "message": "Just curious, why not GrTexureProxy?",
+      "revId": "5e0331876f5cf3e38f3ed76b56790c16992ecdd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
