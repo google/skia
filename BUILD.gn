@@ -31,7 +31,7 @@ declare_args() {
   skia_enable_effects = true
   skia_enable_gpu = true
   skia_enable_pdf = true
-  skia_enable_splicer = is_skia_standalone && sanitize != "MSAN" && !is_ios
+  skia_enable_splicer = false
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
