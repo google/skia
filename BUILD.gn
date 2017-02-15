@@ -29,6 +29,7 @@ declare_args() {
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
+  skia_enable_jumper = is_mac
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_splicer = false
@@ -494,6 +495,15 @@ optional("raw") {
   ]
 }
 
+optional("jumper") {
+  enabled = skia_enable_jumper
+  public_defines = [ "SK_JUMPER" ]
+  sources = [
+    "src/jumper/SkJumper.cpp",
+    "src/jumper/SkJumper_stages.cpp",
+  ]
+}
+
 optional("splicer") {
   enabled = skia_enable_splicer
   public_defines = [ "SK_RASTER_PIPELINE_HAS_JIT" ]
@@ -562,6 +572,7 @@ component("skia") {
     ":gpu",
     ":hsw",
     ":jpeg",
+    ":jumper",
     ":none",
     ":pdf",
     ":png",
