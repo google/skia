@@ -64,12 +64,10 @@ struct GrProcessorTestData {
 
     GrContext* context() { return fContext; }
     GrTexture* texture(int index) { return fTextures[index]; }
-    sk_sp<GrTextureProxy> textureProxy(int index) {
-        return sk_ref_sp(fProxies[index]->asTextureProxy());
-    }
+    sk_sp<GrTextureProxy> textureProxy(int index) { return fProxies[index]; }
 
 private:
-    sk_sp<GrSurfaceProxy> fProxies[2];
+    sk_sp<GrTextureProxy> fProxies[2];
 };
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
