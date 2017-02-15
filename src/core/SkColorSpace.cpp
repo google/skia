@@ -189,16 +189,17 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                                     std::move(gammas), toXYZD50, nullptr, flags));
 }
 
-sk_sp<SkColorSpace> SkColorSpace::MakeRGB(RenderTargetGamma gamma, Gamut gamut) {
+sk_sp<SkColorSpace> SkColorSpace::MakeRGB(RenderTargetGamma gamma, Gamut gamut, uint32_t flags) {
     SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
     to_xyz_d50(&toXYZD50, gamut);
-    return SkColorSpace::MakeRGB(gamma, toXYZD50);
+    return SkColorSpace::MakeRGB(gamma, toXYZD50, flags);
 }
 
-sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut) {
+sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut,
+                                          uint32_t flags) {
     SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
     to_xyz_d50(&toXYZD50, gamut);
-    return SkColorSpace::MakeRGB(coeffs, toXYZD50);
+    return SkColorSpace::MakeRGB(coeffs, toXYZD50, flags);
 }
 
 static SkColorSpace* gAdobeRGB;
