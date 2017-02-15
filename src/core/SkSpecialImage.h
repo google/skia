@@ -89,7 +89,7 @@ public:
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
-                                                     sk_sp<GrSurfaceProxy>,
+                                                     sk_sp<GrTextureProxy>,
                                                      sk_sp<SkColorSpace>,
                                                      const SkSurfaceProps* = nullptr,
                                                      SkAlphaType at = kPremul_SkAlphaType);
