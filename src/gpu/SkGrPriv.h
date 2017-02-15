@@ -9,6 +9,7 @@
 #define SkGrPriv_DEFINED
 
 #include "GrBlend.h"
+#include "GrSamplerParams.h"
 #include "GrTypes.h"
 #include "SkCanvas.h"
 #include "SkImageInfo.h"
@@ -21,6 +22,7 @@ class GrContext;
 class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrPaint;
+class GrSurfaceProxy;
 class GrTexture;
 class GrUniqueKey;
 class SkBitmap;
@@ -177,6 +179,22 @@ GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budge
  */
 GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
                                    int mipLevelCount);
+
+sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
+                                           const GrSamplerParams&, SkScalar scaleAdjust[2]);
+
+// This is intended to replace:
+//    SkAutoLockPixels alp(bitmap, true);
+//    if (!bitmap.readyToDraw()) {
+//        return nullptr;
+//    }
+//    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
+//                                                         GrSamplerParams::ClampNoFilter(),
+//                                                         nullptr);
+//    if (!texture) {
+//        return nullptr;
+//    }
+sk_sp<GrSurfaceProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap);
 
 //////////////////////////////////////////////////////////////////////////////
 
