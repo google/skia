@@ -27,11 +27,6 @@ void SkRasterPipeline::run(size_t x, size_t n) const {
 }
 
 std::function<void(size_t, size_t)> SkRasterPipeline::compile() const {
-#ifdef SK_RASTER_PIPELINE_HAS_JIT
-    if (auto fn = this->jit()) {
-        return fn;
-    }
-#endif
     return SkOpts::compile_pipeline(fStages.data(), SkToInt(fStages.size()));
 }
 
