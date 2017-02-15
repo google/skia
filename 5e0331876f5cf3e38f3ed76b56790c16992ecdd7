@@ -16,6 +16,24 @@
       "revId": "5e0331876f5cf3e38f3ed76b56790c16992ecdd7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1807c991_e911f96e",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-15T17:39:37Z",
+      "side": 1,
+      "message": "That\u0027s true - the result does have to be texture-able - done.",
+      "parentUuid": "09cb7c7a_37375bd6",
+      "revId": "5e0331876f5cf3e38f3ed76b56790c16992ecdd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
