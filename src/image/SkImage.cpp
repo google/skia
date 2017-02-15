@@ -129,8 +129,7 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
     if (nullptr == encoded || 0 == encoded->size()) {
         return nullptr;
     }
-    SkImageGenerator* generator = SkImageGenerator::NewFromEncoded(encoded.get());
-    return SkImage::MakeFromGenerator(generator, subset);
+    return SkImage::MakeFromGenerator(SkImageGenerator::MakeFromEncoded(encoded), subset);
 }
 
 const char* SkImage::toString(SkString* str) const {
@@ -263,9 +262,9 @@ bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) con
 sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
                                         const SkMatrix* matrix, const SkPaint* paint,
                                         BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace) {
-    return MakeFromGenerator(SkImageGenerator::NewFromPicture(dimensions, picture.get(), matrix,
-                                                              paint, bitDepth,
-                                                              std::move(colorSpace)));
+    return MakeFromGenerator(SkImageGenerator::MakeFromPicture(dimensions, std::move(picture),
+                                                               matrix, paint, bitDepth,
+                                                               std::move(colorSpace)));
 }
 sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,

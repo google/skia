@@ -65,7 +65,7 @@ private:
             return false;
         }
 
-        fGenerator.reset(SkCodecImageGenerator::NewFromEncodedCodec(data));
+        fGenerator = SkCodecImageGenerator::MakeFromEncodedCodec(data);
         if (!fGenerator) {
             SkDebugf("Could create codec from %s", FLAGS_codec_scaled[0]);
             return false;
