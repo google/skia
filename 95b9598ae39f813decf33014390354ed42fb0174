@@ -22,6 +22,30 @@
       "revId": "95b9598ae39f813decf33014390354ed42fb0174",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5610306_e9ba6af7",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-15T13:48:33Z",
+      "side": 1,
+      "message": "Yeah let\u0027s do that.  The name says \"compute\", it\u0027s not misleading if this function does a bit of work.",
+      "parentUuid": "a2e11617_c8c19087",
+      "range": {
+        "startLine": 178,
+        "startChar": 16,
+        "endLine": 178,
+        "endChar": 28
+      },
+      "revId": "95b9598ae39f813decf33014390354ed42fb0174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
