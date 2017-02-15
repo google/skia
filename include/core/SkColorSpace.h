@@ -81,6 +81,10 @@ public:
         kRec2020_Gamut,
     };
 
+    enum ColorSpaceFlags {
+        kNonLinearBlending_ColorSpaceFlag = 0x1,
+    };
+
     /**
      *  Create an SkColorSpace from a transfer function and a color gamut.
      *
@@ -88,10 +92,11 @@ public:
      *  Gamut can be specified as an enum or as the matrix transformation to XYZ D50.
      */
     static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, Gamut gamut);
-    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50,
+                                       uint32_t flags = 0);
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut);
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
-                                       const SkMatrix44& toXYZD50);
+                                       const SkMatrix44& toXYZD50, uint32_t flags = 0);
 
     /**
      *  Create an SkColorSpace from an ICC profile.

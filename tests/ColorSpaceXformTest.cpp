@@ -23,7 +23,7 @@ public:
     static std::unique_ptr<SkColorSpaceXform> CreateIdentityXform(const sk_sp<SkGammas>& gammas) {
         // Logically we can pass any matrix here.  For simplicty, pass I(), i.e. D50 XYZ gamut.
         sk_sp<SkColorSpace> space(new SkColorSpace_XYZ(
-                kNonStandard_SkGammaNamed, gammas, SkMatrix::I(), nullptr));
+                kNonStandard_SkGammaNamed, gammas, SkMatrix::I(), nullptr, 0 /* flags */));
 
         // Use special testing entry point, so we don't skip the xform, even though src == dst.
         return SlowIdentityXform(static_cast<SkColorSpace_XYZ*>(space.get()));
@@ -53,7 +53,7 @@ public:
                                                     SkColorSpace_Base::kRGB_ICCTypeFlag,
                                                     std::move(srcElements));
         sk_sp<SkColorSpace> dstSpace(new SkColorSpace_XYZ(gammaNamed, gammas, arbitraryMatrix,
-                                                          nullptr));
+                                                          nullptr, 0 /* flags */));
 
         return SkColorSpaceXform::New(static_cast<SkColorSpace_A2B*>(srcSpace.get()),
                                       static_cast<SkColorSpace_XYZ*>(dstSpace.get()));

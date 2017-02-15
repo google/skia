@@ -161,7 +161,7 @@ public:
     static sk_sp<SkICC> MakeICC(sk_sp<SkGammas> gammas) {
         return MakeICC(sk_sp<SkColorSpace>(new SkColorSpace_XYZ(
                 kNonStandard_SkGammaNamed, std::move(gammas),
-                SkMatrix44(SkMatrix44::kIdentity_Constructor), nullptr)));
+                SkMatrix44(SkMatrix44::kIdentity_Constructor), nullptr, 0 /* flags */)));
     }
 };
 

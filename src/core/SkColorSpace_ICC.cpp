@@ -1410,10 +1410,11 @@ static sk_sp<SkColorSpace> make_xyz(const ICCProfileHeader& header, ICCTag* tags
     if (kNonStandard_SkGammaNamed == gammaNamed) {
         return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(gammaNamed,
                                                         std::move(gammas),
-                                                        mat, std::move(profileData)));
+                                                        mat, std::move(profileData),
+                                                        0 /* flags */));
     }
 
-    return SkColorSpace_Base::MakeRGB(gammaNamed, mat);
+    return SkColorSpace_Base::MakeRGB(gammaNamed, mat, 0 /* flags */);
 }
 
 static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tags, int tagCount,
@@ -1438,7 +1439,7 @@ static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tag
     toXYZD50.setFloat(1, 1, kWhitePointD50[1]);
     toXYZD50.setFloat(2, 2, kWhitePointD50[2]);
     if (SkGammas::Type::kNamed_Type == type) {
-        return SkColorSpace_Base::MakeRGB(data.fNamed, toXYZD50);
+        return SkColorSpace_Base::MakeRGB(data.fNamed, toXYZD50, 0 /* flags */);
     }
 
     size_t allocSize = sizeof(SkGammas);
@@ -1455,7 +1456,8 @@ static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tag
 
     return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(kNonStandard_SkGammaNamed,
                                                     std::move(gammas),
-                                                    toXYZD50, std::move(profileData)));
+                                                    toXYZD50, std::move(profileData),
+                                                    0 /* flags */));
 }
 
 static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::ICCTypeFlag iccType,
