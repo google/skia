@@ -12,7 +12,7 @@
 
 static bool gMyFactoryWasCalled;
 
-static SkImageGenerator* my_factory(SkData*) {
+static std::unique_ptr<SkImageGenerator> my_factory(sk_sp<SkData>) {
     gMyFactoryWasCalled = true;
     return nullptr;
 }
@@ -23,20 +23,18 @@ static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
 
     gMyFactoryWasCalled = false;
 
-    SkImageGenerator* gen;
     REPORTER_ASSERT(reporter, !gMyFactoryWasCalled);
 
-    gen = SkImageGenerator::NewFromEncoded(data.get());
+    std::unique_ptr<SkImageGenerator> gen = SkImageGenerator::MakeFromEncoded(data);
     REPORTER_ASSERT(reporter, nullptr == gen);
     REPORTER_ASSERT(reporter, !gMyFactoryWasCalled);
 
     // Test is racy, in that it hopes no other thread is changing this global...
-    SkGraphics::ImageGeneratorFromEncodedFactory prev =
-                                    SkGraphics::SetImageGeneratorFromEncodedFactory(my_factory);
-    gen = SkImageGenerator::NewFromEncoded(data.get());
+    auto prev = SkGraphics::SetImageGeneratorFromEncodedDataFactory(my_factory);
+    gen = SkImageGenerator::MakeFromEncoded(data);
     REPORTER_ASSERT(reporter, nullptr == gen);
     REPORTER_ASSERT(reporter, gMyFactoryWasCalled);
-    SkGraphics::SetImageGeneratorFromEncodedFactory(prev);
+    SkGraphics::SetImageGeneratorFromEncodedDataFactory(prev);
 }
 
 class MyImageGenerator : public SkImageGenerator {
