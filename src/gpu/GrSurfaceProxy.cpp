@@ -131,6 +131,18 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {
     }
 }
 
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
+    if (!tex) {
+        return nullptr;
+    }
+
+    if (tex->asRenderTarget()) {
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(std::move(tex)));
+    } else {
+        return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex)));
+    }
+}
+
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
@@ -217,7 +229,7 @@ void GrSurfaceProxy::validate(GrContext* context) const {
 }
 #endif
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrContext* context,
+sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
                                            GrSurfaceProxy* src,
                                            SkIRect srcRect,
                                            SkBudgeted budgeted) {
@@ -241,7 +253,12 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrContext* context,
         return nullptr;
     }
 
-    return dstContext->asSurfaceProxyRef();
+    return dstContext->asTextureProxyRef();
+}
+
+sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context, GrSurfaceProxy* src,
+                                           SkBudgeted budgeted) {
+    return Copy(context, src, SkIRect::MakeWH(src->width(), src->height()), budgeted);
 }
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,

@@ -1315,15 +1315,15 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
-    sk_sp<GrSurfaceProxy> sProxy(this->accessRenderTargetContext()->asTextureProxyRef());
-    if (!sProxy) {
+    sk_sp<GrTextureProxy> proxy(this->accessRenderTargetContext()->asTextureProxyRef());
+    if (!proxy) {
         // When the device doesn't have a texture, we create a temporary texture.
         // TODO: we should actually only copy the portion of the source needed to apply the image
         // filter
-        sProxy = GrSurfaceProxy::Copy(fContext.get(),
-                                      this->accessRenderTargetContext()->asSurfaceProxy(),
-                                      SkBudgeted::kYes);
-        if (!sProxy) {
+        proxy = GrSurfaceProxy::Copy(fContext.get(),
+                                     this->accessRenderTargetContext()->asSurfaceProxy(),
+                                     SkBudgeted::kYes);
+        if (!proxy) {
             return nullptr;
         }
     }
@@ -1334,7 +1334,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
     return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                srcRect,
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               sProxy,
+                                               std::move(proxy),
                                                ii.refColorSpace(),
                                                &this->surfaceProps());
 }

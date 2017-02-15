@@ -168,6 +168,7 @@ private:
 class GrSurfaceProxy : public GrIORefProxy {
 public:
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
+    static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
 
     static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, const GrSurfaceDesc&,
                                               SkBackingFit, SkBudgeted);
@@ -282,14 +283,12 @@ public:
     }
 
     // Helper function that creates a temporary SurfaceContext to perform the copy
-    static sk_sp<GrSurfaceProxy> Copy(GrContext*, GrSurfaceProxy* src,
+    static sk_sp<GrTextureProxy> Copy(GrContext*, GrSurfaceProxy* src,
                                       SkIRect srcRect, SkBudgeted);
 
     // Copy the entire 'src'
-    static sk_sp<GrSurfaceProxy> Copy(GrContext* context, GrSurfaceProxy* src,
-                                      SkBudgeted budgeted) {
-        return Copy(context, src, SkIRect::MakeWH(src->width(), src->height()), budgeted);
-    }
+    static sk_sp<GrTextureProxy> Copy(GrContext* context, GrSurfaceProxy* src,
+                                      SkBudgeted budgeted);
 
     // Test-only entry point - should decrease in use as proxies propagate
     static sk_sp<GrSurfaceContext> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
