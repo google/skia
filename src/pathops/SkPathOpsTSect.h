@@ -7,7 +7,7 @@
 #ifndef SkPathOpsTSect_DEFINED
 #define SkPathOpsTSect_DEFINED
 
-#include "SkChunkAlloc.h"
+#include "SkArenaAlloc.h"
 #include "SkPathOpsBounds.h"
 #include "SkPathOpsRect.h"
 #include "SkIntersections.h"
@@ -85,7 +85,7 @@ struct SkTSpanBounded {
 template<typename TCurve, typename OppCurve>
 class SkTSpan {
 public:
-    void addBounded(SkTSpan<OppCurve, TCurve>* , SkChunkAlloc* );
+    void addBounded(SkTSpan<OppCurve, TCurve>* , SkArenaAlloc* );
     double closestBoundedT(const SkDPoint& pt) const;
     bool contains(double t) const;
 
@@ -174,11 +174,11 @@ public:
         initBounds(curve);
     }
 
-    bool split(SkTSpan* work, SkChunkAlloc* heap) {
+    bool split(SkTSpan* work, SkArenaAlloc* heap) {
         return splitAt(work, (work->fStartT + work->fEndT) * 0.5, heap);
     }
 
-    bool splitAt(SkTSpan* work, double t, SkChunkAlloc* heap);
+    bool splitAt(SkTSpan* work, double t, SkArenaAlloc* heap);
 
     double startT() const {
         return fStartT;
@@ -317,7 +317,7 @@ private:
     void removeSpans(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp);
     void removedEndCheck(SkTSpan<TCurve, OppCurve>* span);
 
-    void resetRemovedEnds() { 
+    void resetRemovedEnds() {
         fRemovedStartT = fRemovedEndT = false;
     }
 
@@ -331,7 +331,7 @@ private:
     void validateBounded() const;
 
     const TCurve& fCurve;
-    SkChunkAlloc fHeap;
+    SkArenaAlloc fHeap;
     SkTSpan<TCurve, OppCurve>* fHead;
     SkTSpan<TCurve, OppCurve>* fCoincident;
     SkTSpan<TCurve, OppCurve>* fDeleted;
@@ -389,9 +389,8 @@ void SkTCoincident<TCurve, OppCurve>::setPerp(const TCurve& c1, double t,
 }
 
 template<typename TCurve, typename OppCurve>
-void SkTSpan<TCurve, OppCurve>::addBounded(SkTSpan<OppCurve, TCurve>* span, SkChunkAlloc* heap) {
-    SkTSpanBounded<OppCurve, TCurve>* bounded = new (heap->allocThrow(
-            sizeof(SkTSpanBounded<OppCurve, TCurve>)))(SkTSpanBounded<OppCurve, TCurve>);
+void SkTSpan<TCurve, OppCurve>::addBounded(SkTSpan<OppCurve, TCurve>* span, SkArenaAlloc* heap) {
+    SkTSpanBounded<OppCurve, TCurve>* bounded = heap->make<SkTSpanBounded<OppCurve, TCurve>>();
     bounded->fBounded = span;
     bounded->fNext = fBounded;
     fBounded = bounded;
@@ -756,7 +755,7 @@ bool SkTSpan<TCurve, OppCurve>::removeBounded(const SkTSpan<OppCurve, TCurve>* o
 }
 
 template<typename TCurve, typename OppCurve>
-bool SkTSpan<TCurve, OppCurve>::splitAt(SkTSpan* work, double t, SkChunkAlloc* heap) {
+bool SkTSpan<TCurve, OppCurve>::splitAt(SkTSpan* work, double t, SkArenaAlloc* heap) {
     fStartT = t;
     fEndT = work->fEndT;
     if (fStartT == fEndT) {
@@ -858,7 +857,7 @@ void SkTSpan<TCurve, OppCurve>::validatePerpPt(double t, const SkDPoint& pt) con
 
 
 template<typename TCurve, typename OppCurve>
-SkTSect<TCurve, OppCurve>::SkTSect(const TCurve& c 
+SkTSect<TCurve, OppCurve>::SkTSect(const TCurve& c
         SkDEBUGPARAMS(SkOpGlobalState* debugGlobalState)
         PATH_OPS_DEBUG_T_SECT_PARAMS(int id))
     : fCurve(c)
@@ -884,8 +883,7 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::addOne() {
         result = fDeleted;
         fDeleted = result->fNext;
     } else {
-        result = new (fHeap.allocThrow(sizeof(SkTSpan<TCurve, OppCurve>)))(
-                SkTSpan<TCurve, OppCurve>);
+        result = fHeap.make<SkTSpan<TCurve, OppCurve>>();
 #if DEBUG_T_SECT
         ++fDebugAllocatedCount;
 #endif

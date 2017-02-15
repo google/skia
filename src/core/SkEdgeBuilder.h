@@ -7,7 +7,7 @@
 #ifndef SkEdgeBuilder_DEFINED
 #define SkEdgeBuilder_DEFINED
 
-#include "SkChunkAlloc.h"
+#include "SkArenaAlloc.h"
 #include "SkRect.h"
 #include "SkTDArray.h"
 
@@ -42,7 +42,7 @@ private:
     bool vertical_line(const SkEdge* edge);
     bool vertical_line(const SkAnalyticEdge* edge);
 
-    SkChunkAlloc        fAlloc;
+    SkArenaAlloc        fAlloc;
     SkTDArray<void*>    fList;
 
     /*

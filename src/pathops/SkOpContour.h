@@ -277,7 +277,7 @@ public:
         SkDEBUGCODE(fDebugIndent -= 2);
     }
 
-    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc* );
+    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkArenaAlloc*);
 
     void reset() {
         fTail = nullptr;

@@ -419,7 +419,7 @@ static void makeSegment(SkOpContour* contour, const SkDQuad& quad, SkPoint short
 }
 
 static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, const SkDQuad& quad2,
-        int testNo, SkChunkAlloc* allocator) {
+        int testNo, SkArenaAlloc* allocator) {
     SkPoint shortQuads[2][3];
 
     SkOpContourHead contour;
@@ -558,7 +558,8 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
 }
 
 DEF_TEST(PathOpsAngleOverlapHullsOne, reporter) {
-    SkChunkAlloc allocator(4096);
+    char storage[4096];
+    SkArenaAlloc allocator(storage);
 //    gPathOpsAngleIdeasVerbose = true;
     const QuadPts quads[] = {
 {{{939.4808349609375, 914.355224609375}, {-357.7921142578125, 590.842529296875}, {736.8936767578125, -350.717529296875}}},
@@ -573,7 +574,8 @@ DEF_TEST(PathOpsAngleOverlapHullsOne, reporter) {
 }
 
 DEF_TEST(PathOpsAngleOverlapHulls, reporter) {
-    SkChunkAlloc allocator(4096);
+    char storage[4096];
+    SkArenaAlloc allocator(storage);
     if (!gPathOpsAngleIdeasVerbose) {  // takes a while to run -- so exclude it by default
         return;
     }

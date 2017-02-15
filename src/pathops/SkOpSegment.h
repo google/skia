@@ -169,8 +169,8 @@ public:
     void debugValidate() const;
 
 #if DEBUG_COINCIDENCE_ORDER
-    void debugResetCoinT() const; 
-    void debugSetCoinT(int, SkScalar ) const; 
+    void debugResetCoinT() const;
+    void debugSetCoinT(int, SkScalar ) const;
 #endif
 
 #if DEBUG_COIN
@@ -333,7 +333,7 @@ public:
 
     bool ptsDisjoint(double t1, const SkPoint& pt1, double t2, const SkPoint& pt2) const;
 
-    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc*);
+    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkArenaAlloc*);
     void release(const SkOpSpan* );
 
 #if DEBUG_COIN
