@@ -8,6 +8,7 @@
 #ifndef SKSL_SWITCHCASE
 #define SKSL_SWITCHCASE
 
+#include "SkSLExpression.h"
 #include "SkSLStatement.h"
 
 namespace SkSL {
