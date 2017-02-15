@@ -466,7 +466,8 @@ GrXferProcessor::OptFlags PorterDuffXferProcessor::onGetOptimizations(
             optFlags |= GrXferProcessor::kIgnoreColor_OptFlag;
         }
         if (analysis.fColorPOI.allProcessorsCompatibleWithCoverageAsAlpha() &&
-            fBlendFormula.canTweakAlphaForCoverage() && !analysis.fCoveragePOI.isLCDCoverage()) {
+            analysis.fCoveragePOI.allProcessorsCompatibleWithCoverageAsAlpha() &&
+            fBlendFormula.canTweakAlphaForCoverage()) {
             optFlags |= GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag;
         }
     }

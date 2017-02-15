@@ -253,8 +253,12 @@ sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, co
             return GrConstColorProcessor::Make(GrColor4f::OpaqueWhite(),
                                                GrConstColorProcessor::kModulateRGBA_InputMode);
         }
+        // This could use kIgnore instead of kModulateRGBA but it would trigger a debug print
+        // about a coverage processor not being compatible with the alpha-as-coverage optimization.
+        // We don't really care about this unlikely case so we just use kModulateRGBA to suppress
+        // the print.
         return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
-                                           GrConstColorProcessor::kIgnore_InputMode);
+                                           GrConstColorProcessor::kModulateRGBA_InputMode);
     }
 
     SkVector t;
