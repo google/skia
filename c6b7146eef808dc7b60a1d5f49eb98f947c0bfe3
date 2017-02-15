@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c186698_5dda197e",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-15T22:58:31Z",
+      "side": 0,
+      "message": "Are there actually any path renderers holding gpu resources that aren\u0027t tied to ops or the resource cache? I checked and didn\u0027t see anything obvious.",
+      "range": {
+        "startLine": 58,
+        "startChar": 32,
+        "endLine": 58,
+        "endChar": 33
+      },
+      "revId": "c6b7146eef808dc7b60a1d5f49eb98f947c0bfe3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
