@@ -12,28 +12,7 @@ Here is an example of a set of drawing commands to draw a filled
 heptagram.  This function can be cut and pasted into
 [fiddle.skia.org](https://fiddle.skia.org/).
 
-<!--?prettify lang=cc?-->
-
-    void draw(SkCanvas* canvas) {
-        const SkScalar scale = 256.0f;
-        const SkScalar R = 0.45f * scale;
-        const SkScalar TAU = 6.2831853f;
-        SkPath path;
-        path.moveTo(R, 0.0f);
-        for (int i = 1; i < 7; ++i) {
-            SkScalar theta = 3 * i * TAU / 7;
-            path.lineTo(R * cos(theta), R * sin(theta));
-        }
-        path.close();
-        SkPaint p;
-        p.setAntiAlias(true);
-        canvas->clear(SK_ColorWHITE);
-        canvas->translate(0.5f * scale, 0.5f * scale);
-        canvas->drawPath(path, p);
-    }
-
-<a href='https://fiddle.skia.org/c/@skcanvas_star'><img
-  src='https://fiddle.skia.org/i/@skcanvas_star_raster.png'></a>
+<fiddle-embed name='@skcanvas_star'></fiddle-embed>
 
 Details
 -------
@@ -46,21 +25,7 @@ store any other drawing attributes in the context (e.g. color, pen
 size). Rather, these are specified explicitly in each draw call, via a
 SkPaint.
 
-<!--?prettify lang=cc?-->
-
-    void draw(SkCanvas* canvas) {
-        canvas->save();
-        canvas->translate(SkIntToScalar(128), SkIntToScalar(128));
-        canvas->rotate(SkIntToScalar(45));
-        SkRect rect = SkRect::MakeXYWH(-90.5f, -90.5f, 181.0f, 181.0f);
-        SkPaint paint;
-        paint.setColor(SK_ColorBLUE);
-        canvas->drawRect(rect, paint);
-        canvas->restore();
-    }
-
-<a href='https://fiddle.skia.org/c/@skcanvas_square'><img
-  src='https://fiddle.skia.org/i/@skcanvas_square_raster.png'></a>
+<fiddle-embed name='@skcanvas_square'></fiddle-embed>
 
 The code above will draw a rectangle rotated by 45 degrees. Exactly
 what color and style the rect will be drawn in is described by the
@@ -96,52 +61,7 @@ drawColor(), and save yourself having to allocate a paint.
 All of the other draw APIs are similar, each one ending with a paint
 parameter.
 
-<!--?prettify lang=cc?-->
-
-    SkBitmap source;
-
-    void draw(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-
-        SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(4);
-        paint.setColor(SK_ColorRED);
-
-        SkRect rect = SkRect::MakeXYWH(50, 50, 40, 60);
-        canvas->drawRect(rect, paint);
-
-        SkRRect oval;
-        oval.setOval(rect);
-        oval.offset(40, 60);
-        paint.setColor(SK_ColorBLUE);
-        canvas->drawRRect(oval, paint);
-
-        paint.setColor(SK_ColorCYAN);
-        canvas->drawCircle(180, 50, 25, paint);
-
-        rect.offset(80, 0);
-        paint.setColor(SK_ColorYELLOW);
-        canvas->drawRoundRect(rect, 10, 10, paint);
-
-        SkPath path;
-        path.cubicTo(768, 0, -512, 256, 256, 256);
-        paint.setColor(SK_ColorGREEN);
-        canvas->drawPath(path, paint);
-
-        canvas->drawImage(image, 128, 128, &paint);
-
-        SkRect rect2 = SkRect::MakeXYWH(0, 0, 40, 60);
-        canvas->drawImageRect(image, rect2, &paint);
-
-        SkPaint paint2;
-        const char text[] = "Hello, Skia!";
-        canvas->drawText(text, strlen(text), 50, 25, paint2);
-    }
-
-
-<a href='https://fiddle.skia.org/c/@skcanvas_paint'><img
-  src='https://fiddle.skia.org/i/@skcanvas_paint_raster.png'></a>
+<fiddle-embed name='@skcanvas_paint'></fiddle-embed>
 
 In some of the calls, we pass a pointer, rather than a reference, to
 the paint. In those instances, the paint parameter may be null. In all
