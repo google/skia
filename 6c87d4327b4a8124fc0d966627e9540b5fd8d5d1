@@ -16,6 +16,24 @@
       "revId": "6c87d4327b4a8124fc0d966627e9540b5fd8d5d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63c3034a_9c03f88d",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-15T18:31:06Z",
+      "side": 1,
+      "message": "For now we\u0027ve only special-cased p0 \u003d\u003d p1 \u003d\u003d p2.  It\u0027s true that there are still some non-invertible cases with only two coincident points, but I don\u0027t know if we can do anything smart about them - so we just let them fail (texture_to_matrix returns false).",
+      "parentUuid": "67e99d45_4eac61e7",
+      "revId": "6c87d4327b4a8124fc0d966627e9540b5fd8d5d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
