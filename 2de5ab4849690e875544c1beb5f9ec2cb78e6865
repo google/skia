@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2757f9e_2eae4911",
+        "filename": "src/image/SkImage_Generator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-15T16:21:33Z",
+      "side": 1,
+      "message": "Fix this.",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 6
+      },
+      "revId": "2de5ab4849690e875544c1beb5f9ec2cb78e6865",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
