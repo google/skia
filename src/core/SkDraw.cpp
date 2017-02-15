@@ -1868,10 +1868,31 @@ static sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint v
     if (p0 != p1 || p0 != p2) {
         // Common case (non-collapsed texture coordinates).
         // Map the texture to vertices using a local transform.
-        SkMatrix localMatrix;
-        return texture_to_matrix(state, verts, texs, &localMatrix)
-            ? alloc->makeSkSp<SkLocalMatrixShader>(paint.refShader(), localMatrix)
-            : nullptr;
+
+        SkMatrix textureMatrix;
+        if (!texture_to_matrix(state, verts, texs, &textureMatrix)) {
+            return nullptr;
+        }
+
+        // We're using a SkLocalMatrixShader to wrap the original shader, so the local
+        // matrix composition is
+        //
+        //   localMatrix x textureMatrix
+        //
+        // but what we really want is
+        //
+        //   textureMatrix x localMatrix
+        //
+        // which is achievable using
+        //
+        //   textureMatrix' = Inv(localMatrix) x textureMatrix x localMatrix
+        //
+        SkMatrix invShaderLocalMatrix;
+        SkAssertResult(paint.getShader()->getLocalMatrix().invert(&invShaderLocalMatrix));
+        textureMatrix.postConcat(invShaderLocalMatrix);
+        textureMatrix.preConcat(paint.getShader()->getLocalMatrix());
+
+        return alloc->makeSkSp<SkLocalMatrixShader>(paint.refShader(), textureMatrix);
     }
 
     // Collapsed texture coordinates special case.
