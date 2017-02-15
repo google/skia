@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2e11617_c8c19087",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-15T00:25:00Z",
+      "side": 1,
+      "message": "Alternatively, you could call is_wide_gamut here, and then there is no need for fIsWideGamut. But that would mean extra work if this method is called more than once.",
+      "range": {
+        "startLine": 178,
+        "startChar": 16,
+        "endLine": 178,
+        "endChar": 28
+      },
+      "revId": "95b9598ae39f813decf33014390354ed42fb0174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
