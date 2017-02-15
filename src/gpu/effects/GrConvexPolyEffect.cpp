@@ -31,7 +31,9 @@ public:
 
 private:
     AARectEffect(GrPrimitiveEdgeType edgeType, const SkRect& rect)
-            : INHERITED(kModulatesInput_OptimizationFlag), fRect(rect), fEdgeType(edgeType) {
+            : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            , fRect(rect)
+            , fEdgeType(edgeType) {
         this->initClassID<AARectEffect>();
     }
 
@@ -327,7 +329,9 @@ GrGLSLFragmentProcessor* GrConvexPolyEffect::onCreateGLSLInstance() const  {
 }
 
 GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[])
-        : INHERITED(kModulatesInput_OptimizationFlag), fEdgeType(edgeType), fEdgeCount(n) {
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        , fEdgeType(edgeType)
+        , fEdgeCount(n) {
     this->initClassID<GrConvexPolyEffect>();
     // Factory function should have already ensured this.
     SkASSERT(n <= kMaxEdges);
