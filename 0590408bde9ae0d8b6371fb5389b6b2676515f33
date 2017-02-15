@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61f7a473_0fd4fc47",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-02-15T15:06:24Z",
+      "side": 1,
+      "message": "\"us to run\"",
+      "revId": "0590408bde9ae0d8b6371fb5389b6b2676515f33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4616a477_daa9e9fd",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-02-15T15:06:24Z",
+      "side": 1,
+      "message": "Doing \"if (self.m.run.failed_steps and\"\nin this line should do the right thing?",
+      "revId": "0590408bde9ae0d8b6371fb5389b6b2676515f33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
