@@ -269,6 +269,42 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                                                  nullptr, scaleAdjust);
 }
 
+// For better or for worse, this method currently sidesteps the issue of caching an uninstantiated
+// proxy via a key.
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap) {
+    GrUniqueKey originalKey;
+
+    if (!bitmap.isVolatile()) {
+        SkIPoint origin = bitmap.pixelRefOrigin();
+        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(), bitmap.height());
+        GrMakeKeyFromImageID(&originalKey, bitmap.pixelRef()->getGenerationID(), subset);
+    }
+
+    sk_sp<GrTexture> tex;
+
+    if (originalKey.isValid()) {
+        tex.reset(context->textureProvider()->findAndRefTextureByUniqueKey(originalKey));
+    }
+    if (!tex) {
+        tex.reset(GrUploadBitmapToTexture(context, bitmap));
+        if (tex && originalKey.isValid()) {
+            tex->resourcePriv().setUniqueKey(originalKey);
+            GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
+        }
+    }
+
+    if (!tex) {
+        return nullptr;
+    }
+
+    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+    if (!proxy) {
+        return nullptr;
+    }
+
+    return sk_ref_sp(proxy->asTextureProxy());
+}
+
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                            const GrSamplerParams& params, SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
