@@ -34,6 +34,24 @@
       "revId": "6c87d4327b4a8124fc0d966627e9540b5fd8d5d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bff47b64_d86bcd4e",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-15T18:32:23Z",
+      "side": 1,
+      "message": "Ah, never mind, I see your point. I\u0027ll update the conditional.",
+      "parentUuid": "63c3034a_9c03f88d",
+      "revId": "6c87d4327b4a8124fc0d966627e9540b5fd8d5d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
