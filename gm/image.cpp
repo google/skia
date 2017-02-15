@@ -10,6 +10,7 @@
 #include "SkAutoPixmapStorage.h"
 #include "SkData.h"
 #include "SkCanvas.h"
+#include "SkMakeUnique.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"
@@ -311,7 +312,10 @@ static SkImageInfo make_info(SkImage* img) {
 //
 class ImageGeneratorFromImage : public SkImageGenerator {
 public:
-    ImageGeneratorFromImage(SkImage* img) : INHERITED(make_info(img)), fImg(SkRef(img)) {}
+    ImageGeneratorFromImage(sk_sp<SkImage> img)
+        : INHERITED(make_info(img.get()))
+        , fImg(std::move(img))
+    {}
 
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
@@ -334,34 +338,33 @@ static void draw_opaque_contents(SkCanvas* canvas) {
     canvas->drawCircle(50, 50, 35, paint);
 }
 
-static SkImageGenerator* gen_raster(const SkImageInfo& info) {
+static std::unique_ptr<SkImageGenerator> gen_raster(const SkImageInfo& info) {
     auto surface(SkSurface::MakeRaster(info));
     draw_opaque_contents(surface->getCanvas());
-    return new ImageGeneratorFromImage(surface->makeImageSnapshot().get());
+    return skstd::make_unique<ImageGeneratorFromImage>(surface->makeImageSnapshot());
 }
 
-static SkImageGenerator* gen_picture(const SkImageInfo& info) {
+static std::unique_ptr<SkImageGenerator> gen_picture(const SkImageInfo& info) {
     SkPictureRecorder recorder;
     draw_opaque_contents(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
-    return SkImageGenerator::NewFromPicture(info.dimensions(), pict.get(), nullptr, nullptr,
-                                            SkImage::BitDepth::kU8,
-                                            SkColorSpace::MakeSRGB());
+    return SkImageGenerator::MakeFromPicture(info.dimensions(), std::move(pict), nullptr, nullptr,
+                                             SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
 }
 
-static SkImageGenerator* gen_png(const SkImageInfo& info) {
+static std::unique_ptr<SkImageGenerator> gen_png(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
     sk_sp<SkData> data(image->encode(SkEncodedImageFormat::kPNG, 100));
-    return SkImageGenerator::NewFromEncoded(data.get());
+    return SkImageGenerator::MakeFromEncoded(data);
 }
 
-static SkImageGenerator* gen_jpg(const SkImageInfo& info) {
+static std::unique_ptr<SkImageGenerator> gen_jpg(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
     sk_sp<SkData> data(image->encode(SkEncodedImageFormat::kJPEG, 100));
-    return SkImageGenerator::NewFromEncoded(data.get());
+    return SkImageGenerator::MakeFromEncoded(data);
 }
 
-typedef SkImageGenerator* (*GeneratorMakerProc)(const SkImageInfo&);
+typedef std::unique_ptr<SkImageGenerator> (*GeneratorMakerProc)(const SkImageInfo&);
 
 static void show_scaled_generator(SkCanvas* canvas, SkImageGenerator* gen) {
     const SkImageInfo genInfo = gen->getInfo();

@@ -93,9 +93,14 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     return validator ? sk_sp<SkImage>(new SkImage_Generator(&validator)) : nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
-    SkImageCacherator::Validator validator(SkImageCacherator::SharedGenerator::Make(generator),
-                                           subset);
+sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator,
+                                          const SkIRect* subset) {
+    SkImageCacherator::Validator validator(
+                       SkImageCacherator::SharedGenerator::Make(std::move(generator)), subset);
 
     return validator ? sk_make_sp<SkImage_Generator>(&validator) : nullptr;
 }
+
+#ifdef SK_SUPPORT_LEGACY_ImageMakeFromGenerator
+static sk_sp<SkImage> MakeFromGenerator(SkImageGenerator*, const SkIRect* subset = nullptr);
+#endif
