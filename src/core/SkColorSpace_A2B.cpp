@@ -9,7 +9,7 @@
 
 SkColorSpace_A2B::SkColorSpace_A2B(ICCTypeFlag iccType, std::vector<Element> elements,
                                    PCS pcs, sk_sp<SkData> profileData)
-    : INHERITED(std::move(profileData))
+    : INHERITED(std::move(profileData), 0)
     , fICCType(iccType)
     , fElements(std::move(elements))
     , fPCS(pcs)
