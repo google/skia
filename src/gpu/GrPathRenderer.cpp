@@ -8,6 +8,7 @@
 #include "GrPathRenderer.h"
 
 GrPathRenderer::GrPathRenderer() {
+    SkDEBUGCODE(fIsFlushing = false;)
 }
 
 void GrPathRenderer::GetPathDevBounds(const SkPath& path,

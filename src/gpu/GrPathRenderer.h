@@ -171,6 +171,7 @@ public:
             SkASSERT(kNoRestriction_StencilSupport == this->getStencilSupport(*args.fShape));
         }
 #endif
+        SkASSERT(!fIsFlushing);
         return this->onDrawPath(args);
     }
 
@@ -212,6 +213,7 @@ public:
     void stencilPath(const StencilPathArgs& args) {
         SkDEBUGCODE(args.validate();)
         SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(*args.fShape));
+        SkASSERT(!fIsFlushing);
         this->onStencilPath(args);
     }
 
@@ -233,6 +235,39 @@ public:
             SkDrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
     }
 
+    /**
+     * Called to indicate the start of a flush. Every op added previously will be drawn at this
+     * time (if at all), so the path renderer can use this call to setup GPU buffers and/or do
+     * any other necessary setup for its pending ops. It is not valid to call drawPath or
+     * stencilPath while flushing.
+     */
+    void beginFlush() {
+        SkASSERT(!fIsFlushing);
+        this->onBeginFlush();
+        SkDEBUGCODE(fIsFlushing = true;)
+    }
+
+    /**
+     * Called once flushing is complete and all previously added ops have been released. Allows the
+     * client to begin calling drawPath and stencilPath again.
+     */
+    void endFlush() {
+        SkASSERT(fIsFlushing);
+        SkDEBUGCODE(fIsFlushing = false;)
+        this->onEndFlush();
+    }
+
+    enum class ResetType : bool {
+        kDestroy,
+        kAbandon
+    };
+
+    /**
+     * Resets all GPU resources held by the path renderer. It can create new ones on demand if it
+     * continues to be used.
+     */
+    virtual void resetGpuResources(ResetType) {}
+
 protected:
     // Helper for getting the device bounds of a path. Inverse filled paths will have bounds set
     // by devSize. Non-inverse path bounds will not necessarily be clipped to devSize.
@@ -241,6 +276,8 @@ protected:
                                  int devH,
                                  const SkMatrix& matrix,
                                  SkRect* bounds);
+
+    SkDEBUGCODE(bool isFlushing() const { return fIsFlushing; })
 
 private:
     /**
@@ -288,6 +325,11 @@ private:
                               false};
         this->drawPath(drawArgs);
     }
+
+    virtual void onBeginFlush() {}
+    virtual void onEndFlush() {}
+
+    SkDEBUGCODE(bool fIsFlushing;)
 
     typedef SkRefCnt INHERITED;
 };

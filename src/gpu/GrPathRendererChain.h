@@ -48,6 +48,10 @@ public:
                                     DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport);
 
+    void beginFlush();
+    void endFlush();
+    void resetGpuResources(GrPathRenderer::ResetType);
+
 private:
     // takes a ref and unrefs in destructor
     GrPathRenderer* addPathRenderer(GrPathRenderer* pr);

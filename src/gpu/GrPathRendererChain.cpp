@@ -104,3 +104,21 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
     }
     return nullptr;
 }
+
+void GrPathRendererChain::beginFlush() {
+    for (int i = 0; i < fChain.count(); ++i) {
+        fChain[i]->beginFlush();
+    }
+}
+
+void GrPathRendererChain::endFlush() {
+    for (int i = 0; i < fChain.count(); ++i) {
+        fChain[i]->endFlush();
+    }
+}
+
+void GrPathRendererChain::resetGpuResources(GrPathRenderer::ResetType resetType) {
+    for (int i = 0; i < fChain.count(); ++i) {
+        fChain[i]->resetGpuResources(resetType);
+    }
+}

@@ -49,16 +49,19 @@ void GrDrawingManager::abandon() {
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->abandonGpuResources();
     }
+    if (fPathRendererChain) {
+        fPathRendererChain->resetGpuResources(GrPathRenderer::ResetType::kAbandon);
+    }
     this->cleanup();
 }
 
 void GrDrawingManager::freeGpuResources() {
-    // a path renderer may be holding onto resources
-    delete fPathRendererChain;
-    fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->freeGpuResources();
+    }
+    if (fPathRendererChain) {
+        fPathRendererChain->resetGpuResources(GrPathRenderer::ResetType::kDestroy);
     }
 }
 
@@ -78,6 +81,10 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
+
+    if (fPathRendererChain) {
+        fPathRendererChain->beginFlush();
+    }
 
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareOps(&fFlushState);
@@ -124,6 +131,9 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     // We always have to notify the cache when it requested a flush so it can reset its state.
     if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
         fContext->getResourceCache()->notifyFlushOccurred(type);
+    }
+    if (fPathRendererChain) {
+        fPathRendererChain->endFlush();
     }
     fFlushing = false;
 }
