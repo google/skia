@@ -52,6 +52,24 @@
       "revId": "6c87d4327b4a8124fc0d966627e9540b5fd8d5d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddcf80b4_acb32df0",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-15T18:36:05Z",
+      "side": 1,
+      "message": "Doh, I\u0027m getting all confused now, I think this does what we want after all: take the local matrix shader branch iff !(p0 \u003d\u003d p1 \u003d\u003d p2).",
+      "parentUuid": "bff47b64_d86bcd4e",
+      "revId": "6c87d4327b4a8124fc0d966627e9540b5fd8d5d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
