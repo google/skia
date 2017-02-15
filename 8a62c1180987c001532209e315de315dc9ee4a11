@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "5e80ae73_016d0e4a",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-15T15:12:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31244f76_a29c68cb",
+      "revId": "8a62c1180987c001532209e315de315dc9ee4a11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07ae603c_ed304518",
         "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
         "patchSetId": 23
