@@ -475,6 +475,7 @@ GrVkSubHeap::GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex, uint32_t 
         memoryTypeIndex,                             // memoryTypeIndex
     };
 
+    SkASSERT(allocInfo.allocationSize > 0);
     VkResult err = GR_VK_CALL(gpu->vkInterface(), AllocateMemory(gpu->device(),
                                                                  &allocInfo,
                                                                  nullptr,
@@ -521,6 +522,7 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
             memoryTypeIndex,                             // memoryTypeIndex
         };
 
+        SkASSERT(allocInfo.allocationSize > 0);
         VkResult err = GR_VK_CALL(fGpu->vkInterface(), AllocateMemory(fGpu->device(),
                                                                       &allocInfo,
                                                                       nullptr,
