@@ -108,7 +108,6 @@ BASE_SRCS_ALL = struct(
         "src/images/*",
         "src/opts/**/*",
         "src/ports/**/*",
-        "src/splicer/*",
         "src/utils/android/**/*",
         "src/utils/mac/**/*",
         "src/utils/SkThreadUtils_win.cpp",  # Windows-only. Move to ports?

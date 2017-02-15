@@ -84,7 +84,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         'skia_enable_effects':    'false',
         'skia_enable_gpu':        'false',
         'skia_enable_pdf':        'false',
-        'skia_enable_splicer':    'false',
         'skia_enable_tools':      'false',  # Some tools need GPU or effects.
         'skia_use_expat':         'false',
         'skia_use_libjpeg_turbo': 'false',
