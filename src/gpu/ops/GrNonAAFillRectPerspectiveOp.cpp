@@ -130,9 +130,9 @@ public:
 private:
     NonAAFillRectPerspectiveOp() : INHERITED(ClassID()) {}
 
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setToConstant(fRects[0].fColor);
-        input->pipelineCoverageInput()->setToSolidCoverage();
+    void getPipelineAnalysisInput(PipelineAnalysisInput* input) const override {
+        input->colorInput()->setToConstant(fRects[0].fColor);
+        input->coverageInput()->setToSolidCoverage();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {

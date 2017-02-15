@@ -57,12 +57,16 @@ public:
     GrDrawOp(uint32_t classID);
     ~GrDrawOp() override;
 
-    /**
-     * Gets the inputs to pipeline analysis from the GrDrawOp.
-     */
-    void initPipelineAnalysis(GrPipelineAnalysis*) const;
-
     bool installPipeline(const GrPipeline::CreateArgs&);
+
+    /**
+    * Gets the inputs to pipeline analysis from the GrDrawOp.
+    */
+    void initPipelineAnalysis(GrPipelineAnalysis* analysis) const {
+        PipelineAnalysisInput input;
+        this->getPipelineAnalysisInput(&input);
+        analysis->reset(*input.colorInput(), *input.coverageInput(), input.usesPLSDstRead());
+    }
 
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
@@ -101,12 +105,33 @@ protected:
         return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
     }
 
+    /**
+     * This Describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
+     * pipeline analysis.
+     */
+    class PipelineAnalysisInput {
+    public:
+        PipelineAnalysisInput() = default;
+        GrPipelineInput* colorInput() { return &fColorInput; }
+        GrPipelineInput* coverageInput() { return &fCoverageInput; }
+
+        void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
+
+        bool usesPLSDstRead() const { return fUsesPLSDstRead; }
+
+    private:
+        GrPipelineInput fColorInput;
+        GrPipelineInput fCoverageInput;
+        bool fUsesPLSDstRead = false;
+    };
+
 private:
+
     /**
      * Provides information about the GrPrimitiveProccesor that will be used to issue draws by this
      * op to GrPipeline analysis.
      */
-    virtual void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput*) const = 0;
+    virtual void getPipelineAnalysisInput(PipelineAnalysisInput*) const = 0;
 
     /**
      * After GrPipeline analysis is complete this is called so that the op can use the analysis

@@ -184,20 +184,20 @@ using ColorType = GrXPFactory::ColorType;
 using CoverageType = GrXPFactory::CoverageType;
 
 ColorType analysis_color_type(const GrPipelineAnalysis& analysis) {
-    if (analysis.fColorPOI.hasKnownOutputColor()) {
-        return analysis.fColorPOI.isOpaque() ? ColorType::kOpaqueConstant : ColorType::kConstant;
+    if (analysis.colorInfo().hasKnownOutputColor()) {
+        return analysis.colorInfo().isOpaque() ? ColorType::kOpaqueConstant : ColorType::kConstant;
     }
-    if (analysis.fColorPOI.isOpaque()) {
+    if (analysis.colorInfo().isOpaque()) {
         return ColorType::kOpaque;
     }
     return ColorType::kUnknown;
 }
 
 CoverageType analysis_coverage_type(const GrPipelineAnalysis& analysis) {
-    if (analysis.fCoveragePOI.isSolidWhite()) {
+    if (analysis.coverageInfo().isSolidWhite()) {
         return CoverageType::kNone;
     }
-    if (analysis.fCoveragePOI.isLCDCoverage()) {
+    if (analysis.coverageInfo().isLCDCoverage()) {
         return CoverageType::kLCD;
     }
     return CoverageType::kSingleChannel;
@@ -222,7 +222,7 @@ bool GrXPFactory::IsPreCoverageBlendedColorConstant(const GrXPFactory* factory,
 
 bool GrXPFactory::willReadDstInShader(const GrCaps& caps,
                                       const GrPipelineAnalysis& analysis) const {
-    if (analysis.fUsesPLSDstRead) {
+    if (analysis.usesPLSDstRead()) {
         return true;
     }
     ColorType colorType = analysis_color_type(analysis);
@@ -250,6 +250,6 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
 }
 
 bool GrXPFactory::willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
-    return !analysis.fUsesPLSDstRead && !caps.shaderCaps()->dstReadInShaderSupport() &&
+    return !analysis.usesPLSDstRead() && !caps.shaderCaps()->dstReadInShaderSupport() &&
            this->willReadDstInShader(caps, analysis);
 }

@@ -18,7 +18,7 @@
 class GrCaps;
 class GrDrawOp;
 class GrPaint;
-struct GrPipelineAnalysis;
+class GrPipelineAnalysis;
 class GrTexture;
 
 class GrPipelineBuilder : private SkNoncopyable {

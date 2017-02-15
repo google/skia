@@ -286,13 +286,17 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
         }
     }
 
+    GrPipelineAnalysis analysis;
+    op->initPipelineAnalysis(&analysis);
+    pipelineBuilder.analyzeFragmentProcessors(&analysis);
+
     GrPipeline::CreateArgs args;
     pipelineBuilder.initPipelineCreateArgs(&args);
     args.fAppliedClip = &appliedClip;
     args.fRenderTargetContext = renderTargetContext;
     args.fCaps = this->caps();
-    op->initPipelineAnalysis(&args.fAnalysis);
-    if (args.fAnalysis.fUsesPLSDstRead || fClipOpToBounds) {
+    args.fAnalysis = &analysis;
+    if (analysis.usesPLSDstRead() || fClipOpToBounds) {
         GrGLIRect viewport;
         viewport.fLeft = 0;
         viewport.fBottom = 0;
@@ -311,15 +315,15 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
             return;
         }
     }
-    pipelineBuilder.analyzeFragmentProcessors(&args.fAnalysis);
+    pipelineBuilder.analyzeFragmentProcessors(&analysis);
     if (const GrFragmentProcessor* clipFP = appliedClip.clipCoverageFragmentProcessor()) {
-        args.fAnalysis.fCoveragePOI.analyzeProcessors(&clipFP, 1);
+        analysis.analyzeCoverageProcessor(clipFP);
     }
 #ifdef SK_DEBUG
     // Other than tests that exercise atypical behavior we expect all coverage FPs to be compatible
     // with the coverage-as-alpha optimization.
-    if (!args.fAnalysis.fCoveragePOI.allProcessorsCompatibleWithCoverageAsAlpha() &&
-        !args.fAnalysis.fCoveragePOI.isLCDCoverage()) {
+    if (analysis.coverageInfo().allProcessorsCompatibleWithCoverageAsAlpha() &&
+        !analysis.coverageInfo().isLCDCoverage()) {
         GrCapsDebugf(this->caps(), "Coverage FP is not compatible with coverage as alpha.\n");
     }
 #endif
@@ -328,7 +332,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
         return;
     }
 
-    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), args.fAnalysis)) {
+    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
         this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
                               &args.fDstTexture);
         if (!args.fDstTexture.texture()) {

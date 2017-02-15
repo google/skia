@@ -333,7 +333,7 @@ GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& c
         return nullptr;
     }
 
-    if (analysis.fUsesPLSDstRead) {
+    if (analysis.usesPLSDstRead()) {
         return new ShaderCSOXferProcessor(dst, hasMixedSamples, fRegionOp, fInvertCoverage);
     }
     return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);

@@ -92,7 +92,7 @@ GrXferProcessor* GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& ca
                                                                 const GrPipelineAnalysis& analysis,
                                                                 bool hasMixedSamples,
                                                                 const DstTexture* dst) const {
-    SkASSERT(!analysis.fUsesPLSDstRead);
+    SkASSERT(!analysis.usesPLSDstRead());
     return DisableColorXP::Create();
 }
 
