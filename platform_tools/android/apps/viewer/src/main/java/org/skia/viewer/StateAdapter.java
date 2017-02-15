@@ -118,14 +118,16 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
         }
     }
 
-    private View inflateItemView(JSONObject item) throws JSONException {
-        LinearLayout itemView = (LinearLayout)
-                LayoutInflater.from(mViewerActivity).inflate(R.layout.state_item, null);
+    private void populateView(JSONObject item, View view) throws JSONException {
+        LinearLayout itemView = (LinearLayout) view;
         TextView nameText = (TextView) itemView.findViewById(R.id.nameText);
         TextView valueText = (TextView) itemView.findViewById(R.id.valueText);
         Spinner optionSpinner = (Spinner) itemView.findViewById(R.id.optionSpinner);
-        nameText.setText(item.getString(NAME));
+
         String value = item.getString(VALUE);
+        itemView.setTag(item.toString()); // To save unnecessary view update
+
+        nameText.setText(item.getString(NAME));
 
         if (nameText.getText().equals(FPS_STATE_NAME) && mFPSFloatText != null) {
             mFPSFloatText.setText(value);
@@ -149,27 +151,38 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
             adapter.setCurrentOption(value);
             optionSpinner.setAdapter(adapter);
             if (optionStrings.length >= FILTER_LENGTH) {
-                EditText filterText = new EditText(mViewerActivity);
-                filterText.setHint("Filter");
-                itemView.addView(filterText, 1);
-                filterText.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int cnt, int after) {}
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int cnt) {}
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        adapter.getFilter().filter(s.toString());
-                    }
-                });
+                View existingView = itemView.getChildAt(1);
+                if (!(existingView instanceof EditText)) {
+                    EditText filterText = new EditText(mViewerActivity);
+                    filterText.setHint("Filter");
+                    itemView.addView(filterText, 1);
+                    filterText.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int cnt,
+                                int after) {
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int cnt) {
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            adapter.getFilter().filter(s.toString());
+                        }
+                    });
+                }
             }
             optionSpinner.setSelection(optionList.indexOf(value));
             optionSpinner.setOnItemSelectedListener(this);
             optionSpinner.setVisibility(View.VISIBLE);
             valueText.setVisibility(View.GONE);
         }
-        itemView.setTag(item.toString()); // To save unnecessary view update
-        itemView.setTag(R.integer.value_tag_key, value); // To save unnecessary state change event
+    }
+    private View inflateItemView(JSONObject item) throws JSONException {
+        LinearLayout itemView = (LinearLayout)
+                LayoutInflater.from(mViewerActivity).inflate(R.layout.state_item, null);
+        populateView(item, itemView);
         return itemView;
     }
 
@@ -181,15 +194,16 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
             }
             for (int i = 0; i < mStateJson.length(); i++) {
                 JSONObject stateObject = mStateJson.getJSONObject(i);
-                if (mLayout.getChildCount() > i) {
-                    View childView = mLayout.getChildAt(i);
+                View childView = mLayout.getChildAt(i);
+                if (childView != null) {
                     if (stateObject.toString().equals(childView.getTag())) {
                         continue; // No update, reuse the old view and skip the remaining step
                     } else {
-                        mLayout.removeViewAt(i);
+                        populateView(stateObject, childView);
                     }
+                } else {
+                    mLayout.addView(inflateItemView(stateObject), i);
                 }
-                mLayout.addView(inflateItemView(stateObject), i);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -198,6 +212,9 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (view == null) {
+            return;
+        }
         View stateItem = (View) parent.getParent();
         String stateName = ((TextView) stateItem.findViewById(R.id.nameText)).getText().toString();
         String stateValue = ((TextView) view).getText().toString();
