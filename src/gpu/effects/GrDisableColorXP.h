@@ -28,10 +28,7 @@ private:
         return false;
     }
 
-    bool willReadsDst(const GrProcOptInfo& colorInput,
-                      const GrProcOptInfo& coverageInput) const override {
-        return false;
-    }
+    bool willReadsDst(const GrPipelineAnalysis&) const override { return false; }
 
     constexpr GrDisableColorXPFactory() {}
 

@@ -17,7 +17,7 @@
 class GrShaderCaps;
 class GrGLSLXferProcessor;
 class GrProcOptInfo;
-struct GrPipelineAnalysis;
+class GrPipelineAnalysis;
 
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
@@ -325,8 +325,7 @@ public:
     /**
      * Is the destination color required either in the shader or fixed function blending.
      */
-    static bool WillReadDst(const GrXPFactory*, const GrProcOptInfo& colorInput,
-                            const GrProcOptInfo& coverageInput);
+    static bool WillReadDst(const GrXPFactory*, const GrPipelineAnalysis&);
 
     /**
      * Most of the time GrXferProcessor performs a blend of the src and dst colors and then applies
@@ -342,7 +341,7 @@ public:
      * This will return true if the xfer processor needs the dst color in the shader and the way
      * that the color will be made available to the xfer processor is by sampling a texture.
      */
-    bool willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const;
+    static bool WillNeedDstTexture(const GrXPFactory*, const GrCaps&, const GrPipelineAnalysis&);
 
 protected:
     constexpr GrXPFactory() {}
@@ -361,8 +360,7 @@ private:
                                                    GrColor* color) const = 0;
 
     /** Subclass-specific implementation of WillReadDst(). */
-    virtual bool willReadsDst(const GrProcOptInfo& colorInput,
-                              const GrProcOptInfo& coverageInput) const = 0;
+    virtual bool willReadsDst(const GrPipelineAnalysis& pipelineAnalysis) const = 0;
 
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                                    const GrPipelineAnalysis&,

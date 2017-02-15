@@ -20,10 +20,10 @@ struct GrPipelineInput {
         kYes,
     };
 
-    explicit GrPipelineInput(Opaque opaque = Opaque::kNo)
+    GrPipelineInput(Opaque opaque = Opaque::kNo)
             : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0) {}
 
-    explicit GrPipelineInput(GrColor color) : fFlags(kColorIsKnown_Flag), fColor(color) {}
+    GrPipelineInput(GrColor color) : fFlags(kColorIsKnown_Flag), fColor(color) {}
 
     void setToConstant(GrColor color) {
         fColor = color;

@@ -37,18 +37,16 @@ public:
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static bool WillSrcOverReadDst(const GrProcOptInfo& colorInput,
-                                   const GrProcOptInfo& coverageInput);
+    static bool WillSrcOverReadDst(const GrPipelineAnalysis& analysis);
     static bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
                                                          GrColor* color);
-
-    static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
+    static bool WillSrcOverNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
     bool isPreCoverageBlendedColorConstant(const GrProcOptInfo&, GrColor*) const override;
-    bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override;
+    bool willReadsDst(const GrPipelineAnalysis&) const override;
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineAnalysis&,

@@ -300,8 +300,8 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrPipelineAnalysis&
      */
 
     OptFlags flags = kNone_OptFlags;
-    if (analysis.fColorPOI.allProcessorsCompatibleWithCoverageAsAlpha() &&
-        analysis.fCoveragePOI.allProcessorsCompatibleWithCoverageAsAlpha()) {
+    if (analysis.colorInfo().allProcessorsCompatibleWithCoverageAsAlpha() &&
+        analysis.coverageInfo().allProcessorsCompatibleWithCoverageAsAlpha()) {
         flags |= kCanTweakAlphaForCoverage_OptFlag;
     }
     return flags;
@@ -343,7 +343,7 @@ private:
         return false;
     }
 
-    bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override { return true; }
+    bool willReadsDst(const GrPipelineAnalysis&) const override { return true; }
 
     bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override;
 
@@ -363,8 +363,8 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                         bool hasMixedSamples,
                                                         const DstTexture* dstTexture) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.fUsesPLSDstRead,
-                                  analysis.fCoveragePOI.isLCDCoverage(), caps)) {
+    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.usesPLSDstRead(),
+                                  analysis.coverageInfo().isLCDCoverage(), caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }

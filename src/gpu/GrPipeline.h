@@ -32,32 +32,37 @@ class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetContext;
 
-/**
- * This Describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
- * pipeline analysis.
- */
-class GrPipelineAnalysisDrawOpInput {
+/** This is used to track pipeline analysis through the color and coverage fragment processors. */
+class GrPipelineAnalysis {
 public:
-    GrPipelineAnalysisDrawOpInput(GrPipelineInput* color, GrPipelineInput* coverage)
-            : fColorInput(color), fCoverageInput(coverage) {}
-    GrPipelineInput* pipelineColorInput() { return fColorInput; }
-    GrPipelineInput* pipelineCoverageInput() { return fCoverageInput; }
+    GrPipelineAnalysis() = default;
+    GrPipelineAnalysis(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+                       bool usesPLSDstRead = false) {
+        this->reset(colorInput, coverageInput, usesPLSDstRead);
+    }
 
-    void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
+    void reset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+               bool usesPLSDstRead = false) {
+        fColorPOI = colorInput;
+        fCoveragePOI = coverageInput;
+        fUsesPLSDstRead = usesPLSDstRead;
+    }
 
     bool usesPLSDstRead() const { return fUsesPLSDstRead; }
 
-private:
-    GrPipelineInput* fColorInput;
-    GrPipelineInput* fCoverageInput;
-    bool fUsesPLSDstRead = false;
-};
+    const GrProcOptInfo& colorInfo() const { return fColorPOI; }
 
-/** This is used to track pipeline analysis through the color and coverage fragment processors. */
-struct GrPipelineAnalysis {
+    const GrProcOptInfo& coverageInfo() const { return fCoveragePOI; }
+
+    void analyzeCoverageProcessor(const GrFragmentProcessor* fp) {
+        fCoveragePOI.analyzeProcessors(&fp, 1);
+    }
+
+private:
     GrProcOptInfo fColorPOI;
     GrProcOptInfo fCoveragePOI;
     bool fUsesPLSDstRead = false;
+    friend class GrProcessorSet;
 };
 
 class GrProcessorSet;
@@ -93,7 +98,7 @@ public:
         GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTargetContext* fRenderTargetContext = nullptr;
         const GrCaps* fCaps = nullptr;
-        GrPipelineAnalysis fAnalysis;
+        const GrPipelineAnalysis* fAnalysis;
         GrXferProcessor::DstTexture fDstTexture;
     };
 

@@ -184,31 +184,30 @@ using ColorType = GrXPFactory::ColorType;
 using CoverageType = GrXPFactory::CoverageType;
 
 ColorType analysis_color_type(const GrPipelineAnalysis& analysis) {
-    if (analysis.fColorPOI.hasKnownOutputColor()) {
-        return analysis.fColorPOI.isOpaque() ? ColorType::kOpaqueConstant : ColorType::kConstant;
+    if (analysis.colorInfo().hasKnownOutputColor()) {
+        return analysis.colorInfo().isOpaque() ? ColorType::kOpaqueConstant : ColorType::kConstant;
     }
-    if (analysis.fColorPOI.isOpaque()) {
+    if (analysis.colorInfo().isOpaque()) {
         return ColorType::kOpaque;
     }
     return ColorType::kUnknown;
 }
 
 CoverageType analysis_coverage_type(const GrPipelineAnalysis& analysis) {
-    if (analysis.fCoveragePOI.isSolidWhite()) {
+    if (analysis.coverageInfo().isSolidWhite()) {
         return CoverageType::kNone;
     }
-    if (analysis.fCoveragePOI.isLCDCoverage()) {
+    if (analysis.coverageInfo().isLCDCoverage()) {
         return CoverageType::kLCD;
     }
     return CoverageType::kSingleChannel;
 }
 
-bool GrXPFactory::WillReadDst(const GrXPFactory* factory, const GrProcOptInfo& colorInput,
-                              const GrProcOptInfo& coverageInput) {
+bool GrXPFactory::WillReadDst(const GrXPFactory* factory, const GrPipelineAnalysis& analysis) {
     if (factory) {
-        return factory->willReadsDst(colorInput, coverageInput);
+        return factory->willReadsDst(analysis);
     }
-    return GrPorterDuffXPFactory::WillSrcOverReadDst(colorInput, coverageInput);
+    return GrPorterDuffXPFactory::WillSrcOverReadDst(analysis);
 }
 
 bool GrXPFactory::IsPreCoverageBlendedColorConstant(const GrXPFactory* factory,
@@ -220,9 +219,22 @@ bool GrXPFactory::IsPreCoverageBlendedColorConstant(const GrXPFactory* factory,
     return GrPorterDuffXPFactory::IsSrcOverPreCoverageBlendedColorConstant(colorInput, color);
 }
 
+bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& caps,
+                                     const GrPipelineAnalysis& analysis) {
+    bool result;
+    if (factory) {
+        result = !analysis.usesPLSDstRead() && !caps.shaderCaps()->dstReadInShaderSupport() &&
+                 factory->willReadDstInShader(caps, analysis);
+    } else {
+        result = GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(caps, analysis);
+    }
+    SkASSERT(!(result && !WillReadDst(factory, analysis)));
+    return result;
+}
+
 bool GrXPFactory::willReadDstInShader(const GrCaps& caps,
                                       const GrPipelineAnalysis& analysis) const {
-    if (analysis.fUsesPLSDstRead) {
+    if (analysis.usesPLSDstRead()) {
         return true;
     }
     ColorType colorType = analysis_color_type(analysis);
@@ -247,9 +259,4 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
 #endif
     return this->onCreateXferProcessor(caps, analysis, hasMixedSamples, dstTexture);
-}
-
-bool GrXPFactory::willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
-    return !analysis.fUsesPLSDstRead && !caps.shaderCaps()->dstReadInShaderSupport() &&
-           this->willReadDstInShader(caps, analysis);
 }

@@ -36,7 +36,7 @@ private:
         return false;
     }
 
-    bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override {
+    bool willReadsDst(const GrPipelineAnalysis&) const override {
         return fRegionOp != SkRegion::kReplace_Op;
     }
 
