@@ -6406,7 +6406,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "dependencies": [
@@ -6512,7 +6512,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "dependencies": [
@@ -11243,7 +11243,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_debug",
           "path": "linux_vulkan_intel_driver_debug",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "dependencies": [
@@ -11349,7 +11349,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "dependencies": [
