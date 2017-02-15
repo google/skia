@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43c98a6e_c65c73ba",
+        "filename": "include/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-15T15:25:53Z",
+      "side": 1,
+      "message": "We don\u0027t currently check this. I believe it will always be true. I want to try doing it but want that to be its own change.",
+      "range": {
+        "startLine": 105,
+        "startChar": 11,
+        "endLine": 105,
+        "endChar": 73
+      },
+      "revId": "d0ad114a69d43c5c15c4454dc490f5f7ea0bc8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
