@@ -1021,14 +1021,13 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             if (bitmap.extractSubset(&tmpB, iTileR)) {
                 // now offset it to make it "local" to our tmp bitmap
                 tileR.offset(-offset.fX, -offset.fY);
-                GrSamplerParams paramsTemp = params;
                 // de-optimized this determination
                 bool needsTextureDomain = true;
                 this->drawBitmapTile(tmpB,
                                      viewMatrix,
                                      rectToDraw,
                                      tileR,
-                                     paramsTemp,
+                                     params,
                                      *paint,
                                      constraint,
                                      bicubic,
@@ -1054,9 +1053,11 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     SkASSERT(bitmap.width() <= fContext->caps()->maxTileSize() &&
              bitmap.height() <= fContext->caps()->maxTileSize());
 
-    SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
+    SkASSERT(SkShader::kClamp_TileMode == params.getTileModeX() &&
+             SkShader::kClamp_TileMode == params.getTileModeY());
+
     sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
-                                                         params, scaleAdjust);
+                                                         params, nullptr);
     if (nullptr == texture) {
         return;
     }
@@ -1064,8 +1065,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         GrColorSpaceXform::Make(bitmap.colorSpace(), fRenderTargetContext->getColorSpace());
 
     // Compute a matrix that maps the rect we will draw to the src rect.
-    SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
-    texMatrix.postScale(scaleAdjust[0], scaleAdjust[1]);
+    const SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect,
+                                                        SkMatrix::kFill_ScaleToFit);
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
@@ -1125,31 +1126,10 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
-    sk_sp<GrTexture> texture;
-    {
-        SkAutoLockPixels alp(bitmap, true);
-        if (!bitmap.readyToDraw()) {
-            return;
-        }
-
-        // draw sprite neither filters nor tiles.
-        texture.reset(GrRefCachedBitmapTexture(fContext.get(), bitmap,
-                                               GrSamplerParams::ClampNoFilter(), nullptr));
-        if (!texture) {
-            return;
-        }
+    sk_sp<SkSpecialImage> srcImg = this->makeSpecial(bitmap);
+    if (!srcImg) {
+        return;
     }
-
-    SkIRect srcRect = SkIRect::MakeXYWH(bitmap.pixelRefOrigin().fX,
-                                        bitmap.pixelRefOrigin().fY,
-                                        bitmap.width(),
-                                        bitmap.height());
-
-    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::MakeFromGpu(srcRect,
-                                                             bitmap.getGenerationID(),
-                                                             std::move(texture),
-                                                             bitmap.refColorSpace(),
-                                                             &this->surfaceProps()));
 
     this->drawSpecial(draw, srcImg.get(), left, top, paint);
 }
@@ -1294,22 +1274,23 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
-    SkAutoLockPixels alp(bitmap, true);
-    if (!bitmap.readyToDraw()) {
+    // TODO: this makes a tight copy of 'bitmap' but it doesn't have to be (given SkSpecialImage's
+    // semantics). Since this is cached we would have to bake the fit into the cache key though.
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(fContext.get(), bitmap);
+    if (!proxy) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
-                                                         GrSamplerParams::ClampNoFilter(), nullptr);
-    if (!texture) {
-        return nullptr;
-    }
+    const SkIRect rect = SkIRect::MakeWH(proxy->width(), proxy->height());
 
-    return SkSpecialImage::MakeFromGpu(bitmap.bounds(),
-                                       bitmap.getGenerationID(),
-                                       texture,
-                                       bitmap.refColorSpace(),
-                                       &this->surfaceProps());
+    // GrMakeCachedBitmapProxy creates a tight copy of 'bitmap' so we don't have to subset
+    // the special image
+    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+                                               rect,
+                                               bitmap.getGenerationID(),
+                                               std::move(proxy),
+                                               bitmap.refColorSpace(),
+                                               &this->surfaceProps());
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
