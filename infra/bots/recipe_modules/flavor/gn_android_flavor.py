@@ -155,10 +155,15 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
       infra_step=True)
 
-    for f in self.m.run.failed_steps:
-      if isinstance(f, recipe_api.InfraFailure):
-        self._adb('shut down device to quarantine bot', 'shell', 'reboot', '-p')
-        break
+    # Only shutdown the device and quarantine the bot if the first failed step
+    # is an infra step. If, instead, we did this for any infra failures, we
+    # would shutdown too much. For example, if a Nexus 10 died during dm
+    # and the following pull step would also fail "device not found" - causing
+    # us to run the shutdown command when the device was probably not in a
+    # broken state; it was just rebooting.
+    if (self.m.run.failed_steps and
+        isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure)):
+      self._adb('shut down device to quarantine bot', 'shell', 'reboot', '-p')
 
     if self._ever_ran_adb:
       self._adb('kill adb server', 'kill-server')
