@@ -319,7 +319,9 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "--match",
+      "~VkHeapTests"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
