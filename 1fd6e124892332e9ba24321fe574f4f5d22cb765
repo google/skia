@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40f1b2de_32167b4b",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1327,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-15T20:23:55Z",
+      "side": 1,
+      "message": "might annotate this entire predicate (helper function?) as \"check if its not too strange\"",
+      "range": {
+        "startLine": 1327,
+        "startChar": 12,
+        "endLine": 1327,
+        "endChar": 19
+      },
+      "revId": "1fd6e124892332e9ba24321fe574f4f5d22cb765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8820bd3e_5fddf196",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1331,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-15T20:23:55Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1331,
+        "startChar": 22,
+        "endLine": 1331,
+        "endChar": 23
+      },
+      "revId": "1fd6e124892332e9ba24321fe574f4f5d22cb765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
