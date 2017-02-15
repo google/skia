@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "ops/GrTessellatingPathRenderer.h"
+#include "SkGradientShader.h"
 
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.
@@ -249,12 +250,39 @@ static SkPath create_path_16() {
     return path;
 }
 
-static void test_path(GrResourceProvider* rp, GrRenderTargetContext* renderTargetContext,
-                      const SkPath& path) {
+// A simple concave path. Test this with a non-invertible matrix.
+static SkPath create_path_17() {
+    SkPath path;
+    path.moveTo(20, 20);
+    path.lineTo(80, 20);
+    path.lineTo(30, 30);
+    path.lineTo(20, 80);
+    return path;
+}
+
+static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
+    SkPoint pts[2] = { {0, 0}, {1, 1} };
+    SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
+    sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
+        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
+    SkShader::AsFPArgs args(
+        ctx, &SkMatrix::I(), &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, nullptr);
+    return shader->asFragmentProcessor(args);
+}
+
+static void test_path(GrResourceProvider* rp,
+                      GrRenderTargetContext* renderTargetContext,
+                      const SkPath& path,
+                      const SkMatrix& matrix = SkMatrix::I(),
+                      GrAAType aaType = GrAAType::kNone,
+                      sk_sp<GrFragmentProcessor> fp = nullptr) {
     GrTessellatingPathRenderer tess;
 
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+    if (fp) {
+        paint.addColorFragmentProcessor(fp);
+    }
 
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
@@ -264,9 +292,9 @@ static void test_path(GrResourceProvider* rp, GrRenderTargetContext* renderTarge
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
                                       &noClip,
-                                      &SkMatrix::I(),
+                                      &matrix,
                                       &shape,
-                                      GrAAType::kNone,
+                                      aaType,
                                       false};
     tess.drawPath(args);
 }
@@ -303,5 +331,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(rp, rtc.get(), create_path_14());
     test_path(rp, rtc.get(), create_path_15());
     test_path(rp, rtc.get(), create_path_16());
+    SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
+    sk_sp<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
+    test_path(rp, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
 }
 #endif
