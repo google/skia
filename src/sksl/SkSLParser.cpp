@@ -111,6 +111,18 @@ Parser::Parser(SkString text, SymbolTable& types, ErrorReporter& errors)
         // avoid unused warning
         yyunput(0, nullptr, fScanner);
     }
+
+    fLayoutKeys[SkString("location")]                    = kLocation_LayoutKey;
+    fLayoutKeys[SkString("offset")]                      = kOffset_LayoutKey;
+    fLayoutKeys[SkString("binding")]                     = kBinding_LayoutKey;
+    fLayoutKeys[SkString("index")]                       = kIndex_LayoutKey;
+    fLayoutKeys[SkString("set")]                         = kSet_LayoutKey;
+    fLayoutKeys[SkString("builtin")]                     = kBuiltin_LayoutKey;
+    fLayoutKeys[SkString("input_attachment_index")]      = kInputAttachmentIndex_LayoutKey;
+    fLayoutKeys[SkString("origin_upper_left")]           = kOriginUpperLeft_LayoutKey;
+    fLayoutKeys[SkString("override_coverage")]           = kOverrideCoverage_LayoutKey;
+    fLayoutKeys[SkString("blend_support_all_equations")] = kBlendSupportAllEquations_LayoutKey;
+    fLayoutKeys[SkString("push_constant")]               = kPushConstant_LayoutKey;
 }
 
 Parser::~Parser() {
@@ -167,6 +179,9 @@ Token Parser::nextToken() {
             text = SkString(skslget_text(fScanner));
             break;
         default:
+#ifdef SK_DEBUG
+            text = SkString(skslget_text(fScanner));
+#endif
             break;
     }
     return Token(Position(skslget_lineno(fScanner), -1), (Token::Kind) token, text);
@@ -195,7 +210,12 @@ bool Parser::expect(Token::Kind kind, SkString expected, Token* result) {
         }
         return true;
     } else {
-        this->error(next.fPosition, "expected " + expected + ", but found '" + next.fText + "'");
+        if (next.fText.size()) {
+            this->error(next.fPosition, "expected " + expected + ", but found '" + next.fText +
+                                        "'");
+        } else {
+            this->error(next.fPosition, "parse error, recompile in debug mode for details");
+        }
         return false;
     }
 }
@@ -559,30 +579,45 @@ Layout Parser::layout() {
         }
         for (;;) {
             Token t = this->nextToken();
-            if (t.fText == "location") {
-                location = this->layoutInt();
-            } else if (t.fText == "offset") {
-                offset = this->layoutInt();
-            } else if (t.fText == "binding") {
-                binding = this->layoutInt();
-            } else if (t.fText == "index") {
-                index = this->layoutInt();
-            } else if (t.fText == "set") {
-                set = this->layoutInt();
-            } else if (t.fText == "builtin") {
-                builtin = this->layoutInt();
-            } else if (t.fText == "input_attachment_index") {
-                 inputAttachmentIndex = this->layoutInt();
-            } else if (t.fText == "origin_upper_left") {
-                originUpperLeft = true;
-            } else if (t.fText == "override_coverage") {
-                overrideCoverage = true;
-            } else if (t.fText == "blend_support_all_equations") {
-                blendSupportAllEquations = true;
+            auto found = fLayoutKeys.find(t.fText);
+            if (found != fLayoutKeys.end()) {
+                switch (found->second) {
+                    case kLocation_LayoutKey:
+                        location = this->layoutInt();
+                        break;
+                    case kOffset_LayoutKey:
+                        offset = this->layoutInt();
+                        break;
+                    case kBinding_LayoutKey:
+                        binding = this->layoutInt();
+                        break;
+                    case kIndex_LayoutKey:
+                        index = this->layoutInt();
+                        break;
+                    case kSet_LayoutKey:
+                        set = this->layoutInt();
+                        break;
+                    case kBuiltin_LayoutKey:
+                        builtin = this->layoutInt();
+                        break;
+                    case kInputAttachmentIndex_LayoutKey:
+                        inputAttachmentIndex = this->layoutInt();
+                        break;
+                    case kOriginUpperLeft_LayoutKey:
+                        originUpperLeft = true;
+                        break;
+                    case kOverrideCoverage_LayoutKey:
+                        overrideCoverage = true;
+                        break;
+                    case kBlendSupportAllEquations_LayoutKey:
+                        blendSupportAllEquations = true;
+                        break;
+                    case kPushConstant_LayoutKey:
+                        pushConstant = true;
+                        break;
+                }
             } else if (Layout::ReadFormat(t.fText, &format)) {
                // AST::ReadFormat stored the result in 'format'.
-            } else if (t.fText == "push_constant") {
-                pushConstant = true;
             } else {
                 this->error(t.fPosition, ("'" + t.fText +
                                           "' is not a valid layout qualifier").c_str());
