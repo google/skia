@@ -141,79 +141,6 @@ public:
      */
     GrTexture* generateTexture(GrContext*, const SkImageInfo& info, const SkIPoint& origin);
 
-    struct SupportedSizes {
-        SkISize fSizes[2];
-    };
-
-    /**
-     *  Some generators can efficiently scale their contents. If this is supported, the generator
-     *  may only support certain scaled dimensions. Call this with the desired scale factor,
-     *  and it will return true if scaling is supported, and in supportedSizes[] it will return
-     *  the nearest supported dimensions.
-     *
-     *  If no native scaling is supported, or scale is invalid (e.g. scale <= 0 || scale > 1)
-     *  this will return false, and the supportedsizes will be undefined.
-     */
-    bool computeScaledDimensions(SkScalar scale, SupportedSizes*);
-
-    /**
-     *  Copy the pixels from this generator into the provided pixmap, respecting
-     *  all of the pixmap's attributes: dimensions, colortype, alphatype, colorspace.
-     *  returns true on success.
-     *
-     *  Some generators can only scale to certain dimensions (e.g. powers-of-2 smaller).
-     *  Thus a generator may fail (return false) for some sizes but succeed for other sizes.
-     *  Call computeScaledDimensions() to know, for a given requested scale, what output size(s)
-     *  the generator might support.
-     *
-     *  Note: this call does NOT allocate the memory for the pixmap; that must be done
-     *  by the caller.
-     */
-    bool generateScaledPixels(const SkPixmap& scaledPixels);
-
-    /**
-     *  External generator API: provides efficient access to externally-managed image data.
-     *
-     *  Skia calls accessScaledPixels() during rasterization, to gain temporary access to
-     *  the external pixel data.  When done, the provided callback is invoked to release the
-     *  associated resources.
-     *
-     *  @param srcRect     the source rect in use for the current draw
-     *  @param totalMatrix full matrix in effect (mapping srcRect -> device space)
-     *  @param quality     the SkFilterQuality requested for rasterization.
-     *  @param rec         out param, expected to be set when the call succeeds:
-     *
-     *                       - fPixmap      external pixel data
-     *                       - fSrcRect     is an adjusted srcRect
-     *                       - fQuality     is the adjusted filter quality
-     *                       - fReleaseProc pixmap release callback, same signature as the
-     *                                      SkBitmap::installPixels() callback
-     *                       - fReleaseCtx  opaque release context argument
-     *
-     *  @return            true on success, false otherwise (error or if this API is not supported;
-     *                     in this case Skia will fall back to its internal scaling and caching
-     *                     heuristics)
-     *
-     *  Implementors can return pixmaps with a different size than requested, by adjusting the
-     *  src rect.  The contract is that Skia will observe the adjusted src rect, and will map it
-     *  to the same dest as the original draw (the impl doesn't get to control the destination).
-     *
-     */
-
-    struct ScaledImageRec {
-        SkPixmap        fPixmap;
-        SkRect          fSrcRect;
-        SkFilterQuality fQuality;
-
-        using ReleaseProcT = void (*)(void* pixels, void* releaseCtx);
-
-        ReleaseProcT    fReleaseProc;
-        void*           fReleaseCtx;
-    };
-
-    bool accessScaledImage(const SkRect& srcRect, const SkMatrix& totalMatrix,
-                           SkFilterQuality quality, ScaledImageRec* rec);
-
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
@@ -252,18 +179,6 @@ protected:
 
     virtual GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) {
         return nullptr;
-    }
-
-    virtual bool onComputeScaledDimensions(SkScalar, SupportedSizes*) {
-        return false;
-    }
-    virtual bool onGenerateScaledPixels(const SkPixmap&) {
-        return false;
-    }
-
-    virtual bool onAccessScaledImage(const SkRect&, const SkMatrix&, SkFilterQuality,
-                                     ScaledImageRec*) {
-        return false;
     }
 
 private:

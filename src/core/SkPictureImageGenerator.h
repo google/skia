@@ -18,8 +18,6 @@ public:
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
                      int* ctableCount) override;
-    bool onComputeScaledDimensions(SkScalar scale, SupportedSizes*) override;
-    bool onGenerateScaledPixels(const SkPixmap&) override;
 
 #if SK_SUPPORT_GPU
     GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) override;

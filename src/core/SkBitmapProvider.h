@@ -39,10 +39,6 @@ public:
     // ... cause a decode and cache, or gpu-readback
     bool asBitmap(SkBitmap*) const;
 
-    bool accessScaledImage(const SkRect& srcRect, const SkMatrix& invMatrix, SkFilterQuality fq,
-                           SkBitmap* scaledBitmap, SkRect* adjustedSrcRect,
-                           SkFilterQuality* adjustedFilterQuality) const;
-
 private:
     // Stack-allocated only.
     void* operator new(size_t) = delete;

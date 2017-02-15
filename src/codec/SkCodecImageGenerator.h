@@ -33,10 +33,6 @@ protected:
 
     bool onGetYUV8Planes(const SkYUVSizeInfo&, void* planes[3]) override;
 
-    bool onComputeScaledDimensions(SkScalar, SupportedSizes*) override;
-
-    bool onGenerateScaledPixels(const SkPixmap&) override;
-
 private:
     /*
      * Takes ownership of codec
