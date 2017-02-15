@@ -22,6 +22,30 @@
       "revId": "d7254700a3d1d82d1b63677fd1771f1ab20eab8a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0095ddd_9a494f72",
+        "filename": "src/sksl/SkSLParser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-15T19:48:40Z",
+      "side": 1,
+      "message": "I could see the argument for lifetime reasons, but this is purely a parser thing so I\u0027d prefer to leave it here.",
+      "parentUuid": "7e7dbec9_741e75bf",
+      "range": {
+        "startLine": 223,
+        "startChar": 4,
+        "endLine": 223,
+        "endChar": 56
+      },
+      "revId": "d7254700a3d1d82d1b63677fd1771f1ab20eab8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
