@@ -18,6 +18,7 @@
 class SkData;
 class SkCanvas;
 class SkColorTable;
+class SkCrossContextTextureData;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
@@ -321,6 +322,17 @@ public:
      *  different GrContext, this will fail.
      */
     sk_sp<SkImage> makeTextureImage(GrContext*, SkColorSpace* dstColorSpace) const;
+
+    /**
+     *  Helper to allow transporting SkImage objects across thread boundaries, specifically to
+     *  allow transferring ownership of GPU resources to a new GrContext. After calling this,
+     *  you *must* construct exactly one SkImage from the return value, using
+     *  MakeFromCrossContextTextureData.
+     */
+    std::unique_ptr<SkCrossContextTextureData> makeCrossContextTextureData();
+
+    static sk_sp<SkImage> MakeFromCrossContextTextureData(
+        GrContext*, std::unique_ptr<SkCrossContextTextureData>);
 
     /**
      * If the image is texture-backed this will make a raster copy of it (or nullptr if reading back

@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
+#include "SkCrossContextTextureData.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilter.h"
@@ -366,6 +367,15 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, SkColorSpace* dstColorSpace) const {
     return nullptr;
+}
+
+std::unique_ptr<SkCrossContextTextureData> SkImage::makeCrossContextTextureData() {
+    return skstd::make_unique<SkCrossContextTextureData>(sk_ref_sp(this));
+}
+
+sk_sp<SkImage> SkImage::MakeFromCrossContextTextureData(
+        GrContext*, std::unique_ptr<SkCrossContextTextureData> cctd) {
+    return cctd->fImage;
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {

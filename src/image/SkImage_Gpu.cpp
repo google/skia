@@ -21,11 +21,13 @@
 #include "GrTextureProxy.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
+#include "SkCrossContextTextureData.h"
 #include "SkBitmapCache.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
 #include "SkImageCacherator.h"
 #include "SkImageInfoPriv.h"
+#include "SkMakeUnique.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
@@ -362,7 +364,7 @@ static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType
                                    std::move(texColorSpace), SkBudgeted::kNo);
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context, SkColorSpace* dstColorSpace) const {
+sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const {
     if (!context) {
         return nullptr;
     }
@@ -379,6 +381,30 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context, SkColorSpace* dstCo
         GrBitmapTextureMaker maker(context, *bmp);
         return create_image_from_maker(&maker, this->alphaType(), this->uniqueID(), dstColorSpace);
     }
+    return nullptr;
+}
+
+std::unique_ptr<SkCrossContextTextureData> SkImage::makeCrossContextTextureData() {
+    // For non-texture backed images, we can actually just pass the image around
+    // TODO: Prep the data for upload, similar to getDeferredTextureImageData?
+    // That API needs to know things about filtering to decide if it should build mips.
+    if (!this->isTextureBacked()) {
+        return skstd::make_unique<SkCrossContextTextureData>(sk_ref_sp(this));
+    }
+
+    // Crack open the gpu image, extract the backend data, stick it in the SkCCTD, remove the ref...
+    return nullptr;
+}
+
+sk_sp<SkImage> SkImage::MakeFromCrossContextTextureData(
+        GrContext* context, std::unique_ptr<SkCrossContextTextureData> cctd) {
+    if (cctd->fImage) {
+        // No pre-existing GPU resource. We could upload it now (with makeTextureImage),
+        // but we'd need a dstColorSpace.
+        return cctd->fImage;
+    }
+
+    // Build a backend object from cctd, adopt the texture...
     return nullptr;
 }
 
