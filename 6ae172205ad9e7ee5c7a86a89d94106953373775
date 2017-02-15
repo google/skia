@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea101ded_04cee00e",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-15T20:29:02Z",
+      "side": 1,
+      "message": "could probably do return SkRect::Make(deviceBounds) here",
+      "revId": "6ae172205ad9e7ee5c7a86a89d94106953373775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
