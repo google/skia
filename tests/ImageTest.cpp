@@ -17,6 +17,7 @@
 #include "SkImageGenerator.h"
 #include "SkImage_Base.h"
 #include "SkImagePriv.h"
+#include "SkMakeUnique.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPixelSerializer.h"
@@ -595,7 +596,8 @@ DEF_TEST(ImageEmpty, reporter) {
     REPORTER_ASSERT(reporter, nullptr == SkImage::MakeRasterCopy(pmap));
     REPORTER_ASSERT(reporter, nullptr == SkImage::MakeRasterData(info, nullptr, 0));
     REPORTER_ASSERT(reporter, nullptr == SkImage::MakeFromRaster(pmap, nullptr, nullptr));
-    REPORTER_ASSERT(reporter, nullptr == SkImage::MakeFromGenerator(new EmptyGenerator));
+    REPORTER_ASSERT(reporter, nullptr == SkImage::MakeFromGenerator(
+                                                            skstd::make_unique<EmptyGenerator>()));
 }
 
 DEF_TEST(ImageDataRef, reporter) {
