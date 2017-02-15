@@ -106,6 +106,7 @@ BASE_SRCS_ALL = struct(
         "src/gpu/gl/mac/*",
         "src/gpu/gl/win/*",
         "src/images/*",
+        "src/jumper/*",
         "src/opts/**/*",
         "src/ports/**/*",
         "src/utils/android/**/*",

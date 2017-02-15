@@ -133,6 +133,8 @@ public:
     void append_from_srgb(SkAlphaType);
 
 private:
+    bool run_with_jumper(size_t x, size_t n) const;
+
     std::vector<Stage> fStages;
 };
 
