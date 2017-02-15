@@ -176,10 +176,13 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
         case kIndex_8_SkColorType:
             if (is_wide_gamut(fCodec->getInfo().colorSpace())) {
                 return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                             SkColorSpace::kDCIP3_D65_Gamut);
+                                             SkColorSpace::kDCIP3_D65_Gamut,
+                                             SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
             }
 
-            return SkColorSpace::MakeSRGB();
+            return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                         SkColorSpace::kSRGB_Gamut,
+                                         SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
         case kRGBA_F16_SkColorType:
             return SkColorSpace::MakeSRGBLinear();
         default:
