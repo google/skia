@@ -236,7 +236,12 @@ bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
 void SkGpuDevice::prepareDraw(const SkDraw& draw) {
     ASSERT_SINGLE_OWNER
 
+#ifdef SK_USE_DEVICE_CLIPPING
+    SkASSERT(*draw.fMatrix == this->ctm());
+    fClip.reset(&fClipStack, nullptr);
+#else
     fClip.reset(draw.fClipStack, &this->getOrigin());
+#endif
 }
 
 GrRenderTargetContext* SkGpuDevice::accessRenderTargetContext() {
@@ -1818,6 +1823,50 @@ SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
     // We always return a transient cache, so it is freed after each
     // filter traversal.
     return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkGpuDevice::onSave() {
+    fClipStack.save();
+}
+
+void SkGpuDevice::onRestore() {
+    fClipStack.restore();
+}
+
+void SkGpuDevice::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
+    fClipStack.clipRect(rect, this->ctm(), op, aa);
+}
+
+void SkGpuDevice::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+    fClipStack.clipRRect(rrect, this->ctm(), op, aa);
+}
+
+void SkGpuDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+    fClipStack.clipPath(path, this->ctm(), op, aa);
+}
+
+void SkGpuDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
+    SkIPoint origin = this->getOrigin();
+    SkRegion tmp;
+    const SkRegion* ptr = &rgn;
+    if (origin.fX | origin.fY) {
+        // translate from "global/canvas" coordinates to relative to this device
+        rgn.translate(-origin.fX, -origin.fY, &tmp);
+        ptr = &tmp;
+    }
+    fClipStack.clipDevRect(ptr->getBounds(), op);
+}
+
+void SkGpuDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
+    // apply our origin?
+    fClipStack.setDeviceClipRestriction(*mutableClipRestriction);
+}
+
+void SkGpuDevice::validateDevBounds(const SkIRect& drawClipBounds) {
+#ifdef SK_DEBUG
+#endif
 }
 
 #endif

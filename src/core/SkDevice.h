@@ -14,7 +14,7 @@
 #include "SkSurfaceProps.h"
 
 // enable to test new device-base clipping
-//#define SK_USE_DEVICE_CLIPPING
+#define SK_USE_DEVICE_CLIPPING
 
 class SkBitmap;
 class SkDraw;

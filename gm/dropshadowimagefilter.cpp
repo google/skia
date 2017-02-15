@@ -106,13 +106,14 @@ DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
     SkScalar DY = r.height() + MARGIN;
 
     canvas->translate(MARGIN, MARGIN);
-    for (size_t j = 0; j < SK_ARRAY_COUNT(drawProc); ++j) {
+    for (size_t j = 2; j < SK_ARRAY_COUNT(drawProc); ++j) {
         canvas->save();
-        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+        for (size_t i = 6; i < 8/*SK_ARRAY_COUNT(filters)*/; ++i) {
             drawProc[j](canvas, r, filters[i]);
             canvas->translate(0, DY);
         }
         canvas->restore();
         canvas->translate(DX, 0);
+        break;
     }
 }
