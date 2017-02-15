@@ -37,7 +37,7 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
                         const SkPaint& paint, SkScalar clickX) {
     SkPaint p(paint);
 
-#if 0
+#if 01
     canvas->drawText(text, length, x, y, paint);
 #else
     {
