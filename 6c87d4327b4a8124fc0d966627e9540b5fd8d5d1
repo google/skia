@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67e99d45_4eac61e7",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-15T18:20:26Z",
+      "side": 1,
+      "message": "Just re-reading the code for the previous fix. Won\u0027t the matrix be non-invertible unless all three points are different. ie, should this be:\n\nif (p0 !\u003d p1 \u0026\u0026 p0 !\u003d p2 \u0026\u0026 p1 !\u003d p2) { ... }",
+      "revId": "6c87d4327b4a8124fc0d966627e9540b5fd8d5d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
