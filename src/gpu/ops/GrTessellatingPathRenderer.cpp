@@ -297,6 +297,9 @@ private:
                                                    fViewMatrix);
             }
         }
+        if (!gp.get()) {
+            return;
+        }
         if (fAntiAlias) {
             this->drawAA(target, gp.get());
         } else {
