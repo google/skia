@@ -161,4 +161,17 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Find the MSAN-built libc++.
       env['LD_LIBRARY_PATH'] = clang_linux + '/msan'
 
-    self._run(name, cmd, env=env)
+    to_symbolize = ['dm', 'nanobench']
+    if name in to_symbolize and 'Ubuntu16' == self.m.vars.builder_cfg['os']:
+      # Convert path objects or placeholders into strings such that they can
+      # be passed to symbolize_stack_trace.py
+      args = [self.m.vars.slave_dir] + [str(x) for x in cmd]
+      self._py('symbolized %s' % name,
+               self.m.vars.infrabots_dir.join('recipe_modules', 'core',
+               'resources', 'symbolize_stack_trace.py'),
+               args=args,
+               env=env,
+               infra_step=False)
+
+    else:
+      self._run(name, cmd, env=env)
