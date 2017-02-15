@@ -22,6 +22,30 @@
       "revId": "a47af379e58c7aac41e69b8f1b321f59cd2c8038",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "013b6cf4_8c4ebb2f",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-15T14:10:47Z",
+      "side": 1,
+      "message": "No, it\u0027s the same. (Chris Cameron\u0027s name for this feature: \"OutputBlending\" makes that more obvious, but I think that for the general case of sRGB, it\u0027s less obvious).",
+      "parentUuid": "767678ef_d7f224c6",
+      "range": {
+        "startLine": 134,
+        "startChar": 12,
+        "endLine": 134,
+        "endChar": 83
+      },
+      "revId": "a47af379e58c7aac41e69b8f1b321f59cd2c8038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
