@@ -9,6 +9,7 @@
 #define gr_instanced_InstancedRenderingTypes_DEFINED
 
 #include "GrTypes.h"
+#include "GrTypesPriv.h"
 #include "SkRRect.h"
 
 namespace gr_instanced {
