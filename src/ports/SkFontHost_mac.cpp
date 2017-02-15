@@ -33,6 +33,7 @@
 #include "SkMaskGamma.h"
 #include "SkMathPriv.h"
 #include "SkMutex.h"
+#include "SkOTTable_OS_2.h"
 #include "SkOTUtils.h"
 #include "SkOnce.h"
 #include "SkPaint.h"
@@ -688,14 +689,6 @@ private:
     /** Returns the offset from the horizontal origin to the vertical origin in SkGlyph units. */
     void getVerticalOffset(CGGlyph glyphID, SkPoint* offset) const;
 
-
-    /** Converts from FUnits (em space, y up) to SkGlyph units (pixels, y down).
-     *
-     *  Used on Snow Leopard to correct CTFontGetVerticalTranslationsForGlyphs.
-     *  Used on Lion to correct CTFontGetBoundingRectsForGlyphs.
-     */
-    SkMatrix fFUnitMatrix;
-
     Offscreen fOffscreen;
 
     /** Unrotated variant of fCTFont.
@@ -774,7 +767,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
     SkVector scale;
     SkMatrix skTransform;
     bool invertible = fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale,
-                                           &scale, &skTransform, nullptr, nullptr, &fFUnitMatrix);
+                                           &scale, &skTransform, nullptr, nullptr, nullptr);
     fTransform = MatrixToCGAffineTransform(skTransform);
     // CGAffineTransformInvert documents that if the transform is non-invertible it will return the
     // passed transform unchanged. It does so, but then also prints a message to stdout. Avoid this.
@@ -789,10 +782,6 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
     CGFloat textSize = ScalarToCG(scale.y());
     fCTFont = ctfont_create_exact_copy(ctFont, textSize, nullptr);
     fCGFont.reset(CTFontCopyGraphicsFont(fCTFont.get(), nullptr));
-
-    // The fUnitMatrix includes the text size (and em) as it is used to scale the raw font data.
-    SkScalar emPerFUnit = SkScalarInvert(SkIntToScalar(CGFontGetUnitsPerEm(fCGFont.get())));
-    fFUnitMatrix.preScale(emPerFUnit, -emPerFUnit);
 }
 
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
@@ -1317,6 +1306,33 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+
+    // See https://bugs.chromium.org/p/skia/issues/detail?id=6203
+    // At least on 10.12.3 with memory based fonts the x-height is always 0.6666 of the ascent and
+    // the cap-height is always 0.8888 of the ascent. It appears that the values from the 'OS/2'
+    // table are read, but then overwritten if the font is not a system font. As a result, if there
+    // is a valid 'OS/2' table available use the values from the table if they aren't too strange.
+    struct OS2HeightMetrics {
+        SK_OT_SHORT sxHeight;
+        SK_OT_SHORT sCapHeight;
+    } heights;
+    size_t bytesRead = this->getTypeface()->getTableData(
+            SkTEndian_SwapBE32(SkOTTableOS2::TAG), offsetof(SkOTTableOS2, version.v2.sxHeight),
+            sizeof(heights), &heights);
+    if (bytesRead == sizeof(heights)) {
+        // 'fontSize' is correct because the entire resolved size is set by the constructor.
+        CGFloat fontSize = CTFontGetSize(this->fCTFont.get());
+        unsigned upem = CTFontGetUnitsPerEm(this->fCTFont.get());
+        unsigned maxSaneHeight = upem * 2;
+        uint16_t xHeight = SkEndian_SwapBE16(heights.sxHeight);
+        if (xHeight && xHeight < maxSaneHeight) {
+            metrics->fXHeight = CGToScalar(xHeight * fontSize / upem);
+        }
+        uint16_t capHeight = SkEndian_SwapBE16(heights.sCapHeight);
+        if (capHeight && capHeight < maxSaneHeight) {
+            metrics->fCapHeight = CGToScalar(capHeight * fontSize / upem);
+        }
+    }
 }
 
 void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element) {
