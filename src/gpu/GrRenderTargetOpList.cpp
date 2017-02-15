@@ -315,6 +315,14 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     if (const GrFragmentProcessor* clipFP = appliedClip.clipCoverageFragmentProcessor()) {
         args.fAnalysis.fCoveragePOI.analyzeProcessors(&clipFP, 1);
     }
+#ifdef SK_DEBUG
+    // Other than tests that exercise atypical behavior we expect all coverage FPs to be compatible
+    // with the coverage-as-alpha optimization.
+    if (!args.fAnalysis.fCoveragePOI.allProcessorsCompatibleWithCoverageAsAlpha() &&
+        !args.fAnalysis.fCoveragePOI.isLCDCoverage()) {
+        GrCapsDebugf(this->caps(), "Coverage FP is not compatible with coverage as alpha.\n");
+    }
+#endif
 
     if (!renderTargetContext->accessRenderTarget()) {
         return;

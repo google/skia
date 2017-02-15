@@ -26,6 +26,7 @@ public:
 
     GrProcOptInfo(const GrPipelineInput& input) : GrProcOptInfo() {
         fIsLCDCoverage = input.isLCDCoverage();
+        fAllProcessorsCompatibleWithCoverageAsAlpha = !input.isLCDCoverage();
         fIsOpaque = input.isOpaque();
         GrColor color;
         if (input.isConstant(&color)) {
@@ -37,6 +38,7 @@ public:
     void resetToLCDCoverage() {
         *this = GrProcOptInfo();
         fIsLCDCoverage = true;
+        fAllProcessorsCompatibleWithCoverageAsAlpha = false;
     }
 
     void reset(const GrPipelineInput& input) { *this = GrProcOptInfo(input); }

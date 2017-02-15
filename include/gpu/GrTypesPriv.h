@@ -541,7 +541,7 @@ enum GrAccessPattern {
 #ifdef SK_DEBUG
 // Takes a pointer to a GrCaps, and will suppress prints if required
 #define GrCapsDebugf(caps, ...)         \
-    if (!caps->suppressPrints()) {      \
+    if (!(caps)->suppressPrints()) {    \
         SkDebugf(__VA_ARGS__);          \
     }
 #else
