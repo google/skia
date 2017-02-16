@@ -18,6 +18,7 @@
 #include "SkSLIRGenerator.h"
 
 #define SK_FRAGCOLOR_BUILTIN    10001
+#define SK_IN_BUILTIN           10002
 #define SK_FRAGCOORD_BUILTIN       15
 #define SK_VERTEXID_BUILTIN         5
 #define SK_CLIPDISTANCE_BUILTIN     3

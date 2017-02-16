@@ -332,6 +332,9 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_CLIPDISTANCE_BUILTIN:
             this->write("gl_ClipDistance");
             break;
+        case SK_IN_BUILTIN:
+            this->write("gl_in");
+            break;
         default:
             this->write(ref.fVariable.fName);
     }
@@ -584,7 +587,7 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
-    if (intf.fTypeName == "gl_PerVertex") {
+    if (intf.fTypeName == "sk_PerVertex") {
         return;
     }
     this->writeModifiers(intf.fVariable.fModifiers, true);

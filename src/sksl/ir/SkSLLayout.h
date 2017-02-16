@@ -19,6 +19,17 @@ namespace SkSL {
  * layout (location = 0) int x;
  */
 struct Layout {
+    enum Primitive {
+        kUnspecified_Primitive = -1,
+        kPoints_Primitive,
+        kLines_Primitive,
+        kLineStrip_Primitive,
+        kLinesAdjacency_Primitive,
+        kTriangles_Primitive,
+        kTriangleStrip_Primitive,
+        kTrianglesAdjacency_Primitive
+    };
+
     // These are used by images in GLSL. We only support a subset of what GL supports.
     enum class Format {
         kUnspecified = -1,
@@ -79,7 +90,8 @@ struct Layout {
 
     Layout(int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex, bool originUpperLeft, bool overrideCoverage,
-           bool blendSupportAllEquations, Format format, bool pushconstant)
+           bool blendSupportAllEquations, Format format, bool pushconstant, Primitive primitive,
+           int maxVertices, int invocations)
     : fLocation(location)
     , fOffset(offset)
     , fBinding(binding)
@@ -91,7 +103,10 @@ struct Layout {
     , fOverrideCoverage(overrideCoverage)
     , fBlendSupportAllEquations(blendSupportAllEquations)
     , fFormat(format)
-    , fPushConstant(pushconstant) {}
+    , fPushConstant(pushconstant)
+    , fPrimitive(primitive)
+    , fMaxVertices(maxVertices)
+    , fInvocations(invocations) {}
 
     Layout()
     : fLocation(-1)
@@ -105,7 +120,10 @@ struct Layout {
     , fOverrideCoverage(false)
     , fBlendSupportAllEquations(false)
     , fFormat(Format::kUnspecified)
-    , fPushConstant(false) {}
+    , fPushConstant(false)
+    , fPrimitive(kUnspecified_Primitive)
+    , fMaxVertices(-1)
+    , fInvocations(-1) {}
 
     SkString description() const {
         SkString result;
@@ -158,6 +176,46 @@ struct Layout {
             result += separator + "push_constant";
             separator = ", ";
         }
+        switch (fPrimitive) {
+            case kPoints_Primitive:
+                result += separator + "points";
+                separator = ", ";
+                break;
+            case kLines_Primitive:
+                result += separator + "lines";
+                separator = ", ";
+                break;
+            case kLineStrip_Primitive:
+                result += separator + "line_strip";
+                separator = ", ";
+                break;
+            case kLinesAdjacency_Primitive:
+                result += separator + "lines_adjacency";
+                separator = ", ";
+                break;
+            case kTriangles_Primitive:
+                result += separator + "triangles";
+                separator = ", ";
+                break;
+            case kTriangleStrip_Primitive:
+                result += separator + "triangle_strip";
+                separator = ", ";
+                break;
+            case kTrianglesAdjacency_Primitive:
+                result += separator + "triangles_adjacency";
+                separator = ", ";
+                break;
+            case kUnspecified_Primitive:
+                break;
+        }
+        if (fMaxVertices >= 0) {
+            result += separator + "max_vertices = " + to_string(fMaxVertices);
+            separator = ", ";
+        }
+        if (fInvocations >= 0) {
+            result += separator + "invocations = " + to_string(fInvocations);
+            separator = ", ";
+        }
         if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
@@ -175,7 +233,10 @@ struct Layout {
                fOriginUpperLeft          == other.fOriginUpperLeft &&
                fOverrideCoverage         == other.fOverrideCoverage &&
                fBlendSupportAllEquations == other.fBlendSupportAllEquations &&
-               fFormat                   == other.fFormat;
+               fFormat                   == other.fFormat &&
+               fPrimitive                == other.fPrimitive &&
+               fMaxVertices              == other.fMaxVertices &&
+               fInvocations              == other.fInvocations;
     }
 
     bool operator!=(const Layout& other) const {
@@ -198,6 +259,9 @@ struct Layout {
     bool fBlendSupportAllEquations;
     Format fFormat;
     bool fPushConstant;
+    Primitive fPrimitive;
+    int fMaxVertices;
+    int fInvocations;
 };
 
 } // namespace

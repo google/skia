@@ -123,6 +123,15 @@ Parser::Parser(SkString text, SymbolTable& types, ErrorReporter& errors)
     fLayoutKeys[SkString("override_coverage")]           = kOverrideCoverage_LayoutKey;
     fLayoutKeys[SkString("blend_support_all_equations")] = kBlendSupportAllEquations_LayoutKey;
     fLayoutKeys[SkString("push_constant")]               = kPushConstant_LayoutKey;
+    fLayoutKeys[SkString("points")]                      = kPoints_LayoutKey;
+    fLayoutKeys[SkString("lines")]                       = kLines_LayoutKey;
+    fLayoutKeys[SkString("line_strip")]                  = kLineStrip_LayoutKey;
+    fLayoutKeys[SkString("lines_adjacency")]             = kLinesAdjacency_LayoutKey;
+    fLayoutKeys[SkString("triangles")]                   = kTriangles_LayoutKey;
+    fLayoutKeys[SkString("triangle_strip")]              = kTriangleStrip_LayoutKey;
+    fLayoutKeys[SkString("triangles_adjacency")]         = kTrianglesAdjacency_LayoutKey;
+    fLayoutKeys[SkString("max_vertices")]                = kMaxVertices_LayoutKey;
+    fLayoutKeys[SkString("invocations")]                 = kInvocations_LayoutKey;
 }
 
 Parser::~Parser() {
@@ -570,12 +579,15 @@ Layout Parser::layout() {
     bool blendSupportAllEquations = false;
     Layout::Format format = Layout::Format::kUnspecified;
     bool pushConstant = false;
+    Layout::Primitive primitive = Layout::kUnspecified_Primitive;
+    int maxVertices = -1;
+    int invocations = -1;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
             return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                           originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                          pushConstant);
+                          pushConstant, primitive, maxVertices, invocations);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -615,6 +627,33 @@ Layout Parser::layout() {
                     case kPushConstant_LayoutKey:
                         pushConstant = true;
                         break;
+                    case kPoints_LayoutKey:
+                        primitive = Layout::kPoints_Primitive;
+                        break;
+                    case kLines_LayoutKey:
+                        primitive = Layout::kLines_Primitive;
+                        break;
+                    case kLineStrip_LayoutKey:
+                        primitive = Layout::kLineStrip_Primitive;
+                        break;
+                    case kLinesAdjacency_LayoutKey:
+                        primitive = Layout::kLinesAdjacency_Primitive;
+                        break;
+                    case kTriangles_LayoutKey:
+                        primitive = Layout::kTriangles_Primitive;
+                        break;
+                    case kTriangleStrip_LayoutKey:
+                        primitive = Layout::kTriangleStrip_Primitive;
+                        break;
+                    case kTrianglesAdjacency_LayoutKey:
+                        primitive = Layout::kTrianglesAdjacency_Primitive;
+                        break;
+                    case kMaxVertices_LayoutKey:
+                        maxVertices = this->layoutInt();
+                        break;
+                    case kInvocations_LayoutKey:
+                        invocations = this->layoutInt();
+                        break;
                 }
             } else if (Layout::ReadFormat(t.fText, &format)) {
                // AST::ReadFormat stored the result in 'format'.
@@ -633,7 +672,7 @@ Layout Parser::layout() {
     }
     return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                   originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                  pushConstant);
+                  pushConstant, primitive, maxVertices, invocations);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
