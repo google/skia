@@ -195,38 +195,6 @@ DEF_SIMPLE_GM(texteffects, canvas, 460, 680) {
         canvas->restore();
 }
 
-DEF_SIMPLE_GM(textunderstrike, canvas, 460, 680) {
-    canvas->clear(SK_ColorYELLOW);
-    SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint);
-    paint.setTextSize(50);
-    paint.setStrokeWidth(5);
-    paint.setAntiAlias(true);
-
-    auto drawText = [&]() {
-        paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawText("Hello", 5, 100, 50, paint);
-        paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawText("Hello", 5, 100, 100, paint);
-        canvas->translate(0, 100);
-    };
-
-    drawText();
-    paint.setUnderlineText(true);
-    drawText();
-    paint.setUnderlineText(false);
-    paint.setStrikeThruText(true);
-    drawText();
-    paint.setUnderlineText(true);
-    drawText();
-    paint.setColor(SK_ColorWHITE);
-    paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawText("Hello", 5, 100, 50, paint);
-    paint.setColor(SK_ColorBLUE);
-    paint.setStyle(SkPaint::kFill_Style);
-    canvas->drawText("Hello", 5, 100, 50, paint);
-}
-
 static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
         SkScalar last, SkScalar finalPos,
         SkScalar uPos, SkScalar uWidth, SkScalar textSize) {
