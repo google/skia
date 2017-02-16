@@ -2683,6 +2683,7 @@ void SkCanvas::DrawRect(const SkDraw& draw, const SkPaint& paint,
 void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
                                    const char text[], size_t byteLength,
                                    SkScalar x, SkScalar y) {
+#if 0
     SkASSERT(byteLength == 0 || text != nullptr);
 
     // nothing to draw
@@ -2737,6 +2738,7 @@ void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
             DrawRect(draw, paint, r, 1);
         }
     }
+#endif
 }
 
 void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,

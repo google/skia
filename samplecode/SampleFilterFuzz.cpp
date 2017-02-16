@@ -495,8 +495,6 @@ static SkPaint make_paint() {
     paint.setEmbeddedBitmapText(make_bool());
     paint.setAutohinted(make_bool());
     paint.setVerticalText(make_bool());
-    paint.setUnderlineText(make_bool());
-    paint.setStrikeThruText(make_bool());
     paint.setFakeBoldText(make_bool());
     paint.setDevKernText(make_bool());
     paint.setFilterQuality(make_filter_quality());
