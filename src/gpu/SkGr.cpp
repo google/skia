@@ -102,7 +102,9 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
     if (!bitmap.peekPixels(&pixmap)) {
         return nullptr;
     }
-    return GrUploadPixmapToTexture(ctx, pixmap, SkBudgeted::kYes);
+    GrTexture* result = GrUploadPixmapToTexture(ctx, pixmap, SkBudgeted::kYes);
+    SkASSERT(result->width() == bitmap.width() && result->height() == bitmap.height());
+    return result;
 }
 
 GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBudgeted budgeted) {

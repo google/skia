@@ -276,6 +276,7 @@ gm_sources = [
   "$_gm/strokerects.cpp",
   "$_gm/strokes.cpp",
   "$_gm/stroketext.cpp",
+  "$_gm/subsetbitmaps.cpp",
   "$_gm/subsetshader.cpp",
   "$_gm/surface.cpp",
   "$_gm/tablecolorfilter.cpp",
