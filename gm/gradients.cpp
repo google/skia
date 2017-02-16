@@ -936,3 +936,22 @@ DEF_SIMPLE_GM(gradient_subpixel, canvas, 500, 500) {
 DEF_SIMPLE_GM(gradient_subpixel_4f, canvas, 500, 500) {
     draw_subpixel_gradient(canvas, SkLinearGradient::kForce4fContext_PrivateFlag);
 }
+
+DEF_SIMPLE_GM(gradient_dither, canvas, 500, 500) {
+    SkBitmap bm16;
+    bm16.allocPixels(SkImageInfo::Make(20, 10, kRGB_565_SkColorType, kOpaque_SkAlphaType));
+    SkCanvas c16(bm16);
+    SkPoint points[] = {{0, 0}, {19, 0}, {20, 0}};
+    SkColor colors[] = {SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN};
+    SkPaint paint;
+    paint.setShader(SkGradientShader::MakeLinear(
+                     points, colors, nullptr, SK_ARRAY_COUNT(colors),
+                     SkShader::kClamp_TileMode, 0, nullptr));
+    paint.setDither(true);
+    c16.drawPaint(paint);
+    canvas->scale(12, 12);
+    canvas->drawBitmap(bm16, 0, 0);
+    paint.setDither(false);
+    c16.drawPaint(paint);
+    canvas->drawBitmap(bm16, 0, 11);
+}
