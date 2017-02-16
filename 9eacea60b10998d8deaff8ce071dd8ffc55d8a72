@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "816090f5_96694591",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-16T17:50:33Z",
+      "side": 1,
+      "message": "To demonstrate that the region is still in a well-defined state, perhaps we should\n\nreturn this-\u003eisComplex()\n\n1. this documents that the intent was to have created a complex region\n2. there is no auto conversion of ptr to bool\n\nWDYT?",
+      "range": {
+        "startLine": 104,
+        "startChar": 11,
+        "endLine": 104,
+        "endChar": 19
+      },
+      "revId": "9eacea60b10998d8deaff8ce071dd8ffc55d8a72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfa85d29_919c333b",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-16T17:50:33Z",
+      "side": 1,
+      "message": "// report failure",
+      "range": {
+        "startLine": 1146,
+        "startChar": 29,
+        "endLine": 1146,
+        "endChar": 0
+      },
+      "revId": "9eacea60b10998d8deaff8ce071dd8ffc55d8a72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
