@@ -1855,7 +1855,45 @@ void SkTriColorShader::toString(SkString* str) const {
 }
 #endif
 
-static sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint verts[],
+namespace {
+
+// Similar to SkLocalMatrixShader, but composes the local matrix with the CTM (instead
+// of composing with the inherited local matrix):
+//
+//   rec' = {rec.ctm x localMatrix, rec.localMatrix}
+//
+// (as opposed to rec' = {rec.ctm, rec.localMatrix x localMatrix})
+//
+class SkLocalInnerMatrixShader final : public SkShader {
+public:
+    SkLocalInnerMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
+    : INHERITED(&localMatrix)
+    , fProxyShader(std::move(proxy)) {}
+
+    Factory getFactory() const override {
+        SkASSERT(false);
+        return nullptr;
+    }
+
+protected:
+    void flatten(SkWriteBuffer&) const override {
+        SkASSERT(false);
+    }
+
+    Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
+        SkMatrix newCTM = SkMatrix::Concat(*rec.fMatrix, this->getLocalMatrix());
+        ContextRec newRec(rec);
+        newRec.fMatrix = &newCTM;
+        return fProxyShader->makeContext(newRec, alloc);
+    }
+
+private:
+    sk_sp<SkShader> fProxyShader;
+
+    typedef SkShader INHERITED;
+};
+
+sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint verts[],
                                          const SkPoint texs[], const SkPaint& paint,
                                          SkColorSpace* dstColorSpace,
                                          SkArenaAlloc* alloc) {
@@ -1868,9 +1906,12 @@ static sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint v
     if (p0 != p1 || p0 != p2) {
         // Common case (non-collapsed texture coordinates).
         // Map the texture to vertices using a local transform.
+
+        // We cannot use a plain SkLocalMatrix shader, because we need the texture matrix
+        // to compose next to the CTM.
         SkMatrix localMatrix;
         return texture_to_matrix(state, verts, texs, &localMatrix)
-            ? alloc->makeSkSp<SkLocalMatrixShader>(paint.refShader(), localMatrix)
+            ? alloc->makeSkSp<SkLocalInnerMatrixShader>(paint.refShader(), localMatrix)
             : nullptr;
     }
 
@@ -1900,6 +1941,8 @@ static sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint v
 
     return alloc->makeSkSp<SkColorShader>(SkUnPreMultiply::PMColorToColor(pmColor));
 }
+
+} // anonymous ns
 
 void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                           const SkPoint vertices[], const SkPoint textures[],

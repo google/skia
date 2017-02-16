@@ -9,19 +9,29 @@
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkGradientShader.h"
+#include "SkLocalMatrixShader.h"
 #include "SkRandom.h"
 #include "SkVertices.h"
 
 static constexpr SkScalar kShaderSize = 40;
-static sk_sp<SkShader> make_shader1() {
+static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {
     const SkColor colors[] = {
         SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
         SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
     };
     const SkPoint pts[] = {{kShaderSize / 4, 0}, {3 * kShaderSize / 4, kShaderSize}};
+    const SkMatrix localMatrix = SkMatrix::MakeScale(shaderScale, shaderScale);
 
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kMirror_TileMode);
+    sk_sp<SkShader> grad = SkGradientShader::MakeLinear(pts, colors, nullptr,
+                                                        SK_ARRAY_COUNT(colors),
+                                                        SkShader::kMirror_TileMode, 0,
+                                                        &localMatrix);
+    // Throw in a couple of local matrix wrappers for good measure.
+    return shaderScale == 1
+        ? grad
+        : sk_make_sp<SkLocalMatrixShader>(
+              sk_make_sp<SkLocalMatrixShader>(std::move(grad), SkMatrix::MakeTrans(-10, 0)),
+              SkMatrix::MakeTrans(10, 0));
 }
 
 static sk_sp<SkShader> make_shader2() {
@@ -44,7 +54,7 @@ static const int kMeshIndexCnt = (int)SK_ARRAY_COUNT(kMeshFan);
 static const int kMeshVertexCnt = 9;
 
 static void fill_mesh(SkPoint pts[kMeshVertexCnt], SkPoint texs[kMeshVertexCnt],
-                      SkColor colors[kMeshVertexCnt]) {
+                      SkColor colors[kMeshVertexCnt], SkScalar shaderScale) {
     pts[0].set(0, 0);
     pts[1].set(kMeshSize / 2, 3);
     pts[2].set(kMeshSize, 0);
@@ -55,15 +65,16 @@ static void fill_mesh(SkPoint pts[kMeshVertexCnt], SkPoint texs[kMeshVertexCnt],
     pts[7].set(kMeshSize / 2, kMeshSize - 3);
     pts[8].set(kMeshSize, kMeshSize);
 
+    const auto shaderSize = kShaderSize * shaderScale;
     texs[0].set(0, 0);
-    texs[1].set(kShaderSize / 2, 0);
-    texs[2].set(kShaderSize, 0);
-    texs[3].set(0, kShaderSize / 2);
-    texs[4].set(kShaderSize / 2, kShaderSize / 2);
-    texs[5].set(kShaderSize, kShaderSize / 2);
-    texs[6].set(0, kShaderSize);
-    texs[7].set(kShaderSize / 2, kShaderSize);
-    texs[8].set(kShaderSize, kShaderSize);
+    texs[1].set(shaderSize / 2, 0);
+    texs[2].set(shaderSize, 0);
+    texs[3].set(0, shaderSize / 2);
+    texs[4].set(shaderSize / 2, shaderSize / 2);
+    texs[5].set(shaderSize, shaderSize / 2);
+    texs[6].set(0, shaderSize);
+    texs[7].set(shaderSize / 2, shaderSize);
+    texs[8].set(shaderSize, shaderSize);
 
     SkRandom rand;
     for (size_t i = 0; i < kMeshVertexCnt; ++i) {
@@ -80,15 +91,17 @@ class VerticesGM : public skiagm::GM {
     sk_sp<SkColorFilter>    fColorFilter;
     sk_sp<SkVertices>       fVertices;
     bool                    fUseObject;
+    SkScalar                fShaderScale;
 
 public:
-    VerticesGM(bool useObject) : fUseObject(useObject) {}
+    VerticesGM(bool useObject, SkScalar shaderScale = 1)
+        : fUseObject(useObject), fShaderScale(shaderScale) {}
 
 protected:
 
     void onOnceBeforeDraw() override {
-        fill_mesh(fPts, fTexs, fColors);
-        fShader1 = make_shader1();
+        fill_mesh(fPts, fTexs, fColors, fShaderScale);
+        fShader1 = make_shader1(fShaderScale);
         fShader2 = make_shader2();
         fColorFilter = make_color_filter();
         if (fUseObject) {
@@ -117,6 +130,9 @@ protected:
         SkString name("vertices");
         if (fUseObject) {
             name.append("_object");
+        }
+        if (fShaderScale != 1) {
+            name.append("_scaled_shader");
         }
         return name;
     }
@@ -208,12 +224,13 @@ private:
 
 DEF_GM(return new VerticesGM(true);)
 DEF_GM(return new VerticesGM(false);)
+DEF_GM(return new VerticesGM(false, 1 / kShaderSize);)
 
 static void draw_batching(SkCanvas* canvas, bool useObject) {
     std::unique_ptr<SkPoint[]> pts(new SkPoint[kMeshVertexCnt]);
     std::unique_ptr<SkPoint[]> texs(new SkPoint[kMeshVertexCnt]);
     std::unique_ptr<SkColor[]> colors(new SkColor[kMeshVertexCnt]);
-    fill_mesh(pts.get(), texs.get(), colors.get());
+    fill_mesh(pts.get(), texs.get(), colors.get(), 1);
 
     SkTDArray<SkMatrix> matrices;
     matrices.push()->reset();
@@ -223,7 +240,7 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
     m->postScale(1.2f, .8f, kMeshSize / 2, kMeshSize / 2);
     m->postTranslate(0, 80);
 
-    auto shader = make_shader1();
+    auto shader = make_shader1(1);
 
     // Triangle fans can't batch so we convert to regular triangles,
     static constexpr int kNumTris = kMeshIndexCnt - 2;
