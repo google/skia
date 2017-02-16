@@ -1876,7 +1876,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, S
                           false);
             Variable intfVar(Position(), Modifiers(layout, Modifiers::kUniform_Flag), name,
                              intfStruct, Variable::kGlobal_Storage);
-            InterfaceBlock intf(Position(), intfVar, st);
+            InterfaceBlock intf(Position(), intfVar, name, SkString(""),
+                                std::vector<std::unique_ptr<Expression>>(), st);
             fRTHeightStructId = this->writeInterfaceBlock(intf);
             fRTHeightFieldIndex = 0;
         }

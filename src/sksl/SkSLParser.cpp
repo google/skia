@@ -415,7 +415,7 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
     }
     fTypes.add(name.fText, std::unique_ptr<Type>(new Type(name.fPosition, name.fText, fields)));
     return std::unique_ptr<ASTType>(new ASTType(name.fPosition, name.fText,
-                                                ASTType::kStruct_Kind));
+                                                ASTType::kStruct_Kind, std::vector<int>()));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
@@ -770,7 +770,7 @@ std::unique_ptr<ASTStatement> Parser::statement() {
     }
 }
 
-/* IDENTIFIER(type) */
+/* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* */
 std::unique_ptr<ASTType> Parser::type() {
     Token type;
     if (!this->expect(Token::IDENTIFIER, "a type", &type)) {
@@ -780,11 +780,26 @@ std::unique_ptr<ASTType> Parser::type() {
         this->error(type.fPosition, ("no type named '" + type.fText + "'").c_str());
         return nullptr;
     }
+    std::vector<int> sizes;
+    while (this->peek().fKind == Token::LBRACKET) {
+        this->expect(Token::LBRACKET, "'['");
+        if (this->peek().fKind != Token::RBRACKET) {
+            int64_t i;
+            if (this->intLiteral(&i)) {
+                sizes.push_back(i);
+            } else {
+                return nullptr;
+            }
+        } else {
+            sizes.push_back(-1);
+        }
+        this->expect(Token::RBRACKET, "']'");
+    }
     return std::unique_ptr<ASTType>(new ASTType(type.fPosition, std::move(type.fText),
-                                                ASTType::kIdentifier_Kind));
+                                                ASTType::kIdentifier_Kind, sizes));
 }
 
-/* IDENTIFIER LBRACE varDeclaration* RBRACE */
+/* IDENTIFIER LBRACE varDeclaration* RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? */
 std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
@@ -807,14 +822,29 @@ std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
         decls.push_back(std::move(decl));
     }
     this->nextToken();
-    SkString valueName;
+    SkString instanceName;
+    std::vector<std::unique_ptr<ASTExpression>> sizes;
     if (this->peek().fKind == Token::IDENTIFIER) {
-        valueName = this->nextToken().fText;
+        instanceName = this->nextToken().fText;
+        while (this->peek().fKind == Token::LBRACKET) {
+            this->expect(Token::LBRACKET, "'['");
+            if (this->peek().fKind != Token::RBRACKET) {
+                std::unique_ptr<ASTExpression> size = this->expression();
+                if (!size) {
+                    return nullptr;
+                }
+                sizes.push_back(std::move(size));
+            } else {
+                sizes.push_back(nullptr);
+            }
+            this->expect(Token::RBRACKET, "']'");
+        }
     }
     this->expect(Token::SEMICOLON, "';'");
     return std::unique_ptr<ASTDeclaration>(new ASTInterfaceBlock(name.fPosition, mods,
-                                                                 name.fText, std::move(valueName),
-                                                                 std::move(decls)));
+                                                                 name.fText, std::move(decls),
+                                                                 std::move(instanceName),
+                                                                 std::move(sizes)));
 }
 
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */

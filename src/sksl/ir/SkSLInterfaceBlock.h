@@ -25,23 +25,43 @@ namespace SkSL {
  * At the IR level, this is represented by a single variable of struct type.
  */
 struct InterfaceBlock : public ProgramElement {
-    InterfaceBlock(Position position, const Variable& var, std::shared_ptr<SymbolTable> typeOwner)
-    : INHERITED(position, kInterfaceBlock_Kind) 
+    InterfaceBlock(Position position, const Variable& var, SkString typeName, SkString instanceName,
+                   std::vector<std::unique_ptr<Expression>> sizes,
+                   std::shared_ptr<SymbolTable> typeOwner)
+    : INHERITED(position, kInterfaceBlock_Kind)
     , fVariable(std::move(var))
-    , fTypeOwner(typeOwner) {
-        ASSERT(fVariable.fType.kind() == Type::kStruct_Kind);
-    }
+    , fTypeName(std::move(typeName))
+    , fInstanceName(std::move(instanceName))
+    , fSizes(std::move(sizes))
+    , fTypeOwner(typeOwner) {}
 
     SkString description() const override {
-        SkString result = fVariable.fModifiers.description() + fVariable.fName + " {\n";
-        for (size_t i = 0; i < fVariable.fType.fields().size(); i++) {
-            result += fVariable.fType.fields()[i].description() + "\n";
+        SkString result = fVariable.fModifiers.description() + fTypeName + " {\n";
+        const Type* structType = &fVariable.fType;
+        while (structType->kind() == Type::kArray_Kind) {
+            structType = &structType->componentType();
         }
-        result += "};";
-        return result;
+        for (const auto& f : structType->fields()) {
+            result += f.description() + "\n";
+        }
+        result += "}";
+        if (fInstanceName.size()) {
+            result += " " + fInstanceName;
+            for (const auto& size : fSizes) {
+                result += "[";
+                if (size) {
+                    result += size->description();
+                }
+                result += "]";
+            }
+        }
+        return result + ";";
     }
 
     const Variable& fVariable;
+    const SkString fTypeName;
+    const SkString fInstanceName;
+    const std::vector<std::unique_ptr<Expression>> fSizes;
     const std::shared_ptr<SymbolTable> fTypeOwner;
 
     typedef ProgramElement INHERITED;

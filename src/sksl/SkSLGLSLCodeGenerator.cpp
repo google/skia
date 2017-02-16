@@ -584,19 +584,35 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
-    if (intf.fVariable.fName == "gl_PerVertex") {
+    if (intf.fTypeName == "gl_PerVertex") {
         return;
     }
     this->writeModifiers(intf.fVariable.fModifiers, true);
-    this->writeLine(intf.fVariable.fType.name() + " {");
+    this->writeLine(intf.fTypeName + " {");
     fIndentation++;
-    for (const auto& f : intf.fVariable.fType.fields()) {
+    const Type* structType = &intf.fVariable.fType;
+    while (structType->kind() == Type::kArray_Kind) {
+        structType = &structType->componentType();
+    }
+    for (const auto& f : structType->fields()) {
         this->writeModifiers(f.fModifiers, false);
         this->writeType(*f.fType);
         this->writeLine(" " + f.fName + ";");
     }
     fIndentation--;
-    this->writeLine("};");
+    this->write("}");
+    if (intf.fInstanceName.size()) {
+        this->write(" ");
+        this->write(intf.fInstanceName);
+        for (const auto& size : intf.fSizes) {
+            this->write("[");
+            if (size) {
+                this->writeExpression(*size, kTopLevel_Precedence);
+            }
+            this->write("]");
+        }
+    }
+    this->writeLine(";");
 }
 
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {

@@ -21,10 +21,11 @@ struct ASTType : public ASTPositionNode {
         kStruct_Kind
     };
 
-    ASTType(Position position, SkString name, Kind kind)
+    ASTType(Position position, SkString name, Kind kind, std::vector<int> sizes)
     : INHERITED(position)
     , fName(std::move(name))
-    , fKind(kind) {}
+    , fKind(kind)
+    , fSizes(std::move(sizes)) {}
 
     SkString description() const override {
         return fName;
@@ -33,6 +34,9 @@ struct ASTType : public ASTPositionNode {
     const SkString fName;
 
     const Kind fKind;
+
+    // array sizes, -1 meaning unspecified
+    const std::vector<int> fSizes;
 
     typedef ASTPositionNode INHERITED;
 };
