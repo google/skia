@@ -12,7 +12,6 @@
 #include "SkRasterPipeline.h"
 #include "SkTypes.h"
 #include "SkXfermodePriv.h"
-#include <functional>
 
 struct ProcCoeff;
 
@@ -61,8 +60,6 @@ namespace SkOpts {
     }
 
     extern void (*run_pipeline)(size_t, size_t, const SkRasterPipeline::Stage*, int);
-    extern std::function<void(size_t, size_t)>
-    (*compile_pipeline)(const SkRasterPipeline::Stage*, int);
 
     extern void (*convolve_vertically)(const SkConvolutionFilter1D::ConvolutionFixed* filter_values,
                                        int filter_length, unsigned char* const* source_data_rows,

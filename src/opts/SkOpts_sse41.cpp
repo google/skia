@@ -21,6 +21,5 @@ namespace SkOpts {
         srcover_srgb_srgb    = sse41::srcover_srgb_srgb;
         blit_row_s32a_opaque = sse41::blit_row_s32a_opaque;
         run_pipeline         = sse41::run_pipeline;
-        compile_pipeline     = sse41::compile_pipeline;
     }
 }

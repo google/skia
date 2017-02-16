@@ -12,7 +12,6 @@
 #include "SkNx.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
-#include <functional>
 #include <vector>
 
 /**
@@ -120,9 +119,6 @@ public:
     // Runs the pipeline walking x through [x,x+n).
     void run(size_t x, size_t n) const;
 
-    // If you're going to run() the pipeline more than once, it's best to compile it.
-    std::function<void(size_t x, size_t n)> compile() const;
-
     void dump() const;
 
     struct Stage {
@@ -133,6 +129,8 @@ public:
     // Conversion from sRGB can be subtly tricky when premultiplication is involved.
     // Use these helpers to keep things sane.
     void append_from_srgb(SkAlphaType);
+
+    bool empty() const { return fStages.empty(); }
 
 private:
     bool run_with_jumper(size_t x, size_t n) const;

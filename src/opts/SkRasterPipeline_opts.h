@@ -1221,11 +1221,6 @@ namespace {
 
 namespace SK_OPTS_NS {
 
-    SI std::function<void(size_t, size_t)>
-    compile_pipeline(const SkRasterPipeline::Stage* stages, int nstages) {
-        return Compiled{stages,nstages};
-    }
-
     SI void run_pipeline(size_t x, size_t n,
                          const SkRasterPipeline::Stage* stages, int nstages) {
         static const int kStackMax = 256;
