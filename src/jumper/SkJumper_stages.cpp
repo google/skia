@@ -21,7 +21,7 @@ using K = const SkJumper_constants;
     using U32 = uint32_t;
     using U8  = uint8_t;
 
-    static F   fma(F f, F m, F a)  { return f*m+a; }
+    static F   mad(F f, F m, F a)  { return f*m+a; }
     static F   min(F a, F b)       { return fminf(a,b); }
     static F   max(F a, F b)       { return fmaxf(a,b); }
     static F   rcp  (F v)          { return 1.0f / v; }
@@ -42,7 +42,7 @@ using K = const SkJumper_constants;
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    static F   fma(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
+    static F   mad(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
     static F   min(F a, F b)                        { return vminq_f32(a,b);          }
     static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
     static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
@@ -65,12 +65,12 @@ using K = const SkJumper_constants;
     using U32 = uint32_t __attribute__((ext_vector_type(2)));
     using U8  = uint8_t  __attribute__((ext_vector_type(2)));
 
-    static F   fma(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
+    static F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
     static F   min(F a, F b)                       { return vmin_f32(a,b);          }
     static F   max(F a, F b)                       { return vmax_f32(a,b);          }
     static F   rcp  (F v) { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
     static F   rsqrt(F v) { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
-    static U32 round(F v, F scale)                 { return vcvt_u32_f32(fma(v,scale,0.5f)); }
+    static U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
 
     static F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
 
@@ -85,7 +85,7 @@ using K = const SkJumper_constants;
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
-    static F   fma(F f, F m, F a)  { return _mm256_fmadd_ps(f,m,a);}
+    static F   mad(F f, F m, F a)  { return _mm256_fmadd_ps(f,m,a);}
     static F   min(F a, F b)       { return _mm256_min_ps(a,b);    }
     static F   max(F a, F b)       { return _mm256_max_ps(a,b);    }
     static F   rcp  (F v)          { return _mm256_rcp_ps  (v);    }
@@ -104,7 +104,7 @@ using K = const SkJumper_constants;
     using U32 = uint32_t __attribute__((ext_vector_type(4)));
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
-    static F   fma(F f, F m, F a)  { return f*m+a;           }
+    static F   mad(F f, F m, F a)  { return f*m+a;           }
     static F   min(F a, F b)       { return _mm_min_ps(a,b); }
     static F   max(F a, F b)       { return _mm_max_ps(a,b); }
     static F   rcp  (F v)          { return _mm_rcp_ps  (v); }
@@ -257,17 +257,17 @@ STAGE(plus_) {
 
 STAGE(srcover) {
     auto A = k->_1 - a;
-    r = fma(dr, A, r);
-    g = fma(dg, A, g);
-    b = fma(db, A, b);
-    a = fma(da, A, a);
+    r = mad(dr, A, r);
+    g = mad(dg, A, g);
+    b = mad(db, A, b);
+    a = mad(da, A, a);
 }
 STAGE(dstover) {
     auto DA = k->_1 - da;
-    r = fma(r, DA, dr);
-    g = fma(g, DA, dg);
-    b = fma(b, DA, db);
-    a = fma(a, DA, da);
+    r = mad(r, DA, dr);
+    g = mad(g, DA, dg);
+    b = mad(b, DA, db);
+    a = mad(a, DA, da);
 }
 
 STAGE(clamp_0) {
@@ -330,7 +330,7 @@ STAGE(unpremul) {
 STAGE(from_srgb) {
     auto fn = [&](F s) {
         auto lo = s * k->_1_1292;
-        auto hi = fma(s*s, fma(s, k->_03000, k->_06975), k->_00025);
+        auto hi = mad(s*s, mad(s, k->_03000, k->_06975), k->_00025);
         return if_then_else(s < k->_0055, lo, hi);
     };
     r = fn(r);
@@ -342,8 +342,8 @@ STAGE(to_srgb) {
         F sqrt = rcp  (rsqrt(l)),
           ftrt = rsqrt(rsqrt(l));
         auto lo = l * k->_1246;
-        auto hi = min(k->_1, fma(k->_0411192, ftrt,
-                             fma(k->_0689206, sqrt,
+        auto hi = min(k->_1, mad(k->_0411192, ftrt,
+                             mad(k->_0689206, sqrt,
                                  k->n_00988)));
         return if_then_else(l < k->_00043, lo, hi);
     };
@@ -541,17 +541,17 @@ STAGE(clamp_y) { g = clamp(g, *(const float*)ctx); }
 STAGE(matrix_2x3) {
     auto m = (const float*)ctx;
 
-    auto R = fma(r,m[0], fma(g,m[2], m[4])),
-         G = fma(r,m[1], fma(g,m[3], m[5]));
+    auto R = mad(r,m[0], mad(g,m[2], m[4])),
+         G = mad(r,m[1], mad(g,m[3], m[5]));
     r = R;
     g = G;
 }
 STAGE(matrix_3x4) {
     auto m = (const float*)ctx;
 
-    auto R = fma(r,m[0], fma(g,m[3], fma(b,m[6], m[ 9]))),
-         G = fma(r,m[1], fma(g,m[4], fma(b,m[7], m[10]))),
-         B = fma(r,m[2], fma(g,m[5], fma(b,m[8], m[11])));
+    auto R = mad(r,m[0], mad(g,m[3], mad(b,m[6], m[ 9]))),
+         G = mad(r,m[1], mad(g,m[4], mad(b,m[7], m[10]))),
+         B = mad(r,m[2], mad(g,m[5], mad(b,m[8], m[11])));
     r = R;
     g = G;
     b = B;
@@ -562,8 +562,8 @@ STAGE(linear_gradient_2stops) {
     auto c = unaligned_load<Ctx>(ctx);
 
     auto t = r;
-    r = fma(t, c.dc[0], c.c0[0]);
-    g = fma(t, c.dc[1], c.c0[1]);
-    b = fma(t, c.dc[2], c.c0[2]);
-    a = fma(t, c.dc[3], c.c0[3]);
+    r = mad(t, c.dc[0], c.c0[0]);
+    g = mad(t, c.dc[1], c.c0[1]);
+    b = mad(t, c.dc[2], c.c0[2]);
+    a = mad(t, c.dc[3], c.c0[3]);
 }
