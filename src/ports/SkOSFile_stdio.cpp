@@ -128,13 +128,28 @@ size_t sk_fread(void* buffer, size_t byteCount, FILE* f) {
             SkDEBUGF(("sk_fread: ftell(%p) returned -1 feof:%d ferror:%d\n", f, feof(f), ferror(f)));
             return 0;
         }
+
+        const size_t seekPos = curr + byteCount;
+        const size_t fileSize = sk_fgetsize(f);
+        if (seekPos > fileSize) {
+            byteCount = fileSize - curr;
+        }
+
         int err = fseek(f, (long)byteCount, SEEK_CUR);
         if (err != 0) {
             SkDEBUGF(("sk_fread: fseek(%d) tell:%d failed with feof:%d ferror:%d returned:%d\n",
                         byteCount, curr, feof(f), ferror(f), err));
             return 0;
         }
-        return byteCount;
+
+        const size_t newPos = ftell(f);
+        if (fileSize == newPos) {
+            // Ensure that the file reports that it is at the end.
+            char charBuf;
+            SkASSERT(fread(&charBuf, 1, 1, f) == 0);
+        }
+
+        return newPos - curr;
     }
     else
         return fread(buffer, 1, byteCount, f);

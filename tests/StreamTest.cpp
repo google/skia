@@ -444,3 +444,37 @@ DEF_TEST(RBuffer, reporter) {
     REPORTER_ASSERT(reporter, !buffer.read(&tmp, 4));
     REPORTER_ASSERT(reporter, !buffer.isValid());
 }
+
+DEF_TEST(StreamSkip, r) {
+    SkString path = GetResourcePath("invalid_images/b34778578.bmp");
+    SkFILEStream stream(path.c_str());
+    if (!stream.isValid()) {
+        return;
+    }
+
+    const size_t len = stream.getLength();
+    SkASSERT(stream.hasLength() && len > 0);
+
+    std::unique_ptr<char[]> buffer;
+    for (bool read : { true, false }) {
+        for (size_t bytesToReadOrSkip : { len, len * 5 }) {
+            buffer.reset(read ? new char[bytesToReadOrSkip] : nullptr);
+
+            const size_t bytesReadOrSkipped = stream.read(buffer.get(), bytesToReadOrSkip);
+            REPORTER_ASSERT(r, bytesReadOrSkipped == len);
+            REPORTER_ASSERT(r, stream.getPosition() == len);
+            if (read) {
+                // Read does not guarantee that it will set eof immediately.
+                // Read one more byte to ensure that it is at the end.
+                char charBuf;
+                REPORTER_ASSERT(r, stream.read(&charBuf, 1) == 0);
+            }
+            REPORTER_ASSERT(r, stream.isAtEnd());
+
+            if (!stream.rewind()) {
+                ERRORF(r, "Failed to rewind");
+                return;
+            }
+        }
+    }
+}
