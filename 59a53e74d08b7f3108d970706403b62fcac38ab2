@@ -22,6 +22,30 @@
       "revId": "59a53e74d08b7f3108d970706403b62fcac38ab2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e441ca46_846c0bbb",
+        "filename": "src/core/SkRegionPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-16T21:02:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c87e6dd9_f0883b8a",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 16
+      },
+      "revId": "59a53e74d08b7f3108d970706403b62fcac38ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
