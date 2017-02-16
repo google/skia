@@ -297,6 +297,19 @@ bool SkColorSpace::toXYZD50(SkMatrix44* toXYZD50) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+sk_sp<SkColorSpace> SkColorSpace_Base::makeWithoutFlags() {
+    if (!fFlags) {
+        return sk_ref_sp(this);
+    }
+
+    SkASSERT(Type::kXYZ == this->type());
+    SkColorSpaceTransferFn fn;
+    SkAssertResult(this->onIsNumericalTransferFn(&fn));
+    return SkColorSpace::MakeRGB(fn, *this->toXYZD50(), 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 enum Version {
     k0_Version, // Initial version, header + flags for matrix and profile
 };

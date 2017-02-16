@@ -178,6 +178,8 @@ public:
      */
     virtual sk_sp<SkColorSpace> makeSRGBGamma() = 0;
 
+    sk_sp<SkColorSpace> makeWithoutFlags();
+
     enum class Type : uint8_t {
         kXYZ,
         kA2B
