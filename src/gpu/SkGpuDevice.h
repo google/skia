@@ -134,6 +134,7 @@ private:
     sk_sp<GrRenderTargetContext> fRenderTargetContext;
 
     SkIPoint                     fClipOrigin;
+    SkClipStack                  fClipStack;
     GrClipStackClip              fClip;
     SkISize                      fSize;
     bool                         fOpaque;
@@ -236,6 +237,15 @@ private:
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkDraw&, const SkPaint&);
+
+    void onSave() override;
+    void onRestore() override;
+    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
+    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
+    void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
+    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
+    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
+    void validateDevBounds(const SkIRect& r) override;
 
     static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
                                                                 SkBudgeted,
