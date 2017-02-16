@@ -1647,11 +1647,6 @@ private:
     // shared by save() and saveLayer()
     void internalSave();
     void internalRestore();
-    static void DrawRect(const SkDraw& draw, const SkPaint& paint,
-                         const SkRect& r, SkScalar textSize);
-    static void DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
-                                    const char text[], size_t byteLength,
-                                    SkScalar x, SkScalar y);
 
     /*
      *  Returns true if drawing the specified rect (or all if it is null) with the specified
