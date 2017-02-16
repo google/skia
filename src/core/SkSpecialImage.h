@@ -117,11 +117,15 @@ public:
     sk_sp<SkSpecialImage> makeSubset(const SkIRect& subset) const;
 
     /**
-     * Extract a subset of this special image and return it as an SkImage.
+     * Create an SkImage from the contents of this special image optionally extracting
+     * a subset of the special image.
      * It may or may not point to the same backing memory.
-     * TODO: switch this to makeSurface once we resolved the naming issue
+     * Note: when no 'subset' parameter is specified the the entire SkSpecialImage will be
+     * returned - including whatever extra padding maybe left over from SkBackingFit::kApprox!
+     * When the 'subset' parameter is specifiied the returned image will be tight even if that
+     * entails a copy!
      */
-    sk_sp<SkImage> makeTightSubset(const SkIRect& subset) const;
+    sk_sp<SkImage> asImage(const SkIRect* subset = nullptr) const;
 
     // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)
     /**

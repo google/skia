@@ -18,6 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrSamplerParams.h"
 #include "GrTextureProxy.h"
@@ -59,7 +60,7 @@ public:
     virtual sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
                                                   const SkISize& size, SkAlphaType at) const = 0;
 
-    virtual sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const = 0;
+    virtual sk_sp<SkImage> onAsImage(const SkIRect* subset) const = 0;
 
     virtual sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
                                                 const SkISize& size, SkAlphaType at) const = 0;
@@ -103,24 +104,16 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
         return SkSpecialImage::MakeFromRaster(SkIRect::MakeEmpty(), bmp, &this->props());
     }
 
-    // TODO: this is a tight copy of 'bmp' but it doesn't have to be (given SkSpecialImage's
-    // semantics). Since this is cached though we would have to bake the fit into the cache key.
-    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(context, bmp);
-    if (!proxy) {
+    sk_sp<GrTexture> resultTex(
+        GrRefCachedBitmapTexture(context, bmp, GrSamplerParams::ClampNoFilter(), nullptr));
+    if (!resultTex) {
         return nullptr;
     }
 
-    const SkIRect rect = SkIRect::MakeWH(proxy->width(), proxy->height());
-
-    // GrMakeCachedBitmapProxy has uploaded only the specified subset of 'bmp' so we need not
-    // bother with SkBitmap::getSubset
-    return SkSpecialImage::MakeDeferredFromGpu(context,
-                                               rect,
-                                               this->uniqueID(),
-                                               std::move(proxy),
-                                               sk_ref_sp(this->getColorSpace()),
-                                               &this->props(),
-                                               this->alphaType());
+    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(resultTex->width(), resultTex->height()),
+                                       this->uniqueID(),
+                                       resultTex, sk_ref_sp(this->getColorSpace()), &this->props(),
+                                       this->alphaType());
 #else
     return nullptr;
 #endif
@@ -170,9 +163,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeSubset(const SkIRect& subset) const {
     return as_SIB(this)->onMakeSubset(subset);
 }
 
-sk_sp<SkImage> SkSpecialImage::makeTightSubset(const SkIRect& subset) const {
-    return as_SIB(this)->onMakeTightSubset(subset);
+sk_sp<SkImage> SkSpecialImage::asImage(const SkIRect* subset) const {
+    return as_SIB(this)->onAsImage(subset);
 }
+
 
 #ifdef SK_DEBUG
 static bool rect_fits(const SkIRect& rect, int width, int height) {
@@ -306,14 +300,18 @@ public:
                                               &this->props());
     }
 
-    sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
-        SkBitmap subsetBM;
+    sk_sp<SkImage> onAsImage(const SkIRect* subset) const override {
+        if (subset) {
+            SkBitmap subsetBM;
 
-        if (!fBitmap.extractSubset(&subsetBM, subset)) {
-            return nullptr;
+            if (!fBitmap.extractSubset(&subsetBM, *subset)) {
+                return nullptr;
+            }
+
+            return SkImage::MakeFromBitmap(subsetBM);
         }
 
-        return SkImage::MakeFromBitmap(subsetBM);
+        return SkImage::MakeFromBitmap(fBitmap);
     }
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
@@ -369,7 +367,9 @@ static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, GrSurfaceProxy* pr
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(proxy->width(), proxy->height(),
+    // Note that we're explicitly using the GrSurface's width & height here b.c. SkImage's
+    // must be tight.
+    return sk_make_sp<SkImage_Gpu>(surf->width(), surf->height(),
                                    kNeedNewImageUniqueID, alphaType,
                                    sk_ref_sp(surf->asTexture()),
                                    std::move(colorSpace), SkBudgeted::kYes);
@@ -508,20 +508,25 @@ public:
     }
 
     // TODO: move all the logic here into the subset-flavor GrSurfaceProxy::copy?
-    sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
-        // TODO: this is problematic since the surfaceProxy could be loose
-        if (0 == subset.fLeft && 0 == subset.fTop &&
-            fSurfaceProxy->width() == subset.width() &&
-            fSurfaceProxy->height() == subset.height()) {
-            // The existing GrTexture is already tight so reuse it in the SkImage
-            return wrap_proxy_in_image(fContext, fSurfaceProxy.get(),
-                                       fAlphaType, fColorSpace);
+    sk_sp<SkImage> onAsImage(const SkIRect* subset) const override {
+        if (subset) {
+            // TODO: if this becomes a bottle neck we could base this logic on what the size
+            // will be when it is finally instantiated - but that is more fraught.
+            if (//fSurfaceProxy->priv().isExact() &&
+                0 == subset->fLeft && 0 == subset->fTop &&
+                fSurfaceProxy->width() == subset->width() &&
+                fSurfaceProxy->height() == subset->height()) {
+                // The existing GrTexture is already tight so reuse it in the SkImage
+                return wrap_proxy_in_image(fContext, fSurfaceProxy.get(), fAlphaType, fColorSpace);
+            }
+
+            sk_sp<GrSurfaceProxy> subsetProxy(GrSurfaceProxy::Copy(fContext, fSurfaceProxy.get(),
+                                                                   *subset, SkBudgeted::kYes));
+
+            return wrap_proxy_in_image(fContext, subsetProxy.get(), fAlphaType, fColorSpace);
         }
 
-        sk_sp<GrSurfaceProxy> subsetProxy(GrSurfaceProxy::Copy(fContext, fSurfaceProxy.get(),
-                                                               subset, SkBudgeted::kYes));
-
-        return wrap_proxy_in_image(fContext, subsetProxy.get(), fAlphaType, fColorSpace);
+        return wrap_proxy_in_image(fContext, fSurfaceProxy.get(), fAlphaType, fColorSpace);
     }
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
