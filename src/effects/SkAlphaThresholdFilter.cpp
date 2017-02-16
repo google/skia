@@ -150,7 +150,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
     if (source->isTextureBacked()) {
         GrContext* context = source->getContext();
 
-        sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
+        sk_sp<GrTexture> inputTexture(input->asTexture(context));
         SkASSERT(inputTexture);
 
         offset->fX = bounds.left();

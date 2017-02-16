@@ -65,10 +65,10 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
 #if SK_SUPPORT_GPU
     //--------------
-    // Test getTextureAsRef - as long as there is a context this should succeed
+    // Test asTextureProxyRef - as long as there is a context this should succeed
     if (context) {
-        sk_sp<GrTexture> texture(img->asTextureRef(context));
-        REPORTER_ASSERT(reporter, texture);
+        sk_sp<GrTextureProxy> proxy(img->asTextureProxyRef(context));
+        REPORTER_ASSERT(reporter, proxy);
     }
 #endif
 
@@ -110,11 +110,11 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
                                                           kSmallerSize+kPad));
 
     //--------------
-    // Test that makeTightSubset & makeTightSurface return appropriately sized objects
+    // Test that asImage & makeTightSurface return appropriately sized objects
     // of the correct backing type
     SkIRect newSubset = SkIRect::MakeWH(subset.width(), subset.height());
     {
-        sk_sp<SkImage> tightImg(img->makeTightSubset(newSubset));
+        sk_sp<SkImage> tightImg(img->asImage(&newSubset));
 
         REPORTER_ASSERT(reporter, tightImg->width() == subset.width());
         REPORTER_ASSERT(reporter, tightImg->height() == subset.height());

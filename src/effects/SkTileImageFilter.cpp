@@ -73,7 +73,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     // We create an SkImage here b.c. it needs to be a tight fit for the tiling
     sk_sp<SkImage> subset;
     if (inputBounds.contains(srcIRect)) {
-        subset = input->makeTightSubset(srcIRect);
+        subset = input->asImage(&srcIRect);
         if (!subset) {
             return nullptr;
         }
