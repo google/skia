@@ -28,7 +28,6 @@
 #include "Sk1DPathEffect.h"
 #include "SkFontStyle.h"
 #include "SkXMLWriter.h"
-#include "GrContext.h"
 #include "SkPathOps.h"
 #include "SkRegion.h"
 #include "SkTypeface.h"
@@ -36,7 +35,6 @@
 #include "SkEncodedInfo.h"
 #include "SkTime.h"
 #include "SkCamera.h"
-#include "gl/GrGLInterface.h"
 
 #include "sk_path.h"
 #include "sk_paint.h"
@@ -48,6 +46,9 @@
 class SkMaskFilter;
 class SkPaint;
 class SkShader;
+class GrContext;
+struct GrContextOptions;
+struct GrGLInterface;
 
 static inline const SkPaint& AsPaint(const sk_paint_t& cpaint) {
     return reinterpret_cast<const SkPaint&>(cpaint);

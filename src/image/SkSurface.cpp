@@ -221,8 +221,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
     return nullptr;
 }
 
-sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*, const GrBackendTextureDesc&,
-                                                      sk_sp<SkColorSpace>, const SkSurfaceProps*) {
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*, const GrBackendTextureDesc&,
+                                                                 sk_sp<SkColorSpace>, const SkSurfaceProps*) {
     return nullptr;
 }
 
