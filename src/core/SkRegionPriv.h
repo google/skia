@@ -62,7 +62,9 @@ public:
         //SkDEBUGCODE(sk_atomic_inc(&gRgnAllocCounter);)
         //SkDEBUGF(("************** gRgnAllocCounter::alloc %d\n", gRgnAllocCounter));
 
-        SkASSERT(count >= SkRegion::kRectRegionRuns);
+        if (count < SkRegion::kRectRegionRuns) {
+            return nullptr;
+        }
 
         const int64_t size = sk_64_mul(count, sizeof(RunType)) + sizeof(RunHead);
         if (count < 0 || !sk_64_isS32(size)) { SK_ABORT("Invalid Size"); }
@@ -77,10 +79,14 @@ public:
     }
 
     static RunHead* Alloc(int count, int yspancount, int intervalCount) {
-        SkASSERT(yspancount > 0);
-        SkASSERT(intervalCount > 1);
+        if (yspancount <= 0 || intervalCount <= 1) {
+            return nullptr;
+        }
 
         RunHead* head = Alloc(count);
+        if (!head) {
+            return nullptr;
+        }
         head->fYSpanCount = yspancount;
         head->fIntervalCount = intervalCount;
         return head;
