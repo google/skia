@@ -33,6 +33,7 @@ TEST_BUILDERS = {
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-ANGLE',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan',
+      'Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE',
