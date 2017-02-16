@@ -599,8 +599,6 @@ DEFINES_ALL = [
     "SK_NO_ANALYTIC_AA",
     "SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF",
     "SK_SUPPORT_LEGACY_CLIPOP_EXOTIC_NAMES",
-    "SK_SUPPORT_LEGACY_SCALARMUL",
-    "SK_SUPPORT_BARE_PTR_IMAGEGENERATOR",
 ]
 
 ################################################################################
