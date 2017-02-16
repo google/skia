@@ -1637,6 +1637,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
                            GrPixelConfig config,
                            void* buffer,
                            size_t rowBytes) {
+    this->submitCommandBuffer(kForce_SyncQueue);
     VkFormat pixelFormat;
     if (!GrPixelConfigToVkFormat(config, &pixelFormat)) {
         return false;
