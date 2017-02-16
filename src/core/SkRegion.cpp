@@ -99,18 +99,21 @@ void SkRegion::freeRuns() {
     }
 }
 
-void SkRegion::allocateRuns(int count, int ySpanCount, int intervalCount) {
+bool SkRegion::allocateRuns(int count, int ySpanCount, int intervalCount) {
     fRunHead = RunHead::Alloc(count, ySpanCount, intervalCount);
+    return fRunHead != nullptr;
 }
 
-void SkRegion::allocateRuns(int count) {
+bool SkRegion::allocateRuns(int count) {
     fRunHead = RunHead::Alloc(count);
+    return fRunHead != nullptr;
 }
 
-void SkRegion::allocateRuns(const RunHead& head) {
+bool SkRegion::allocateRuns(const RunHead& head) {
     fRunHead = RunHead::Alloc(head.fRunCount,
                               head.getYSpanCount(),
                               head.getIntervalCount());
+    return fRunHead != nullptr;
 }
 
 SkRegion& SkRegion::operator=(const SkRegion& src) {
@@ -283,7 +286,7 @@ bool SkRegion::setRuns(RunType runs[], int count) {
 
     if (!this->isComplex() || fRunHead->fRunCount != count) {
         this->freeRuns();
-        this->allocateRuns(count);
+        SkAssertResult(this->allocateRuns(count));
     }
 
     // must call this before we can write directly into runs()
@@ -546,7 +549,7 @@ void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
             dst->fRunHead = dst->fRunHead->ensureWritable();
         } else {
             SkRegion    tmp;
-            tmp.allocateRuns(*fRunHead);
+            SkAssertResult(tmp.allocateRuns(*fRunHead));
             tmp.fBounds = fBounds;
             dst->swap(tmp);
         }
@@ -1139,7 +1142,9 @@ size_t SkRegion::readFromMemory(const void* storage, size_t length) {
             int32_t ySpanCount, intervalCount;
             if (buffer.readS32(&ySpanCount) && buffer.readS32(&intervalCount) &&
                 intervalCount > 1) {
-                tmp.allocateRuns(count, ySpanCount, intervalCount);
+                if (!tmp.allocateRuns(count, ySpanCount, intervalCount)) {
+                    return 0;
+                }
                 buffer.read(tmp.fRunHead->writable_runs(), count * sizeof(RunType));
             }
         }
