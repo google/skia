@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a37e04f3_c1de700a",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-16T19:32:27Z",
+      "side": 1,
+      "message": "nit: shouldn\u0027t need .c_str()",
+      "range": {
+        "startLine": 606,
+        "startChar": 38,
+        "endLine": 606,
+        "endChar": 46
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb86dbce_50800705",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-16T19:32:27Z",
+      "side": 1,
+      "message": "count is unsigned, so it can never be negative. Same for IRGenerator::convertVarDeclarations.",
+      "range": {
+        "startLine": 565,
+        "startChar": 20,
+        "endLine": 565,
+        "endChar": 30
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bca960b_2eb51598",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-16T19:32:27Z",
+      "side": 1,
+      "message": "nit: seems unnecessary; could do something like the following instead:\nbool hasInstance() const {\n    return fVariable.fName !\u003d fTypeName || fSizes.size();\n}\nconst SkString\u0026 instanceName() const {\n    return fVariable.fName;\n}",
+      "range": {
+        "startLine": 28,
+        "startChar": 78,
+        "endLine": 28,
+        "endChar": 99
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35d59fe3_d3f79c54",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-16T19:32:27Z",
+      "side": 1,
+      "message": "nit: should be fTypeName?",
+      "range": {
+        "startLine": 39,
+        "startChar": 63,
+        "endLine": 39,
+        "endChar": 78
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47a389fd_1cc98801",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-16T19:32:27Z",
+      "side": 1,
+      "message": "nit: const auto\u0026 field : structType-\u003efields()",
+      "range": {
+        "startLine": 44,
+        "startChar": 13,
+        "endLine": 44,
+        "endChar": 63
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
