@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d6e523a1_ceec4322",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-16T19:52:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a37e04f3_c1de700a",
+      "range": {
+        "startLine": 606,
+        "startChar": 38,
+        "endLine": 606,
+        "endChar": 46
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb86dbce_50800705",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-16T19:32:27Z",
       "side": 1,
       "message": "count is unsigned, so it can never be negative. Same for IRGenerator::convertVarDeclarations.",
+      "range": {
+        "startLine": 565,
+        "startChar": 20,
+        "endLine": 565,
+        "endChar": 30
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91b6c7eb_9f53ab00",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-16T19:52:39Z",
+      "side": 1,
+      "message": "Good catch, that was supposed to be int64_t.",
+      "parentUuid": "fb86dbce_50800705",
       "range": {
         "startLine": 565,
         "startChar": 20,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d453f9fa_61f4d717",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-16T19:52:39Z",
+      "side": 1,
+      "message": "I considered something along those lines, but ultimately decided I wanted to explicitly spell out the two names and not rely on the variable name.",
+      "parentUuid": "6bca960b_2eb51598",
+      "range": {
+        "startLine": 28,
+        "startChar": 78,
+        "endLine": 28,
+        "endChar": 99
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "35d59fe3_d3f79c54",
         "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "07d6e7c4_35793f17",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-16T19:52:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "35d59fe3_d3f79c54",
+      "range": {
+        "startLine": 39,
+        "startChar": 63,
+        "endLine": 39,
+        "endChar": 78
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47a389fd_1cc98801",
         "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2017-02-16T19:32:27Z",
       "side": 1,
       "message": "nit: const auto\u0026 field : structType-\u003efields()",
+      "range": {
+        "startLine": 44,
+        "startChar": 13,
+        "endLine": 44,
+        "endChar": 63
+      },
+      "revId": "0e84c7126ff921a6135b32d568afa51971a9dd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75fec650_963ca413",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-16T19:52:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "47a389fd_1cc98801",
       "range": {
         "startLine": 44,
         "startChar": 13,
