@@ -27,7 +27,6 @@ void SkDebugf(const char * fmt, ...) {
     va_end(args);
     if (n>=0 && n<=int(sizeof(formatbuffer))) {
         gTextOutput.write(formatbuffer, n);
-        gTextOutput << '\n';
     }
 }
 
