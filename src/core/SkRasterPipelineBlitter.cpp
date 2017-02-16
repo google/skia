@@ -224,7 +224,9 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
 
     if (fCanMemsetInBlitH) {
         switch (fDst.shiftPerPixel()) {
-            // TODO: case 0: memset (for A8)
+            case 0:
+                memset((uint8_t*)fDstPtr + x, (uint8_t)fMemsetColor, w);
+                return;
             case 1:
                 sk_memset16((uint16_t*)fDstPtr + x, fMemsetColor, w);
                 return;
