@@ -31,10 +31,6 @@ void SkRasterPipeline::run(size_t x, size_t n) const {
     }
 }
 
-std::function<void(size_t, size_t)> SkRasterPipeline::compile() const {
-    return SkOpts::compile_pipeline(fStages.data(), SkToInt(fStages.size()));
-}
-
 void SkRasterPipeline::dump() const {
     SkDebugf("SkRasterPipeline, %d stages\n", SkToInt(fStages.size()));
     for (auto&& st : fStages) {
