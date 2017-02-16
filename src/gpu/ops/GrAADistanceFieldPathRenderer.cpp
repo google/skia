@@ -42,7 +42,7 @@ static int g_NumFreedShapes = 0;
 static const SkScalar kMaxMIP = 162;
 
 static const SkScalar kMaxDim = 73;
-static const SkScalar kMinSize = 8;
+static const SkScalar kMinSize = 4;
 static const SkScalar kMaxSize = 2*kMaxMIP;
 
 // Callback to clear out internal path cache when eviction occurs
