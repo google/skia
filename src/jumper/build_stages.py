@@ -54,7 +54,7 @@ subprocess.check_call(['clang++'] + cflags + armv7 +
 
 def parse_object_file(dot_o, array_type, target=None):
   prefix = dot_o.replace('.o', '_')
-  cmd = [ objdump, '-d', '--insn-width=8', dot_o]
+  cmd = [ objdump, '-d', '--insn-width=9', dot_o]
   if target:
     cmd += ['--target', target]
 
@@ -94,7 +94,7 @@ def parse_object_file(dot_o, array_type, target=None):
       assert 'rip' not in arg  # TODO: detect on aarch64 too
 
     hexed = ''.join('0x'+x+',' for x in code.split(' '))
-    print '    ' + hexed + ' '*(44-len(hexed)) + \
+    print '    ' + hexed + ' '*(48-len(hexed)) + \
           '//  ' + inst  + (' '*(14-len(inst)) + args if args else '')
 
 print '''/*
