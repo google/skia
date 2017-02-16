@@ -9,6 +9,7 @@
 #ifndef GrTexture_DEFINED
 #define GrTexture_DEFINED
 
+#include "GrCrossContextTextureData.h"
 #include "GrSurface.h"
 #include "GrSamplerParams.h"
 #include "SkPoint.h"
@@ -26,6 +27,11 @@ public:
      *  platform. e.g. on OpenGL, return the texture ID.
      */
     virtual GrBackendObject getTextureHandle() const = 0;
+
+    /**
+     *  Return the native bookeeping data for this texture, and abandon the resource.
+     */
+    virtual GrCrossContextTextureData detachBackendTexture() = 0;
 
     /**
      * This function indicates that the texture parameters (wrap mode, filtering, ...) have been
