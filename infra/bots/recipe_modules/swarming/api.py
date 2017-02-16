@@ -153,6 +153,8 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
           isolated_hash=swarm_hash)
       if store_output:
         swarming_task.task_output_dir = self.tasks_output_dir.join(task_name)
+      # rmistry: For testing
+      dimensions['id'] = 'skia-vm-069'
       swarming_task.dimensions = dimensions
       swarming_task.idempotent = idempotent
       swarming_task.priority = 90
