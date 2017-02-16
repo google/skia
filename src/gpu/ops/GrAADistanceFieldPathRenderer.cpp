@@ -119,8 +119,8 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     SkRect bounds = args.fShape->styledBounds();
     SkScalar minDim = SkMinScalar(bounds.width(), bounds.height());
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
-    SkScalar minSize = minDim * scaleFactors[0];
-    SkScalar maxSize = maxDim * scaleFactors[1];
+    SkScalar minSize = minDim * SkScalarAbs(scaleFactors[0]);
+    SkScalar maxSize = maxDim * SkScalarAbs(scaleFactors[1]);
 
     return maxDim <= kMaxDim && kMinSize <= minSize && maxSize <= kMaxSize;
 }
@@ -245,7 +245,7 @@ private:
             const Entry& args = fShapes[i];
 
             // get mip level
-            SkScalar maxScale = this->viewMatrix().getMaxScale();
+            SkScalar maxScale = SkScalarAbs(this->viewMatrix().getMaxScale());
             const SkRect& bounds = args.fShape.bounds();
             SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
             // We try to create the DF at a power of two scaled path resolution (1/2, 1, 2, 4, etc)
