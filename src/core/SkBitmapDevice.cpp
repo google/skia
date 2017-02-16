@@ -509,6 +509,10 @@ void SkBitmapDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
 
 void SkBitmapDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
     fRCStack.setDeviceClipRestriction(mutableClipRestriction);
+    if (!mutableClipRestriction->isEmpty()) {
+        SkRegion rgn(*mutableClipRestriction);
+        fRCStack.clipRegion(rgn, SkClipOp::kIntersect);
+    }
 }
 
 void SkBitmapDevice::validateDevBounds(const SkIRect& drawClipBounds) {

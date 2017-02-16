@@ -338,6 +338,9 @@ public:
             fMultiDeviceCS = canvas->fClipStack.get();
             fMultiDeviceCS->save();
         }
+#ifdef SK_USE_DEVICE_CLIPPING
+        fClipStack = nullptr;   // for testing
+#endif
     }
 
     ~SkDrawIter() {
@@ -1579,11 +1582,16 @@ void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeSty
 void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     fClipRestrictionRect = rect;
     fClipStack->setDeviceClipRestriction(fClipRestrictionRect);
-    if (!fClipRestrictionRect.isEmpty()) {
+    if (fClipRestrictionRect.isEmpty()) {
+        // we notify the device, but we *dont* resolve deferred saves (since we're just
+        // removing the restriction if the rect is empty. how I hate this api.
+#ifdef SK_USE_DEVICE_CLIPPING
+        FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
+#endif
+    } else {
         this->checkForDeferredSave();
 #ifdef SK_USE_DEVICE_CLIPPING
-        SkRegion restrictRgn(fClipRestrictionRect);
-        FOR_EACH_TOP_DEVICE(device->clipRegion(restrictRgn, SkClipOp::kIntersect));
+        FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
 #endif
         AutoValidateClip avc(this);
         fClipStack->clipDevRect(fClipRestrictionRect, kIntersect_SkClipOp);
