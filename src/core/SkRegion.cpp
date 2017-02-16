@@ -99,18 +99,21 @@ void SkRegion::freeRuns() {
     }
 }
 
-void SkRegion::allocateRuns(int count, int ySpanCount, int intervalCount) {
+bool SkRegion::allocateRuns(int count, int ySpanCount, int intervalCount) {
     fRunHead = RunHead::Alloc(count, ySpanCount, intervalCount);
+    return fRunHead;
 }
 
-void SkRegion::allocateRuns(int count) {
+bool SkRegion::allocateRuns(int count) {
     fRunHead = RunHead::Alloc(count);
+    return fRunHead;
 }
 
-void SkRegion::allocateRuns(const RunHead& head) {
+bool SkRegion::allocateRuns(const RunHead& head) {
     fRunHead = RunHead::Alloc(head.fRunCount,
                               head.getYSpanCount(),
                               head.getIntervalCount());
+    return fRunHead;
 }
 
 SkRegion& SkRegion::operator=(const SkRegion& src) {
@@ -1139,7 +1142,9 @@ size_t SkRegion::readFromMemory(const void* storage, size_t length) {
             int32_t ySpanCount, intervalCount;
             if (buffer.readS32(&ySpanCount) && buffer.readS32(&intervalCount) &&
                 intervalCount > 1) {
-                tmp.allocateRuns(count, ySpanCount, intervalCount);
+                if (!tmp.allocateRuns(count, ySpanCount, intervalCount)) {
+                    return 0;
+                }
                 buffer.read(tmp.fRunHead->writable_runs(), count * sizeof(RunType));
             }
         }

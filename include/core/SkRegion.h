@@ -413,9 +413,9 @@ private:
     struct RunHead;
 
     // allocate space for count runs
-    void allocateRuns(int count);
-    void allocateRuns(int count, int ySpanCount, int intervalCount);
-    void allocateRuns(const RunHead& src);
+    bool allocateRuns(int count);
+    bool allocateRuns(int count, int ySpanCount, int intervalCount);
+    bool allocateRuns(const RunHead& src);
 
     SkIRect     fBounds;
     RunHead*    fRunHead;
