@@ -50,25 +50,26 @@ GCOV="$(realpath tools/gcov_shim)"
 lcov -q --gcov-tool="$GCOV" -c -b "$BUILD" -d "$BUILD" -o "$DIR"/baseline -i
 
 # Running the binary generates the real coverage information, the .gcda files.
-QUEUES=("$1/api_parse_path/fuzzer0/queue/*" "$1/color_deserialize/fuzzer0/queue/*" "$1/color_icc/fuzzer0/queue/*" "$1/skcodec_scale/fuzzer0/queue/*" "$1/skcodec_mode/fuzzer0/queue/*" "$1/api_draw_functions/fuzzer0/queue/*" "$1/api_gradient/fuzzer0/queue/*" "$1/api_image_filter/fuzzer0/queue/*" "$1/api_pathop/fuzzer0/queue/*" "$1/sksl2glsl/fuzzer0/queue/*")
+# QUEUES=("$1/api_parse_path/fuzzer0/queue/*" "$1/color_deserialize/fuzzer0/queue/*" "$1/color_icc/fuzzer0/queue/*" "$1/skcodec_scale/fuzzer0/queue/*" "$1/skcodec_mode/fuzzer0/queue/*" "$1/api_draw_functions/fuzzer0/queue/*" "$1/api_gradient/fuzzer0/queue/*" "$1/api_image_filter/fuzzer0/queue/*" "$1/api_pathop/fuzzer0/queue/*" "$1/sksl2glsl/fuzzer0/queue/*")
 
-ARGS=("-n ParsePath" "-t color_deserialize" "-t icc" "-t image_scale" "-t image_mode" "-n DrawFunctions" "-n Gradients" "-n SerializedImageFilter" "-n Pathop" "-t sksl2glsl")
+# ARGS=("-n ParsePath" "-t color_deserialize" "-t icc" "-t image_scale" "-t image_mode" "-n DrawFunctions" "-n Gradients" "-n SerializedImageFilter" "-n Pathop" "-t sksl2glsl")
 
 # We can't simply pass the directories to the fuzzers because some of the fuzzes will
 # crash or assert, which would kill the call to fuzz prematurely. Instead we run them
 # individually using the loops below.
-for i in `seq ${#QUEUES[@]}`
-do
-	FILES=${QUEUES[i]}
+# for i in `seq ${#QUEUES[@]}`
+# do
+	echo $i
+	FILES="$1/queue/*"
 	for f in $FILES
 	do
 		# Executing the fuzzes sequentially would take a very long time. So, we run them
 		# in the background, making sure we don't go crazy and execute them too fast or
 		# that they execute for a long time.
-		timeout 10 $BUILD/$EXECUTABLE ${ARGS[i]}  -b $f &
+		timeout 10 $BUILD/$EXECUTABLE -t region_deserialize  -b $f &
 		sleep .005s
 	done
-done
+# done
 
 sleep 10s
 
