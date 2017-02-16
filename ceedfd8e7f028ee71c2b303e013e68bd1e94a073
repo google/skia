@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35c340a6_4efe7976",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-02-16T18:34:47Z",
+      "side": 1,
+      "message": "Building Flutter appears to be very dependent on this structure, I tried many different ways of trying to change the directory name but ran into errors because this structure is hardcoded in their tools. \u0027src/flutter\u0027 is documented in their docs: https://github.com/brianosman/engine/blob/master/CONTRIBUTING.md and in the doc Kevin wrote: https://docs.google.com/document/d/19VuU-NPRvnj7eavH9Pwb8wfljpKBe-XWkVzuvnfDRtE/edit#heading\u003dh.hpzbjgghz5rt\n\nThe problem is that Chromium also uses src in our recipes. Chromium is only built for CommandBuffer (Mac) builds and RecreateSKPs (GCE). I tested on a bot by building Flutter first and then building RecreateSKPs and it seemed to work.\nOne way to make sure nothing unexpected happens would be to throw an exception if both need_flutter_checkout and need_chromium_checkout are true.",
+      "revId": "ceedfd8e7f028ee71c2b303e013e68bd1e94a073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
