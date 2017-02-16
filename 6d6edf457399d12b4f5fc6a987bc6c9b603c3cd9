@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05760245_8fd94210",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-16T21:04:08Z",
+      "side": 1,
+      "message": "One more thing:\n\n    SkDEBUGCODE(region.validate());",
+      "revId": "6d6edf457399d12b4f5fc6a987bc6c9b603c3cd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
