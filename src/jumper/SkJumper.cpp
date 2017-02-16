@@ -21,11 +21,6 @@ static const SkJumper_constants kConstants = {
     0x77800000, 0x07800000, 0x04000400,                // fp16 <-> fp32
 };
 
-using JumperStage = void(size_t, void**, const SkJumper_constants*);
-// Jumper stages actually pass around 8 floating point vectors too.
-// They're designed to work when those vectors start unintialized,
-// so we don't need to mention them here.
-
 #define STAGES(M)     \
     M(seed_shader)    \
     M(constant_color) \
@@ -57,8 +52,12 @@ using JumperStage = void(size_t, void**, const SkJumper_constants*);
 
 // Declare the portable, single pixel stages that are linked into Skia from SkJumper_stages.o.
 extern "C" {
-    JumperStage sk_just_return;
-#define M(st) JumperStage sk_##st;
+    void sk_start_pipeline(size_t, void**, const SkJumper_constants*);
+
+    // We use void() as a convenient stand-in for the real stage function type.
+    // We never call these directly, so we don't really need to know their real types.
+    void sk_just_return(void);
+#define M(st) void sk_##st(void);
     STAGES(M)
 #undef M
 }
@@ -123,33 +122,51 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     // We'll look for the best vector instruction set and stride we can use.
     size_t stride                                 = 0;
     void* (*lookup)(SkRasterPipeline::StockStage) = nullptr;
+    void* start_pipeline                          = nullptr;
     void* just_return                             = nullptr;
 
 #if defined(__aarch64__)
-    stride      = 4;
-    lookup      = aarch64_lookup;
-    just_return = (void*)aarch64_sk_just_return;
+    stride         = 4;
+    lookup         = aarch64_lookup;
+    start_pipeline = (void*)aarch64_sk_start_pipeline;
+    just_return    = (void*)aarch64_sk_just_return;
 
 #elif defined(__ARM_NEON__)
     if (SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
-        stride      = 2;
-        lookup      = armv7_lookup;
-        just_return = (void*)armv7_sk_just_return;
+        stride         = 2;
+        lookup         = armv7_lookup;
+        start_pipeline = (void*)armv7_sk_start_pipeline;
+        just_return    = (void*)armv7_sk_just_return;
     }
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    stride      = 4;
-    lookup      = sse2_lookup;
-    just_return = (void*)sse2_sk_just_return;
+    stride         = 4;
+    lookup         = sse2_lookup;
+    start_pipeline = (void*)sse2_sk_start_pipeline;
+    just_return    = (void*)sse2_sk_just_return;
     if (SkCpu::Supports(SkCpu::SSE41)) {
-        stride      = 4;
-        lookup      = sse41_lookup;
-        just_return = (void*)sse41_sk_just_return;
+        stride         = 4;
+        lookup         = sse41_lookup;
+        start_pipeline = (void*)sse41_sk_start_pipeline;
+        just_return    = (void*)sse41_sk_just_return;
     }
     if (SkCpu::Supports(SkCpu::HSW)) {
-        stride      = 8;
-        lookup      = hsw_lookup;
-        just_return = (void*)hsw_sk_just_return;
+        stride         = 8;
+        lookup         = hsw_lookup;
+        start_pipeline = (void*)hsw_sk_start_pipeline;
+        just_return    = (void*)hsw_sk_just_return;
+    }
+#endif
+
+#if defined(_MSC_VER)
+    if (start_pipeline == (void*)sse2_sk_start_pipeline) {
+        start_pipeline =  (void*)sse2_sk_start_pipeline_ms;
+    }
+    if (start_pipeline == (void*)sse41_sk_start_pipeline) {
+        start_pipeline =  (void*)sse41_sk_start_pipeline_ms;
+    }
+    if (start_pipeline == (void*)hsw_sk_start_pipeline) {
+        start_pipeline =  (void*)hsw_sk_start_pipeline_ms;
     }
 #endif
 
@@ -170,10 +187,9 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
         }
         *ip = (void*)just_return;
 
-        ip = program.get();
-        auto start = (JumperStage*)*ip++;
+        auto start = (decltype(&sk_start_pipeline))start_pipeline;
         while (x + stride <= limit) {
-            start(x, ip, &kConstants);
+            start(x, program.get(), &kConstants);
             x += stride;
         }
     }
@@ -193,10 +209,9 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
         }
         *ip = (void*)sk_just_return;
 
-        ip = program.get();
-        auto start = (JumperStage*)*ip++;
+        auto start = sk_start_pipeline;
         while (x + stride <= limit) {
-            start(x, ip, &kConstants);
+            start(x, program.get(), &kConstants);
             x += stride;
         }
     }
