@@ -31,7 +31,7 @@ static sk_sp<SkImage> make_image(GrContext* context, int size, GrSurfaceOrigin o
     } else {
         SkBitmap bm;
         bm.allocN32Pixels(size, size);
-        bm.eraseRGB(255, 0, 0);
+        bm.eraseColor(SK_ColorRED);
         *bm.getAddr32(1, 1) = SkPackARGB32(0xFF, 0x00, 0xFF, 0x00);
         *bm.getAddr32(2, 1) = SkPackARGB32(0xFF, 0x00, 0x00, 0xFF);
         *bm.getAddr32(1, 2) = SkPackARGB32(0xFF, 0x00, 0xFF, 0xFF);
