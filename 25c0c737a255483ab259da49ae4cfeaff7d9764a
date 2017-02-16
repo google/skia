@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e06cb20e_01e4c0d6",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-16T16:10:38Z",
+      "side": 1,
+      "message": "Ben, we discussed fixing Android\u0027s version of fseek, but this is also a problem on my Linux machine. So I think this is the right level to fix it. (Alternatively, we could make the fix in SkFILEStream.)",
+      "range": {
+        "startLine": 138,
+        "startChar": 18,
+        "endLine": 138,
+        "endChar": 23
+      },
+      "revId": "25c0c737a255483ab259da49ae4cfeaff7d9764a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92a0c753_81946320",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-16T16:10:38Z",
+      "side": 1,
+      "message": "This makes skipping slightly different from reading. If the FILE is at the end, reading will *not* result in eof, but skipping will.\n\nAlternatively, we could only call this if newPos \u003d\u003d curr. Then skipping would behave the same as reading. (Or we could even return early, when we get the fileSize, if curr \u003d\u003d fileSize.)",
+      "range": {
+        "startLine": 149,
+        "startChar": 27,
+        "endLine": 149,
+        "endChar": 51
+      },
+      "revId": "25c0c737a255483ab259da49ae4cfeaff7d9764a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
