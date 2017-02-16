@@ -52,7 +52,8 @@ struct Program {
 
     enum Kind {
         kFragment_Kind,
-        kVertex_Kind
+        kVertex_Kind,
+        kGeometry_Kind
     };
 
     Program(Kind kind,

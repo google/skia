@@ -37,6 +37,10 @@ static const char* SKSL_FRAG_INCLUDE =
 #include "sksl_frag.include"
 ;
 
+static const char* SKSL_GEOM_INCLUDE =
+#include "sksl_geom.include"
+;
+
 namespace SkSL {
 
 Compiler::Compiler()
@@ -458,6 +462,9 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString t
             break;
         case Program::kFragment_Kind:
             this->internalConvertProgram(SkString(SKSL_FRAG_INCLUDE), &ignored, &elements);
+            break;
+        case Program::kGeometry_Kind:
+            this->internalConvertProgram(SkString(SKSL_GEOM_INCLUDE), &ignored, &elements);
             break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();

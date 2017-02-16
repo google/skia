@@ -750,4 +750,31 @@ DEF_TEST(SkSLArrayTypes, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLGeometry, r) {
+    test(r,
+         "layout(points) in;"
+         "layout(invocations = 2) in;"
+         "layout(line_strip, max_vertices = 2) out;"
+         "void main() {"
+         "gl_Position = sk_in[0].gl_Position + vec4(-0.5, 0, 0, sk_InvocationID);"
+         "EmitVertex();"
+         "gl_Position = sk_in[0].gl_Position + vec4(0.5, 0, 0, sk_InvocationID);"
+         "EmitVertex();"
+         "EndPrimitive();"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "layout (points) in ;\n"
+         "layout (invocations = 2) in ;\n"
+         "layout (line_strip, max_vertices = 2) out ;\n"
+         "void main() {\n"
+         "    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(gl_InvocationID));\n"
+         "    EmitVertex();\n"
+         "    gl_Position = gl_in[0].gl_Position + vec4(0.5, 0.0, 0.0, float(gl_InvocationID));\n"
+         "    EmitVertex();\n"
+         "    EndPrimitive();\n"
+         "}\n",
+         SkSL::Program::kGeometry_Kind);
+}
+
 #endif

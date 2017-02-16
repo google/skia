@@ -218,7 +218,16 @@ private:
         kOriginUpperLeft_LayoutKey,
         kOverrideCoverage_LayoutKey,
         kBlendSupportAllEquations_LayoutKey,
-        kPushConstant_LayoutKey
+        kPushConstant_LayoutKey,
+        kPoints_LayoutKey,
+        kLines_LayoutKey,
+        kLineStrip_LayoutKey,
+        kLinesAdjacency_LayoutKey,
+        kTriangles_LayoutKey,
+        kTriangleStrip_LayoutKey,
+        kTrianglesAdjacency_LayoutKey,
+        kMaxVertices_LayoutKey,
+        kInvocations_LayoutKey
     };
     std::unordered_map<SkString, LayoutKey> fLayoutKeys;
 
