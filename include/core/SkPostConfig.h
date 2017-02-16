@@ -131,6 +131,12 @@
 #  define SK_DUMP_GOOGLE3_STACK()
 #endif
 
+#ifdef GOOGLE3
+    // Stack frame size is limited for GOOGLE3. 4k is less than the actual
+    // max, but some functions  have multiple large stack allocations.
+#  define SK_MAX_STACK_FRAME_USE (4 * 1024)
+#endif
+
 #ifndef SK_ABORT
 #  define SK_ABORT(message) \
     do { \

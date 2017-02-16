@@ -220,13 +220,10 @@ public:
     }
 
 private:
-#if defined(GOOGLE3)
-    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
-    // have multiple large stack allocations.
-    static const int kMaxBytes = 4 * 1024;
-    static const int kCount = kCountRequested * sizeof(T) > kMaxBytes
-        ? kMaxBytes / sizeof(T)
-        : kCountRequested;
+#ifdef SK_MAX_STACK_FRAME_USE
+    static const int kCount = kCountRequested * sizeof(T) > SK_MAX_STACK_FRAME_USE
+                            ? SK_MAX_STACK_FRAME_USE / sizeof(T)
+                            : kCountRequested;
 #else
     static const int kCount = kCountRequested;
 #endif
@@ -387,13 +384,10 @@ public:
 private:
     // Since we use uint32_t storage, we might be able to get more elements for free.
     static const size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
-#if defined(GOOGLE3)
-    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
-    // have multiple large stack allocations.
-    static const size_t kMaxBytes = 4 * 1024;
-    static const size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
-        ? kMaxBytes / sizeof(T)
-        : kCountWithPadding;
+#ifdef SK_MAX_STACK_FRAME_USE
+    static const size_t kCount = kCountRequested * sizeof(T) > SK_MAX_STACK_FRAME_USE
+                               ? SK_MAX_STACK_FRAME_USE / sizeof(T)
+                               : kCountWithPadding;
 #else
     static const size_t kCount = kCountWithPadding;
 #endif

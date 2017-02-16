@@ -156,11 +156,10 @@ public:
 private:
     // Align up to 32 bits.
     static const size_t kSizeAlign4 = SkAlign4(kSizeRequested);
-#if defined(GOOGLE3)
-    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
-    // have multiple large stack allocations.
-    static const size_t kMaxBytes = 4 * 1024;
-    static const size_t kSize = kSizeRequested > kMaxBytes ? kMaxBytes : kSizeAlign4;
+#ifdef SK_MAX_STACK_FRAME_USE
+    static const size_t kSize = kSizeRequested > SK_MAX_STACK_FRAME_USE
+                              ? SK_MAX_STACK_FRAME_USE
+                              : kSizeAlign4;
 #else
     static const size_t kSize = kSizeAlign4;
 #endif

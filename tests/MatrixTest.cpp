@@ -677,10 +677,9 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     const float kRotation1 = -50.f;
     const float kScale0 = 5000.f;
 
-#if defined(GOOGLE3)
-    // Stack frame size is limited in GOOGLE3.
-    const int kTripleCount = 100;
-    const int kMatrixCount = 100;
+#ifdef SK_MAX_STACK_FRAME_USE
+    const int kTripleCount = SK_MAX_STACK_FRAME_USE / sizeof(SkMatrix);
+    const int kMatrixCount = SK_MAX_STACK_FRAME_USE / sizeof(SkMatrix);
 #else
     const int kTripleCount = 1000;
     const int kMatrixCount = 1000;
