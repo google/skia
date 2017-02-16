@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7caa3ac7_74fdd5e2",
+        "filename": "infra/bots/recipe_modules/sktest/example.expected/failed_dm.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-16T16:24:25Z",
+      "side": 1,
+      "message": "I think the dm step is being double-wrapped, once in api.flavor.step and again in sktest (and possibly the perf module too, but I haven\u0027t looked).",
+      "range": {
+        "startLine": 531,
+        "startChar": 39,
+        "endLine": 531,
+        "endChar": 41
+      },
+      "revId": "e4fd9d0463b219170d5d6507955906825fbf8fc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
