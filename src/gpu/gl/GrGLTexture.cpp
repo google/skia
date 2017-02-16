@@ -111,6 +111,12 @@ GrBackendObject GrGLTexture::getTextureHandle() const {
     return reinterpret_cast<GrBackendObject>(&fInfo);
 }
 
+GrCrossContextTextureData GrGLTexture::detachBackendTexture() {
+    GrCrossContextTextureData data(fInfo);
+    this->abandon();
+    return data;
+}
+
 void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                                    const SkString& dumpName) const {
     SkString texture_id;
