@@ -448,6 +448,11 @@ STAGE(load_f16) {
     auto rg = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
          ba = _mm_unpackhi_epi16(_02, _13);  // b0 b1 b2 b3 a0 a1 a2 a3
 
+    // half_to_float() slows down ~10x for denorm inputs, so we flush them to zero.
+    // With a signed comparison this conveniently also flushes negative half floats to zero.
+    rg = _mm_andnot_si128(_mm_cmplt_epi16(rg, U32(k->_0x04000400)), rg);
+    ba = _mm_andnot_si128(_mm_cmplt_epi16(ba, U32(k->_0x04000400)), ba);
+
     auto half_to_float = [&](U32 h) {
         return bit_cast<F>(h << 13)               // Line up the mantissa,
              * bit_cast<F>(U32(k->_0x77800000));  // then fix up the exponent.
