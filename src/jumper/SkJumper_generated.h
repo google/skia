@@ -11,6 +11,18 @@
 // This file is generated semi-automatically with this command:
 //   $ src/jumper/build_stages.py
 
+static const unsigned int aarch64_sk_start_pipeline[] = {
+    0xf8408423,                                     //  ldr           x3, [x1],#8
+    0x6f00e400,                                     //  movi          v0.2d, #0x0
+    0x6f00e401,                                     //  movi          v1.2d, #0x0
+    0x6f00e402,                                     //  movi          v2.2d, #0x0
+    0x6f00e403,                                     //  movi          v3.2d, #0x0
+    0x6f00e404,                                     //  movi          v4.2d, #0x0
+    0x6f00e405,                                     //  movi          v5.2d, #0x0
+    0x6f00e406,                                     //  movi          v6.2d, #0x0
+    0x6f00e407,                                     //  movi          v7.2d, #0x0
+    0xd61f0060,                                     //  br            x3
+};
 static const unsigned int aarch64_sk_just_return[] = {
     0xd65f03c0,                                     //  ret
 };
@@ -506,6 +518,18 @@ static const unsigned int aarch64_sk_linear_gradient_2stops[] = {
     0x4fb11803,                                     //  fmla          v3.4s, v0.4s, v17.s[3]
     0x4eb01e00,                                     //  mov           v0.16b, v16.16b
     0xd61f0060,                                     //  br            x3
+};
+static const unsigned int armv7_sk_start_pipeline[] = {
+    0xe4913004,                                     //  ldr           r3, [r1], #4
+    0xf2800010,                                     //  vmov.i32      d0, #0
+    0xf2801010,                                     //  vmov.i32      d1, #0
+    0xf2802010,                                     //  vmov.i32      d2, #0
+    0xf2803010,                                     //  vmov.i32      d3, #0
+    0xf2804010,                                     //  vmov.i32      d4, #0
+    0xf2805010,                                     //  vmov.i32      d5, #0
+    0xf2806010,                                     //  vmov.i32      d6, #0
+    0xf2807010,                                     //  vmov.i32      d7, #0
+    0xe12fff13,                                     //  bx            r3
 };
 static const unsigned int armv7_sk_just_return[] = {
     0xe12fff1e,                                     //  bx            lr
@@ -1066,9 +1090,62 @@ static const unsigned int armv7_sk_linear_gradient_2stops[] = {
     0xf22001b0,                                     //  vorr          d0, d16, d16
     0xe12fff1c,                                     //  bx            ip
 };
+static const unsigned char hsw_sk_start_pipeline[] = {
+    0x48,0xad,                                      //  lods          %ds:(%rsi),%rax
+    0xc5,0xfc,0x57,0xc0,                            //  vxorps        %ymm0,%ymm0,%ymm0
+    0xc5,0xf4,0x57,0xc9,                            //  vxorps        %ymm1,%ymm1,%ymm1
+    0xc5,0xec,0x57,0xd2,                            //  vxorps        %ymm2,%ymm2,%ymm2
+    0xc5,0xe4,0x57,0xdb,                            //  vxorps        %ymm3,%ymm3,%ymm3
+    0xc5,0xdc,0x57,0xe4,                            //  vxorps        %ymm4,%ymm4,%ymm4
+    0xc5,0xd4,0x57,0xed,                            //  vxorps        %ymm5,%ymm5,%ymm5
+    0xc5,0xcc,0x57,0xf6,                            //  vxorps        %ymm6,%ymm6,%ymm6
+    0xc5,0xc4,0x57,0xff,                            //  vxorps        %ymm7,%ymm7,%ymm7
+    0xff,0xe0,                                      //  jmpq          *%rax
+};
+static const unsigned char hsw_sk_start_pipeline_ms[] = {
+    0x56,                                           //  push          %rsi
+    0x57,                                           //  push          %rdi
+    0x48,0x81,0xec,0xa8,0x00,0x00,0x00,             //  sub           $0xa8,%rsp
+    0xc5,0x78,0x29,0xbc,0x24,0x90,0x00,0x00,0x00,   //  vmovaps       %xmm15,0x90(%rsp)
+    0xc5,0x78,0x29,0xb4,0x24,0x80,0x00,0x00,0x00,   //  vmovaps       %xmm14,0x80(%rsp)
+    0xc5,0x78,0x29,0x6c,0x24,0x70,                  //  vmovaps       %xmm13,0x70(%rsp)
+    0xc5,0x78,0x29,0x64,0x24,0x60,                  //  vmovaps       %xmm12,0x60(%rsp)
+    0xc5,0x78,0x29,0x5c,0x24,0x50,                  //  vmovaps       %xmm11,0x50(%rsp)
+    0xc5,0x78,0x29,0x54,0x24,0x40,                  //  vmovaps       %xmm10,0x40(%rsp)
+    0xc5,0x78,0x29,0x4c,0x24,0x30,                  //  vmovaps       %xmm9,0x30(%rsp)
+    0xc5,0x78,0x29,0x44,0x24,0x20,                  //  vmovaps       %xmm8,0x20(%rsp)
+    0xc5,0xf8,0x29,0x7c,0x24,0x10,                  //  vmovaps       %xmm7,0x10(%rsp)
+    0xc5,0xf8,0x29,0x34,0x24,                       //  vmovaps       %xmm6,(%rsp)
+    0x48,0x89,0xd6,                                 //  mov           %rdx,%rsi
+    0x48,0xad,                                      //  lods          %ds:(%rsi),%rax
+    0xc5,0xfc,0x57,0xc0,                            //  vxorps        %ymm0,%ymm0,%ymm0
+    0xc5,0xf4,0x57,0xc9,                            //  vxorps        %ymm1,%ymm1,%ymm1
+    0xc5,0xec,0x57,0xd2,                            //  vxorps        %ymm2,%ymm2,%ymm2
+    0xc5,0xe4,0x57,0xdb,                            //  vxorps        %ymm3,%ymm3,%ymm3
+    0xc5,0xdc,0x57,0xe4,                            //  vxorps        %ymm4,%ymm4,%ymm4
+    0xc5,0xd4,0x57,0xed,                            //  vxorps        %ymm5,%ymm5,%ymm5
+    0xc5,0xcc,0x57,0xf6,                            //  vxorps        %ymm6,%ymm6,%ymm6
+    0xc5,0xc4,0x57,0xff,                            //  vxorps        %ymm7,%ymm7,%ymm7
+    0x48,0x89,0xcf,                                 //  mov           %rcx,%rdi
+    0x4c,0x89,0xc2,                                 //  mov           %r8,%rdx
+    0xff,0xd0,                                      //  callq         *%rax
+    0xc5,0xf8,0x28,0x34,0x24,                       //  vmovaps       (%rsp),%xmm6
+    0xc5,0xf8,0x28,0x7c,0x24,0x10,                  //  vmovaps       0x10(%rsp),%xmm7
+    0xc5,0x78,0x28,0x44,0x24,0x20,                  //  vmovaps       0x20(%rsp),%xmm8
+    0xc5,0x78,0x28,0x4c,0x24,0x30,                  //  vmovaps       0x30(%rsp),%xmm9
+    0xc5,0x78,0x28,0x54,0x24,0x40,                  //  vmovaps       0x40(%rsp),%xmm10
+    0xc5,0x78,0x28,0x5c,0x24,0x50,                  //  vmovaps       0x50(%rsp),%xmm11
+    0xc5,0x78,0x28,0x64,0x24,0x60,                  //  vmovaps       0x60(%rsp),%xmm12
+    0xc5,0x78,0x28,0x6c,0x24,0x70,                  //  vmovaps       0x70(%rsp),%xmm13
+    0xc5,0x78,0x28,0xb4,0x24,0x80,0x00,0x00,0x00,   //  vmovaps       0x80(%rsp),%xmm14
+    0xc5,0x78,0x28,0xbc,0x24,0x90,0x00,0x00,0x00,   //  vmovaps       0x90(%rsp),%xmm15
+    0x48,0x81,0xc4,0xa8,0x00,0x00,0x00,             //  add           $0xa8,%rsp
+    0x5f,                                           //  pop           %rdi
+    0x5e,                                           //  pop           %rsi
+    0xc5,0xf8,0x77,                                 //  vzeroupper
+    0xc3,                                           //  retq
+};
 static const unsigned char hsw_sk_just_return[] = {
-    0xc5,0xf8,0x77,                                 //  vzeroupper
-    0xc5,0xf8,0x77,                                 //  vzeroupper
     0xc3,                                           //  retq
 };
 static const unsigned char hsw_sk_seed_shader[] = {
@@ -1513,6 +1590,60 @@ static const unsigned char hsw_sk_linear_gradient_2stops[] = {
     0x48,0xad,                                      //  lods          %ds:(%rsi),%rax
     0xc5,0x7c,0x29,0xc0,                            //  vmovaps       %ymm8,%ymm0
     0xff,0xe0,                                      //  jmpq          *%rax
+};
+static const unsigned char sse41_sk_start_pipeline[] = {
+    0x48,0xad,                                      //  lods          %ds:(%rsi),%rax
+    0x0f,0x57,0xc0,                                 //  xorps         %xmm0,%xmm0
+    0x0f,0x57,0xc9,                                 //  xorps         %xmm1,%xmm1
+    0x0f,0x57,0xd2,                                 //  xorps         %xmm2,%xmm2
+    0x0f,0x57,0xdb,                                 //  xorps         %xmm3,%xmm3
+    0x0f,0x57,0xe4,                                 //  xorps         %xmm4,%xmm4
+    0x0f,0x57,0xed,                                 //  xorps         %xmm5,%xmm5
+    0x0f,0x57,0xf6,                                 //  xorps         %xmm6,%xmm6
+    0x0f,0x57,0xff,                                 //  xorps         %xmm7,%xmm7
+    0xff,0xe0,                                      //  jmpq          *%rax
+};
+static const unsigned char sse41_sk_start_pipeline_ms[] = {
+    0x56,                                           //  push          %rsi
+    0x57,                                           //  push          %rdi
+    0x48,0x81,0xec,0xa8,0x00,0x00,0x00,             //  sub           $0xa8,%rsp
+    0x44,0x0f,0x29,0xbc,0x24,0x90,0x00,0x00,0x00,   //  movaps        %xmm15,0x90(%rsp)
+    0x44,0x0f,0x29,0xb4,0x24,0x80,0x00,0x00,0x00,   //  movaps        %xmm14,0x80(%rsp)
+    0x44,0x0f,0x29,0x6c,0x24,0x70,                  //  movaps        %xmm13,0x70(%rsp)
+    0x44,0x0f,0x29,0x64,0x24,0x60,                  //  movaps        %xmm12,0x60(%rsp)
+    0x44,0x0f,0x29,0x5c,0x24,0x50,                  //  movaps        %xmm11,0x50(%rsp)
+    0x44,0x0f,0x29,0x54,0x24,0x40,                  //  movaps        %xmm10,0x40(%rsp)
+    0x44,0x0f,0x29,0x4c,0x24,0x30,                  //  movaps        %xmm9,0x30(%rsp)
+    0x44,0x0f,0x29,0x44,0x24,0x20,                  //  movaps        %xmm8,0x20(%rsp)
+    0x0f,0x29,0x7c,0x24,0x10,                       //  movaps        %xmm7,0x10(%rsp)
+    0x0f,0x29,0x34,0x24,                            //  movaps        %xmm6,(%rsp)
+    0x48,0x89,0xd6,                                 //  mov           %rdx,%rsi
+    0x48,0xad,                                      //  lods          %ds:(%rsi),%rax
+    0x0f,0x57,0xc0,                                 //  xorps         %xmm0,%xmm0
+    0x0f,0x57,0xc9,                                 //  xorps         %xmm1,%xmm1
+    0x0f,0x57,0xd2,                                 //  xorps         %xmm2,%xmm2
+    0x0f,0x57,0xdb,                                 //  xorps         %xmm3,%xmm3
+    0x0f,0x57,0xe4,                                 //  xorps         %xmm4,%xmm4
+    0x0f,0x57,0xed,                                 //  xorps         %xmm5,%xmm5
+    0x0f,0x57,0xf6,                                 //  xorps         %xmm6,%xmm6
+    0x0f,0x57,0xff,                                 //  xorps         %xmm7,%xmm7
+    0x48,0x89,0xcf,                                 //  mov           %rcx,%rdi
+    0x4c,0x89,0xc2,                                 //  mov           %r8,%rdx
+    0xff,0xd0,                                      //  callq         *%rax
+    0x0f,0x28,0x34,0x24,                            //  movaps        (%rsp),%xmm6
+    0x0f,0x28,0x7c,0x24,0x10,                       //  movaps        0x10(%rsp),%xmm7
+    0x44,0x0f,0x28,0x44,0x24,0x20,                  //  movaps        0x20(%rsp),%xmm8
+    0x44,0x0f,0x28,0x4c,0x24,0x30,                  //  movaps        0x30(%rsp),%xmm9
+    0x44,0x0f,0x28,0x54,0x24,0x40,                  //  movaps        0x40(%rsp),%xmm10
+    0x44,0x0f,0x28,0x5c,0x24,0x50,                  //  movaps        0x50(%rsp),%xmm11
+    0x44,0x0f,0x28,0x64,0x24,0x60,                  //  movaps        0x60(%rsp),%xmm12
+    0x44,0x0f,0x28,0x6c,0x24,0x70,                  //  movaps        0x70(%rsp),%xmm13
+    0x44,0x0f,0x28,0xb4,0x24,0x80,0x00,0x00,0x00,   //  movaps        0x80(%rsp),%xmm14
+    0x44,0x0f,0x28,0xbc,0x24,0x90,0x00,0x00,0x00,   //  movaps        0x90(%rsp),%xmm15
+    0x48,0x81,0xc4,0xa8,0x00,0x00,0x00,             //  add           $0xa8,%rsp
+    0x5f,                                           //  pop           %rdi
+    0x5e,                                           //  pop           %rsi
+    0xc3,                                           //  retq
 };
 static const unsigned char sse41_sk_just_return[] = {
     0xc3,                                           //  retq
@@ -2144,6 +2275,60 @@ static const unsigned char sse41_sk_linear_gradient_2stops[] = {
     0x48,0xad,                                      //  lods          %ds:(%rsi),%rax
     0x41,0x0f,0x28,0xc0,                            //  movaps        %xmm8,%xmm0
     0xff,0xe0,                                      //  jmpq          *%rax
+};
+static const unsigned char sse2_sk_start_pipeline[] = {
+    0x48,0xad,                                      //  lods          %ds:(%rsi),%rax
+    0x0f,0x57,0xc0,                                 //  xorps         %xmm0,%xmm0
+    0x0f,0x57,0xc9,                                 //  xorps         %xmm1,%xmm1
+    0x0f,0x57,0xd2,                                 //  xorps         %xmm2,%xmm2
+    0x0f,0x57,0xdb,                                 //  xorps         %xmm3,%xmm3
+    0x0f,0x57,0xe4,                                 //  xorps         %xmm4,%xmm4
+    0x0f,0x57,0xed,                                 //  xorps         %xmm5,%xmm5
+    0x0f,0x57,0xf6,                                 //  xorps         %xmm6,%xmm6
+    0x0f,0x57,0xff,                                 //  xorps         %xmm7,%xmm7
+    0xff,0xe0,                                      //  jmpq          *%rax
+};
+static const unsigned char sse2_sk_start_pipeline_ms[] = {
+    0x56,                                           //  push          %rsi
+    0x57,                                           //  push          %rdi
+    0x48,0x81,0xec,0xa8,0x00,0x00,0x00,             //  sub           $0xa8,%rsp
+    0x44,0x0f,0x29,0xbc,0x24,0x90,0x00,0x00,0x00,   //  movaps        %xmm15,0x90(%rsp)
+    0x44,0x0f,0x29,0xb4,0x24,0x80,0x00,0x00,0x00,   //  movaps        %xmm14,0x80(%rsp)
+    0x44,0x0f,0x29,0x6c,0x24,0x70,                  //  movaps        %xmm13,0x70(%rsp)
+    0x44,0x0f,0x29,0x64,0x24,0x60,                  //  movaps        %xmm12,0x60(%rsp)
+    0x44,0x0f,0x29,0x5c,0x24,0x50,                  //  movaps        %xmm11,0x50(%rsp)
+    0x44,0x0f,0x29,0x54,0x24,0x40,                  //  movaps        %xmm10,0x40(%rsp)
+    0x44,0x0f,0x29,0x4c,0x24,0x30,                  //  movaps        %xmm9,0x30(%rsp)
+    0x44,0x0f,0x29,0x44,0x24,0x20,                  //  movaps        %xmm8,0x20(%rsp)
+    0x0f,0x29,0x7c,0x24,0x10,                       //  movaps        %xmm7,0x10(%rsp)
+    0x0f,0x29,0x34,0x24,                            //  movaps        %xmm6,(%rsp)
+    0x48,0x89,0xd6,                                 //  mov           %rdx,%rsi
+    0x48,0xad,                                      //  lods          %ds:(%rsi),%rax
+    0x0f,0x57,0xc0,                                 //  xorps         %xmm0,%xmm0
+    0x0f,0x57,0xc9,                                 //  xorps         %xmm1,%xmm1
+    0x0f,0x57,0xd2,                                 //  xorps         %xmm2,%xmm2
+    0x0f,0x57,0xdb,                                 //  xorps         %xmm3,%xmm3
+    0x0f,0x57,0xe4,                                 //  xorps         %xmm4,%xmm4
+    0x0f,0x57,0xed,                                 //  xorps         %xmm5,%xmm5
+    0x0f,0x57,0xf6,                                 //  xorps         %xmm6,%xmm6
+    0x0f,0x57,0xff,                                 //  xorps         %xmm7,%xmm7
+    0x48,0x89,0xcf,                                 //  mov           %rcx,%rdi
+    0x4c,0x89,0xc2,                                 //  mov           %r8,%rdx
+    0xff,0xd0,                                      //  callq         *%rax
+    0x0f,0x28,0x34,0x24,                            //  movaps        (%rsp),%xmm6
+    0x0f,0x28,0x7c,0x24,0x10,                       //  movaps        0x10(%rsp),%xmm7
+    0x44,0x0f,0x28,0x44,0x24,0x20,                  //  movaps        0x20(%rsp),%xmm8
+    0x44,0x0f,0x28,0x4c,0x24,0x30,                  //  movaps        0x30(%rsp),%xmm9
+    0x44,0x0f,0x28,0x54,0x24,0x40,                  //  movaps        0x40(%rsp),%xmm10
+    0x44,0x0f,0x28,0x5c,0x24,0x50,                  //  movaps        0x50(%rsp),%xmm11
+    0x44,0x0f,0x28,0x64,0x24,0x60,                  //  movaps        0x60(%rsp),%xmm12
+    0x44,0x0f,0x28,0x6c,0x24,0x70,                  //  movaps        0x70(%rsp),%xmm13
+    0x44,0x0f,0x28,0xb4,0x24,0x80,0x00,0x00,0x00,   //  movaps        0x80(%rsp),%xmm14
+    0x44,0x0f,0x28,0xbc,0x24,0x90,0x00,0x00,0x00,   //  movaps        0x90(%rsp),%xmm15
+    0x48,0x81,0xc4,0xa8,0x00,0x00,0x00,             //  add           $0xa8,%rsp
+    0x5f,                                           //  pop           %rdi
+    0x5e,                                           //  pop           %rsi
+    0xc3,                                           //  retq
 };
 static const unsigned char sse2_sk_just_return[] = {
     0xc3,                                           //  retq

@@ -200,12 +200,23 @@ static void* load_and_inc(void**& program) {
     static void name##_k(size_t& x, void* ctx, K* k,                          \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
-// A glue Stage to end the tail call chain, finally returning to the caller.
-extern "C" void sk_just_return(size_t, void**, K*, F,F,F,F, F,F,F,F) {
-#if defined(JUMPER) && defined(__AVX2__)
-    _mm256_zeroupper();
-#endif
+// Some glue stages that don't fit the normal pattern of stages.
+
+extern "C" void sk_start_pipeline(size_t x, void** program, K* k) {
+    auto next = (Stage*)load_and_inc(program);
+    F v{};   // TODO: faster uninitialized?
+    next(x,program,k, v,v,v,v, v,v,v,v);
 }
+
+#if defined(JUMPER) && defined(__x86_64__)
+    __attribute__((ms_abi))
+    extern "C" void sk_start_pipeline_ms(size_t x, void** program, K* k) {
+        sk_start_pipeline(x,program,k);
+    }
+#endif
+
+// Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
+extern "C" void sk_just_return(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
 
 // We can now define Stages!
 
