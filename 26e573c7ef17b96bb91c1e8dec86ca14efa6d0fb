@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9778ba0c_89bd0f77",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-16T20:38:52Z",
+      "side": 1,
+      "message": "Since this is the only line which changed instead of being deleted, I\u0027m going to blame this for the perf regression which can be seen at https://perf.skia.org/e/?keys\u003d6282\u0026begin\u003d1487168735\u0026end\u003d1487179631 . A number of .skp timings got slower, some of them now appear to take twice as long. This may or may not be expected, but placing a note here for visibility.",
+      "range": {
+        "startLine": 220,
+        "startChar": 4,
+        "endLine": 220,
+        "endChar": 94
+      },
+      "revId": "26e573c7ef17b96bb91c1e8dec86ca14efa6d0fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
