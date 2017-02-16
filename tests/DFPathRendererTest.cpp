@@ -13,6 +13,7 @@
 #include "GrContext.h"
 #include "ops/GrAADistanceFieldPathRenderer.h"
 
+#if 0
 // This test case including path coords and matrix taken from crbug.com/627443.
 // Because of inaccuracies in large floating point values this causes the
 // the path renderer to attempt to add a path DF to its atlas that is larger
@@ -80,4 +81,5 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) 
     test_far_from_origin(ctx->resourceProvider(), rtc.get(), &dfpr);
     ctx->flush();
 }
+#endif
 #endif
