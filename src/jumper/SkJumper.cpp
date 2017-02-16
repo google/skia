@@ -18,7 +18,7 @@ static const SkJumper_constants kConstants = {
     {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f},
     0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
     12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
-    0x77800000, 0x07800000,                            // fp16 <-> fp32
+    0x77800000, 0x07800000, 0x04000400,                // fp16 <-> fp32
 };
 
 using JumperStage = void(size_t, void**, const SkJumper_constants*);

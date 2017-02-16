@@ -46,6 +46,7 @@ struct SkJumper_constants {
     // fp16 <-> fp32
     uint32_t _0x77800000;
     uint32_t _0x07800000;
+    uint32_t _0x04000400;
 };
 
 #endif//SkJumper_DEFINED
