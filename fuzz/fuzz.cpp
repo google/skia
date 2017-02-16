@@ -15,6 +15,7 @@
 #include "SkMallocPixelRef.h"
 #include "SkPath.h"
 #include "SkRegion.h"
+#include "SkSurface.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPicture.h"
@@ -496,6 +497,8 @@ static void fuzz_region_deserialize(sk_sp<SkData> bytes) {
     } else {
         region.contains(1,1);
     }
+    auto s = SkSurface::MakeRasterN32Premul(1024, 1024);
+    s->getCanvas()->drawRegion(region, SkPaint());
     SkDebugf("[terminated] Success! Initialized SkRegion.\n");
 }
 

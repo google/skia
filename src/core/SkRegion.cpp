@@ -284,6 +284,7 @@ bool SkRegion::setRuns(RunType runs[], int count) {
     if (!this->isComplex() || fRunHead->fRunCount != count) {
         this->freeRuns();
         this->allocateRuns(count);
+        SkASSERT(this->isComplex());
     }
 
     // must call this before we can write directly into runs()
@@ -547,6 +548,7 @@ void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
         } else {
             SkRegion    tmp;
             tmp.allocateRuns(*fRunHead);
+            SkASSERT(tmp.isComplex());
             tmp.fBounds = fBounds;
             dst->swap(tmp);
         }
@@ -1140,6 +1142,9 @@ size_t SkRegion::readFromMemory(const void* storage, size_t length) {
             if (buffer.readS32(&ySpanCount) && buffer.readS32(&intervalCount) &&
                 intervalCount > 1) {
                 tmp.allocateRuns(count, ySpanCount, intervalCount);
+                if (!tmp.isComplex()) {
+                    return 0;  // report failure
+                }
                 buffer.read(tmp.fRunHead->writable_runs(), count * sizeof(RunType));
             }
         }
