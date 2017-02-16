@@ -27,6 +27,7 @@ public:
     ~GrVkTexture() override;
 
     GrBackendObject getTextureHandle() const override;
+    GrCrossContextTextureData detachBackendTexture() override;
 
     void textureParamsModified() override {}
 
