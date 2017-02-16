@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c87e6dd9_f0883b8a",
+        "filename": "src/core/SkRegionPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-16T20:50:14Z",
+      "side": 1,
+      "message": "lets remove the assert",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 16
+      },
+      "revId": "59a53e74d08b7f3108d970706403b62fcac38ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
