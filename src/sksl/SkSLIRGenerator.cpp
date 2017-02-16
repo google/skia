@@ -197,7 +197,6 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
     }
     for (const auto& varDecl : decl.fVars) {
         const Type* type = baseType;
-        ASSERT(type->kind() != Type::kArray_Kind);
         std::vector<std::unique_ptr<Expression>> sizes;
         for (const auto& rawSize : varDecl.fSizes) {
             if (rawSize) {
@@ -206,7 +205,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                     return nullptr;
                 }
                 SkString name = type->fName;
-                uint64_t count;
+                int64_t count;
                 if (size->fKind == Expression::kIntLiteral_Kind) {
                     count = ((IntLiteral&) *size).fValue;
                     if (count <= 0) {
@@ -550,26 +549,67 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             }
         }
     }
-    Type* type = new Type(intf.fPosition, intf.fInterfaceName, fields);
+    Type* type = new Type(intf.fPosition, intf.fTypeName, fields);
     old->takeOwnership(type);
-    SkString name = intf.fValueName.size() > 0 ? intf.fValueName : intf.fInterfaceName;
-    Variable* var = new Variable(intf.fPosition, intf.fModifiers, name, *type,
-                                 Variable::kGlobal_Storage);
+    std::vector<std::unique_ptr<Expression>> sizes;
+    for (const auto& size : intf.fSizes) {
+        if (size) {
+            std::unique_ptr<Expression> converted = this->convertExpression(*size);
+            if (!converted) {
+                return nullptr;
+            }
+            SkString name = type->fName;
+            int64_t count;
+            if (converted->fKind == Expression::kIntLiteral_Kind) {
+                count = ((IntLiteral&) *converted).fValue;
+                if (count <= 0) {
+                    fErrors.error(converted->fPosition, "array size must be positive");
+                }
+                name += "[" + to_string(count) + "]";
+            } else {
+                count = -1;
+                name += "[]";
+            }
+            type = new Type(name, Type::kArray_Kind, *type, (int) count);
+            fSymbolTable->takeOwnership((Type*) type);
+            sizes.push_back(std::move(converted));
+        } else {
+            type = new Type(type->fName + "[]", Type::kArray_Kind, *type, -1);
+            fSymbolTable->takeOwnership((Type*) type);
+            sizes.push_back(nullptr);
+        }
+    }
+    Variable* var = new Variable(intf.fPosition, intf.fModifiers,
+                                 intf.fInstanceName.size() ? intf.fInstanceName : intf.fTypeName,
+                                 *type, Variable::kGlobal_Storage);
     old->takeOwnership(var);
-    if (intf.fValueName.size()) {
-        old->addWithoutOwnership(intf.fValueName, var);
+    if (intf.fInstanceName.size()) {
+        old->addWithoutOwnership(intf.fInstanceName, var);
     } else {
         for (size_t i = 0; i < fields.size(); i++) {
             old->add(fields[i].fName, std::unique_ptr<Field>(new Field(intf.fPosition, *var,
                                                                        (int) i)));
         }
     }
-    return std::unique_ptr<InterfaceBlock>(new InterfaceBlock(intf.fPosition, *var, fSymbolTable));
+    return std::unique_ptr<InterfaceBlock>(new InterfaceBlock(intf.fPosition, *var,
+                                                              intf.fTypeName,
+                                                              intf.fInstanceName,
+                                                              std::move(sizes),
+                                                              fSymbolTable));
 }
 
 const Type* IRGenerator::convertType(const ASTType& type) {
     const Symbol* result = (*fSymbolTable)[type.fName];
     if (result && result->fKind == Symbol::kType_Kind) {
+        for (int size : type.fSizes) {
+            SkString name = result->fName + "[";
+            if (size != -1) {
+                name += to_string(size);
+            }
+            name += "]";
+            result = new Type(name, Type::kArray_Kind, (const Type&) *result, size);
+            fSymbolTable->takeOwnership((Type*) result);
+        }
         return (const Type*) result;
     }
     fErrors.error(type.fPosition, "unknown type '" + type.fName + "'");
@@ -1315,6 +1355,21 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
 
 std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression> base,
                                                       const ASTExpression& index) {
+    if (base->fKind == Expression::kTypeReference_Kind) {
+        if (index.fKind == ASTExpression::kInt_Kind) {
+            const Type& oldType = ((TypeReference&) *base).fValue;
+            int64_t size = ((const ASTIntLiteral&) index).fValue;
+            Type* newType = new Type(oldType.name() + "[" + to_string(size) + "]",
+                                     Type::kArray_Kind, oldType, size);
+            fSymbolTable->takeOwnership(newType);
+            return std::unique_ptr<Expression>(new TypeReference(fContext, base->fPosition,
+                                                                 *newType));
+
+        } else {
+            fErrors.error(base->fPosition, "array size must be a constant");
+            return nullptr;
+        }
+    }
     if (base->fType.kind() != Type::kArray_Kind && base->fType.kind() != Type::kMatrix_Kind &&
             base->fType.kind() != Type::kVector_Kind) {
         fErrors.error(base->fPosition, "expected array, but found '" + base->fType.description() +

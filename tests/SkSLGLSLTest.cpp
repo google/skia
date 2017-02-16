@@ -187,6 +187,7 @@ DEF_TEST(SkSLInterfaceBlock, r) {
          "bool w;"
          "};"
          "void main() {"
+         "    sk_FragColor = vec4(x, y[0], y[1], 0);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
@@ -198,6 +199,39 @@ DEF_TEST(SkSLInterfaceBlock, r) {
          "    bool w;\n"
          "};\n"
          "void main() {\n"
+         "    sk_FragColor = vec4(x, y[0], y[1], 0.0);\n"
+         "}\n");
+    test(r,
+         "uniform testBlock {"
+         "float x;"
+         "} test;"
+         "void main() {"
+         "    sk_FragColor = vec4(test.x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform testBlock {\n"
+         "    float x;\n"
+         "} test;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(test.x);\n"
+         "}\n");
+    test(r,
+         "uniform testBlock {"
+         "float x;"
+         "} test[2];"
+         "void main() {"
+         "    sk_FragColor = vec4(test[1].x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform testBlock {\n"
+         "    float x;\n"
+         "} test[2];\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(test[1].x);\n"
          "}\n");
 }
 
@@ -702,4 +736,18 @@ DEF_TEST(SkSLClipDistance, r) {
          "    sk_FragColor = vec4(gl_ClipDistance[0]);\n"
          "}\n");
 }
+
+DEF_TEST(SkSLArrayTypes, r) {
+    test(r,
+         "void main() { vec2 x[2] = vec2[2](vec2(1), vec2(2));"
+         "vec2[2] y = vec2[2](vec2(3), vec2(4)); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    vec2 x[2] = vec2[2](vec2(1.0), vec2(2.0));\n"
+         "    vec2[2] y = vec2[2](vec2(3.0), vec2(4.0));\n"
+         "}\n");
+}
+
 #endif
