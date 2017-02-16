@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "066291a5_9f9b1eca",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-16T18:43:50Z",
+      "side": 1,
+      "message": "please add this:\"\n\n    auto s \u003d SkSurface::MakeRasterN32Premul(1024, 1024);\n    s-\u003egetCanvas()-\u003edrawRegion(region, SkPaint());",
+      "revId": "9af7fec2522ead5d9da0c6f9698162eada60d2a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
