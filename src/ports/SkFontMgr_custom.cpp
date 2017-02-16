@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkFontArguments.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
@@ -200,7 +201,7 @@ SkTypeface* SkFontMgr_Custom::onCreateFromStream(SkStreamAsset* bareStream, int 
 }
 
 SkTypeface* SkFontMgr_Custom::onCreateFromStream(SkStreamAsset* s,
-                                                 const FontParameters& params) const
+                                                 const SkFontArguments& args) const
 {
     using Scanner = SkTypeface_FreeType::Scanner;
     std::unique_ptr<SkStreamAsset> stream(s);
@@ -208,19 +209,18 @@ SkTypeface* SkFontMgr_Custom::onCreateFromStream(SkStreamAsset* s,
     SkFontStyle style;
     SkString name;
     Scanner::AxisDefinitions axisDefinitions;
-    if (!fScanner.scanFont(stream.get(), params.getCollectionIndex(),
+    if (!fScanner.scanFont(stream.get(), args.getCollectionIndex(),
                             &name, &style, &isFixedPitch, &axisDefinitions))
     {
         return nullptr;
     }
 
-    int paramAxisCount;
-    const FontParameters::Axis* paramAxes = params.getAxes(&paramAxisCount);
+    const SkFontArguments::VariationPosition position = args.getVariationDesignPosition();
     SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
-    Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
+    Scanner::computeAxisValues(axisDefinitions, position, axisValues, name);
 
-    auto data = skstd::make_unique<SkFontData>(std::move(stream), params.getCollectionIndex(),
-                                                axisValues.get(), axisDefinitions.count());
+    auto data = skstd::make_unique<SkFontData>(std::move(stream), args.getCollectionIndex(),
+                                               axisValues.get(), axisDefinitions.count());
     return new SkTypeface_Stream(std::move(data), style, isFixedPitch, false, name);
 }
 
