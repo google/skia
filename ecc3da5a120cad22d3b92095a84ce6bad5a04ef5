@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e3afe0f_7efde508",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-16T22:36:03Z",
+      "side": 1,
+      "message": "return -\u003e returned ?",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d54355f_7e7b9664",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-16T22:36:03Z",
+      "side": 1,
+      "message": "dstColorSpace -\u003e colorSpace ?",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6a11e3f_f7c51484",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-16T22:36:03Z",
+      "side": 1,
+      "message": "Isn\u0027t the other flavor we want to start with the Chrome-style deferred texture creation (DeferredTextureImage) ?",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79489525_39ca3eb6",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-16T22:36:03Z",
+      "side": 1,
+      "message": "or -\u003e and ?\ngroup _as the one passed in here_, ?",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb6c2ec4_98ecc1e5",
+        "filename": "include/gpu/GrCrossContextTextureData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-16T22:36:03Z",
+      "side": 1,
+      "message": "disallow default ctor ?",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9febcb71_ef558130",
+        "filename": "include/gpu/GrCrossContextTextureData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-16T22:36:03Z",
+      "side": 1,
+      "message": "Can we do without this? getRenderTargetHandle also returns its own flavor of GrBackendObject.",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04c5f59f_93fba146",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-16T22:36:03Z",
+      "side": 1,
+      "message": "bookkeeping ?\nabandon is problematic in this case",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1712802f_7fc20b16",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-16T22:36:03Z",
+      "side": 1,
+      "message": "hmm",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
