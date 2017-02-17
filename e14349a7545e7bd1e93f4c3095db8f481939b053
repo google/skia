@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "932955ea_0e4fa14d",
+        "filename": "infra/bots/recipes/swarm_ct_skps.expected/CT_CPU_BENCH_10k_SKPs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 966,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-17T18:39:39Z",
+      "side": 0,
+      "message": "Is this change expected?",
+      "range": {
+        "startLine": 966,
+        "startChar": 0,
+        "endLine": 966,
+        "endChar": 48
+      },
+      "revId": "e14349a7545e7bd1e93f4c3095db8f481939b053",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
