@@ -22,6 +22,30 @@
       "revId": "0111f89abc297e898be936c79aa8cf22d574f486",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38625ed2_cbe7e749",
+        "filename": "src/effects/gradients/SkClampRange.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-17T17:57:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40467fa7_cfdcefc5",
+      "range": {
+        "startLine": 15,
+        "startChar": 11,
+        "endLine": 15,
+        "endChar": 31
+      },
+      "revId": "0111f89abc297e898be936c79aa8cf22d574f486",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
