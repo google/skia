@@ -39,10 +39,11 @@ static int g_NumFreedShapes = 0;
 #endif
 
 // mip levels
+static const SkScalar kIdealMinMIP = 12;
 static const SkScalar kMaxMIP = 162;
 
 static const SkScalar kMaxDim = 73;
-static const SkScalar kMinSize = 4;
+static const SkScalar kMinSize = SK_ScalarHalf;
 static const SkScalar kMaxSize = 2*kMaxMIP;
 
 // Callback to clear out internal path cache when eviction occurs
@@ -252,16 +253,31 @@ private:
             // In the majority of cases this will yield a crisper rendering.
             SkScalar mipScale = 1.0f;
             // Our mipscale is the maxScale clamped to the next highest power of 2
-            if (maxScale < SK_ScalarHalf) {
+            if (maxScale <= SK_ScalarHalf) {
                 SkScalar log = SkScalarFloorToScalar(SkScalarLog2(SkScalarInvert(maxScale)));
                 mipScale = SkScalarPow(2, -log);
             } else if (maxScale > SK_Scalar1) {
                 SkScalar log = SkScalarCeilToScalar(SkScalarLog2(maxScale));
                 mipScale = SkScalarPow(2, log);
             }
+            SkASSERT(maxScale <= mipScale);
 
-            SkScalar mipSize = mipScale*maxDim;
-            SkASSERT(maxScale * maxDim <= mipSize);
+            SkScalar mipSize = mipScale*SkScalarAbs(maxDim);
+            // For sizes less than kIdealMinMIP we want to use as large a distance field as we can
+            // so we can preserve as much detail as possible. However, we can't scale down more
+            // than a 1/4 of the size without artifacts. So the idea is that we pick the mipsize
+            // just bigger than the ideal, and then scale down until we are no more than 4x the
+            // original mipsize.
+            if (mipSize < kIdealMinMIP) {
+                SkScalar newMipSize = mipSize;
+                do {
+                    newMipSize *= 2;
+                } while (newMipSize < kIdealMinMIP);
+                while (newMipSize > 4*mipSize) {
+                    newMipSize *= 0.25f;
+                }
+                mipSize = newMipSize;
+            }
             SkScalar desiredDimension = SkTMin(mipSize, kMaxMIP);
 
             // check to see if path is cached
@@ -340,6 +356,8 @@ private:
 
         SkASSERT(devPathBounds.fLeft == 0);
         SkASSERT(devPathBounds.fTop == 0);
+        SkASSERT(devPathBounds.width() > 0);
+        SkASSERT(devPathBounds.height() > 0);
 
         // setup signed distance field storage
         SkIRect dfBounds = devPathBounds.makeOutset(SK_DistanceFieldPad, SK_DistanceFieldPad);
