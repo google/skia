@@ -34,6 +34,24 @@
       "revId": "ceedfd8e7f028ee71c2b303e013e68bd1e94a073",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ba71263_1c3666b3",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-17T13:54:31Z",
+      "side": 1,
+      "message": "It may be tricky to get all the references right, but maybe we can insert an extra \"flutter\" directory at the top and run gclient there?\n\nwork/\n  skia/\n  src/\n  flutter/\n    src/\n      flutter/",
+      "parentUuid": "96a662f3_c84ea1c6",
+      "revId": "ceedfd8e7f028ee71c2b303e013e68bd1e94a073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
