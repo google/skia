@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 # pylint: disable=line-too-long
 
+import collections
 import os
 import re
 import subprocess
@@ -28,13 +29,15 @@ import sys
 # about the logs of previous steps without using a wrapper like this.
 
 def main(basedir, cmd):
-  logs = ""
+  logs = collections.deque(maxlen=200)
   retcode = 0
-  try:
-    logs = subprocess.check_output(cmd, stderr=subprocess.STDOUT).strip()
-  except subprocess.CalledProcessError as e:
-    retcode = e.returncode
-    logs = e.output
+
+  proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT)
+  for line in iter(proc.stdout.readline, ''):
+    sys.stdout.write(line)
+    logs.append(line)
+  retcode = proc.poll()
 
   # Stacktraces generally look like:
   # /lib/x86_64-linux-gnu/libc.so.6(abort+0x16a) [0x7fa90e8d0c62]
@@ -51,11 +54,18 @@ def main(basedir, cmd):
   # The extra_path strips off the not-useful prefix and leaves just the
   # important src/gpu/Frobulator.cpp:13 bit.
   extra_path = r'/.*\.\./'
-  for line in logs.splitlines():
+  is_first = True
+  for line in logs:
     line = line.strip()
 
     m = re.search(stack_line, line)
     if m:
+      if is_first:
+        print '#######################################'
+        print 'symbolized stacktrace follows'
+        print '#######################################'
+        is_first = False
+
       path = m.group('path')
       addr = m.group('addr')
       addr2 = m.group('addr2')
@@ -71,8 +81,7 @@ def main(basedir, cmd):
             path = path[len(basedir)+1:]
           sym = re.sub(extra_path, '', sym)
           line = path + ' ' + sym
-
-    print line
+      print line
 
   sys.exit(retcode)
 
