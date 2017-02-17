@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "59e27371_f3d534cb",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T14:33:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e3afe0f_7efde508",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d54355f_7e7b9664",
         "filename": "include/core/SkCrossContextImageData.h",
         "patchSetId": 9
@@ -47,6 +65,24 @@
       "writtenOn": "2017-02-16T22:36:03Z",
       "side": 1,
       "message": "dstColorSpace -\u003e colorSpace ?",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15b99751_478758da",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T14:33:14Z",
+      "side": 1,
+      "message": "This is actually the dstColorSpace (where you intend to use the texture), which affects how we decode. The color space of the image itself comes from the encoded data. I\u0027ll add a comment.",
+      "parentUuid": "0d54355f_7e7b9664",
       "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -87,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "a1554503_9feee5df",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T14:33:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79489525_39ca3eb6",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70508a82_3c8dba5f",
         "filename": "include/gpu/GrCrossContextTextureData.h",
         "patchSetId": 9
@@ -110,6 +164,30 @@
     },
     {
       "key": {
+        "uuid": "ba940cd0_42be9e9a",
+        "filename": "include/gpu/GrCrossContextTextureData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T14:33:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70508a82_3c8dba5f",
+      "range": {
+        "startLine": 18,
+        "startChar": 7,
+        "endLine": 18,
+        "endChar": 32
+      },
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb6c2ec4_98ecc1e5",
         "filename": "include/gpu/GrCrossContextTextureData.h",
         "patchSetId": 9
@@ -121,6 +199,24 @@
       "writtenOn": "2017-02-16T22:36:03Z",
       "side": 1,
       "message": "disallow default ctor ?",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd5f42a0_7ec8665e",
+        "filename": "include/gpu/GrCrossContextTextureData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T14:33:14Z",
+      "side": 1,
+      "message": "Yeah, the new version (abstract with derived types) implicitly removes this.",
+      "parentUuid": "fb6c2ec4_98ecc1e5",
       "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -155,6 +251,24 @@
       "writtenOn": "2017-02-17T13:53:44Z",
       "side": 1,
       "message": "Should we augment these with more backend specific data? (e.g. pixel format).",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51192800_f513b86e",
+        "filename": "include/gpu/GrCrossContextTextureData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T14:33:14Z",
+      "side": 1,
+      "message": "New version (necessary to get vulkan compiling) has separate types for GL and Vk, so we can certainly do that. Right now I\u0027ve got that info in the SkCrossContextImageData, but we could push that into here (basically, everything that\u0027s in a GrBackendTextureDesc?)",
+      "parentUuid": "6b31674e_f3018ec5",
       "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
