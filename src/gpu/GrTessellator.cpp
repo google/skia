@@ -92,6 +92,8 @@
 
 namespace {
 
+const int kArenaChunkSize = 16 * 1024;
+
 struct Vertex;
 struct Edge;
 struct Poly;
@@ -1549,8 +1551,6 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
         Line outer(e->fTop, e->fBottom);
         outer.fC += offset;
         SkPoint innerPoint, outerPoint;
-        SkVector normal;
-        get_edge_normal(e, &normal);
         if (prevInner.intersect(inner, &innerPoint) &&
             prevOuter.intersect(outer, &outerPoint)) {
             Vertex* innerVertex = alloc.make<Vertex>(innerPoint, 255);
@@ -1735,23 +1735,17 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
                              antialias, alloc);
 }
 
-void get_contour_count_and_size_estimate(const SkPath& path, SkScalar tolerance, int* contourCnt,
-                                         int* sizeEstimate) {
-    int maxPts = GrPathUtils::worstCasePointCount(path, contourCnt, tolerance);
+int get_contour_count(const SkPath& path, SkScalar tolerance) {
+    int contourCnt;
+    int maxPts = GrPathUtils::worstCasePointCount(path, &contourCnt, tolerance);
     if (maxPts <= 0) {
-        *contourCnt = 0;
-        return;
+        return 0;
     }
     if (maxPts > ((int)SK_MaxU16 + 1)) {
         SkDebugf("Path not rendered, too many verts (%d)\n", maxPts);
-        *contourCnt = 0;
-        return;
+        return 0;
     }
-    // For the initial size of the chunk allocator, estimate based on the point count:
-    // one vertex per point for the initial passes, plus two for the vertices in the
-    // resulting Polys, since the same point may end up in two Polys.  Assume minimal
-    // connectivity of one Edge per Vertex (will grow for intersections).
-    *sizeEstimate = maxPts * (3 * sizeof(Vertex) + sizeof(Edge));
+    return contourCnt;
 }
 
 int count_points(Poly* polys, SkPath::FillType fillType) {
@@ -1773,14 +1767,12 @@ namespace GrTessellator {
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                     VertexAllocator* vertexAllocator, bool antialias, const GrColor& color,
                     bool canTweakAlphaForCoverage, bool* isLinear) {
-    int contourCnt;
-    int sizeEstimate;
-    get_contour_count_and_size_estimate(path, tolerance, &contourCnt, &sizeEstimate);
+    int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         *isLinear = true;
         return 0;
     }
-    SkArenaAlloc alloc(sizeEstimate);
+    SkArenaAlloc alloc(kArenaChunkSize);
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, antialias,
                                 isLinear);
     SkPath::FillType fillType = antialias ? SkPath::kWinding_FillType : path.getFillType();
@@ -1810,13 +1802,11 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 
 int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    GrTessellator::WindingVertex** verts) {
-    int contourCnt;
-    int sizeEstimate;
-    get_contour_count_and_size_estimate(path, tolerance, &contourCnt, &sizeEstimate);
+    int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         return 0;
     }
-    SkArenaAlloc alloc(sizeEstimate);
+    SkArenaAlloc alloc(kArenaChunkSize);
     bool isLinear;
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, false, &isLinear);
     SkPath::FillType fillType = path.getFillType();
