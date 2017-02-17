@@ -55,24 +55,31 @@ static K kConstants = {
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
 using StageFn = void(void);
 
+// Some platforms expect C "name" maps to asm "_name", others to "name".
+#if defined(_MSC_VER) || defined(__APPLE__)
+    #define ASM(name, suffix) sk_##name##_##suffix
+#else
+    #define ASM(name, suffix) _sk_##name##_##suffix
+#endif
+
 extern "C" {
 
 #if defined(__x86_64__) || defined(_M_X64)
-    void sk_start_pipeline_hsw  (size_t, void**, K*);
-    void sk_start_pipeline_sse41(size_t, void**, K*);
-    void sk_start_pipeline_sse2 (size_t, void**, K*);
+    void ASM(start_pipeline,hsw  )(size_t, void**, K*);
+    void ASM(start_pipeline,sse41)(size_t, void**, K*);
+    void ASM(start_pipeline,sse2 )(size_t, void**, K*);
 
-    StageFn sk_just_return_hsw,
-            sk_just_return_sse41,
-            sk_just_return_sse2;
+    StageFn ASM(just_return,hsw),
+            ASM(just_return,sse41),
+            ASM(just_return,sse2);
 
-    #define M(st) StageFn sk_##st##_hsw;
+    #define M(st) StageFn ASM(st,hsw);
         STAGES(M)
     #undef M
-    #define M(st) StageFn sk_##st##_sse41;
+    #define M(st) StageFn ASM(st,sse41);
         STAGES(M)
     #undef M
-    #define M(st) StageFn sk_##st##_sse2;
+    #define M(st) StageFn ASM(st,sse2);
         STAGES(M)
     #undef M
 #endif
@@ -91,7 +98,7 @@ extern "C" {
     static StageFn* lookup_hsw(SkRasterPipeline::StockStage st) {
         switch (st) {
             default: return nullptr;
-        #define M(st) case SkRasterPipeline::st: return sk_##st##_hsw;
+        #define M(st) case SkRasterPipeline::st: return ASM(st,hsw);
             STAGES(M)
         #undef M
         }
@@ -99,7 +106,7 @@ extern "C" {
     static StageFn* lookup_sse41(SkRasterPipeline::StockStage st) {
         switch (st) {
             default: return nullptr;
-        #define M(st) case SkRasterPipeline::st: return sk_##st##_sse41;
+        #define M(st) case SkRasterPipeline::st: return ASM(st,sse41);
             STAGES(M)
         #undef M
         }
@@ -107,7 +114,7 @@ extern "C" {
     static StageFn* lookup_sse2(SkRasterPipeline::StockStage st) {
         switch (st) {
             default: return nullptr;
-        #define M(st) case SkRasterPipeline::st: return sk_##st##_sse2;
+        #define M(st) case SkRasterPipeline::st: return ASM(st,sse2);
             STAGES(M)
         #undef M
         }
@@ -154,17 +161,17 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     // While possible, build and run at full vector stride.
 #if defined(__x86_64__) || defined(_M_X64)
     if (1 && SkCpu::Supports(SkCpu::HSW)) {
-        if (!build_and_run(8, lookup_hsw, sk_just_return_hsw, sk_start_pipeline_hsw)) {
+        if (!build_and_run(8, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
             return false;
         }
     }
     if (1 && SkCpu::Supports(SkCpu::SSE41)) {
-        if (!build_and_run(4, lookup_sse41, sk_just_return_sse41, sk_start_pipeline_sse41)) {
+        if (!build_and_run(4, lookup_sse41, ASM(just_return,sse41), ASM(start_pipeline,sse41))) {
             return false;
         }
     }
     if (1 && SkCpu::Supports(SkCpu::SSE2)) {
-        if (!build_and_run(4, lookup_sse2, sk_just_return_sse2, sk_start_pipeline_sse2)) {
+        if (!build_and_run(4, lookup_sse2, ASM(just_return,sse2), ASM(start_pipeline,sse2))) {
             return false;
         }
     }
