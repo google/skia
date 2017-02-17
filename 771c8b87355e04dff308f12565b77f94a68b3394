@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d1e133a_cb657ba9",
+        "filename": "src/core/SkClipStackDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-17T18:34:15Z",
+      "side": 1,
+      "message": "nit: if the base class is fully responsible for managing the clip stack, maybe we shouldn\u0027t expose it non-const to subclasses?",
+      "revId": "771c8b87355e04dff308f12565b77f94a68b3394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
