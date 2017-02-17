@@ -15,6 +15,7 @@
 
 #include "SkATrace.h"
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkCommandLineFlags.h"
 #include "SkDashPathEffect.h"
 #include "SkGraphics.h"
@@ -158,6 +159,44 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
     }
 }
 
+static SkColorSpacePrimaries gSrgbPrimaries = {
+    0.64f, 0.33f,
+    0.30f, 0.60f,
+    0.15f, 0.06f,
+    0.3127f, 0.3290f };
+
+static SkColorSpacePrimaries gAdobePrimaries = {
+    0.64f, 0.33f,
+    0.21f, 0.71f,
+    0.15f, 0.06f,
+    0.3127f, 0.3290f };
+
+static SkColorSpacePrimaries gP3Primaries = {
+    0.680f, 0.320f,
+    0.265f, 0.690f,
+    0.150f, 0.060f,
+    0.3127f, 0.3290f };
+
+static SkColorSpacePrimaries gRec2020Primaries = {
+    0.708f, 0.292f,
+    0.170f, 0.797f,
+    0.131f, 0.046f,
+    0.3127f, 0.3290f };
+
+struct NamedPrimaries {
+    const char* fName;
+    SkColorSpacePrimaries* fPrimaries;
+} gNamedPrimaries[] = {
+    { "sRGB", &gSrgbPrimaries },
+    { "AdobeRGB", &gAdobePrimaries },
+    { "P3", &gP3Primaries },
+    { "Rec. 2020", &gRec2020Primaries },
+};
+
+static bool primaries_equal(const SkColorSpacePrimaries& a, const SkColorSpacePrimaries& b) {
+    return memcmp(&a, &b, sizeof(SkColorSpacePrimaries)) == 0;
+}
+
 const char* kName = "name";
 const char* kValue = "value";
 const char* kOptions = "options";
@@ -181,7 +220,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fLastImage(nullptr)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fColorType(kN32_SkColorType)
-    , fColorSpace(nullptr)
+    , fColorManaged(false)
+    , fColorSpacePrimaries(gSrgbPrimaries)
     , fZoomCenterX(0.0f)
     , fZoomCenterY(0.0f)
     , fZoomLevel(0.0f)
@@ -240,15 +280,15 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('c', "Modes", "Cycle color mode", [this]() {
-        if (!fColorSpace) {
-            // Legacy -> sRGB
-            this->setColorMode(kN32_SkColorType, SkColorSpace::MakeSRGB());
+        if (!fColorManaged) {
+            // Legacy -> Color correct 8888
+            this->setColorMode(kN32_SkColorType, true);
         } else if (kN32_SkColorType == fColorType) {
-            // sRGB -> F16 sRGB
-            this->setColorMode(kRGBA_F16_SkColorType, SkColorSpace::MakeSRGBLinear());
+            // Color correct 8888 -> Color correct F16
+            this->setColorMode(kRGBA_F16_SkColorType, true);
         } else {
-            // F16 sRGB -> Legacy
-            this->setColorMode(kN32_SkColorType, nullptr);
+            // Color correct F16 -> Legacy
+            this->setColorMode(kN32_SkColorType, false);
         }
     });
     fCommands.addCommand(Window::Key::kRight, "Right", "Navigation", "Next slide", [this]() {
@@ -370,6 +410,18 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiFontPaint.setFilterQuality(kLow_SkFilterQuality);
     io.Fonts->TexID = &fImGuiFontPaint;
 
+    fGamutImage = GetResourceAsImage("gamut.png");
+    if (fGamutImage) {
+        localMatrix = SkMatrix::MakeScale(1.0f / fGamutImage->width(),
+                                          1.0f / fGamutImage->height());
+        auto gamutShader = fGamutImage->makeShader(SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode,
+                                                   &localMatrix);
+        fImGuiGamutPaint.setShader(gamutShader);
+    }
+    fImGuiGamutPaint.setColor(SK_ColorWHITE);
+    fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
+
     fWindow->show();
 }
 
@@ -464,9 +516,17 @@ void Viewer::updateTitle() {
 
     title.appendf(" %s", sk_tool_utils::colortype_name(fColorType));
 
-    // TODO: Find a short string to describe the gamut of the color space?
-    if (fColorSpace) {
+    if (fColorManaged) {
         title.append(" ColorManaged");
+
+        int curPrimaries = -1;
+        for (int i = 0; i < SK_ARRAY_COUNT(gNamedPrimaries); ++i) {
+            if (primaries_equal(*gNamedPrimaries[i].fPrimaries, fColorSpacePrimaries)) {
+                curPrimaries = i;
+                break;
+            }
+        }
+        title.appendf(" %s", curPrimaries >= 0 ? gNamedPrimaries[curPrimaries].fName : "Custom");
     }
 
     title.append(kBackendTypeStrings[fBackendType]);
@@ -576,15 +636,15 @@ SkMatrix Viewer::computeMatrix() {
     return m;
 }
 
-void Viewer::setColorMode(SkColorType colorType, sk_sp<SkColorSpace> colorSpace) {
+void Viewer::setColorMode(SkColorType colorType, bool colorManaged) {
     fColorType = colorType;
-    fColorSpace = std::move(colorSpace);
+    fColorManaged = colorManaged;
 
     // When we're in color managed mode, we tag our window surface as sRGB. If we've switched into
     // or out of legacy mode, we need to update our window configuration.
     DisplayParams params = fWindow->getDisplayParams();
-    if (SkToBool(fColorSpace) != SkToBool(params.fColorSpace)) {
-        params.fColorSpace = fColorSpace ? SkColorSpace::MakeSRGB() : nullptr;
+    if (fColorManaged != SkToBool(params.fColorSpace)) {
+        params.fColorSpace = fColorManaged ? SkColorSpace::MakeSRGB() : nullptr;
         fWindow->setDisplayParams(params);
     }
 
@@ -607,9 +667,17 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     // If we're in F16, or the gamut isn't sRGB, or we're zooming, we need to render offscreen
     sk_sp<SkSurface> offscreenSurface = nullptr;
     if (kRGBA_F16_SkColorType == fColorType || fShowZoomWindow ||
-        (fColorSpace && fColorSpace != SkColorSpace::MakeSRGB())) {
+        (fColorManaged && !primaries_equal(fColorSpacePrimaries, gSrgbPrimaries))) {
+        sk_sp<SkColorSpace> cs = nullptr;
+        if (fColorManaged) {
+            SkColorSpace::RenderTargetGamma transferFn = (kRGBA_F16_SkColorType == fColorType)
+                ? SkColorSpace::kLinear_RenderTargetGamma : SkColorSpace::kSRGB_RenderTargetGamma;
+            SkMatrix44 toXYZ;
+            SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
+            cs = SkColorSpace::MakeRGB(transferFn, toXYZ);
+        }
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), fColorType,
-                                             kPremul_SkAlphaType, fColorSpace);
+                                             kPremul_SkAlphaType, std::move(cs));
         offscreenSurface = canvas->makeSurface(info);
         slideCanvas = offscreenSurface->getCanvas();
     }
@@ -764,12 +832,85 @@ void Viewer::drawStats(SkCanvas* canvas) {
     canvas->restore();
 }
 
+// Creates an invisible, draggable button at the specified screen coordinates, and updates the
+// co-ordinates as it's dragged.
+static bool ImGui_DragPoint(const char* label, float* x, float* y,
+                            const ImVec2& canvasPos, const ImVec2& canvasSize, ImVec2* outCenter) {
+    ImVec2 center(canvasPos.x + (*x) * canvasSize.x,
+                  canvasPos.y + (1.0f - (*y)) * canvasSize.y);
+    ImVec2 tl(center.x - 5, center.y - 5);
+    ImGuiIO& io = ImGui::GetIO();
+    ImVec2 mousePosXY((io.MousePos.x - canvasPos.x) / canvasSize.x,
+                      (io.MousePos.y - canvasPos.y) / canvasSize.y);
+
+    ImGui::SetCursorScreenPos(tl);
+    ImGui::InvisibleButton(label, ImVec2(10, 10));
+
+    bool dragging = ImGui::IsItemActive() && ImGui::IsMouseDragging();
+    if (dragging) {
+        *x = SkTPin(mousePosXY.x, 0.0f, 1.0f);
+        *y = SkTPin(1 - mousePosXY.y, 0.0f, 1.0f);
+    }
+
+    center = ImVec2(canvasPos.x + (*x) * canvasSize.x,
+                    canvasPos.y + (1.0f - (*y)) * canvasSize.y);
+    if (outCenter) {
+        *outCenter = center;
+    }
+
+    return dragging;
+}
+
+static bool ImGui_Primaries(SkColorSpacePrimaries* primaries, SkImage* gamutImage,
+                            SkPaint* gamutPaint) {
+    ImVec2 canvasPos = ImGui::GetCursorScreenPos();
+    ImVec2 canvasSize = ImGui::GetContentRegionAvail();
+    float canvasSide = SkTMax(SkTMin(canvasSize.x, canvasSize.y), 50.0f);
+    canvasSize = ImVec2(canvasSide, canvasSide);
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    // TODO: Adjust canvasSize to match aspect ratio of gamutImage...
+
+    // Background image...
+    drawList->AddImage(gamutPaint, canvasPos, ImVec2(canvasPos.x + canvasSize.x,
+                                                     canvasPos.y + canvasSize.y));
+    ImVec2 endPos = ImGui::GetCursorPos();
+
+    ImVec2 r, g, b, w;
+    bool anyDrag = false;
+
+    // Sub-rectangle where dragging is permitted (region of the gamut image within axes)
+    ImVec2 dragRectStart = canvasPos;
+    ImVec2 dragRectSize = canvasSize;
+
+    // Primary markers
+    anyDrag = ImGui_DragPoint("R", &primaries->fRX, &primaries->fRY,
+                              canvasPos, canvasSize, &r);
+    anyDrag = ImGui_DragPoint("G", &primaries->fGX, &primaries->fGY,
+                              canvasPos, canvasSize, &g) || anyDrag;
+    anyDrag = ImGui_DragPoint("B", &primaries->fBX, &primaries->fBY,
+                              canvasPos, canvasSize, &b) || anyDrag;
+    anyDrag = ImGui_DragPoint("W", &primaries->fWX, &primaries->fWY,
+                              canvasPos, canvasSize, &w) || anyDrag;
+
+    // Gamut triangle
+    drawList->AddCircle(r, 5.0f, 0xFF000040);
+    drawList->AddCircle(g, 5.0f, 0xFF004000);
+    drawList->AddCircle(b, 5.0f, 0xFF400000);
+    drawList->AddCircle(w, 5.0f, 0xFFFFFFFF);
+    drawList->AddTriangle(r, g, b, 0xFFFFFFFF);
+    ImGui::SetCursorPos(endPos);
+
+    return anyDrag;
+}
+
 void Viewer::drawImGui(SkCanvas* canvas) {
     // Support drawing the ImGui demo window. Superfluous, but gives a good idea of what's possible
     if (fShowImGuiTestWindow) {
         ImGui::ShowTestWindow(&fShowImGuiTestWindow);
     }
 
+    SkPaint gamutImagePaint;
     if (fShowImGuiDebugWindow) {
         if (ImGui::Begin("Debug", &fShowImGuiDebugWindow)) {
             if (ImGui::CollapsingHeader("Slide")) {
@@ -789,6 +930,41 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 }
                 if (fCurrentSlide >= fSlides.count()) {
                     fCurrentSlide = previousSlide;
+                }
+            }
+
+            if (ImGui::CollapsingHeader("Color Mode")) {
+                int oldMode = fColorManaged ? (kRGBA_F16_SkColorType == fColorType) ? 2 : 1 : 0;
+                int newMode = oldMode;
+                ImGui::RadioButton("Legacy", &newMode, 0);
+                ImGui::RadioButton("Color Managed 8888", &newMode, 1);
+                ImGui::RadioButton("Color Managed F16", &newMode, 2);
+                if (newMode != oldMode) {
+                    this->setColorMode(2 == newMode ? kRGBA_F16_SkColorType : kN32_SkColorType,
+                                       0 != newMode);
+                }
+
+                // Pick from common gamuts:
+                const char* primaryNames[] = { "sRGB", "AdobeRGB", "P3", "Rec. 2020", "Custom" };
+                int primariesIdx = 4; // Default: Custom
+                for (int i = 0; i < SK_ARRAY_COUNT(gNamedPrimaries); ++i) {
+                    if (primaries_equal(*gNamedPrimaries[i].fPrimaries, fColorSpacePrimaries)) {
+                        primariesIdx = i;
+                        break;
+                    }
+                }
+
+                if (ImGui::Combo("Primaries", &primariesIdx,
+                                 "sRGB\0AdobeRGB\0P3\0Rec. 2020\0Custom\0\0")) {
+                    if (primariesIdx >= 0 && primariesIdx <= 3) {
+                        fColorSpacePrimaries = *gNamedPrimaries[primariesIdx].fPrimaries;
+                    }
+                }
+
+                // Allow direct editing of gamut:
+                if (ImGui_Primaries(&fColorSpacePrimaries, fGamutImage.get(), &fImGuiGamutPaint) &&
+                    fColorManaged) {
+                    fWindow->inval();
                 }
             }
         }
