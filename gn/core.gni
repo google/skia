@@ -397,6 +397,7 @@ skia_core_sources = [
   "$_include/core/SkDrawLooper.h",
   "$_include/core/SkFlattenable.h",
   "$_include/core/SkFlattenableSerialization.h",
+  "$_include/core/SkFontArguments.h",
   "$_include/core/SkFontLCDConfig.h",
   "$_include/core/SkFontStyle.h",
   "$_include/core/SkGraphics.h",
