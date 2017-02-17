@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script>
+        function getAjax(url, success) {
+            var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+            xhr.open('GET', url);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState > 3 && xhr.status == 200) success(xhr.responseText);
+            };
+            xhr.send();
+            return xhr;
+        }
+
+        function postAjax(url, data, success) {
+            var params = typeof data == 'string' ? data : Object.keys(data).map(
+                    function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
+                ).join('&');
+
+            var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+            xhr.open('POST', url);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState > 3 && xhr.status == 200) { success(xhr.responseText); }
+            };
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(params);
+            return xhr;
+        }
+
+        function testResult(data) {
+            var obj = JSON.parse(data);
+            if (obj.compile_errors) {
+                console.log("compile_errors:");
+                for (var err in obj.compile_errors)
+                    console.log(err);
+            }
+            if (obj.runtime_error) {
+                console.log("runtime_error:");
+                console.log(runtime_error);
+            }
+            if (obj.fiddleHash) {
+                console.log("fiddleHash:");
+                console.log(obj.fiddleHash);
+                getAjax("https://fiddle.skia.org/i/" + obj.fiddleHash + ".txt", function (data) { console.log(data); });
+            }
+        }
+
+        function testfiddle() {
+            var testdata =
+            "void draw(SkCanvas* canvas) {\n" +
+            "   SkPaint paint;\n" +
+            "   paint.setStyle(SkPaint::kStroke_Style);\n" +
+            "   paint.setStrokeWidth(20);\n" +
+            "   SkPath path;\n" +
+            "   path.moveTo(30, 30);\n" +
+            "   path.lineTo(40, 50);\n" +
+            "   path.conicTo(70, 30, 100, 30, .707f); path.dump();\n" +
+            "   for (SkPaint::Join j : { SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join } ) {\n" +
+            "       paint.setStrokeJoin(j);\n" +
+            "       canvas->drawPath(path, paint);\n" +
+            "       canvas->translate(0, 70);\n" +
+            "   }\n" +
+            "}\n";
+
+            var json = {
+                "code": testdata,
+                "options": {
+                    "width": 256,
+                    "height": 256,
+                    "source": 0,
+                    "textOnly": true
+                }
+            }
+
+            postAjax("https://fiddle.skia.org/_/run", JSON.stringify(json), testResult);
+
+        }
+
+    </script>
+</head>
+<body onload="testfiddle();">
+
+</body>
+</html>
