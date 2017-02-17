@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40467fa7_cfdcefc5",
+        "filename": "src/effects/gradients/SkClampRange.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-17T17:48:15Z",
+      "side": 1,
+      "message": "perhaps a comment...?\n\n// we want the largest 32.32 value representable as a float. (float)0x7FFFFFFFF becomes too big, due to limited\n// mantissa on the float and its rounding rules, so we have to manually compute the next smaller value (ala nextafter)",
+      "range": {
+        "startLine": 15,
+        "startChar": 11,
+        "endLine": 15,
+        "endChar": 31
+      },
+      "revId": "0111f89abc297e898be936c79aa8cf22d574f486",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
