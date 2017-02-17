@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd61740c_5823aa43",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T16:58:13Z",
+      "side": 1,
+      "message": "What\u0027s the use case for this constructor? It seems a little counter intuitive to me that when given encoded data we\u0027d decode and upload it but when given an image we do nothing to it.",
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad4fc709_5c0a6a3e",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T16:58:13Z",
+      "side": 1,
+      "message": "Should we be private from here on down?",
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82d85f21_1247f8c7",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T16:58:13Z",
+      "side": 1,
+      "message": "Does this need to be specialized in GrGLTextureRenderTarget to free up FBO and related stuff or does that just work when the object gets removed by the cache?",
+      "range": {
+        "startLine": 116,
+        "startChar": 52,
+        "endLine": 116,
+        "endChar": 72
+      },
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
