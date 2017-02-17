@@ -137,14 +137,14 @@ class SkiaApi(recipe_api.RecipeApi):
         )
 
     self.m.gclient.c = gclient_cfg
-    update_step = self.m.bot_update.ensure_checkout(
-        cwd=self.m.vars.checkout_root,
-        patch_root=patch_root,
-        **checkout_kwargs)
+    with self.m.step.context({'cwd': self.m.vars.checkout_root}):
+      update_step = self.m.bot_update.ensure_checkout(
+          patch_root=patch_root,
+          **checkout_kwargs)
 
     self.m.vars.got_revision = (
         update_step.presentation.properties['got_revision'])
 
     if self.m.vars.need_chromium_checkout:
-      self.m.gclient.runhooks(cwd=self.m.vars.checkout_root,
-                              env=self.m.vars.gclient_env)
+      with self.m.step.context({'cwd': self.m.vars.checkout_root}):
+        self.m.gclient.runhooks(env=self.m.vars.gclient_env)
