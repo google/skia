@@ -258,6 +258,12 @@
         "Build-Ubuntu-GCC-x86_64-Release-ANGLE"
       ]
     },
+    "Build-Ubuntu-GCC-x86_64-Release-Flutter_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+      ]
+    },
     "Build-Ubuntu-GCC-x86_64-Release-Mesa": {
       "priority": 0.8,
       "tasks": [
@@ -2863,6 +2869,38 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-GCC-x86_64-Release-Flutter_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release-Flutter_Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",

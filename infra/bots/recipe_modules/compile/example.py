@@ -36,6 +36,7 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
       'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
       'Build-Ubuntu-GCC-x86_64-Release-Fast',
+      'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android',
       'Build-Ubuntu-GCC-x86_64-Release-Mesa',
       'Build-Ubuntu-GCC-x86_64-Release-PDFium',
       'Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths',
@@ -191,6 +192,32 @@ def GenTests(api):
   buildername = 'Build-Ubuntu-GCC-x86_64-Release-PDFium'
   yield (
       api.test('pdfium_trybot') +
+      api.properties(
+          repository='https://skia.googlesource.com/skia.git',
+          buildername=buildername,
+          mastername=mastername,
+          slavename=slavename,
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          nobuildbot='True',
+          patch_issue=500,
+          patch_set=1,
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=buildername,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      ) +
+      api.path.exists(
+          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+      )
+  )
+
+  buildername = 'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android'
+  yield (
+      api.test('flutter_trybot') +
       api.properties(
           repository='https://skia.googlesource.com/skia.git',
           buildername=buildername,

@@ -9,6 +9,7 @@
 from recipe_engine import recipe_api
 
 from . import default_flavor
+from . import flutter_flavor
 from . import gn_android_flavor
 from . import gn_flavor
 from . import ios_flavor
@@ -29,6 +30,9 @@ VERSION_NONE = -1
 def is_android(builder_cfg):
   return 'Android' in builder_cfg.get('extra_config', '')
 
+def is_flutter(builder_cfg):
+  return 'Flutter' in builder_cfg.get('extra_config', '')
+
 def is_ios(builder_cfg):
   return 'iOS' == builder_cfg.get('os', '')
 
@@ -42,6 +46,8 @@ def is_valgrind(builder_cfg):
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
+    if is_flutter(builder_cfg):
+      return flutter_flavor.FlutterFlavorUtils(self.m)
     if is_android(builder_cfg):
       return gn_android_flavor.GNAndroidFlavorUtils(self.m)
     elif is_ios(builder_cfg):

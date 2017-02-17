@@ -42,6 +42,7 @@
   "Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
   "Build-Ubuntu-GCC-x86_64-Release",
   "Build-Ubuntu-GCC-x86_64-Release-ANGLE",
+  "Build-Ubuntu-GCC-x86_64-Release-Flutter_Android",
   "Build-Ubuntu-GCC-x86_64-Release-Mesa",
   "Build-Ubuntu-GCC-x86_64-Release-NoGPU",
   "Build-Ubuntu-GCC-x86_64-Release-PDFium",
