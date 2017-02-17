@@ -8,12 +8,12 @@
 #ifndef SkSVGDevice_DEFINED
 #define SkSVGDevice_DEFINED
 
-#include "SkDevice.h"
+#include "SkClipStackDevice.h"
 #include "SkTemplates.h"
 
 class SkXMLWriter;
 
-class SkSVGDevice : public SkBaseDevice {
+class SkSVGDevice : public SkClipStackDevice {
 public:
     static SkBaseDevice* Create(const SkISize& size, SkXMLWriter* writer);
 
@@ -58,7 +58,8 @@ private:
     SkSVGDevice(const SkISize& size, SkXMLWriter* writer);
     virtual ~SkSVGDevice();
 
-    void drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm, const SkPaint& paint);
+    struct MxCp;
+    void drawBitmapCommon(const MxCp&, const SkBitmap& bm, const SkPaint& paint);
 
     class AutoElement;
     class ResourceBucket;
@@ -67,7 +68,7 @@ private:
     std::unique_ptr<AutoElement>    fRootElement;
     std::unique_ptr<ResourceBucket> fResourceBucket;
 
-    typedef SkBaseDevice INHERITED;
+    typedef SkClipStackDevice INHERITED;
 };
 
 #endif // SkSVGDevice_DEFINED
