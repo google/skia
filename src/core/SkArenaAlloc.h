@@ -69,19 +69,19 @@ public:
 
     template <typename T, typename... Args>
     T* make(Args&&... args) {
-
-        SkASSERT(SkTFitsIn<uint32_t>(sizeof(T)));
+        uint32_t size      = SkTo<uint32_t>(sizeof(T));
+        uint32_t alignment = SkTo<uint32_t>(alignof(T));
         char* objStart;
         if (skstd::is_trivially_destructible<T>::value) {
-            objStart = this->allocObject(sizeof(T), alignof(T));
-            fCursor = objStart + sizeof(T);
+            objStart = this->allocObject(size, alignment);
+            fCursor = objStart + size;
         } else {
-            objStart = this->allocObjectWithFooter(sizeof(T) + sizeof(Footer), alignof(T));
+            objStart = this->allocObjectWithFooter(size + sizeof(Footer), alignment);
             // Can never be UB because max value is alignof(T).
             uint32_t padding = SkTo<uint32_t>(objStart - fCursor);
 
             // Advance to end of object to install footer.
-            fCursor = objStart + sizeof(T);
+            fCursor = objStart + size;
             FooterAction* releaser = [](char* objEnd) {
                 char* objStart = objEnd - (sizeof(T) + sizeof(Footer));
                 ((T*)objStart)->~T();
@@ -105,10 +105,11 @@ public:
 
     template <typename T>
     T* makeArrayDefault(size_t count) {
-        T* array = (T*)this->commonArrayAlloc<T>(count);
+        uint32_t safeCount = SkTo<uint32_t>(count);
+        T* array = (T*)this->commonArrayAlloc<T>(safeCount);
 
         // If T is primitive then no initialization takes place.
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < safeCount; i++) {
             new (&array[i]) T;
         }
         return array;
@@ -116,11 +117,12 @@ public:
 
     template <typename T>
     T* makeArray(size_t count) {
-        T* array = (T*)this->commonArrayAlloc<T>(count);
+        uint32_t safeCount = SkTo<uint32_t>(count);
+        T* array = (T*)this->commonArrayAlloc<T>(safeCount);
 
         // If T is primitive then the memory is initialized. For example, an array of chars will
         // be zeroed.
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < safeCount; i++) {
             new (&array[i]) T();
         }
         return array;
@@ -141,25 +143,24 @@ private:
     void installUint32Footer(FooterAction* action, uint32_t value, uint32_t padding);
     void installPtrFooter(FooterAction* action, char* ptr, uint32_t padding);
 
-    void ensureSpace(size_t size, size_t alignment);
+    void ensureSpace(uint32_t size, uint32_t alignment);
 
-    char* allocObject(size_t size, size_t alignment);
+    char* allocObject(uint32_t size, uint32_t alignment);
 
-    char* allocObjectWithFooter(size_t sizeIncludingFooter, size_t alignment);
+    char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
 
     template <typename T>
-    char* commonArrayAlloc(size_t count) {
-        SkASSERT(SkTFitsIn<uint32_t>(count));
+    char* commonArrayAlloc(uint32_t count) {
         char* objStart;
-        size_t arraySize = count * sizeof(T);
-        SkASSERT(SkTFitsIn<uint32_t>(arraySize));
+        uint32_t arraySize = SkTo<uint32_t>(count * sizeof(T));
+        uint32_t alignment = SkTo<uint32_t>(alignof(T));
 
         if (skstd::is_trivially_destructible<T>::value) {
-            objStart = this->allocObject(arraySize, alignof(T));
+            objStart = this->allocObject(arraySize, alignment);
             fCursor = objStart + arraySize;
         } else {
-            size_t totalSize = arraySize + sizeof(Footer) + sizeof(uint32_t);
-            objStart = this->allocObjectWithFooter(totalSize, alignof(T));
+            uint32_t totalSize = arraySize + sizeof(Footer) + sizeof(uint32_t);
+            objStart = this->allocObjectWithFooter(totalSize, alignment);
 
             // Can never be UB because max value is alignof(T).
             uint32_t padding = SkTo<uint32_t>(objStart - fCursor);
@@ -185,12 +186,12 @@ private:
         return objStart;
     }
 
-    char*        fDtorCursor;
-    char*        fCursor;
-    char*        fEnd;
-    char* const  fFirstBlock;
-    const size_t fFirstSize;
-    const size_t fExtraSize;
+    char*          fDtorCursor;
+    char*          fCursor;
+    char*          fEnd;
+    char* const    fFirstBlock;
+    const uint32_t fFirstSize;
+    const uint32_t fExtraSize;
 };
 
 #endif//SkFixedAlloc_DEFINED
