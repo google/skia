@@ -16,6 +16,24 @@
       "revId": "771c8b87355e04dff308f12565b77f94a68b3394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba8ef0da_4bb9244e",
+        "filename": "src/core/SkClipStackDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-17T19:39:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d1e133a_cb657ba9",
+      "revId": "771c8b87355e04dff308f12565b77f94a68b3394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
