@@ -9,6 +9,7 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
+#include "GrExternalTextureData.h"
 #include "GrTypes.h"
 #include "vk/GrVkDefines.h"
 
@@ -57,6 +58,19 @@ struct GrVkImageInfo {
     // while we're still holding onto the wrapped texture. They will first need to get a handle
     // to our internal GrVkImageInfo by calling getTextureHandle on a GrVkTexture.
     void updateImageLayout(VkImageLayout layout) { fImageLayout = layout; }
+};
+
+class GrVkExternalTextureData : public GrExternalTextureData {
+public:
+    GrVkExternalTextureData(const GrVkImageInfo& info) : fInfo(info) {}
+    GrBackend getBackend() const override { return kVulkan_GrBackend; }
+
+protected:
+    GrBackendObject getBackendObject() const override {
+        return reinterpret_cast<GrBackendObject>(&fInfo);
+    }
+
+    GrVkImageInfo fInfo;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkImageInfo*));
