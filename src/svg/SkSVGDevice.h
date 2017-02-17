@@ -8,12 +8,12 @@
 #ifndef SkSVGDevice_DEFINED
 #define SkSVGDevice_DEFINED
 
-#include "SkDevice.h"
+#include "SkClipStackDevice.h"
 #include "SkTemplates.h"
 
 class SkXMLWriter;
 
-class SkSVGDevice : public SkBaseDevice {
+class SkSVGDevice : public SkClipStackDevice {
 public:
     static SkBaseDevice* Create(const SkISize& size, SkXMLWriter* writer);
 
@@ -67,7 +67,7 @@ private:
     std::unique_ptr<AutoElement>    fRootElement;
     std::unique_ptr<ResourceBucket> fResourceBucket;
 
-    typedef SkBaseDevice INHERITED;
+    typedef SkClipStackDevice INHERITED;
 };
 
 #endif // SkSVGDevice_DEFINED

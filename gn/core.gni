@@ -69,6 +69,8 @@ skia_core_sources = [
   "$_src/core/SkChunkAlloc.cpp",
   "$_src/core/SkClipStack.cpp",
   "$_src/core/SkClipStack.h",
+  "$_src/core/SkClipStackDevice.cpp",
+  "$_src/core/SkClipStackDevice.h",
   "$_src/core/SkColor.cpp",
   "$_src/core/SkColorFilter.cpp",
   "$_src/core/SkColorFilterShader.cpp",
