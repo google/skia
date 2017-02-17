@@ -119,8 +119,7 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
 }
 
 char* SkArenaAlloc::allocObject(uint32_t size, uint32_t alignment) {
-    // Must be uint64 to mask 64-bit pointers properly.
-    uint64_t mask = alignment - 1;
+    uintptr_t mask = alignment - 1;
     char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
     if ((ptrdiff_t)size > fEnd - objStart) {
         this->ensureSpace(size, alignment);
