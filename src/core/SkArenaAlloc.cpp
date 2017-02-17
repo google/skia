@@ -42,10 +42,10 @@ char* SkArenaAlloc::NextBlock(char* footerEnd) {
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
     : fDtorCursor {block}
     , fCursor     {block}
-    , fEnd        {block + size}
+    , fEnd        {block + SkTo<uint32_t>(size)}
     , fFirstBlock {block}
-    , fFirstSize  {size}
-    , fExtraSize  {extraSize}
+    , fFirstSize  {SkTo<uint32_t>(size)}
+    , fExtraSize  {SkTo<uint32_t>(extraSize)}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
@@ -89,23 +89,23 @@ void SkArenaAlloc::installUint32Footer(FooterAction* action, uint32_t value, uin
     this->installFooter(action, padding);
 }
 
-void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
-    constexpr size_t headerSize = sizeof(Footer) + sizeof(ptrdiff_t);
+void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
+    constexpr uint32_t headerSize = sizeof(Footer) + sizeof(ptrdiff_t);
     // The chrome c++ library we use does not define std::max_align_t.
     // This must be conservative to add the right amount of extra memory to handle the alignment
     // padding.
-    constexpr size_t alignof_max_align_t = 8;
-    auto objSizeAndOverhead = size + headerSize + sizeof(Footer);
+    constexpr uint32_t alignof_max_align_t = 8;
+    uint32_t objSizeAndOverhead = size + headerSize + sizeof(Footer);
     if (alignment > alignof_max_align_t) {
         objSizeAndOverhead += alignment - 1;
     }
 
-    auto allocationSize = std::max(objSizeAndOverhead, fExtraSize);
+    uint32_t allocationSize = std::max(objSizeAndOverhead, fExtraSize);
 
     // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t. The > 32K
     // heuristic is from the JEMalloc behavior.
     {
-        size_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
+        uint32_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
@@ -118,8 +118,9 @@ void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
     this->installPtrFooter(NextBlock, previousDtor, 0);
 }
 
-char* SkArenaAlloc::allocObject(size_t size, size_t alignment) {
-    size_t mask = alignment - 1;
+char* SkArenaAlloc::allocObject(uint32_t size, uint32_t alignment) {
+    // Must be uint64 to mask 64-bit pointers properly.
+    uint64_t mask = alignment - 1;
     char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
     if ((ptrdiff_t)size > fEnd - objStart) {
         this->ensureSpace(size, alignment);
@@ -128,17 +129,18 @@ char* SkArenaAlloc::allocObject(size_t size, size_t alignment) {
     return objStart;
 }
 
-char* SkArenaAlloc::allocObjectWithFooter(size_t sizeIncludingFooter, size_t alignment) {
-    size_t mask = alignment - 1;
+char* SkArenaAlloc::allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment) {
+    // Must be uint64 to mask 64-bit pointers properly.
+    uint64_t mask = alignment - 1;
 
 restart:
-    size_t skipOverhead = 0;
+    uint32_t skipOverhead = 0;
     bool needsSkipFooter = fCursor != fDtorCursor;
     if (needsSkipFooter) {
         skipOverhead = sizeof(Footer) + sizeof(uint32_t);
     }
     char* objStart = (char*)((uintptr_t)(fCursor + skipOverhead + mask) & ~mask);
-    size_t totalSize = sizeIncludingFooter + skipOverhead;
+    uint32_t totalSize = sizeIncludingFooter + skipOverhead;
 
     if ((ptrdiff_t)totalSize > fEnd - objStart) {
         this->ensureSpace(totalSize, alignment);
