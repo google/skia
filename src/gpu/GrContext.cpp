@@ -717,6 +717,11 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                            surfaceProps);
 }
 
+void GrContextPriv::jamOnIn(PFFooCB fooCB) {
+    fContext->fDrawingManager->addFooCB(fooCB);
+}
+
+
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:

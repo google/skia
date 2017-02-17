@@ -69,6 +69,12 @@ void GrDrawingManager::reset() {
     fFlushState.reset();
 }
 
+sk_sp<GrRenderTargetContext> GrDiscipline::gimme() {
+    sk_sp<GrSurfaceProxy> proxy;
+
+    return fDrawingMgr->makeRenderTargetContext(std::move(proxy), nullptr, nullptr);
+}
+
 void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     if (fFlushing || this->wasAbandoned()) {
         return;
@@ -78,6 +84,12 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
+
+    GrDiscipline discipline(this);
+
+    for (int i = 0; i < fFooCBs.count(); ++i) {
+        (*fFooCBs[i])(&discipline, fOpLists);
+    }
 
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareOps(&fFlushState);

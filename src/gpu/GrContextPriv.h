@@ -12,6 +12,19 @@
 #include "GrSurfaceContext.h"
 
 class GrSurfaceProxy;
+class GrDiscipline;
+
+class GrDiscipline {
+public:
+    sk_sp<GrRenderTargetContext> gimme();
+
+private:
+    friend class GrDrawingManager; // for ctor
+
+    GrDiscipline(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) { }
+
+    GrDrawingManager* fDrawingMgr;
+};
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
@@ -58,6 +71,10 @@ public:
                                                                  const SkSurfaceProps* = nullptr);
 
     bool disableGpuYUVConversion() const { return fContext->fDisableGpuYUVConversion; }
+
+    typedef void (*PFFooCB)(GrDiscipline*, const SkTDArray<GrOpList*>&);
+
+    void jamOnIn(PFFooCB fooCB);
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
