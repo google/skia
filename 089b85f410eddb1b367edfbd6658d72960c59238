@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "6924a6d0_c527e69c",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1729,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-17T21:18:10Z",
+      "side": 1,
+      "message": "dom can be nullptr, if parsing fails.",
+      "revId": "089b85f410eddb1b367edfbd6658d72960c59238",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eda603d9_3fe7945c",
         "filename": "dm/DMSrcSink.cpp",
         "patchSetId": 2
