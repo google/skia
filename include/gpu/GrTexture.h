@@ -14,6 +14,7 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
+class GrExternalTextureData;
 class GrTexturePriv;
 
 class GrTexture : virtual public GrSurface {
@@ -26,6 +27,13 @@ public:
      *  platform. e.g. on OpenGL, return the texture ID.
      */
     virtual GrBackendObject getTextureHandle() const = 0;
+
+    /**
+     *  Return the native bookkeeping data for this texture, and detach the backend object from
+     *  this GrTexture. It's lifetime will no longer be managed by Ganesh, and this GrTexture will
+     *  no longer refer to it. Leaves this GrTexture in an orphan state.
+     */
+    virtual std::unique_ptr<GrExternalTextureData> detachBackendTexture() = 0;
 
     /**
      * This function indicates that the texture parameters (wrap mode, filtering, ...) have been
