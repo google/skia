@@ -245,6 +245,14 @@ void SkPaint::setVerticalText(bool doVertical) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doVertical, kVerticalText_Flag));
 }
 
+void SkPaint::setUnderlineText(bool doUnderline) {
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doUnderline, kUnderlineText_Flag));
+}
+
+void SkPaint::setStrikeThruText(bool doStrikeThru) {
+    this->setFlags(set_clear_mask(fBitfields.fFlags, doStrikeThru, kStrikeThruText_Flag));
+}
+
 void SkPaint::setFakeBoldText(bool doFakeBold) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doFakeBold, kFakeBoldText_Flag));
 }
@@ -2134,6 +2142,8 @@ void SkPaint::toString(SkString* str) const {
         bool needSeparator = false;
         SkAddFlagToString(str, this->isAntiAlias(), "AntiAlias", &needSeparator);
         SkAddFlagToString(str, this->isDither(), "Dither", &needSeparator);
+        SkAddFlagToString(str, this->isUnderlineText(), "UnderlineText", &needSeparator);
+        SkAddFlagToString(str, this->isStrikeThruText(), "StrikeThruText", &needSeparator);
         SkAddFlagToString(str, this->isFakeBoldText(), "FakeBoldText", &needSeparator);
         SkAddFlagToString(str, this->isLinearText(), "LinearText", &needSeparator);
         SkAddFlagToString(str, this->isSubpixelText(), "SubpixelText", &needSeparator);
