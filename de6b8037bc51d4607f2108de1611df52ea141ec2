@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd9a832d_e980cec6",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-17T16:15:46Z",
+      "side": 1,
+      "message": "Can we change this to:\n\nif self.m.vars.need_flutter_checkout and main_name \u003d\u003d \u0027engine\u0027:\n\n?\n\nI know it works as-is, but it makes me feel more comfortable ensuring that we\u0027re limiting it to only flutter.",
+      "range": {
+        "startLine": 90,
+        "startChar": 9,
+        "endLine": 90,
+        "endChar": 30
+      },
+      "revId": "de6b8037bc51d4607f2108de1611df52ea141ec2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
