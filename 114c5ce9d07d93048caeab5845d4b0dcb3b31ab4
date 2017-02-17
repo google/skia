@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ce89032_07c51e72",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2017-02-17T22:57:43Z",
+      "side": 1,
+      "message": "MakeFromEncoded is a private member of SkCrossContextImageData. How are callers supposed to construct an instance of the same?",
+      "revId": "114c5ce9d07d93048caeab5845d4b0dcb3b31ab4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
