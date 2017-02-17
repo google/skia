@@ -110,7 +110,7 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_sdk/lib",
+      "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_sdk/lib:[START_DIR]/linux_vulkan_intel_driver_debug",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_debug",
       "PATH": "%(PATH)s:[START_DIR]/linux_vulkan_sdk/bin",
       "SKIA_OUT": "[START_DIR]/out",
