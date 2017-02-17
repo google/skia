@@ -144,6 +144,15 @@ GrBackendObject GrVkTexture::getTextureHandle() const {
     return (GrBackendObject)&fInfo;
 }
 
+std::unique_ptr<GrExternalTextureData> GrVkTexture::detachBackendTexture() {
+    SkDEBUGFAIL("Not supported on Vulkan yet");
+/*
+    this->getContext()->prepareSurfaceForExternalIO(this);
+    return skstd::make_unique<GrVkExternalTextureData>(fInfo);
+*/
+    return nullptr;
+}
+
 GrVkGpu* GrVkTexture::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
