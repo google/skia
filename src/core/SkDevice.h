@@ -26,11 +26,7 @@ class GrRenderTarget;
 
 class SK_API SkBaseDevice : public SkRefCnt {
 public:
-    /**
-     *  Construct a new device.
-    */
-    explicit SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
-    virtual ~SkBaseDevice();
+    SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
 
     /**
      *  Return ImageInfo for this device. If the canvas is not backed by pixels

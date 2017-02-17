@@ -11,7 +11,7 @@
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "SkBitmap.h"
-#include "SkDevice.h"
+#include "SkClipStackDevice.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
@@ -31,7 +31,7 @@ class SkSpecialImage;
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
  */
-class SK_API SkGpuDevice : public SkBaseDevice {
+class SK_API SkGpuDevice : public SkClipStackDevice {
 public:
     enum InitContents {
         kClear_InitContents,
@@ -134,7 +134,6 @@ private:
     sk_sp<GrRenderTargetContext> fRenderTargetContext;
 
     SkIPoint                     fClipOrigin;
-    SkClipStack                  fClipStack;
     GrClipStackClip              fClip;
     SkISize                      fSize;
     bool                         fOpaque;
@@ -238,15 +237,6 @@ private:
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkDraw&, const SkPaint&);
 
-    void onSave() override;
-    void onRestore() override;
-    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
-    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
-    void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
-    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
-    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
-    void validateDevBounds(const SkIRect& r) override;
-
     static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
                                                                 SkBudgeted,
                                                                 const SkImageInfo&,
@@ -256,7 +246,7 @@ private:
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps
-    typedef SkBaseDevice INHERITED;
+    typedef SkClipStackDevice INHERITED;
 };
 
 #endif

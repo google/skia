@@ -35,8 +35,6 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     fCTM.reset();
 }
 
-SkBaseDevice::~SkBaseDevice() {}
-
 void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
     fOrigin.set(x, y);
     fCTM = globalCTM;
