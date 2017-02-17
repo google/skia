@@ -498,6 +498,7 @@ optional("jumper") {
   public_defines = [ "SK_JUMPER" ]
   sources = [
     "src/jumper/SkJumper.cpp",
+    "src/jumper/SkJumper_generated_x86_64.s",
     "src/jumper/SkJumper_stages.cpp",
   ]
 }
