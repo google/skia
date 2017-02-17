@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bdbd75a_e27466eb",
+        "filename": "src/core/SkArenaAlloc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-17T16:03:42Z",
+      "side": 1,
+      "message": "uintptr_t?",
+      "revId": "98ab40a3cc429d74368d708c7f20686725bb99d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "999a69ac_8c88a85c",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-17T16:03:42Z",
+      "side": 1,
+      "message": "Might consider\n\n  using SizeOrAlign \u003d uint32_t;\n\nand seeing what the code looks like that way?",
+      "revId": "98ab40a3cc429d74368d708c7f20686725bb99d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
