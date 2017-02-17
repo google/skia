@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1bc7460_54a4e9bc",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2385,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T23:20:36Z",
+      "side": 1,
+      "message": "This comment should probably be changed to something like \"prefer the device space ellipse op for bathability\"",
+      "range": {
+        "startLine": 2385,
+        "startChar": 4,
+        "endLine": 2385,
+        "endChar": 43
+      },
+      "revId": "7402381fbd74a25d2f862433c8c54951dabf08ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4bd7632_bf1f3c68",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2390,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T23:20:36Z",
+      "side": 1,
+      "message": "And maybe prefix this comment with \"Otherwise, \"",
+      "range": {
+        "startLine": 2390,
+        "startChar": 4,
+        "endLine": 2390,
+        "endChar": 73
+      },
+      "revId": "7402381fbd74a25d2f862433c8c54951dabf08ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
