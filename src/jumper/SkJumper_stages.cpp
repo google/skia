@@ -57,7 +57,7 @@ using K = const SkJumper_constants;
 
     #define WRAP(name) sk_##name##_aarch64
 
-#elif defined(__ARM_NEON__)
+#elif defined(__arm__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
         #error On ARMv7, compile with -march=armv7-a -mfpu=neon-vfp4, without -mthumb.
     #endif
@@ -80,7 +80,7 @@ using K = const SkJumper_constants;
 
     static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
 
-    #define WRAP(name) sk_##name##_armv7
+    #define WRAP(name) sk_##name##_vfp4
 
 #elif defined(__AVX2__) && defined(__FMA__) && defined(__F16C__)
     #include <immintrin.h>
@@ -447,7 +447,7 @@ STAGE(load_f16) {
     g = vcvt_f32_f16(halfs.val[1]);
     b = vcvt_f32_f16(halfs.val[2]);
     a = vcvt_f32_f16(halfs.val[3]);
-#elif defined(__ARM_NEON__)
+#elif defined(__arm__)
     auto rb_ga = vld2_f16((const float16_t*)ptr);
     auto rb = vcvt_f32_f16(rb_ga.val[0]),
          ga = vcvt_f32_f16(rb_ga.val[1]);
@@ -523,7 +523,7 @@ STAGE(store_f16) {
         vcvt_f16_f32(a),
     }};
     vst4_f16((float16_t*)ptr, halfs);
-#elif defined(__ARM_NEON__)
+#elif defined(__arm__)
     float16x4x2_t rb_ga = {{
         vcvt_f16_f32(float32x4_t{r[0], b[0], r[1], b[1]}),
         vcvt_f16_f32(float32x4_t{g[0], a[0], g[1], a[1]}),

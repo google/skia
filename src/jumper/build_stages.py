@@ -40,17 +40,17 @@ subprocess.check_call(['clang++'] + cflags + aarch64 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'aarch64.o'])
 
-armv7 = [
+vfp4 = [
     '--target=armv7a-linux-android',
     '--sysroot=' + ndk + 'platforms/android-18/arch-arm',
     '-mfpu=neon-vfpv4',
     '-mfloat-abi=hard',
 ]
-subprocess.check_call(['clang++'] + cflags + armv7 +
+subprocess.check_call(['clang++'] + cflags + vfp4 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
-                      ['-o', 'armv7.o'])
+                      ['-o', 'vfp4.o'])
 
-def parse_object_file(dot_o, target=None):
+def parse_object_file(dot_o, directive, target=None):
   cmd = [ objdump, '-d', '--insn-width=9', dot_o]
   if target:
     cmd += ['--target', target]
@@ -86,10 +86,10 @@ def parse_object_file(dot_o, target=None):
 
     hexed = ','.join('0x'+x for x in code.split(' '))
 
-    print '  ' + '.byte  ' + hexed + ' '*(48-len(hexed)) + \
-          '# ' + inst  + (' '*(14-len(inst)) + args if args else '')
+    print '  ' + directive + '  ' + hexed + ' '*(48-len(hexed)) + \
+          '// ' + inst  + (' '*(14-len(inst)) + args if args else '')
 
-sys.stdout = open('src/jumper/SkJumper_generated_x86_64.s', 'w')
+sys.stdout = open('src/jumper/SkJumper_generated.S', 'w')
 
 print '''# Copyright 2017 Google Inc.
 #
@@ -101,9 +101,18 @@ print '''# Copyright 2017 Google Inc.
 '''
 
 print '.text'
-parse_object_file('hsw.o')
-parse_object_file('sse41.o')
-parse_object_file('sse2.o')
 
-#parse_object_file('aarch64.o')
-#parse_object_file('armv7.o', target='elf32-littlearm')
+print '#if defined(__aarch64__)'
+print '.balign 4'
+parse_object_file('aarch64.o', '.long')
+
+print '#elif defined(__arm__)'
+print '.balign 4'
+parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
+
+print '#elif defined(__x86_64__)'
+parse_object_file('hsw.o',   '.byte')
+parse_object_file('sse41.o', '.byte')
+parse_object_file('sse2.o',  '.byte')
+
+print '#endif'
