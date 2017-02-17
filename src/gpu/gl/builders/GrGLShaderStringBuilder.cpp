@@ -20,24 +20,7 @@
 // Print the source code for all shaders generated.
 static const bool c_PrintShaders{false};
 
-static void print_shader_source(const char** strings, int* lengths, int count);
-
-static void dump_string(SkString s) {
-    // on Android, SkDebugf only displays the first 1K characters of output, which results in
-    // incomplete shader source code. Print each line individually to avoid this problem.
-    const char* chars = s.c_str();
-    for (;;) {
-        const char* next = strchr(chars, '\n');
-        if (next) {
-            next++;
-            SkDebugf("%s", SkString(chars, next - chars).c_str());
-            chars = next;
-        } else {
-            SkDebugf("%s", chars);
-            break;
-        }
-    }
-}
+static void print_source_with_line_numbers(const SkString&);
 
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
@@ -77,7 +60,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         if (!program || !compiler.toGLSL(*program, &glsl)) {
             SkDebugf("SKSL compilation error\n----------------------\n");
             SkDebugf("SKSL:\n");
-            dump_string(sksl);
+            print_source_with_line_numbers(sksl);
             SkDebugf("\nErrors:\n%s\n", compiler.errorText().c_str());
             SkDEBUGFAIL("SKSL compilation failed!\n");
         }
@@ -124,9 +107,9 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
                 SkDebugf("GLSL compilation error\n----------------------\n");
                 SkDebugf("SKSL:\n");
-                dump_string(sksl);
+                print_source_with_line_numbers(sksl);
                 SkDebugf("GLSL:\n");
-                dump_string(glsl);
+                print_source_with_line_numbers(glsl);
                 SkDebugf("Errors:\n%s\n", (const char*) log.get());
             }
             SkDEBUGFAIL("GLSL compilation failed!");
@@ -143,7 +126,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
             case GR_GL_FRAGMENT_SHADER: typeName = "Fragment"; break;
         }
         SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
-        print_shader_source(strings, lengths, count);
+        print_source_with_line_numbers(sksl);
     }
 
     // Attach the shader, but defer deletion until after we have linked the program.
@@ -155,12 +138,11 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     return shaderId;
 }
 
-static void print_shader_source(const char** strings, int* lengths, int count) {
-    const SkString& pretty = GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, true);
+static void print_source_with_line_numbers(const SkString& source) {
     SkTArray<SkString> lines;
-    SkStrSplit(pretty.c_str(), "\n", &lines);
-    for (const SkString& line : lines) {
+    SkStrSplit(source.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
+    for (int line = 0; line < lines.count(); ++line) {
         // Print the shader one line at the time so it doesn't get truncated by the adb log.
-        SkDebugf("%s\n", line.c_str());
+        SkDebugf("%4i\t%s\n", line + 1, lines[line].c_str());
     }
 }
