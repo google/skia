@@ -137,8 +137,6 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> font) {
     fuzz->next(&b);
     p.setLinearText(b);
     fuzz->next(&b);
-    p.setStrikeThruText(b);
-    fuzz->next(&b);
     p.setSubpixelText(b);
     fuzz->next(&x);
     p.setTextScaleX(x);
@@ -146,8 +144,6 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> font) {
     p.setTextSkewX(x);
     fuzz->next(&x);
     p.setTextSize(x);
-    fuzz->next(&b);
-    p.setUnderlineText(b);
     fuzz->next(&b);
     p.setVerticalText(b);
 
