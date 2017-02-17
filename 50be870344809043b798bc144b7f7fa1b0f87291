@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "73bf11ec_3b87fd16",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T17:12:39Z",
+      "side": 1,
+      "message": "I see. Maybe \"available\" means \"not too buggy to use\".",
+      "parentUuid": "3e5fde96_fca22f80",
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad4fc709_5c0a6a3e",
         "filename": "include/core/SkCrossContextImageData.h",
         "patchSetId": 14
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Actually, even the constructors should be private. If clients are going to interact with the backend object, we will need a public getter for fTextureData, though.",
       "parentUuid": "ad4fc709_5c0a6a3e",
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "083c5960_bd5bbacb",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T17:12:39Z",
+      "side": 1,
+      "message": "Should we let the client interact with the texture data?\n\nWe could do something like SkImage, SkImage_Base to make the constructors and members internal to Skia.",
+      "parentUuid": "d670affc_37b63e30",
       "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
