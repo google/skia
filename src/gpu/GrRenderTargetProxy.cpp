@@ -55,6 +55,20 @@ GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider)
     return surf->asRenderTarget();
 }
 
+const GrRenderTarget* GrRenderTargetProxy::getInstantiation() const {
+    SkASSERT(fDesc.fFlags & GrSurfaceFlags::kRenderTarget_GrSurfaceFlag);
+
+    const GrSurface* surf = INHERITED::getInstantiation();
+    if (!surf) {
+        return nullptr;
+    }
+
+    // Check that our a priori computation matched the ultimate reality
+    SkASSERT(fFlags == surf->asRenderTarget()->renderTargetPriv().flags());
+
+    return surf->asRenderTarget();
+}
+
 size_t GrRenderTargetProxy::onGpuMemorySize() const {
     if (fTarget) {
         return fTarget->gpuMemorySize();

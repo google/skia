@@ -157,8 +157,9 @@ private:
     struct RecordedOp {
         std::unique_ptr<GrOp> fOp;
         SkRect fClippedBounds;
-        // TODO: Use proxy ID instead of instantiated render target ID.
-        GrGpuResource::UniqueID fRenderTargetID;
+        // Used to associate ops with render targets. This will be removed when this GrRTOpList is
+        // limited to a particular render target proxy.
+        GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
     };
     SkSTArray<256, RecordedOp, true> fRecordedOps;
 

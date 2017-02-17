@@ -197,6 +197,10 @@ public:
 
     class UniqueID {
     public:
+        static UniqueID InvalidID() {
+            return UniqueID(uint32_t(SK_InvalidUniqueID));
+        }
+
         // wrapped
         explicit UniqueID(const GrGpuResource::UniqueID& id) : fID(id.asUInt()) { }
         // deferred
@@ -204,6 +208,7 @@ public:
 
         uint32_t asUInt() const { return fID; }
 
+        UniqueID& operator=(const UniqueID&) = default;
         bool operator==(const UniqueID& other) const {
             return fID == other.fID;
         }
@@ -214,7 +219,8 @@ public:
         bool isInvalid() const { return SK_InvalidUniqueID == fID; }
 
     private:
-        const uint32_t fID;
+        UniqueID(uint32_t id) : fID(id) {}
+        uint32_t fID;
     };
 
     /*
@@ -235,6 +241,10 @@ public:
     UniqueID uniqueID() const { return fUniqueID; }
 
     GrSurface* instantiate(GrTextureProvider* texProvider);
+    /**
+     * Returns the instantiation if it exists but does not create it if not.
+     */
+    const GrSurface* getInstantiation() const { return fTarget; }
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.

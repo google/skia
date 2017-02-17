@@ -25,6 +25,8 @@ public:
 
     // Actually instantiate the backing rendertarget, if necessary.
     GrRenderTarget* instantiate(GrTextureProvider* texProvider);
+    // Return the instantiation if this this has been instantiated, otherwise return null.
+    const GrRenderTarget* getInstantiation() const ;
 
     bool isStencilBufferMultisampled() const { return fDesc.fSampleCnt > 0; }
 

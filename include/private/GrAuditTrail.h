@@ -9,7 +9,7 @@
 #define GrAuditTrail_DEFINED
 
 #include "GrConfig.h"
-#include "GrGpuResource.h"
+#include "GrSurfaceProxy.h"
 #include "SkRect.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -80,7 +80,7 @@ public:
         fCurrentStackTrace.push_back(SkString(framename));
     }
 
-    void addOp(const GrOp*, GrGpuResource::UniqueID renderTargetID);
+    void addOp(const GrOp*, GrSurfaceProxy::UniqueID renderTargetProxyID);
 
     void opsCombined(const GrOp* consumer, const GrOp* consumed);
 
@@ -104,8 +104,7 @@ public:
     // a performance issue, but until then its nice to decouple
     struct OpInfo {
         SkRect fBounds;
-        // TODO: switch over to GrSurfaceProxy::UniqueID
-        GrGpuResource::UniqueID fRenderTargetUniqueID;
+        GrSurfaceProxy::UniqueID fRenderTargetProxyUniqueID;
         struct Op {
             int fClientID;
             SkRect fBounds;
@@ -136,11 +135,11 @@ private:
     typedef SkTArray<Op*> Ops;
 
     struct OpNode {
-        OpNode(const GrGpuResource::UniqueID& id) : fRenderTargetUniqueID(id) {}
+        OpNode(const GrSurfaceProxy::UniqueID& id) : fRenderTargetProxyUniqueID(id) {}
         SkString toJson() const;
-        SkRect                         fBounds;
+        SkRect fBounds;
         Ops fChildren;
-        const GrGpuResource::UniqueID  fRenderTargetUniqueID;
+        const GrSurfaceProxy::UniqueID fRenderTargetProxyUniqueID;
     };
     typedef SkTArray<std::unique_ptr<OpNode>, true> OpList;
 

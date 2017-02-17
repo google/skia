@@ -184,13 +184,19 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
-        if (fRecordedOps[i].fRenderTargetID != currentRTID) {
+        GrRenderTarget::UniqueID id = GrGpuResource::UniqueID::InvalidID();
+        if (fRecordedOps[i].fRenderTargetProxy.get()) {
+            const GrRenderTarget* rt = fRecordedOps[i].fRenderTargetProxy.get()->getInstantiation();
+            SkASSERT(rt); // This must have been instantiated by now.
+            id = rt->uniqueID();
+        }
+        if (id != currentRTID) {
             if (commandBuffer) {
                 commandBuffer->end();
                 commandBuffer->submit();
                 commandBuffer.reset();
             }
-            currentRTID = fRecordedOps[i].fRenderTargetID;
+            currentRTID = id;
             if (!currentRTID.isInvalid()) {
                 static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
                     { GrGpuCommandBuffer::LoadOp::kLoad,GrGpuCommandBuffer::StoreOp::kStore,
@@ -461,19 +467,16 @@ static void join(SkRect* out, const SkRect& a, const SkRect& b) {
 GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                                      GrRenderTargetContext* renderTargetContext,
                                      const SkRect& clippedBounds) {
-    // TODO: Should be proxy ID.
-    GrGpuResource::UniqueID renderTargetID =
-            renderTargetContext ? renderTargetContext->accessRenderTarget()->uniqueID()
-                                : GrGpuResource::UniqueID::InvalidID();
-
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
+    GrRenderTargetProxy* rtp = renderTargetContext ? renderTargetContext->asRenderTargetProxy()
+                                                   : nullptr;
 
     // Check if there is an op we can combine with by linearly searching back until we either
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTargetID);
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), id);
     GrOP_INFO("Recording (%s, B%u)\n"
               "\tBounds LRTB (%f, %f, %f, %f)\n",
                op->name(),
@@ -486,13 +489,13 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
               clippedBounds.fBottom);
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
-    // If we don't have a valid destination render target ID then we cannot reorder.
-    if (maxCandidates && !renderTargetID.isInvalid()) {
+    // If we don't have a valid destination render target proxy then we cannot reorder.
+    if (maxCandidates && renderTargetContext) {
         int i = 0;
         while (true) {
             const RecordedOp& candidate = fRecordedOps.fromBack(i);
             // We cannot continue to search backwards if the render target changes
-            if (candidate.fRenderTargetID != renderTargetID) {
+            if (candidate.fRenderTargetProxy.get() != rtp) {
                 GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
@@ -524,7 +527,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         GrOP_INFO("\t\tFirstOp\n");
     }
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
-    fRecordedOps.emplace_back(RecordedOp{std::move(op), clippedBounds, renderTargetID});
+    fRecordedOps.emplace_back(RecordedOp{std::move(op), clippedBounds, rtp});
     fLastFullClearOp = nullptr;
     fLastFullClearRenderTargetID.makeInvalid();
     return fRecordedOps.back().fOp.get();
@@ -535,19 +538,19 @@ void GrRenderTargetOpList::forwardCombine() {
         return;
     }
     for (int i = 0; i < fRecordedOps.count() - 2; ++i) {
-        GrOp* op = fRecordedOps[i].fOp.get();
-        GrGpuResource::UniqueID renderTargetID = fRecordedOps[i].fRenderTargetID;
         // If we don't have a valid destination render target ID then we cannot reorder.
-        if (renderTargetID.isInvalid()) {
+        if (!fRecordedOps[i].fRenderTargetProxy) {
             continue;
         }
+        GrOp* op = fRecordedOps[i].fOp.get();
+        GrRenderTargetProxy* rtp = fRecordedOps[i].fRenderTargetProxy.get();
         const SkRect& opBounds = fRecordedOps[i].fClippedBounds;
         int maxCandidateIdx = SkTMin(i + fMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
         while (true) {
             const RecordedOp& candidate = fRecordedOps[j];
             // We cannot continue to search if the render target changes
-            if (candidate.fRenderTargetID != renderTargetID) {
+            if (candidate.fRenderTargetProxy.get() != rtp) {
                 GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
