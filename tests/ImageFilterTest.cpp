@@ -1417,7 +1417,7 @@ DEF_TEST(ImageFilterMatrixConvolutionSanityTest, reporter) {
 }
 
 static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* reporter) {
-    canvas->clear(0);
+    canvas->clear(SK_ColorRED);
 
     SkBitmap bitmap;
     bitmap.allocN32Pixels(1, 1);
@@ -1442,21 +1442,25 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
     SkPaint paint;
     paint.setImageFilter(std::move(xfermodeNoFg));
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
+    canvas->clear(SK_ColorBLUE);
 
     uint32_t pixel;
-    SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
+    SkImageInfo info = SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+    ERRORF(reporter, "Expected color 0x%08x, but got 0x%08x instead", pixel, SK_ColorGREEN);
 
     paint.setImageFilter(std::move(xfermodeNoBg));
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+    ERRORF(reporter, "Expected color 0x%08x, but got 0x%08x instead", pixel, SK_ColorGREEN);
 
     paint.setImageFilter(std::move(xfermodeNoFgNoBg));
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+    ERRORF(reporter, "Expected color 0x%08x, but got 0x%08x instead", pixel, SK_ColorGREEN);
 }
 
 DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
