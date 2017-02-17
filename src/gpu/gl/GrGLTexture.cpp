@@ -8,6 +8,7 @@
 #include "GrGLTexture.h"
 #include "GrGLGpu.h"
 #include "GrShaderCaps.h"
+#include "SkMakeUnique.h"
 #include "SkTraceMemoryDump.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
@@ -109,6 +110,12 @@ void GrGLTexture::onAbandon() {
 
 GrBackendObject GrGLTexture::getTextureHandle() const {
     return reinterpret_cast<GrBackendObject>(&fInfo);
+}
+
+std::unique_ptr<GrExternalTextureData> GrGLTexture::detachBackendTexture() {
+    auto data = skstd::make_unique<GrGLExternalTextureData>(fInfo);
+    this->abandon();
+    return std::move(data);
 }
 
 void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
