@@ -37,7 +37,7 @@ static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
         }
     }
 
-    if (coeffs.fD == 1.0f) {
+    if (coeffs.fD >= 1.0f) {
         // Y = eX + f          for always
         if (0.0f == coeffs.fE) {
             SkColorSpacePrintf("E is zero, constant transfer function is "
@@ -46,13 +46,13 @@ static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
         }
     }
 
-    if ((0.0f == coeffs.fA || 0.0f == coeffs.fG) && 0.0f == coeffs.fE) {
+    if ((0.0f == coeffs.fA || 0.0f == coeffs.fG) && 0.0f == coeffs.fC) {
         SkColorSpacePrintf("A or G, and E are zero, constant transfer function "
                            "is nonsense");
         return false;
     }
 
-    if (coeffs.fE < 0.0f) {
+    if (coeffs.fC < 0.0f) {
         SkColorSpacePrintf("Transfer function must be increasing");
         return false;
     }
@@ -66,13 +66,13 @@ static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
 }
 
 static inline bool is_almost_srgb(const SkColorSpaceTransferFn& coeffs) {
-    return color_space_almost_equal(0.9479f, coeffs.fA) &&
-           color_space_almost_equal(0.0521f, coeffs.fB) &&
-           color_space_almost_equal(0.0000f, coeffs.fC) &&
-           color_space_almost_equal(0.0405f, coeffs.fD) &&
-           color_space_almost_equal(0.0774f, coeffs.fE) &&
-           color_space_almost_equal(0.0000f, coeffs.fF) &&
-           color_space_almost_equal(2.4000f, coeffs.fG);
+    return color_space_almost_equal(1.0f / 1.055f,   coeffs.fA) &&
+           color_space_almost_equal(0.055f / 1.055f, coeffs.fB) &&
+           color_space_almost_equal(1.0f / 12.92f,   coeffs.fC) &&
+           color_space_almost_equal(0.04045f,        coeffs.fD) &&
+           color_space_almost_equal(0.00000f,        coeffs.fE) &&
+           color_space_almost_equal(0.00000f,        coeffs.fF) &&
+           color_space_almost_equal(2.40000f,        coeffs.fG);
 }
 
 static inline bool is_almost_2dot2(const SkColorSpaceTransferFn& coeffs) {
