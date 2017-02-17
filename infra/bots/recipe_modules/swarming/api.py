@@ -119,6 +119,7 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
     return self.m.isolate.isolate_tests(
         verbose=True,  # To avoid no output timeouts.
         build_dir=self.swarming_temp_dir,
+        # always_use_exparchive=True,  # use this after next roll!
         targets=targets).presentation.properties['swarm_hashes'].items()
 
   def trigger_swarming_tasks(
