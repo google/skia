@@ -10,6 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkGrPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
@@ -370,7 +371,9 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrContext* context, SkBitmap bitmap, unsigned flags);
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+                                           const SkBitmap& bitmap,
+                                           unsigned flags);
 
     virtual ~ColorTableEffect();
 
@@ -480,7 +483,7 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap bitmap,
+sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, const SkBitmap& bitmap,
                                                   unsigned flags) {
 
     GrTextureStripAtlas::Desc desc;
@@ -494,10 +497,17 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
     sk_sp<GrTexture> texture;
     if (-1 == row) {
         atlas = nullptr;
-        texture.reset(
-            GrRefCachedBitmapTexture(context, bitmap, GrSamplerParams::ClampNoFilter(), nullptr));
+
+        sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(context, bitmap);
+        if (proxy) {
+            texture.reset(proxy->instantiate(context->textureProvider()));
+        }
     } else {
         texture.reset(SkRef(atlas->getTexture()));
+    }
+
+    if (!texture) {
+        return nullptr;
     }
 
     return sk_sp<GrFragmentProcessor>(new ColorTableEffect(texture.get(), atlas, row, flags));
