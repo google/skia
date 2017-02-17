@@ -191,20 +191,28 @@ def perf_steps(api):
 
   env = {}
   env.update(api.vars.default_env)
-  if 'Ubuntu' in api.vars.builder_name and 'Vulkan' in api.vars.builder_name:
-    sdk_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'bin')
-    lib_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'lib')
+  if 'Ubuntu16' in api.vars.builder_name:
+    # The vulkan in this asset name simply means that the graphics driver
+    # supports Vulkan. It is also the driver used for GL code.
     dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_release')
     if 'Debug' in api.vars.builder_name:
       dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_debug')
 
-
-    env.update({
-      'PATH':'%%(PATH)s:%s' % sdk_path,
-      'LD_LIBRARY_PATH': lib_path,
-      'LIBGL_DRIVERS_PATH':'%s' % dri_path,
-      'VK_ICD_FILENAMES':'%s' % dri_path.join('intel_icd.x86_64.json'),
-    })
+    if 'Vulkan' in api.vars.builder_name:
+      sdk_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'bin')
+      lib_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'lib')
+      env.update({
+        'PATH':'%%(PATH)s:%s' % sdk_path,
+        'LD_LIBRARY_PATH': '%s:%s' % (lib_path, dri_path),
+        'LIBGL_DRIVERS_PATH': dri_path,
+        'VK_ICD_FILENAMES':'%s' % dri_path.join('intel_icd.x86_64.json'),
+      })
+    else:
+      # Even the non-vulkan NUC jobs could benefit from the newer drivers.
+      env.update({
+        'LD_LIBRARY_PATH': dri_path,
+        'LIBGL_DRIVERS_PATH': dri_path,
+      })
 
   api.run(api.flavor.step, target, cmd=args,
           abort_on_failure=False,
