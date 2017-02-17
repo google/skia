@@ -42,6 +42,8 @@ translate it, it will still be all zeros.
 
 <!--?prettify lang=cc?-->
 
+<fiddle-embed name='b12081b4bff35b2dfdefee45ecac361b'></fiddle-embed>
+
 <!--?prettify lang=cc?-->
 
     SkRegion a, b;   // regions default to empty
