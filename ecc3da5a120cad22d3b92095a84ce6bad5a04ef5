@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "77c3af1d_67c58cd1",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T13:53:44Z",
+      "side": 1,
+      "message": "I\u0027m wondering how much of this we want client\u0027s to be able to see. The members? the constructors?",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7e3afe0f_7efde508",
         "filename": "include/core/SkCrossContextImageData.h",
         "patchSetId": 9
@@ -70,6 +87,29 @@
     },
     {
       "key": {
+        "uuid": "70508a82_3c8dba5f",
+        "filename": "include/gpu/GrCrossContextTextureData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T13:53:44Z",
+      "side": 1,
+      "message": "This seems like it could be a replacement for using GrBackendObject (eventually). Should we give it a more generic name since it could have wider use? GrExternalTextureData? ...",
+      "range": {
+        "startLine": 18,
+        "startChar": 7,
+        "endLine": 18,
+        "endChar": 32
+      },
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb6c2ec4_98ecc1e5",
         "filename": "include/gpu/GrCrossContextTextureData.h",
         "patchSetId": 9
@@ -104,6 +144,23 @@
     },
     {
       "key": {
+        "uuid": "6b31674e_f3018ec5",
+        "filename": "include/gpu/GrCrossContextTextureData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T13:53:44Z",
+      "side": 1,
+      "message": "Should we augment these with more backend specific data? (e.g. pixel format).",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "04c5f59f_93fba146",
         "filename": "include/gpu/GrTexture.h",
         "patchSetId": 9
@@ -132,6 +189,24 @@
       "writtenOn": "2017-02-16T22:36:03Z",
       "side": 1,
       "message": "hmm",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "737ef322_651340c8",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T13:53:44Z",
+      "side": 1,
+      "message": "The current intended use of abandon is when the underlying GL/VK context/device is no longer available and everything is getting shut down. In that case everything gets abandoned and the grcontext goes into zombie state. So we don\u0027t have great testing around individually abandoned textures. Though, if we also made abandon remove any unique/scratch keys then I think this would be safe as it\u0027d be unreachable and the resource cache would remove it immediately when the last ref was removed. Perhaps flush should be part of the abandon process, though. Otherwise I think there is a risk that an oplist still refers to the texture.",
+      "parentUuid": "1712802f_7fc20b16",
       "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
