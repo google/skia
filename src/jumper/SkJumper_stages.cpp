@@ -32,6 +32,8 @@ using K = const SkJumper_constants;
 
     static F gather(const float* p, U32 ix) { return p[ix]; }
 
+    #define WRAP(name) sk_##name
+
 #elif defined(__aarch64__)
     #include <arm_neon.h>
 
@@ -52,6 +54,8 @@ using K = const SkJumper_constants;
     static F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
     static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+
+    #define WRAP(name) sk_##name##_aarch64
 
 #elif defined(__ARM_NEON__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
@@ -76,6 +80,8 @@ using K = const SkJumper_constants;
 
     static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
 
+    #define WRAP(name) sk_##name##_armv7
+
 #elif defined(__AVX2__) && defined(__FMA__) && defined(__F16C__)
     #include <immintrin.h>
 
@@ -95,6 +101,8 @@ using K = const SkJumper_constants;
     static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
 
     static F gather(const float* p, U32 ix) { return _mm256_i32gather_ps(p, ix, 4); }
+
+    #define WRAP(name) sk_##name##_hsw
 
 #elif defined(__SSE2__)
     #include <immintrin.h>
@@ -120,6 +128,12 @@ using K = const SkJumper_constants;
     }
 
     static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+
+    #if defined(__SSE4_1__)
+        #define WRAP(name) sk_##name##_sse41
+    #else
+        #define WRAP(name) sk_##name##_sse2
+    #endif
 #endif
 
 // We need to be a careful with casts.
@@ -190,7 +204,7 @@ static void* load_and_inc(void**& program) {
 #define STAGE(name)                                                           \
     static void name##_k(size_t& x, void* ctx, K* k,                          \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    extern "C" void sk_##name(size_t x, void** program, K* k,                 \
+    extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
                               F r, F g, F b, F a, F dr, F dg, F db, F da) {   \
         auto ctx = load_and_inc(program);                                     \
         name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
@@ -202,7 +216,7 @@ static void* load_and_inc(void**& program) {
 
 // Some glue stages that don't fit the normal pattern of stages.
 
-extern "C" void sk_start_pipeline(size_t x, void** program, K* k) {
+extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k) {
     auto next = (Stage*)load_and_inc(program);
     F v{};   // TODO: faster uninitialized?
     next(x,program,k, v,v,v,v, v,v,v,v);
@@ -210,13 +224,17 @@ extern "C" void sk_start_pipeline(size_t x, void** program, K* k) {
 
 #if defined(JUMPER) && defined(__x86_64__)
     __attribute__((ms_abi))
-    extern "C" void sk_start_pipeline_ms(size_t x, void** program, K* k) {
-        sk_start_pipeline(x,program,k);
+    extern "C" void WRAP(start_pipeline_ms)(size_t x, void** program, K* k) {
+        WRAP(start_pipeline)(x,program,k);
     }
 #endif
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
-extern "C" void sk_just_return(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
+extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {
+#if defined(JUMPER) && defined(__AVX2__)
+    asm("vzeroupper");
+#endif
+}
 
 // We can now define Stages!
 
