@@ -55,23 +55,50 @@
 
 /**
  * Defines bitwise operators that make it possible to use an enum class as a
- * very basic bitfield.
+ * bitfield.
  */
 #define GR_MAKE_BITFIELD_CLASS_OPS(X) \
-    inline X operator |(X a, X b) { \
+    constexpr GrTInvertedFlags<X> operator~(X a) { \
+        return GrTInvertedFlags<X>(a); \
+    } \
+    template <typename T, typename U, \
+              typename = skstd::enable_if_t<std::is_constructible<T, X>::value && \
+                                            std::is_constructible<U, X>::value>> \
+    constexpr X operator&(T a, U b) { \
+        return (X) ((int)a & (int)b); \
+    } \
+    template <typename T, typename = skstd::enable_if_t<std::is_constructible<T, X>::value>> \
+    constexpr X operator&=(X& a, T b) { \
+        return (a = a & b); \
+    } \
+    constexpr X operator|(X a, X b) { \
         return (X) ((int)a | (int)b); \
     } \
-    inline X& operator |=(X& a, X b) { \
+    constexpr X& operator|=(X& a, X b) { \
         return (a = a | b); \
     } \
-    inline bool operator &(X a, X b) { \
+    constexpr bool operator&(X a, X b) { \
         return SkToBool((int)a & (int)b); \
-    }
+    } \
 
 #define GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(X) \
-    friend X operator |(X a, X b); \
-    friend X& operator |=(X& a, X b); \
-    friend bool operator &(X a, X b);
+    friend constexpr GrTInvertedFlags<X> operator ~(X); \
+    template <typename T, typename U, typename> friend constexpr X operator &(T, U); \
+    template <typename T, typename> friend constexpr X operator &=(X&, T); \
+    friend constexpr X operator |(X, X); \
+    friend constexpr X& operator |=(X&, X); \
+    friend constexpr bool operator &(X, X);
+
+template<typename TFLagsEnum> class GrTInvertedFlags {
+public:
+    constexpr GrTInvertedFlags(TFLagsEnum value) : fInvertedValue(~static_cast<int>(value)) {}
+    explicit constexpr operator TFLagsEnum() const {
+        return static_cast<TFLagsEnum>(fInvertedValue);
+    }
+    explicit constexpr operator int() const { return fInvertedValue; }
+private:
+    const int fInvertedValue;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
