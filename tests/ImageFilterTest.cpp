@@ -1750,7 +1750,7 @@ DEF_TEST(ImageFilterBlurLargeImage, reporter) {
 }
 
 static void test_make_with_filter(skiatest::Reporter* reporter, GrContext* context) {
-    sk_sp<SkSurface> surface(create_surface(context, 192, 128));
+    sk_sp<SkSurface> surface(create_surface(context, 100, 100));
     surface->getCanvas()->clear(SK_ColorRED);
     SkPaint bluePaint;
     bluePaint.setColor(SK_ColorBLUE);
@@ -1795,17 +1795,6 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrContext* conte
     SkIRect destRect = SkIRect::MakeXYWH(offset.x(), offset.y(),
                                           outSubset.width(), outSubset.height());
     REPORTER_ASSERT(reporter, clipBounds.contains(destRect));
-
-    // In GPU-mode, this case creates a special image with a backing size that differs from
-    // the content size
-    {
-        clipBounds.setXYWH(0, 0, 170, 100);
-        subset.setXYWH(0, 0, 160, 90);
-
-        filter = SkXfermodeImageFilter::Make(SkBlendMode::kSrc, nullptr);
-        result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, &offset);
-        REPORTER_ASSERT(reporter, result);
-    }
 }
 
 DEF_TEST(ImageFilterMakeWithFilter, reporter) {
