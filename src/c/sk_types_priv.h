@@ -234,6 +234,10 @@ static inline SkImageFilter* AsImageFilter(sk_imagefilter_t* cfilter) {
     return reinterpret_cast<SkImageFilter*>(cfilter);
 }
 
+static inline const SkImageFilter* AsImageFilter(const sk_imagefilter_t* cfilter) {
+    return reinterpret_cast<const SkImageFilter*>(cfilter);
+}
+
 static inline SkImageFilter** AsImageFilters(sk_imagefilter_t** cfilter) {
     return reinterpret_cast<SkImageFilter**>(cfilter);
 }
@@ -288,6 +292,10 @@ static inline sk_fontmgr_t* ToFontMgr(SkFontMgr* fontmgr) {
 
 static inline sk_colorspace_t* ToColorSpace(SkColorSpace* colorspace) {
     return reinterpret_cast<sk_colorspace_t*>(colorspace);
+}
+
+static inline SkColorSpace* AsColorSpace(sk_colorspace_t* colorspace) {
+    return reinterpret_cast<SkColorSpace*>(colorspace);
 }
 
 static inline sk_shader_t* ToShader(SkShader* shader) {

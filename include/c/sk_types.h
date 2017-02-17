@@ -401,7 +401,7 @@ typedef enum {
     WBMP_SK_IMAGE_ENCODER_TYPE,
     WEBP_SK_IMAGE_ENCODER_TYPE,
     KTX_SK_IMAGE_ENCODER_TYPE,
-} sk_image_encoder_t;
+} sk_image_encoder_type_t;
 
 typedef enum {
     CLAMP_SK_MATRIX_CONVOLUTION_TILEMODE,
@@ -725,6 +725,14 @@ typedef enum {
 } sk_pathmeasure_matrixflags_t;
 
 typedef void (*sk_bitmap_release_proc)(void* addr, void* context);
+
+typedef void (*sk_image_raster_release_proc)(const void* addr, void* context);
+typedef void (*sk_image_texture_release_proc)(void* context);
+
+typedef enum {
+    ALLOW_SK_IMAGE_CACHING_HINT,
+    DISALLOW_SK_IMAGE_CACHING_HINT,
+} sk_image_caching_hint_t;
 
 typedef struct {
     int16_t  fTimeZoneMinutes;

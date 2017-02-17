@@ -106,16 +106,16 @@ static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kClamp_TileMode   
 static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kRepeat_TileMode         == (int)REPEAT_SK_MATRIX_CONVOLUTION_TILEMODE,           ASSERT_MSG(SkMatrixConvolutionImageFilter::TileMode, sk_matrix_convolution_tilemode_t));
 static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kClampToBlack_TileMode   == (int)CLAMP_TO_BLACK_SK_MATRIX_CONVOLUTION_TILEMODE,   ASSERT_MSG(SkMatrixConvolutionImageFilter::TileMode, sk_matrix_convolution_tilemode_t));
 
-// sk_image_encoder_t
-static_assert ((int)SkImageEncoder::Type::kUnknown_Type   == (int)UNKNOWN_SK_IMAGE_ENCODER_TYPE,   ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
-static_assert ((int)SkImageEncoder::Type::kBMP_Type       == (int)BMP_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
-static_assert ((int)SkImageEncoder::Type::kGIF_Type       == (int)GIF_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
-static_assert ((int)SkImageEncoder::Type::kICO_Type       == (int)ICO_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
-static_assert ((int)SkImageEncoder::Type::kJPEG_Type      == (int)JPEG_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
-static_assert ((int)SkImageEncoder::Type::kPNG_Type       == (int)PNG_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
-static_assert ((int)SkImageEncoder::Type::kWBMP_Type      == (int)WBMP_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
-static_assert ((int)SkImageEncoder::Type::kWEBP_Type      == (int)WEBP_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
-static_assert ((int)SkImageEncoder::Type::kKTX_Type       == (int)KTX_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_t));
+// sk_image_encoder_type_t
+static_assert ((int)SkImageEncoder::Type::kUnknown_Type   == (int)UNKNOWN_SK_IMAGE_ENCODER_TYPE,   ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
+static_assert ((int)SkImageEncoder::Type::kBMP_Type       == (int)BMP_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
+static_assert ((int)SkImageEncoder::Type::kGIF_Type       == (int)GIF_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
+static_assert ((int)SkImageEncoder::Type::kICO_Type       == (int)ICO_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
+static_assert ((int)SkImageEncoder::Type::kJPEG_Type      == (int)JPEG_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
+static_assert ((int)SkImageEncoder::Type::kPNG_Type       == (int)PNG_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
+static_assert ((int)SkImageEncoder::Type::kWBMP_Type      == (int)WBMP_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
+static_assert ((int)SkImageEncoder::Type::kWEBP_Type      == (int)WEBP_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
+static_assert ((int)SkImageEncoder::Type::kKTX_Type       == (int)KTX_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
 
 // sk_blendmode_t
 static_assert ((int)SkBlendMode::kClear        == (int)CLEAR_SK_BLENDMODE,        ASSERT_MSG(SkBlendMode, sk_blendmode_t));
@@ -384,5 +384,9 @@ static_assert ((int)SkMatrix44::TypeMask::kPerspective_Mask   == (int)PERSPECTIV
 static_assert ((int)SkCanvas::VertexMode::kTriangles_VertexMode       == (int)TRIANGLES_SK_VERTEX_MODE,        ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
 static_assert ((int)SkCanvas::VertexMode::kTriangleStrip_VertexMode   == (int)TRIANGLE_STRIP_SK_VERTEX_MODE,   ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
 static_assert ((int)SkCanvas::VertexMode::kTriangleFan_VertexMode     == (int)TRIANGLE_FAN_SK_VERTEX_MODE,     ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
+
+// sk_image_caching_hint_t
+static_assert ((int)SkImage::CachingHint::kAllow_CachingHint      == (int)ALLOW_SK_IMAGE_CACHING_HINT,      ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
+static_assert ((int)SkImage::CachingHint::kDisallow_CachingHint   == (int)DISALLOW_SK_IMAGE_CACHING_HINT,   ASSERT_MSG(SkImage::CachingHint, sk_image_caching_hint_t));
 
 #endif
