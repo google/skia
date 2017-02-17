@@ -73,9 +73,17 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # checkout of Skia obtained through DEPS in pdfium/third_party/skia.
     self.need_pdfium_checkout = 'PDFium' in self.builder_name
 
+    # Some bots also require a checkout of Flutter; in this case we use the
+    # checkout of Skia obtained through DEPS in src/third_party/skia.
+    self.need_flutter_checkout = 'Flutter' in self.builder_name
+
     self.skia_dir = self.checkout_root.join('skia')
     if self.need_pdfium_checkout:
       self.skia_dir = self.checkout_root.join('pdfium', 'third_party', 'skia')
+    elif self.need_flutter_checkout:
+      self.checkout_root = self.checkout_root.join('flutter')
+      self.skia_dir = self.checkout_root.join('src', 'third_party', 'skia')
+
     if not self.persistent_checkout:
       self.m.path['checkout'] = self.skia_dir
 
