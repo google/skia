@@ -10,6 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkGrPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
@@ -494,10 +495,17 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
     sk_sp<GrTexture> texture;
     if (-1 == row) {
         atlas = nullptr;
-        texture.reset(
-            GrRefCachedBitmapTexture(context, bitmap, GrSamplerParams::ClampNoFilter(), nullptr));
+
+        sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(context, bitmap);
+        if (proxy) {
+            texture.reset(proxy->instantiate(context->textureProvider()));
+        }
     } else {
         texture.reset(SkRef(atlas->getTexture()));
+    }
+
+    if (!texture) {
+        return nullptr;
     }
 
     return sk_sp<GrFragmentProcessor>(new ColorTableEffect(texture.get(), atlas, row, flags));
