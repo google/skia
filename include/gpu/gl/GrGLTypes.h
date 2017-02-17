@@ -9,6 +9,7 @@
 #ifndef GrGLTypes_DEFINED
 #define GrGLTypes_DEFINED
 
+#include "GrCrossContextTextureData.h"
 #include "GrGLConfig.h"
 
 /**
@@ -110,6 +111,18 @@ typedef unsigned int GrEGLBoolean;
 struct GrGLTextureInfo {
     GrGLenum fTarget;
     GrGLuint fID;
+};
+
+class GrGLCrossContextTextureData : public GrCrossContextTextureData {
+public:
+    GrGLCrossContextTextureData(const GrGLTextureInfo& info) : fInfo(info) {}
+    GrBackend getBackend() const override { return kOpenGL_GrBackend; }
+    GrBackendObject getBackendObject() const override {
+        return reinterpret_cast<GrBackendObject>(&fInfo);
+    }
+
+protected:
+    GrGLTextureInfo fInfo;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));

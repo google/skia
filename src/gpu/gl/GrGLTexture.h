@@ -37,6 +37,7 @@ public:
                 bool wasMipMapDataProvided);
 
     GrBackendObject getTextureHandle() const override;
+    std::unique_ptr<GrCrossContextTextureData> detachBackendTexture() override;
 
     void textureParamsModified() override { fTexParams.invalidate(); }
 

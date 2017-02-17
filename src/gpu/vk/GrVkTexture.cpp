@@ -144,6 +144,12 @@ GrBackendObject GrVkTexture::getTextureHandle() const {
     return (GrBackendObject)&fInfo;
 }
 
+std::unique_ptr<GrCrossContextTextureData> GrVkTexture::detachBackendTexture() {
+    SkDEBUGFAIL("Not supported on Vulkan yet");
+//    return skstd::make_unique<GrVkCrossContextTextureData>(fInfo);
+    return nullptr;
+}
+
 GrVkGpu* GrVkTexture::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
