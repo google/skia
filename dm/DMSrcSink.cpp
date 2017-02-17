@@ -1712,6 +1712,31 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+#include "SkXMLWriter.h"
+#include "SkSVGCanvas.h"
+#include "SkSVGDOM.h"
+
+Error ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    auto size = src.size();
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+        SkDynamicMemoryWStream wstream;
+        SkXMLStreamWriter writer(&wstream);
+        Error err = src.draw(SkSVGCanvas::Make(SkRect::Make(size), &writer).get());
+        if (!err.isEmpty()) {
+            return err;
+        }
+        std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
+        auto dom = SkSVGDOM::MakeFromStream(*rstream);
+        if (dom) {
+            dom->setContainerSize(SkSize::Make(size));
+            dom->render(canvas);
+        }
+        return "";
+    });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 // This is like SkRecords::Draw, in that it plays back SkRecords ops into a Canvas.
 // Unlike SkRecords::Draw, it builds a single-op sub-picture out of each Draw-type op.
 // This is an only-slightly-exaggerated simluation of Blink's Slimming Paint pictures.
