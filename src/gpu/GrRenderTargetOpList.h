@@ -8,6 +8,7 @@
 #ifndef GrRenderTargetOpList_DEFINED
 #define GrRenderTargetOpList_DEFINED
 
+#include "GrAppliedClip.h"
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrOpList.h"
@@ -15,9 +16,7 @@
 #include "GrPrimitiveProcessor.h"
 #include "GrPathRendering.h"
 #include "GrXferProcessor.h"
-
 #include "ops/GrDrawOp.h"
-
 #include "SkClipStack.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
@@ -31,8 +30,9 @@ class GrAuditTrail;
 class GrClearOp;
 class GrClip;
 class GrCaps;
+class GrDrawOp;
 class GrPath;
-class GrDrawPathOpBase;
+class GrMeshDrawOp;
 class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
@@ -78,8 +78,9 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
-                   std::unique_ptr<GrDrawOp>);
+    void addMeshDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
+                       std::unique_ptr<GrMeshDrawOp>);
+    void addDrawOp(GrRenderTargetContext*, const GrClip&, std::unique_ptr<GrDrawOp>);
 
     void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         this->recordOp(std::move(op), renderTargetContext);
@@ -139,7 +140,7 @@ private:
     }
 
     // Variant that allows an explicit bounds (computed from the Op's bounds and a clip).
-    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds);
+    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds, int clipIdx = -1);
 
     void forwardCombine();
 
@@ -159,8 +160,10 @@ private:
         SkRect fClippedBounds;
         // TODO: Use proxy ID instead of instantiated render target ID.
         GrGpuResource::UniqueID fRenderTargetID;
+        int fClipIdx;
     };
     SkSTArray<256, RecordedOp, true> fRecordedOps;
+    SkSTArray<32, GrAppliedClip, true> fAppliedClips;
 
     GrClearOp* fLastFullClearOp = nullptr;
     GrGpuResource::UniqueID fLastFullClearRenderTargetID = GrGpuResource::UniqueID::InvalidID();

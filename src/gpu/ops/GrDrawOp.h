@@ -12,6 +12,8 @@
 #include "GrOp.h"
 #include "GrPipeline.h"
 
+class GrAppliedClip;
+
 /**
  * GrDrawOps are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
  * and draws are determined and scheduled. They are issued in the draw phase. GrDrawOpUploadToken is
@@ -55,20 +57,12 @@ public:
     class Target;
 
     GrDrawOp(uint32_t classID);
-    ~GrDrawOp() override;
 
-    bool installPipeline(const GrPipeline::CreateArgs&);
-
-    /**
-    * Gets the inputs to pipeline analysis from the GrDrawOp.
-    */
-    void analyzeProcessors(GrProcessorSet::FPAnalysis* analysis, const GrProcessorSet& processors,
-                           const GrAppliedClip& appliedClip) const {
-        PipelineAnalysisInput input;
-        this->getPipelineAnalysisInput(&input);
-        analysis->reset(*input.colorInput(), *input.coverageInput(), processors,
-                        input.usesPLSDstRead(), appliedClip);
-    }
+    /** Assuming that the render target does support HW AA, will this Op enable it? */
+    virtual bool usesHWAAWhenAvailable() const = 0;
+    /** Does this op read/write the stencil buffer */
+    virtual bool usesStencil() = 0;
+    virtual bool willXPNeedDstTexture(const GrCaps&, const GrAppliedClip& appliedClip) const = 0;
 
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
@@ -102,58 +96,27 @@ protected:
         return string;
     }
 
-    const GrPipeline* pipeline() const {
-        SkASSERT(fPipelineInstalled);
-        return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
-    }
-
-    /**
-     * This Describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
-     * pipeline analysis.
-     */
-    class PipelineAnalysisInput {
-    public:
-        PipelineAnalysisInput() = default;
-        GrPipelineInput* colorInput() { return &fColorInput; }
-        GrPipelineInput* coverageInput() { return &fCoverageInput; }
-
-        void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
-
-        bool usesPLSDstRead() const { return fUsesPLSDstRead; }
-
-    private:
-        GrPipelineInput fColorInput;
-        GrPipelineInput fCoverageInput;
-        bool fUsesPLSDstRead = false;
-    };
-
-private:
-    /**
-     * Provides information about the GrPrimitiveProccesor that will be used to issue draws by this
-     * op to GrPipeline analysis.
-     */
-    virtual void getPipelineAnalysisInput(PipelineAnalysisInput*) const = 0;
-
-    /**
-     * After GrPipeline analysis is complete this is called so that the op can use the analysis
-     * results when constructing its GrPrimitiveProcessor.
-     */
-    virtual void applyPipelineOptimizations(const GrPipelineOptimizations&) = 0;
-
-protected:
     struct QueuedUpload {
         QueuedUpload(DeferredUploadFn&& upload, GrDrawOpUploadToken token)
             : fUpload(std::move(upload))
             , fUploadBeforeToken(token) {}
-        DeferredUploadFn    fUpload;
+        DeferredUploadFn fUpload;
         GrDrawOpUploadToken fUploadBeforeToken;
     };
 
-    SkTArray<QueuedUpload>                          fInlineUploads;
+    SkTArray<QueuedUpload> fInlineUploads;
+
+    GrRenderTargetContext* renderTargetContext() { return fRenderTargetContext; }
+    GrXferProcessor::DstTexture dstTexture() { return fDstTexture; }
 
 private:
-    SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;
-    bool                                            fPipelineInstalled;
+    // TODO: This should both a) be a render target and not a context and b) be fed in via
+    // GrOpFlushState rather than stored on the op. To fix both of these all GrPipeline creation
+    // must be deferred until flush and MDB must make it so that GrOpFlushState deals with a single
+    // render target.
+    GrRenderTargetContext* fRenderTargetContext;
+    GrXferProcessor::DstTexture fDstTexture;
+
     typedef GrOp INHERITED;
 };
 

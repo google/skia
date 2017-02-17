@@ -31,8 +31,8 @@ public:
 
     const char* name() const override { return "Dummy Op"; }
 
-    static std::unique_ptr<GrDrawOp> Make(int numAttribs) {
-        return std::unique_ptr<GrDrawOp>(new Op(numAttribs));
+    static std::unique_ptr<GrMeshDrawOp> Make(int numAttribs) {
+        return std::unique_ptr<GrMeshDrawOp>(new Op(numAttribs));
     }
 
 private:

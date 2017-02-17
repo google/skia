@@ -11,6 +11,7 @@
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "ops/GrDashOp.h"
+#include "ops/GrMeshDrawOp.h"
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
@@ -45,7 +46,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
-    std::unique_ptr<GrDrawOp> op = GrDashOp::MakeDashLineOp(
+    std::unique_ptr<GrMeshDrawOp> op = GrDashOp::MakeDashLineOp(
             args.fPaint.getColor(), *args.fViewMatrix, pts, aaMode, args.fShape->style());
     if (!op) {
         return false;
@@ -54,6 +55,6 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;
 }
