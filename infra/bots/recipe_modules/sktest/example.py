@@ -42,6 +42,7 @@ TEST_BUILDERS = {
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
       'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan',
+      'Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release',
       'Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE',
       'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
       'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
