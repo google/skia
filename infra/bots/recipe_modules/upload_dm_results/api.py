@@ -57,7 +57,7 @@ class UploadDmResultsApi(recipe_api.RecipeApi):
     files_to_upload = self.m.file.glob(
         'find images',
         results_dir.join('*'),
-        test_data=['someimage.png'],
+        test_data=[results_dir.join('someimage.png')],
         infra_step=True)
     if len(files_to_upload) > 0:
       self.cp('images', results_dir.join('*'), image_dest_path)

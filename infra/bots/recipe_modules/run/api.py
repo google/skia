@@ -76,13 +76,21 @@ class SkiaStepApi(recipe_api.RecipeApi):
                        env=env,
                        infra_step=True)
 
+  def _run(self, steptype, **kwargs):
+    """Wrapper for running a step."""
+    cwd = kwargs.pop('cwd', None)
+    if cwd:
+      with self.m.step.context({'cwd': cwd}):
+        return steptype(**kwargs)
+    return steptype(**kwargs)
+
   def __call__(self, steptype, name, abort_on_failure=True,
                fail_build_on_failure=True, env=None, **kwargs):
     """Run a step. If it fails, keep going but mark the build status failed."""
     env = env or {}
     env.update(self.m.vars.default_env)
     try:
-      return steptype(name=name, env=env, **kwargs)
+      return self._run(steptype, name=name, env=env, **kwargs)
     except self.m.step.StepFailure as e:
       if abort_on_failure or fail_build_on_failure:
         self._failed.append(e)
@@ -121,14 +129,14 @@ for pattern in build_products_whitelist:
         args=[src, dst],
         infra_step=True)
 
-  def with_retry(self, steptype, name, attempts, *args, **kwargs):
+  def with_retry(self, steptype, name, attempts, **kwargs):
     for attempt in xrange(attempts):
       step_name = name
       if attempt > 0:
         step_name += ' (attempt %d)' % (attempt + 1)
       try:
-        steptype(step_name, *args, **kwargs)
-        return
+        res = self._run(steptype, name=step_name, **kwargs)
+        return res
       except self.m.step.StepFailure:
         if attempt == attempts - 1:
           raise

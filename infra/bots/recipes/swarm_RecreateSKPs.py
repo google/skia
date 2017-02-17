@@ -88,18 +88,18 @@ def RunSteps(api):
   src_dir = api.vars.checkout_root.join('src')
   out_dir = src_dir.join('out', 'Release')
 
-  # Call GN.
-  platform = 'linux64'  # This bot only runs on linux; don't bother checking.
-  gn = src_dir.join('buildtools', platform, 'gn')
-  api.step('GN',
-           [gn, 'gen', out_dir],
-           env={'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1',
-                'GYP_GENERATORS': 'ninja'},
-           cwd=src_dir)
-  # Build Chrome.
-  api.step('Build Chrome',
-           ['ninja', '-C', out_dir, 'chrome'],
-           cwd=src_dir)
+  with api.step.context({'cwd': src_dir}):
+    # Call GN.
+    platform = 'linux64'  # This bot only runs on linux; don't bother checking.
+    gn = src_dir.join('buildtools', platform, 'gn')
+    api.step('GN',
+             [gn, 'gen', out_dir],
+             env={'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1',
+                  'GYP_GENERATORS': 'ninja'})
+
+    # Build Chrome.
+    api.step('Build Chrome',
+             ['ninja', '-C', out_dir, 'chrome'])
 
   # Clean up the output dir.
   output_dir = api.path['start_dir'].join('skp_output')
@@ -120,10 +120,10 @@ def RunSteps(api):
          '--target_dir', output_dir]
   if 'Canary' not in api.properties['buildername']:
     cmd.append('--upload_to_partner_bucket')
-  api.step('Recreate SKPs',
-           cmd=cmd,
-           cwd=api.vars.skia_dir,
-           env=env)
+  with api.step.context({'cwd': api.vars.skia_dir}):
+    api.step('Recreate SKPs',
+             cmd=cmd,
+             env=env)
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
@@ -136,10 +136,10 @@ def RunSteps(api):
            '--gitcookies', str(update_skps_gitcookies)]
     env.update(api.infra.go_env)
     with gitcookies_auth(api, UPDATE_SKPS_KEY):
-      api.step('Upload SKPs',
-               cmd=cmd,
-               cwd=api.vars.skia_dir,
-               env=env)
+      with api.step.context({'cwd': api.vars.skia_dir}):
+        api.step('Upload SKPs',
+                 cmd=cmd,
+                 env=env)
 
 
 def GenTests(api):
