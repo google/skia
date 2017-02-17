@@ -6,6 +6,9 @@
  */
 
 #include "SkData.h"
+#include "SkFixed.h"
+#include "SkFontMgr.h"
+#include "SkMakeUnique.h"
 #include "SkOTTable_OS_2.h"
 #include "SkSFNTHeader.h"
 #include "SkStream.h"
@@ -87,6 +90,77 @@ DEF_TEST(TypefaceStyle, reporter) {
     }
 }
 
+DEF_TEST(TypefaceAxes, reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return;
+    }
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    const SkFontArguments::VariationPosition::Coordinate position[] = {
+        { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 }
+    };
+    SkFontArguments params;
+    params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+    // TODO: if axes are set and the back-end doesn't support them, should we create the typeface?
+    sk_sp<SkTypeface> typeface(fm->createFromStream(distortable.release(), params));
+
+    int count = typeface->getVariationDesignPosition(nullptr, 0);
+    if (count == -1) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(position));
+
+    SkFontArguments::VariationPosition::Coordinate positionRead[SK_ARRAY_COUNT(position)];
+    count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
+    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(position));
+
+    REPORTER_ASSERT(reporter, positionRead[0].axis == position[0].axis);
+
+    // Convert to fixed for "almost equal".
+    SkFixed fixedRead = SkScalarToFixed(positionRead[0].value);
+    SkFixed fixedOriginal = SkScalarToFixed(position[0].value);
+    REPORTER_ASSERT(reporter, fixedRead == fixedOriginal);
+}
+
+DEF_TEST(TypefaceVariationIndex, reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return;
+    }
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    SkFontArguments params;
+    // The first named variation position in Distortable is 'Thin'.
+    params.setCollectionIndex(0x00010000);
+    sk_sp<SkTypeface> typeface(fm->createFromStream(distortable.release(), params));
+    if (!typeface) {
+        // FreeType is the only weird thing that supports this, Skia just needs to make sure if it
+        // gets one of these things make sense.
+        return;
+    }
+
+    int count = typeface->getVariationDesignPosition(nullptr, 0);
+    if (!(count == 1)) {
+        REPORT_FAILURE(reporter, "count == 1", SkString());
+        return;
+    }
+
+    SkFontArguments::VariationPosition::Coordinate positionRead[1];
+    count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
+    if (count == -1) {
+        return;
+    }
+    if (!(count == 1)) {
+        REPORT_FAILURE(reporter, "count == 1", SkString());
+        return;
+    }
+    REPORTER_ASSERT(reporter, positionRead[0].axis == SkSetFourByteTag('w','g','h','t'));
+    REPORTER_ASSERT(reporter, positionRead[0].value == 0.5);
+}
+
 DEF_TEST(Typeface, reporter) {
 
     sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
@@ -133,6 +207,11 @@ protected:
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         SK_ABORT("unimplemented");
         return nullptr;
+    }
+    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
+                                     int coordinateCount) const override
+    {
+        return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override { return 0; }

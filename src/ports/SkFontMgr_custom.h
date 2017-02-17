@@ -144,7 +144,7 @@ protected:
                                  const SkFontStyle& fontStyle) const override;
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override;
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override;
-    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override;
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const SkFontArguments& args) const override;
     SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> data) const override;
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override;
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override;

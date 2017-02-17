@@ -150,6 +150,12 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
             return new EmptyLocalizedStrings;
         }
+        int onGetVariationDesignPosition(
+                SkFontArguments::VariationPosition::Coordinate coordinates[],
+                int coordinateCount) const override
+        {
+            return 0;
+        }
         int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
         size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
             return 0;

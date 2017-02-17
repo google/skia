@@ -222,7 +222,7 @@ protected:
         return SkTypeface_FCI::Create(std::move(fontData), std::move(name), style, isFixedPitch);
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const SkFontArguments& args) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
         std::unique_ptr<SkStreamAsset> stream(s);
         const size_t length = stream->getLength();
@@ -237,19 +237,18 @@ protected:
         SkFontStyle style;
         SkString name;
         Scanner::AxisDefinitions axisDefinitions;
-        if (!fScanner.scanFont(stream.get(), params.getCollectionIndex(),
+        if (!fScanner.scanFont(stream.get(), args.getCollectionIndex(),
                                &name, &style, &isFixedPitch, &axisDefinitions))
         {
             return nullptr;
         }
 
-        int paramAxisCount;
-        const FontParameters::Axis* paramAxes = params.getAxes(&paramAxisCount);
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
-        Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
+        Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
+                                   axisValues, name);
 
         auto fontData = skstd::make_unique<SkFontData>(std::move(stream),
-                                                       params.getCollectionIndex(),
+                                                       args.getCollectionIndex(),
                                                        axisValues.get(),
                                                        axisDefinitions.count());
         return SkTypeface_FCI::Create(std::move(fontData), std::move(name), style, isFixedPitch);
