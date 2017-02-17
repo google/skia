@@ -82,6 +82,9 @@ struct SkSize : public SkTSize<SkScalar> {
         return s;
     }
 
+    static SkSize Make(const SkISize& src) {
+        return Make(SkIntToScalar(src.width()), SkIntToScalar(src.height()));
+    }
 
     SkSize& operator=(const SkISize& src) {
         this->set(SkIntToScalar(src.fWidth), SkIntToScalar(src.fHeight));

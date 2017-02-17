@@ -188,7 +188,7 @@ void SkTestTypeface::onGetFamilyName(SkString* familyName) const {
 SkTypeface::LocalizedStrings* SkTestTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fTestFont->fName);
     SkString language("und"); //undetermined
-SkASSERT(0);  // incomplete
+//SkASSERT(0);  // incomplete
     return nullptr;
 //     return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
 }

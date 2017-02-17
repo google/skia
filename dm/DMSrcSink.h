@@ -467,6 +467,12 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
+class ViaSVG : public Via {
+public:
+    explicit ViaSVG(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
 class ViaMojo : public Via {
 public:
     explicit ViaMojo(Sink* sink) : Via(sink) {}

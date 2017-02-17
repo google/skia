@@ -563,14 +563,15 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
 
     sk_sp<SkTypeface::LocalizedStrings> familyNameIter(tface->createFamilyNameIterator());
     SkTypeface::LocalizedString familyString;
-    while (familyNameIter->next(&familyString)) {
-        if (familySet.contains(familyString.fString)) {
-            continue;
+    if (familyNameIter) {
+        while (familyNameIter->next(&familyString)) {
+            if (familySet.contains(familyString.fString)) {
+                continue;
+            }
+            familySet.add(familyString.fString);
+            familyName.appendf((familyName.isEmpty() ? "%s" : ", %s"), familyString.fString.c_str());
         }
-        familySet.add(familyString.fString);
-        familyName.appendf((familyName.isEmpty() ? "%s" : ", %s"), familyString.fString.c_str());
     }
-
     if (!familyName.isEmpty()) {
         this->addAttribute("font-family", familyName);
     }

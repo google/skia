@@ -64,7 +64,7 @@ struct SkDOMNode {
 
 /////////////////////////////////////////////////////////////////////////
 
-#define kMinChunkSize   512
+#define kMinChunkSize   4096
 
 SkDOM::SkDOM() : fAlloc(kMinChunkSize), fRoot(nullptr) {}
 
