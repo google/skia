@@ -275,6 +275,24 @@
     },
     {
       "key": {
+        "uuid": "047ff527_f3dbb8f1",
+        "filename": "include/gpu/GrCrossContextTextureData.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-17T14:36:00Z",
+      "side": 1,
+      "message": "Let\u0027s not include things that are Skia-isms (origin, grpixelconfig, flags) and just things that pertain to the 3d api.",
+      "parentUuid": "51192800_f513b86e",
+      "revId": "ecc3da5a120cad22d3b92095a84ce6bad5a04ef5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "04c5f59f_93fba146",
         "filename": "include/gpu/GrTexture.h",
         "patchSetId": 9
