@@ -190,6 +190,12 @@ config("default") {
     if (target_cpu == "arm") {
       _target = "armv7"
     }
+    asmflags += [
+      "-isysroot",
+      ios_sysroot,
+      "-arch",
+      _target,
+    ]
     cflags += [
       "-isysroot",
       ios_sysroot,
