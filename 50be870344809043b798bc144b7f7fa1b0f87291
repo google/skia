@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3e5fde96_fca22f80",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T17:06:53Z",
+      "side": 1,
+      "message": "This isn\u0027t meant to be used directly. This is the current solution when MakeFromEncoded is called without a GrContext. Flutter mentioned using share groups \"when they\u0027re available\", so the code is built to handle the lack of that support. Although from the specs, it seems like it\u0027s required?",
+      "parentUuid": "bd61740c_5823aa43",
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad4fc709_5c0a6a3e",
         "filename": "include/core/SkCrossContextImageData.h",
         "patchSetId": 14
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "d670affc_37b63e30",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T17:06:53Z",
+      "side": 1,
+      "message": "Actually, even the constructors should be private. If clients are going to interact with the backend object, we will need a public getter for fTextureData, though.",
+      "parentUuid": "ad4fc709_5c0a6a3e",
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "82d85f21_1247f8c7",
         "filename": "src/gpu/gl/GrGLTexture.cpp",
         "patchSetId": 14
@@ -47,6 +83,30 @@
       "writtenOn": "2017-02-17T16:58:13Z",
       "side": 1,
       "message": "Does this need to be specialized in GrGLTextureRenderTarget to free up FBO and related stuff or does that just work when the object gets removed by the cache?",
+      "range": {
+        "startLine": 116,
+        "startChar": 52,
+        "endLine": 116,
+        "endChar": 72
+      },
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed6de9bc_d91b7bda",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-17T17:06:53Z",
+      "side": 1,
+      "message": "Good quesiton. I\u0027ll dig a bit.",
+      "parentUuid": "82d85f21_1247f8c7",
       "range": {
         "startLine": 116,
         "startChar": 52,
