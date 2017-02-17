@@ -7,7 +7,7 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
+#if 0 && SK_SUPPORT_GPU
 
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
@@ -66,7 +66,7 @@ class GrPorterDuffTest {
 public:
     struct XPInfo {
         XPInfo(skiatest::Reporter* reporter, SkBlendMode xfermode, const GrCaps& caps,
-               const GrPipelineAnalysis& analysis) {
+               const FPAnalysis& analysis) {
             const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(xfermode);
             fReadsDst = GrXPFactory::WillReadDst(xpf, analysis);
             fHasConstantPreCoverageBlendedColor = GrXPFactory::IsPreCoverageBlendedColorConstant(
@@ -98,7 +98,7 @@ public:
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
     GrPipelineInput lcdInput;
     lcdInput.setToLCDCoverage();
-    GrPipelineAnalysis analysis(GrPipelineInput(), lcdInput);
+    FPAnalysis analysis(GrPipelineInput(), lcdInput);
 
     SkASSERT(!analysis.colorInfo().isOpaque());
     SkASSERT(!analysis.colorInfo().isSolidWhite());
@@ -284,7 +284,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
     }
 }
 static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineAnalysis analysis;
+    FPAnalysis analysis;
 
     SkASSERT(!analysis.colorInfo().isOpaque());
     SkASSERT(!analysis.colorInfo().isSolidWhite());
@@ -471,7 +471,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
 }
 
 static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineAnalysis analysis(GrPipelineInput(GrColorPackRGBA(229, 0, 154, 240)),
+    FPAnalysis analysis(GrPipelineInput(GrColorPackRGBA(229, 0, 154, 240)),
                                 GrPipelineInput(GrColorPackA4(255)));
 
     SkASSERT(!analysis.colorInfo().isOpaque());
@@ -663,7 +663,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
 }
 
 static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineAnalysis analysis(GrPipelineInput::Opaque::kYes, GrPipelineInput());
+    FPAnalysis analysis(GrPipelineInput::Opaque::kYes, GrPipelineInput());
 
     SkASSERT(analysis.colorInfo().isOpaque());
     SkASSERT(!analysis.colorInfo().isSolidWhite());
@@ -853,7 +853,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
 }
 
 static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineAnalysis analysis(GrPipelineInput::Opaque::kYes, GrColorPackA4(255));
+    FPAnalysis analysis(GrPipelineInput::Opaque::kYes, GrColorPackA4(255));
 
     SkASSERT(analysis.colorInfo().isOpaque());
     SkASSERT(!analysis.colorInfo().isSolidWhite());
@@ -1066,7 +1066,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         typedef GrMeshDrawOp INHERITED;
     } testLCDCoverageOp;
 
-    GrPipelineAnalysis analysis;
+    FPAnalysis analysis;
     testLCDCoverageOp.initPipelineAnalysis(&analysis);
 
     SkASSERT(analysis.colorInfo().hasKnownOutputColor());
@@ -1125,7 +1125,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                                                   GrPipelineInput(GrColorPackRGBA(0, 82, 17, 255))};
 
     for (const auto& colorInput : colorInputs) {
-        GrPipelineAnalysis analysis;
+        FPAnalysis analysis;
         for (bool fractionalCoverage : {true, false}) {
             if (fractionalCoverage) {
                 analysis.reset(colorInput, GrPipelineInput());

@@ -53,6 +53,10 @@ struct GrPipelineInput {
 
     bool isOpaque() const { return SkToBool(kIsOpaque_Flag & fFlags); }
 
+    bool isSolidWhite() const {
+        return (kColorIsKnown_Flag & fFlags) && GrColor_WHITE == fColor;
+    }
+
     bool isConstant(GrColor* color) const {
         if (kColorIsKnown_Flag & fFlags) {
             *color = fColor;

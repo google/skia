@@ -26,7 +26,7 @@ public:
     /** Because src-over is so common we special case it for performance reasons. If this returns
         null then the SimpleSrcOverXP() below should be used. */
     static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
-                                                       const GrPipelineAnalysis&,
+                                                       const FPAnalysis&,
                                                        bool hasMixedSamples,
                                                        const GrXferProcessor::DstTexture*);
 
@@ -37,23 +37,23 @@ public:
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static bool WillSrcOverReadDst(const GrPipelineAnalysis& analysis);
+    static bool WillSrcOverReadDst(const FPAnalysis& analysis);
     static bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
                                                          GrColor* color);
-    static bool WillSrcOverNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
+    static bool WillSrcOverNeedDstTexture(const GrCaps&, const FPAnalysis&);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
     bool isPreCoverageBlendedColorConstant(const GrProcOptInfo&, GrColor*) const override;
-    bool willReadsDst(const GrPipelineAnalysis&) const override;
+    bool willReadsDst(const FPAnalysis&) const override;
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrPipelineAnalysis&,
+                                           const FPAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override;
+    bool onWillReadDstInShader(const GrCaps&, const FPAnalysis&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);

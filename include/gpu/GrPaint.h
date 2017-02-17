@@ -13,14 +13,13 @@
 #include "GrColor.h"
 #include "GrColorSpaceXform.h"
 #include "GrFragmentProcessor.h"
-#include "GrXferProcessor.h"
 #include "SkBlendMode.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkTLazy.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 
 class GrTextureProxy;
+class GrXPFactory;
 
 /**
  * The paint describes how color and coverage are computed at each pixel by GrContext draw
@@ -86,7 +85,7 @@ public:
 
     void setXPFactory(const GrXPFactory* xpFactory) { fXPFactory = xpFactory; }
 
-    void setPorterDuffXPFactory(SkBlendMode mode) { fXPFactory = GrPorterDuffXPFactory::Get(mode); }
+    void setPorterDuffXPFactory(SkBlendMode mode);
 
     void setCoverageSetOpXPFactory(SkRegion::Op, bool invertCoverage = false);
 

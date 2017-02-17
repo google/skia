@@ -18,7 +18,6 @@
 class GrCaps;
 class GrDrawOp;
 class GrPaint;
-class GrPipelineAnalysis;
 class GrTexture;
 
 class GrPipelineBuilder : private SkNoncopyable {
@@ -62,9 +61,7 @@ public:
         return fProcessors.coverageFragmentProcessor(idx);
     }
 
-    void analyzeFragmentProcessors(GrPipelineAnalysis* analysis) const {
-        fProcessors.analyzeFragmentProcessors(analysis);
-    }
+    const GrProcessorSet& processors() const { return fProcessors; }
 
     /// @}
 
@@ -75,7 +72,7 @@ public:
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
      */
-    bool willXPNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
+    bool willXPNeedDstTexture(const GrCaps& caps, const GrProcessorSet::FPAnalysis& analysis) const {
         return GrXPFactory::WillNeedDstTexture(fProcessors.xpFactory(), caps, analysis);
     }
 
@@ -141,7 +138,7 @@ private:
     uint32_t fFlags;
     GrDrawFace fDrawFace;
     const GrUserStencilSettings* fUserStencilSettings;
-    GrProcessorSet fProcessors;
+    mutable GrProcessorSet fProcessors;
 };
 
 #endif

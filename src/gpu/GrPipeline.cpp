@@ -73,7 +73,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
     GrColor overrideColor = GrColor_ILLEGAL;
     int colorFPsToEliminate =
-            args.fAnalysis->colorInfo().initialProcessorsToEliminate(&overrideColor);
+            args.fAnalysis->initialColorProcessorsToEliminate(&overrideColor);
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 

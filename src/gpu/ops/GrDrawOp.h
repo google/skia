@@ -62,10 +62,12 @@ public:
     /**
     * Gets the inputs to pipeline analysis from the GrDrawOp.
     */
-    void initPipelineAnalysis(GrPipelineAnalysis* analysis) const {
+    void analyzeProcessors(GrProcessorSet::FPAnalysis* analysis, const GrProcessorSet& processors,
+                           const GrAppliedClip& appliedClip) const {
         PipelineAnalysisInput input;
         this->getPipelineAnalysisInput(&input);
-        analysis->reset(*input.colorInput(), *input.coverageInput(), input.usesPLSDstRead());
+        analysis->reset(*input.colorInput(), *input.coverageInput(), processors,
+                        input.usesPLSDstRead(), appliedClip);
     }
 
 protected:

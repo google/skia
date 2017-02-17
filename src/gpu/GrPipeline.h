@@ -15,12 +15,12 @@
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
+#include "GrProcessorSet.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
-
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -31,41 +31,6 @@ class GrDeviceCoordTexture;
 class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetContext;
-
-/** This is used to track pipeline analysis through the color and coverage fragment processors. */
-class GrPipelineAnalysis {
-public:
-    GrPipelineAnalysis() = default;
-    GrPipelineAnalysis(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
-                       bool usesPLSDstRead = false) {
-        this->reset(colorInput, coverageInput, usesPLSDstRead);
-    }
-
-    void reset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
-               bool usesPLSDstRead = false) {
-        fColorPOI = colorInput;
-        fCoveragePOI = coverageInput;
-        fUsesPLSDstRead = usesPLSDstRead;
-    }
-
-    bool usesPLSDstRead() const { return fUsesPLSDstRead; }
-
-    const GrProcOptInfo& colorInfo() const { return fColorPOI; }
-
-    const GrProcOptInfo& coverageInfo() const { return fCoveragePOI; }
-
-    void analyzeCoverageProcessor(const GrFragmentProcessor* fp) {
-        fCoveragePOI.analyzeProcessors(&fp, 1);
-    }
-
-private:
-    GrProcOptInfo fColorPOI;
-    GrProcOptInfo fCoveragePOI;
-    bool fUsesPLSDstRead = false;
-    friend class GrProcessorSet;
-};
-
-class GrProcessorSet;
 
 /**
  * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable
@@ -98,7 +63,7 @@ public:
         GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTargetContext* fRenderTargetContext = nullptr;
         const GrCaps* fCaps = nullptr;
-        const GrPipelineAnalysis* fAnalysis;
+        const GrProcessorSet::FPAnalysis* fAnalysis;
         GrXferProcessor::DstTexture fDstTexture;
     };
 

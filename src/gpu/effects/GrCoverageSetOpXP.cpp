@@ -34,7 +34,7 @@ public:
 private:
     CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis& analysis,
+    GrXferProcessor::OptFlags onGetOptimizations(const FPAnalysis& analysis,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
                                                  const GrCaps& caps) const override;
@@ -107,7 +107,7 @@ GrGLSLXferProcessor* CoverageSetOpXP::createGLSLInstance() const {
     return new GLCoverageSetOpXP(*this);
 }
 
-GrXferProcessor::OptFlags CoverageSetOpXP::onGetOptimizations(const GrPipelineAnalysis& analysis,
+GrXferProcessor::OptFlags CoverageSetOpXP::onGetOptimizations(const FPAnalysis& analysis,
                                                               bool doesStencilWrite,
                                                               GrColor* color,
                                                               const GrCaps& caps) const {
@@ -167,7 +167,7 @@ public:
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&, bool, GrColor*,
+    GrXferProcessor::OptFlags onGetOptimizations(const FPAnalysis&, bool, GrColor*,
                                                  const GrCaps&) const override {
         // We never look at the color input
         return GrXferProcessor::kIgnoreColor_OptFlag;
@@ -322,7 +322,7 @@ const GrXPFactory* GrCoverageSetOpXPFactory::Get(SkRegion::Op regionOp, bool inv
 }
 
 GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                                 const GrPipelineAnalysis& analysis,
+                                                                 const FPAnalysis& analysis,
                                                                  bool hasMixedSamples,
                                                                  const DstTexture* dst) const {
     // We don't support inverting coverage with mixed samples. We don't expect to ever want this in
