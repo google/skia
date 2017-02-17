@@ -79,6 +79,10 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
 
+    for (int i = 0; i < fFooCBs.count(); ++i) {
+        (*fFooCBs[i])(nullptr, fOpLists);
+    }
+
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareOps(&fFlushState);
     }

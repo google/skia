@@ -8,6 +8,7 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
+#include "GrContextPriv.h"
 #include "GrOpFlushState.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
@@ -67,6 +68,10 @@ public:
 
     void prepareSurfaceForExternalIO(GrSurface*);
 
+    void addFooCB(GrContextPriv::PFFooCB fooCB) {
+        fFooCBs.push_back() = fooCB;
+    }
+
 private:
     GrDrawingManager(GrContext* context,
                      const GrRenderTargetOpList::Options& optionsForOpLists,
@@ -115,6 +120,8 @@ private:
     bool                              fFlushing;
 
     bool                              fIsImmediateMode;
+
+    SkTArray<GrContextPriv::PFFooCB>  fFooCBs;
 };
 
 #endif
