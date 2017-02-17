@@ -108,6 +108,23 @@
     },
     {
       "key": {
+        "uuid": "3d8abae7_bd80012e",
+        "filename": "include/gpu/GrExternalTextureData.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-17T18:12:34Z",
+      "side": 1,
+      "message": "Can this be the GrBackendObject? Can we add a virtual like: getGLTextureID which fails for Vulkan?",
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "82d85f21_1247f8c7",
         "filename": "src/gpu/gl/GrGLTexture.cpp",
         "patchSetId": 14
