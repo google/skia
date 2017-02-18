@@ -224,17 +224,17 @@ public:
         , fCurrUniformLocation(0)
         , fCurrPathID(0) {
         memset(fBoundBuffers, 0, sizeof(fBoundBuffers));
-        fExtensions.push_back("GL_ARB_framebuffer_object");
-        fExtensions.push_back("GL_ARB_blend_func_extended");
-        fExtensions.push_back("GL_ARB_timer_query");
-        fExtensions.push_back("GL_ARB_draw_buffers");
-        fExtensions.push_back("GL_ARB_occlusion_query");
-        fExtensions.push_back("GL_EXT_stencil_wrap");
+        fAdvertisedExtensions.push_back("GL_ARB_framebuffer_object");
+        fAdvertisedExtensions.push_back("GL_ARB_blend_func_extended");
+        fAdvertisedExtensions.push_back("GL_ARB_timer_query");
+        fAdvertisedExtensions.push_back("GL_ARB_draw_buffers");
+        fAdvertisedExtensions.push_back("GL_ARB_occlusion_query");
+        fAdvertisedExtensions.push_back("GL_EXT_stencil_wrap");
         if (enableNVPR) {
-            fExtensions.push_back("GL_NV_path_rendering");
-            fExtensions.push_back("GL_ARB_program_interface_query");
+            fAdvertisedExtensions.push_back("GL_NV_path_rendering");
+            fAdvertisedExtensions.push_back("GL_ARB_program_interface_query");
         }
-        fExtensions.push_back(nullptr);
+        fAdvertisedExtensions.push_back(nullptr);
 
         this->init(kGL_GrGLStandard);
     }
@@ -522,7 +522,7 @@ public:
                 break;
             case GR_GL_NUM_EXTENSIONS: {
                 GrGLint i = 0;
-                while (fExtensions[i++]);
+                while (fAdvertisedExtensions[i++]);
                 *params = i;
                 break;
             }
@@ -606,7 +606,7 @@ public:
                 GrGLint count;
                 this->getIntegerv(GR_GL_NUM_EXTENSIONS, &count);
                 if ((GrGLint)i <= count) {
-                    return (const GrGLubyte*) fExtensions[i];
+                    return (const GrGLubyte*) fAdvertisedExtensions[i];
                 } else {
                     return nullptr;
                 }
@@ -711,7 +711,7 @@ private:
     GrGLuint                         fCurrUniformLocation;
     GrGLuint                         fCurrPathID;
     sk_sp<const Texture>             fSingleTextureObject;
-    SkTArray<const char*>            fExtensions;
+    SkTArray<const char*>            fAdvertisedExtensions;
 
     // the OpenGLES 2.0 spec says this must be >= 128
     static const GrGLint kDefaultMaxVertexUniformVectors = 128;
@@ -755,11 +755,11 @@ private:
         gMutex.acquire();
         if (0 == gExtString.size()) {
             int i = 0;
-            while (fExtensions[i]) {
+            while (fAdvertisedExtensions[i]) {
                 if (i > 0) {
                     gExtString.append(" ");
                 }
-                gExtString.append(fExtensions[i]);
+                gExtString.append(fAdvertisedExtensions[i]);
                 ++i;
             }
         }
