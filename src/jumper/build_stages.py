@@ -27,7 +27,7 @@ subprocess.check_call(['clang++'] + cflags + sse41 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse41.o'])
 
-hsw = '-mno-red-zone -mavx2 -mfma -mf16c'.split()
+hsw = '-mno-red-zone -mavx2 -mfma -mf16c -mllvm -x86-use-vzeroupper=0'.split()
 subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'hsw.o'])

@@ -174,67 +174,69 @@ static Dst bit_cast(const Src& src) {
 // an interlaced sequence of Stage pointers and context pointers.
 using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
 
-static void* load_and_inc(void**& program) {
-#if defined(__GNUC__) && defined(__x86_64__)
-    // Passing program as the second Stage argument makes it likely that it's in %rsi,
-    // so this is usually a single instruction *program++.
-    void* rax;
-    asm("lodsq" : "=a"(rax), "+S"(program));  // Write-only %rax, read-write %rsi.
-    return rax;
-    // When a Stage uses its ctx pointer, this optimization typically cuts an instruction:
-    //    mov    (%rsi), %rcx     // ctx  = program[0]
-    //    ...
-    //    mov 0x8(%rsi), %rax     // next = program[1]
-    //    add $0x10, %rsi         // program += 2
-    //    jmpq *%rax              // JUMP!
-    // becomes
-    //    lods   %ds:(%rsi),%rax  // ctx  = *program++;
-    //    ...
-    //    lods   %ds:(%rsi),%rax  // next = *program++;
-    //    jmpq *%rax              // JUMP!
-    //
-    // When a Stage doesn't use its ctx pointer, it's 3 instructions either way,
-    // but using lodsq (a 2-byte instruction) tends to trim a few bytes.
-#else
-    // On ARM *program++ compiles into a single instruction without any handholding.
-    return *program++;
-#endif
-}
-
-#define STAGE(name)                                                           \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
-                              F r, F g, F b, F a, F dr, F dg, F db, F da) {   \
-        auto ctx = load_and_inc(program);                                     \
-        name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
-        auto next = (Stage*)load_and_inc(program);                            \
-        next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
-    }                                                                         \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
-
-// Some glue stages that don't fit the normal pattern of stages.
-
-extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k) {
-    auto next = (Stage*)load_and_inc(program);
-    F v{};   // TODO: faster uninitialized?
-    next(x,program,k, v,v,v,v, v,v,v,v);
-}
-
 #if defined(JUMPER) && defined(__x86_64__)
-    __attribute__((ms_abi))
-    extern "C" void WRAP(start_pipeline_ms)(size_t x, void** program, K* k) {
-        WRAP(start_pipeline)(x,program,k);
-    }
-#endif
 
-// Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
-extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {
-#if defined(JUMPER) && defined(__AVX2__)
-    asm("vzeroupper");
+    static inline void* pop() {
+        void* p;
+        asm volatile("popq %0" : "=r"(p));
+        return p;
+    }
+    static inline void push(void* p) { asm volatile("pushq %0" :: "r"(p)); }
+
+    template <typename T>
+    static inline void keep_alive(T v) { asm volatile("" : "+r"(v)); }
+    static inline void keep_alive(F v) { asm volatile("" : "+x"(v)); }
+
+    template <typename T, typename... Ts>
+    static inline void keep_alive(T v, Ts... vs) {
+        keep_alive(v);
+        keep_alive(vs...);
+    }
+
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t& x, void* ctx, K* k,                          \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            auto ctx = pop();                                                     \
+            name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
+            keep_alive(x,ctx,k, r,g,b,a, dr,dg,db,da);                            \
+        }                                                                         \
+        static void name##_k(size_t& x, void* ctx, K* k,                          \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+
+#else
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t& x, void* ctx, K* k,                          \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            auto ctx = *program++;                                                \
+            name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
+            auto next = (Stage*)*program++;                                       \
+            next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
+        }                                                                         \
+        static void name##_k(size_t& x, void* ctx, K* k,                          \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+
+    // Some glue stages that don't fit the normal pattern of stages.
+
+    extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k) {
+        auto next = (Stage*)*program++;
+        F v{};   // TODO: faster uninitialized?
+        next(x,program,k, v,v,v,v, v,v,v,v);
+    }
+
+    #if defined(JUMPER) && defined(__x86_64__)
+        __attribute__((ms_abi))
+        extern "C" void WRAP(start_pipeline_ms)(size_t x, void** program, K* k) {
+            WRAP(start_pipeline)(x,program,k);
+        }
+    #endif
+
+    // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
+    extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
 #endif
-}
 
 // We can now define Stages!
 
