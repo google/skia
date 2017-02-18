@@ -885,7 +885,9 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);
+#ifdef TEST_VIA_SVG
     VIA("svg",       ViaSVG,               wrapped);
+#endif
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
     VIA("2ndpic",    ViaSecondPicture,     wrapped);
