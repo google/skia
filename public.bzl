@@ -480,6 +480,7 @@ DM_SRCS_IOS = struct(
 DM_INCLUDES = [
     "dm",
     "gm",
+    "experimental/svg/model",
     "src/codec",
     "src/core",
     "src/effects",
