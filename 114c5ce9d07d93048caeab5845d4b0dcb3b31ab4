@@ -16,6 +16,41 @@
       "revId": "114c5ce9d07d93048caeab5845d4b0dcb3b31ab4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5ded0f0_936cd4ec",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-18T13:22:39Z",
+      "side": 1,
+      "message": "Ah, probably just missing a \"public:\" at the top.",
+      "parentUuid": "6ce89032_07c51e72",
+      "revId": "114c5ce9d07d93048caeab5845d4b0dcb3b31ab4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d675f82_f5bd81ec",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-18T13:22:39Z",
+      "side": 1,
+      "message": "Oh, this should be on GrTexturePriv since GrTexture is currently in the public API (though this CL moves us close to removing it).",
+      "revId": "114c5ce9d07d93048caeab5845d4b0dcb3b31ab4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
