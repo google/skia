@@ -18,7 +18,6 @@
 class GrCaps;
 class GrDrawOp;
 class GrPaint;
-struct GrPipelineAnalysis;
 class GrTexture;
 
 class GrPipelineBuilder : private SkNoncopyable {
@@ -29,7 +28,15 @@ public:
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    GrPipelineBuilder(GrPaint&&, GrAAType);
+    GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
+            : fFlags(0x0)
+            , fDrawFace(GrDrawFace::kBoth)
+            , fUserStencilSettings(&GrUserStencilSettings::kUnused)
+            , fProcessors(std::move(paint)) {
+        if (GrAATypeIsHW(aaType)) {
+            fFlags |= GrPipeline::kHWAntialias_Flag;
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Fragment Processors
@@ -54,9 +61,7 @@ public:
         return fProcessors.coverageFragmentProcessor(idx);
     }
 
-    void analyzeFragmentProcessors(GrPipelineAnalysis* analysis) const {
-        fProcessors.analyzeFragmentProcessors(analysis);
-    }
+    const GrProcessorSet& processors() const { return fProcessors; }
 
     /// @}
 
@@ -67,7 +72,9 @@ public:
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
      */
-    bool willXPNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis&) const;
+    bool willXPNeedDstTexture(const GrCaps& caps, const GrProcessorSet::FPAnalysis& analysis) const {
+        return GrXPFactory::WillNeedDstTexture(fProcessors.xpFactory(), caps, analysis);
+    }
 
     /// @}
 
@@ -131,7 +138,7 @@ private:
     uint32_t fFlags;
     GrDrawFace fDrawFace;
     const GrUserStencilSettings* fUserStencilSettings;
-    GrProcessorSet fProcessors;
+    mutable GrProcessorSet fProcessors;
 };
 
 #endif

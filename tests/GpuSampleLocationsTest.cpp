@@ -98,9 +98,11 @@ static GrPipeline* construct_dummy_pipeline(GrRenderTargetContext* dc, void* sto
     GrPipelineOptimizations dummyOverrides;
 
     GrAppliedClip dummyAppliedClip(SkRect::MakeLargest());
+    GrProcessorSet::FPAnalysis analysis;
     GrPipeline::CreateArgs args;
     dummyBuilder.initPipelineCreateArgs(&args);
     args.fRenderTargetContext = dc;
+    args.fAnalysis = &analysis;
     args.fCaps = dc->caps();
     args.fAppliedClip = &dummyAppliedClip;
     args.fDstTexture = GrXferProcessor::DstTexture();

@@ -36,16 +36,16 @@ private:
         return false;
     }
 
-    bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override {
+    bool willReadsDst(const FPAnalysis&) const override {
         return fRegionOp != SkRegion::kReplace_Op;
     }
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps&,
-                                           const GrPipelineAnalysis&,
+                                           const FPAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override {
+    bool onWillReadDstInShader(const GrCaps&, const FPAnalysis&) const override {
         return false;
     }
 

@@ -28,19 +28,16 @@ private:
         return false;
     }
 
-    bool willReadsDst(const GrProcOptInfo& colorInput,
-                      const GrProcOptInfo& coverageInput) const override {
-        return false;
-    }
+    bool willReadsDst(const FPAnalysis&) const override { return false; }
 
     constexpr GrDisableColorXPFactory() {}
 
-    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override {
+    bool onWillReadDstInShader(const GrCaps&, const FPAnalysis&) const override {
         return false;
     }
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrPipelineAnalysis&,
+                                           const FPAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture* dstTexture) const override;
 

@@ -12,6 +12,10 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
+void GrPaint::setPorterDuffXPFactory(SkBlendMode mode) {
+    fXPFactory = GrPorterDuffXPFactory::Get(mode);
+}
+
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
     fXPFactory = GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage);
 }
@@ -76,7 +80,7 @@ void GrPaint::addCoverageTextureProcessor(GrContext* ctx, sk_sp<GrTextureProxy> 
 }
 
 bool GrPaint::internalIsConstantBlendedColor(GrColor paintColor, GrColor* color) const {
-    GrProcOptInfo colorProcInfo((GrPipelineInput(paintColor)));
+    GrProcOptInfo colorProcInfo(paintColor);
     colorProcInfo.analyzeProcessors(
             sk_sp_address_as_pointer_address(fColorFragmentProcessors.begin()),
             this->numColorFragmentProcessors());
