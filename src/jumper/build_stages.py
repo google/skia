@@ -27,7 +27,7 @@ subprocess.check_call(['clang++'] + cflags + sse41 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse41.o'])
 
-hsw = '-mno-red-zone -mavx2 -mfma -mf16c'.split()
+hsw = '-mno-red-zone -mavx2 -mfma -mf16c -mllvm -x86-use-vzeroupper=0'.split()
 subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'hsw.o'])
@@ -51,6 +51,7 @@ subprocess.check_call(['clang++'] + cflags + vfp4 +
                       ['-o', 'vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
+  rewrites = { 'e9 00 00 00 00': ('c3', 'retq', '') }
   cmd = [ objdump, '-d', '--insn-width=9', dot_o]
   if target:
     cmd += ['--target', target]
@@ -79,6 +80,9 @@ def parse_object_file(dot_o, directive, target=None):
       if ' ' in columns[2]:
         inst, args = columns[2].split(' ', 1)
     code, inst, args = code.strip(), inst.strip(), args.strip()
+
+    if code in rewrites:
+      code, inst, args = rewrites[code]
 
     # We can't work with code that uses ip-relative addressing.
     for arg in args:
