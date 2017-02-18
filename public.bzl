@@ -488,6 +488,7 @@ DM_INCLUDES = [
     "src/pathops",
     "src/pipe/utils",
     "src/ports",
+    "src/xml",
     "tests",
     "tools",
     "tools/debugger",
