@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "af8bbdce_af691a70",
+        "filename": "include/core/SkCrossContextImageData.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-18T14:55:13Z",
+      "side": 1,
+      "message": "Ah. Yeah, oversight when I changed struct to class. I\u0027ll fix that.",
+      "parentUuid": "f5ded0f0_936cd4ec",
+      "revId": "114c5ce9d07d93048caeab5845d4b0dcb3b31ab4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8d675f82_f5bd81ec",
         "filename": "include/gpu/GrTexture.h",
         "patchSetId": 19
@@ -48,6 +66,24 @@
       "writtenOn": "2017-02-18T13:22:39Z",
       "side": 1,
       "message": "Oh, this should be on GrTexturePriv since GrTexture is currently in the public API (though this CL moves us close to removing it).",
+      "revId": "114c5ce9d07d93048caeab5845d4b0dcb3b31ab4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b41d0d4f_b56b619d",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-18T14:55:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8d675f82_f5bd81ec",
       "revId": "114c5ce9d07d93048caeab5845d4b0dcb3b31ab4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
