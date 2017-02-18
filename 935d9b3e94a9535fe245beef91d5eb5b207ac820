@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92e58115_86759464",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1880,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-18T13:50:28Z",
+      "side": 1,
+      "message": "rgn-\u003esetRect(bounds.round());\n\nno need for intemediate iBounds.",
+      "range": {
+        "startLine": 1880,
+        "startChar": 25,
+        "endLine": 1880,
+        "endChar": 32
+      },
+      "revId": "935d9b3e94a9535fe245beef91d5eb5b207ac820",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
