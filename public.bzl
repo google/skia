@@ -481,6 +481,7 @@ DM_INCLUDES = [
     "dm",
     "gm",
     "src/codec",
+    "src/core",
     "src/effects",
     "src/effects/gradients",
     "src/fonts",
