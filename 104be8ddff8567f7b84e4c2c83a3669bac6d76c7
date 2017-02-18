@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e28f1772_17585a1d",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-18T13:05:46Z",
+      "side": 1,
+      "message": "Just to understand, is this templated on T and U because we could have (X \u0026 GrTInvertedFlags\u003cX\u003e) or (GrTInvertedFlags\u003cX\u003e \u0026 X) and by having to template types we can support both with one function?\n\nDoesn\u0027t this also allow GrTInvertedFlags\u003cX\u003e \u0026 GrTInvertedFlags\u003cX\u003e ?",
+      "range": {
+        "startLine": 64,
+        "startChar": 14,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "104be8ddff8567f7b84e4c2c83a3669bac6d76c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
