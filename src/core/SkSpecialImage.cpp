@@ -261,9 +261,7 @@ public:
 
     sk_sp<GrTextureProxy> onAsTextureProxy(GrContext* context) const override {
         if (context) {
-            sk_sp<GrTexture> tex(sk_ref_sp(GrRefCachedBitmapTexture(
-                context, fBitmap, GrSamplerParams::ClampNoFilter(), nullptr)));
-            return GrSurfaceProxy::MakeWrapped(std::move(tex));
+            return GrMakeCachedBitmapProxy(context, fBitmap);
         }
 
         return nullptr;
