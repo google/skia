@@ -676,7 +676,7 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
     // If these objects are constructed as static constexpr by cl.exe (2015 SP2) the vtables are
     // null.
 #ifdef SK_BUILD_FOR_WIN
-#define _CONSTEXPR_
+#define _CONSTEXPR_ constexpr
 #else
 #define _CONSTEXPR_ constexpr
 #endif
