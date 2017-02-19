@@ -139,15 +139,10 @@ public:
 
 #if SK_SUPPORT_GPU
     /**
-     *  Regardless of the underlying backing store, return the contents as a GrTexture.
+     *  Regardless of the underlying backing store, return the contents as a GrTextureProxy.
      *  The active portion of the texture can be retrieved via 'subset'.
      */
-    sk_sp<GrTexture> asTextureRef(GrContext*) const;
-
-    /**
-     *  The same as above but return the contents as a GrTextureProxy.
-     */
-    sk_sp<GrTextureProxy> asTextureProxy(GrContext*) const;
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*) const;
 #endif
 
     // TODO: hide this whe the imagefilter all have a consistent draw path (see skbug.com/5063)
