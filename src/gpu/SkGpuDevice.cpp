@@ -1163,25 +1163,29 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     }
 
     SkASSERT(result->isTextureBacked());
-    sk_sp<GrTexture> texture = result->asTextureRef(fContext.get());
-    if (!texture) {
+    sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(fContext.get());
+    if (!proxy) {
         return;
     }
+
+    const GrPixelConfig config = proxy->config();
 
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
 
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
-    GrPaint grPaint;
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(),
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(fContext.get(),
+                                                              std::move(proxy),
                                                               std::move(colorSpaceXform),
                                                               SkMatrix::I()));
-    if (GrPixelConfigIsAlphaOnly(texture->config())) {
+    if (GrPixelConfigIsAlphaOnly(config)) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {
         fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
     }
+
+    GrPaint grPaint;
     if (!SkPaintToGrPaintReplaceShader(this->context(), fRenderTargetContext.get(), tmpUnfiltered,
                                        std::move(fp), &grPaint)) {
         return;
