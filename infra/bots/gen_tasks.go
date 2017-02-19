@@ -177,6 +177,17 @@ func swarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Entry %q not found in GPU mapping: %v", parts["cpu_or_gpu_value"], GPU_MAPPING)
 			}
 			d["gpu"] = gpu
+
+			// Hack: Specify machine_type dimension for NUCs and ShuttleCs. We
+			// temporarily have two types of machines with a GTX960. The only way to
+			// distinguish these bots is by machine_type.
+			machine_type, ok := map[string]string{
+				"NUC6i7KYK": "n1-highcpu-8",
+				"ShuttleC":  "n1-standard-8",
+			}[parts["model"]]
+			if ok {
+				d["machine_type"] = machine_type
+			}
 		}
 	} else {
 		d["gpu"] = "none"
