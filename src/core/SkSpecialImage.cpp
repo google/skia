@@ -51,8 +51,7 @@ public:
     virtual SkColorSpace* onGetColorSpace() const = 0;
 
 #if SK_SUPPORT_GPU
-    virtual sk_sp<GrTexture> onAsTextureRef(GrContext* context) const = 0;
-    virtual sk_sp<GrTextureProxy> onAsTextureProxy(GrContext* context) const = 0;
+    virtual sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext* context) const = 0;
 #endif
 
     virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
@@ -148,12 +147,8 @@ SkColorSpace* SkSpecialImage::getColorSpace() const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTexture> SkSpecialImage::asTextureRef(GrContext* context) const {
-    return as_SIB(this)->onAsTextureRef(context);
-}
-
-sk_sp<GrTextureProxy> SkSpecialImage::asTextureProxy(GrContext* context) const {
-    return as_SIB(this)->onAsTextureProxy(context);
+sk_sp<GrTextureProxy> SkSpecialImage::asTextureProxyRef(GrContext* context) const {
+    return as_SIB(this)->onAsTextureProxyRef(context);
 }
 #endif
 
@@ -252,16 +247,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
-        if (context) {
-            return sk_ref_sp(GrRefCachedBitmapTexture(context, fBitmap,
-                                                      GrSamplerParams::ClampNoFilter(), nullptr));
-        }
-
-        return nullptr;
-    }
-
-    sk_sp<GrTextureProxy> onAsTextureProxy(GrContext* context) const override {
+    sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext* context) const override {
         if (context) {
             return GrMakeCachedBitmapProxy(context, fBitmap);
         }
@@ -437,12 +423,7 @@ public:
 
     GrContext* onGetContext() const override { return fContext; }
 
-    // This entry point should go away in favor of asTextureProxy
-    sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
-        return sk_ref_sp(fTextureProxy->instantiate(context->textureProvider()));
-    }
-
-    sk_sp<GrTextureProxy> onAsTextureProxy(GrContext*) const override {
+    sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext*) const override {
         return fTextureProxy;
     }
 
