@@ -7432,6 +7432,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -7480,6 +7481,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -7528,6 +7530,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -7576,6 +7579,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -7624,6 +7628,7 @@
       ],
       "dimensions": [
         "gpu:8086:1912",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -7672,6 +7677,7 @@
       ],
       "dimensions": [
         "gpu:8086:1912",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -12231,6 +12237,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -12279,6 +12286,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -12327,6 +12335,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -12375,6 +12384,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -12423,6 +12433,7 @@
       ],
       "dimensions": [
         "gpu:8086:1912",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
@@ -12471,6 +12482,7 @@
       ],
       "dimensions": [
         "gpu:8086:1912",
+        "machine_type:n1-standard-8",
         "os:Windows-10-14393",
         "pool:Skia"
       ],
