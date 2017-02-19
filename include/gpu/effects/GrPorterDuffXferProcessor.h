@@ -14,39 +14,21 @@
 
 class GrProcOptInfo;
 
+namespace GrPorterDuffXPFactory {
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 #endif
-class GrPorterDuffXPFactory : public GrXPFactory {
+class XPF : public GrXPFactory {
 public:
-    static const GrXPFactory* Get(SkBlendMode blendMode);
-
-    /** Because src-over is so common we special case it for performance reasons. If this returns
-        null then the SimpleSrcOverXP() below should be used. */
-    static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
-                                                       const GrPipelineAnalysis&,
-                                                       bool hasMixedSamples,
-                                                       const GrXferProcessor::DstTexture*);
+    constexpr XPF(SkBlendMode blendMode) : fBlendMode(blendMode) {}
+    ~XPF() = default;
 
     /** Returns a simple non-LCD porter duff blend XP with no optimizations or coverage. */
     static sk_sp<GrXferProcessor> CreateNoCoverageXP(SkBlendMode);
 
-    /** This XP implements non-LCD src-over using hw blend with no optimizations. It is returned
-        by reference because it is global and its ref-cnting methods are not thread safe. */
-    static const GrXferProcessor& SimpleSrcOverXP();
-
-    static bool WillSrcOverReadDst(const GrProcOptInfo& colorInput,
-                                   const GrProcOptInfo& coverageInput);
-    static bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
-                                                         GrColor* color);
-
-    static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
-
 private:
-    constexpr GrPorterDuffXPFactory(SkBlendMode);
-
     bool isPreCoverageBlendedColorConstant(const GrProcOptInfo&, GrColor*) const override;
     bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override;
 
@@ -58,13 +40,55 @@ private:
     bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
-    static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);
 
     SkBlendMode fBlendMode;
-
-    friend class GrPorterDuffTest; // for TestGetXPOutputTypes()
     typedef GrXPFactory INHERITED;
 };
+
+static constexpr const XPF gClear(SkBlendMode::kClear);
+static constexpr const XPF gSrc(SkBlendMode::kSrc);
+static constexpr const XPF gDst(SkBlendMode::kDst);
+static constexpr const XPF gSrcOver(SkBlendMode::kSrcOver);
+static constexpr const XPF gDstOver(SkBlendMode::kDstOver);
+static constexpr const XPF gSrcIn(SkBlendMode::kSrcIn);
+static constexpr const XPF gDstIn(SkBlendMode::kDstIn);
+static constexpr const XPF gSrcOut(SkBlendMode::kSrcOut);
+static constexpr const XPF gDstOut(SkBlendMode::kDstOut);
+static constexpr const XPF gSrcATop(SkBlendMode::kSrcATop);
+static constexpr const XPF gDstATop(SkBlendMode::kDstATop);
+static constexpr const XPF gXor(SkBlendMode::kXor);
+static constexpr const XPF gPlus(SkBlendMode::kPlus);
+static constexpr const XPF gModulate(SkBlendMode::kModulate);
+static constexpr const XPF gScreen(SkBlendMode::kScreen);
+
+const GrXferProcessor& SimpleSrcOverXP();
+bool SrcOverWillNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis);
+bool WillSrcOverReadDst(const GrProcOptInfo& colorInput, const GrProcOptInfo& coverageInput);
+bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput, GrColor* color);
+GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps, const GrPipelineAnalysis& analysis, bool hasMixedSamples, const GrXferProcessor::DstTexture* dstTexture);
+sk_sp<GrXferProcessor> CreateNoCoverageXP(SkBlendMode blendmode);
+void TestGetXPOutputTypes(const GrXferProcessor* xp, int* outPrimary, int* outSecondary);
+
+constexpr const GrXPFactory* Get(SkBlendMode blendMode) {
+    return blendMode == SkBlendMode::kSrcOver ? &gSrcOver :
+           blendMode == SkBlendMode::kClear ? &gClear :
+           blendMode == SkBlendMode::kSrc ? &gSrc :
+           blendMode == SkBlendMode::kDst ? &gDst :
+           blendMode == SkBlendMode::kDstOver ? &gDstOver :
+           blendMode == SkBlendMode::kSrcIn ? &gSrcIn :
+           blendMode == SkBlendMode::kDstIn ? &gDstIn :
+           blendMode == SkBlendMode::kSrcOut ? &gSrcOut :
+           blendMode == SkBlendMode::kDstOut ? &gDstOut :
+           blendMode == SkBlendMode::kSrcATop ? &gSrcATop :
+           blendMode == SkBlendMode::kDstATop ? &gDstATop :
+           blendMode == SkBlendMode::kXor ? &gXor :
+           blendMode == SkBlendMode::kPlus ? &gPlus :
+           blendMode == SkBlendMode::kModulate ? &gModulate :
+           blendMode == SkBlendMode::kScreen ? &gScreen : nullptr;
+}
+}
+
+
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic pop
 #endif

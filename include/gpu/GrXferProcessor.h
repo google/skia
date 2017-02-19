@@ -329,6 +329,13 @@ public:
                             const GrProcOptInfo& coverageInput);
 
     /**
+     * This will return true if the xfer processor needs the dst color in the shader and the way
+     * that the color will be made available to the xfer processor is by sampling a texture.
+     */
+    static bool WillNeedDstTexture(const GrXPFactory*, const GrCaps& caps,
+                                   const GrPipelineAnalysis& analysis);
+
+    /**
      * Most of the time GrXferProcessor performs a blend of the src and dst colors and then applies
      * the coverage using c*b + (1-c)*d where c is coverage, b=F(s,d) is the blended color, s is the
      * source color, and d is the destination color. This query answers the question "is b a
@@ -337,12 +344,6 @@ public:
      */
     static bool IsPreCoverageBlendedColorConstant(const GrXPFactory*,
                                                   const GrProcOptInfo& colorInput, GrColor* color);
-
-    /**
-     * This will return true if the xfer processor needs the dst color in the shader and the way
-     * that the color will be made available to the xfer processor is by sampling a texture.
-     */
-    bool willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const;
 
 protected:
     constexpr GrXPFactory() {}
