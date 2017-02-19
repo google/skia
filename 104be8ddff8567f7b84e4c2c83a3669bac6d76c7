@@ -22,6 +22,30 @@
       "revId": "104be8ddff8567f7b84e4c2c83a3669bac6d76c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c0cbd4c_99095e14",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-19T20:37:14Z",
+      "side": 1,
+      "message": "Hoping take two is more clear.",
+      "parentUuid": "e28f1772_17585a1d",
+      "range": {
+        "startLine": 64,
+        "startChar": 14,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "104be8ddff8567f7b84e4c2c83a3669bac6d76c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
