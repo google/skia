@@ -37,6 +37,7 @@ tool_shared_libs = [
 
 # The ordering here is important: libsfntly needs to come after libskia.
 tool_static_libs = [
+    'libarect',
     'libjsoncpp',
     'libskia',
     'libsfntly',
