@@ -154,6 +154,9 @@ config("skia_private") {
   if (skia_enable_discrete_gpu) {
     defines += [ "SK_ENABLE_DISCRETE_GPU" ]
   }
+  if (is_fuzzing) {
+    defines += [ "IS_FUZZING" ]
+  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.

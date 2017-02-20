@@ -14,6 +14,8 @@
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
 #include "SkPath.h"
+#include "SkRegion.h"
+#include "SkSurface.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPicture.h"
@@ -44,6 +46,7 @@ static void fuzz_color_deserialize(sk_sp<SkData>);
 static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
+static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
@@ -102,6 +105,10 @@ static int fuzz_file(const char* path) {
         }
         if (0 == strcmp("path_deserialize", FLAGS_type[0])) {
             fuzz_path_deserialize(bytes);
+            return 0;
+        }
+        if (0 == strcmp("region_deserialize", FLAGS_type[0])) {
+            fuzz_region_deserialize(bytes);
             return 0;
         }
         if (0 == strcmp("skp", FLAGS_type[0])) {
@@ -474,6 +481,26 @@ static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
         return;
     }
     SkDebugf("[terminated] Success! Initialized SkPath.\n");
+}
+
+static void fuzz_region_deserialize(sk_sp<SkData> bytes) {
+    SkRegion region;
+    if (!region.readFromMemory(bytes->data(), bytes->size())) {
+        SkDebugf("[terminated] Couldn't initialize SkRegion.\n");
+        return;
+    }
+    region.computeRegionComplexity();
+    region.isComplex();
+    SkRegion r2;
+    if (region == r2) {
+        region.contains(0,0);
+    } else {
+        region.contains(1,1);
+    }
+    auto s = SkSurface::MakeRasterN32Premul(1024, 1024);
+    s->getCanvas()->drawRegion(region, SkPaint());
+    SkDEBUGCODE(region.validate());
+    SkDebugf("[terminated] Success! Initialized SkRegion.\n");
 }
 
 #if SK_SUPPORT_GPU
