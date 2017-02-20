@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f217a243_56459ae3",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-20T19:07:11Z",
+      "side": 1,
+      "message": "hehe: ok, so perhaps we should just talk. Now there is no type :)",
+      "range": {
+        "startLine": 1146,
+        "startChar": 23,
+        "endLine": 1146,
+        "endChar": 31
+      },
+      "revId": "a75a995b28dbd08a790703849af3f1b86d37aeda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
