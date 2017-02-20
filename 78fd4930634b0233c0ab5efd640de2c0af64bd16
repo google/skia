@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "e703b335_71fb1a77",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-20T16:55:34Z",
+      "side": 1,
+      "message": "This:\n\n    constexpr int32_t kSentinel \u003d SkRegion::kRunTypeSentinel;\n\nis the same as \n\n    enum { kSentinel \u003d SkRegion::kRunTypeSentinel };\n\nexcept it also has an explicit type.\n\nSee http://stackoverflow.com/a/4749642",
+      "parentUuid": "b9049a89_378d8ba2",
+      "range": {
+        "startLine": 1145,
+        "startChar": 4,
+        "endLine": 1145,
+        "endChar": 13
+      },
+      "revId": "78fd4930634b0233c0ab5efd640de2c0af64bd16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e40e4ae2_ca41c0ff",
         "filename": "src/core/SkRegion.cpp",
         "patchSetId": 4
