@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "526aeb79_7c0ba313",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-20T15:55:08Z",
+      "side": 1,
+      "message": "constexpr denotes a compile time constant, const just means it can\u0027t be changed after initialization.",
+      "parentUuid": "112c61e0_62af37f0",
+      "range": {
+        "startLine": 1145,
+        "startChar": 4,
+        "endLine": 1145,
+        "endChar": 13
+      },
+      "revId": "78fd4930634b0233c0ab5efd640de2c0af64bd16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e40e4ae2_ca41c0ff",
         "filename": "src/core/SkRegion.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "0575cd30_90c71822",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1147,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-20T15:55:08Z",
+      "side": 1,
+      "message": "fixed in PS5.",
+      "parentUuid": "e40e4ae2_ca41c0ff",
+      "range": {
+        "startLine": 1147,
+        "startChar": 17,
+        "endLine": 1147,
+        "endChar": 18
+      },
+      "revId": "78fd4930634b0233c0ab5efd640de2c0af64bd16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e088dfb_25109260",
         "filename": "src/core/SkRegion.cpp",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2017-02-20T14:46:20Z",
       "side": 1,
       "message": "I see this pattern alot in this CL: code on same line as {.Is this now part of skia\u0027s convention?",
+      "range": {
+        "startLine": 1149,
+        "startChar": 25,
+        "endLine": 1149,
+        "endChar": 26
+      },
+      "revId": "78fd4930634b0233c0ab5efd640de2c0af64bd16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2a49076_6948b84e",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1149,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-20T15:55:08Z",
+      "side": 1,
+      "message": "Lazyiness on my part.  Fixed in PS5.",
+      "parentUuid": "3e088dfb_25109260",
       "range": {
         "startLine": 1149,
         "startChar": 25,
