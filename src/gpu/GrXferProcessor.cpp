@@ -211,6 +211,17 @@ bool GrXPFactory::WillReadDst(const GrXPFactory* factory, const GrProcOptInfo& c
     return GrPorterDuffXPFactory::WillSrcOverReadDst(colorInput, coverageInput);
 }
 
+bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& caps,
+                                     const GrPipelineAnalysis& analysis) {
+    if (!factory) {
+        return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, analysis);
+    }
+    if (analysis.fUsesPLSDstRead || caps.shaderCaps()->dstReadInShaderSupport()) {
+        return false;
+    }
+    return factory->willReadDstInShader(caps, analysis);
+}
+
 bool GrXPFactory::IsPreCoverageBlendedColorConstant(const GrXPFactory* factory,
                                                     const GrProcOptInfo& colorInput,
                                                     GrColor* color) {
@@ -249,7 +260,3 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
     return this->onCreateXferProcessor(caps, analysis, hasMixedSamples, dstTexture);
 }
 
-bool GrXPFactory::willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
-    return !analysis.fUsesPLSDstRead && !caps.shaderCaps()->dstReadInShaderSupport() &&
-           this->willReadDstInShader(caps, analysis);
-}

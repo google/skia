@@ -589,10 +589,10 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
     // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field on
     // the GrPaint to also be null (also kSrcOver).
-    SkASSERT(!grPaint->getXPFactory());
-    if (!skPaint.isSrcOver()) {
+//    SkASSERT(!grPaint->getXPFactory());
+//    if (!skPaint.isSrcOver()) {
         grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
-    }
+//    }
 
 #ifndef SK_IGNORE_GPU_DITHER
     if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0 && !rtc->isGammaCorrect()) {

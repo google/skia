@@ -149,15 +149,24 @@ public:
      * not seem constant, even if this function returns true.
      */
     bool isConstantBlendedColor(GrColor* constantColor) const {
-        GrColor paintColor = this->getColor();
-        if (!fXPFactory && fColorFragmentProcessors.empty()) {
-            if (!GrColorIsOpaque(paintColor)) {
-                return false;
+        static constexpr const GrXPFactory* kSrcOverXPF = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
+        static constexpr const GrXPFactory* kClearXPF = GrPorterDuffXPFactory::Get(SkBlendMode::kClear);
+        static constexpr const GrXPFactory* kSrcXPF = GrPorterDuffXPFactory::Get(SkBlendMode::kSrc);
+        if (this->numColorFragmentProcessors()) {
+            return false;
+        }
+        if (kSrcOverXPF == fXPFactory) {
+            if (fColor.isOpaque()) {
+                *constantColor = fColor.toGrColor();
             }
-            *constantColor = paintColor;
+        } else if (kSrcXPF == fXPFactory) {
+            *constantColor = fColor.toGrColor();
+            return true;
+        } if (kClearXPF == fXPFactory) {
+            *constantColor = GrColor_TRANSPARENT_BLACK;
             return true;
         }
-        return this->internalIsConstantBlendedColor(paintColor, constantColor);
+        return false;
     }
 
 private:
@@ -183,11 +192,9 @@ private:
 
     friend class GrProcessorSet;
 
-    bool internalIsConstantBlendedColor(GrColor paintColor, GrColor* constantColor) const;
-
-    const GrXPFactory* fXPFactory = nullptr;
-    SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
-    SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
+    const GrXPFactory* fXPFactory = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
+    SkSTArray<4, sk_sp<GrFragmentProcessor>> fColorFragmentProcessors;
+    SkSTArray<2, sk_sp<GrFragmentProcessor>> fCoverageFragmentProcessors;
     bool fDisableOutputConversionToSRGB = false;
     bool fAllowSRGBInputs = false;
     bool fUsesDistanceVectorField = false;

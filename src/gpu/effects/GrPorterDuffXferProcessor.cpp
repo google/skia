@@ -667,77 +667,11 @@ GrXferProcessor::OptFlags PDLCDXferProcessor::onGetOptimizations(const GrPipelin
 
 ///////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPorterDuffXPFactory::GrPorterDuffXPFactory(SkBlendMode xfermode)
-        : fBlendMode(xfermode) {}
 
-const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
-    SkASSERT((unsigned)blendMode <= (unsigned)SkBlendMode::kLastCoeffMode);
-
-    // If these objects are constructed as static constexpr by cl.exe (2015 SP2) the vtables are
-    // null.
-#ifdef SK_BUILD_FOR_WIN
-#define _CONSTEXPR_
-#else
-#define _CONSTEXPR_ constexpr
-#endif
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gClearPDXPF(SkBlendMode::kClear);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcPDXPF(SkBlendMode::kSrc);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstPDXPF(SkBlendMode::kDst);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcOverPDXPF(SkBlendMode::kSrcOver);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstOverPDXPF(SkBlendMode::kDstOver);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcInPDXPF(SkBlendMode::kSrcIn);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstInPDXPF(SkBlendMode::kDstIn);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcOutPDXPF(SkBlendMode::kSrcOut);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstOutPDXPF(SkBlendMode::kDstOut);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcATopPDXPF(SkBlendMode::kSrcATop);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstATopPDXPF(SkBlendMode::kDstATop);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gXorPDXPF(SkBlendMode::kXor);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gPlusPDXPF(SkBlendMode::kPlus);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gModulatePDXPF(SkBlendMode::kModulate);
-    static _CONSTEXPR_ const GrPorterDuffXPFactory gScreenPDXPF(SkBlendMode::kScreen);
-#undef _CONSTEXPR_
-
-    switch (blendMode) {
-        case SkBlendMode::kClear:
-            return &gClearPDXPF;
-        case SkBlendMode::kSrc:
-            return &gSrcPDXPF;
-        case SkBlendMode::kDst:
-            return &gDstPDXPF;
-        case SkBlendMode::kSrcOver:
-            return &gSrcOverPDXPF;
-        case SkBlendMode::kDstOver:
-            return &gDstOverPDXPF;
-        case SkBlendMode::kSrcIn:
-            return &gSrcInPDXPF;
-        case SkBlendMode::kDstIn:
-            return &gDstInPDXPF;
-        case SkBlendMode::kSrcOut:
-            return &gSrcOutPDXPF;
-        case SkBlendMode::kDstOut:
-            return &gDstOutPDXPF;
-        case SkBlendMode::kSrcATop:
-            return &gSrcATopPDXPF;
-        case SkBlendMode::kDstATop:
-            return &gDstATopPDXPF;
-        case SkBlendMode::kXor:
-            return &gXorPDXPF;
-        case SkBlendMode::kPlus:
-            return &gPlusPDXPF;
-        case SkBlendMode::kModulate:
-            return &gModulatePDXPF;
-        case SkBlendMode::kScreen:
-            return &gScreenPDXPF;
-        default:
-            SkFAIL("Unexpected blend mode.");
-            return nullptr;
-    }
-}
-
-GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                              const GrPipelineAnalysis& analysis,
-                                                              bool hasMixedSamples,
-                                                              const DstTexture* dstTexture) const {
+GrXferProcessor* GrPorterDuffXPFactory::XPF::onCreateXferProcessor(const GrCaps& caps,
+                                                                   const GrPipelineAnalysis& analysis,
+                                                                   bool hasMixedSamples,
+                                                                   const DstTexture* dstTexture) const {
     if (analysis.fUsesPLSDstRead) {
         return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fBlendMode);
     }
@@ -765,8 +699,8 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
     SkASSERT(!dstTexture || !dstTexture->texture());
     return new PorterDuffXferProcessor(blendFormula);
 }
-bool GrPorterDuffXPFactory::isPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
-                                                              GrColor* color) const {
+bool GrPorterDuffXPFactory::XPF::isPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
+                                                                   GrColor* color) const {
     BlendFormula colorFormula = gBlendTable[colorInput.isOpaque()][0][(int)fBlendMode];
     SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
     if (colorFormula.usesDstColor()) {
@@ -783,15 +717,15 @@ bool GrPorterDuffXPFactory::isPreCoverageBlendedColorConstant(const GrProcOptInf
     }
 }
 
-bool GrPorterDuffXPFactory::willReadsDst(const GrProcOptInfo& colorInput,
-                                         const GrProcOptInfo& coverageInput) const {
+bool GrPorterDuffXPFactory::XPF::willReadsDst(const GrProcOptInfo& colorInput,
+                                              const GrProcOptInfo& coverageInput) const {
     BlendFormula colorFormula = gBlendTable[colorInput.isOpaque()][0][(int)fBlendMode];
     SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
     return (colorFormula.usesDstColor() || !coverageInput.isSolidWhite());
 }
 
-bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps, ColorType colorType,
-                                                CoverageType coverageType) const {
+bool GrPorterDuffXPFactory::XPF::willReadDstInShader(const GrCaps& caps, ColorType colorType,
+                                                     CoverageType coverageType) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
@@ -817,10 +751,10 @@ bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps, ColorType co
     return formula.hasSecondaryOutput();
 }
 
-GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
+GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory::XPF);
 
 #if GR_TEST_UTILS
-const GrXPFactory* GrPorterDuffXPFactory::TestGet(GrProcessorTestData* d) {
+const GrXPFactory* GrPorterDuffXPFactory::XPF::TestGet(GrProcessorTestData* d) {
     SkBlendMode mode = SkBlendMode(d->fRandom->nextULessThan((int)SkBlendMode::kLastCoeffMode));
     return GrPorterDuffXPFactory::Get(mode);
 }
