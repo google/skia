@@ -17,6 +17,7 @@ declare_args() {
     ndk_api = 21
   }
   sanitize = ""
+  is_fuzzing = false
 }
 declare_args() {
   is_debug = !is_official_build
