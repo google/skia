@@ -273,7 +273,7 @@ int main(int argc, char** argv) {
     // Create a context.
     sk_gpu_test::GrContextFactory factory;
     sk_gpu_test::ContextInfo ctxInfo =
-        factory.getContextInfo(config->getContextType(), config->getContextOptions());
+        factory.getContextInfo(config->getContextType(), config->getContextOverrides());
     GrContext* ctx = ctxInfo.grContext();
     if (!ctx) {
         exitf(ExitErr::kUnavailable, "failed to create context for config %s",
