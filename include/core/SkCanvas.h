@@ -315,14 +315,12 @@ public:
     */
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
 
-    enum {
-        kIsOpaque_SaveLayerFlag         = 1 << 0,
-        kPreserveLCDText_SaveLayerFlag  = 1 << 1,
-
+    static constexpr uint32_t kIsOpaque_SaveLayerFlag        = 1 << 0;
+    static constexpr uint32_t kPreserveLCDText_SaveLayerFlag = 1 << 1;
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-        kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
+    static constexpr uint32_t kDontClipToLayer_Legacy_SaveLayerFlag
+            = kDontClipToLayer_PrivateSaveLayerFlag;
 #endif
-    };
     typedef uint32_t SaveLayerFlags;
 
     struct SaveLayerRec {
@@ -1565,11 +1563,9 @@ private:
     // points to top of stack
     MCRec*      fMCRec;
     // the first N recs that can fit here mean we won't call malloc
-    enum {
-        kMCRecSize      = 128,  // most recent measurement
-        kMCRecCount     = 32,   // common depth for save/restores
-        kDeviceCMSize   = 184,  // most recent measurement
-    };
+    static constexpr unsigned kMCRecSize      = 128;  // most recent measurement
+    static constexpr unsigned kMCRecCount     = 32;   // common depth for save/restores
+    static constexpr unsigned kDeviceCMSize   = 184;  // most recent measurement
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
     intptr_t fDeviceCMStorage[kDeviceCMSize / sizeof(intptr_t)];
 

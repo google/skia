@@ -86,7 +86,7 @@ SkAutoAsciiToLC::SkAutoAsciiToLC(const char str[], size_t len)
     // assign lc to our preallocated storage if len is small enough, or allocate
     // it on the heap
     char*   lc;
-    if (len <= STORAGE) {
+    if (len <= kStorage) {
         lc = fStorage;
     } else {
         lc = (char*)sk_malloc_throw(len + 1);

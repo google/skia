@@ -168,9 +168,7 @@ public:
 #endif
 
 protected:
-    enum {
-        kNeedNewImageUniqueID = 0
-    };
+    static constexpr uint32_t kNeedNewImageUniqueID = 0;
 
     SkImageGenerator(const SkImageInfo& info, uint32_t uniqueId = kNeedNewImageUniqueID);
 

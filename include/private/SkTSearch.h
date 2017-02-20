@@ -134,10 +134,8 @@ public:
 private:
     char*   fLC;    // points to either the heap or fStorage
     size_t  fLength;
-    enum {
-        STORAGE = 64
-    };
-    char    fStorage[STORAGE+1];
+    static constexpr unsigned kStorage = 64;
+    char    fStorage[kStorage + 1];
 };
 
 // Helper when calling qsort with a compare proc that has typed its arguments

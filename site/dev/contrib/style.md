@@ -102,7 +102,7 @@ enum SkPancakeType {
      kLast_PancakeType = kChocolateChip_PancakeType
 };
 
-static const SkPancakeType kPancakeTypeCount = kLast_PancakeType + 1;
+static constexpr SkPancakeType kPancakeTypeCount = kLast_PancakeType + 1;
 ~~~~
 
 A bitfield:
@@ -129,7 +129,20 @@ Exception: anonymous enums can be used to declare integral constants, e.g.:
 
 <!--?prettify?-->
 ~~~~
-enum { kFavoriteNumber = 7 };
+struct SkFoo {
+    enum { kFavoriteNumber = 7 };
+    // ...
+};
+~~~~
+
+But this is deprectated in favor of using `constexpr`:
+
+<!--?prettify lang=cc?-->
+~~~~
+struct SkFoo {
+    static constexpr int kFavoriteNumber = 7;
+    // ...
+};
 ~~~~
 
 Macros are all caps with underscores between words. Macros that have greater
