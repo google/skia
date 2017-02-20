@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f18b658_35dfb792",
+        "filename": "samplecode/SampleApp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-20T23:20:22Z",
+      "side": 1,
+      "message": "Is fDeepColor a GPU-only option?",
+      "range": {
+        "startLine": 81,
+        "startChar": 31,
+        "endLine": 81,
+        "endChar": 41
+      },
+      "revId": "159d551b9179a2d8f9f77ee18a164daa2e7a516d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
