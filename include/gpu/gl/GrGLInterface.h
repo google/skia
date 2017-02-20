@@ -55,10 +55,6 @@ typedef intptr_t GrGLInterfaceCallbackData;
  */
 const SK_API GrGLInterface* GrGLCreateNullInterface(bool enableNVPR = false);
 
-/** Function that returns a new interface identical to "interface" but without support for
-    GL_NV_path_rendering. */
-const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface*);
-
 /** Function that returns a new interface identical to "interface" but with support for
     test version of GL_EXT_debug_marker. */
 const GrGLInterface* GrGLInterfaceAddTestDebugMarker(const GrGLInterface*,

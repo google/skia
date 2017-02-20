@@ -26,44 +26,52 @@
 #include "ops/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
-    if (!options.fDisableAllPathRenderers) {
-        const GrCaps& caps = *context->caps();
-        this->addPathRenderer(new GrDashLinePathRenderer)->unref();
-
+    using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
+    const GrCaps& caps = *context->caps();
+    if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
+        this->addPathRenderer(sk_make_sp<GrDashLinePathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
         if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(context->resourceProvider(),
                                                                        caps)) {
-            this->addPathRenderer(pr)->unref();
+            this->addPathRenderer(sk_sp<GrPathRenderer>(pr));
         }
-    #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    }
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    if (options.fGpuPathRenderers & GpuPathRenderers::kMSAA) {
         if (caps.sampleShadingSupport()) {
-            this->addPathRenderer(new GrMSAAPathRenderer)->unref();
+            this->addPathRenderer(sk_make_sp<GrMSAAPathRenderer>());
         }
-    #endif
-        this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
-        this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
-        this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
+    }
+#endif
+    if (options.fGpuPathRenderers & GpuPathRenderers::kAAHairline) {
+        this->addPathRenderer(sk_make_sp<GrAAHairLinePathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
+        this->addPathRenderer(sk_make_sp<GrAAConvexPathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kAALinearizing) {
+        this->addPathRenderer(sk_make_sp<GrAALinearizingConvexPathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kPLS) {
         if (caps.shaderCaps()->plsPathRenderingSupport()) {
-            this->addPathRenderer(new GrPLSPathRenderer)->unref();
+            this->addPathRenderer(sk_make_sp<GrPLSPathRenderer>());
         }
-        if (!options.fDisableDistanceFieldRenderer) {
-            this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
-        }
-        this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
-        this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
-                                                        caps.stencilWrapOpsSupport()))->unref();
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kDistanceField) {
+        this->addPathRenderer(sk_make_sp<GrAADistanceFieldPathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kTesselating) {
+        this->addPathRenderer(sk_make_sp<GrTessellatingPathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kDefault) {
+        this->addPathRenderer(sk_make_sp<GrDefaultPathRenderer>(caps.twoSidedStencilSupport(),
+                                                                caps.stencilWrapOpsSupport()));
     }
 }
 
-GrPathRendererChain::~GrPathRendererChain() {
-    for (int i = 0; i < fChain.count(); ++i) {
-        fChain[i]->unref();
-    }
-}
-
-GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
-    fChain.push_back() = pr;
-    pr->ref();
-    return pr;
+void GrPathRendererChain::addPathRenderer(sk_sp<GrPathRenderer> pr) {
+    fChain.push_back(std::move(pr));
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(
@@ -99,7 +107,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
                     *stencilSupport = support;
                 }
             }
-            return fChain[i];
+            return fChain[i].get();
         }
     }
     return nullptr;

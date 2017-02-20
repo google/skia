@@ -23,7 +23,7 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         GrContext* context = testFactory.get(ctxType,
-                                           GrContextFactory::ContextOverrides::kEnableNVPR);
+                                           GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (!context) {
             continue;
         }

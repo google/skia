@@ -175,7 +175,11 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         , fColorType(colorType)
         , fColorSpace(std::move(colorSpace)) {
     if (useNVPR) {
-        fContextOverrides |= ContextOverrides::kEnableNVPR;
+        fContextOverrides |= ContextOverrides::kRequireNVPRSupport;
+    } else if (!useInstanced) {
+        // We don't disable NVPR for instanced configs. Otherwise the caps wouldn't use mixed
+        // samples and we couldn't test the mixed samples backend for simple shapes.
+        fContextOverrides |= ContextOverrides::kDisableNVPR;
     }
     if (useInstanced) {
         fContextOverrides |= ContextOverrides::kUseInstanced;
