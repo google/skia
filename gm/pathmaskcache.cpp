@@ -104,7 +104,7 @@ protected:
     }
 
     void modifyGrContextOptions(GrContextOptions* options) override {
-        options->fForceSWPathMasks = true;
+        options->fGpuPathRenderers = GrContextOptions::GpuPathRenderers::kNone;
         options->fAllowPathMaskCaching = true;
     }
 
