@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "09adea2c_bb7f6bee",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-20T18:46:13Z",
+      "side": 1,
+      "message": "const int32_t kSentenel \u003d ...;\n\nalso has an explicit type.\n\nI\u0027m asking why here, unlike the vast majority of other skia usages, its important to use constexpr instead of const.",
+      "parentUuid": "e703b335_71fb1a77",
+      "range": {
+        "startLine": 1145,
+        "startChar": 4,
+        "endLine": 1145,
+        "endChar": 13
+      },
+      "revId": "78fd4930634b0233c0ab5efd640de2c0af64bd16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e40e4ae2_ca41c0ff",
         "filename": "src/core/SkRegion.cpp",
         "patchSetId": 4
