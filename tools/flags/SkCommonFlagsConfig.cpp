@@ -169,16 +169,16 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     sk_sp<SkColorSpace> colorSpace)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
-        , fContextOptions(ContextOptions::kNone)
+        , fContextOverrides(ContextOverrides::kNone)
         , fUseDIText(useDIText)
         , fSamples(samples)
         , fColorType(colorType)
         , fColorSpace(std::move(colorSpace)) {
     if (useNVPR) {
-        fContextOptions |= ContextOptions::kEnableNVPR;
+        fContextOverrides |= ContextOverrides::kEnableNVPR;
     }
     if (useInstanced) {
-        fContextOptions |= ContextOptions::kUseInstanced;
+        fContextOverrides |= ContextOverrides::kUseInstanced;
     }
     // Subtle logic: If the config has a color space attached, we're going to be rendering to sRGB,
     // so we need that capability. In addition, to get the widest test coverage, we DO NOT require
@@ -190,9 +190,9 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     // treated as sRGB textures, but we will be unable to prevent the decode, causing them to be
     // too dark.
     if (fColorSpace) {
-        fContextOptions |= ContextOptions::kRequireSRGBSupport;
+        fContextOverrides |= ContextOverrides::kRequireSRGBSupport;
     } else {
-        fContextOptions |= ContextOptions::kRequireSRGBDecodeDisableSupport;
+        fContextOverrides |= ContextOverrides::kRequireDecodeDisableForSRGB;
     }
 }
 static bool parse_option_int(const SkString& value, int* outInt) {

@@ -189,11 +189,11 @@ struct GPUTarget : public Target {
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
         this->surface = SkSurface::MakeRenderTarget(gGrFactory->get(this->config.ctxType,
-                                                                    this->config.ctxOptions),
+                                                                    this->config.ctxOverrides),
                                                          SkBudgeted::kNo, info,
                                                          this->config.samples, &props);
         this->context = gGrFactory->getContextInfo(this->config.ctxType,
-                                                   this->config.ctxOptions).testContext();
+                                                   this->config.ctxOverrides).testContext();
         if (!this->surface.get()) {
             return false;
         }
@@ -392,10 +392,10 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 
 #if SK_SUPPORT_GPU
 #define kBogusContextType GrContextFactory::kNativeGL_ContextType
-#define kBogusContextOptions GrContextFactory::ContextOptions::kNone
+#define kBogusContextOverrides GrContextFactory::ContextOverrides::kNone
 #else
 #define kBogusContextType 0
-#define kBogusContextOptions 0
+#define kBogusContextOverrides 0
 #endif
 
 static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* configs) {
@@ -406,10 +406,10 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             return;
 
         const auto ctxType = gpuConfig->getContextType();
-        const auto ctxOptions = gpuConfig->getContextOptions();
+        const auto ctxOverrides = gpuConfig->getContextOverrides();
         const auto sampleCount = gpuConfig->getSamples();
 
-        if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOptions)) {
+        if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOverrides)) {
             const auto maxSampleCount = ctx->caps()->maxSampleCount();
             if (sampleCount > ctx->caps()->maxSampleCount()) {
                 SkDebugf("Configuration sample count %d exceeds maximum %d.\n",
@@ -429,7 +429,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             sk_ref_sp(gpuConfig->getColorSpace()),
             sampleCount,
             ctxType,
-            ctxOptions,
+            ctxOverrides,
             gpuConfig->getUseDIText()
         };
 
@@ -442,7 +442,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (config->getTag().equals(#name)) {                                  \
             Config config = {                                                  \
                 SkString(#name), Benchmark::backend, color, alpha, colorSpace, \
-                0, kBogusContextType, kBogusContextOptions, false              \
+                0, kBogusContextType, kBogusContextOverrides, false            \
             };                                                                 \
             configs->push_back(config);                                        \
             return;                                                            \
@@ -1333,7 +1333,7 @@ int main(int argc, char** argv) {
 #if SK_SUPPORT_GPU
             if (FLAGS_gpuStats && Benchmark::kGPU_Backend == configs[i].backend) {
                 GrContext* context = gGrFactory->get(configs[i].ctxType,
-                                                     configs[i].ctxOptions);
+                                                     configs[i].ctxOverrides);
                 context->printCacheStats();
                 context->printGpuStats();
             }
