@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "b9049a89_378d8ba2",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-20T16:37:55Z",
+      "side": 1,
+      "message": "I understand that. Why is it used here, since there is no expression. Seems extraneous.",
+      "parentUuid": "526aeb79_7c0ba313",
+      "range": {
+        "startLine": 1145,
+        "startChar": 4,
+        "endLine": 1145,
+        "endChar": 13
+      },
+      "revId": "78fd4930634b0233c0ab5efd640de2c0af64bd16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e40e4ae2_ca41c0ff",
         "filename": "src/core/SkRegion.cpp",
         "patchSetId": 4
