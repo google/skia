@@ -58,7 +58,11 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
     ContextType getContextType() const { return fContextType; }
     ContextOverrides getContextOverrides() const { return fContextOverrides; }
-    bool getUseNVPR() const { return fContextOverrides & ContextOverrides::kEnableNVPR; }
+    bool getUseNVPR() const {
+        SkASSERT(!(fContextOverrides & ContextOverrides::kRequireNVPRSupport) ||
+                 !(fContextOverrides & ContextOverrides::kDisableNVPR));
+        return fContextOverrides & ContextOverrides::kRequireNVPRSupport;
+    }
     bool getUseInstanced() const { return fContextOverrides & ContextOverrides::kUseInstanced; }
     bool getUseDIText() const { return fUseDIText; }
     int getSamples() const { return fSamples; }
