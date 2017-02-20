@@ -131,6 +131,7 @@ cc_library {
         "libz",
     ],
     static_libs: [
+        "libarect",
         "libsfntly",
         "libwebp-decode",
         "libwebp-encode",
