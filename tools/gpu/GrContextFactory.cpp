@@ -154,7 +154,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
                     break;
 #endif
                 case kNullGL_ContextType:
-                    glCtx = CreateNullGLTestContext(ContextOverrides::kEnableNVPR & overrides);
+                    glCtx = CreateNullGLTestContext(ContextOverrides::kRequireNVPRSupport & overrides);
                     break;
                 case kDebugGL_ContextType:
                     glCtx = CreateDebugGLTestContext();
@@ -167,14 +167,6 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
             }
             testCtx.reset(glCtx);
             glInterface.reset(SkRef(glCtx->gl()));
-            // Block NVPR from non-NVPR types. We don't block NVPR from contexts that will use
-            // instanced rendering because that would prevent us from testing mixed samples.
-            if (!((ContextOverrides::kEnableNVPR | ContextOverrides::kUseInstanced) & overrides)) {
-                glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
-                if (!glInterface) {
-                    return ContextInfo();
-                }
-            }
             backendContext = reinterpret_cast<GrBackendContext>(glInterface.get());
             break;
         }
@@ -207,6 +199,9 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     testCtx->makeCurrent();
     SkASSERT(testCtx && testCtx->backend() == backend);
     GrContextOptions grOptions = fGlobalOptions;
+    if (ContextOverrides::kDisableNVPR & overrides) {
+        grOptions.fGpuPathRenderers &= ~GrContextOptions::GpuPathRenderers::kStencilAndCover;
+    }
     if (ContextOverrides::kUseInstanced & overrides) {
         grOptions.fEnableInstancedRendering = true;
     }
@@ -217,8 +212,8 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     if (!grCtx.get()) {
         return ContextInfo();
     }
-    if (ContextOverrides::kEnableNVPR & overrides) {
-        if (grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
+    if (ContextOverrides::kRequireNVPRSupport & overrides) {
+        if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
             return ContextInfo();
         }
     }

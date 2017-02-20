@@ -94,10 +94,12 @@ public:
      */
     enum class ContextOverrides {
         kNone                        = 0x0,
-        kEnableNVPR                  = 0x1,
+        kDisableNVPR                 = 0x1,
         kUseInstanced                = 0x2,
-        kRequireSRGBSupport          = 0x4,
-        kRequireDecodeDisableForSRGB = 0x8
+        kRequireDecodeDisableForSRGB = 0x4,
+
+        kRequireNVPRSupport          = 0x8,
+        kRequireSRGBSupport          = 0x16
     };
 
     static ContextType NativeContextTypeForBackend(GrBackend backend) {
