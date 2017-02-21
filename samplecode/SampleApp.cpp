@@ -242,26 +242,21 @@ public:
         fActualColorBits = SkTMax(attachmentInfo.fColorBits, 24);
 
         SkASSERT(nullptr == fCurIntf);
-        sk_sp<const GrGLInterface> glInterface;
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
             case kGPU_DeviceType:
                 // all these guys use the native interface
-                glInterface.reset(GrGLCreateNativeInterface());
+                fCurIntf = GrGLCreateNativeInterface();
                 break;
 #if SK_ANGLE
             case kANGLE_DeviceType:
-                glInterface.reset(sk_gpu_test::CreateANGLEGLInterface());
+                fCurIntf = sk_gpu_test::CreateANGLEGLInterface();
                 break;
 #endif // SK_ANGLE
             default:
                 SkASSERT(false);
                 break;
         }
-
-        // Currently SampleApp does not use NVPR. TODO: Provide an NVPR device type that is skipped
-        // when the driver doesn't support NVPR.
-        fCurIntf = GrGLInterfaceRemoveNVPR(glInterface.get());
 
         SkASSERT(nullptr == fCurContext);
         fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);

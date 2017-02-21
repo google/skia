@@ -91,6 +91,11 @@ struct GrContextOptions {
      * textures from codec-backed images.
      */
     bool fDisableGpuYUVConversion = false;
+
+    /**
+     * If true, the caps will never report that the driver supports path rendering.
+     */
+    bool fSuppressPathRendering = false;
 };
 
 #endif
