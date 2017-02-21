@@ -577,7 +577,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         // then path then
                         path.setIsVolatile((count-1) == i);
                         if (fDevice) {
-                            fDevice->drawPath(*this, path, newPaint, &preMatrix,
+                            fDevice->drawPath(path, newPaint, &preMatrix,
                                               (count-1) == i);
                         } else {
                             this->drawPath(path, newPaint, &preMatrix,
@@ -593,7 +593,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         r.fRight = r.fLeft + width;
                         r.fBottom = r.fTop + width;
                         if (fDevice) {
-                            fDevice->drawRect(*this, r, newPaint);
+                            fDevice->drawRect(r, newPaint);
                         } else {
                             this->drawRect(r, newPaint);
                         }
@@ -624,7 +624,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
 
                         if (!pointData.fFirst.isEmpty()) {
                             if (fDevice) {
-                                fDevice->drawPath(*this, pointData.fFirst, newP);
+                                fDevice->drawPath(pointData.fFirst, newP);
                             } else {
                                 this->drawPath(pointData.fFirst, newP);
                             }
@@ -632,7 +632,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
 
                         if (!pointData.fLast.isEmpty()) {
                             if (fDevice) {
-                                fDevice->drawPath(*this, pointData.fLast, newP);
+                                fDevice->drawPath(pointData.fLast, newP);
                             } else {
                                 this->drawPath(pointData.fLast, newP);
                             }
@@ -649,8 +649,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                             }
 
                             if (fDevice) {
-                                fDevice->drawPoints(*this,
-                                                    SkCanvas::kPoints_PointMode,
+                                fDevice->drawPoints(SkCanvas::kPoints_PointMode,
                                                     pointData.fNumPoints,
                                                     pointData.fPoints,
                                                     newP);
@@ -675,7 +674,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                                       pointData.fPoints[i].fX + pointData.fSize.fX,
                                       pointData.fPoints[i].fY + pointData.fSize.fY);
                                 if (fDevice) {
-                                    fDevice->drawRect(*this, r, newP);
+                                    fDevice->drawRect(r, newP);
                                 } else {
                                     this->drawRect(r, newP);
                                 }
@@ -697,7 +696,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                     path.moveTo(pts[i]);
                     path.lineTo(pts[i+1]);
                     if (fDevice) {
-                        fDevice->drawPath(*this, path, p, nullptr, true);
+                        fDevice->drawPath(path, p, nullptr, true);
                     } else {
                         this->drawPath(path, p, nullptr, true);
                     }
@@ -1425,7 +1424,7 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
         if (iterPath) {
             const SkPaint& pnt = iter.getPaint();
             if (fDevice) {
-                fDevice->drawPath(*this, *iterPath, pnt, &matrix, false);
+                fDevice->drawPath(*iterPath, pnt, &matrix, false);
             } else {
                 this->drawPath(*iterPath, pnt, &matrix, false);
             }
@@ -1638,7 +1637,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
                 matrix[SkMatrix::kMTransX] = loc.fX;
                 matrix[SkMatrix::kMTransY] = loc.fY;
                 if (fDevice) {
-                    fDevice->drawPath(*this, *path, paint, &matrix, false);
+                    fDevice->drawPath(*path, paint, &matrix, false);
                 } else {
                     this->drawPath(*path, paint, &matrix, false);
                 }
