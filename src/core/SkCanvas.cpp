@@ -1869,8 +1869,17 @@ const SkMatrix& SkCanvas::getTotalMatrix() const {
 void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
     // we know that ganesh doesn't track the rgn, so ask for its clipstack
     if (this->getGrContext()) {
+        const SkClipStack* cs = this->getClipStack();
+        SkClipStack::BoundsType boundType;
+        bool isIntersectionOfRects;
+        SkRect bounds;
+        cs->getBounds(&bounds, &boundType, &isIntersectionOfRects);
+        if (isIntersectionOfRects && SkClipStack::kNormal_BoundsType == boundType) {
+            rgn->setRect(bounds.round());
+            return;
+        }
         SkPath path;
-        this->getClipStack()->asPath(&path);
+        cs->asPath(&path);
         SkISize size = this->getBaseLayerSize();
         rgn->setPath(path, SkRegion(SkIRect::MakeWH(size.width(), size.height())));
     } else {
