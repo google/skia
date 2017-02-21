@@ -89,15 +89,17 @@ public:
     static const int kContextTypeCnt = kLastContextType + 1;
 
     /**
-     * Options for GL context creation. For historical and testing reasons the options will default
-     * to not using GL_NV_path_rendering extension  even when the driver supports it.
+     * Overrides for the initial GrContextOptions provided at construction time, and required
+     * features that will cause context creation to fail if not present.
      */
-    enum class ContextOptions {
-        kNone                            = 0x0,
-        kEnableNVPR                      = 0x1,
-        kUseInstanced                    = 0x2,
-        kRequireSRGBSupport              = 0x4,
-        kRequireSRGBDecodeDisableSupport = 0x8,
+    enum class ContextOverrides {
+        kNone                          = 0x0,
+        kDisableNVPR                   = 0x1,
+        kUseInstanced                  = 0x2,
+        kAllowSRGBWithoutDecodeControl = 0x4,
+
+        kRequireNVPRSupport            = 0x8,
+        kRequireSRGBSupport            = 0x10
     };
 
     static ContextType NativeContextTypeForBackend(GrBackend backend) {
@@ -144,23 +146,23 @@ public:
      * Get a context initialized with a type of GL context. It also makes the GL context current.
      */
     ContextInfo getContextInfo(ContextType type,
-                               ContextOptions options = ContextOptions::kNone);
+                               ContextOverrides overrides = ContextOverrides::kNone);
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(ContextType type, ContextOptions options = ContextOptions::kNone) {
-        return this->getContextInfo(type, options).grContext();
+    GrContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone) {
+        return this->getContextInfo(type, overrides).grContext();
     }
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
     struct Context {
-        ContextType     fType;
-        ContextOptions  fOptions;
-        GrBackend       fBackend;
-        TestContext*    fTestContext;
-        GrContext*      fGrContext;
-        bool            fAbandoned;
+        ContextType       fType;
+        ContextOverrides  fOverrides;
+        GrBackend         fBackend;
+        TestContext*      fTestContext;
+        GrContext*        fGrContext;
+        bool              fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
@@ -168,6 +170,6 @@ private:
 };
 }  // namespace sk_gpu_test
 
-GR_MAKE_BITFIELD_CLASS_OPS(sk_gpu_test::GrContextFactory::ContextOptions);
+GR_MAKE_BITFIELD_CLASS_OPS(sk_gpu_test::GrContextFactory::ContextOverrides);
 
 #endif
