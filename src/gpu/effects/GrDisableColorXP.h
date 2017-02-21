@@ -24,10 +24,6 @@ public:
     static const GrXPFactory* Get();
 
 private:
-    bool isPreCoverageBlendedColorConstant(const GrProcOptInfo&, GrColor*) const override {
-        return false;
-    }
-
     bool willReadsDst(const GrProcOptInfo& colorInput,
                       const GrProcOptInfo& coverageInput) const override {
         return false;

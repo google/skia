@@ -47,7 +47,6 @@ public:
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    bool isPreCoverageBlendedColorConstant(const GrProcOptInfo&, GrColor*) const override;
     bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override;
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,

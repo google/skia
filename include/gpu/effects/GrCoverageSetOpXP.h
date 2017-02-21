@@ -32,10 +32,6 @@ public:
 private:
     constexpr GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
-    bool isPreCoverageBlendedColorConstant(const GrProcOptInfo&, GrColor*) const override {
-        return false;
-    }
-
     bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override {
         return fRegionOp != SkRegion::kReplace_Op;
     }

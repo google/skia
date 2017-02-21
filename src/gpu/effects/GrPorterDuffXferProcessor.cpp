@@ -765,23 +765,6 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
     SkASSERT(!dstTexture || !dstTexture->texture());
     return new PorterDuffXferProcessor(blendFormula);
 }
-bool GrPorterDuffXPFactory::isPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
-                                                              GrColor* color) const {
-    BlendFormula colorFormula = gBlendTable[colorInput.isOpaque()][0][(int)fBlendMode];
-    SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
-    if (colorFormula.usesDstColor()) {
-        return false;
-    }
-    switch (colorFormula.fSrcCoeff) {
-        case kZero_GrBlendCoeff:
-            *color = GrColor_TRANSPARENT_BLACK;
-            return true;
-        case kOne_GrBlendCoeff:
-            return colorInput.hasKnownOutputColor(color);
-        default:
-            return false;
-    }
-}
 
 bool GrPorterDuffXPFactory::willReadsDst(const GrProcOptInfo& colorInput,
                                          const GrProcOptInfo& coverageInput) const {

@@ -149,15 +149,22 @@ public:
      * not seem constant, even if this function returns true.
      */
     bool isConstantBlendedColor(GrColor* constantColor) const {
-        GrColor paintColor = this->getColor();
-        if (!fXPFactory && fColorFragmentProcessors.empty()) {
-            if (!GrColorIsOpaque(paintColor)) {
-                return false;
-            }
-            *constantColor = paintColor;
+        // This used to do a more sophisticated analysis but now it just explicitly looks for common
+        // cases.
+        static const GrXPFactory* kSrc = GrPorterDuffXPFactory::Get(SkBlendMode::kSrc);
+        static const GrXPFactory* kClear = GrPorterDuffXPFactory::Get(SkBlendMode::kClear);
+        if (kClear == fXPFactory) {
+            *constantColor = GrColor_TRANSPARENT_BLACK;
             return true;
         }
-        return this->internalIsConstantBlendedColor(paintColor, constantColor);
+        if (this->numColorFragmentProcessors()) {
+            return false;
+        }
+        if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {
+            *constantColor = fColor.toGrColor();
+            return true;
+        }
+        return false;
     }
 
 private:
@@ -182,8 +189,6 @@ private:
     GrPaint& operator=(const GrPaint&) = delete;
 
     friend class GrProcessorSet;
-
-    bool internalIsConstantBlendedColor(GrColor paintColor, GrColor* constantColor) const;
 
     const GrXPFactory* fXPFactory = nullptr;
     SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
