@@ -30,7 +30,7 @@ struct Config {
     int samples;
 #if SK_SUPPORT_GPU
     sk_gpu_test::GrContextFactory::ContextType ctxType;
-    sk_gpu_test::GrContextFactory::ContextOptions ctxOptions;
+    sk_gpu_test::GrContextFactory::ContextOverrides ctxOverrides;
     bool useDFText;
 #else
     int bogusInt;

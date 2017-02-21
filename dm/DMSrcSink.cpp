@@ -1223,14 +1223,14 @@ Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
 DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
 GPUSink::GPUSink(GrContextFactory::ContextType ct,
-                 GrContextFactory::ContextOptions options,
+                 GrContextFactory::ContextOverrides overrides,
                  int samples,
                  bool diText,
                  SkColorType colorType,
                  sk_sp<SkColorSpace> colorSpace,
                  bool threaded)
     : fContextType(ct)
-    , fContextOptions(options)
+    , fContextOverrides(overrides)
     , fSampleCount(samples)
     , fUseDIText(diText)
     , fColorType(colorType)
@@ -1257,7 +1257,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         SkImageInfo::Make(size.width(), size.height(), fColorType,
                           kPremul_SkAlphaType, fColorSpace);
 #if SK_SUPPORT_GPU
-    GrContext* context = factory.getContextInfo(fContextType, fContextOptions).grContext();
+    GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
     const int maxDimension = context->caps()->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
@@ -1265,7 +1265,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
 #endif
 
     auto surface(
-            NewGpuSurface(&factory, fContextType, fContextOptions, info, fSampleCount, fUseDIText));
+        NewGpuSurface(&factory, fContextType, fContextOverrides, info, fSampleCount, fUseDIText));
     if (!surface) {
         return "Could not create a surface.";
     }

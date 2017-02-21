@@ -23,7 +23,7 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         GrContext* context = testFactory.get(ctxType,
-                                             GrContextFactory::ContextOptions::kEnableNVPR);
+                                           GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (!context) {
             continue;
         }
@@ -33,13 +33,14 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
     }
 }
 
-DEF_GPUTEST(GrContextFactory_NoPathRenderingUnlessNVPRRequested, reporter, /*factory*/) {
-    // Test that if NVPR is not requested, the context never has path rendering support.
+DEF_GPUTEST(GrContextFactory_NoPathRenderingIfNVPRDisabled, reporter, /*factory*/) {
+    // Test that if NVPR is explicitly disabled, the context has no path rendering support.
 
     GrContextFactory testFactory;
     for (int i = 0; i <= GrContextFactory::kLastContextType; ++i) {
         GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType)i;
-        GrContext* context = testFactory.get(ctxType);
+        GrContext* context =
+            testFactory.get(ctxType, GrContextFactory::ContextOverrides::kDisableNVPR);
         if (context) {
             REPORTER_ASSERT(
                 reporter,
@@ -57,7 +58,7 @@ DEF_GPUTEST(GrContextFactory_RequiredSRGBSupport, reporter, /*factory*/) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         GrContext* context =
-            testFactory.get(ctxType, GrContextFactory::ContextOptions::kRequireSRGBSupport);
+            testFactory.get(ctxType, GrContextFactory::ContextOverrides::kRequireSRGBSupport);
 
         if (context) {
             REPORTER_ASSERT(reporter, context->caps()->srgbSupport());
