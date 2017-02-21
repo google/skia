@@ -367,7 +367,9 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "--match",
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "cwd": "[START_DIR]\\skia",
     "env": {

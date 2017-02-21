@@ -389,6 +389,9 @@ def dm_flags(bot):
       blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
 
+  match = []
+  match.append('XfermodeImageFilterCroppedInput_Gpu')
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)

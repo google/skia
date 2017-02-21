@@ -325,7 +325,7 @@
       "_",
       ".SRW",
       "--match",
-      "~VkHeapTests"
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

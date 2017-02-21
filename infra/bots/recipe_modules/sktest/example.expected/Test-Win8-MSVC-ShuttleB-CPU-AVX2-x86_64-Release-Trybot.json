@@ -505,6 +505,8 @@
       "gm",
       "_",
       "complexclip4_aa",
+      "--match",
+      "XfermodeImageFilterCroppedInput_Gpu",
       "--noRAW_threading"
     ],
     "cwd": "[START_DIR]\\skia",

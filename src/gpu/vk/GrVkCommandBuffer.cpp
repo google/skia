@@ -428,7 +428,10 @@ void GrVkPrimaryCommandBuffer::submitToQueue(const GrVkGpu* gpu,
     submitInfo.pSignalSemaphores = nullptr;
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), QueueSubmit(queue, 1, &submitInfo, fSubmitFence));
 
-    if (GrVkGpu::kForce_SyncQueue == sync) {
+    SkDebugf("Submitting command buffer\n");
+
+    if (true || GrVkGpu::kForce_SyncQueue == sync) {
+        SkDebugf("Submitting command buffer, forced sync\n");
         err = GR_VK_CALL(gpu->vkInterface(),
                          WaitForFences(gpu->device(), 1, &fSubmitFence, true, UINT64_MAX));
         if (VK_TIMEOUT == err) {

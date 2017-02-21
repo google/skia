@@ -1417,7 +1417,7 @@ DEF_TEST(ImageFilterMatrixConvolutionSanityTest, reporter) {
 }
 
 static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* reporter) {
-    canvas->clear(0);
+//    canvas->clear(SK_ColorRED);
 
     SkBitmap bitmap;
     bitmap.allocN32Pixels(1, 1);
@@ -1434,10 +1434,12 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
     SkBlendMode mode = SkBlendMode::kSrcOver;
     sk_sp<SkImageFilter> xfermodeNoFg(SkXfermodeImageFilter::Make(mode, greenFilter,
                                                                   croppedOut, nullptr));
+#if 0
     sk_sp<SkImageFilter> xfermodeNoBg(SkXfermodeImageFilter::Make(mode, croppedOut,
                                                                   greenFilter, nullptr));
     sk_sp<SkImageFilter> xfermodeNoFgNoBg(SkXfermodeImageFilter::Make(mode, croppedOut,
                                                                       croppedOut, nullptr));
+#endif
 
     SkPaint paint;
     paint.setImageFilter(std::move(xfermodeNoFg));
@@ -1447,16 +1449,20 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
     SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
-
+    ERRORF(reporter, "Got color 0x%08x, but expected 0x%08x", pixel, SK_ColorGREEN);
+# if 0
     paint.setImageFilter(std::move(xfermodeNoBg));
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+    ERRORF(reporter, "Expected color 0x%08x, but got 0x%08x instead", pixel, SK_ColorGREEN);
 
     paint.setImageFilter(std::move(xfermodeNoFgNoBg));
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
     canvas->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+    ERRORF(reporter, "Expected color 0x%08x, but got 0x%08x instead", pixel, SK_ColorGREEN);
+#endif
 }
 
 DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
@@ -1821,7 +1827,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
     test_huge_blur(canvas, reporter);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_VULKAN_CONTEXT(XfermodeImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
 
     sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
                                                       SkBudgeted::kNo,

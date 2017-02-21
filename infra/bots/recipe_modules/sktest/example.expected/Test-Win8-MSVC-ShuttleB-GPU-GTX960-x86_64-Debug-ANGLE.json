@@ -380,7 +380,7 @@
       "_",
       ".SRW",
       "--match",
-      "~GLPrograms",
+      "XfermodeImageFilterCroppedInput_Gpu",
       "--noRAW_threading"
     ],
     "cwd": "[START_DIR]\\skia",
