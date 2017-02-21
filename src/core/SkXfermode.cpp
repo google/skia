@@ -1484,11 +1484,28 @@ const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode mode) {
 
 bool SkBlendMode_CanOverflow(SkBlendMode mode) { return mode == SkBlendMode::kPlus; }
 
-bool SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
+void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
+    // A few stages convert to HSL, mix-and-match H,S, and L, then convert back to RGB.
+    auto hsl_prologue = [p] {
+        // Convert src to HSL, then dst to HSL.
+        p->append(SkRasterPipeline::rgb_to_hsl);
+        p->append(SkRasterPipeline::swap);
+        p->append(SkRasterPipeline::rgb_to_hsl);
+        p->append(SkRasterPipeline::swap);
+    };
+    auto hsl_epilogue = [p] {
+        // Convert src back to RGB, then dst back to RGB.
+        // TODO: is it better to preserve the original dst values?
+        p->append(SkRasterPipeline::hsl_to_rgb);
+        p->append(SkRasterPipeline::swap);
+        p->append(SkRasterPipeline::hsl_to_rgb);
+        p->append(SkRasterPipeline::swap);
+    };
+
     auto stage = SkRasterPipeline::srcover;
     switch (mode) {
         case SkBlendMode::kClear:    stage = SkRasterPipeline::clear; break;
-        case SkBlendMode::kSrc:      return true;  // This stage is a no-op.
+        case SkBlendMode::kSrc:      return;  // This stage is a no-op.
         case SkBlendMode::kDst:      stage = SkRasterPipeline::move_dst_src; break;
         case SkBlendMode::kSrcOver:  stage = SkRasterPipeline::srcover; break;
         case SkBlendMode::kDstOver:  stage = SkRasterPipeline::dstover; break;
@@ -1515,12 +1532,33 @@ bool SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
         case SkBlendMode::kMultiply:   stage = SkRasterPipeline::multiply; break;
 
         case SkBlendMode::kHue:
+            hsl_prologue();
+          //p->append(SkRasterPipeline::src_h);
+            p->append(SkRasterPipeline::dst_s);
+            p->append(SkRasterPipeline::dst_l);
+            hsl_epilogue();
+            return;
         case SkBlendMode::kSaturation:
+            hsl_prologue();
+            p->append(SkRasterPipeline::dst_h);
+          //p->append(SkRasterPipeline::src_s);
+            p->append(SkRasterPipeline::dst_l);
+            hsl_epilogue();
+            return;
         case SkBlendMode::kColor:
-        case SkBlendMode::kLuminosity: return false;  // TODO
+            hsl_prologue();
+          //p->append(SkRasterPipeline::src_h);
+          //p->append(SkRasterPipeline::src_s);
+            p->append(SkRasterPipeline::dst_l);
+            hsl_epilogue();
+            return;
+        case SkBlendMode::kLuminosity:
+            hsl_prologue();
+            p->append(SkRasterPipeline::dst_h);
+            p->append(SkRasterPipeline::dst_s);
+          //p->append(SkRasterPipeline::src_l);
+            hsl_epilogue();
+            return;
     }
-    if (p) {
-        p->append(stage);
-    }
-    return true;
+    p->append(stage);
 }

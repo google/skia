@@ -107,7 +107,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     SkColorFilter* colorFilter = paint.getColorFilter();
 
     // TODO: all temporary
-    if (!supported(dst.info()) || !SkBlendMode_AppendStages(*blend)) {
+    if (!supported(dst.info())) {
         return nullptr;
     }
 
@@ -209,7 +209,7 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {
-    SkAssertResult(SkBlendMode_AppendStages(fBlend, p));
+    SkBlendMode_AppendStages(fBlend, p);
 }
 
 void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {

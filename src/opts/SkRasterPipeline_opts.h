@@ -818,6 +818,10 @@ STAGE(hsl_to_rgb) {
     b = (s == 0.f).thenElse(l, hue_to_rgb(p, q, h - (1/3.0f)));
 }
 
+STAGE(dst_h) { r = dr; }
+STAGE(dst_s) { g = dg; }
+STAGE(dst_l) { b = db; }
+
 STAGE_CTX(matrix_2x3, const float*) {
     auto m = ctx;
 
