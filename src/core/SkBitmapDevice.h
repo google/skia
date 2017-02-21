@@ -20,6 +20,7 @@
 #include "SkScalar.h"
 #include "SkSize.h"
 #include "SkSurfaceProps.h"
+#include "SkTaskGroup.h"
 
 class SkDraw;
 class SkImageFilterCache;
@@ -64,6 +65,8 @@ public:
 protected:
     bool onShouldDisableLCD(const SkPaint&) const override;
     void* getRasterHandle() const override { return fRasterHandle; }
+
+    void flush() override;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -156,6 +159,7 @@ private:
 
     SkImageFilterCache* getImageFilterCache() override;
 
+    SkTaskGroup fTasks;
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;

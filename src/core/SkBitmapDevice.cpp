@@ -21,6 +21,8 @@
 #include "SkSpecialImage.h"
 #include "SkSurface.h"
 
+#define USE_TASKS_FOR_DRAWING
+
 class SkColorTable;
 
 static bool valid_for_bitmap_device(const SkImageInfo& info,
@@ -190,6 +192,15 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct DrawState {
+    SkPixmap        fPixmap;
+    SkRasterClip    fClip;
+    SkMatrix        fCTM;
+
+    DrawState(const SkDraw& draw) : fPixmap(draw.fDst), fClip(*draw.fRC), fCTM(*draw.fMatrix)
+    {}
+};
+
 #ifdef SK_USE_DEVICE_CLIPPING
 class ModifiedDraw : public SkDraw {
 public:
@@ -209,7 +220,24 @@ public:
 #endif
 
 void SkBitmapDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
+#ifdef USE_TASKS_FOR_DRAWING
+    DrawState ds(draw);
+    fTasks.add([ds, paint](){
+        SkDraw d = {};
+        d.fDst = ds.fPixmap;
+        d.fRC = &ds.fClip;
+        d.fMatrix = &ds.fCTM;
+        d.drawPaint(paint);
+    });
+    return;
+#endif
     PREPARE_DRAW(draw).drawPaint(paint);
+}
+
+void SkBitmapDevice::flush() {
+#ifdef USE_TASKS_FOR_DRAWING
+    fTasks.wait();
+#endif
 }
 
 void SkBitmapDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
@@ -245,6 +273,17 @@ void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const S
 void SkBitmapDevice::drawPath(const SkDraw& draw, const SkPath& path,
                               const SkPaint& paint, const SkMatrix* prePathMatrix,
                               bool pathIsMutable) {
+#ifdef USE_TASKS_FOR_DRAWING
+    DrawState ds(draw);
+    fTasks.add([ds, path, paint, pathIsMutable](){
+        SkDraw d = {};
+        d.fDst = ds.fPixmap;
+        d.fRC = &ds.fClip;
+        d.fMatrix = &ds.fCTM;
+        d.drawPath(path, paint, nullptr, pathIsMutable);
+    });
+    return;
+#endif
     PREPARE_DRAW(draw).drawPath(path, paint, prePathMatrix, pathIsMutable);
 }
 
