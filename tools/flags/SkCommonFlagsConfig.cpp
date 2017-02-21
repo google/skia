@@ -169,30 +169,31 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     sk_sp<SkColorSpace> colorSpace)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
-        , fContextOptions(ContextOptions::kNone)
+        , fContextOverrides(ContextOverrides::kNone)
         , fUseDIText(useDIText)
         , fSamples(samples)
         , fColorType(colorType)
         , fColorSpace(std::move(colorSpace)) {
     if (useNVPR) {
-        fContextOptions |= ContextOptions::kEnableNVPR;
+        fContextOverrides |= ContextOverrides::kRequireNVPRSupport;
+    } else if (!useInstanced) {
+        // We don't disable NVPR for instanced configs. Otherwise the caps wouldn't use mixed
+        // samples and we couldn't test the mixed samples backend for simple shapes.
+        fContextOverrides |= ContextOverrides::kDisableNVPR;
     }
     if (useInstanced) {
-        fContextOptions |= ContextOptions::kUseInstanced;
+        fContextOverrides |= ContextOverrides::kUseInstanced;
     }
     // Subtle logic: If the config has a color space attached, we're going to be rendering to sRGB,
     // so we need that capability. In addition, to get the widest test coverage, we DO NOT require
     // that we can disable sRGB decode. (That's for rendering sRGB sources to legacy surfaces).
     //
     // If the config doesn't have a color space attached, we're going to be rendering in legacy
-    // mode. In that case, we can't allow a context to be created that has sRGB support without
-    // the ability to disable sRGB decode. Otherwise, all of our sRGB source resources will be
-    // treated as sRGB textures, but we will be unable to prevent the decode, causing them to be
-    // too dark.
+    // mode. In that case, we don't require sRGB capability and we defer to the client to decide on
+    // sRGB decode control.
     if (fColorSpace) {
-        fContextOptions |= ContextOptions::kRequireSRGBSupport;
-    } else {
-        fContextOptions |= ContextOptions::kRequireSRGBDecodeDisableSupport;
+        fContextOverrides |= ContextOverrides::kRequireSRGBSupport;
+        fContextOverrides |= ContextOverrides::kAllowSRGBWithoutDecodeControl;
     }
 }
 static bool parse_option_int(const SkString& value, int* outInt) {
