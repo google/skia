@@ -219,18 +219,19 @@ static void* load_and_inc(void**& program) {
 #if defined(JUMPER) && defined(WIN)
 __attribute__((ms_abi))
 #endif
-extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k) {
-    auto next = (Stage*)load_and_inc(program);
+extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
     F v{};   // TODO: faster uninitialized?
-    next(x,program,k, v,v,v,v, v,v,v,v);
+    size_t stride = sizeof(F) / sizeof(float);
+    auto start = (Stage*)load_and_inc(program);
+    while (x + stride <= limit) {
+        start(x,program,k, v,v,v,v, v,v,v,v);
+        x += stride;
+    }
+    return x;
 }
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
-extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {
-#if defined(JUMPER) && defined(__AVX2__)
-    asm("vzeroupper");
-#endif
-}
+extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
 
 // We can now define Stages!
 

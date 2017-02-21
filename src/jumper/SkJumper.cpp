@@ -65,23 +65,23 @@ using StageFn = void(void);
 extern "C" {
 
 #if defined(__aarch64__)
-    void ASM(start_pipeline,aarch64)(size_t, void**, K*);
+    size_t ASM(start_pipeline,aarch64)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,aarch64);
     #define M(st) StageFn ASM(st,aarch64);
         STAGES(M)
     #undef M
 
 #elif defined(__arm__)
-    void ASM(start_pipeline,vfp4)(size_t, void**, K*);
+    size_t ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,vfp4);
     #define M(st) StageFn ASM(st,vfp4);
         STAGES(M)
     #undef M
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    void ASM(start_pipeline,hsw  )(size_t, void**, K*);
-    void ASM(start_pipeline,sse41)(size_t, void**, K*);
-    void ASM(start_pipeline,sse2 )(size_t, void**, K*);
+    size_t ASM(start_pipeline,hsw  )(size_t, void**, K*, size_t);
+    size_t ASM(start_pipeline,sse41)(size_t, void**, K*, size_t);
+    size_t ASM(start_pipeline,sse2 )(size_t, void**, K*, size_t);
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,sse41),
@@ -99,7 +99,7 @@ extern "C" {
 #endif
 
     // Portable, single-pixel stages.
-    void sk_start_pipeline(size_t, void**, K*);
+    size_t sk_start_pipeline(size_t, void**, K*, size_t);
     StageFn sk_just_return;
     #define M(st) StageFn sk_##st;
         STAGES(M)
@@ -171,7 +171,7 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     auto build_and_run = [&](size_t   stride,
                              StageFn* (*lookup)(SkRasterPipeline::StockStage),
                              StageFn* just_return,
-                             void     (*start_pipeline)(size_t, void**, K*)) {
+                             size_t   (*start_pipeline)(size_t, void**, K*, size_t)) {
         if (x + stride <= limit) {
             void** ip = program.get();
             for (auto&& st : fStages) {
@@ -184,10 +184,7 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
             }
             *ip = (void*)just_return;
 
-            while (x + stride <= limit) {
-                start_pipeline(x, program.get(), &kConstants);
-                x += stride;
-            }
+            x = start_pipeline(x, program.get(), &kConstants, limit);
         }
         return true;
     };

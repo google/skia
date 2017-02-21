@@ -10,9 +10,14 @@ _text SEGMENT
 
 PUBLIC _sk_start_pipeline_hsw
 _sk_start_pipeline_hsw LABEL PROC
+  DB  65,87                                           ; push          %r15
+  DB  65,86                                           ; push          %r14
+  DB  65,85                                           ; push          %r13
+  DB  65,84                                           ; push          %r12
   DB  86                                              ; push          %rsi
   DB  87                                              ; push          %rdi
-  DB  72,129,236,168,0,0,0                            ; sub           $0xa8,%rsp
+  DB  83                                              ; push          %rbx
+  DB  72,129,236,160,0,0,0                            ; sub           $0xa0,%rsp
   DB  197,120,41,188,36,144,0,0,0                     ; vmovaps       %xmm15,0x90(%rsp)
   DB  197,120,41,180,36,128,0,0,0                     ; vmovaps       %xmm14,0x80(%rsp)
   DB  197,120,41,108,36,112                           ; vmovaps       %xmm13,0x70(%rsp)
@@ -23,8 +28,18 @@ _sk_start_pipeline_hsw LABEL PROC
   DB  197,120,41,68,36,32                             ; vmovaps       %xmm8,0x20(%rsp)
   DB  197,248,41,124,36,16                            ; vmovaps       %xmm7,0x10(%rsp)
   DB  197,248,41,52,36                                ; vmovaps       %xmm6,(%rsp)
+  DB  77,137,207                                      ; mov           %r9,%r15
+  DB  77,137,198                                      ; mov           %r8,%r14
+  DB  72,137,203                                      ; mov           %rcx,%rbx
   DB  72,137,214                                      ; mov           %rdx,%rsi
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  73,137,196                                      ; mov           %rax,%r12
+  DB  73,137,245                                      ; mov           %rsi,%r13
+  DB  72,141,67,8                                     ; lea           0x8(%rbx),%rax
+  DB  76,57,248                                       ; cmp           %r15,%rax
+  DB  118,5                                           ; jbe           75 <_sk_start_pipeline_hsw+0x75>
+  DB  72,137,216                                      ; mov           %rbx,%rax
+  DB  235,60                                          ; jmp           b1 <_sk_start_pipeline_hsw+0xb1>
   DB  197,252,87,192                                  ; vxorps        %ymm0,%ymm0,%ymm0
   DB  197,244,87,201                                  ; vxorps        %ymm1,%ymm1,%ymm1
   DB  197,236,87,210                                  ; vxorps        %ymm2,%ymm2,%ymm2
@@ -33,9 +48,15 @@ _sk_start_pipeline_hsw LABEL PROC
   DB  197,212,87,237                                  ; vxorps        %ymm5,%ymm5,%ymm5
   DB  197,204,87,246                                  ; vxorps        %ymm6,%ymm6,%ymm6
   DB  197,196,87,255                                  ; vxorps        %ymm7,%ymm7,%ymm7
-  DB  72,137,207                                      ; mov           %rcx,%rdi
-  DB  76,137,194                                      ; mov           %r8,%rdx
-  DB  255,208                                         ; callq         *%rax
+  DB  72,137,223                                      ; mov           %rbx,%rdi
+  DB  76,137,238                                      ; mov           %r13,%rsi
+  DB  76,137,242                                      ; mov           %r14,%rdx
+  DB  65,255,212                                      ; callq         *%r12
+  DB  72,141,67,8                                     ; lea           0x8(%rbx),%rax
+  DB  72,131,195,16                                   ; add           $0x10,%rbx
+  DB  76,57,251                                       ; cmp           %r15,%rbx
+  DB  72,137,195                                      ; mov           %rax,%rbx
+  DB  118,196                                         ; jbe           75 <_sk_start_pipeline_hsw+0x75>
   DB  197,248,40,52,36                                ; vmovaps       (%rsp),%xmm6
   DB  197,248,40,124,36,16                            ; vmovaps       0x10(%rsp),%xmm7
   DB  197,120,40,68,36,32                             ; vmovaps       0x20(%rsp),%xmm8
@@ -46,15 +67,19 @@ _sk_start_pipeline_hsw LABEL PROC
   DB  197,120,40,108,36,112                           ; vmovaps       0x70(%rsp),%xmm13
   DB  197,120,40,180,36,128,0,0,0                     ; vmovaps       0x80(%rsp),%xmm14
   DB  197,120,40,188,36,144,0,0,0                     ; vmovaps       0x90(%rsp),%xmm15
-  DB  72,129,196,168,0,0,0                            ; add           $0xa8,%rsp
+  DB  72,129,196,160,0,0,0                            ; add           $0xa0,%rsp
+  DB  91                                              ; pop           %rbx
   DB  95                                              ; pop           %rdi
   DB  94                                              ; pop           %rsi
+  DB  65,92                                           ; pop           %r12
+  DB  65,93                                           ; pop           %r13
+  DB  65,94                                           ; pop           %r14
+  DB  65,95                                           ; pop           %r15
   DB  197,248,119                                     ; vzeroupper
   DB  195                                             ; retq
 
 PUBLIC _sk_just_return_hsw
 _sk_just_return_hsw LABEL PROC
-  DB  197,248,119                                     ; vzeroupper
   DB  195                                             ; retq
 
 PUBLIC _sk_seed_shader_hsw
@@ -529,9 +554,14 @@ _sk_linear_gradient_2stops_hsw LABEL PROC
 
 PUBLIC _sk_start_pipeline_sse41
 _sk_start_pipeline_sse41 LABEL PROC
+  DB  65,87                                           ; push          %r15
+  DB  65,86                                           ; push          %r14
+  DB  65,85                                           ; push          %r13
+  DB  65,84                                           ; push          %r12
   DB  86                                              ; push          %rsi
   DB  87                                              ; push          %rdi
-  DB  72,129,236,168,0,0,0                            ; sub           $0xa8,%rsp
+  DB  83                                              ; push          %rbx
+  DB  72,129,236,160,0,0,0                            ; sub           $0xa0,%rsp
   DB  68,15,41,188,36,144,0,0,0                       ; movaps        %xmm15,0x90(%rsp)
   DB  68,15,41,180,36,128,0,0,0                       ; movaps        %xmm14,0x80(%rsp)
   DB  68,15,41,108,36,112                             ; movaps        %xmm13,0x70(%rsp)
@@ -542,8 +572,18 @@ _sk_start_pipeline_sse41 LABEL PROC
   DB  68,15,41,68,36,32                               ; movaps        %xmm8,0x20(%rsp)
   DB  15,41,124,36,16                                 ; movaps        %xmm7,0x10(%rsp)
   DB  15,41,52,36                                     ; movaps        %xmm6,(%rsp)
+  DB  77,137,207                                      ; mov           %r9,%r15
+  DB  77,137,198                                      ; mov           %r8,%r14
+  DB  72,137,203                                      ; mov           %rcx,%rbx
   DB  72,137,214                                      ; mov           %rdx,%rsi
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  73,137,196                                      ; mov           %rax,%r12
+  DB  73,137,245                                      ; mov           %rsi,%r13
+  DB  72,141,67,4                                     ; lea           0x4(%rbx),%rax
+  DB  76,57,248                                       ; cmp           %r15,%rax
+  DB  118,5                                           ; jbe           73 <_sk_start_pipeline_sse41+0x73>
+  DB  72,137,216                                      ; mov           %rbx,%rax
+  DB  235,52                                          ; jmp           a7 <_sk_start_pipeline_sse41+0xa7>
   DB  15,87,192                                       ; xorps         %xmm0,%xmm0
   DB  15,87,201                                       ; xorps         %xmm1,%xmm1
   DB  15,87,210                                       ; xorps         %xmm2,%xmm2
@@ -552,9 +592,15 @@ _sk_start_pipeline_sse41 LABEL PROC
   DB  15,87,237                                       ; xorps         %xmm5,%xmm5
   DB  15,87,246                                       ; xorps         %xmm6,%xmm6
   DB  15,87,255                                       ; xorps         %xmm7,%xmm7
-  DB  72,137,207                                      ; mov           %rcx,%rdi
-  DB  76,137,194                                      ; mov           %r8,%rdx
-  DB  255,208                                         ; callq         *%rax
+  DB  72,137,223                                      ; mov           %rbx,%rdi
+  DB  76,137,238                                      ; mov           %r13,%rsi
+  DB  76,137,242                                      ; mov           %r14,%rdx
+  DB  65,255,212                                      ; callq         *%r12
+  DB  72,141,67,4                                     ; lea           0x4(%rbx),%rax
+  DB  72,131,195,8                                    ; add           $0x8,%rbx
+  DB  76,57,251                                       ; cmp           %r15,%rbx
+  DB  72,137,195                                      ; mov           %rax,%rbx
+  DB  118,204                                         ; jbe           73 <_sk_start_pipeline_sse41+0x73>
   DB  15,40,52,36                                     ; movaps        (%rsp),%xmm6
   DB  15,40,124,36,16                                 ; movaps        0x10(%rsp),%xmm7
   DB  68,15,40,68,36,32                               ; movaps        0x20(%rsp),%xmm8
@@ -565,9 +611,14 @@ _sk_start_pipeline_sse41 LABEL PROC
   DB  68,15,40,108,36,112                             ; movaps        0x70(%rsp),%xmm13
   DB  68,15,40,180,36,128,0,0,0                       ; movaps        0x80(%rsp),%xmm14
   DB  68,15,40,188,36,144,0,0,0                       ; movaps        0x90(%rsp),%xmm15
-  DB  72,129,196,168,0,0,0                            ; add           $0xa8,%rsp
+  DB  72,129,196,160,0,0,0                            ; add           $0xa0,%rsp
+  DB  91                                              ; pop           %rbx
   DB  95                                              ; pop           %rdi
   DB  94                                              ; pop           %rsi
+  DB  65,92                                           ; pop           %r12
+  DB  65,93                                           ; pop           %r13
+  DB  65,94                                           ; pop           %r14
+  DB  65,95                                           ; pop           %r15
   DB  195                                             ; retq
 
 PUBLIC _sk_just_return_sse41
@@ -1231,9 +1282,14 @@ _sk_linear_gradient_2stops_sse41 LABEL PROC
 
 PUBLIC _sk_start_pipeline_sse2
 _sk_start_pipeline_sse2 LABEL PROC
+  DB  65,87                                           ; push          %r15
+  DB  65,86                                           ; push          %r14
+  DB  65,85                                           ; push          %r13
+  DB  65,84                                           ; push          %r12
   DB  86                                              ; push          %rsi
   DB  87                                              ; push          %rdi
-  DB  72,129,236,168,0,0,0                            ; sub           $0xa8,%rsp
+  DB  83                                              ; push          %rbx
+  DB  72,129,236,160,0,0,0                            ; sub           $0xa0,%rsp
   DB  68,15,41,188,36,144,0,0,0                       ; movaps        %xmm15,0x90(%rsp)
   DB  68,15,41,180,36,128,0,0,0                       ; movaps        %xmm14,0x80(%rsp)
   DB  68,15,41,108,36,112                             ; movaps        %xmm13,0x70(%rsp)
@@ -1244,8 +1300,18 @@ _sk_start_pipeline_sse2 LABEL PROC
   DB  68,15,41,68,36,32                               ; movaps        %xmm8,0x20(%rsp)
   DB  15,41,124,36,16                                 ; movaps        %xmm7,0x10(%rsp)
   DB  15,41,52,36                                     ; movaps        %xmm6,(%rsp)
+  DB  77,137,207                                      ; mov           %r9,%r15
+  DB  77,137,198                                      ; mov           %r8,%r14
+  DB  72,137,203                                      ; mov           %rcx,%rbx
   DB  72,137,214                                      ; mov           %rdx,%rsi
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  73,137,196                                      ; mov           %rax,%r12
+  DB  73,137,245                                      ; mov           %rsi,%r13
+  DB  72,141,67,4                                     ; lea           0x4(%rbx),%rax
+  DB  76,57,248                                       ; cmp           %r15,%rax
+  DB  118,5                                           ; jbe           73 <_sk_start_pipeline_sse2+0x73>
+  DB  72,137,216                                      ; mov           %rbx,%rax
+  DB  235,52                                          ; jmp           a7 <_sk_start_pipeline_sse2+0xa7>
   DB  15,87,192                                       ; xorps         %xmm0,%xmm0
   DB  15,87,201                                       ; xorps         %xmm1,%xmm1
   DB  15,87,210                                       ; xorps         %xmm2,%xmm2
@@ -1254,9 +1320,15 @@ _sk_start_pipeline_sse2 LABEL PROC
   DB  15,87,237                                       ; xorps         %xmm5,%xmm5
   DB  15,87,246                                       ; xorps         %xmm6,%xmm6
   DB  15,87,255                                       ; xorps         %xmm7,%xmm7
-  DB  72,137,207                                      ; mov           %rcx,%rdi
-  DB  76,137,194                                      ; mov           %r8,%rdx
-  DB  255,208                                         ; callq         *%rax
+  DB  72,137,223                                      ; mov           %rbx,%rdi
+  DB  76,137,238                                      ; mov           %r13,%rsi
+  DB  76,137,242                                      ; mov           %r14,%rdx
+  DB  65,255,212                                      ; callq         *%r12
+  DB  72,141,67,4                                     ; lea           0x4(%rbx),%rax
+  DB  72,131,195,8                                    ; add           $0x8,%rbx
+  DB  76,57,251                                       ; cmp           %r15,%rbx
+  DB  72,137,195                                      ; mov           %rax,%rbx
+  DB  118,204                                         ; jbe           73 <_sk_start_pipeline_sse2+0x73>
   DB  15,40,52,36                                     ; movaps        (%rsp),%xmm6
   DB  15,40,124,36,16                                 ; movaps        0x10(%rsp),%xmm7
   DB  68,15,40,68,36,32                               ; movaps        0x20(%rsp),%xmm8
@@ -1267,9 +1339,14 @@ _sk_start_pipeline_sse2 LABEL PROC
   DB  68,15,40,108,36,112                             ; movaps        0x70(%rsp),%xmm13
   DB  68,15,40,180,36,128,0,0,0                       ; movaps        0x80(%rsp),%xmm14
   DB  68,15,40,188,36,144,0,0,0                       ; movaps        0x90(%rsp),%xmm15
-  DB  72,129,196,168,0,0,0                            ; add           $0xa8,%rsp
+  DB  72,129,196,160,0,0,0                            ; add           $0xa0,%rsp
+  DB  91                                              ; pop           %rbx
   DB  95                                              ; pop           %rdi
   DB  94                                              ; pop           %rsi
+  DB  65,92                                           ; pop           %r12
+  DB  65,93                                           ; pop           %r13
+  DB  65,94                                           ; pop           %r14
+  DB  65,95                                           ; pop           %r15
   DB  195                                             ; retq
 
 PUBLIC _sk_just_return_sse2
