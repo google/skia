@@ -169,6 +169,30 @@
       "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0beeabe1_74230acd",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-21T14:37:39Z",
+      "side": 1,
+      "message": "We\u0027re not changing the ownership mode, so GrGLRenderTarget::onRelease should still free the FBOs and RenderBuffer. However, this still leaves them intact so that we could accidentally render or resolve to the texture. (With the current higher level code, that can\u0027t happen - the only client is via SkImage and the image gets freed immediately), but if we were to use detachBackendTexture elsewhere, I think we could get in trouble.",
+      "parentUuid": "ed6de9bc_d91b7bda",
+      "range": {
+        "startLine": 116,
+        "startChar": 52,
+        "endLine": 116,
+        "endChar": 72
+      },
+      "revId": "50be870344809043b798bc144b7f7fa1b0f87291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
