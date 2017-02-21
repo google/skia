@@ -193,3 +193,34 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new StrokeZeroGM(); )
+
+DEF_SIMPLE_GM(simple_cap, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(20);
+    SkPath path;
+    path.moveTo(30, 30);
+    path.lineTo(30, 30);
+    path.moveTo(70, 30);
+    path.lineTo(90, 40);
+    for (SkPaint::Cap c : { SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap } ) {
+        paint.setStrokeCap(c);
+        canvas->drawPath(path, paint);
+        canvas->translate(0, 70);
+    }
+}
+
+DEF_SIMPLE_GM(simple_join, canvas, 256, 256) {
+SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(20);
+SkPath path;
+path.moveTo(30, 30);
+path.lineTo(40, 50);
+path.conicTo(70, 30, 100, 30, .707f);
+    for (SkPaint::Join j : { SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join } ) {
+        paint.setStrokeJoin(j);
+        canvas->drawPath(path, paint);
+        canvas->translate(0, 70);
+    }
+}
