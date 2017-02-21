@@ -1538,7 +1538,7 @@ private:
 
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                      SkBaseDevice* dst, const SkIPoint& dstOrigin,
-                                     const SkMatrix& ctm, const SkClipStack* clipStack);
+                                     const SkMatrix& ctm);
 
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
@@ -1560,7 +1560,6 @@ private:
 
     class MCRec;
 
-    sk_sp<SkClipStack> fClipStack;
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
@@ -1659,15 +1658,6 @@ private:
      *  Returns true if the paint's imagefilter can be invoked directly, without needed a layer.
      */
     bool canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkPaint&);
-
-    /** Return the clip stack. The clip stack stores all the individual
-     *  clips organized by the save/restore frame in which they were
-     *  added.
-     *  @return the current clip stack ("list" of individual clip elements)
-     */
-    const SkClipStack* getClipStack() const {
-        return fClipStack.get();
-    }
 
     /**
      *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows
