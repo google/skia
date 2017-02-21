@@ -1003,7 +1003,7 @@ sk_sp<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* d) 
     float sigma = d->fRandom->nextRangeF(3,8);
     float width = d->fRandom->nextRangeF(200,300);
     float height = d->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(d->fContext->textureProvider(), SkRect::MakeWH(width, height),
+    return GrRectBlurEffect::Make(d->context()->textureProvider(), SkRect::MakeWH(width, height),
                                   sigma);
 }
 #endif
@@ -1224,7 +1224,7 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTestData* d)
     SkScalar sigma = d->fRandom->nextRangeF(1.f,10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Make(d->fContext, sigma, sigma, rrect, rrect);
+    return GrRRectBlurEffect::Make(d->context(), sigma, sigma, rrect, rrect);
 }
 #endif
 

@@ -575,7 +575,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) 
         (flags & (1 << 3)) ? luts[3] : nullptr
     ));
     sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
-    sk_sp<GrFragmentProcessor> fp = filter->asFragmentProcessor(d->fContext, colorSpace.get());
+    sk_sp<GrFragmentProcessor> fp = filter->asFragmentProcessor(d->context(), colorSpace.get());
     SkASSERT(fp);
     return fp;
 }

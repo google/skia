@@ -294,8 +294,10 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                          GrProcessorUnitTest::kAlphaTextureIdx;
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
+                                        : GrProcessorUnitTest::kAlphaTextureIdx;
+    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+
     int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE / width);
     SkISize kernelSize = SkISize::Make(width, height);
@@ -307,15 +309,15 @@ sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTest
     SkScalar bias = d->fRandom->nextSScalar1();
     SkIPoint kernelOffset = SkIPoint::Make(d->fRandom->nextRangeU(0, kernelSize.width()),
                                            d->fRandom->nextRangeU(0, kernelSize.height()));
-    SkIRect bounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, d->fTextures[texIdx]->width()),
-                                       d->fRandom->nextRangeU(0, d->fTextures[texIdx]->height()),
-                                       d->fRandom->nextRangeU(0, d->fTextures[texIdx]->width()),
-                                       d->fRandom->nextRangeU(0, d->fTextures[texIdx]->height()));
+    SkIRect bounds = SkIRect::MakeXYWH(d->fRandom->nextRangeU(0, proxy->width()),
+                                       d->fRandom->nextRangeU(0, proxy->height()),
+                                       d->fRandom->nextRangeU(0, proxy->width()),
+                                       d->fRandom->nextRangeU(0, proxy->height()));
     GrTextureDomain::Mode tileMode =
             static_cast<GrTextureDomain::Mode>(d->fRandom->nextRangeU(0, 2));
     bool convolveAlpha = d->fRandom->nextBool();
     return GrMatrixConvolutionEffect::Make(d->context(),
-                                           d->textureProxy(texIdx),
+                                           std::move(proxy),
                                            bounds,
                                            kernelSize,
                                            kernel.get(),
