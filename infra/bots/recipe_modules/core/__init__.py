@@ -16,3 +16,6 @@ DEPS = [
   'run',
   'vars',
 ]
+
+# TODO(borenet): Add coverage
+DISABLE_STRICT_COVERAGE = True

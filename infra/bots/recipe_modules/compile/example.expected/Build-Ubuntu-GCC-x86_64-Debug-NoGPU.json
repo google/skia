@@ -44,6 +44,8 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-NoGPU"
     },
@@ -85,6 +87,8 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-NoGPU"
     },
@@ -101,6 +105,8 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-NoGPU"
     },
@@ -116,6 +122,8 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
+      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
+      "GIT_HTTP_LOW_SPEED_TIME": "300",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-NoGPU"
     },
