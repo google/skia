@@ -309,7 +309,7 @@ def dm_flags(bot):
 
   if 'Nexus5' in bot:
     # skia:5876
-    blacklist(['msaa4', 'gm', '_', 'encode-platform'])
+    blacklist(['_', 'gm', '_', 'encode-platform'])
 
   if 'AndroidOne-GPU' in bot:  # skia:4697, skia:4704, skia:4694, skia:4705
     blacklist(['_',     'gm', '_', 'bigblurs'])
