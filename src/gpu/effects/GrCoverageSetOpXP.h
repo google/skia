@@ -32,16 +32,16 @@ public:
 private:
     constexpr GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
-    bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override {
+    bool willReadsDst(const FragmentProcessorAnalysis&) const override {
         return fRegionOp != SkRegion::kReplace_Op;
     }
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps&,
-                                           const GrPipelineAnalysis&,
+                                           const FragmentProcessorAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override {
+    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
         return false;
     }
 
