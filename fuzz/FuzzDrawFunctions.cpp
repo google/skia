@@ -71,6 +71,10 @@ static void init_paint(Fuzz* fuzz, SkPaint* p) {
 static void init_bitmap(Fuzz* fuzz, SkBitmap* bmp) {
     uint8_t colorType;
     fuzz->nextRange(&colorType, 0, (int)kLastEnum_SkColorType);
+    // ColorType needs to match what the system configuration is.
+    if (colorType == kRGBA_8888_SkColorType || colorType == kBGRA_8888_SkColorType) {
+        colorType = kN32_SkColorType;
+    }
     bool b;
     fuzz->next(&b);
     SkImageInfo info = SkImageInfo::Make(kBmpSize,
