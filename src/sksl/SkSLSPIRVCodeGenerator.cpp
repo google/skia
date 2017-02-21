@@ -1989,6 +1989,15 @@ bool is_assignment(Token::Kind op) {
     }
 }
 
+SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, SkWStream& out) {
+    if (operandType.kind() == Type::kVector_Kind) {
+        SpvId result = this->nextId();
+        this->writeInstruction(SpvOpAll, this->getType(*fContext.fBool_Type), result, id, out);
+        return result;
+    }
+    return id;
+}
+
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, SkWStream& out) {
     // handle cases where we don't necessarily evaluate both LHS and RHS
     switch (b.fOperator) {
@@ -2089,15 +2098,20 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, SkWSt
         ASSERT(*operandType == b.fRight->fType);
     }
     switch (b.fOperator) {
-        case Token::EQEQ:
+        case Token::EQEQ: {
             ASSERT(resultType == *fContext.fBool_Type);
-            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFOrdEqual,
-                                              SpvOpIEqual, SpvOpIEqual, SpvOpLogicalEqual, out);
+            return this->foldToBool(this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                               SpvOpFOrdEqual, SpvOpIEqual,
+                                                               SpvOpIEqual, SpvOpLogicalEqual, out),
+                                    *operandType, out);
+        }
         case Token::NEQ:
             ASSERT(resultType == *fContext.fBool_Type);
-            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFOrdNotEqual,
-                                              SpvOpINotEqual, SpvOpINotEqual, SpvOpLogicalNotEqual,
-                                              out);
+            return this->foldToBool(this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                               SpvOpFOrdNotEqual, SpvOpINotEqual,
+                                                               SpvOpINotEqual, SpvOpLogicalNotEqual,
+                                                               out),
+                                    *operandType, out);
         case Token::GT:
             ASSERT(resultType == *fContext.fBool_Type);
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,

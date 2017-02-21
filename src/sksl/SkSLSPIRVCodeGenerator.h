@@ -172,6 +172,14 @@ private:
 
     SpvId writeSwizzle(const Swizzle& swizzle, SkWStream& out);
 
+    /**
+     * Folds the potentially-vector result of a logical operation down to a single bool. If
+     * operandType is a vector type, assumes that the intermediate result in id is a bvec of the
+     * same dimensions, and applys all() to it to fold it down to a single bool value. Otherwise,
+     * returns the original id value.
+     */
+    SpvId foldToBool(SpvId id, const Type& operandType, SkWStream& out);
+
     SpvId writeBinaryOperation(const Type& resultType, const Type& operandType, SpvId lhs,
                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,
                                SpvOp_ ifBool, SkWStream& out);
