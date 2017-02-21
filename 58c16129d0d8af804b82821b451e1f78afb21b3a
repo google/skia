@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cc55826_72b8edcf",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "time warp",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ca1ce05_a81d66b1",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "need SkTArray.h ?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac33b461_ebce14cd",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "rm the SkBlur*.h headers ?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbf05c47_f3d25dbc",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "// This GM attempts to flood Ganesh with more circles than will fit in a single GL buffer\n?\n\nrefer to the bug ?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b03edde_efed3afe",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "can this be static ?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a1a0361_14551f80",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "have a kWidth \u0026 kHeight \u0026 use them here and in onISize ?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8caba14f_d8e52945",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "DEF_GM ?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cc260c8_103978ff",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "// This GM ...\n\n?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5266dfd4_2ac09b8b",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "Can we make this file static and share it with the above GM?\nActually do we even use it in this GM?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29478552_84d544d2",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be 800-4 ?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "427d81bc_dd1dc7f8",
+        "filename": "gm/manypaths.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-21T21:01:06Z",
+      "side": 1,
+      "message": "DEF_GM ?",
+      "revId": "58c16129d0d8af804b82821b451e1f78afb21b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
