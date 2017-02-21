@@ -440,7 +440,7 @@
       "_",
       ".SRW",
       "--match",
-      "~Threaded"
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -830,7 +830,7 @@
       "_",
       ".SRW",
       "--match",
-      "~Threaded",
+      "XfermodeImageFilterCroppedInput_Gpu",
       "--abandonGpuContext"
     ],
     "env": {
@@ -1221,7 +1221,7 @@
       "_",
       ".SRW",
       "--match",
-      "~Threaded",
+      "XfermodeImageFilterCroppedInput_Gpu",
       "--preAbandonGpuContext"
     ],
     "env": {

@@ -454,6 +454,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                                     SkString("coords"),
                                     args.fTexSamplers[0],
                                     args.fInputColor);
+            args.fFragBuilder->codeAppendf("%s = vec4(0.0, 1.0, 0.0, 1.0);", args.fOutputColor);
         }
 
     protected:

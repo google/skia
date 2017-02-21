@@ -397,8 +397,7 @@
       "_",
       "complexclip4_aa",
       "--match",
-      "~Once",
-      "~Shared"
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

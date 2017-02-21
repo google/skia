@@ -491,6 +491,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                                    int left, int top, int width, int height,
                                    GrPixelConfig dataConfig,
                                    const SkTArray<GrMipLevel>& texels) {
+    SkDebugf("uploading data to texture with image: %d\n", tex->image());
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(1 == texels.count() ||
@@ -1528,18 +1529,6 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
                             GrSurface* src,
                             const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
-    if (can_copy_as_resolve(dst, src, this)) {
-        this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
-        return true;
-    }
-
-    if (this->vkCaps().mustSubmitCommandsBeforeCopyOp()) {
-        this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
-    }
-
-    if (fCopyManager.copySurfaceAsDraw(this, dst, src, srcRect, dstPoint)) {
-        return true;
-    }
 
     GrVkImage* dstImage;
     GrVkImage* srcImage;
@@ -1560,13 +1549,33 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
         srcImage = static_cast<GrVkTexture*>(src->asTexture());
     }
 
+    SkDebugf("Doing copy surface for dst: %p, and source: %p\n", dst, src);
+    SkDebugf("copy images for dst: %d, and source: %d\n", dstImage->image(), srcImage->image());
+    if (can_copy_as_resolve(dst, src, this)) {
+        this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
+        SkDebugf("Did copy as resolve\n");
+        return true;
+    }
+
+    if (this->vkCaps().mustSubmitCommandsBeforeCopyOp()) {
+        SkDebugf("submitting command buffers before copy\n");
+        this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
+    }
+
+    if (fCopyManager.copySurfaceAsDraw(this, dst, src, srcRect, dstPoint)) {
+        SkDebugf("Did copy as draw\n");
+        return true;
+    }
+
     if (can_copy_image(dst, src, this)) {
         this->copySurfaceAsCopyImage(dst, src, dstImage, srcImage, srcRect, dstPoint);
+        SkDebugf("Did copy as Image\n");
         return true;
     }
 
     if (can_copy_as_blit(dst, src, dstImage, srcImage, this)) {
         this->copySurfaceAsBlit(dst, src, dstImage, srcImage, srcRect, dstPoint);
+        SkDebugf("Did copy as Blit\n");
         return true;
     }
 
@@ -1637,6 +1646,8 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
                            GrPixelConfig config,
                            void* buffer,
                            size_t rowBytes) {
+    SkDebugf("start of onReadPixels for surface: %p\n", surface);
+    this->submitCommandBuffer(kForce_SyncQueue);
     VkFormat pixelFormat;
     if (!GrPixelConfigToVkFormat(config, &pixelFormat)) {
         return false;
@@ -1665,6 +1676,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     if (!image) {
         return false;
     }
+    SkDebugf("reading pixels from image: %d\n", image->image());
 
     // Change layout of our target so it can be used as copy
     image->setImageLayout(this,
@@ -1729,6 +1741,10 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     this->submitCommandBuffer(kForce_SyncQueue);
     GrVkMemory::InvalidateMappedAlloc(this, transferBuffer->alloc());
     void* mappedMemory = transferBuffer->map();
+
+    SkDebugf("Read Pixels info, copyFromOrigin: %d, flipY %d\n", copyFromOrigin, flipY);
+    SkDebugf("TransferBuffer size: %d\n", transferBuffer->sizeInBytes());
+    SkDebugf("mappendMemory 0x%08x\n", ((uint32_t*)mappedMemory)[0]);
 
     if (copyFromOrigin) {
         uint32_t skipRows = region.imageExtent.height - height;

@@ -436,8 +436,7 @@
       "_",
       "multipicturedraw_rrectclip_simple",
       "--match",
-      "~GLPrograms",
-      "~IntTexture"
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "cwd": "[START_DIR]\\skia",
     "env": {
