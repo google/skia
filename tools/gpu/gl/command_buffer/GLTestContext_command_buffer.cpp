@@ -138,7 +138,7 @@ static const GrGLInterface* create_command_buffer_interface() {
 
 namespace sk_gpu_test {
 
-CommandBufferGLTestContext::CommandBufferGLTestContext()
+CommandBufferGLTestContext::CommandBufferGLTestContext(CommandBufferGLTestContext* shareContext)
     : fContext(EGL_NO_CONTEXT), fDisplay(EGL_NO_DISPLAY), fSurface(EGL_NO_SURFACE) {
 
     static const EGLint configAttribs[] = {
@@ -157,32 +157,6 @@ CommandBufferGLTestContext::CommandBufferGLTestContext()
         EGL_NONE
     };
 
-    initializeGLContext(nullptr, configAttribs, surfaceAttribs);
-}
-
-CommandBufferGLTestContext::CommandBufferGLTestContext(void *nativeWindow, int msaaSampleCount) {
-    static const EGLint surfaceAttribs[] = {EGL_NONE};
-
-    EGLint configAttribs[] = {
-        EGL_RED_SIZE, 8,
-        EGL_GREEN_SIZE, 8,
-        EGL_BLUE_SIZE, 8,
-        EGL_ALPHA_SIZE, 8,
-        EGL_DEPTH_SIZE, 8,
-        EGL_STENCIL_SIZE, 8,
-        EGL_SAMPLE_BUFFERS, 1,
-        EGL_SAMPLES, msaaSampleCount,
-        EGL_NONE
-    };
-    if (msaaSampleCount == 0) {
-        configAttribs[12] = EGL_NONE;
-    }
-
-    initializeGLContext(nativeWindow, configAttribs, surfaceAttribs);
-}
-
-void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const int *configAttribs,
-                                                 const int *surfaceAttribs) {
     load_command_buffer_once();
     if (!gfFunctionsLoadedSuccessfully) {
         static SkOnce once;
@@ -208,16 +182,10 @@ void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const i
         return;
     }
 
-    if (nativeWindow) {
-        fSurface = gfCreateWindowSurface(fDisplay,
-                                         static_cast<EGLConfig>(fConfig),
-                                         (EGLNativeWindowType) nativeWindow,
-                                         surfaceAttribs);
-    } else {
-        fSurface = gfCreatePbufferSurface(fDisplay,
-                                          static_cast<EGLConfig>(fConfig),
-                                          surfaceAttribs);
-    }
+    fSurface = gfCreatePbufferSurface(fDisplay,
+                                        static_cast<EGLConfig>(fConfig),
+                                        surfaceAttribs);
+
     if (EGL_NO_SURFACE == fSurface) {
         SkDebugf("Command Buffer: Could not create EGL surface.\n");
         this->destroyGLContext();
@@ -228,7 +196,10 @@ void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const i
         EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL_NONE
     };
-    fContext = gfCreateContext(fDisplay, static_cast<EGLConfig>(fConfig), nullptr, contextAttribs);
+    EGLContext eglShareContext = shareContext
+            ? reinterpret_cast<EGLContext>(shareContext->fContext) : nullptr;
+    fContext = gfCreateContext(fDisplay, static_cast<EGLConfig>(fConfig), eglShareContext,
+                               contextAttribs);
     if (EGL_NO_CONTEXT == fContext) {
         SkDebugf("Command Buffer: Could not create EGL context.\n");
         this->destroyGLContext();
