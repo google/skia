@@ -502,9 +502,13 @@ optional("jumper") {
   public_defines = [ "SK_JUMPER" ]
   sources = [
     "src/jumper/SkJumper.cpp",
-    "src/jumper/SkJumper_generated.S",
     "src/jumper/SkJumper_stages.cpp",
   ]
+  if (is_win && is_x64) {
+    sources += [ "src/jumper/SkJumper_generated_win.S" ]
+  } else if (!is_win) {
+    sources += [ "src/jumper/SkJumper_generated.S" ]
+  }
 }
 
 optional("typeface_freetype") {

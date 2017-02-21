@@ -216,18 +216,14 @@ static void* load_and_inc(void**& program) {
 
 // Some glue stages that don't fit the normal pattern of stages.
 
+#if defined(JUMPER) && defined(WIN)
+__attribute__((ms_abi))
+#endif
 extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k) {
     auto next = (Stage*)load_and_inc(program);
     F v{};   // TODO: faster uninitialized?
     next(x,program,k, v,v,v,v, v,v,v,v);
 }
-
-#if defined(JUMPER) && defined(__x86_64__)
-    __attribute__((ms_abi))
-    extern "C" void WRAP(start_pipeline_ms)(size_t x, void** program, K* k) {
-        WRAP(start_pipeline)(x,program,k);
-    }
-#endif
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
 extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {
