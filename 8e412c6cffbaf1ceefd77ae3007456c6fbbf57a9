@@ -34,6 +34,24 @@
       "revId": "8e412c6cffbaf1ceefd77ae3007456c6fbbf57a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43c27076_d33c991d",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-21T18:03:03Z",
+      "side": 1,
+      "message": "Done. Thank you for the clarification.",
+      "parentUuid": "be9a3226_05497116",
+      "revId": "8e412c6cffbaf1ceefd77ae3007456c6fbbf57a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
