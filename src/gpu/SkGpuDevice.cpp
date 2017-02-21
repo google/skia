@@ -1163,7 +1163,7 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     }
 
     SkASSERT(result->isTextureBacked());
-    sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(fContext.get());
+    sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(this->context());
     if (!proxy) {
         return;
     }
@@ -1175,7 +1175,8 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
 
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(fContext.get(),
+
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(this->context(),
                                                               std::move(proxy),
                                                               std::move(colorSpaceXform),
                                                               SkMatrix::I()));
