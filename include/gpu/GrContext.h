@@ -377,6 +377,8 @@ public:
     // Provides access to functions that aren't part of the public API.
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
+    
+    GrBackend fBackend;
 
 private:
     GrGpu*                                  fGpu;

@@ -395,7 +395,9 @@
       "tiles_rt-8888",
       "gm",
       "_",
-      "complexclip4_aa"
+      "complexclip4_aa",
+      "--match",
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

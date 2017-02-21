@@ -614,7 +614,9 @@
       "msaa16",
       "gm",
       "_",
-      "blurcircles"
+      "blurcircles",
+      "--match",
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

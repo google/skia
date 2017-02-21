@@ -393,6 +393,8 @@ def dm_flags(bot):
     # This causes the bot to spin for >3.5 hours.
     blacklist(['_', 'gm', '_', 'scaled_tilemodes_npot'])
 
+  match = ['XfermodeImageFilterCroppedInput_Gpu']
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
