@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f866f4ee_083f4cb1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-02-21T20:23:35Z",
+      "side": 1,
+      "message": "Either more description here or in the body of the commit would be helpful.\n\n\"Fuzzing generates data with both oval and rrect flags set; abort early in this case\"\n\"Fuzzed data may generate invalid bounds with the dirty bounds bit clear. Always recompute the bounds.\"\n\nand perhaps a bug filed not to write the bounds in the future if the bounds can never be trusted.",
+      "range": {
+        "startLine": 7,
+        "startChar": 34,
+        "endLine": 7,
+        "endChar": 40
+      },
+      "revId": "7733d8f6e364c497e3984bdbbabefcde2c6ce88c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
