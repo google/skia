@@ -118,6 +118,15 @@ public:
         kAllFlags = 0xFFFF
     };
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    enum ReserveFlags {
+        // These are not used by paint, but the bits are reserved for private use by the
+        // android framework.
+        kUnderlineText_ReserveFlag   = 0x08,   //!< mask to enable underline text
+        kStrikeThruText_ReserveFlag  = 0x10,   //!< mask to enable strike-thru text
+    };
+#endif
+
     /** Return the paint's flags. Use the Flag enum to test flag values.
         @return the paint's flags (see enums ending in _Flag for bit masks)
     */
