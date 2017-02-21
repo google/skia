@@ -54,7 +54,6 @@ _sk_start_pipeline_hsw LABEL PROC
 
 PUBLIC _sk_just_return_hsw
 _sk_just_return_hsw LABEL PROC
-  DB  197,248,119                                     ; vzeroupper
   DB  195                                             ; retq
 
 PUBLIC _sk_seed_shader_hsw

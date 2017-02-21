@@ -227,7 +227,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k) {
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
 extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {
-#if defined(JUMPER) && defined(__AVX2__)
+#if defined(JUMPER) && defined(__AVX2__) && !defined(WIN)
     asm("vzeroupper");
 #endif
 }
