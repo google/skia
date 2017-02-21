@@ -41,22 +41,19 @@ class SkiaApi(recipe_api.RecipeApi):
         git = 'git.bat'
       else:
         git = 'git'
-      self.m.step('git remote set-url',
-                  cmd=[git, 'remote', 'set-url', 'origin', repo.url],
-                  cwd=repo_path,
-                  infra_step=True)
-      self.m.step('git fetch',
-                  cmd=[git, 'fetch'],
-                  cwd=repo_path,
-                  infra_step=True)
-      self.m.step('git reset',
-                  cmd=[git, 'reset', '--hard', repo.revision],
-                  cwd=repo_path,
-                  infra_step=True)
-      self.m.step('git clean',
-                  cmd=[git, 'clean', '-d', '-f'],
-                  cwd=repo_path,
-                  infra_step=True)
+      with self.m.step.context({'cwd': repo_path}):
+        self.m.step('git remote set-url',
+                    cmd=[git, 'remote', 'set-url', 'origin', repo.url],
+                    infra_step=True)
+        self.m.step('git fetch',
+                    cmd=[git, 'fetch'],
+                    infra_step=True)
+        self.m.step('git reset',
+                    cmd=[git, 'reset', '--hard', repo.revision],
+                    infra_step=True)
+        self.m.step('git clean',
+                    cmd=[git, 'clean', '-d', '-f'],
+                    infra_step=True)
 
   def checkout_steps(self):
     """Run the steps to obtain a checkout of Skia."""
@@ -158,14 +155,14 @@ class SkiaApi(recipe_api.RecipeApi):
         )
 
     self.m.gclient.c = gclient_cfg
-    update_step = self.m.bot_update.ensure_checkout(
-        cwd=self.m.vars.checkout_root,
-        patch_root=patch_root,
-        **checkout_kwargs)
+    with self.m.step.context({'cwd': self.m.vars.checkout_root}):
+      update_step = self.m.bot_update.ensure_checkout(
+          patch_root=patch_root,
+          **checkout_kwargs)
 
     self.m.vars.got_revision = (
         update_step.presentation.properties['got_revision'])
 
     if self.m.vars.need_chromium_checkout:
-      self.m.gclient.runhooks(cwd=self.m.vars.checkout_root,
-                              env=self.m.vars.gclient_env)
+      with self.m.step.context({'cwd': self.m.vars.checkout_root}):
+        self.m.gclient.runhooks(env=self.m.vars.gclient_env)

@@ -25,10 +25,10 @@ def RunSteps(api):
   # Run the infra tests.
   infra_tests = api.vars.skia_dir.join(
       'infra', 'bots', 'infra_tests.py')
-  api.step('infra_tests',
-           cmd=['python', infra_tests],
-           cwd=api.vars.skia_dir,
-           env=api.infra.go_env)
+  with api.step.context({'cwd': api.vars.skia_dir}):
+    api.step('infra_tests',
+          cmd=['python', infra_tests],
+          env=api.infra.go_env)
 
 
 def GenTests(api):
