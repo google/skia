@@ -16,6 +16,24 @@
       "revId": "8e412c6cffbaf1ceefd77ae3007456c6fbbf57a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be9a3226_05497116",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-21T13:49:56Z",
+      "side": 1,
+      "message": "This will change our testing coverage/behavior. fRequireDecodeDisableForSRGB defaults to true in GrContextOptions. This code was being used to let us test without that requirement (to exercise sRGB support on a wider range of devices). We could invert the meaning of the flag... I originally opted not to do that - I really don\u0027t like negative terminology in flags.\n\nfAllowSRGBWithoutDecodeControl ?",
+      "parentUuid": "29d58787_b98963f5",
+      "revId": "8e412c6cffbaf1ceefd77ae3007456c6fbbf57a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
