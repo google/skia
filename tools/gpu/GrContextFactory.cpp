@@ -167,12 +167,6 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
             }
             testCtx.reset(glCtx);
             glInterface.reset(SkRef(glCtx->gl()));
-            if (ContextOverrides::kDisableNVPR & overrides) {
-                glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
-                if (!glInterface) {
-                    return ContextInfo();
-                }
-            }
             backendContext = reinterpret_cast<GrBackendContext>(glInterface.get());
             break;
         }
@@ -205,6 +199,9 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     testCtx->makeCurrent();
     SkASSERT(testCtx && testCtx->backend() == backend);
     GrContextOptions grOptions = fGlobalOptions;
+    if (ContextOverrides::kDisableNVPR & overrides) {
+        grOptions.fGpuPathRenderers &= ~GrContextOptions::GpuPathRenderers::kStencilAndCover;
+    }
     if (ContextOverrides::kUseInstanced & overrides) {
         grOptions.fEnableInstancedRendering = true;
     }
