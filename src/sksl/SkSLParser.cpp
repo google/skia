@@ -335,7 +335,7 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
         return nullptr;
     }
-    if (!modifiers.fFlags && this->peek().fKind == Token::LPAREN) {
+    if (this->peek().fKind == Token::LPAREN) {
         this->nextToken();
         std::vector<std::unique_ptr<ASTParameter>> parameters;
         while (this->peek().fKind != Token::RPAREN) {
@@ -360,7 +360,9 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
                 return nullptr;
             }
         }
-        return std::unique_ptr<ASTDeclaration>(new ASTFunction(name.fPosition, std::move(type),
+        return std::unique_ptr<ASTDeclaration>(new ASTFunction(name.fPosition,
+                                                               modifiers,
+                                                               std::move(type),
                                                                std::move(name.fText),
                                                                std::move(parameters),
                                                                std::move(body)));
@@ -743,6 +745,10 @@ Modifiers Parser::modifiers() {
             case Token::RESTRICT:
                 this->nextToken();
                 flags |= Modifiers::kRestrict_Flag;
+                break;
+            case Token::HASSIDEEFFECTS:
+                this->nextToken();
+                flags |= Modifiers::kHasSideEffects_Flag;
                 break;
             default:
                 return Modifiers(layout, flags);
