@@ -21,7 +21,9 @@ namespace sk_app {
 class WindowContext {
 public:
     WindowContext() : fContext(nullptr)
-                    , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType) {}
+                    , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
+                    , fSampleCount(0)
+                    , fStencilBits(0) {}
 
     virtual ~WindowContext() {}
 
@@ -46,6 +48,8 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    int sampleCount() const { return fSampleCount; }
+    int stencilBits() const { return fStencilBits; }
 
 protected:
     virtual bool isGpuContext() { return true;  }
@@ -57,6 +61,12 @@ protected:
     DisplayParams     fDisplayParams;
     GrPixelConfig     fPixelConfig;
     SkSurfaceProps    fSurfaceProps;
+
+    // parameters obtained from the native window
+    // Note that the platform .cpp file is responsible for
+    // initializing fSampleCount and fStencilBits!
+    int               fSampleCount;
+    int               fStencilBits;
 };
 
 }   // namespace sk_app
