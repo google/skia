@@ -139,10 +139,11 @@ public:
         if (!fRenderTargetContext->asTexture()) {
             return nullptr;
         }
-        sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeFromGpu(
+        sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeDeferredFromGpu(
+                                                   fCanvas->getGrContext(),
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
-                                                   fRenderTargetContext->asTexture(),
+                                                   fRenderTargetContext->asTextureProxyRef(),
                                                    fRenderTargetContext->refColorSpace(),
                                                    &this->props()));
         fRenderTargetContext = nullptr;

@@ -173,11 +173,13 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
             return nullptr;
         }
 
-        return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
-                                           kNeedNewImageUniqueID_SpecialImage,
-                                           renderTargetContext->asTexture(),
-                                           renderTargetContext->refColorSpace(),
-                                           &source->props());
+        return SkSpecialImage::MakeDeferredFromGpu(context,
+                                                   SkIRect::MakeWH(dstBounds.width(),
+                                                                   dstBounds.height()),
+                                                   kNeedNewImageUniqueID_SpecialImage,
+                                                   renderTargetContext->asTextureProxyRef(),
+                                                   renderTargetContext->refColorSpace(),
+                                                   &source->props());
     }
 #endif
 

@@ -364,17 +364,6 @@ static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, GrTextureProxy* pr
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
-    SkSpecialImage_Gpu(const SkIRect& subset,
-                       uint32_t uniqueID, sk_sp<GrTexture> tex, SkAlphaType at,
-                       sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
-        : INHERITED(subset, uniqueID, props)
-        , fContext(tex->getContext())
-        , fTextureProxy(GrSurfaceProxy::MakeWrapped(std::move(tex)))
-        , fAlphaType(at)
-        , fColorSpace(std::move(colorSpace))
-        , fAddedRasterVersionToCache(false) {
-    }
-
     SkSpecialImage_Gpu(GrContext* context, const SkIRect& subset,
                        uint32_t uniqueID, sk_sp<GrTextureProxy> proxy, SkAlphaType at,
                        sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
@@ -526,17 +515,6 @@ private:
 
     typedef SkSpecialImage_Base INHERITED;
 };
-
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
-                                                  uint32_t uniqueID,
-                                                  sk_sp<GrTexture> tex,
-                                                  sk_sp<SkColorSpace> colorSpace,
-                                                  const SkSurfaceProps* props,
-                                                  SkAlphaType at) {
-    SkASSERT(rect_fits(subset, tex->width(), tex->height()));
-    return sk_make_sp<SkSpecialImage_Gpu>(subset, uniqueID, std::move(tex), at,
-                                          std::move(colorSpace), props);
-}
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrContext* context,
                                                           const SkIRect& subset,
