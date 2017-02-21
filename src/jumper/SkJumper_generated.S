@@ -12,7 +12,21 @@
 
 .globl _sk_start_pipeline_aarch64
 _sk_start_pipeline_aarch64:
-  .long  0xf8408423                                      // ldr           x3, [x1],#8
+  .long  0xa9bc5ff8                                      // stp           x24, x23, [sp,#-64]!
+  .long  0xa90157f6                                      // stp           x22, x21, [sp,#16]
+  .long  0xa9024ff4                                      // stp           x20, x19, [sp,#32]
+  .long  0xa9037bfd                                      // stp           x29, x30, [sp,#48]
+  .long  0x9100c3fd                                      // add           x29, sp, #0x30
+  .long  0xaa0103f3                                      // mov           x19, x1
+  .long  0xf8408677                                      // ldr           x23, [x19],#8
+  .long  0xaa0003f6                                      // mov           x22, x0
+  .long  0xaa0303f4                                      // mov           x20, x3
+  .long  0xaa0203f5                                      // mov           x21, x2
+  .long  0x910012c8                                      // add           x8, x22, #0x4
+  .long  0xeb14011f                                      // cmp           x8, x20
+  .long  0x54000069                                      // b.ls          3c <sk_start_pipeline_aarch64+0x3c>
+  .long  0xaa1603e0                                      // mov           x0, x22
+  .long  0x14000012                                      // b             80 <sk_start_pipeline_aarch64+0x80>
   .long  0x6f00e400                                      // movi          v0.2d, #0x0
   .long  0x6f00e401                                      // movi          v1.2d, #0x0
   .long  0x6f00e402                                      // movi          v2.2d, #0x0
@@ -21,7 +35,20 @@ _sk_start_pipeline_aarch64:
   .long  0x6f00e405                                      // movi          v5.2d, #0x0
   .long  0x6f00e406                                      // movi          v6.2d, #0x0
   .long  0x6f00e407                                      // movi          v7.2d, #0x0
-  .long  0xd61f0060                                      // br            x3
+  .long  0xaa1603e0                                      // mov           x0, x22
+  .long  0xaa1303e1                                      // mov           x1, x19
+  .long  0xaa1503e2                                      // mov           x2, x21
+  .long  0xd63f02e0                                      // blr           x23
+  .long  0x910022c8                                      // add           x8, x22, #0x8
+  .long  0x910012c0                                      // add           x0, x22, #0x4
+  .long  0xeb14011f                                      // cmp           x8, x20
+  .long  0xaa0003f6                                      // mov           x22, x0
+  .long  0x54fffe09                                      // b.ls          3c <sk_start_pipeline_aarch64+0x3c>
+  .long  0xa9437bfd                                      // ldp           x29, x30, [sp,#48]
+  .long  0xa9424ff4                                      // ldp           x20, x19, [sp,#32]
+  .long  0xa94157f6                                      // ldp           x22, x21, [sp,#16]
+  .long  0xa8c45ff8                                      // ldp           x24, x23, [sp],#64
+  .long  0xd65f03c0                                      // ret
 
 .globl _sk_just_return_aarch64
 _sk_just_return_aarch64:
@@ -551,16 +578,32 @@ _sk_linear_gradient_2stops_aarch64:
 
 .globl _sk_start_pipeline_vfp4
 _sk_start_pipeline_vfp4:
-  .long  0xe4913004                                      // ldr           r3, [r1], #4
+  .long  0xe92d41f0                                      // push          {r4, r5, r6, r7, r8, lr}
+  .long  0xe1a07001                                      // mov           r7, r1
+  .long  0xe1a04000                                      // mov           r4, r0
+  .long  0xe1a05003                                      // mov           r5, r3
+  .long  0xe1a08002                                      // mov           r8, r2
+  .long  0xe4976004                                      // ldr           r6, [r7], #4
+  .long  0xe2840002                                      // add           r0, r4, #2
+  .long  0xea00000d                                      // b             58 <sk_start_pipeline_vfp4+0x58>
   .long  0xf2800010                                      // vmov.i32      d0, #0
+  .long  0xe1a00004                                      // mov           r0, r4
   .long  0xf2801010                                      // vmov.i32      d1, #0
+  .long  0xe1a01007                                      // mov           r1, r7
   .long  0xf2802010                                      // vmov.i32      d2, #0
+  .long  0xe1a02008                                      // mov           r2, r8
   .long  0xf2803010                                      // vmov.i32      d3, #0
   .long  0xf2804010                                      // vmov.i32      d4, #0
   .long  0xf2805010                                      // vmov.i32      d5, #0
   .long  0xf2806010                                      // vmov.i32      d6, #0
   .long  0xf2807010                                      // vmov.i32      d7, #0
-  .long  0xe12fff13                                      // bx            r3
+  .long  0xe12fff36                                      // blx           r6
+  .long  0xe2840004                                      // add           r0, r4, #4
+  .long  0xe2844002                                      // add           r4, r4, #2
+  .long  0xe1500005                                      // cmp           r0, r5
+  .long  0x9affffef                                      // bls           20 <sk_start_pipeline_vfp4+0x20>
+  .long  0xe1a00004                                      // mov           r0, r4
+  .long  0xe8bd81f0                                      // pop           {r4, r5, r6, r7, r8, pc}
 
 .globl _sk_just_return_vfp4
 _sk_just_return_vfp4:
@@ -1152,7 +1195,22 @@ _sk_linear_gradient_2stops_vfp4:
 
 .globl _sk_start_pipeline_hsw
 _sk_start_pipeline_hsw:
+  .byte  0x41,0x57                                       // push          %r15
+  .byte  0x41,0x56                                       // push          %r14
+  .byte  0x41,0x55                                       // push          %r13
+  .byte  0x41,0x54                                       // push          %r12
+  .byte  0x53                                            // push          %rbx
+  .byte  0x49,0x89,0xcf                                  // mov           %rcx,%r15
+  .byte  0x49,0x89,0xd6                                  // mov           %rdx,%r14
+  .byte  0x48,0x89,0xfb                                  // mov           %rdi,%rbx
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x49,0x89,0xc4                                  // mov           %rax,%r12
+  .byte  0x49,0x89,0xf5                                  // mov           %rsi,%r13
+  .byte  0x48,0x8d,0x43,0x08                             // lea           0x8(%rbx),%rax
+  .byte  0x4c,0x39,0xf8                                  // cmp           %r15,%rax
+  .byte  0x76,0x05                                       // jbe           28 <_sk_start_pipeline_hsw+0x28>
+  .byte  0x48,0x89,0xd8                                  // mov           %rbx,%rax
+  .byte  0xeb,0x3c                                       // jmp           64 <_sk_start_pipeline_hsw+0x64>
   .byte  0xc5,0xfc,0x57,0xc0                             // vxorps        %ymm0,%ymm0,%ymm0
   .byte  0xc5,0xf4,0x57,0xc9                             // vxorps        %ymm1,%ymm1,%ymm1
   .byte  0xc5,0xec,0x57,0xd2                             // vxorps        %ymm2,%ymm2,%ymm2
@@ -1161,7 +1219,22 @@ _sk_start_pipeline_hsw:
   .byte  0xc5,0xd4,0x57,0xed                             // vxorps        %ymm5,%ymm5,%ymm5
   .byte  0xc5,0xcc,0x57,0xf6                             // vxorps        %ymm6,%ymm6,%ymm6
   .byte  0xc5,0xc4,0x57,0xff                             // vxorps        %ymm7,%ymm7,%ymm7
-  .byte  0xff,0xe0                                       // jmpq          *%rax
+  .byte  0x48,0x89,0xdf                                  // mov           %rbx,%rdi
+  .byte  0x4c,0x89,0xee                                  // mov           %r13,%rsi
+  .byte  0x4c,0x89,0xf2                                  // mov           %r14,%rdx
+  .byte  0x41,0xff,0xd4                                  // callq         *%r12
+  .byte  0x48,0x8d,0x43,0x08                             // lea           0x8(%rbx),%rax
+  .byte  0x48,0x83,0xc3,0x10                             // add           $0x10,%rbx
+  .byte  0x4c,0x39,0xfb                                  // cmp           %r15,%rbx
+  .byte  0x48,0x89,0xc3                                  // mov           %rax,%rbx
+  .byte  0x76,0xc4                                       // jbe           28 <_sk_start_pipeline_hsw+0x28>
+  .byte  0x5b                                            // pop           %rbx
+  .byte  0x41,0x5c                                       // pop           %r12
+  .byte  0x41,0x5d                                       // pop           %r13
+  .byte  0x41,0x5e                                       // pop           %r14
+  .byte  0x41,0x5f                                       // pop           %r15
+  .byte  0xc5,0xf8,0x77                                  // vzeroupper
+  .byte  0xc3                                            // retq
 
 .globl _sk_just_return_hsw
 _sk_just_return_hsw:
@@ -1640,7 +1713,22 @@ _sk_linear_gradient_2stops_hsw:
 
 .globl _sk_start_pipeline_sse41
 _sk_start_pipeline_sse41:
+  .byte  0x41,0x57                                       // push          %r15
+  .byte  0x41,0x56                                       // push          %r14
+  .byte  0x41,0x55                                       // push          %r13
+  .byte  0x41,0x54                                       // push          %r12
+  .byte  0x53                                            // push          %rbx
+  .byte  0x49,0x89,0xcf                                  // mov           %rcx,%r15
+  .byte  0x49,0x89,0xd6                                  // mov           %rdx,%r14
+  .byte  0x48,0x89,0xfb                                  // mov           %rdi,%rbx
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x49,0x89,0xc4                                  // mov           %rax,%r12
+  .byte  0x49,0x89,0xf5                                  // mov           %rsi,%r13
+  .byte  0x48,0x8d,0x43,0x04                             // lea           0x4(%rbx),%rax
+  .byte  0x4c,0x39,0xf8                                  // cmp           %r15,%rax
+  .byte  0x76,0x05                                       // jbe           28 <_sk_start_pipeline_sse41+0x28>
+  .byte  0x48,0x89,0xd8                                  // mov           %rbx,%rax
+  .byte  0xeb,0x34                                       // jmp           5c <_sk_start_pipeline_sse41+0x5c>
   .byte  0x0f,0x57,0xc0                                  // xorps         %xmm0,%xmm0
   .byte  0x0f,0x57,0xc9                                  // xorps         %xmm1,%xmm1
   .byte  0x0f,0x57,0xd2                                  // xorps         %xmm2,%xmm2
@@ -1649,7 +1737,21 @@ _sk_start_pipeline_sse41:
   .byte  0x0f,0x57,0xed                                  // xorps         %xmm5,%xmm5
   .byte  0x0f,0x57,0xf6                                  // xorps         %xmm6,%xmm6
   .byte  0x0f,0x57,0xff                                  // xorps         %xmm7,%xmm7
-  .byte  0xff,0xe0                                       // jmpq          *%rax
+  .byte  0x48,0x89,0xdf                                  // mov           %rbx,%rdi
+  .byte  0x4c,0x89,0xee                                  // mov           %r13,%rsi
+  .byte  0x4c,0x89,0xf2                                  // mov           %r14,%rdx
+  .byte  0x41,0xff,0xd4                                  // callq         *%r12
+  .byte  0x48,0x8d,0x43,0x04                             // lea           0x4(%rbx),%rax
+  .byte  0x48,0x83,0xc3,0x08                             // add           $0x8,%rbx
+  .byte  0x4c,0x39,0xfb                                  // cmp           %r15,%rbx
+  .byte  0x48,0x89,0xc3                                  // mov           %rax,%rbx
+  .byte  0x76,0xcc                                       // jbe           28 <_sk_start_pipeline_sse41+0x28>
+  .byte  0x5b                                            // pop           %rbx
+  .byte  0x41,0x5c                                       // pop           %r12
+  .byte  0x41,0x5d                                       // pop           %r13
+  .byte  0x41,0x5e                                       // pop           %r14
+  .byte  0x41,0x5f                                       // pop           %r15
+  .byte  0xc3                                            // retq
 
 .globl _sk_just_return_sse41
 _sk_just_return_sse41:
@@ -2312,7 +2414,22 @@ _sk_linear_gradient_2stops_sse41:
 
 .globl _sk_start_pipeline_sse2
 _sk_start_pipeline_sse2:
+  .byte  0x41,0x57                                       // push          %r15
+  .byte  0x41,0x56                                       // push          %r14
+  .byte  0x41,0x55                                       // push          %r13
+  .byte  0x41,0x54                                       // push          %r12
+  .byte  0x53                                            // push          %rbx
+  .byte  0x49,0x89,0xcf                                  // mov           %rcx,%r15
+  .byte  0x49,0x89,0xd6                                  // mov           %rdx,%r14
+  .byte  0x48,0x89,0xfb                                  // mov           %rdi,%rbx
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x49,0x89,0xc4                                  // mov           %rax,%r12
+  .byte  0x49,0x89,0xf5                                  // mov           %rsi,%r13
+  .byte  0x48,0x8d,0x43,0x04                             // lea           0x4(%rbx),%rax
+  .byte  0x4c,0x39,0xf8                                  // cmp           %r15,%rax
+  .byte  0x76,0x05                                       // jbe           28 <_sk_start_pipeline_sse2+0x28>
+  .byte  0x48,0x89,0xd8                                  // mov           %rbx,%rax
+  .byte  0xeb,0x34                                       // jmp           5c <_sk_start_pipeline_sse2+0x5c>
   .byte  0x0f,0x57,0xc0                                  // xorps         %xmm0,%xmm0
   .byte  0x0f,0x57,0xc9                                  // xorps         %xmm1,%xmm1
   .byte  0x0f,0x57,0xd2                                  // xorps         %xmm2,%xmm2
@@ -2321,7 +2438,21 @@ _sk_start_pipeline_sse2:
   .byte  0x0f,0x57,0xed                                  // xorps         %xmm5,%xmm5
   .byte  0x0f,0x57,0xf6                                  // xorps         %xmm6,%xmm6
   .byte  0x0f,0x57,0xff                                  // xorps         %xmm7,%xmm7
-  .byte  0xff,0xe0                                       // jmpq          *%rax
+  .byte  0x48,0x89,0xdf                                  // mov           %rbx,%rdi
+  .byte  0x4c,0x89,0xee                                  // mov           %r13,%rsi
+  .byte  0x4c,0x89,0xf2                                  // mov           %r14,%rdx
+  .byte  0x41,0xff,0xd4                                  // callq         *%r12
+  .byte  0x48,0x8d,0x43,0x04                             // lea           0x4(%rbx),%rax
+  .byte  0x48,0x83,0xc3,0x08                             // add           $0x8,%rbx
+  .byte  0x4c,0x39,0xfb                                  // cmp           %r15,%rbx
+  .byte  0x48,0x89,0xc3                                  // mov           %rax,%rbx
+  .byte  0x76,0xcc                                       // jbe           28 <_sk_start_pipeline_sse2+0x28>
+  .byte  0x5b                                            // pop           %rbx
+  .byte  0x41,0x5c                                       // pop           %r12
+  .byte  0x41,0x5d                                       // pop           %r13
+  .byte  0x41,0x5e                                       // pop           %r14
+  .byte  0x41,0x5f                                       // pop           %r15
+  .byte  0xc3                                            // retq
 
 .globl _sk_just_return_sse2
 _sk_just_return_sse2:
