@@ -480,6 +480,8 @@ static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
         SkDebugf("[terminated] Couldn't initialize SkPath.\n");
         return;
     }
+    auto s = SkSurface::MakeRasterN32Premul(1024, 1024);
+    s->getCanvas()->drawPath(path, SkPaint());
     SkDebugf("[terminated] Success! Initialized SkPath.\n");
 }
 
