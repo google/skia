@@ -580,6 +580,8 @@ sk_sp<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestDa
                                                GrProcessorUnitTest::kAlphaTextureIdx;
     int texIdxColor = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                                GrProcessorUnitTest::kAlphaTextureIdx;
+    sk_sp<GrTextureProxy> dispProxy = d->textureProxy(texIdxDispl);
+    sk_sp<GrTextureProxy> colorProxy = d->textureProxy(texIdxColor);
     static const int kMaxComponent = 4;
     SkDisplacementMapEffect::ChannelSelectorType xChannelSelector =
         static_cast<SkDisplacementMapEffect::ChannelSelectorType>(
@@ -590,12 +592,12 @@ sk_sp<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestDa
     SkVector scale = SkVector::Make(d->fRandom->nextRangeScalar(0, 100.0f),
                                     d->fRandom->nextRangeScalar(0, 100.0f));
     SkISize colorDimensions;
-    colorDimensions.fWidth = d->fRandom->nextRangeU(0, d->fTextures[texIdxColor]->width());
-    colorDimensions.fHeight = d->fRandom->nextRangeU(0, d->fTextures[texIdxColor]->height());
+    colorDimensions.fWidth = d->fRandom->nextRangeU(0, colorProxy->width());
+    colorDimensions.fHeight = d->fRandom->nextRangeU(0, colorProxy->height());
     auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrDisplacementMapEffect::Make(xChannelSelector, yChannelSelector, scale,
-                                         d->fTextures[texIdxDispl], SkMatrix::I(),
-                                         d->fTextures[texIdxColor], colorSpaceXform,
+    return GrDisplacementMapEffect::Make(d->context(), xChannelSelector, yChannelSelector, scale,
+                                         std::move(dispProxy), SkMatrix::I(),
+                                         std::move(colorProxy), colorSpaceXform,
                                          colorDimensions);
 }
 #endif

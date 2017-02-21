@@ -656,7 +656,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     // Doesn't work without derivative instructions.
-    return d->fContext->caps()->shaderCaps()->shaderDerivativeSupport()
+    return d->context()->caps()->shaderCaps()->shaderDerivativeSupport()
                    ? QuadEdgeEffect::Make(GrRandomColor(d->fRandom),
                                           GrTest::TestMatrix(d->fRandom),
                                           d->fRandom->nextBool())

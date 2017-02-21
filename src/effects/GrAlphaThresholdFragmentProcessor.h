@@ -37,7 +37,7 @@ public:
     static sk_sp<GrFragmentProcessor> Make(GrContext* context,
                                            sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           GrTexture* maskTexture,
+                                           sk_sp<GrTextureProxy> maskProxy,
                                            float innerThreshold,
                                            float outerThreshold,
                                            const SkIRect& bounds) {
@@ -45,7 +45,7 @@ public:
                                                                     context,
                                                                     std::move(proxy),
                                                                     std::move(colorSpaceXform),
-                                                                    maskTexture,
+                                                                    std::move(maskProxy),
                                                                     innerThreshold, outerThreshold,
                                                                     bounds));
     }
@@ -70,7 +70,7 @@ private:
     GrAlphaThresholdFragmentProcessor(GrContext*,
                                       sk_sp<GrTextureProxy> proxy,
                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                      GrTexture* maskTexture,
+                                      sk_sp<GrTextureProxy> maskProxy,
                                       float innerThreshold,
                                       float outerThreshold,
                                       const SkIRect& bounds);
