@@ -767,11 +767,7 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
     }
 }
 
-inline bool apply_fill_type(SkPath::FillType fillType, Poly* poly) {
-    if (!poly) {
-        return false;
-    }
-    int winding = poly->fWinding;
+inline bool apply_fill_type(SkPath::FillType fillType, int winding) {
     switch (fillType) {
         case SkPath::kWinding_FillType:
             return winding != 0;
@@ -785,6 +781,10 @@ inline bool apply_fill_type(SkPath::FillType fillType, Poly* poly) {
             SkASSERT(false);
             return false;
     }
+}
+
+inline bool apply_fill_type(SkPath::FillType fillType, Poly* poly) {
+    return poly && apply_fill_type(fillType, poly->fWinding);
 }
 
 Edge* new_edge(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c, SkArenaAlloc& alloc) {
@@ -1451,25 +1451,36 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
     return polys;
 }
 
-bool is_boundary_edge(Edge* edge, SkPath::FillType fillType) {
-    return apply_fill_type(fillType, edge->fLeftPoly) !=
-           apply_fill_type(fillType, edge->fRightPoly);
-}
-
-bool is_boundary_start(Edge* edge, SkPath::FillType fillType) {
-    return !apply_fill_type(fillType, edge->fLeftPoly) &&
-            apply_fill_type(fillType, edge->fRightPoly);
-}
-
 void remove_non_boundary_edges(const VertexList& mesh, SkPath::FillType fillType,
                                SkArenaAlloc& alloc) {
+    LOG("removing non-boundary edges\n");
+    EdgeList activeEdges;
     for (Vertex* v = mesh.fHead; v != nullptr; v = v->fNext) {
-        for (Edge* e = v->fFirstEdgeBelow; e != nullptr;) {
-            Edge* next = e->fNextEdgeBelow;
-            if (!is_boundary_edge(e, fillType)) {
+        if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
+            continue;
+        }
+        Edge* leftEnclosingEdge;
+        Edge* rightEnclosingEdge;
+        find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+        bool prevFilled = leftEnclosingEdge &&
+                          apply_fill_type(fillType, leftEnclosingEdge->fWinding);
+        for (Edge* e = v->fFirstEdgeAbove; e;) {
+            Edge* next = e->fNextEdgeAbove;
+            remove_edge(e, &activeEdges);
+            bool filled = apply_fill_type(fillType, e->fWinding);
+            if (filled == prevFilled) {
                 disconnect(e);
             }
+            prevFilled = filled;
             e = next;
+        }
+        Edge* prev = leftEnclosingEdge;
+        for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
+            if (prev) {
+                e->fWinding += prev->fWinding;
+            }
+            insert_edge(e, prev, &activeEdges);
+            prev = e;
         }
     }
 }
@@ -1597,7 +1608,7 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
 }
 
 void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, SkArenaAlloc& alloc) {
-    bool down = is_boundary_start(e, fillType);
+    bool down = apply_fill_type(fillType, e->fWinding);
     while (e) {
         e->fWinding = down ? 1 : -1;
         Edge* next;
@@ -1677,11 +1688,6 @@ void sort_and_simplify(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc)
     simplify(*vertices, c, alloc);
 }
 
-Poly* mesh_to_polys(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc) {
-    sort_and_simplify(vertices, c, alloc);
-    return tessellate(*vertices, alloc);
-}
-
 Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fillType,
                         const SkRect& pathBounds, bool antialias,
                         SkArenaAlloc& alloc) {
@@ -1695,7 +1701,7 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fill
     }
     VertexList mesh;
     contours_to_mesh(contours, contourCnt, antialias, &mesh, c, alloc);
-    Poly* polys = mesh_to_polys(&mesh, c, alloc);
+    sort_and_simplify(&mesh, c, alloc);
     if (antialias) {
         EdgeList* boundaries = extract_boundaries(mesh, fillType, alloc);
         VertexList aaMesh;
@@ -1707,8 +1713,9 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fill
         }
         sort_and_simplify(&aaMesh, c, alloc);
         return tessellate(aaMesh, alloc);
+    } else {
+        return tessellate(mesh, alloc);
     }
-    return polys;
 }
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
