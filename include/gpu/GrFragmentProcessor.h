@@ -24,6 +24,8 @@ class GrShaderCaps;
  */
 class GrFragmentProcessor : public GrProcessor {
 public:
+    virtual SkString dump() const { return SkString(""); }
+    
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
     *  only consider the input color's alpha. However, there is a competing desire to have reusable
@@ -279,7 +281,7 @@ protected:
      * vector field to the nearest edge
      */
     void setWillUseDistanceVectorField() { fFlags |= kUsesDistanceVectorField_Flag; }
-
+    
 private:
     void notifyRefCntIsZero() const final;
 

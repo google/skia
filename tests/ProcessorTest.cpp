@@ -325,14 +325,16 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                     SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
                     rgbaData.get(), 0, 0, 0);
             bool passing = true;
-            if (0) {  // Useful to see what FPs are being tested.
+            if (true) {  // Useful to see what FPs are being tested.
                 SkString children;
                 for (int c = 0; c < fp->numChildProcessors(); ++c) {
                     if (!c) {
                         children.append("(");
                     }
                     children.append(fp->childProcessor(c).name());
-                    children.append(c == fp->numChildProcessors() - 1 ? ")" : ", ");
+                    SkString tmp = fp->childProcessor(c).dump();
+                    children.appendf(" (%s)", tmp.c_str());
+                    children.append(c == fp->numChildProcessors() - 1 ? ")" : ", ");                    
                 }
                 SkDebugf("%s %s\n", fp->name(), children.c_str());
             }

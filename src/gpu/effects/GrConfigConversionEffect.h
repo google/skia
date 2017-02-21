@@ -33,6 +33,21 @@ public:
         kPMConversionCnt
     };
 
+    SkString dump() const override {
+        const char* names[kPMConversionCnt] = {
+            "none",
+            "mul_up",
+            "mul_down",
+            "div_up",
+            "div_down"
+        };
+        SkString tmp;
+        tmp.appendf("conversion: %s %s",
+                    this->swizzle().c_str(),
+                    names[this->pmConversion()]);
+        return tmp;
+    }
+    
     static sk_sp<GrFragmentProcessor> Make(GrTexture*, const GrSwizzle&, PMConversion,
                                            const SkMatrix&);
 
