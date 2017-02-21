@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12126901_27995eef",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-21T17:55:55Z",
+      "side": 1,
+      "message": "These are GCE machine type specifications.  They won\u0027t apply to our desktop machines, will they?",
+      "range": {
+        "startLine": 186,
+        "startChar": 17,
+        "endLine": 186,
+        "endChar": 33
+      },
+      "revId": "e7ac58e5f4faf83be1c6dafb275d2981a965f1f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
