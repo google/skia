@@ -9,6 +9,7 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkConvertPixels.h"
+#include "SkHalf.h"
 #include "SkImageInfoPriv.h"
 #include "SkOpts.h"
 #include "SkPM4fPriv.h"
@@ -198,6 +199,71 @@ void convert_from_index8(const SkImageInfo& dstInfo, void* dstPixels, size_t dst
     }
 }
 
+// Fast Path 5: Alpha 8 dsts.
+static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& srcInfo,
+                              const void* src, size_t srcRB, SkColorTable* ctable) {
+    if (srcInfo.isOpaque()) {
+        for (int y = 0; y < srcInfo.height(); ++y) {
+           memset(dst, 0xFF, srcInfo.width());
+           dst = SkTAddOffset<uint8_t>(dst, dstRB);
+        }
+        return;
+    }
+
+    switch (srcInfo.colorType()) {
+        case kBGRA_8888_SkColorType:
+        case kRGBA_8888_SkColorType: {
+            auto src32 = (const uint32_t*) src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    dst[x] = src32[x] >> 24;
+                }
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+                src32 = SkTAddOffset<const uint32_t>(src32, srcRB);
+            }
+            break;
+        }
+        case kARGB_4444_SkColorType: {
+            auto src16 = (const uint16_t*) src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    dst[x] = SkPacked4444ToA32(src16[x]);
+                }
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+                src16 = SkTAddOffset<const uint16_t>(src16, srcRB);
+            }
+            break;
+        }
+        case kIndex_8_SkColorType: {
+            SkASSERT(ctable);
+            const uint32_t* table = ctable->readColors();
+            auto src8 = (const uint8_t*)src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    dst[x] = table[src8[x]] >> 24;
+                }
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+                src8 = SkTAddOffset<const uint8_t>(src8, srcRB);
+            }
+            break;
+        }
+        case kRGBA_F16_SkColorType: {
+            auto src64 = (const uint64_t*) src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    dst[x] = (uint8_t) (255.0f * SkHalfToFloat(src64[x] >> 48));
+                }
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+                src64 = SkTAddOffset<const uint64_t>(src64, srcRB);
+            }
+            break;
+        }
+        default:
+            SkASSERT(false);
+            break;
+    }
+}
+
 // Default: Use the pipeline.
 static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
                                   const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
@@ -264,9 +330,6 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::store_f16, &dstRow);
             break;
-        case kAlpha_8_SkColorType:
-            pipeline.append(SkRasterPipeline::store_a8, &dstRow);
-            break;
         case kARGB_4444_SkColorType:
             pipeline.append(SkRasterPipeline::store_4444, &dstRow);
             break;
@@ -316,6 +379,12 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
         SkASSERT(ctable);
         convert_from_index8(dstInfo, dstPixels, dstRB, srcInfo, (const uint8_t*) srcPixels, srcRB,
                             ctable);
+        return;
+    }
+
+    // Fast Path 5: Alpha 8 dsts.
+    if (kAlpha_8_SkColorType == dstInfo.colorType()) {
+        convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable);
         return;
     }
 
