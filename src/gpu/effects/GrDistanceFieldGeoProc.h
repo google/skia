@@ -49,14 +49,6 @@ enum GrDistanceFieldEffectFlags {
 class GrDistanceFieldA8TextGeoProc : public GrGeometryProcessor {
 public:
 #ifdef SK_GAMMA_APPLY_TO_A8
-    static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
-                                           GrTexture* tex, const GrSamplerParams& params,
-                                           float lum, uint32_t flags, bool usesLocalCoords) {
-        return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldA8TextGeoProc(color, viewMatrix, tex, params, lum, flags,
-                                             usesLocalCoords));
-    }
-
     static sk_sp<GrGeometryProcessor> Make(GrContext* context,
                                            GrColor color, const SkMatrix& viewMatrix,
                                            sk_sp<GrTextureProxy> proxy,
@@ -67,14 +59,6 @@ public:
                                              params, lum, flags, usesLocalCoords));
     }
 #else
-    static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
-                                           GrTexture* tex, const GrSamplerParams& params,
-                                           uint32_t flags, bool usesLocalCoords) {
-        return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldA8TextGeoProc(color, viewMatrix, tex, params, flags,
-                                             usesLocalCoords));
-    }
-
     static sk_sp<GrGeometryProcessor> Make(GrContext* context,
                                            GrColor color, const SkMatrix& viewMatrix,
                                            sk_sp<GrTextureProxy> proxy,
@@ -106,13 +90,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix,
-                                 GrTexture* texture, const GrSamplerParams& params,
-#ifdef SK_GAMMA_APPLY_TO_A8
-                                 float distanceAdjust,
-#endif
-                                 uint32_t flags, bool usesLocalCoords);
-
     GrDistanceFieldA8TextGeoProc(GrContext*, GrColor, const SkMatrix& viewMatrix,
                                  sk_sp<GrTextureProxy> proxy, const GrSamplerParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8

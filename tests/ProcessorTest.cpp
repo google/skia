@@ -50,10 +50,11 @@ public:
     static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> child) {
         return sk_sp<GrFragmentProcessor>(new TestFP(std::move(child)));
     }
-    static sk_sp<GrFragmentProcessor> Make(const SkTArray<sk_sp<GrTexture>>& textures,
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+                                           const SkTArray<sk_sp<GrTextureProxy>>& proxies,
                                            const SkTArray<sk_sp<GrBuffer>>& buffers,
                                            const SkTArray<Image>& images) {
-        return sk_sp<GrFragmentProcessor>(new TestFP(textures, buffers, images));
+        return sk_sp<GrFragmentProcessor>(new TestFP(context, proxies, buffers, images));
     }
 
     const char* name() const override { return "test"; }
@@ -65,11 +66,13 @@ public:
     }
 
 private:
-    TestFP(const SkTArray<sk_sp<GrTexture>>& textures, const SkTArray<sk_sp<GrBuffer>>& buffers,
+    TestFP(GrContext* context,
+           const SkTArray<sk_sp<GrTextureProxy>>& proxies,
+           const SkTArray<sk_sp<GrBuffer>>& buffers,
            const SkTArray<Image>& images)
             : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
-        for (const auto& texture : textures) {
-            this->addTextureSampler(&fSamplers.emplace_back(texture.get()));
+        for (const auto& proxy : proxies) {
+            this->addTextureSampler(&fSamplers.emplace_back(context->textureProvider(), proxy));
         }
         for (const auto& buffer : buffers) {
             this->addBufferAccess(&fBuffers.emplace_back(kRGBA_8888_GrPixelConfig, buffer.get()));
@@ -129,8 +132,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
         {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
             bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
-            sk_sp<GrTexture> texture1(
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes));
+            sk_sp<GrSurfaceProxy> proxy1(GrSurfaceProxy::MakeDeferred(*context->caps(), desc,
+                                                                      SkBackingFit::kExact,
+                                                                      SkBudgeted::kYes));
             sk_sp<GrTexture> texture2(
                     context->resourceProvider()->createTexture(desc, SkBudgeted::kYes));
             sk_sp<GrTexture> texture3(
@@ -143,10 +147,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                                                      GrAccessPattern::kStatic_GrAccessPattern, 0)
                                            : nullptr);
             {
-                SkTArray<sk_sp<GrTexture>> textures;
+                SkTArray<sk_sp<GrTextureProxy>> proxies;
                 SkTArray<sk_sp<GrBuffer>> buffers;
                 SkTArray<TestFP::Image> images;
-                textures.push_back(texture1);
+                proxies.push_back(sk_ref_sp(proxy1->asTextureProxy()));
                 if (texelBufferSupport) {
                     buffers.push_back(buffer);
                 }
@@ -157,7 +161,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 }
                 std::unique_ptr<GrDrawOp> op(TestOp::Make());
                 GrPaint paint;
-                auto fp = TestFP::Make(std::move(textures), std::move(buffers), std::move(images));
+                auto fp = TestFP::Make(context,
+                                       std::move(proxies), std::move(buffers), std::move(images));
                 for (int i = 0; i < parentCnt; ++i) {
                     fp = TestFP::Make(std::move(fp));
                 }
@@ -167,7 +172,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             }
             int refCnt, readCnt, writeCnt;
 
-            testingOnly_getIORefCnts(texture1.get(), &refCnt, &readCnt, &writeCnt);
+            testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
             REPORTER_ASSERT(reporter, 1 == refCnt);
             REPORTER_ASSERT(reporter, 1 == readCnt);
             REPORTER_ASSERT(reporter, 0 == writeCnt);
@@ -198,7 +203,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
             context->flush();
 
-            testingOnly_getIORefCnts(texture1.get(), &refCnt, &readCnt, &writeCnt);
+            testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
             REPORTER_ASSERT(reporter, 1 == refCnt);
             REPORTER_ASSERT(reporter, 0 == readCnt);
             REPORTER_ASSERT(reporter, 0 == writeCnt);

@@ -48,19 +48,6 @@ sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScala
 #if SK_SUPPORT_GPU
 class GrMagnifierEffect : public GrSingleTextureEffect {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* texture,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkIRect& bounds,
-                                           const SkRect& srcRect,
-                                           float xInvZoom,
-                                           float yInvZoom,
-                                           float xInvInset,
-                                           float yInvInset) {
-        return sk_sp<GrFragmentProcessor>(new GrMagnifierEffect(texture, std::move(colorSpaceXform),
-                                                                bounds, srcRect,
-                                                                xInvZoom, yInvZoom,
-                                                                xInvInset, yInvInset));
-    }
     static sk_sp<GrFragmentProcessor> Make(GrContext* context,
                                            sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -94,25 +81,6 @@ public:
     float yInvInset() const { return fYInvInset; }
 
 private:
-    GrMagnifierEffect(GrTexture* texture,
-                      sk_sp<GrColorSpaceXform> colorSpaceXform,
-                      const SkIRect& bounds,
-                      const SkRect& srcRect,
-                      float xInvZoom,
-                      float yInvZoom,
-                      float xInvInset,
-                      float yInvInset)
-            : INHERITED(texture, std::move(colorSpaceXform), SkMatrix::I(),
-                        ModulationFlags(texture->config()))
-            , fBounds(bounds)
-            , fSrcRect(srcRect)
-            , fXInvZoom(xInvZoom)
-            , fYInvZoom(yInvZoom)
-            , fXInvInset(xInvInset)
-            , fYInvInset(yInvInset) {
-        this->initClassID<GrMagnifierEffect>();
-    }
-
     GrMagnifierEffect(GrContext* context,
                       sk_sp<GrTextureProxy> proxy,
                       sk_sp<GrColorSpaceXform> colorSpaceXform,

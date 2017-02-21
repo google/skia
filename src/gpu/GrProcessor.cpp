@@ -197,17 +197,6 @@ bool GrProcessor::hasSameSamplersAndAccesses(const GrProcessor &that) const {
 
 GrProcessor::TextureSampler::TextureSampler() {}
 
-GrProcessor::TextureSampler::TextureSampler(GrTexture* texture, const GrSamplerParams& params) {
-    this->reset(texture, params);
-}
-
-GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
-                                            GrSamplerParams::FilterMode filterMode,
-                                            SkShader::TileMode tileXAndY,
-                                            GrShaderFlags visibility) {
-    this->reset(texture, filterMode, tileXAndY, visibility);
-}
-
 GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
                                             sk_sp<GrTextureProxy> proxy,
                                             const GrSamplerParams& params) {

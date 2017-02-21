@@ -204,13 +204,6 @@ public:
      */
     TextureSampler();
 
-    TextureSampler(GrTexture*, const GrSamplerParams&);
-
-    explicit TextureSampler(GrTexture*,
-                            GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
-                            SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
-                            GrShaderFlags visibility = kFragment_GrShaderFlag);
-
     TextureSampler(GrTextureProvider*, sk_sp<GrTextureProxy>, const GrSamplerParams&);
 
     // MDB TODO: ultimately we shouldn't need the texProvider parameter

@@ -13,11 +13,12 @@
 #include "GrTexture.h"
 #include "SkGrPriv.h"
 
-GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
+GrTextureAdjuster::GrTextureAdjuster(GrContext* context, GrTexture* original, SkAlphaType alphaType,
                                      const SkIRect& contentArea, uint32_t uniqueID,
                                      SkColorSpace* cs)
     : INHERITED(contentArea.width(), contentArea.height(),
                 GrPixelConfigIsAlphaOnly(original->config()))
+    , fContext(context)
     , fOriginal(original)
     , fAlphaType(alphaType)
     , fColorSpace(cs)
@@ -162,7 +163,8 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace,
                                                                        dstColorSpace);
-    return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),
+    return CreateFragmentProcessorForDomainAndFilter(fContext, texture.get(),
+                                                     std::move(colorSpaceXform),
                                                      textureMatrix, domainMode, domain,
                                                      filterOrNullForBicubic);
 }
