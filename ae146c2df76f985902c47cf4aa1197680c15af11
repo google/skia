@@ -45,6 +45,30 @@
       "revId": "ae146c2df76f985902c47cf4aa1197680c15af11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3e66d93_7adada09",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-21T13:14:21Z",
+      "side": 1,
+      "message": "Thanks for the explanation :)",
+      "parentUuid": "ce435c32_29845419",
+      "range": {
+        "startLine": 45,
+        "startChar": 56,
+        "endLine": 47,
+        "endChar": 22
+      },
+      "revId": "ae146c2df76f985902c47cf4aa1197680c15af11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
