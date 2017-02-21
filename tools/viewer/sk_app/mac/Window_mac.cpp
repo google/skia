@@ -16,7 +16,7 @@ SkTDynamicHash<Window_mac, Uint32> Window_mac::gWindowMap;
 
 Window* Window::CreateNativeWindow(void*) {
     Window_mac* window = new Window_mac();
-    if (!window->initWindow(nullptr)) {
+    if (!window->initWindow()) {
         delete window;
         return nullptr;
     }
@@ -24,10 +24,7 @@ Window* Window::CreateNativeWindow(void*) {
     return window;
 }
 
-bool Window_mac::initWindow(const DisplayParams* params) {
-    if (params && params->fMSAASampleCount != fMSAASampleCount) {
-        this->closeWindow();
-    }
+bool Window_mac::initWindow() {
     // we already have a window
     if (fWindow) {
         return true;
@@ -49,9 +46,9 @@ bool Window_mac::initWindow(const DisplayParams* params) {
 
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
-    if (params && params->fMSAASampleCount > 0) {
+    if (fRequestedDisplayParams.fMSAASampleCount > 0) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, params->fMSAASampleCount);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fRequestedDisplayParams.fMSAASampleCount);
     } else {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
     }
@@ -244,19 +241,19 @@ void Window_mac::show() {
     SDL_ShowWindow(fWindow);
 }
 
-bool Window_mac::attach(BackendType attachType, const DisplayParams& params) {
-    this->initWindow(&params);
+bool Window_mac::attach(BackendType attachType) {
+    this->initWindow();
 
     window_context_factory::MacWindowInfo info;
     info.fWindow = fWindow;
     switch (attachType) {
         case kRaster_BackendType:
-            fWindowContext = NewRasterForMac(info, params);
+            fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
             break;
             
         case kNativeGL_BackendType:
         default:
-            fWindowContext = NewGLForMac(info, params);
+            fWindowContext = NewGLForMac(info, fRequestedDisplayParams);
             break;
     }
     this->onBackendCreated();

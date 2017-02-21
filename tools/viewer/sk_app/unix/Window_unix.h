@@ -24,8 +24,7 @@ public:
                   , fDisplay(nullptr)
                   , fWindow(0)
                   , fGC(nullptr)
-                  , fVisualInfo(nullptr)
-                  , fMSAASampleCount(0) {}
+                  , fVisualInfo(nullptr) {}
     ~Window_unix() override { this->closeWindow(); }
 
     bool initWindow(Display* display, const DisplayParams* params);
@@ -78,7 +77,6 @@ private:
     XWindow      fWindow;
     GC           fGC;
     XVisualInfo* fVisualInfo;
-    int          fMSAASampleCount;
 
     Atom     fWmDeleteMessage;
 

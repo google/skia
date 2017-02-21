@@ -21,16 +21,15 @@ public:
     Window_mac()
         : INHERITED()
         , fWindow(nullptr)
-        , fWindowID(0)
-        , fMSAASampleCount(0) {}
+        , fWindowID(0) {}
     ~Window_mac() override { this->closeWindow(); }
 
-    bool initWindow(const DisplayParams* params);
+    bool initWindow();
 
     void setTitle(const char*) override;
     void show() override;
 
-    bool attach(BackendType attachType, const DisplayParams& params) override;
+    bool attach(BackendType) override;
 
     void onInval() override;
 
@@ -53,8 +52,6 @@ private:
 
     SDL_Window*  fWindow;
     Uint32       fWindowID;
-    
-    int          fMSAASampleCount;
     
     typedef Window INHERITED;
 };
