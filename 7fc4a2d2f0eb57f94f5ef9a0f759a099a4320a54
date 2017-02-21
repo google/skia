@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7baccab_b16f1c22",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-21T18:27:50Z",
+      "side": 0,
+      "message": "why not check to see if the clipstack is empty?",
+      "revId": "7fc4a2d2f0eb57f94f5ef9a0f759a099a4320a54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
