@@ -4,7 +4,7 @@
 {
    nanobench_and_dm_keepalive_thread_leak
    Memcheck:Leak
-   match-leak-kinds: possible
+   match-leak-kinds: possible,definite
    ...
    fun:_ZN8SkThreadC1EPFvPvES0_
    ...
