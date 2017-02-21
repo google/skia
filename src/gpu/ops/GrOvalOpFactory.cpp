@@ -1104,7 +1104,7 @@ private:
         CircleOp* that = t->cast<CircleOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
-        if (fVertCount + that->fVertCount > 65535) {
+        if (fVertCount + that->fVertCount > 65536) {
             return false;
         }
 
@@ -2001,7 +2001,7 @@ private:
         CircularRRectOp* that = t->cast<CircularRRectOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
-        if (fVertCount + that->fVertCount > 65535) {
+        if (fVertCount + that->fVertCount > 65536) {
             return false;
         }
 
