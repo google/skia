@@ -29,7 +29,15 @@ public:
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    GrPipelineBuilder(GrPaint&&, GrAAType);
+    GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
+            : fFlags(0x0)
+            , fDrawFace(GrDrawFace::kBoth)
+            , fUserStencilSettings(&GrUserStencilSettings::kUnused)
+            , fProcessors(std::move(paint)) {
+        if (GrAATypeIsHW(aaType)) {
+            fFlags |= GrPipeline::kHWAntialias_Flag;
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Fragment Processors
@@ -67,7 +75,12 @@ public:
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
      */
-    bool willXPNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis&) const;
+    bool willXPNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
+        if (fProcessors.xpFactory()) {
+            return fProcessors.xpFactory()->willNeedDstTexture(caps, analysis);
+        }
+        return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, analysis);
+    }
 
     /// @}
 
