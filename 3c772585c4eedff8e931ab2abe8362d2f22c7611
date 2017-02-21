@@ -22,6 +22,30 @@
       "revId": "3c772585c4eedff8e931ab2abe8362d2f22c7611",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aa54661_48187269",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-21T12:58:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec37f66e_487ab3dc",
+      "range": {
+        "startLine": 394,
+        "startChar": 15,
+        "endLine": 394,
+        "endChar": 20
+      },
+      "revId": "3c772585c4eedff8e931ab2abe8362d2f22c7611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
