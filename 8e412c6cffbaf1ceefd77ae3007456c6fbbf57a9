@@ -75,6 +75,30 @@
       "revId": "8e412c6cffbaf1ceefd77ae3007456c6fbbf57a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb5ff48e_fcfd4f8b",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-21T18:51:20Z",
+      "side": 1,
+      "message": "I think it was correct before. Your new code seems inverted?",
+      "parentUuid": "840b3501_71d8fce2",
+      "range": {
+        "startLine": 221,
+        "startChar": 41,
+        "endLine": 221,
+        "endChar": 61
+      },
+      "revId": "8e412c6cffbaf1ceefd77ae3007456c6fbbf57a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
