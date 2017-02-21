@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98350b40_af025999",
+        "filename": "src/core/SkConvertPixels.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-21T23:26:15Z",
+      "side": 1,
+      "message": "I tend to find this sort of thing clearer with auto on the left.  That way you (OK, I) don\u0027t have to double-check it\u0027s the same type on both sides. :)",
+      "range": {
+        "startLine": 216,
+        "startChar": 12,
+        "endLine": 216,
+        "endChar": 27
+      },
+      "revId": "5cf6f0ed84ff5e6fa20b66aef394988d06f79b84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
