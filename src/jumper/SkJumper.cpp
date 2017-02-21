@@ -56,7 +56,7 @@ static K kConstants = {
 using StageFn = void(void);
 
 // Some platforms expect C "name" maps to asm "_name", others to "name".
-#if defined(_MSC_VER) || defined(__APPLE__)
+#if defined(__APPLE__)
     #define ASM(name, suffix) sk_##name##_##suffix
 #else
     #define ASM(name, suffix) _sk_##name##_##suffix

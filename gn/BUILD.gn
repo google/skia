@@ -441,6 +441,14 @@ toolchain("msvc") {
     env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
   }
 
+  tool("asm") {
+    command = "$env_setup$bin/ml64.exe /nologo /c /Fo {{output}} {{source}}"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+    ]
+    description = "assemble {{source}}"
+  }
+
   tool("cc") {
     rspfile = "{{output}}.rsp"
     precompiled_header_type = "msvc"
