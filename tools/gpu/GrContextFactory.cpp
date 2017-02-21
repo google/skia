@@ -43,8 +43,6 @@ GrContextFactory::GrContextFactory() { }
 
 GrContextFactory::GrContextFactory(const GrContextOptions& opts)
     : fGlobalOptions(opts) {
-    // In this factory, instanced rendering is specified with ContextOptions::kUseInstanced.
-    SkASSERT(!fGlobalOptions.fEnableInstancedRendering);
 }
 
 GrContextFactory::~GrContextFactory() {
@@ -105,11 +103,11 @@ const GrContextFactory::ContextType GrContextFactory::kNativeGL_ContextType =
     GrContextFactory::kGLES_ContextType;
 #endif
 
-ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions options) {
+ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides overrides) {
     for (int i = 0; i < fContexts.count(); ++i) {
         Context& context = fContexts[i];
         if (context.fType == type &&
-            context.fOptions == options &&
+            context.fOverrides == overrides &&
             !context.fAbandoned) {
             context.fTestContext->makeCurrent();
             return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
@@ -156,7 +154,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                     break;
 #endif
                 case kNullGL_ContextType:
-                    glCtx = CreateNullGLTestContext(ContextOptions::kEnableNVPR & options);
+                    glCtx = CreateNullGLTestContext(ContextOverrides::kRequireNVPRSupport & overrides);
                     break;
                 case kDebugGL_ContextType:
                     glCtx = CreateDebugGLTestContext();
@@ -169,9 +167,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
             }
             testCtx.reset(glCtx);
             glInterface.reset(SkRef(glCtx->gl()));
-            // Block NVPR from non-NVPR types. We don't block NVPR from contexts that will use
-            // instanced rendering because that would prevent us from testing mixed samples.
-            if (!((ContextOptions::kEnableNVPR | ContextOptions::kUseInstanced) & options)) {
+            if (ContextOverrides::kDisableNVPR & overrides) {
                 glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
                 if (!glInterface) {
                     return ContextInfo();
@@ -183,7 +179,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
 #ifdef SK_VULKAN
         case kVulkan_GrBackend:
             SkASSERT(kVulkan_ContextType == type);
-            if (ContextOptions::kEnableNVPR & options) {
+            if (ContextOverrides::kRequireNVPRSupport & overrides) {
                 return ContextInfo();
             }
             testCtx.reset(CreatePlatformVkTestContext());
@@ -209,26 +205,27 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
     testCtx->makeCurrent();
     SkASSERT(testCtx && testCtx->backend() == backend);
     GrContextOptions grOptions = fGlobalOptions;
-    if (ContextOptions::kUseInstanced & options) {
+    if (ContextOverrides::kUseInstanced & overrides) {
         grOptions.fEnableInstancedRendering = true;
     }
-    grOptions.fRequireDecodeDisableForSRGB =
-        SkToBool(ContextOptions::kRequireSRGBDecodeDisableSupport & options);
+    if (ContextOverrides::kAllowSRGBWithoutDecodeControl & overrides) {
+        grOptions.fRequireDecodeDisableForSRGB = false;
+    }
     grCtx.reset(GrContext::Create(backend, backendContext, grOptions));
     if (!grCtx.get()) {
         return ContextInfo();
     }
-    if (ContextOptions::kEnableNVPR & options) {
+    if (ContextOverrides::kRequireNVPRSupport & overrides) {
         if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
             return ContextInfo();
         }
     }
-    if (ContextOptions::kUseInstanced & options) {
+    if (ContextOverrides::kUseInstanced & overrides) {
         if (GrCaps::InstancedSupport::kNone == grCtx->caps()->instancedSupport()) {
             return ContextInfo();
         }
     }
-    if (ContextOptions::kRequireSRGBSupport & options) {
+    if (ContextOverrides::kRequireSRGBSupport & overrides) {
         if (!grCtx->caps()->srgbSupport()) {
             return ContextInfo();
         }
@@ -239,7 +236,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
     context.fTestContext = testCtx.release();
     context.fGrContext = SkRef(grCtx.get());
     context.fType = type;
-    context.fOptions = options;
+    context.fOverrides = overrides;
     context.fAbandoned = false;
     return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
 }
