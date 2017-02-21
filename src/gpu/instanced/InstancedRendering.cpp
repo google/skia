@@ -340,15 +340,16 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Op::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
-    input->pipelineColorInput()->setToConstant(this->getSingleInstance().fColor);
+void InstancedRendering::Op::getFragmentProcessorAnalysisInputs(
+        FragmentProcessorAnalysisInputs* input) const {
+    input->colorInput()->setToConstant(this->getSingleInstance().fColor);
 
     if (AntialiasMode::kCoverage == fInfo.fAntialiasMode ||
         (AntialiasMode::kNone == fInfo.fAntialiasMode &&
          !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        input->pipelineCoverageInput()->setToUnknown();
+        input->coverageInput()->setToUnknown();
     } else {
-        input->pipelineCoverageInput()->setToSolidCoverage();
+        input->coverageInput()->setToSolidCoverage();
     }
 }
 

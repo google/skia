@@ -6,6 +6,8 @@
  */
 
 #include "GrProcessorSet.h"
+#include "GrAppliedClip.h"
+#include "GrProcOptInfo.h"
 
 GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
     fXPFactory = paint.fXPFactory;
@@ -28,4 +30,72 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
     if (paint.getAllowSRGBInputs()) {
         fFlags |= kAllowSRGBInputs_Flag;
     }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void GrProcessorSet::FragmentProcessorAnalysis::internalReset(const GrPipelineInput& colorInput,
+                                                              const GrPipelineInput coverageInput,
+                                                              const GrProcessorSet& processors,
+                                                              bool usesPLSDstRead,
+                                                              const GrFragmentProcessor* clipFP) {
+    GrProcOptInfo colorInfo(colorInput);
+    fUsesPLSDstRead = usesPLSDstRead;
+    bool coverageFPCount = 0;
+    fCompatibleWithCoverageAsAlpha = !coverageInput.isLCDCoverage();
+
+    const GrFragmentProcessor* const* fps = processors.fFragmentProcessors.get();
+    colorInfo.analyzeProcessors(fps, processors.fColorFragmentProcessorCnt);
+    fCompatibleWithCoverageAsAlpha &= colorInfo.allProcessorsCompatibleWithCoverageAsAlpha();
+    fps += processors.fColorFragmentProcessorCnt;
+    coverageFPCount += processors.numCoverageFragmentProcessors();
+    for (int i = 0; i < coverageFPCount && fCompatibleWithCoverageAsAlpha; ++i) {
+        if (!fps[i]->compatibleWithCoverageAsAlpha()) {
+            fCompatibleWithCoverageAsAlpha = false;
+            // CAPS HERE?
+            // Other than tests that exercise atypical behavior we expect all coverage FPs to be
+            // compatible
+            // with the coverage-as-alpha optimization.
+            SkDebugf("Coverage FP is not compatible with coverage as alpha.\n");
+            break;
+        }
+    }
+
+    if (clipFP) {
+        fCompatibleWithCoverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
+        ++coverageFPCount;
+    }
+    fInitialColorProcessorsToEliminate =
+            colorInfo.initialProcessorsToEliminate(&fOverrideInputColor);
+
+    bool opaque = colorInfo.isOpaque();
+    if (colorInfo.hasKnownOutputColor(&fKnownOutpputColor)) {
+        fColorType = opaque ? ColorType::kOpaqueConstant : ColorType::kConstant;
+    } else if (opaque) {
+        fColorType = ColorType::kOpaque;
+    } else {
+        fColorType = ColorType::kUnknown;
+    }
+
+    if (coverageInput.isLCDCoverage()) {
+        fCoverageType = CoverageType::kLCD;
+    } else {
+        fCoverageType = !coverageFPCount && coverageInput.isSolidWhite()
+                                ? CoverageType::kNone
+                                : CoverageType::kSingleChannel;
+    }
+}
+
+void GrProcessorSet::FragmentProcessorAnalysis::reset(const GrPipelineInput& colorInput,
+                                                      const GrPipelineInput coverageInput,
+                                                      const GrProcessorSet& processors,
+                                                      bool usesPLSDstRead,
+                                                      const GrAppliedClip& appliedClip) {
+    this->internalReset(colorInput, coverageInput, processors, usesPLSDstRead,
+                        appliedClip.clipCoverageFragmentProcessor());
+}
+
+void GrProcessorSet::FragmentProcessorAnalysis::reset(const GrPipelineInput& colorInput,
+                                                      const GrPipelineInput coverageInput) {
+    this->internalReset(colorInput, coverageInput, GrProcessorSet(GrPaint()), false, nullptr);
 }

@@ -14,13 +14,13 @@
 #include "GrPendingProgramElement.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
+#include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
-
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -31,36 +31,6 @@ class GrDeviceCoordTexture;
 class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetContext;
-
-/**
- * This Describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
- * pipeline analysis.
- */
-class GrPipelineAnalysisDrawOpInput {
-public:
-    GrPipelineAnalysisDrawOpInput(GrPipelineInput* color, GrPipelineInput* coverage)
-            : fColorInput(color), fCoverageInput(coverage) {}
-    GrPipelineInput* pipelineColorInput() { return fColorInput; }
-    GrPipelineInput* pipelineCoverageInput() { return fCoverageInput; }
-
-    void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
-
-    bool usesPLSDstRead() const { return fUsesPLSDstRead; }
-
-private:
-    GrPipelineInput* fColorInput;
-    GrPipelineInput* fCoverageInput;
-    bool fUsesPLSDstRead = false;
-};
-
-/** This is used to track pipeline analysis through the color and coverage fragment processors. */
-struct GrPipelineAnalysis {
-    GrProcOptInfo fColorPOI;
-    GrProcOptInfo fCoveragePOI;
-    bool fUsesPLSDstRead = false;
-};
-
-class GrProcessorSet;
 
 /**
  * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable
@@ -93,7 +63,7 @@ public:
         GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTargetContext* fRenderTargetContext = nullptr;
         const GrCaps* fCaps = nullptr;
-        GrPipelineAnalysis fAnalysis;
+        const GrProcessorSet::FragmentProcessorAnalysis* fAnalysis;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
