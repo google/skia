@@ -48,10 +48,10 @@ private:
             , fTestContext(testContext)
             , fGrContext(grContext) {}
 
-    GrBackend       fBackend = kOpenGL_GrBackend;
+    GrBackend          fBackend = kOpenGL_GrBackend;
     // Valid until the factory destroys it via abandonContexts() or destroyContexts().
-    TestContext*    fTestContext = nullptr;
-    GrContext*      fGrContext = nullptr;
+    TestContext*       fTestContext = nullptr;
+    GrContext*         fGrContext = nullptr;
 
     friend class GrContextFactory;
 };
@@ -142,9 +142,13 @@ public:
 
     /**
      * Get a context initialized with a type of GL context. It also makes the GL context current.
+     * If shareContextInfo is supplied, then a context is created or returned in the same share
+     * group (able to share resources). To get multiple contexts in a single share group, pass the
+     * same shareContextInfo, with different values for shareIndex.
      */
     ContextInfo getContextInfo(ContextType type,
-                               ContextOptions options = ContextOptions::kNone);
+                               ContextOptions options = ContextOptions::kNone,
+                               GrContext* shareContext = nullptr, uint32_t shareIndex = 0);
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
@@ -160,6 +164,10 @@ private:
         GrBackend       fBackend;
         TestContext*    fTestContext;
         GrContext*      fGrContext;
+
+        GrContext*      fShareContext;
+        uint32_t        fShareIndex;
+
         bool            fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
