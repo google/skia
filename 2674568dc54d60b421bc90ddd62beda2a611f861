@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7266437_78407545",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-21T17:53:27Z",
+      "side": 1,
+      "message": "The passed-in \"device\" bounds parameter/behavior is a little tricky. Could we simplify this API?\n\ne.g.\n\nenum BoundsState {\n    kEmpty,\n    kNormal,\n    kInsideOut,\n};\n\nBoundsState bounds(SkRect* bounds);\n\nIf the clients want to later intersect the returned bounds with some other rect, they can always do that separately.\n\n---\n\nOr, and this question is for Brian as well, do we think the ALL clients wanting to query a clipstack of its bounds will want to intersect with something, and therefore requiring a dev-bounds makes sense?\n\nOr, should we instead seed the clipstack with its host\u0027s device_bounds up front, and so all rectangles can automatically take this into account?",
+      "range": {
+        "startLine": 583,
+        "startChar": 20,
+        "endLine": 583,
+        "endChar": 26
+      },
+      "revId": "2674568dc54d60b421bc90ddd62beda2a611f861",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
