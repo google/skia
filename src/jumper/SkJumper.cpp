@@ -10,6 +10,11 @@
 #include "SkRasterPipeline.h"
 #include "SkTemplates.h"
 
+// We'll use __has_feature(memory_sanitizer) to detect MSAN.
+// SkJumper_generated.S is not compiled with MSAN, so MSAN would yell really loud.
+#if !defined(__has_feature)
+    #define __has_feature(x) 0
+#endif
 
 // Stages expect these constants to be set to these values.
 // It's fine to rearrange and add new ones if you update SkJumper_constants.
@@ -64,7 +69,10 @@ using StageFn = void(void);
 
 extern "C" {
 
-#if defined(__aarch64__)
+#if __has_feature(memory_sanitizer)
+    // We'll just run portable code.
+
+#elif defined(__aarch64__)
     size_t ASM(start_pipeline,aarch64)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,aarch64);
     #define M(st) StageFn ASM(st,aarch64);
@@ -108,7 +116,10 @@ extern "C" {
 
 // Translate SkRasterPipeline's StockStage enum to StageFn function pointers.
 
-#if defined(__aarch64__)
+#if __has_feature(memory_sanitizer)
+    // We'll just run portable code.
+
+#elif defined(__aarch64__)
     static StageFn* lookup_aarch64(SkRasterPipeline::StockStage st) {
         switch (st) {
             default: return nullptr;
@@ -190,7 +201,10 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     };
 
     // While possible, build and run at full vector stride.
-#if defined(__aarch64__)
+#if __has_feature(memory_sanitizer)
+    // We'll just run portable code.
+
+#elif defined(__aarch64__)
     if (!build_and_run(4, lookup_aarch64, ASM(just_return,aarch64), ASM(start_pipeline,aarch64))) {
         return false;
     }
