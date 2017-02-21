@@ -300,6 +300,12 @@
         "Build-Ubuntu-GCC-x86_64-Release-Shared"
       ]
     },
+    "Build-Ubuntu-GCC-x86_64-Release-Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+      ]
+    },
     "Build-Win-Clang-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
@@ -738,12 +744,6 @@
       "priority": 0.8,
       "tasks": [
         "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
-      ]
-    },
-    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext"
       ]
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -1345,18 +1345,6 @@
       "priority": 0.8,
       "tasks": [
         "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
-      ]
-    },
-    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext"
-      ]
-    },
-    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext"
       ]
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -3063,6 +3051,31 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Shared",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-GCC-x86_64-Release-Valgrind": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release-Valgrind",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -6233,7 +6246,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release"
+        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
       ],
       "dimensions": [
         "gpu:10de:1244",
@@ -6248,54 +6261,6 @@
         "swarm_perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:21"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:36"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:1244",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -11134,7 +11099,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release"
+        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
       ],
       "dimensions": [
         "gpu:10de:1244",
@@ -11149,102 +11114,6 @@
         "swarm_test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:21"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:36"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:1244",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:21"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:36"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:1244",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
