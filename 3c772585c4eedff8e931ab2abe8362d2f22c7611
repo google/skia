@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec37f66e_487ab3dc",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-21T12:44:32Z",
+      "side": 1,
+      "message": "Probably ok to use a \u0027_\u0027 here too to pick up all GPU configs, not just the default \u0027gpu\u0027.",
+      "range": {
+        "startLine": 394,
+        "startChar": 15,
+        "endLine": 394,
+        "endChar": 20
+      },
+      "revId": "3c772585c4eedff8e931ab2abe8362d2f22c7611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
