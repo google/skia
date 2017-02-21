@@ -28,6 +28,15 @@ public:
             new GrBitmapTextGeoProc(color, tex, p, format, localMatrix, usesLocalCoords));
     }
 
+    static sk_sp<GrGeometryProcessor> Make(GrContext* context, GrColor color,
+                                           sk_sp<GrTextureProxy> proxy, const GrSamplerParams& p,
+                                           GrMaskFormat format, const SkMatrix& localMatrix,
+                                           bool usesLocalCoords) {
+        return sk_sp<GrGeometryProcessor>(
+            new GrBitmapTextGeoProc(context, color, std::move(proxy), p, format,
+                                    localMatrix, usesLocalCoords));
+    }
+
     virtual ~GrBitmapTextGeoProc() {}
 
     const char* name() const override { return "Texture"; }
@@ -47,6 +56,9 @@ public:
 
 private:
     GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrSamplerParams& params,
+                        GrMaskFormat format, const SkMatrix& localMatrix, bool usesLocalCoords);
+
+    GrBitmapTextGeoProc(GrContext*, GrColor, sk_sp<GrTextureProxy>, const GrSamplerParams& params,
                         GrMaskFormat format, const SkMatrix& localMatrix, bool usesLocalCoords);
 
     GrColor          fColor;
