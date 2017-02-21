@@ -10,8 +10,9 @@
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLUtil.h"
 
-#include <GL/glx.h>
 #include <dlfcn.h>
+
+typedef unsigned char GLubyte;
 
 typedef void* (*GLXGetCurrentContextProc)(void);
 typedef GrGLFuncPtr (*GLXGetProcAddressProc)(const GLubyte* name);
