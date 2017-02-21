@@ -29,7 +29,7 @@ declare_args() {
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
-  skia_enable_jumper = is_skia_standalone && sanitize != "MSAN"
+  skia_enable_jumper = is_skia_standalone
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_tools = is_skia_standalone
