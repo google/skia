@@ -22,6 +22,30 @@
       "revId": "4d69a2c398ee8e7d3ee4889edcd8680114bec20e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1c6931d_cf23f1b3",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1992,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-21T19:03:00Z",
+      "side": 1,
+      "message": "It generally won\u0027t be -- if you do vec4(1) \u003d\u003d vec4(1), the operand type is vec4, but the \u003d\u003d results in a bvec4 we need to fold down.",
+      "parentUuid": "d74dc75e_b3d4cf09",
+      "range": {
+        "startLine": 1992,
+        "startChar": 47,
+        "endLine": 1992,
+        "endChar": 71
+      },
+      "revId": "4d69a2c398ee8e7d3ee4889edcd8680114bec20e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
