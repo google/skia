@@ -46,6 +46,12 @@ while { return SkSL::Token::WHILE; }
 
 do { return SkSL::Token::DO; }
 
+switch { return SkSL::Token::SWITCH; }
+
+case { return SkSL::Token::CASE; }
+
+default { return SkSL::Token::DEFAULT; }
+
 break { return SkSL::Token::BREAK; }
 
 continue { return SkSL::Token::CONTINUE; }

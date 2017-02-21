@@ -39,6 +39,8 @@
 #include "ir/SkSLPostfixExpression.h"
 #include "ir/SkSLPrefixExpression.h"
 #include "ir/SkSLReturnStatement.h"
+#include "ir/SkSLSwitchCase.h"
+#include "ir/SkSLSwitchStatement.h"
 #include "ir/SkSLSwizzle.h"
 #include "ir/SkSLTernaryExpression.h"
 #include "ir/SkSLUnresolvedFunction.h"
@@ -81,12 +83,27 @@ public:
     IRGenerator* fIR;
 };
 
+class AutoSwitchLevel {
+public:
+    AutoSwitchLevel(IRGenerator* ir)
+    : fIR(ir) {
+        fIR->fSwitchLevel++;
+    }
+
+    ~AutoSwitchLevel() {
+        fIR->fSwitchLevel--;
+    }
+
+    IRGenerator* fIR;
+};
+
 IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> symbolTable,
                          ErrorReporter& errorReporter)
 : fContext(*context)
 , fCurrentFunction(nullptr)
 , fSymbolTable(std::move(symbolTable))
 , fLoopLevel(0)
+, fSwitchLevel(0)
 , fErrors(errorReporter) {}
 
 void IRGenerator::pushSymbolTable() {
@@ -153,6 +170,8 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTStatement& sta
             return this->convertWhile((ASTWhileStatement&) statement);
         case ASTStatement::kDo_Kind:
             return this->convertDo((ASTDoStatement&) statement);
+        case ASTStatement::kSwitch_Kind:
+            return this->convertSwitch((ASTSwitchStatement&) statement);
         case ASTStatement::kReturn_Kind:
             return this->convertReturn((ASTReturnStatement&) statement);
         case ASTStatement::kBreak_Kind:
@@ -357,6 +376,39 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTDoStatement& d) {
                                                       std::move(test)));
 }
 
+std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTSwitchStatement& s) {
+    AutoSwitchLevel level(this);
+    std::unique_ptr<Expression> value = this->convertExpression(*s.fValue);
+    if (!value) {
+        return nullptr;
+    }
+    std::vector<std::unique_ptr<SwitchCase>> cases;
+    for (const auto& c : s.fCases) {
+        std::unique_ptr<Expression> caseValue;
+        if (c->fValue) {
+            caseValue = this->convertExpression(*c->fValue);
+            if (!caseValue) {
+                return nullptr;
+            }
+            if (!caseValue->isConstant()) {
+                fErrors.error(caseValue->fPosition, "case value must be a constant");
+            }
+        }
+        std::vector<std::unique_ptr<Statement>> statements;
+        for (const auto& s : c->fStatements) {
+            std::unique_ptr<Statement> converted = this->convertStatement(*s);
+            if (!converted) {
+                return nullptr;
+            }
+            statements.push_back(std::move(converted));
+        }
+        cases.emplace_back(new SwitchCase(c->fPosition, std::move(caseValue),
+                                          std::move(statements)));
+    }
+    return std::unique_ptr<Statement>(new SwitchStatement(s.fPosition, std::move(value),
+                                                          std::move(cases)));
+}
+
 std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(
                                                                   const ASTExpressionStatement& s) {
     std::unique_ptr<Expression> e = this->convertExpression(*s.fExpression);
@@ -393,10 +445,10 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTReturnStatement& 
 }
 
 std::unique_ptr<Statement> IRGenerator::convertBreak(const ASTBreakStatement& b) {
-    if (fLoopLevel > 0) {
+    if (fLoopLevel > 0 || fSwitchLevel > 0) {
         return std::unique_ptr<Statement>(new BreakStatement(b.fPosition));
     } else {
-        fErrors.error(b.fPosition, "break statement must be inside a loop");
+        fErrors.error(b.fPosition, "break statement must be inside a loop or switch");
         return nullptr;
     }
 }

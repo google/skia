@@ -777,4 +777,66 @@ DEF_TEST(SkSLGeometry, r) {
          SkSL::Program::kGeometry_Kind);
 }
 
+DEF_TEST(SkSLSwitch, r) {
+    test(r,
+         "void main() {"
+         "    float x;"
+         "    switch (3) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "            break;"
+         "        case 1:"
+         "            x = 1.0;"
+         "            break;"
+         "        default:"
+         "            x = 2.0;"
+         "    }"
+         "    sk_FragColor = vec4(x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x;\n"
+         "    switch (3) {\n"
+         "        case 0:\n"
+         "            x = 0.0;\n"
+         "            break;\n"
+         "        case 1:\n"
+         "            x = 1.0;\n"
+         "            break;\n"
+         "        default:\n"
+         "            x = 2.0;\n"
+         "    }\n"
+         "    sk_FragColor = vec4(x);\n"
+         "}\n");    test(r,
+         "void main() {"
+         "    float x;"
+         "    switch (3) {"
+         "        case 0:"
+         "            x = 0.0;"
+         "        case 1:"
+         "            x = 1.0;"
+         "        default:"
+         "            x = 2.0;"
+         "    }"
+         "    sk_FragColor = vec4(x);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x;\n"
+         "    switch (3) {\n"
+         "        case 0:\n"
+         "            x = 0.0;\n"
+         "        case 1:\n"
+         "            x = 1.0;\n"
+         "        default:\n"
+         "            x = 2.0;\n"
+         "    }\n"
+         "    sk_FragColor = vec4(2.0);\n"
+         "}\n");
+}
+
 #endif

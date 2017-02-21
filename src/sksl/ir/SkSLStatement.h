@@ -28,7 +28,8 @@ struct Statement : public IRNode {
         kIf_Kind,
         kReturn_Kind,
         kVarDeclarations_Kind,
-        kWhile_Kind
+        kWhile_Kind,
+        kSwitch_Kind
     };
 
     Statement(Position position, Kind kind)
