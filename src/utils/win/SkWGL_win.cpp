@@ -334,7 +334,8 @@ static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
     extensions.choosePixelFormat(dc, iAttrs.begin(), fAttrs, 1, format, &num);
 }
 
-static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextRequest contextType) {
+static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextRequest contextType,
+                               HGLRC shareContext) {
     HDC prevDC = wglGetCurrentDC();
     HGLRC prevGLRC = wglGetCurrentContext();
 
@@ -350,7 +351,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
             SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_ES2_PROFILE_BIT,
             0,
         };
-        glrc = extensions.createContextAttribs(dc, nullptr, glesAttribs);
+        glrc = extensions.createContextAttribs(dc, shareContext, glesAttribs);
         if (nullptr == glrc) {
             wglMakeCurrent(prevDC, prevGLRC);
             return nullptr;
@@ -375,7 +376,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
             for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
                 coreProfileAttribs[1] = kCoreGLVersions[2 * v];
                 coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
-                glrc = extensions.createContextAttribs(dc, nullptr, coreProfileAttribs);
+                glrc = extensions.createContextAttribs(dc, shareContext, coreProfileAttribs);
                 if (glrc) {
                     break;
                 }
@@ -385,6 +386,12 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
 
     if (nullptr == glrc) {
         glrc = wglCreateContext(dc);
+        if (shareContext) {
+            if (!wglShareLists(shareContext, glrc)) {
+                wglDeleteContext(glrc);
+                return nullptr;
+            }
+        }
     }
     SkASSERT(glrc);
 
@@ -398,7 +405,7 @@ static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextR
 }
 
 HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
-                         SkWGLContextRequest contextType) {
+                         SkWGLContextRequest contextType, HGLRC shareContext) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(dc, "WGL_ARB_pixel_format")) {
         return nullptr;
@@ -420,10 +427,12 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
         return nullptr;
     }
 
-    return create_gl_context(dc, extensions, contextType);}
+    return create_gl_context(dc, extensions, contextType, shareContext);
+}
 
 SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCount,
-                                                 SkWGLContextRequest contextType) {
+                                                 SkWGLContextRequest contextType,
+                                                 HGLRC shareContext) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(parentDC, "WGL_ARB_pixel_format") ||
         !extensions.hasExtension(parentDC, "WGL_ARB_pbuffer")) {
@@ -440,7 +449,7 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
             if (0 != pbuf) {
                 HDC dc = extensions.getPbufferDC(pbuf);
                 if (dc) {
-                    HGLRC glrc = create_gl_context(dc, extensions, contextType);
+                    HGLRC glrc = create_gl_context(dc, extensions, contextType, shareContext);
                     if (glrc) {
                         return new SkWGLPbufferContext(pbuf, dc, glrc);
                     }
