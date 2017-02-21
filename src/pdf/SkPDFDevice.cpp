@@ -915,14 +915,11 @@ void SkPDFDevice::drawImage(const SkDraw& draw,
                             SkScalar y,
                             const SkPaint& srcPaint) {
     SkPaint paint = srcPaint;
-    if (!image) {
+    if (!image || draw.fRC->isEmpty()) {
         return;
     }
     if (image->isOpaque()) {
         replace_srcmode_on_opaque_paint(&paint);
-    }
-    if (draw.fRC->isEmpty()) {
-        return;
     }
     SkImageSubset imageSubset(sk_ref_sp(const_cast<SkImage*>(image)));
     if (!imageSubset.isValid()) {
@@ -1756,23 +1753,6 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
     *dst = nullptr;
     if (clipRegion.isEmpty()) {
         return nullptr;
-    }
-
-    // The clip stack can come from an SkDraw where it is technically optional.
-    SkClipStack synthesizedClipStack;
-    if (clipStack == nullptr) {
-        if (clipRegion == fExistingClipRegion) {
-            clipStack = &fExistingClipStack;
-        } else {
-            // GraphicStackState::updateClip expects the clip stack to have
-            // fExistingClip as a prefix, so start there, then set the clip
-            // to the passed region.
-            synthesizedClipStack = fExistingClipStack;
-            SkPath clipPath;
-            clipRegion.getBoundaryPath(&clipPath);
-            synthesizedClipStack.clipPath(clipPath, SkMatrix::I(), kReplace_SkClipOp, false);
-            clipStack = &synthesizedClipStack;
-        }
     }
 
     SkBlendMode blendMode = paint.getBlendMode();
