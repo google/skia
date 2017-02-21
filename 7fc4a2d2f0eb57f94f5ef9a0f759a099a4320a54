@@ -16,6 +16,24 @@
       "revId": "7fc4a2d2f0eb57f94f5ef9a0f759a099a4320a54",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b567705d_ef53f3bd",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-21T18:51:53Z",
+      "side": 0,
+      "message": "This is checked today in canvas, and most of PDF\u0027s other methods don\u0027t seem to check. That said, I\u0027m fine to restore the check.",
+      "parentUuid": "d7baccab_b16f1c22",
+      "revId": "7fc4a2d2f0eb57f94f5ef9a0f759a099a4320a54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
