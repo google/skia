@@ -99,6 +99,30 @@
       "revId": "8e412c6cffbaf1ceefd77ae3007456c6fbbf57a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48b2273f_e1e0bf6f",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-21T19:19:13Z",
+      "side": 1,
+      "message": "Right, it got inverted somewhere in the middle of all those patchsets and fixed again around patchset #8. It\u0027s correct now.",
+      "parentUuid": "eb5ff48e_fcfd4f8b",
+      "range": {
+        "startLine": 221,
+        "startChar": 41,
+        "endLine": 221,
+        "endChar": 61
+      },
+      "revId": "8e412c6cffbaf1ceefd77ae3007456c6fbbf57a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
