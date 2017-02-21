@@ -1238,7 +1238,6 @@ _sk_start_pipeline_hsw:
 
 .globl _sk_just_return_hsw
 _sk_just_return_hsw:
-  .byte  0xc5,0xf8,0x77                                  // vzeroupper
   .byte  0xc3                                            // retq
 
 .globl _sk_seed_shader_hsw
