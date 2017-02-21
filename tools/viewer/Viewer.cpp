@@ -16,6 +16,7 @@
 #include "SkATrace.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
+#include "SkCommonFlagsPathRenderer.h"
 #include "SkDashPathEffect.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
@@ -133,6 +134,8 @@ static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
 static DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
+
+DEFINE_pathrenderer_flag;
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
