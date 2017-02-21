@@ -570,6 +570,12 @@ def test_steps(api):
         'LIBGL_DRIVERS_PATH': dri_path,
       })
 
+  # See skia:2789.
+  if '_AbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
+    args.append('--abandonGpuContext')
+  if '_PreAbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
+    args.append('--preAbandonGpuContext')
+
   api.run(api.flavor.step, 'dm', cmd=args,
           abort_on_failure=False,
           env=env)
@@ -578,19 +584,6 @@ def test_steps(api):
     # Copy images and JSON to host machine if needed.
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.dm_dir, api.vars.dm_dir)
-
-  # See skia:2789.
-  if ('Valgrind' in api.vars.builder_name and
-      api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU'):
-    abandonGpuContext = list(args)
-    abandonGpuContext.append('--abandonGpuContext')
-    api.run(api.flavor.step, 'dm --abandonGpuContext',
-                  cmd=abandonGpuContext, abort_on_failure=False)
-    preAbandonGpuContext = list(args)
-    preAbandonGpuContext.append('--preAbandonGpuContext')
-    api.run(api.flavor.step, 'dm --preAbandonGpuContext',
-                  cmd=preAbandonGpuContext, abort_on_failure=False,
-                  env=api.vars.default_env)
 
 
 class TestApi(recipe_api.RecipeApi):
