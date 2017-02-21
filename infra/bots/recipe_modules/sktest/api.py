@@ -389,6 +389,10 @@ def dm_flags(bot):
       blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
 
+  if 'Vivante' in bot:
+    # This causes the bot to spin for >3.5 hours.
+    blacklist(['_', 'gm', '_', 'scaled_tilemodes_npot'])
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
