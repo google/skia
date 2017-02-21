@@ -16,6 +16,24 @@
       "revId": "6ae172205ad9e7ee5c7a86a89d94106953373775",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c32f25ac_5adba8bd",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-21T16:34:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea101ded_04cee00e",
+      "revId": "6ae172205ad9e7ee5c7a86a89d94106953373775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
