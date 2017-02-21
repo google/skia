@@ -5,7 +5,7 @@
       "-u",
       "\nimport glob\nimport sys\nwith open(sys.argv[1], 'w') as f:\n  f.write('\\n'.join(glob.glob(sys.argv[2])))\n",
       "/path/to/tmp/",
-      "*.json"
+      "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data/*.json"
     ],
     "cwd": "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data",
     "name": "find results"

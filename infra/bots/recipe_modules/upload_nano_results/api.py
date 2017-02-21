@@ -17,16 +17,16 @@ class UploadNanoResultsApi(recipe_api.RecipeApi):
     now = self.m.time.utcnow()
     src_path = self.m.path['start_dir'].join(
         'perfdata', builder_name, 'data')
-    results = self.m.file.glob(
-        'find results',
-        '*.json',
-        cwd=src_path,
-        test_data=['nanobench_abc123.json'],
-        infra_step=True)
+    with self.m.step.context({'cwd': src_path}):
+      results = self.m.file.glob(
+          'find results',
+          src_path.join('*.json'),
+          test_data=[src_path.join('nanobench_abc123.json')],
+          infra_step=True)
     if len(results) != 1:  # pragma: nocover
       raise Exception('Unable to find nanobench or skpbench JSON file!')
 
-    src = src_path.join(results[0])
+    src = results[0]
     basename = self.m.path.basename(src)
     gs_path = '/'.join((
         'nano-json-v1', str(now.year).zfill(4),
