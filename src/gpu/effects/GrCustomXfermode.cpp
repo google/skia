@@ -103,7 +103,7 @@ public:
     }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&,
+    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
                                                  const GrCaps& caps) const override;
@@ -197,7 +197,7 @@ bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
     return fMode == s.fMode && fHWBlendEquation == s.fHWBlendEquation;
 }
 
-GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrPipelineAnalysis& analysis,
+GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const FragmentProcessorAnalysis& analysis,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
                                                        const GrCaps& caps) const {
@@ -300,8 +300,7 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrPipelineAnalysis&
      */
 
     OptFlags flags = kNone_OptFlags;
-    if (analysis.fColorPOI.allProcessorsCompatibleWithCoverageAsAlpha() &&
-        analysis.fCoveragePOI.allProcessorsCompatibleWithCoverageAsAlpha()) {
+    if (analysis.isCompatibleWithCoverageAsAlpha()) {
         flags |= kCanTweakAlphaForCoverage_OptFlag;
     }
     return flags;
@@ -334,13 +333,13 @@ public:
 
 private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrPipelineAnalysis&,
+                                           const FragmentProcessorAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override { return true; }
+    bool willReadsDst(const FragmentProcessorAnalysis&) const override { return true; }
 
-    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override;
+    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
 
@@ -354,24 +353,24 @@ private:
 #endif
 
 GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                        const GrPipelineAnalysis& analysis,
+                                                        const FragmentProcessorAnalysis& analysis,
                                                         bool hasMixedSamples,
                                                         const DstTexture* dstTexture) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.fUsesPLSDstRead,
-                                  analysis.fCoveragePOI.isLCDCoverage(), caps)) {
+    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.usesPLSDstRead(),
+                                  analysis.hasLCDCoverage(), caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }
     return new CustomXP(dstTexture, hasMixedSamples, fMode);
 }
 
-bool CustomXPFactory::willReadDstInShader(const GrCaps& caps, ColorType colorType,
-                                          CoverageType coverageType) const {
+bool CustomXPFactory::onWillReadDstInShader(const GrCaps& caps,
+                                            const FragmentProcessorAnalysis& analysis) const {
     // This should not be called if we're using PLS dst read.
     static constexpr bool kUsesPLSRead = false;
-    return !can_use_hw_blend_equation(fHWBlendEquation, kUsesPLSRead,
-                                      CoverageType::kLCD == coverageType, caps);
+    return !can_use_hw_blend_equation(fHWBlendEquation, kUsesPLSRead, analysis.hasLCDCoverage(),
+                                      caps);
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);
