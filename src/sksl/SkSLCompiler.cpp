@@ -286,8 +286,12 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
                 if (e1 != e2) {
                     // definition has changed, merge and add exit block to worklist
                     workList->insert(exitId);
-                    exit.fBefore[pair.first] =
+                    if (e1 && e2) {
+                        exit.fBefore[pair.first] =
                                        (std::unique_ptr<Expression>*) &fContext.fDefined_Expression;
+                    } else {
+                        exit.fBefore[pair.first] = nullptr;
+                    }
                 }
             }
         }
