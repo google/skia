@@ -220,7 +220,7 @@ static void* load_and_inc(void**& program) {
 __attribute__((ms_abi))
 #endif
 extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
-    F v{};   // TODO: faster uninitialized?
+    F v{};
     size_t stride = sizeof(F) / sizeof(float);
     auto start = (Stage*)load_and_inc(program);
     while (x + stride <= limit) {
