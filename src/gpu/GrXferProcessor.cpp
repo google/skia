@@ -211,15 +211,6 @@ bool GrXPFactory::WillReadDst(const GrXPFactory* factory, const GrProcOptInfo& c
     return GrPorterDuffXPFactory::WillSrcOverReadDst(colorInput, coverageInput);
 }
 
-bool GrXPFactory::IsPreCoverageBlendedColorConstant(const GrXPFactory* factory,
-                                                    const GrProcOptInfo& colorInput,
-                                                    GrColor* color) {
-    if (factory) {
-        return factory->isPreCoverageBlendedColorConstant(colorInput, color);
-    }
-    return GrPorterDuffXPFactory::IsSrcOverPreCoverageBlendedColorConstant(colorInput, color);
-}
-
 bool GrXPFactory::willReadDstInShader(const GrCaps& caps,
                                       const GrPipelineAnalysis& analysis) const {
     if (analysis.fUsesPLSDstRead) {

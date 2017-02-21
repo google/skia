@@ -338,11 +338,6 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool isPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
-                                           GrColor* color) const override {
-        return false;
-    }
-
     bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override { return true; }
 
     bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override;

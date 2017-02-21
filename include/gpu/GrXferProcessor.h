@@ -328,17 +328,7 @@ public:
     static bool WillReadDst(const GrXPFactory*, const GrProcOptInfo& colorInput,
                             const GrProcOptInfo& coverageInput);
 
-    /**
-     * Most of the time GrXferProcessor performs a blend of the src and dst colors and then applies
-     * the coverage using c*b + (1-c)*d where c is coverage, b=F(s,d) is the blended color, s is the
-     * source color, and d is the destination color. This query answers the question "is b a
-     * constant and if so what is its value?" If the XP ignores the source color or applies the
-     * coverage in some other fashion then this returns false.
-     */
-    static bool IsPreCoverageBlendedColorConstant(const GrXPFactory*,
-                                                  const GrProcOptInfo& colorInput, GrColor* color);
-
-    /**
+     /**
      * This will return true if the xfer processor needs the dst color in the shader and the way
      * that the color will be made available to the xfer processor is by sampling a texture.
      */
@@ -356,10 +346,6 @@ protected:
     }
 
 private:
-    /** Subclass-specific implementation of IsPreCoverageBlendedColorConstant(). */
-    virtual bool isPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
-                                                   GrColor* color) const = 0;
-
     /** Subclass-specific implementation of WillReadDst(). */
     virtual bool willReadsDst(const GrProcOptInfo& colorInput,
                               const GrProcOptInfo& coverageInput) const = 0;
