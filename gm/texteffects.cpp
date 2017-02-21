@@ -494,3 +494,51 @@ DEF_SIMPLE_GM(fancyunderlinebars, canvas, 1500, 460) {
         canvas->translate(0, textSize * 1.3f);
     }
 }
+
+DEF_SIMPLE_GM(setRasterizer, canvas, 256, 256)
+{
+        SkLayerRasterizer::Builder layerBuilder;
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(1);
+        layerBuilder.addLayer(paint);
+
+        paint.setAlpha(0x10);
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setBlendMode(SkBlendMode::kSrc);
+        layerBuilder.addLayer(paint);
+        paint.reset();
+        paint.setAntiAlias(true);
+        paint.setTextSize(100);
+        paint.setRasterizer(layerBuilder.detach());
+canvas->clear(SK_ColorWHITE);
+        canvas->drawText("outline", 7, 10, 80, paint);
+}
+
+DEF_SIMPLE_GM(refRasterizer, canvas, 256, 256)
+{
+           SkLayerRasterizer::Builder layerBuilder;
+           SkPaint paint1, paint2;
+           layerBuilder.addLayer(paint2);
+           paint1.setRasterizer(layerBuilder.detach());
+           SkDebugf("rasterizer unique: %s\n", paint1.getRasterizer()->unique() ? "true" : "false");
+           paint2.setRasterizer(paint1.refRasterizer());
+           SkDebugf("rasterizer unique: %s\n", paint1.getRasterizer()->unique() ? "true" : "false");
+        }
+
+
+DEF_SIMPLE_GM(getfontmetrics, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setTextSize(32);
+    SkPaint::FontMetrics metrics;
+    SkScalar lineHeight = paint.getFontMetrics(&metrics);
+    canvas->drawText("line 1", 6, 10, 40, paint);
+    canvas->drawText("line 2", 6, 10, 40 + lineHeight, paint);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(12);
+    lineHeight = paint.getFontMetrics(&metrics);
+    canvas->drawText("line 3", 6, 120, 40, paint);
+    canvas->drawText("line 4", 6, 120, 40 + lineHeight, paint);
+
+}
