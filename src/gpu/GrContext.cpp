@@ -76,6 +76,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
     ASSERT_SINGLE_OWNER
     SkASSERT(!fGpu);
 
+    fBackend = backend;
+
     fGpu = GrGpu::Create(backend, backendContext, options, this);
     if (!fGpu) {
         return false;
@@ -399,10 +401,24 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
     return true;
 }
 
+#include "vk/GrVkImage.h"
+#include "vk/GrVkRenderTarget.h"
+#include "vk/GrVkTexture.h"
+
 bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                                   int left, int top, int width, int height,
                                   GrPixelConfig dstConfig, SkColorSpace* dstColorSpace,
                                   void* buffer, size_t rowBytes, uint32_t flags) {
+    GrVkImage* image = nullptr;
+if (fBackend == kVulkan_GrBackend) {
+    GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
+    if (rt) {
+        image = rt;
+    } else {
+        image = static_cast<GrVkTexture*>(src->asTexture());
+    }
+    SkDebugf("In ReadSurfacePixels on GrContext for surface %p, image %d\n", src, image->image());
+}
     // TODO: Color space conversion
 
     ASSERT_SINGLE_OWNER
@@ -497,6 +513,10 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                 tempRTC->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect,
                                   nullptr);
                 surfaceToRead.reset(tempRTC->asTexture().release());
+if (fBackend == kVulkan_GrBackend) {
+                SkDebugf("Added temp draw in readSurfacePixels to surface %p\n, original image: %d",
+                         surfaceToRead.get(), image->image());
+}
                 left = 0;
                 top = 0;
                 didTempDraw = true;
@@ -853,8 +873,10 @@ void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     ASSERT_SINGLE_OWNER
     if (SkToBool(kUnpremul_PixelOpsFlag & flags)) {
         if (!fDidTestPMConversions) {
+            SkDebugf("Starting test of pm conversions\n");
             test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
             fDidTestPMConversions = true;
+            SkDebugf("Ending test of pm conversions\n");
         }
     }
 }

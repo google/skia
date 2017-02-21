@@ -397,9 +397,7 @@
       "_",
       "complexclip4_aa",
       "--match",
-      "~ReadWriteAlpha",
-      "~RGBA4444TextureTest",
-      "~RGB565TextureTest"
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
