@@ -123,6 +123,7 @@ void GrVkGpuCommandBuffer::onSubmit() {
     if (!fRenderTarget) {
         return;
     }
+    SkDebugf("ABOUT TO SUBMIT SEC COMMAND BUFFER\n");
     // Change layout of our render target so it can be used as the color attachment. Currently
     // we don't attach the resolve to the framebuffer so no need to change its layout.
     GrVkImage* targetImage = fRenderTarget->msaaImage() ? fRenderTarget->msaaImage()
@@ -487,6 +488,7 @@ static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
                                   VK_ACCESS_SHADER_READ_BIT,
                                   VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                                   false);
+        SkDebugf("Sampling Image: %d\n", vkTexture->image());
     }
 }
 
@@ -507,12 +509,18 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdBuffer];
     SkASSERT(cbInfo.fRenderPass);
 
+    SkDebugf("Add draw to command buffer for vkImage %d\n", target->image());
     prepare_sampled_images(primProc, fGpu);
     GrFragmentProcessor::Iter iter(pipeline);
     while (const GrFragmentProcessor* fp = iter.next()) {
         prepare_sampled_images(*fp, fGpu);
     }
     prepare_sampled_images(pipeline.getXferProcessor(), fGpu);
+
+    GrXferProcessor::BlendInfo blendInfo;
+    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
+
+    SkDebugf("blend info coeffs src: %d, dst: %d, writeColor %d\n", blendInfo.fSrcBlend, blendInfo.fDstBlend, blendInfo.fWriteColor);
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,

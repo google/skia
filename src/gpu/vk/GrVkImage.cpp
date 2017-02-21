@@ -38,7 +38,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     // is if the layout is GENERAL. In this case the image could have been used for any operation so
     // we must respect the barrier.
     if (newLayout == currentLayout && VK_IMAGE_LAYOUT_GENERAL != currentLayout) {
-        return;
+        //return;
     }
 
     VkAccessFlags srcAccessMask = GrVkMemory::LayoutToSrcAccessMask(currentLayout);
@@ -59,6 +59,8 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     };
 
     gpu->addImageMemoryBarrier(srcStageMask, dstStageMask, byRegion, &imageMemoryBarrier);
+
+    SkDebugf("Adding image barrier for image: %d, old layout %d, new layout %d, srcAccessMask 0x%08x, dstAccessmask 0x%08x, srcStageMask 0x%08x, dstStageMask 0x%08x\n", this->image(), currentLayout, newLayout, srcAccessMask, dstAccessMask, srcStageMask, dstStageMask);
 
     fInfo.fImageLayout = newLayout;
 }

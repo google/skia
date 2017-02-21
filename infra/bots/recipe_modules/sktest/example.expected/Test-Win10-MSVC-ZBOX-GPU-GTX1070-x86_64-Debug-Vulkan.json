@@ -369,7 +369,7 @@
       "_",
       ".SRW",
       "--match",
-      "~GPUMemorySize"
+      "XfermodeImageFilterCroppedInput_Gpu"
     ],
     "cwd": "[START_DIR]\\skia",
     "env": {

@@ -454,6 +454,8 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                                     SkString("coords"),
                                     args.fTexSamplers[0],
                                     args.fInputColor);
+        args.fFragBuilder->codeAppendf("if (%s.r == 0.0 && %s.g == 0.0 && %s.b == 0.0 && %s.a == 0.0) { %s = vec4(1.0, 0.0, 0.0, 1.0); } else { %s = vec4(0.0, 0.0, 1.0, 1.0); }"
+                                 , args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor);
         }
 
     protected:

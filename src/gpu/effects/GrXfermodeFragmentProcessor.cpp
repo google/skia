@@ -410,6 +410,13 @@ public:
         } else {
             GrGLSLBlend::AppendMode(fragBuilder, childStr, inputColor, args.fOutputColor, mode);
         }
+        static int callCount = 0;
+        if (++callCount == 3) {
+        fragBuilder->codeAppendf("if (%s.r == 0.0 && %s.g == 0.0 && %s.b == 0.0 && %s.a == 0.0) { %s = vec4(0.0, 1.0, 0.5, 1.0); } else { %s = vec4(0.0, 0.0, 1.0, 1.0); }"
+                                 , childStr, childStr,childStr,childStr,args.fOutputColor, args.fOutputColor);
+        fragBuilder->codeAppendf("if (%s.r == 1.0 && %s.g == 0.0 && %s.b == 0.0 && %s.a == 0.0) { %s = vec4(0.5, 0.0, 0.0, 1.0); }"
+                                 , childStr, childStr,childStr,childStr,args.fOutputColor);
+        }
     }
 
 private:
