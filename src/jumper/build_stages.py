@@ -21,16 +21,25 @@ sse2 = '-mno-red-zone -msse2 -mno-sse3 -mno-ssse3 -mno-sse4.1'.split()
 subprocess.check_call(['clang++'] + cflags + sse2 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse2.o'])
+subprocess.check_call(['clang++'] + cflags + sse2 + ['-DWIN'] +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'win_sse2.o'])
 
 sse41 = '-mno-red-zone -msse4.1'.split()
 subprocess.check_call(['clang++'] + cflags + sse41 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse41.o'])
+subprocess.check_call(['clang++'] + cflags + sse41 + ['-DWIN'] +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'win_sse41.o'])
 
 hsw = '-mno-red-zone -mavx2 -mfma -mf16c'.split()
 subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'hsw.o'])
+subprocess.check_call(['clang++'] + cflags + hsw + ['-DWIN'] +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'win_hsw.o'])
 
 aarch64 = [
     '--target=aarch64-linux-android',
@@ -51,6 +60,11 @@ subprocess.check_call(['clang++'] + cflags + vfp4 +
                       ['-o', 'vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
+  globl, label, comment, dehex = '.globl', ':', '// ', lambda h: '0x'+h
+  if 'win' in dot_o:
+    globl, label, comment = 'PUBLIC', ' LABEL PROC', '; '
+    dehex = lambda h: str(int(h, 16))
+
   cmd = [ objdump, '-d', '--insn-width=9', dot_o]
   if target:
     cmd += ['--target', target]
@@ -65,8 +79,8 @@ def parse_object_file(dot_o, directive, target=None):
     m = re.match('''[0-9a-f]+ <_?(.*)>:''', line)
     if m:
       print
-      print '.globl _' + m.group(1)
-      print '_' + m.group(1) + ':'
+      print globl + ' _' + m.group(1)
+      print '_' + m.group(1) + label
       continue
 
     columns = line.split('\t')
@@ -84,10 +98,10 @@ def parse_object_file(dot_o, directive, target=None):
     for arg in args:
       assert 'rip' not in arg  # TODO: detect on aarch64 too
 
-    hexed = ','.join('0x'+x for x in code.split(' '))
+    hexed = ','.join(dehex(x) for x in code.split(' '))
 
     print '  ' + directive + '  ' + hexed + ' '*(48-len(hexed)) + \
-          '// ' + inst  + (' '*(14-len(inst)) + args if args else '')
+          comment + inst  + (' '*(14-len(inst)) + args if args else '')
 
 sys.stdout = open('src/jumper/SkJumper_generated.S', 'w')
 
@@ -99,7 +113,6 @@ print '''# Copyright 2017 Google Inc.
 # This file is generated semi-automatically with this command:
 #   $ src/jumper/build_stages.py
 '''
-
 print '.text'
 
 print '#if defined(__aarch64__)'
@@ -114,5 +127,20 @@ print '#elif defined(__x86_64__)'
 parse_object_file('hsw.o',   '.byte')
 parse_object_file('sse41.o', '.byte')
 parse_object_file('sse2.o',  '.byte')
-
 print '#endif'
+
+sys.stdout = open('src/jumper/SkJumper_generated_win.S', 'w')
+
+print '''; Copyright 2017 Google Inc.
+;
+; Use of this source code is governed by a BSD-style license that can be
+; found in the LICENSE file.
+
+; This file is generated semi-automatically with this command:
+;   $ src/jumper/build_stages.py
+'''
+print '_text SEGMENT'
+parse_object_file('win_hsw.o',   'DB')
+parse_object_file('win_sse41.o', 'DB')
+parse_object_file('win_sse2.o',  'DB')
+print 'END'
