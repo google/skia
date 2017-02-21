@@ -32,6 +32,8 @@ TEST_BUILDERS = {
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-ANGLE',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+      ('Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
+       '_AbandonGpuContext'),
       'Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan',
       'Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
@@ -183,4 +185,3 @@ def GenTests(api):
     api.step_data('push [START_DIR]/skia/resources/* '+
                   '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
   )
-
