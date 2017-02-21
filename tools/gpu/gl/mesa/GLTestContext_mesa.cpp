@@ -37,7 +37,7 @@ private:
     typedef intptr_t Context;
 
 public:
-    MesaGLContext();
+    MesaGLContext(MesaGLContext* shareContext);
     ~MesaGLContext() override;
 
 private:
@@ -53,15 +53,18 @@ private:
     GrGLubyte *fImage;
 };
 
-MesaGLContext::MesaGLContext() : fContext(static_cast<Context>(0)), fImage(nullptr) {
+MesaGLContext::MesaGLContext(MesaGLContext* shareContext)
+        : fContext(static_cast<Context>(0))
+        , fImage(nullptr) {
     GR_STATIC_ASSERT(sizeof(Context) == sizeof(OSMesaContext));
+    Context mesaShareContext = shareContext ? shareContext->fContext : nullptr;
 
     /* Create an RGBA-mode context */
 #if OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 305
     /* specify Z, stencil, accum sizes */
-    fContext = (Context)OSMesaCreateContextExt(OSMESA_BGRA, 0, 0, 0, nullptr);
+    fContext = (Context)OSMesaCreateContextExt(OSMESA_BGRA, 0, 0, 0, mesaShareContext);
 #else
-    fContext = (Context) OSMesaCreateContext(OSMESA_BGRA, nullptr);
+    fContext = (Context) OSMesaCreateContext(OSMESA_BGRA, mesaShareContext);
 #endif
     if (!fContext) {
         SkDebugf("OSMesaCreateContext failed!\n");
@@ -140,8 +143,9 @@ GrGLFuncPtr MesaGLContext::onPlatformGetProcAddress(const char *procName) const 
 
 
 namespace sk_gpu_test {
-GLTestContext *CreateMesaGLTestContext() {
-    MesaGLContext *ctx = new MesaGLContext;
+GLTestContext *CreateMesaGLTestContext(GLTestContext* shareContext) {
+    MesaGLContext* mesaShareContext = reinterpret_cast<MesaGLContext*>(shareContext);
+    MesaGLContext *ctx = new MesaGLContext(mesaShareContext);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;

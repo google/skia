@@ -11,7 +11,7 @@
 #include "gl/GLTestContext.h"
 
 namespace sk_gpu_test {
-GLTestContext* CreateNullGLTestContext(bool enableNVPR);
+GLTestContext* CreateNullGLTestContext(bool enableNVPR, GLTestContext* shareContext);
 }  // namespace sk_gpu_test
 
 #endif

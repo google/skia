@@ -76,7 +76,7 @@ void* get_angle_egl_display(void* nativeDisplay, ANGLEBackend type) {
 
 class ANGLEGLContext : public sk_gpu_test::GLTestContext {
 public:
-    ANGLEGLContext(ANGLEBackend, ANGLEContextVersion);
+    ANGLEGLContext(ANGLEBackend, ANGLEContextVersion, ANGLEGLContext* shareContext);
     ~ANGLEGLContext() override;
 
     GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
@@ -98,7 +98,8 @@ private:
     ANGLEContextVersion         fVersion;
 };
 
-ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version)
+ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
+                               ANGLEGLContext* shareContext)
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)
     , fSurface(EGL_NO_SURFACE)
@@ -134,7 +135,8 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version)
         EGL_CONTEXT_CLIENT_VERSION, versionNum,
         EGL_NONE
     };
-    fContext = eglCreateContext(fDisplay, surfaceConfig, nullptr, contextAttribs);
+    EGLContext eglShareContext = shareContext ? shareContext->fContext : nullptr;
+    fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext, contextAttribs);
 
 
     static const EGLint surfaceAttribs[] = {
@@ -287,8 +289,10 @@ const GrGLInterface* CreateANGLEGLInterface() {
     return GrGLAssembleGLESInterface(&gLibs, angle_get_gl_proc);
 }
 
-std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLEContextVersion version){
-    std::unique_ptr<GLTestContext> ctx(new ANGLEGLContext(type, version));
+std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLEContextVersion version,
+                                                    GLTestContext* shareContext){
+    ANGLEGLContext* angleShareContext = reinterpret_cast<ANGLEGLContext*>(shareContext);
+    std::unique_ptr<GLTestContext> ctx(new ANGLEGLContext(type, version, angleShareContext));
     if (!ctx->isValid()) {
         return nullptr;
     }

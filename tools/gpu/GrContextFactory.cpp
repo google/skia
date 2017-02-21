@@ -103,61 +103,90 @@ const GrContextFactory::ContextType GrContextFactory::kNativeGL_ContextType =
     GrContextFactory::kGLES_ContextType;
 #endif
 
-ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides overrides) {
+ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides overrides,
+                                             GrContext* shareContext, uint32_t shareIndex) {
+    // (shareIndex != 0) -> (shareContext != nullptr)
+    SkASSERT((shareIndex == 0) || (shareContext != nullptr));
+
     for (int i = 0; i < fContexts.count(); ++i) {
         Context& context = fContexts[i];
         if (context.fType == type &&
             context.fOverrides == overrides &&
+            context.fShareContext == shareContext &&
+            context.fShareIndex == shareIndex &&
             !context.fAbandoned) {
             context.fTestContext->makeCurrent();
             return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
         }
     }
+
+    // If we're trying to create a context in a share group, find the master context
+    Context* masterContext = nullptr;
+    if (shareContext) {
+        for (int i = 0; i < fContexts.count(); ++i) {
+            if (!fContexts[i].fAbandoned && fContexts[i].fGrContext == shareContext) {
+                masterContext = &fContexts[i];
+                break;
+            }
+        }
+
+        if (!masterContext || masterContext->fType != type) {
+            return ContextInfo();
+        }
+    }
+
     std::unique_ptr<TestContext> testCtx;
-    sk_sp<GrContext> grCtx;
     GrBackendContext backendContext = 0;
     sk_sp<const GrGLInterface> glInterface;
     GrBackend backend = ContextTypeBackend(type);
     switch (backend) {
         case kOpenGL_GrBackend: {
+            GLTestContext* glShareContext = masterContext
+                    ? static_cast<GLTestContext*>(masterContext->fTestContext) : nullptr;
             GLTestContext* glCtx;
             switch (type) {
                 case kGL_ContextType:
-                    glCtx = CreatePlatformGLTestContext(kGL_GrGLStandard);
+                    glCtx = CreatePlatformGLTestContext(kGL_GrGLStandard, glShareContext);
                     break;
                 case kGLES_ContextType:
-                    glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard);
+                    glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard, glShareContext);
                     break;
 #if SK_ANGLE
                 case kANGLE_D3D9_ES2_ContextType:
-                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2).release();
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2,
+                                                 glShareContext).release();
                     break;
                 case kANGLE_D3D11_ES2_ContextType:
-                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES2).release();
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES2,
+                                                 glShareContext).release();
                     break;
                 case kANGLE_D3D11_ES3_ContextType:
-                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES3).release();
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES3,
+                                                 glShareContext).release();
                     break;
                 case kANGLE_GL_ES2_ContextType:
-                    glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES2).release();
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES2,
+                                                 glShareContext).release();
                     break;
                 case kANGLE_GL_ES3_ContextType:
-                    glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES3).release();
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES3,
+                                                 glShareContext).release();
                     break;
 #endif
                 case kCommandBuffer_ContextType:
-                    glCtx = CommandBufferGLTestContext::Create();
+                    glCtx = CommandBufferGLTestContext::Create(glShareContext);
                     break;
 #if SK_MESA
                 case kMESA_ContextType:
-                    glCtx = CreateMesaGLTestContext();
+                    glCtx = CreateMesaGLTestContext(glShareContext);
                     break;
 #endif
                 case kNullGL_ContextType:
-                    glCtx = CreateNullGLTestContext(ContextOverrides::kRequireNVPRSupport & overrides);
+                    glCtx = CreateNullGLTestContext(
+                            ContextOverrides::kRequireNVPRSupport & overrides, glShareContext);
                     break;
                 case kDebugGL_ContextType:
-                    glCtx = CreateDebugGLTestContext();
+                    glCtx = CreateDebugGLTestContext(glShareContext);
                     break;
                 default:
                     return ContextInfo();
@@ -178,6 +207,10 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
         }
 #ifdef SK_VULKAN
         case kVulkan_GrBackend:
+            if (masterContext) {
+                // Shared contexts not supported yet
+                return ContextInfo();
+            }
             SkASSERT(kVulkan_ContextType == type);
             if (ContextOverrides::kRequireNVPRSupport & overrides) {
                 return ContextInfo();
@@ -211,7 +244,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     if (ContextOverrides::kAllowSRGBWithoutDecodeControl & overrides) {
         grOptions.fRequireDecodeDisableForSRGB = false;
     }
-    grCtx.reset(GrContext::Create(backend, backendContext, grOptions));
+    sk_sp<GrContext> grCtx(GrContext::Create(backend, backendContext, grOptions));
     if (!grCtx.get()) {
         return ContextInfo();
     }
@@ -238,6 +271,9 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     context.fType = type;
     context.fOverrides = overrides;
     context.fAbandoned = false;
+    context.fShareContext = shareContext;
+    context.fShareIndex = shareIndex;
     return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
 }
+
 }  // namespace sk_gpu_test

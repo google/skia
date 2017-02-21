@@ -16,7 +16,7 @@ namespace {
 
 class IOSGLTestContext : public sk_gpu_test::GLTestContext {
 public:
-    IOSGLTestContext();
+    IOSGLTestContext(IOSGLTestContext* shareContext);
     ~IOSGLTestContext() override;
 
 private:
@@ -30,11 +30,17 @@ private:
     void* fGLLibrary;
 };
 
-IOSGLTestContext::IOSGLTestContext()
+IOSGLTestContext::IOSGLTestContext(IOSGLTestContext* shareContext)
     : fEAGLContext(NULL)
     , fGLLibrary(RTLD_DEFAULT) {
 
-    fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    if (shareContext) {
+        EAGLContext* iosShareContext = (EAGLContext*)(shareContext->fEAGLContext);
+        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2
+                                            sharegroup: [iosShareContext sharegroup]];
+    } else {
+        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    }
     [EAGLContext setCurrentContext:EAGLCTX];
 
     sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
@@ -92,14 +98,11 @@ GrGLFuncPtr IOSGLTestContext::onPlatformGetProcAddress(const char* procName) con
 namespace sk_gpu_test {
 GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
                                            GLTestContext *shareContext) {
-    SkASSERT(!shareContext);
-    if (shareContext) {
-        return NULL;
-    }
     if (kGL_GrGLStandard == forcedGpuAPI) {
         return NULL;
     }
-    IOSGLTestContext *ctx = new IOSGLTestContext;
+    IOSGLTestContext* iosShareContext = reinterpret_cast<IOSGLTestContext*>(shareContext);
+    IOSGLTestContext *ctx = new IOSGLTestContext(iosShareContext);
     if (!ctx->isValid()) {
         delete ctx;
         return NULL;

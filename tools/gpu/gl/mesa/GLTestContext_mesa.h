@@ -11,7 +11,7 @@
 #include "gl/GLTestContext.h"
 
 namespace sk_gpu_test {
-GLTestContext* CreateMesaGLTestContext();
+GLTestContext* CreateMesaGLTestContext(GLTestContext* shareContext);
 }  // namespace sk_gpu_test
 
 #endif
