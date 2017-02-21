@@ -4,3 +4,7 @@
 
 DEPS = [
 ]
+
+
+# TODO(borenet): Add coverage
+DISABLE_STRICT_COVERAGE = True
