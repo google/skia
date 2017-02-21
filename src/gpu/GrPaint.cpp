@@ -6,11 +6,15 @@
  */
 
 #include "GrPaint.h"
-
 #include "GrProcOptInfo.h"
+#include "GrXferProcessor.h"
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
+
+void GrPaint::setPorterDuffXPFactory(SkBlendMode mode) {
+    fXPFactory = GrPorterDuffXPFactory::Get(mode);
+}
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
     fXPFactory = GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage);
@@ -73,4 +77,23 @@ void GrPaint::addCoverageTextureProcessor(GrContext* ctx, sk_sp<GrTextureProxy> 
                                           const GrSamplerParams& params) {
     this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(ctx, std::move(proxy),
                                                                    nullptr, matrix, params));
+}
+
+bool GrPaint::isConstantBlendedColor(GrColor* constantColor) const {
+    // This used to do a more sophisticated analysis but now it just explicitly looks for common
+    // cases.
+    static const GrXPFactory* kSrc = GrPorterDuffXPFactory::Get(SkBlendMode::kSrc);
+    static const GrXPFactory* kClear = GrPorterDuffXPFactory::Get(SkBlendMode::kClear);
+    if (kClear == fXPFactory) {
+        *constantColor = GrColor_TRANSPARENT_BLACK;
+        return true;
+    }
+    if (this->numColorFragmentProcessors()) {
+        return false;
+    }
+    if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {
+        *constantColor = fColor.toGrColor();
+        return true;
+    }
+    return false;
 }
