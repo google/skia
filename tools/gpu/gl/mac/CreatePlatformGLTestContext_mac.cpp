@@ -16,7 +16,7 @@
 namespace {
 class MacGLTestContext : public sk_gpu_test::GLTestContext {
 public:
-    MacGLTestContext();
+    MacGLTestContext(MacGLTestContext* shareContext);
     ~MacGLTestContext() override;
 
 private:
@@ -30,7 +30,7 @@ private:
     void* fGLLibrary;
 };
 
-MacGLTestContext::MacGLTestContext()
+MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
     : fContext(nullptr)
     , fGLLibrary(RTLD_DEFAULT) {
     CGLPixelFormatAttribute attributes[] = {
@@ -50,7 +50,7 @@ MacGLTestContext::MacGLTestContext()
         return;
     }
 
-    CGLCreateContext(pixFormat, nullptr, &fContext);
+    CGLCreateContext(pixFormat, shareContext ? shareContext->fContext : nullptr, &fContext);
     CGLReleasePixelFormat(pixFormat);
 
     if (nullptr == fContext) {
@@ -111,15 +111,11 @@ GrGLFuncPtr MacGLTestContext::onPlatformGetProcAddress(const char* procName) con
 namespace sk_gpu_test {
 GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
                                            GLTestContext* shareContext) {
-    SkASSERT(!shareContext);
-    if (shareContext) {
-        return nullptr;
-    }
-
     if (kGLES_GrGLStandard == forcedGpuAPI) {
         return nullptr;
     }
-    MacGLTestContext* ctx = new MacGLTestContext;
+    MacGLTestContext* macShareContext = reinterpret_cast<MacGLTestContext*>(shareContext);
+    MacGLTestContext* ctx = new MacGLTestContext(macShareContext);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;
