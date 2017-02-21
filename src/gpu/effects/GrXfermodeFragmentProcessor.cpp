@@ -285,15 +285,21 @@ private:
                 break;
 
             // Produces opaque if both src and dst are opaque. These also will modulate the child's
-            // output by either the input color or alpha.
+            // output by either the input color or alpha. However, if the child is not compatible
+            // with the coverage as alpha then it may produce a color that is not valid premul.
             case SkBlendMode::kSrcIn:
             case SkBlendMode::kDstIn:
             case SkBlendMode::kModulate:
-                if (fp->preservesOpaqueInput()) {
-                    flags = kPreservesOpaqueInput_OptimizationFlag |
-                            kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+                if (fp->compatibleWithCoverageAsAlpha()) {
+                    if (fp->preservesOpaqueInput()) {
+                        flags = kPreservesOpaqueInput_OptimizationFlag |
+                                kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+                    } else {
+                        flags = kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+                    }
                 } else {
-                    flags = kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+                    flags = fp->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
+                                                       : kNone_OptimizationFlags;
                 }
                 break;
 
