@@ -35,6 +35,7 @@ declare_args() {
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+  is_fuzzing = false
 }
 declare_args() {
   skia_use_dng_sdk =
