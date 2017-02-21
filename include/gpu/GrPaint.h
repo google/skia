@@ -13,14 +13,13 @@
 #include "GrColor.h"
 #include "GrColorSpaceXform.h"
 #include "GrFragmentProcessor.h"
-#include "GrXferProcessor.h"
 #include "SkBlendMode.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkTLazy.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 
 class GrTextureProxy;
+class GrXPFactory;
 
 /**
  * The paint describes how color and coverage are computed at each pixel by GrContext draw
@@ -86,7 +85,7 @@ public:
 
     void setXPFactory(const GrXPFactory* xpFactory) { fXPFactory = xpFactory; }
 
-    void setPorterDuffXPFactory(SkBlendMode mode) { fXPFactory = GrPorterDuffXPFactory::Get(mode); }
+    void setPorterDuffXPFactory(SkBlendMode mode);
 
     void setCoverageSetOpXPFactory(SkRegion::Op, bool invertCoverage = false);
 
@@ -148,24 +147,7 @@ public:
      * coverage and color, so the actual values written to pixels with partial coverage may still
      * not seem constant, even if this function returns true.
      */
-    bool isConstantBlendedColor(GrColor* constantColor) const {
-        // This used to do a more sophisticated analysis but now it just explicitly looks for common
-        // cases.
-        static const GrXPFactory* kSrc = GrPorterDuffXPFactory::Get(SkBlendMode::kSrc);
-        static const GrXPFactory* kClear = GrPorterDuffXPFactory::Get(SkBlendMode::kClear);
-        if (kClear == fXPFactory) {
-            *constantColor = GrColor_TRANSPARENT_BLACK;
-            return true;
-        }
-        if (this->numColorFragmentProcessors()) {
-            return false;
-        }
-        if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {
-            *constantColor = fColor.toGrColor();
-            return true;
-        }
-        return false;
-    }
+    bool isConstantBlendedColor(GrColor* constantColor) const;
 
 private:
     template <bool> class MoveOrImpl;
