@@ -21,16 +21,25 @@ sse2 = '-mno-red-zone -msse2 -mno-sse3 -mno-ssse3 -mno-sse4.1'.split()
 subprocess.check_call(['clang++'] + cflags + sse2 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse2.o'])
+subprocess.check_call(['clang++'] + cflags + sse2 + ['-DWIN'] +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'win_sse2.o'])
 
 sse41 = '-mno-red-zone -msse4.1'.split()
 subprocess.check_call(['clang++'] + cflags + sse41 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse41.o'])
+subprocess.check_call(['clang++'] + cflags + sse41 + ['-DWIN'] +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'win_sse41.o'])
 
 hsw = '-mno-red-zone -mavx2 -mfma -mf16c'.split()
 subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'hsw.o'])
+subprocess.check_call(['clang++'] + cflags + hsw + ['-DWIN'] +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'win_hsw.o'])
 
 aarch64 = [
     '--target=aarch64-linux-android',
