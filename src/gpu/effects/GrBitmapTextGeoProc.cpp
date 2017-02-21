@@ -6,6 +6,8 @@
  */
 
 #include "GrBitmapTextGeoProc.h"
+
+#include "GrContext.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -140,6 +142,29 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     this->addTextureSampler(&fTextureSampler);
 }
 
+GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrContext* context, GrColor color,
+                                         sk_sp<GrTextureProxy> proxy,
+                                         const GrSamplerParams& params, GrMaskFormat format,
+                                         const SkMatrix& localMatrix, bool usesLocalCoords)
+    : fColor(color)
+    , fLocalMatrix(localMatrix)
+    , fUsesLocalCoords(usesLocalCoords)
+    , fTextureSampler(context->textureProvider(), std::move(proxy), params)
+    , fInColor(nullptr)
+    , fMaskFormat(format) {
+    this->initClassID<GrBitmapTextGeoProc>();
+    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
+
+    bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
+                          kA565_GrMaskFormat == fMaskFormat;
+    if (hasVertexColor) {
+        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+    }
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords",  kVec2us_GrVertexAttribType,
+                                              kHigh_GrSLPrecision);
+    this->addTextureSampler(&fTextureSampler);
+}
+
 void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GrGLBitmapTextGeoProc::GenKey(*this, caps, b);
@@ -157,6 +182,8 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
+    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
         SkShader::kRepeat_TileMode,
@@ -182,8 +209,8 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
             break;
     }
 
-    return GrBitmapTextGeoProc::Make(GrRandomColor(d->fRandom), d->fTextures[texIdx], params,
-                                     format, GrTest::TestMatrix(d->fRandom),
+    return GrBitmapTextGeoProc::Make(d->context(), GrRandomColor(d->fRandom), std::move(proxy),
+                                     params, format, GrTest::TestMatrix(d->fRandom),
                                      d->fRandom->nextBool());
 }
 #endif

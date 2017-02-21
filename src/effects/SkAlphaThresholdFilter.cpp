@@ -170,15 +170,11 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
         sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(input->getColorSpace(),
                                                                            outProps.colorSpace());
 
-        GrTexture* maskTex = maskProxy->instantiate(context->textureProvider());
-        if (!maskTex) {
-            return nullptr;
-        }
         sk_sp<GrFragmentProcessor> fp(GrAlphaThresholdFragmentProcessor::Make(
                                             context,
                                             std::move(inputProxy),
                                             std::move(colorSpaceXform),
-                                            maskTex,
+                                            std::move(maskProxy),
                                             fInnerThreshold,
                                             fOuterThreshold,
                                             bounds));

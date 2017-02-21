@@ -25,6 +25,7 @@
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "effects/Gr1DKernelEffect.h"
+#include "effects/GrProxyMove.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -155,7 +156,20 @@ public:
         return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(tex, dir, radius, type, bounds));
     }
 
-    virtual ~GrMorphologyEffect();
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context, sk_sp<GrTextureProxy> proxy,
+                                           Direction dir, int radius, MorphologyType type) {
+        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(context, std::move(proxy),
+                                                                 dir, radius, type));
+    }
+
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context, sk_sp<GrTextureProxy> proxy,
+                                           Direction dir, int radius,
+                                           MorphologyType type, const float bounds[2]) {
+        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(context, std::move(proxy),
+                                                                 dir, radius, type, bounds));
+    }
+
+    ~GrMorphologyEffect() override;
 
     MorphologyType type() const { return fType; }
     bool useRange() const { return fUseRange; }
@@ -178,6 +192,10 @@ private:
 
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType, const float bounds[2]);
+
+    GrMorphologyEffect(GrContext*, sk_sp<GrTextureProxy>, Direction, int radius, MorphologyType);
+    GrMorphologyEffect(GrContext*, sk_sp<GrTextureProxy>,
+                       Direction, int radius, MorphologyType, const float bounds[2]);
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -341,6 +359,37 @@ GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
     fRange[1] = range[1];
 }
 
+GrMorphologyEffect::GrMorphologyEffect(GrContext* context,
+                                       sk_sp<GrTextureProxy> proxy,
+                                       Direction direction,
+                                       int radius,
+                                       MorphologyType type)
+        : INHERITED{context,
+                    ModulationFlags(proxy->config()),
+                    GR_PROXY_MOVE(proxy),
+                    direction, radius}
+        , fType(type)
+        , fUseRange(false) {
+    this->initClassID<GrMorphologyEffect>();
+}
+
+GrMorphologyEffect::GrMorphologyEffect(GrContext* context,
+                                       sk_sp<GrTextureProxy> proxy,
+                                       Direction direction,
+                                       int radius,
+                                       MorphologyType type,
+                                       const float range[2])
+        : INHERITED{context,
+                    ModulationFlags(proxy->config()),
+                    GR_PROXY_MOVE(proxy),
+                    direction, radius}
+        , fType(type)
+        , fUseRange(true) {
+    this->initClassID<GrMorphologyEffect>();
+    fRange[0] = range[0];
+    fRange[1] = range[1];
+}
+
 GrMorphologyEffect::~GrMorphologyEffect() {
 }
 
@@ -366,15 +415,17 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
 
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                          GrProcessorUnitTest::kAlphaTextureIdx;
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
+                                        : GrProcessorUnitTest::kAlphaTextureIdx;
+    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+
     Direction dir = d->fRandom->nextBool() ? kX_Direction : kY_Direction;
     static const int kMaxRadius = 10;
     int radius = d->fRandom->nextRangeU(1, kMaxRadius);
-    MorphologyType type = d->fRandom->nextBool() ? GrMorphologyEffect::kErode_MorphologyType :
-                                               GrMorphologyEffect::kDilate_MorphologyType;
+    MorphologyType type = d->fRandom->nextBool() ? GrMorphologyEffect::kErode_MorphologyType
+                                                 : GrMorphologyEffect::kDilate_MorphologyType;
 
-    return GrMorphologyEffect::Make(d->fTextures[texIdx], dir, radius, type);
+    return GrMorphologyEffect::Make(d->context(), std::move(proxy), dir, radius, type);
 }
 #endif
 

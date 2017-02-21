@@ -326,7 +326,7 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
     fViewMatrixStorage = TestMatrix(d->fRandom);
     fColorSpaceStorage = TestColorSpace(d->fRandom);
 
-    fArgs.fContext = d->fContext;
+    fArgs.fContext = d->context();
     fArgs.fViewMatrix = &fViewMatrixStorage;
     fArgs.fLocalMatrix = nullptr;
     fArgs.fFilterQuality = kNone_SkFilterQuality;
