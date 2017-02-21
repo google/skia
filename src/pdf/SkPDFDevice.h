@@ -11,8 +11,8 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
+#include "SkClipStackDevice.h"
 #include "SkData.h"
-#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
@@ -37,7 +37,7 @@ class SkRRect;
 
     The drawing context for the PDF backend.
 */
-class SkPDFDevice final : public SkBaseDevice {
+class SkPDFDevice final : public SkClipStackDevice {
 public:
     /** Create a PDF drawing context.  SkPDFDevice applies a
      *  scale-and-translate transform to move the origin from the
@@ -292,7 +292,7 @@ private:
     void handlePointAnnotation(const SkPoint&, const SkMatrix&, const char key[], SkData* value);
     void handlePathAnnotation(const SkPath&, const SkDraw& d, const char key[], SkData* value);
 
-    typedef SkBaseDevice INHERITED;
+    typedef SkClipStackDevice INHERITED;
 
     // TODO(edisonn): Only SkDocument_PDF and SkPDFImageShader should be able to create
     // an SkPDFDevice
