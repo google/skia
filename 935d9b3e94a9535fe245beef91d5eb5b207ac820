@@ -22,6 +22,30 @@
       "revId": "935d9b3e94a9535fe245beef91d5eb5b207ac820",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1baf8c1_d67109cc",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1880,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-02-21T16:18:29Z",
+      "side": 1,
+      "message": "used the correct round() to avoid intermediate iBounds as suggested",
+      "parentUuid": "92e58115_86759464",
+      "range": {
+        "startLine": 1880,
+        "startChar": 25,
+        "endLine": 1880,
+        "endChar": 32
+      },
+      "revId": "935d9b3e94a9535fe245beef91d5eb5b207ac820",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
