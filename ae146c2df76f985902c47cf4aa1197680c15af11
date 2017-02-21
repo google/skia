@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71e6c9c7_c55be3a8",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-21T13:02:55Z",
+      "side": 1,
+      "message": "Oh, was not aware of this... it\u0027s perfect.",
+      "range": {
+        "startLine": 32,
+        "startChar": 27,
+        "endLine": 32,
+        "endChar": 37
+      },
+      "revId": "ae146c2df76f985902c47cf4aa1197680c15af11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce435c32_29845419",
+        "filename": "infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-21T13:02:55Z",
+      "side": 1,
+      "message": "You\u0027ve got everything right here, but I thought you might like to know why.\n\nThe first address is the offset into the library file (e.g. libvulkan_intel.so) on disk, and the second is the address after it\u0027s been dynamically mapped into the DM process\u0027 memory.  If you were using a debugger, you\u0027d be interested in the second address.\n\nRelative offsets can help refine the line number within a function: abort+0x16a means, in the abort() function,  0x16a\u003d362 bytes in.  We could pin those down further if we wanted to, doing something like this: http://stackoverflow.com/a/23910453",
+      "range": {
+        "startLine": 45,
+        "startChar": 56,
+        "endLine": 47,
+        "endChar": 22
+      },
+      "revId": "ae146c2df76f985902c47cf4aa1197680c15af11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
