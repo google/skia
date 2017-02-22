@@ -290,7 +290,7 @@ private:
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = nullptr);
     void handlePointAnnotation(const SkPoint&, const SkMatrix&, const char key[], SkData* value);
-    void handlePathAnnotation(const SkPath&, const SkDraw& d, const char key[], SkData* value);
+    void handleRectAnnotation(const SkRect&, const SkDraw& d, const char key[], SkData* value);
 
     typedef SkClipStackDevice INHERITED;
 
