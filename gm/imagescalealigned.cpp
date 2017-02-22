@@ -85,8 +85,10 @@ private:
 
         paint.setColor(SK_ColorBLACK);
         surface->getCanvas()->drawLine(start.x(), start.y(), end.x(), end.y(), paint);
-        surface->getCanvas()->drawPoint(start.x(), start.y(), color);
-        surface->getCanvas()->drawPoint(end.x(), end.y(), color);
+
+        paint.setColor(color);
+        SkPoint pts[] = { start, end };
+        surface->getCanvas()->drawPoints(SkCanvas::kPoints_PointMode, 2, pts, paint);
 
         return surface->makeImageSnapshot();
     }

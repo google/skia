@@ -118,8 +118,7 @@ protected:
         // Draw background rect
         SkPaint backgroundPaint;
         backgroundPaint.setColor(backgroundColor);
-        canvas->drawRectCoords(0, 0, SkIntToScalar(kColWidth), SkIntToScalar(kHeight),
-                               backgroundPaint);
+        canvas->drawRect(SkRect::MakeIWH(kColWidth, kHeight), backgroundPaint);
         SkScalar y = fTextHeight;
         for (size_t m = 0; m < SK_ARRAY_COUNT(gModes); m++) {
             SkPaint paint;

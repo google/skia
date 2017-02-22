@@ -23,7 +23,8 @@ static void test_hittest(SkCanvas* canvas, const SkPath& path) {
     for (SkScalar y = r.fTop + SK_ScalarHalf - MARGIN; y < r.fBottom + MARGIN; y += SK_Scalar1) {
         for (SkScalar x = r.fLeft + SK_ScalarHalf - MARGIN; x < r.fRight + MARGIN; x += SK_Scalar1) {
             if (path.contains(x, y)) {
-                canvas->drawPoint(x, y, paint);
+                const SkPoint pt = { x, y };
+                canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
             }
         }
     }

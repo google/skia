@@ -22,11 +22,20 @@ static sk_sp<SkImage> make_image(GrContext* context, int size, GrSurfaceOrigin o
         SkCanvas* canvas = surf->getCanvas();
 
         canvas->clear(SK_ColorRED);
-        canvas->drawPoint(1.5f, 1.5f, SK_ColorGREEN);
-        canvas->drawPoint(2.5f, 1.5f, SK_ColorBLUE);
-        canvas->drawPoint(1.5f, 2.5f, SK_ColorCYAN);
-        canvas->drawPoint(2.5f, 2.5f, SK_ColorGRAY);
-
+        const struct {
+            SkPoint fPt;
+            SkColor fColor;
+        } rec[] = {
+            { { 1.5f, 1.5f }, SK_ColorGREEN },
+            { { 2.5f, 1.5f }, SK_ColorBLUE },
+            { { 1.5f, 2.5f }, SK_ColorCYAN },
+            { { 2.5f, 2.5f }, SK_ColorGRAY },
+        };
+        SkPaint paint;
+        for (const auto& r : rec) {
+            paint.setColor(r.fColor);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, &r.fPt, paint);
+        }
         return surf->makeImageSnapshot();
     } else {
         SkBitmap bm;

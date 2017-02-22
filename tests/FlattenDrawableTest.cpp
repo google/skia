@@ -250,8 +250,10 @@ DEF_TEST(FlattenRecordedDrawable, r) {
     // Record a set of canvas draw commands
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(1000.0f, 1000.0f);
-    canvas->drawPoint(42.0f, 17.0f, SK_ColorGREEN);
+    SkPoint pt = { 42, 17 };
     SkPaint paint;
+    paint.setColor(SK_ColorGREEN);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     paint.setColor(SK_ColorRED);
     canvas->drawPaint(paint);
     SkPaint textPaint;

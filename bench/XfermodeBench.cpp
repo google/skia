@@ -26,7 +26,7 @@ protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         const char* text = "Hamburgefons";
         size_t len = strlen(text);
-        SkISize size = canvas->getDeviceSize();
+        SkISize size = canvas->getBaseLayerSize();
         SkRandom random;
         for (int i = 0; i < loops; ++i) {
             SkPaint paint;

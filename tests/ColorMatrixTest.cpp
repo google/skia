@@ -39,6 +39,7 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
 
     SkCanvas canvas(bitmap);
     SkPaint paint;
+    const SkPoint pt = { 0, 0 };
 
     SkScalar blueToCyan[20] = {
             1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -48,20 +49,20 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
     paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(blueToCyan));
 
     paint.setColor(SK_ColorBLUE);
-    canvas.drawPoint(0, 0, paint);
+    canvas.drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     assert_color(reporter, SK_ColorCYAN, bitmap.getColor(0, 0));
 
     paint.setColor(SK_ColorGREEN);
-    canvas.drawPoint(0, 0, paint);
+    canvas.drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     assert_color(reporter, SK_ColorGREEN, bitmap.getColor(0, 0));
 
     paint.setColor(SK_ColorRED);
-    canvas.drawPoint(0, 0, paint);
+    canvas.drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     assert_color(reporter, SK_ColorRED, bitmap.getColor(0, 0));
 
     // color components are clipped, not scaled
     paint.setColor(SK_ColorMAGENTA);
-    canvas.drawPoint(0, 0, paint);
+    canvas.drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     assert_color(reporter, SK_ColorWHITE, bitmap.getColor(0, 0));
 
     SkScalar transparentRedAddBlue[20] = {
@@ -74,11 +75,11 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
     bitmap.eraseColor(SK_ColorTRANSPARENT);
 
     paint.setColor(SK_ColorRED);
-    canvas.drawPoint(0, 0, paint);
+    canvas.drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     assert_color(reporter, SkColorSetARGB(128, 255, 0, 64), bitmap.getColor(0, 0), 2);
 
     paint.setColor(SK_ColorCYAN);
-    canvas.drawPoint(0, 0, paint);
+    canvas.drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     // blue gets clipped
     assert_color(reporter, SK_ColorCYAN, bitmap.getColor(0, 0));
 
@@ -87,12 +88,12 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
     transparentRedAddBlue[6] = 0.0f;
 
     // check that changing the array has no effect
-    canvas.drawPoint(0, 0, paint);
+    canvas.drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     assert_color(reporter, SK_ColorCYAN, bitmap.getColor(0, 0));
 
     // create a new filter with the changed matrix
     paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(transparentRedAddBlue));
-    canvas.drawPoint(0, 0, paint);
+    canvas.drawPoints(SkCanvas::kPoints_PointMode, 1, &pt, paint);
     assert_color(reporter, SK_ColorBLUE, bitmap.getColor(0, 0));
 }
 

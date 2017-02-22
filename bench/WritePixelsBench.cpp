@@ -46,7 +46,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkISize size = canvas->getDeviceSize();
+        SkISize size = canvas->getBaseLayerSize();
 
         canvas->clear(0xFFFF0000);
 

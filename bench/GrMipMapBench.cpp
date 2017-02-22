@@ -47,10 +47,10 @@ protected:
 
         SkPaint paint;
         paint.setFilterQuality(kMedium_SkFilterQuality);
-
+        paint.setColor(SK_ColorWHITE);
         for (int i = 0; i < loops; i++) {
             // Touch surface so mips are dirtied
-            fSurface->getCanvas()->drawPoint(0, 0, SK_ColorWHITE);
+            fSurface->getCanvas()->drawPoint(0, 0, paint);
 
             // Draw reduced version of surface to original canvas, to trigger mip generation
             canvas->save();
