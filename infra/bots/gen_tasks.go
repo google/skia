@@ -409,9 +409,10 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		IoTimeout: 40 * time.Minute,
-		Isolate:   "test_skia.isolate",
-		Priority:  0.8,
+		IoTimeout:   40 * time.Minute,
+		Isolate:     "test_skia.isolate",
+		MaxAttempts: 1,
+		Priority:    0.8,
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
@@ -480,9 +481,10 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		IoTimeout: 40 * time.Minute,
-		Isolate:   isolate,
-		Priority:  0.8,
+		IoTimeout:   40 * time.Minute,
+		Isolate:     isolate,
+		MaxAttempts: 1,
+		Priority:    0.8,
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
