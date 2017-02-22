@@ -2226,8 +2226,8 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo) {
     }
 
     if (fHWBlendState.fEquation != equation) {
-        GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
-        fHWBlendState.fEquation = equation;
+  /*      GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
+        fHWBlendState.fEquation = equation; */
     }
 
     if (GrBlendEquationIsAdvanced(equation)) {
