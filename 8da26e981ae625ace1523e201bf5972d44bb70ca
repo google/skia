@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1606e71a_9967dbce",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-22T18:48:33Z",
+      "side": 1,
+      "message": "My research online suggests that Sync + Flush is the right approach. (The previous Flutter code was calling glFlush as well).",
+      "revId": "8da26e981ae625ace1523e201bf5972d44bb70ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37f281e9_0a65a756",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-22T18:48:33Z",
+      "side": 1,
+      "message": "I don\u0027t love this. There ought to be something symmetric to detachBackendTexture (where the wait happens), but that means not using MakeFromAdoptedTexture here. Worth it?",
+      "revId": "8da26e981ae625ace1523e201bf5972d44bb70ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
