@@ -33,7 +33,7 @@ public:
 
     void    drawPaint(const SkPaint&) const;
     void    drawPoints(SkCanvas::PointMode, size_t count, const SkPoint[],
-                       const SkPaint&, bool forceUseDevice = false) const;
+                       const SkPaint&, SkBaseDevice*) const;
     void    drawRect(const SkRect& prePaintRect, const SkPaint&, const SkMatrix* paintMatrix,
                      const SkRect* postPaintRect) const;
     void    drawRect(const SkRect& rect, const SkPaint& paint) const {
@@ -63,9 +63,9 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkPaint&) const;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
-    void    drawText(const char text[], size_t byteLength, SkScalar x,
+    void    drawText(SkBaseDevice*, const char text[], size_t byteLength, SkScalar x,
                      SkScalar y, const SkPaint& paint) const;
-    void    drawPosText(const char text[], size_t byteLength,
+    void    drawPosText(SkBaseDevice*, const char text[], size_t byteLength,
                         const SkScalar pos[], int scalarsPerPosition,
                         const SkPoint& offset, const SkPaint& paint) const;
     void    drawVertices(SkCanvas::VertexMode mode, int count,
@@ -114,9 +114,9 @@ public:
                                     SkPoint* strokeSize);
 
     static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&);
-    void        drawText_asPaths(const char text[], size_t byteLength,
+    void        drawText_asPaths(SkBaseDevice*, const char text[], size_t byteLength,
                                  SkScalar x, SkScalar y, const SkPaint&) const;
-    void        drawPosText_asPaths(const char text[], size_t byteLength,
+    void        drawPosText_asPaths(SkBaseDevice*, const char text[], size_t byteLength,
                                     const SkScalar pos[], int scalarsPerPosition,
                                     const SkPoint& offset, const SkPaint&) const;
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
@@ -143,15 +143,13 @@ private:
     computeConservativeLocalClipBounds(SkRect* bounds) const;
 
     /** Returns the current setting for using fake gamma and contrast. */
-    uint32_t SK_WARN_UNUSED_RESULT scalerContextFlags() const;
+    static uint32_t SK_WARN_UNUSED_RESULT ScalerContextFlags(SkBaseDevice*);
 
 public:
     SkPixmap        fDst;
     const SkMatrix* fMatrix;        // required
     const SkRasterClip* fRC;        // required
-
     const SkClipStack* fClipStack;  // optional, may be null
-    SkBaseDevice*   fDevice;        // optional, may be null
 
 #ifdef SK_DEBUG
     void validate() const;
