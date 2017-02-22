@@ -169,13 +169,6 @@ public:
      */
     static ImageGeneratorFromEncodedDataFactory
                     SetImageGeneratorFromEncodedDataFactory(ImageGeneratorFromEncodedDataFactory);
-
-#ifdef SK_SUPPORT_BARE_PTR_IMAGEGENERATOR
-    typedef SkImageGenerator* (*ImageGeneratorFromEncodedFactory)(SkData*);
-    static ImageGeneratorFromEncodedFactory
-                            SetImageGeneratorFromEncodedFactory(ImageGeneratorFromEncodedFactory);
-#endif
-
 };
 
 class SkAutoGraphics {

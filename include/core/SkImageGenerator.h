@@ -160,13 +160,6 @@ public:
 
     bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator);
 
-#ifdef SK_SUPPORT_BARE_PTR_IMAGEGENERATOR
-    static SkImageGenerator* NewFromPicture(const SkISize& size, const SkPicture* picture,
-                                            const SkMatrix* matrix, const SkPaint* paint,
-                                            SkImage::BitDepth depth, sk_sp<SkColorSpace> cs);
-    static SkImageGenerator* NewFromEncoded(SkData* data);
-#endif
-
 protected:
     enum {
         kNeedNewImageUniqueID = 0
