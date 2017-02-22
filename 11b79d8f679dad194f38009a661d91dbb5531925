@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42d59889_c58bfbee",
+        "filename": "tools/viewer/sk_app/Window.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-22T19:58:29Z",
+      "side": 1,
+      "message": "This \"if\" is a total hack. When I swap backends it makes a call to updateTitle while the window context is still null...",
+      "range": {
+        "startLine": 116,
+        "startChar": 8,
+        "endLine": 116,
+        "endChar": 14
+      },
+      "revId": "11b79d8f679dad194f38009a661d91dbb5531925",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
