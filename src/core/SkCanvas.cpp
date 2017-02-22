@@ -380,12 +380,13 @@ public:
         return false;
     }
 
-    SkBaseDevice* getDevice() const { return fDevice; }
     const SkRasterClip& getClip() const { return *fRC; }
     int getX() const { return fDevice->getOrigin().x(); }
     int getY() const { return fDevice->getOrigin().y(); }
     const SkMatrix& getMatrix() const { return *fMatrix; }
     const SkPaint* getPaint() const { return fPaint; }
+
+    SkBaseDevice*   fDevice;
 
 private:
     const DeviceCM* fCurrLayer;
@@ -1145,7 +1146,6 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     draw.fMatrix = &SkMatrix::I();
     draw.fRC = &rc;
     draw.fClipStack = clipStack;
-    draw.fDevice = dst;
 
     SkPaint p;
     p.setImageFilter(filter->makeWithLocalMatrix(ctm));
@@ -3318,7 +3318,7 @@ void SkCanvas::LayerIter::next() {
 }
 
 SkBaseDevice* SkCanvas::LayerIter::device() const {
-    return fImpl->getDevice();
+    return fImpl->fDevice;
 }
 
 const SkMatrix& SkCanvas::LayerIter::matrix() const {

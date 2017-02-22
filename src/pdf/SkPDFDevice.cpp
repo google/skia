@@ -568,9 +568,7 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
         if (d.fRC->isEmpty()) {
             return;
         }
-        SkDraw pointDraw(d);
-        pointDraw.fDevice = this;
-        pointDraw.drawPoints(mode, count, points, passedPaint, true);
+        d.drawPoints(mode, count, points, passedPaint, this);
         return;
     }
 
