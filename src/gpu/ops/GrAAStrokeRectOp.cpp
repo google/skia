@@ -166,9 +166,9 @@ public:
 private:
     AAStrokeRectOp() : INHERITED(ClassID()) {}
 
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setToConstant(fRects[0].fColor);
-        input->pipelineCoverageInput()->setToUnknown();
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fRects[0].fColor);
+        input->coverageInput()->setToUnknown();
     }
     void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
     void onPrepareDraws(Target*) const override;

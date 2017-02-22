@@ -11,13 +11,13 @@
 #include "GrBlend.h"
 #include "GrColor.h"
 #include "GrProcessor.h"
+#include "GrProcessorSet.h"
 #include "GrTexture.h"
 #include "GrTypes.h"
 
 class GrShaderCaps;
 class GrGLSLXferProcessor;
 class GrProcOptInfo;
-struct GrPipelineAnalysis;
 
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
@@ -49,6 +49,8 @@ GR_STATIC_ASSERT(SkToBool(kNone_GrXferBarrierType) == false);
  */
 class GrXferProcessor : public GrProcessor {
 public:
+    using FragmentProcessorAnalysis = GrProcessorSet::FragmentProcessorAnalysis;
+
     /**
      * A texture that contains the dst pixel values and an integer coord offset from device space
      * to the space of the texture. Depending on GPU capabilities a DstTexture may be used by a
@@ -131,11 +133,11 @@ public:
      * the draw with this xfer processor. If this function is called, the xfer processor may change
      * its state to reflected the given blend optimizations. If the XP needs to see a specific input
      * color to blend correctly, it will set the OverrideColor flag and the output parameter
-     * overrideColor will be the required value that should be passed into the XP. 
+     * overrideColor will be the required value that should be passed into the XP.
      * A caller who calls this function on a XP is required to honor the returned OptFlags
      * and color values for its draw.
      */
-    OptFlags getOptimizations(const GrPipelineAnalysis&,
+    OptFlags getOptimizations(const FragmentProcessorAnalysis&,
                               bool doesStencilWrite,
                               GrColor* overrideColor,
                               const GrCaps& caps) const;
@@ -231,7 +233,7 @@ protected:
 private:
     void notifyRefCntIsZero() const final {}
 
-    virtual OptFlags onGetOptimizations(const GrPipelineAnalysis&,
+    virtual OptFlags onGetOptimizations(const FragmentProcessorAnalysis&,
                                         bool doesStencilWrite,
                                         GrColor* overrideColor,
                                         const GrCaps& caps) const = 0;
@@ -306,18 +308,11 @@ GR_MAKE_BITFIELD_OPS(GrXferProcessor::OptFlags);
 #endif
 class GrXPFactory {
 public:
+    using FragmentProcessorAnalysis = GrProcessorSet::FragmentProcessorAnalysis;
+
     typedef GrXferProcessor::DstTexture DstTexture;
 
-    /** Describes known properties of a draw's color input to the GrXferProcessor. */
-    enum class ColorType { kUnknown, kOpaqueConstant, kConstant, kOpaque };
-
-    /**
-     * Indicates whether a draw's coverage input to the GrXferProcessor is solid, single channel
-     * or LCD (four channel coverage).
-     */
-    enum class CoverageType { kNone, kSingleChannel, kLCD };
-
-    GrXferProcessor* createXferProcessor(const GrPipelineAnalysis&,
+    GrXferProcessor* createXferProcessor(const FragmentProcessorAnalysis&,
                                          bool hasMixedSamples,
                                          const DstTexture*,
                                          const GrCaps& caps) const;
@@ -325,44 +320,36 @@ public:
     /**
      * Is the destination color required either in the shader or fixed function blending.
      */
-    static bool WillReadDst(const GrXPFactory*, const GrProcOptInfo& colorInput,
-                            const GrProcOptInfo& coverageInput);
+    static bool WillReadDst(const GrXPFactory*, const FragmentProcessorAnalysis&);
 
-     /**
-     * This will return true if the xfer processor needs the dst color in the shader and the way
-     * that the color will be made available to the xfer processor is by sampling a texture.
-     */
-    bool willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const;
+    /**
+    * This will return true if the xfer processor needs the dst color in the shader and the way
+    * that the color will be made available to the xfer processor is by sampling a texture.
+    */
+    static bool WillNeedDstTexture(const GrXPFactory*,
+                                   const GrCaps&,
+                                   const FragmentProcessorAnalysis&);
 
 protected:
     constexpr GrXPFactory() {}
 
-    static bool ColorTypeIsOpaque(ColorType type) {
-        return ColorType::kOpaqueConstant == type || ColorType::kOpaque == type;
-    }
-
-    static bool ColorTypeIsConstant(ColorType type) {
-        return ColorType::kOpaqueConstant == type || ColorType::kConstant == type;
-    }
-
 private:
     /** Subclass-specific implementation of WillReadDst(). */
-    virtual bool willReadsDst(const GrProcOptInfo& colorInput,
-                              const GrProcOptInfo& coverageInput) const = 0;
+    virtual bool willReadsDst(const FragmentProcessorAnalysis& pipelineAnalysis) const = 0;
 
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                                   const GrPipelineAnalysis&,
+                                                   const FragmentProcessorAnalysis&,
                                                    bool hasMixedSamples,
                                                    const DstTexture*) const = 0;
 
-    bool willReadDstInShader(const GrCaps& caps, const GrPipelineAnalysis& analysis) const;
+    bool willReadDstInShader(const GrCaps& caps, const FragmentProcessorAnalysis& analysis) const;
 
     /**
      *  Returns true if the XP generated by this factory will explicitly read dst in the fragment
      *  shader. This will not be called for draws that read from PLS since the dst color is always
      *  available in such draws.
      */
-    virtual bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const = 0;
+    virtual bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const = 0;
 };
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic pop

@@ -25,7 +25,6 @@ public:
     GrProcOptInfo() = default;
 
     GrProcOptInfo(const GrPipelineInput& input) : GrProcOptInfo() {
-        fIsLCDCoverage = input.isLCDCoverage();
         fAllProcessorsCompatibleWithCoverageAsAlpha = !input.isLCDCoverage();
         fIsOpaque = input.isOpaque();
         GrColor color;
@@ -33,12 +32,6 @@ public:
             fLastKnownOutputColor = GrColor4f::FromGrColor(color);
             fProcessorsVisitedWithKnownOutput = 0;
         }
-    }
-
-    void resetToLCDCoverage() {
-        *this = GrProcOptInfo();
-        fIsLCDCoverage = true;
-        fAllProcessorsCompatibleWithCoverageAsAlpha = false;
     }
 
     void reset(const GrPipelineInput& input) { *this = GrProcOptInfo(input); }
@@ -49,15 +42,10 @@ public:
      */
     void analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt);
 
-    bool isSolidWhite() const {
-        return fProcessorsVisitedWithKnownOutput == fTotalProcessorsVisited &&
-               fLastKnownOutputColor == GrColor4f::OpaqueWhite();
-    }
     bool isOpaque() const { return fIsOpaque; }
     bool allProcessorsCompatibleWithCoverageAsAlpha() const {
         return fAllProcessorsCompatibleWithCoverageAsAlpha;
     }
-    bool isLCDCoverage() const { return fIsLCDCoverage; }
 
     /**
      * If we detected that the result after the first N processors is a known color then we
@@ -72,6 +60,7 @@ public:
         }
         return SkTMax(0, fProcessorsVisitedWithKnownOutput);
     }
+
     int initialProcessorsToEliminate(GrColor4f* newPipelineInputColor) const {
         if (fProcessorsVisitedWithKnownOutput > 0) {
             *newPipelineInputColor = fLastKnownOutputColor;
@@ -93,7 +82,6 @@ private:
     int fTotalProcessorsVisited = 0;
     // negative one means even the color is unknown before adding the first processor.
     int fProcessorsVisitedWithKnownOutput = -1;
-    bool fIsLCDCoverage = false;
     bool fIsOpaque = false;
     bool fAllProcessorsCompatibleWithCoverageAsAlpha = true;
     GrColor4f fLastKnownOutputColor;

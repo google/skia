@@ -99,7 +99,7 @@ public:
     SkString dumpInfo() const override;
 
 private:
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput*) const override;
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs*) const override;
     void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
 
     struct FlushInfo {

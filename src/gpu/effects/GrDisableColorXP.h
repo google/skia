@@ -24,19 +24,16 @@ public:
     static const GrXPFactory* Get();
 
 private:
-    bool willReadsDst(const GrProcOptInfo& colorInput,
-                      const GrProcOptInfo& coverageInput) const override {
-        return false;
-    }
+    bool willReadsDst(const FragmentProcessorAnalysis&) const override { return false; }
 
     constexpr GrDisableColorXPFactory() {}
 
-    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override {
+    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
         return false;
     }
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrPipelineAnalysis&,
+                                           const FragmentProcessorAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture* dstTexture) const override;
 

@@ -286,13 +286,16 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
         }
     }
 
+    GrProcessorSet::FragmentProcessorAnalysis analysis;
+    op->analyzeProcessors(&analysis, pipelineBuilder.processors(), appliedClip, *this->caps());
+
     GrPipeline::CreateArgs args;
     pipelineBuilder.initPipelineCreateArgs(&args);
     args.fAppliedClip = &appliedClip;
     args.fRenderTargetContext = renderTargetContext;
     args.fCaps = this->caps();
-    op->initPipelineAnalysis(&args.fAnalysis);
-    if (args.fAnalysis.fUsesPLSDstRead || fClipOpToBounds) {
+    args.fAnalysis = &analysis;
+    if (analysis.usesPLSDstRead() || fClipOpToBounds) {
         GrGLIRect viewport;
         viewport.fLeft = 0;
         viewport.fBottom = 0;
@@ -311,24 +314,12 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
             return;
         }
     }
-    pipelineBuilder.analyzeFragmentProcessors(&args.fAnalysis);
-    if (const GrFragmentProcessor* clipFP = appliedClip.clipCoverageFragmentProcessor()) {
-        args.fAnalysis.fCoveragePOI.analyzeProcessors(&clipFP, 1);
-    }
-#ifdef SK_DEBUG
-    // Other than tests that exercise atypical behavior we expect all coverage FPs to be compatible
-    // with the coverage-as-alpha optimization.
-    if (!args.fAnalysis.fCoveragePOI.allProcessorsCompatibleWithCoverageAsAlpha() &&
-        !args.fAnalysis.fCoveragePOI.isLCDCoverage()) {
-        GrCapsDebugf(this->caps(), "Coverage FP is not compatible with coverage as alpha.\n");
-    }
-#endif
 
     if (!renderTargetContext->accessRenderTarget()) {
         return;
     }
 
-    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), args.fAnalysis)) {
+    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
         this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
                               &args.fDstTexture);
         if (!args.fDstTexture.texture()) {

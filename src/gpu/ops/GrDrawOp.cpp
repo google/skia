@@ -15,16 +15,6 @@ GrDrawOp::~GrDrawOp() {
     }
 }
 
-void GrDrawOp::initPipelineAnalysis(GrPipelineAnalysis* analysis) const {
-    GrPipelineInput color;
-    GrPipelineInput coverage;
-    GrPipelineAnalysisDrawOpInput input(&color, &coverage);
-    this->getPipelineAnalysisInput(&input);
-    analysis->fColorPOI.reset(color);
-    analysis->fCoveragePOI.reset(coverage);
-    analysis->fUsesPLSDstRead = input.usesPLSDstRead();
-}
-
 bool GrDrawOp::installPipeline(const GrPipeline::CreateArgs& args) {
     GrPipelineOptimizations optimizations;
     void* location = fPipelineStorage.get();

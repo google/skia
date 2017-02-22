@@ -57,12 +57,21 @@ public:
     GrDrawOp(uint32_t classID);
     ~GrDrawOp() override;
 
-    /**
-     * Gets the inputs to pipeline analysis from the GrDrawOp.
-     */
-    void initPipelineAnalysis(GrPipelineAnalysis*) const;
-
     bool installPipeline(const GrPipeline::CreateArgs&);
+
+    /**
+     * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
+     * initial color and coverage from this op's geometry processor.
+     */
+    void analyzeProcessors(GrProcessorSet::FragmentProcessorAnalysis* analysis,
+                           const GrProcessorSet& processors,
+                           const GrAppliedClip& appliedClip,
+                           const GrCaps& caps) const {
+        FragmentProcessorAnalysisInputs input;
+        this->getFragmentProcessorAnalysisInputs(&input);
+        analysis->reset(*input.colorInput(), *input.coverageInput(), processors,
+                        input.usesPLSDstRead(), appliedClip, caps);
+    }
 
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
@@ -101,12 +110,32 @@ protected:
         return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
     }
 
+    /**
+     * This describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
+     * pipeline analysis.
+     */
+    class FragmentProcessorAnalysisInputs {
+    public:
+        FragmentProcessorAnalysisInputs() = default;
+        GrPipelineInput* colorInput() { return &fColorInput; }
+        GrPipelineInput* coverageInput() { return &fCoverageInput; }
+
+        void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
+
+        bool usesPLSDstRead() const { return fUsesPLSDstRead; }
+
+    private:
+        GrPipelineInput fColorInput;
+        GrPipelineInput fCoverageInput;
+        bool fUsesPLSDstRead = false;
+    };
+
 private:
     /**
-     * Provides information about the GrPrimitiveProccesor that will be used to issue draws by this
-     * op to GrPipeline analysis.
+     * Provides information about the GrPrimitiveProccesor color and coverage outputs which become
+     * inputs to the first color and coverage fragment processors.
      */
-    virtual void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput*) const = 0;
+    virtual void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs*) const = 0;
 
     /**
      * After GrPipeline analysis is complete this is called so that the op can use the analysis

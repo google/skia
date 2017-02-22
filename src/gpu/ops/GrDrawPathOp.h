@@ -36,9 +36,9 @@ protected:
     bool xpReadsDst() const { return fXPReadsDst; }
 
 private:
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setToConstant(fColor);
-        input->pipelineCoverageInput()->setToSolidCoverage();
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fColor);
+        input->coverageInput()->setToSolidCoverage();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
