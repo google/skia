@@ -593,7 +593,8 @@ void Viewer::setColorMode(SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
 }
 
 void Viewer::drawSlide(SkCanvas* canvas) {
-    int count = canvas->save();
+    SkAutoCanvasRestore autorestore(canvas, false);
+
     if (fWindow->supportsContentRect()) {
         SkRect contentRect = fWindow->getContentRect();
         canvas->clipRect(contentRect);
@@ -614,6 +615,7 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         slideCanvas = offscreenSurface->getCanvas();
     }
 
+    int count = slideCanvas->save();
     slideCanvas->clear(SK_ColorWHITE);
     slideCanvas->concat(fDefaultMatrix);
     slideCanvas->concat(computeMatrix());
@@ -623,6 +625,9 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     fSlides[fCurrentSlide]->draw(slideCanvas);
     fPaintTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
 
+    slideCanvas->restoreToCount(count);
+
+
     // Force a flush so we can time that, too
     startTime = SkTime::GetMSecs();
     slideCanvas->flush();
@@ -630,16 +635,17 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas
     if (offscreenSurface) {
+
         fLastImage = offscreenSurface->makeImageSnapshot();
 
         // Tag the image with the sRGB gamut, so no further color space conversion happens
         sk_sp<SkColorSpace> cs = (kRGBA_F16_SkColorType == fColorType)
             ? SkColorSpace::MakeSRGBLinear() : SkColorSpace::MakeSRGB();
         auto retaggedImage = SkImageMakeRasterCopyAndAssignColorSpace(fLastImage.get(), cs.get());
-        canvas->drawImage(retaggedImage, 0, 0);
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
+        canvas->drawImage(retaggedImage, 0, 0, &paint);
     }
-
-    canvas->restoreToCount(count);
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
