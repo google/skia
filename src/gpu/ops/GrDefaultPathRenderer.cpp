@@ -132,9 +132,9 @@ private:
                         isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
     }
 
-    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setToConstant(fColor);
-        input->pipelineCoverageInput()->setToScalar(this->coverage());
+    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
+        input->colorInput()->setToConstant(fColor);
+        input->coverageInput()->setToScalar(this->coverage());
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
