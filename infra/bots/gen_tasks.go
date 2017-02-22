@@ -417,8 +417,12 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		s.ExecutionTimeout = 9 * time.Hour
 		s.Expiration = 48 * time.Hour
 		s.IoTimeout = time.Hour
-	} else if strings.Contains(parts["extra_config"], "MSAN") {
-		s.ExecutionTimeout = 9 * time.Hour
+		s.MaxAttempts = 1
+	} else if strings.Contains(parts["extra_config"], "SAN") {
+		s.MaxAttempts = 1
+		if strings.Contains(parts["extra_config"], "MSAN") {
+			s.ExecutionTimeout = 9 * time.Hour
+		}
 	}
 	b.MustAddTask(name, s)
 
@@ -488,8 +492,12 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		s.ExecutionTimeout = 9 * time.Hour
 		s.Expiration = 48 * time.Hour
 		s.IoTimeout = time.Hour
-	} else if strings.Contains(parts["extra_config"], "MSAN") {
-		s.ExecutionTimeout = 9 * time.Hour
+		s.MaxAttempts = 1
+	} else if strings.Contains(parts["extra_config"], "SAN") {
+		s.MaxAttempts = 1
+		if strings.Contains(parts["extra_config"], "MSAN") {
+			s.ExecutionTimeout = 9 * time.Hour
+		}
 	}
 	b.MustAddTask(name, s)
 

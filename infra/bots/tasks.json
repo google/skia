@@ -5685,6 +5685,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN": {
@@ -5739,6 +5740,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release": {
@@ -5842,6 +5844,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
@@ -5944,6 +5947,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN": {
@@ -5997,6 +6001,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
@@ -6291,6 +6296,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
@@ -6339,6 +6345,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -10405,6 +10412,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN": {
@@ -10459,6 +10467,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release": {
@@ -10562,6 +10571,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
@@ -10665,6 +10675,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN": {
@@ -10718,6 +10729,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN": {
@@ -10771,6 +10783,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN": {
@@ -10824,6 +10837,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
@@ -11192,6 +11206,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
@@ -11240,6 +11255,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
@@ -11288,6 +11304,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
