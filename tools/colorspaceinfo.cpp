@@ -18,6 +18,8 @@
 #include "SkMatrix44.h"
 #include "SkOSFile.h"
 
+#include "SkICC.h"
+
 #include "sk_tool_utils.h"
 
 DEFINE_string(input, "input.png", "A path to the input image or icc profile.");
@@ -286,7 +288,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     sk_sp<SkColorSpace> colorSpace = nullptr;
     const bool isImage = (codec != nullptr);
-    if (isImage) {
+    if (false && isImage) {
         colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
     } else {
         colorSpace = SkColorSpace::MakeICC(data->bytes(), data->size());
@@ -401,5 +403,11 @@ int main(int argc, char** argv) {
         SkDebugf("%s\n", FLAGS_uncorrected[0]);
     }
 
+    SkColorSpaceTransferFn fn;
+    SkMatrix44 mat;
+    colorSpace->toXYZD50(&mat);
+    sk_sp<SkData> dta = SkICC::WriteToICC(fn, mat);
+    SkFILEWStream stream("/usr/local/google/home/msarett/skia/matt.icc");
+    stream.write(dta->data(), dta->size());
     return 0;
 }

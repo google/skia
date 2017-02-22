@@ -11,7 +11,7 @@
 
 #include "SkColorSpace_Base.h"
 
-#define SkColorSpacePrintf(...)
+#define SkColorSpacePrintf SkDebugf
 
 static constexpr float gSRGB_toXYZD50[] {
     0.4360747f, 0.3850649f, 0.1430804f, // Rx, Gx, Bx

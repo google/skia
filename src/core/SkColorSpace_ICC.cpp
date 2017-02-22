@@ -291,8 +291,10 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
 
     uint32_t type = read_big_endian_u32(src);
     // Bytes 4-7 are reserved and should be set to zero.
+    SkDebugf("type %x\n", type);
     switch (type) {
         case kTAG_CurveType: {
+            SkDebugf("hooray\n");
             uint32_t count = read_big_endian_u32(src + 8);
 
             // tagBytes = 12 + 2 * count
@@ -493,6 +495,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
             return SkGammas::Type::kParam_Type;
         }
         default:
+            SkDebugf("FAIL\n");
             SkColorSpacePrintf("Unsupported gamma tag type %d\n", type);
             return SkGammas::Type::kNone_Type;
     }
@@ -561,6 +564,7 @@ static size_t load_gammas(void* memory, size_t offset, SkGammas::Type type,
             float* outTable = (float*) storage;
             const uint16_t* inTable = (const uint16_t*) (src + 12);
             for (int i = 0; i < data->fTable.fSize; i++) {
+                //SkDebugf("%d\n", read_big_endian_u16((const uint8_t*) &inTable[i]));
                 outTable[i] = (read_big_endian_u16((const uint8_t*) &inTable[i])) / 65535.0f;
             }
 
@@ -1484,6 +1488,7 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
 
 sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
                                                ICCTypeFlag desiredType) {
+    SkDebugf("SANITY CHECK\n");
     if (!input || len < kICCHeaderSize) {
         return_null("Data is null or not large enough to contain an ICC profile");
     }
@@ -1499,6 +1504,7 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
     ICCProfileHeader header;
     header.init(ptr, len);
     if (!header.valid()) {
+        SkDebugf("HEADER NOT VALID\n");
         return nullptr;
     }
 
@@ -1516,6 +1522,7 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
     uint32_t tagCount = header.fTagCount;
     SkColorSpacePrintf("ICC profile contains %d tags.\n", tagCount);
     if (len < kICCTagTableEntrySize * tagCount) {
+        SkDebugf("NOT ENOUGH INPUT DATA\n");
         return_null("Not enough input data to read tag table entries");
     }
 
@@ -1527,6 +1534,7 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
                 (tags[i].fSignature >>  0) & 0xFF, tags[i].fOffset, tags[i].fLength);
 
         if (!tags[i].valid(kICCHeaderSize + len)) {
+            SkDebugf("TAG IS TOO LARGE TO FIT\n");
             return_null("Tag is too large to fit in ICC profile");
         }
     }
