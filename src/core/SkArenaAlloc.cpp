@@ -129,8 +129,7 @@ char* SkArenaAlloc::allocObject(uint32_t size, uint32_t alignment) {
 }
 
 char* SkArenaAlloc::allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment) {
-    // Must be uint64 to mask 64-bit pointers properly.
-    uint64_t mask = alignment - 1;
+    uintptr_t mask = alignment - 1;
 
 restart:
     uint32_t skipOverhead = 0;
