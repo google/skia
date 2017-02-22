@@ -81,8 +81,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
         return;
     }
 
-    GrTexture* texture = fFontCache->getTexture(this->maskFormat());
-    if (!texture) {
+    sk_sp<GrTextureProxy> proxy = fFontCache->getProxy(this->maskFormat());
+    if (!proxy) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
     }
@@ -92,11 +92,14 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
     FlushInfo flushInfo;
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor =
-                this->setupDfProcessor(this->viewMatrix(), fFilteredColor, this->color(), texture);
+                this->setupDfProcessor(fFontCache->context(), this->viewMatrix(),
+                                       fFilteredColor, this->color(), proxy);
     } else {
         GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                this->color(), texture, params, maskFormat, localMatrix, this->usesLocalCoords());
+                fFontCache->context(),
+                this->color(), std::move(proxy), params,
+                maskFormat, localMatrix, this->usesLocalCoords());
     }
 
     flushInfo.fGlyphsToFlush = 0;
@@ -229,10 +232,11 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
 // TODO just use class params
 // TODO trying to figure out why lcd is so whack
-sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewMatrix,
+sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrContext* context,
+                                                           const SkMatrix& viewMatrix,
                                                            SkColor filteredColor,
                                                            GrColor color,
-                                                           GrTexture* texture) const {
+                                                           sk_sp<GrTextureProxy> proxy) const {
     GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
     bool isLCD = this->isLCD();
     // set up any flags
@@ -260,18 +264,20 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
 
-        return GrDistanceFieldLCDTextGeoProc::Make(
-                color, viewMatrix, texture, params, widthAdjust, flags, this->usesLocalCoords());
+        return GrDistanceFieldLCDTextGeoProc::Make(context, color, viewMatrix, std::move(proxy), 
+                                                   params, widthAdjust, flags,
+                                                   this->usesLocalCoords());
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, filteredColor);
         float correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                                fUseGammaCorrectDistanceTable);
-        return GrDistanceFieldA8TextGeoProc::Make(
-                color, viewMatrix, texture, params, correction, flags, this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(context, color, viewMatrix, std::move(proxy),
+                                                  params, correction, flags,
+                                                  this->usesLocalCoords());
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(
-                color, viewMatrix, texture, params, flags, this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(context, color, viewMatrix, std::move(proxy),
+                                                  params, flags, this->usesLocalCoords());
 #endif
     }
 }
