@@ -1143,7 +1143,7 @@ void SkXPSDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
                              size_t count, const SkPoint points[],
                              const SkPaint& paint) {
     //This will call back into the device to do the drawing.
-    d.drawPoints(mode, count, points, paint, true);
+    d.drawPoints(mode, count, points, paint, this);
 }
 
 void SkXPSDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode,

@@ -513,7 +513,7 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
 
 void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         const SkPoint pts[], const SkPaint& paint,
-                        bool forceUseDevice) const {
+                        SkBaseDevice* device) const {
     // if we're in lines mode, force count to be even
     if (SkCanvas::kLines_PointMode == mode) {
         count &= ~(size_t)1;
@@ -532,7 +532,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
     }
 
     PtProcRec rec;
-    if (!forceUseDevice && rec.init(mode, paint, fMatrix, fRC)) {
+    if (!device && rec.init(mode, paint, fMatrix, fRC)) {
         SkAutoBlitterChoose blitter(fDst, *fMatrix, paint);
 
         SkPoint             devPts[MAX_DEV_PTS];
@@ -576,8 +576,8 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         // pass true for the last point, since we can modify
                         // then path then
                         path.setIsVolatile((count-1) == i);
-                        if (fDevice) {
-                            fDevice->drawPath(*this, path, newPaint, &preMatrix,
+                        if (device) {
+                            device->drawPath(*this, path, newPaint, &preMatrix,
                                               (count-1) == i);
                         } else {
                             this->drawPath(path, newPaint, &preMatrix,
@@ -592,8 +592,8 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         r.fTop = pts[i].fY - radius;
                         r.fRight = r.fLeft + width;
                         r.fBottom = r.fTop + width;
-                        if (fDevice) {
-                            fDevice->drawRect(*this, r, newPaint);
+                        if (device) {
+                            device->drawRect(*this, r, newPaint);
                         } else {
                             this->drawRect(r, newPaint);
                         }
@@ -623,16 +623,16 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         newP.setStyle(SkPaint::kFill_Style);
 
                         if (!pointData.fFirst.isEmpty()) {
-                            if (fDevice) {
-                                fDevice->drawPath(*this, pointData.fFirst, newP);
+                            if (device) {
+                                device->drawPath(*this, pointData.fFirst, newP);
                             } else {
                                 this->drawPath(pointData.fFirst, newP);
                             }
                         }
 
                         if (!pointData.fLast.isEmpty()) {
-                            if (fDevice) {
-                                fDevice->drawPath(*this, pointData.fLast, newP);
+                            if (device) {
+                                device->drawPath(*this, pointData.fLast, newP);
                             } else {
                                 this->drawPath(pointData.fLast, newP);
                             }
@@ -648,8 +648,8 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                                 newP.setStrokeCap(SkPaint::kButt_Cap);
                             }
 
-                            if (fDevice) {
-                                fDevice->drawPoints(*this,
+                            if (device) {
+                                device->drawPoints(*this,
                                                     SkCanvas::kPoints_PointMode,
                                                     pointData.fNumPoints,
                                                     pointData.fPoints,
@@ -659,7 +659,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                                                  pointData.fNumPoints,
                                                  pointData.fPoints,
                                                  newP,
-                                                 forceUseDevice);
+                                                 device);
                             }
                             break;
                         } else {
@@ -674,8 +674,8 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                                       pointData.fPoints[i].fY - pointData.fSize.fY,
                                       pointData.fPoints[i].fX + pointData.fSize.fX,
                                       pointData.fPoints[i].fY + pointData.fSize.fY);
-                                if (fDevice) {
-                                    fDevice->drawRect(*this, r, newP);
+                                if (device) {
+                                    device->drawRect(*this, r, newP);
                                 } else {
                                     this->drawRect(r, newP);
                                 }
@@ -696,8 +696,8 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 for (size_t i = 0; i < count; i += inc) {
                     path.moveTo(pts[i]);
                     path.lineTo(pts[i+1]);
-                    if (fDevice) {
-                        fDevice->drawPath(*this, path, p, nullptr, true);
+                    if (device) {
+                        device->drawPath(*this, path, p, nullptr, true);
                     } else {
                         this->drawPath(path, p, nullptr, true);
                     }
@@ -1406,8 +1406,7 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
     return SkPaint::TooBigToUseCache(ctm, *paint.setTextMatrix(&textM));
 }
 
-void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
-                              SkScalar x, SkScalar y,
+void SkDraw::drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,
                               const SkPaint& paint) const {
     SkDEBUGCODE(this->validate();)
 
@@ -1424,11 +1423,7 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
         matrix.postTranslate(xpos - prevXPos, 0);
         if (iterPath) {
             const SkPaint& pnt = iter.getPaint();
-            if (fDevice) {
-                fDevice->drawPath(*this, *iterPath, pnt, &matrix, false);
-            } else {
-                this->drawPath(*iterPath, pnt, &matrix, false);
-            }
+            this->drawPath(*iterPath, pnt, &matrix, false);
         }
         prevXPos = xpos;
     }
@@ -1560,14 +1555,14 @@ private:
 
 uint32_t SkDraw::scalerContextFlags() const {
     uint32_t flags = SkPaint::kBoostContrast_ScalerContextFlag;
-    if (!fDevice->imageInfo().colorSpace()) {
+    if (!fDst.colorSpace()) {
         flags |= SkPaint::kFakeGamma_ScalerContextFlag;
     }
     return flags;
 }
 
-void SkDraw::drawText(const char text[], size_t byteLength,
-                      SkScalar x, SkScalar y, const SkPaint& paint) const {
+void SkDraw::drawText(const char text[], size_t byteLength, SkScalar x, SkScalar y,
+                      const SkPaint& paint, const SkSurfaceProps* props) const {
     SkASSERT(byteLength == 0 || text != nullptr);
 
     SkDEBUGCODE(this->validate();)
@@ -1584,7 +1579,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         return;
     }
 
-    SkAutoGlyphCache cache(paint, &fDevice->surfaceProps(), this->scalerContextFlags(), fMatrix);
+    SkAutoGlyphCache cache(paint, props, this->scalerContextFlags(), fMatrix);
 
     // The Blitter Choose needs to be live while using the blitter below.
     SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);
@@ -1598,9 +1593,9 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
-                                 const SkScalar pos[], int scalarsPerPosition,
-                                 const SkPoint& offset, const SkPaint& origPaint) const {
+void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
+                                 int scalarsPerPosition, const SkPoint& offset,
+                                 const SkPaint& origPaint, const SkSurfaceProps* props) const {
     // setup our std paint, in hopes of getting hits in the cache
     SkPaint paint(origPaint);
     SkScalar matrixScale = paint.setupForAsPaths();
@@ -1615,7 +1610,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
                                                                         paint.isDevKernText(),
                                                                         true);
-    SkAutoGlyphCache cache(paint, &fDevice->surfaceProps(), this->scalerContextFlags(), nullptr);
+    SkAutoGlyphCache cache(paint, props, this->scalerContextFlags(), nullptr);
 
     const char*        stop = text + byteLength;
     SkTextAlignProc    alignProc(paint.getTextAlign());
@@ -1637,20 +1632,16 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
 
                 matrix[SkMatrix::kMTransX] = loc.fX;
                 matrix[SkMatrix::kMTransY] = loc.fY;
-                if (fDevice) {
-                    fDevice->drawPath(*this, *path, paint, &matrix, false);
-                } else {
-                    this->drawPath(*path, paint, &matrix, false);
-                }
+                this->drawPath(*path, paint, &matrix, false);
             }
         }
         pos += scalarsPerPosition;
     }
 }
 
-void SkDraw::drawPosText(const char text[], size_t byteLength,
-                         const SkScalar pos[], int scalarsPerPosition,
-                         const SkPoint& offset, const SkPaint& paint) const {
+void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar pos[],
+                         int scalarsPerPosition, const SkPoint& offset, const SkPaint& paint,
+                         const SkSurfaceProps* props) const {
     SkASSERT(byteLength == 0 || text != nullptr);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
@@ -1662,11 +1653,11 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     if (ShouldDrawTextAsPaths(paint, *fMatrix)) {
-        this->drawPosText_asPaths(text, byteLength, pos, scalarsPerPosition, offset, paint);
+        this->drawPosText_asPaths(text, byteLength, pos, scalarsPerPosition, offset, paint, props);
         return;
     }
 
-    SkAutoGlyphCache cache(paint, &fDevice->surfaceProps(), this->scalerContextFlags(), fMatrix);
+    SkAutoGlyphCache cache(paint, props, this->scalerContextFlags(), fMatrix);
 
     // The Blitter Choose needs to be live while using the blitter below.
     SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);

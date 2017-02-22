@@ -368,7 +368,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     // else we let the SkDraw call our drawPath()
     if (!isHairline || paint.getPathEffect() || paint.getMaskFilter() ||
         (paint.isAntiAlias() && needs_antialiasing(mode, count, pts, *draw.fMatrix))) {
-        draw.drawPoints(mode, count, pts, paint, true);
+        draw.drawPoints(mode, count, pts, paint, this);
         return;
     }
 
