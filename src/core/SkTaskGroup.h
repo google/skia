@@ -8,9 +8,9 @@
 #ifndef SkTaskGroup_DEFINED
 #define SkTaskGroup_DEFINED
 
-#include "SkAtomics.h"
 #include "SkExecutor.h"
 #include "SkTypes.h"
+#include <atomic>
 #include <functional>
 
 class SkTaskGroup : SkNoncopyable {
@@ -37,8 +37,8 @@ public:
     };
 
 private:
-    SkAtomic<int32_t> fPending;
-    SkExecutor&       fExecutor;
+    std::atomic<int32_t> fPending;
+    SkExecutor&          fExecutor;
 };
 
 #endif//SkTaskGroup_DEFINED

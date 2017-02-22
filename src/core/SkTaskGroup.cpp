@@ -11,20 +11,20 @@
 SkTaskGroup::SkTaskGroup(SkExecutor& executor) : fPending(0), fExecutor(executor) {}
 
 void SkTaskGroup::add(std::function<void(void)> fn) {
-    fPending.fetch_add(+1, sk_memory_order_relaxed);
+    fPending.fetch_add(+1, std::memory_order_relaxed);
     fExecutor.add([=] {
         fn();
-        fPending.fetch_add(-1, sk_memory_order_release);
+        fPending.fetch_add(-1, std::memory_order_release);
     });
 }
 
 void SkTaskGroup::batch(int N, std::function<void(int)> fn) {
     // TODO: I really thought we had some sort of more clever chunking logic.
-    fPending.fetch_add(+N, sk_memory_order_relaxed);
+    fPending.fetch_add(+N, std::memory_order_relaxed);
     for (int i = 0; i < N; i++) {
         fExecutor.add([=] {
             fn(i);
-            fPending.fetch_add(-1, sk_memory_order_release);
+            fPending.fetch_add(-1, std::memory_order_release);
         });
     }
 }
@@ -34,7 +34,7 @@ void SkTaskGroup::wait() {
     // This lets SkTaskGroups nest arbitrarily deep on a single SkExecutor:
     // no thread ever blocks waiting for others to do its work.
     // (We may end up doing work that's not part of our task group.  That's fine.)
-    while (fPending.load(sk_memory_order_acquire) > 0) {
+    while (fPending.load(std::memory_order_acquire) > 0) {
         fExecutor.borrow();
     }
 }
