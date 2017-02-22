@@ -6,6 +6,8 @@
  */
 
 #include "SkClipStackDevice.h"
+#include "SkDraw.h"
+#include "SkRasterClip.h"
 
 void SkClipStackDevice::onSave() {
     fClipStack.save();
@@ -48,4 +50,15 @@ void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
         fClipStack.setDeviceClipRestriction(rect);
         fClipStack.clipDevRect(rect, SkClipOp::kIntersect);
     }
+}
+
+SkIRect SkClipStackDevice::devClipBounds(const SkDraw& draw) const {
+#ifdef SK_USE_DEVICE_CLIPPING
+    SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();
+    SkASSERT(this->imageInfo().bounds().contains(r));
+    SkASSERT(draw.fRC->getBounds().contains(r));
+    return r;
+#else
+    return draw.fRC->getBounds();
+#endif
 }

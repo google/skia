@@ -193,17 +193,12 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 #ifdef SK_USE_DEVICE_CLIPPING
 class ModifiedDraw : public SkDraw {
 public:
-    ModifiedDraw(const SkMatrix& devCTM, const SkRasterClip& rc, SkISize rcs,
-                 const SkDraw& draw) : SkDraw(draw) {
-#ifdef SK_DEBUG
-        SkISize dvs = { draw.fDevice->width(), draw.fDevice->height() };
-        SkASSERT(dvs == rcs);
-        SkASSERT(devCTM == *draw.fMatrix);
-#endif
+    ModifiedDraw(const SkMatrix& cmt, const SkRasterClip& rc, const SkDraw& draw) : SkDraw(draw) {
+        SkASSERT(cmt == *draw.fMatrix);
         fRC = &rc;
     }
 };
-#define PREPARE_DRAW(draw)  ModifiedDraw(this->ctm(), fRCStack.rc(), fRCStack.getRootSize(), draw)
+#define PREPARE_DRAW(draw)  ModifiedDraw(this->ctm(), fRCStack.rc(), draw)
 #else
 #define PREPARE_DRAW(draw)  draw
 #endif

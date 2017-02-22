@@ -76,8 +76,6 @@ public:
         fRootBounds.setXYWH(0, 0, w, h);
     }
 
-    SkISize getRootSize() const { return fRootBounds.size(); }
-
     const SkRasterClip& rc() const { return fStack.top().fRC; }
 
     void save() {

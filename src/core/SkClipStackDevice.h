@@ -19,6 +19,8 @@ public:
 
     const SkClipStack& cs() const { return fClipStack; }
 
+    SkIRect devClipBounds(const SkDraw&) const;
+
 protected:
     void onSave() override;
     void onRestore() override;
