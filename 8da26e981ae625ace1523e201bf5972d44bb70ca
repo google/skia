@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "0aadecfc_2606108f",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-22T18:59:42Z",
+      "side": 1,
+      "message": "Do you think we could have a version of this that adds the flush/fence and returns the fence?  Seems like a useful pattern and its a bit weird to call glFlush here.",
+      "range": {
+        "startLine": 118,
+        "startChar": 24,
+        "endLine": 118,
+        "endChar": 51
+      },
+      "revId": "8da26e981ae625ace1523e201bf5972d44bb70ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1606e71a_9967dbce",
         "filename": "src/gpu/gl/GrGLTexture.cpp",
         "patchSetId": 21
@@ -19,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "33c23144_02f8a58a",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-22T18:59:42Z",
+      "side": 1,
+      "message": "sounds right to me",
+      "parentUuid": "1606e71a_9967dbce",
+      "revId": "8da26e981ae625ace1523e201bf5972d44bb70ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "37f281e9_0a65a756",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 21
@@ -30,6 +71,24 @@
       "writtenOn": "2017-02-22T18:48:33Z",
       "side": 1,
       "message": "I don\u0027t love this. There ought to be something symmetric to detachBackendTexture (where the wait happens), but that means not using MakeFromAdoptedTexture here. Worth it?",
+      "revId": "8da26e981ae625ace1523e201bf5972d44bb70ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a6e314a_9d47c3f5",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-22T18:59:42Z",
+      "side": 1,
+      "message": "Could MFAT take an optional fence? I guess that is probably private right now.",
+      "parentUuid": "37f281e9_0a65a756",
       "revId": "8da26e981ae625ace1523e201bf5972d44bb70ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
