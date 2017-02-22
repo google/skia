@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4790d52f_6ce64658",
+        "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-22T14:37:25Z",
+      "side": 1,
+      "message": "what happens if you just set fStencilBits and fSampleCount here? I feel like it may just work in Vulkan since we wrap the resolve target and create an msaa buffer on the backend. All presentable images (images generated from the swapchain), will always be sample count of 1, so this really is the only way to do msaa on Vulkan to the window.",
+      "range": {
+        "startLine": 249,
+        "startChar": 7,
+        "endLine": 249,
+        "endChar": 64
+      },
+      "revId": "83f07d25e38ff979866142081d49c26ceb201eb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
