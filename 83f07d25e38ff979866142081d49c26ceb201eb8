@@ -22,6 +22,30 @@
       "revId": "83f07d25e38ff979866142081d49c26ceb201eb8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b66be60_44fc2cff",
+        "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-22T20:21:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4790d52f_6ce64658",
+      "range": {
+        "startLine": 249,
+        "startChar": 7,
+        "endLine": 249,
+        "endChar": 64
+      },
+      "revId": "83f07d25e38ff979866142081d49c26ceb201eb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
