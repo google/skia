@@ -45,6 +45,30 @@
       "revId": "f31a29e4d9d18439dafd99ce6a8e2c7837cc6544",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eda2fb8_2ddbbe82",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-22T03:33:17Z",
+      "side": 1,
+      "message": "When we remove them (follow-on CL) we can add such a test.",
+      "parentUuid": "a828f03c_b79fc1c3",
+      "range": {
+        "startLine": 123,
+        "startChar": 44,
+        "endLine": 123,
+        "endChar": 65
+      },
+      "revId": "f31a29e4d9d18439dafd99ce6a8e2c7837cc6544",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
