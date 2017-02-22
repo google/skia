@@ -704,20 +704,6 @@ STAGE_CTX(load_tables_rgb_u16_be, const LoadTablesContext*) {
     a = 1.0f;
 }
 
-STAGE_CTX(store_tables, const StoreTablesContext*) {
-    auto ptr = ctx->fDst + x;
-
-    float scale = ctx->fCount - 1;
-    SkNi ri = SkNf_round(scale, r);
-    SkNi gi = SkNf_round(scale, g);
-    SkNi bi = SkNf_round(scale, b);
-
-    store(tail, ( SkNx_cast<int>(gather(tail, ctx->fR, ri)) << 0
-                | SkNx_cast<int>(gather(tail, ctx->fG, gi)) << 8
-                | SkNx_cast<int>(gather(tail, ctx->fB, bi)) << 16
-                | SkNf_round(255.0f, a)                     << 24), (int*)ptr);
-}
-
 SI SkNf inv(const SkNf& x) { return 1.0f - x; }
 
 RGBA_XFERMODE(clear)    { return 0.0f; }
@@ -1143,6 +1129,16 @@ STAGE_CTX(byte_tables, const void*) {
     g = SkNf_from_byte(gather(tail, tables->g, SkNf_round(255.0f, g)));
     b = SkNf_from_byte(gather(tail, tables->b, SkNf_round(255.0f, b)));
     a = SkNf_from_byte(gather(tail, tables->a, SkNf_round(255.0f, a)));
+}
+
+STAGE_CTX(byte_tables_rgb, const void*) {
+    struct Tables { const uint8_t *r, *g, *b; int n; };
+    auto tables = (const Tables*)ctx;
+
+    float scale = tables->n - 1;
+    r = SkNf_from_byte(gather(tail, tables->r, SkNf_round(scale, r)));
+    g = SkNf_from_byte(gather(tail, tables->g, SkNf_round(scale, g)));
+    b = SkNf_from_byte(gather(tail, tables->b, SkNf_round(scale, b)));
 }
 
 STAGE_CTX(shader_adapter, SkShader::Context*) {

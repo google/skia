@@ -554,6 +554,11 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
     }
 }
 
+bool SkColorSpace_Base::EqualsIgnoreFlags(SkColorSpace* src, SkColorSpace* dst) {
+    return SkColorSpace::Equals(as_CSB(src)->makeWithoutFlags().get(),
+                                as_CSB(dst)->makeWithoutFlags().get());
+}
+
 bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
     if (src == dst) {
         return true;

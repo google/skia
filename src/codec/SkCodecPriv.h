@@ -302,16 +302,23 @@ static inline bool needs_premul(const SkImageInfo& dstInfo, const SkEncodedInfo&
 
 static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
                                      bool needsPremul) {
+    // We never perform a color xform in legacy mode.
+    if (!dstInfo.colorSpace()) {
+        return false;
+    }
+
     // F16 is by definition a linear space, so we always must perform a color xform.
     bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
 
     // Need a color xform when dst space does not match the src.
-    bool srcDstNotEqual = !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
+    bool srcDstNotEqual =
+            !SkColorSpace_Base::EqualsIgnoreFlags(srcInfo.colorSpace(), dstInfo.colorSpace());
 
-    // We never perform a color xform in legacy mode.
-    bool isLegacy = nullptr == dstInfo.colorSpace();
+    // We provide the option for both legacy premuls and color correct premuls.
+    bool needsColorCorrectPremul =
+            needsPremul && !as_CSB(dstInfo.colorSpace())->nonLinearBlending();
 
-    return !isLegacy && (needsPremul || isF16 || srcDstNotEqual);
+    return needsColorCorrectPremul || isF16 || srcDstNotEqual;
 }
 
 static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
