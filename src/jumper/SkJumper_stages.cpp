@@ -136,6 +136,10 @@ using K = const SkJumper_constants;
     #endif
 #endif
 
+static F lerp(F from, F to, F t) {
+    return mad(to-from, t, from);
+}
+
 // We need to be a careful with casts.
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
@@ -388,6 +392,17 @@ STAGE(scale_u8) {
     g = g * c;
     b = b * c;
     a = a * c;
+}
+STAGE(lerp_u8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+
+    auto scales = unaligned_load<U8>(ptr);
+    auto c = cast(expand(scales)) * k->_1_255;
+
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
 }
 
 STAGE(load_tables) {

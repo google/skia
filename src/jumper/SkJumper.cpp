@@ -45,6 +45,7 @@ static K kConstants = {
     M(from_srgb)      \
     M(to_srgb)        \
     M(scale_u8)       \
+    M(lerp_u8)        \
     M(load_tables)    \
     M(load_8888)      \
     M(store_8888)     \

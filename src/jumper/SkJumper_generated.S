@@ -356,6 +356,38 @@ _sk_scale_u8_aarch64:
   .long  0x6e23de03                                      // fmul          v3.4s, v16.4s, v3.4s
   .long  0xd61f0060                                      // br            x3
 
+.globl _sk_lerp_u8_aarch64
+_sk_lerp_u8_aarch64:
+  .long  0xa8c10c28                                      // ldp           x8, x3, [x1],#16
+  .long  0xbd400c51                                      // ldr           s17, [x2,#12]
+  .long  0x4ea4d412                                      // fsub          v18.4s, v0.4s, v4.4s
+  .long  0xf9400108                                      // ldr           x8, [x8]
+  .long  0x8b000108                                      // add           x8, x8, x0
+  .long  0x39400109                                      // ldrb          w9, [x8]
+  .long  0x3940050a                                      // ldrb          w10, [x8,#1]
+  .long  0x3940090b                                      // ldrb          w11, [x8,#2]
+  .long  0x39400d08                                      // ldrb          w8, [x8,#3]
+  .long  0x4e021d30                                      // mov           v16.h[0], w9
+  .long  0x4e061d50                                      // mov           v16.h[1], w10
+  .long  0x4e0a1d70                                      // mov           v16.h[2], w11
+  .long  0x4e0e1d10                                      // mov           v16.h[3], w8
+  .long  0x2f07b7f0                                      // bic           v16.4h, #0xff, lsl #8
+  .long  0x2f10a600                                      // uxtl          v0.4s, v16.4h
+  .long  0x6e21d800                                      // ucvtf         v0.4s, v0.4s
+  .long  0x4f919010                                      // fmul          v16.4s, v0.4s, v17.s[0]
+  .long  0x4ea41c80                                      // mov           v0.16b, v4.16b
+  .long  0x4ea5d431                                      // fsub          v17.4s, v1.4s, v5.4s
+  .long  0x4ea51ca1                                      // mov           v1.16b, v5.16b
+  .long  0x4e32ce00                                      // fmla          v0.4s, v16.4s, v18.4s
+  .long  0x4ea6d452                                      // fsub          v18.4s, v2.4s, v6.4s
+  .long  0x4e31ce01                                      // fmla          v1.4s, v16.4s, v17.4s
+  .long  0x4ea61cc2                                      // mov           v2.16b, v6.16b
+  .long  0x4ea7d471                                      // fsub          v17.4s, v3.4s, v7.4s
+  .long  0x4ea71ce3                                      // mov           v3.16b, v7.16b
+  .long  0x4e32ce02                                      // fmla          v2.4s, v16.4s, v18.4s
+  .long  0x4e31ce03                                      // fmla          v3.4s, v16.4s, v17.4s
+  .long  0xd61f0060                                      // br            x3
+
 .globl _sk_load_tables_aarch64
 _sk_load_tables_aarch64:
   .long  0xa8c10c28                                      // ldp           x8, x3, [x1],#16
@@ -930,6 +962,40 @@ _sk_scale_u8_vfp4:
   .long  0xecbd8b02                                      // vpop          {d8}
   .long  0xe12fff1c                                      // bx            ip
 
+.globl _sk_lerp_u8_vfp4
+_sk_lerp_u8_vfp4:
+  .long  0xed2d8b02                                      // vpush         {d8}
+  .long  0xe24dd008                                      // sub           sp, sp, #8
+  .long  0xe5913000                                      // ldr           r3, [r1]
+  .long  0xf2612d05                                      // vsub.f32      d18, d1, d5
+  .long  0xe591c004                                      // ldr           ip, [r1, #4]
+  .long  0xf2623d06                                      // vsub.f32      d19, d2, d6
+  .long  0xf2634d07                                      // vsub.f32      d20, d3, d7
+  .long  0xe2811008                                      // add           r1, r1, #8
+  .long  0xe5933000                                      // ldr           r3, [r3]
+  .long  0xf2251115                                      // vorr          d1, d5, d5
+  .long  0xf2262116                                      // vorr          d2, d6, d6
+  .long  0xe0833000                                      // add           r3, r3, r0
+  .long  0xf2273117                                      // vorr          d3, d7, d7
+  .long  0xe1d330b0                                      // ldrh          r3, [r3]
+  .long  0xe1cd30b4                                      // strh          r3, [sp, #4]
+  .long  0xe28d3004                                      // add           r3, sp, #4
+  .long  0xed928a03                                      // vldr          s16, [r2, #12]
+  .long  0xf4e3041f                                      // vld1.16       {d16[0]}, [r3 :16]
+  .long  0xf3c80a30                                      // vmovl.u8      q8, d16
+  .long  0xf3d00a30                                      // vmovl.u16     q8, d16
+  .long  0xf3fb06a0                                      // vcvt.f32.u32  d16, d16
+  .long  0xf2601d04                                      // vsub.f32      d17, d0, d4
+  .long  0xf2240114                                      // vorr          d0, d4, d4
+  .long  0xf2e009c8                                      // vmul.f32      d16, d16, d8[0]
+  .long  0xf2010cb0                                      // vfma.f32      d0, d17, d16
+  .long  0xf2021cb0                                      // vfma.f32      d1, d18, d16
+  .long  0xf2032cb0                                      // vfma.f32      d2, d19, d16
+  .long  0xf2043cb0                                      // vfma.f32      d3, d20, d16
+  .long  0xe28dd008                                      // add           sp, sp, #8
+  .long  0xecbd8b02                                      // vpop          {d8}
+  .long  0xe12fff1c                                      // bx            ip
+
 .globl _sk_load_tables_vfp4
 _sk_load_tables_vfp4:
   .long  0xe92d48f0                                      // push          {r4, r5, r6, r7, fp, lr}
@@ -1491,6 +1557,25 @@ _sk_scale_u8_hsw:
   .byte  0xc5,0xbc,0x59,0xc9                             // vmulps        %ymm1,%ymm8,%ymm1
   .byte  0xc5,0xbc,0x59,0xd2                             // vmulps        %ymm2,%ymm8,%ymm2
   .byte  0xc5,0xbc,0x59,0xdb                             // vmulps        %ymm3,%ymm8,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_lerp_u8_hsw
+_sk_lerp_u8_hsw:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0x8b,0x00                                  // mov           (%rax),%rax
+  .byte  0xc4,0x62,0x7d,0x31,0x04,0x38                   // vpmovzxbd     (%rax,%rdi,1),%ymm8
+  .byte  0xc4,0x41,0x7c,0x5b,0xc0                        // vcvtdq2ps     %ymm8,%ymm8
+  .byte  0xc4,0x62,0x7d,0x18,0x4a,0x0c                   // vbroadcastss  0xc(%rdx),%ymm9
+  .byte  0xc4,0x41,0x3c,0x59,0xc1                        // vmulps        %ymm9,%ymm8,%ymm8
+  .byte  0xc5,0xfc,0x5c,0xc4                             // vsubps        %ymm4,%ymm0,%ymm0
+  .byte  0xc4,0xe2,0x3d,0xa8,0xc4                        // vfmadd213ps   %ymm4,%ymm8,%ymm0
+  .byte  0xc5,0xf4,0x5c,0xcd                             // vsubps        %ymm5,%ymm1,%ymm1
+  .byte  0xc4,0xe2,0x3d,0xa8,0xcd                        // vfmadd213ps   %ymm5,%ymm8,%ymm1
+  .byte  0xc5,0xec,0x5c,0xd6                             // vsubps        %ymm6,%ymm2,%ymm2
+  .byte  0xc4,0xe2,0x3d,0xa8,0xd6                        // vfmadd213ps   %ymm6,%ymm8,%ymm2
+  .byte  0xc5,0xe4,0x5c,0xdf                             // vsubps        %ymm7,%ymm3,%ymm3
+  .byte  0xc4,0xe2,0x3d,0xa8,0xdf                        // vfmadd213ps   %ymm7,%ymm8,%ymm3
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
   .byte  0xff,0xe0                                       // jmpq          *%rax
 
@@ -2090,6 +2175,30 @@ _sk_scale_u8_sse41:
   .byte  0x41,0x0f,0x59,0xc9                             // mulps         %xmm9,%xmm1
   .byte  0x41,0x0f,0x59,0xd1                             // mulps         %xmm9,%xmm2
   .byte  0x41,0x0f,0x59,0xd9                             // mulps         %xmm9,%xmm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_lerp_u8_sse41
+_sk_lerp_u8_sse41:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0x8b,0x00                                  // mov           (%rax),%rax
+  .byte  0x66,0x44,0x0f,0x38,0x31,0x04,0x38              // pmovzxbd      (%rax,%rdi,1),%xmm8
+  .byte  0x45,0x0f,0x5b,0xc0                             // cvtdq2ps      %xmm8,%xmm8
+  .byte  0xf3,0x44,0x0f,0x10,0x4a,0x0c                   // movss         0xc(%rdx),%xmm9
+  .byte  0x45,0x0f,0xc6,0xc9,0x00                        // shufps        $0x0,%xmm9,%xmm9
+  .byte  0x45,0x0f,0x59,0xc8                             // mulps         %xmm8,%xmm9
+  .byte  0x0f,0x5c,0xc4                                  // subps         %xmm4,%xmm0
+  .byte  0x41,0x0f,0x59,0xc1                             // mulps         %xmm9,%xmm0
+  .byte  0x0f,0x58,0xc4                                  // addps         %xmm4,%xmm0
+  .byte  0x0f,0x5c,0xcd                                  // subps         %xmm5,%xmm1
+  .byte  0x41,0x0f,0x59,0xc9                             // mulps         %xmm9,%xmm1
+  .byte  0x0f,0x58,0xcd                                  // addps         %xmm5,%xmm1
+  .byte  0x0f,0x5c,0xd6                                  // subps         %xmm6,%xmm2
+  .byte  0x41,0x0f,0x59,0xd1                             // mulps         %xmm9,%xmm2
+  .byte  0x0f,0x58,0xd6                                  // addps         %xmm6,%xmm2
+  .byte  0x0f,0x5c,0xdf                                  // subps         %xmm7,%xmm3
+  .byte  0x41,0x0f,0x59,0xd9                             // mulps         %xmm9,%xmm3
+  .byte  0x0f,0x58,0xdf                                  // addps         %xmm7,%xmm3
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
   .byte  0xff,0xe0                                       // jmpq          *%rax
 
@@ -2792,6 +2901,33 @@ _sk_scale_u8_sse2:
   .byte  0x41,0x0f,0x59,0xc9                             // mulps         %xmm9,%xmm1
   .byte  0x41,0x0f,0x59,0xd1                             // mulps         %xmm9,%xmm2
   .byte  0x41,0x0f,0x59,0xd9                             // mulps         %xmm9,%xmm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_lerp_u8_sse2
+_sk_lerp_u8_sse2:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0x8b,0x00                                  // mov           (%rax),%rax
+  .byte  0x66,0x44,0x0f,0x6e,0x04,0x38                   // movd          (%rax,%rdi,1),%xmm8
+  .byte  0x66,0x45,0x0f,0xef,0xc9                        // pxor          %xmm9,%xmm9
+  .byte  0x66,0x45,0x0f,0x60,0xc1                        // punpcklbw     %xmm9,%xmm8
+  .byte  0x66,0x45,0x0f,0x61,0xc1                        // punpcklwd     %xmm9,%xmm8
+  .byte  0x45,0x0f,0x5b,0xc0                             // cvtdq2ps      %xmm8,%xmm8
+  .byte  0xf3,0x44,0x0f,0x10,0x4a,0x0c                   // movss         0xc(%rdx),%xmm9
+  .byte  0x45,0x0f,0xc6,0xc9,0x00                        // shufps        $0x0,%xmm9,%xmm9
+  .byte  0x45,0x0f,0x59,0xc8                             // mulps         %xmm8,%xmm9
+  .byte  0x0f,0x5c,0xc4                                  // subps         %xmm4,%xmm0
+  .byte  0x41,0x0f,0x59,0xc1                             // mulps         %xmm9,%xmm0
+  .byte  0x0f,0x58,0xc4                                  // addps         %xmm4,%xmm0
+  .byte  0x0f,0x5c,0xcd                                  // subps         %xmm5,%xmm1
+  .byte  0x41,0x0f,0x59,0xc9                             // mulps         %xmm9,%xmm1
+  .byte  0x0f,0x58,0xcd                                  // addps         %xmm5,%xmm1
+  .byte  0x0f,0x5c,0xd6                                  // subps         %xmm6,%xmm2
+  .byte  0x41,0x0f,0x59,0xd1                             // mulps         %xmm9,%xmm2
+  .byte  0x0f,0x58,0xd6                                  // addps         %xmm6,%xmm2
+  .byte  0x0f,0x5c,0xdf                                  // subps         %xmm7,%xmm3
+  .byte  0x41,0x0f,0x59,0xd9                             // mulps         %xmm9,%xmm3
+  .byte  0x0f,0x58,0xdf                                  // addps         %xmm7,%xmm3
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
   .byte  0xff,0xe0                                       // jmpq          *%rax
 
