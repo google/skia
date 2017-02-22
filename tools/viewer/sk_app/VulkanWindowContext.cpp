@@ -183,6 +183,8 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         }
     }
     fDisplayParams = params;
+    fSampleCount = params.fMSAASampleCount;
+    fStencilBits = 8;
 
     if (VK_FORMAT_UNDEFINED == surfaceFormat) {
         return false;
@@ -241,6 +243,7 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         fDestroySwapchainKHR(fBackendContext->fDevice, swapchainCreateInfo.oldSwapchain, nullptr);
     }
 
+
     this->createBuffers(swapchainCreateInfo.imageFormat);
 
     return true;
@@ -272,8 +275,8 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         desc.fHeight = fHeight;
         desc.fConfig = fPixelConfig;
         desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-        desc.fSampleCnt = 0;
-        desc.fStencilBits = 0;
+        desc.fSampleCnt = fSampleCount;
+        desc.fStencilBits = fStencilBits;
         desc.fRenderTargetHandle = (GrBackendObject) &info;
 
         fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext, desc,
