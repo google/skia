@@ -76,15 +76,15 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawBitmap(fBitmap, 0, 0);
 
-        canvas->translate(SkIntToScalar(20), SkIntToScalar(120));
+        canvas->translate(20, 120);
 
         SkPaint paint;
         SkRect  r;
 
         paint.setColor(SK_ColorGREEN);
-        canvas->drawRectCoords(0, 0, SkIntToScalar(100), SkIntToScalar(100), paint);
+        canvas->drawRect(SkRect::MakeWH(100, 100), paint);
         paint.setShader(fShader);
-        canvas->drawRectCoords(0, 0, SkIntToScalar(100), SkIntToScalar(100), paint);
+        canvas->drawRect(SkRect::MakeWH(100, 100), paint);
 
         canvas->translate(SkIntToScalar(110), 0);
 

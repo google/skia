@@ -50,9 +50,9 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
-        canvas->drawRectCoords(0, 0, SkIntToScalar(100), SkIntToScalar(100), paint);
+        canvas->drawRect(SkRect::MakeWH(100, 100), paint);
         paint.setShader(fShader);
-        canvas->drawRectCoords(0, 0, SkIntToScalar(100), SkIntToScalar(100), paint);
+        canvas->drawRect(SkRect::MakeWH(100, 100), paint);
     }
 
 protected:

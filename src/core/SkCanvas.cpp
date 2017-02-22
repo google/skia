@@ -2959,6 +2959,7 @@ void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* va
 // methods, rather than actually drawing themselves.
 //////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
 void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawARGB()");
     SkPaint paint;
@@ -2967,6 +2968,7 @@ void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode) {
     paint.setBlendMode(mode);
     this->drawPaint(paint);
 }
+#endif
 
 void SkCanvas::drawColor(SkColor c, SkBlendMode mode) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawColor()");
@@ -2979,12 +2981,11 @@ void SkCanvas::drawColor(SkColor c, SkBlendMode mode) {
 
 void SkCanvas::drawPoint(SkScalar x, SkScalar y, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPoint(SkPaint)");
-    SkPoint pt;
-
-    pt.set(x, y);
+    const SkPoint pt = { x, y };
     this->drawPoints(kPoints_PointMode, 1, &pt, paint);
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
 void SkCanvas::drawPoint(SkScalar x, SkScalar y, SkColor color) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPoint(SkColor)");
     SkPoint pt;
@@ -2994,9 +2995,9 @@ void SkCanvas::drawPoint(SkScalar x, SkScalar y, SkColor color) {
     paint.setColor(color);
     this->drawPoints(kPoints_PointMode, 1, &pt, paint);
 }
+#endif
 
-void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1,
-                        const SkPaint& paint) {
+void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawLine()");
     SkPoint pts[2];
 
@@ -3005,6 +3006,7 @@ void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1,
     this->drawPoints(kLines_PointMode, 2, pts, paint);
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
 void SkCanvas::drawRectCoords(SkScalar left, SkScalar top,
                               SkScalar right, SkScalar bottom,
                               const SkPaint& paint) {
@@ -3014,9 +3016,9 @@ void SkCanvas::drawRectCoords(SkScalar left, SkScalar top,
     r.set(left, top, right, bottom);
     this->drawRect(r, paint);
 }
+#endif
 
-void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius,
-                          const SkPaint& paint) {
+void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawCircle()");
     if (radius < 0) {
         radius = 0;
