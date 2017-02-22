@@ -22,6 +22,30 @@
       "revId": "2674568dc54d60b421bc90ddd62beda2a611f861",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4c93570_0034af70",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-22T15:24:06Z",
+      "side": 1,
+      "message": "I believe the GPU backend always has some render target bounds in mind that it cares about. Seeding as an intersect element will only give equivalent results if we disallow replace, xor, and union. I suppose the clip stack could have a separate bounds rect that is always intersected with the result of the last element.",
+      "parentUuid": "d7266437_78407545",
+      "range": {
+        "startLine": 583,
+        "startChar": 20,
+        "endLine": 583,
+        "endChar": 26
+      },
+      "revId": "2674568dc54d60b421bc90ddd62beda2a611f861",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
