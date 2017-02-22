@@ -3794,6 +3794,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
@@ -3843,6 +3844,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
@@ -3892,6 +3894,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
@@ -3941,6 +3944,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android": {
@@ -3990,6 +3994,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android": {
@@ -4039,6 +4044,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
@@ -4088,6 +4094,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
@@ -4137,6 +4144,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
@@ -4186,6 +4194,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
@@ -4235,6 +4244,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android": {
@@ -4284,6 +4294,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android": {
@@ -4333,6 +4344,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android": {
@@ -4382,6 +4394,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android": {
@@ -4431,6 +4444,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
@@ -4480,6 +4494,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
@@ -4529,6 +4544,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
@@ -4578,6 +4594,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
@@ -4627,6 +4644,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android": {
@@ -4676,6 +4694,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android": {
@@ -4725,6 +4744,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android": {
@@ -4774,6 +4794,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android": {
@@ -4823,6 +4844,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
@@ -4872,6 +4894,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android": {
@@ -4921,6 +4944,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
@@ -4970,6 +4994,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android": {
@@ -5019,6 +5044,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan": {
@@ -5068,6 +5094,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
@@ -5117,6 +5144,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android": {
@@ -5166,6 +5194,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
@@ -5205,6 +5234,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "skpbench_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench": {
@@ -5244,6 +5274,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "skpbench_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug": {
@@ -5292,6 +5323,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release": {
@@ -5340,6 +5372,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug": {
@@ -5389,6 +5422,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release": {
@@ -5438,6 +5472,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug": {
@@ -5486,6 +5521,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release": {
@@ -5534,6 +5570,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer": {
@@ -5582,6 +5619,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug": {
@@ -5631,6 +5669,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
@@ -5685,6 +5724,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN": {
@@ -5739,6 +5779,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release": {
@@ -5788,6 +5829,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
@@ -5842,6 +5884,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
@@ -5891,6 +5934,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN": {
@@ -5944,6 +5988,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN": {
@@ -5997,6 +6042,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
@@ -6046,6 +6092,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug": {
@@ -6095,6 +6142,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
@@ -6144,6 +6192,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
@@ -6193,6 +6242,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
@@ -6291,6 +6341,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
@@ -6339,6 +6390,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -6387,6 +6439,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
@@ -6435,6 +6488,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug": {
@@ -6488,6 +6542,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
@@ -6546,6 +6601,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release": {
@@ -6599,6 +6655,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
@@ -6657,6 +6714,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
@@ -6705,6 +6763,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug": {
@@ -6753,6 +6812,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE": {
@@ -6801,6 +6861,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
@@ -6849,6 +6910,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release": {
@@ -6897,6 +6959,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE": {
@@ -6945,6 +7008,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
@@ -6993,6 +7057,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE": {
@@ -7041,6 +7106,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE": {
@@ -7089,6 +7155,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug": {
@@ -7137,6 +7204,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release": {
@@ -7185,6 +7253,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -7233,6 +7302,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
@@ -7281,6 +7351,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
@@ -7329,6 +7400,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan": {
@@ -7377,6 +7449,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug": {
@@ -7425,6 +7498,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release": {
@@ -7473,6 +7547,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
@@ -7522,6 +7597,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE": {
@@ -7571,6 +7647,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release": {
@@ -7620,6 +7697,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE": {
@@ -7669,6 +7747,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug": {
@@ -7718,6 +7797,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release": {
@@ -7767,6 +7847,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug": {
@@ -7815,6 +7896,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE": {
@@ -7863,6 +7945,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan": {
@@ -7911,6 +7994,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release": {
@@ -7959,6 +8043,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE": {
@@ -8007,6 +8092,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan": {
@@ -8055,6 +8141,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
@@ -8104,6 +8191,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
@@ -8153,6 +8241,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI": {
@@ -8202,6 +8291,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
@@ -8251,6 +8341,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
@@ -8299,6 +8390,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
@@ -8347,6 +8439,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android": {
@@ -8396,6 +8489,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
@@ -8445,6 +8539,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
@@ -8494,6 +8589,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
@@ -8543,6 +8639,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android": {
@@ -8592,6 +8689,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android": {
@@ -8641,6 +8739,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-GalaxyTab3-GPU-Vivante-arm-Debug-Android": {
@@ -8690,6 +8789,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
@@ -8739,6 +8839,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
@@ -8788,6 +8889,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
@@ -8837,6 +8939,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
@@ -8886,6 +8989,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android": {
@@ -8935,6 +9039,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android": {
@@ -8984,6 +9089,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android": {
@@ -9033,6 +9139,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android": {
@@ -9082,6 +9189,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
@@ -9131,6 +9239,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
@@ -9180,6 +9289,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
@@ -9229,6 +9339,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
@@ -9278,6 +9389,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android": {
@@ -9327,6 +9439,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android": {
@@ -9376,6 +9489,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android": {
@@ -9425,6 +9539,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android": {
@@ -9474,6 +9589,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android": {
@@ -9523,6 +9639,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
@@ -9572,6 +9689,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
@@ -9621,6 +9739,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
@@ -9670,6 +9789,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
@@ -9719,6 +9839,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android": {
@@ -9768,6 +9889,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android": {
@@ -9817,6 +9939,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
@@ -9866,6 +9989,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android": {
@@ -9915,6 +10039,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan": {
@@ -9964,6 +10089,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug": {
@@ -10012,6 +10138,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release": {
@@ -10060,6 +10187,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug": {
@@ -10109,6 +10237,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release": {
@@ -10158,6 +10287,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug": {
@@ -10206,6 +10336,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer": {
@@ -10254,6 +10385,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release": {
@@ -10302,6 +10434,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug": {
@@ -10351,6 +10484,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
@@ -10405,6 +10539,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN": {
@@ -10459,6 +10594,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release": {
@@ -10508,6 +10644,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
@@ -10562,6 +10699,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
@@ -10611,6 +10749,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN": {
@@ -10665,6 +10804,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN": {
@@ -10718,6 +10858,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN": {
@@ -10771,6 +10912,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN": {
@@ -10824,6 +10966,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
@@ -10873,6 +11016,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug": {
@@ -10922,6 +11066,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
@@ -11046,6 +11191,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
@@ -11095,6 +11241,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD": {
@@ -11144,6 +11291,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
@@ -11192,6 +11340,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
@@ -11240,6 +11389,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
@@ -11288,6 +11438,7 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -11336,6 +11487,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
@@ -11384,6 +11536,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug": {
@@ -11437,6 +11590,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
@@ -11495,6 +11649,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release": {
@@ -11548,6 +11703,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
@@ -11606,6 +11762,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
@@ -11654,6 +11811,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug": {
@@ -11702,6 +11860,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE": {
@@ -11750,6 +11909,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
@@ -11798,6 +11958,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release": {
@@ -11846,6 +12007,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE": {
@@ -11894,6 +12056,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
@@ -11942,6 +12105,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE": {
@@ -11990,6 +12154,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE": {
@@ -12038,6 +12203,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug": {
@@ -12086,6 +12252,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release": {
@@ -12134,6 +12301,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -12182,6 +12350,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
@@ -12230,6 +12399,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
@@ -12278,6 +12448,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug": {
@@ -12326,6 +12497,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release": {
@@ -12374,6 +12546,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
@@ -12423,6 +12596,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE": {
@@ -12472,6 +12646,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release": {
@@ -12521,6 +12696,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE": {
@@ -12570,6 +12746,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug": {
@@ -12619,6 +12796,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release": {
@@ -12668,6 +12846,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug": {
@@ -12716,6 +12895,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE": {
@@ -12764,6 +12944,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan": {
@@ -12812,6 +12993,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release": {
@@ -12860,6 +13042,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE": {
@@ -12908,6 +13091,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan": {
@@ -12956,6 +13140,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
@@ -13005,6 +13190,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release": {
@@ -13054,6 +13240,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
@@ -13103,6 +13290,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI": {
@@ -13152,6 +13340,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
@@ -13201,6 +13390,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI": {
@@ -13250,6 +13440,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
@@ -13298,6 +13489,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
@@ -13346,6 +13538,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
