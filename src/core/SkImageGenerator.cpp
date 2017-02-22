@@ -184,17 +184,6 @@ SkGraphics::SetImageGeneratorFromEncodedDataFactory(ImageGeneratorFromEncodedDat
     return prev;
 }
 
-#ifdef SK_SUPPORT_BARE_PTR_IMAGEGENERATOR
-static SkGraphics::ImageGeneratorFromEncodedFactory gLegacyFactory;
-SkGraphics::ImageGeneratorFromEncodedFactory
-SkGraphics::SetImageGeneratorFromEncodedFactory(ImageGeneratorFromEncodedFactory factory)
-{
-    ImageGeneratorFromEncodedFactory prev = gLegacyFactory;
-    gLegacyFactory = factory;
-    return prev;
-}
-#endif
-
 std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromEncoded(sk_sp<SkData> data) {
     if (!data) {
         return nullptr;
@@ -204,27 +193,5 @@ std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromEncoded(sk_sp<SkData
             return generator;
         }
     }
-#ifdef SK_SUPPORT_BARE_PTR_IMAGEGENERATOR
-    if (gLegacyFactory) {
-        if (SkImageGenerator* generator = gLegacyFactory(data.get())) {
-            return std::unique_ptr<SkImageGenerator>(generator);
-        }
-    }
-#endif
     return SkImageGenerator::MakeFromEncodedImpl(std::move(data));
 }
-
-#ifdef SK_SUPPORT_BARE_PTR_IMAGEGENERATOR
-#include "SkPicture.h"
-
-SkImageGenerator* SkImageGenerator::NewFromPicture(const SkISize& size, const SkPicture* picture,
-                                                   const SkMatrix* matrix, const SkPaint* paint,
-                                                   SkImage::BitDepth depth,
-                                                   sk_sp<SkColorSpace> cs) {
-    return MakeFromPicture(size, sk_ref_sp(const_cast<SkPicture*>(picture)), matrix, paint,
-                           depth, std::move(cs)).release();
-}
-SkImageGenerator* SkImageGenerator::NewFromEncoded(SkData* data) {
-    return MakeFromEncoded(sk_ref_sp(data)).release();
-}
-#endif

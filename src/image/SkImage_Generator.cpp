@@ -100,9 +100,3 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> gene
 
     return validator ? sk_make_sp<SkImage_Generator>(&validator) : nullptr;
 }
-
-#ifdef SK_SUPPORT_BARE_PTR_IMAGEGENERATOR
-sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* gen, const SkIRect* subset) {
-    return MakeFromGenerator(std::unique_ptr<SkImageGenerator>(gen), subset);
-}
-#endif
