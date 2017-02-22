@@ -20,6 +20,7 @@
 #include "ir/SkSLPrefixExpression.h"
 #include "ir/SkSLReturnStatement.h"
 #include "ir/SkSLSwizzle.h"
+#include "ir/SkSLSwitchStatement.h"
 #include "ir/SkSLTernaryExpression.h"
 #include "ir/SkSLVarDeclarationsStatement.h"
 #include "ir/SkSLWhileStatement.h"
@@ -152,13 +153,17 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
             break;
-        case Expression::kPrefix_Kind:
-            this->addExpression(cfg, &((PrefixExpression*) e->get())->fOperand, constantPropagate);
+        case Expression::kPrefix_Kind: {
+            PrefixExpression* p = (PrefixExpression*) e->get();
+            this->addExpression(cfg, &p->fOperand, constantPropagate &&
+                                                   p->fOperator != Token::PLUSPLUS &&
+                                                   p->fOperator != Token::MINUSMINUS);
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
             break;
+        }
         case Expression::kPostfix_Kind:
-            this->addExpression(cfg, &((PostfixExpression*) e->get())->fOperand, constantPropagate);
+            this->addExpression(cfg, &((PostfixExpression*) e->get())->fOperand, false);
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
             break;
@@ -343,6 +348,34 @@ void CFGGenerator::addStatement(CFG& cfg, const Statement* s) {
             fLoopContinues.pop();
             fLoopExits.pop();
             cfg.fCurrent = loopExit;
+            break;
+        }
+        case Statement::kSwitch_Kind: {
+            SwitchStatement* ss = (SwitchStatement*) s;
+            this->addExpression(cfg, &ss->fValue, true);
+            BlockId start = cfg.fCurrent;
+            BlockId switchExit = cfg.newIsolatedBlock();
+            fLoopExits.push(switchExit);
+            for (const auto& c : ss->fCases) {
+                cfg.newBlock();
+                cfg.addExit(start, cfg.fCurrent);
+                if (c->fValue) {
+                    // technically this should go in the start block, but it doesn't actually matter
+                    // because it must be constant. Not worth running two loops for.
+                    this->addExpression(cfg, &c->fValue, true);
+                }
+                for (const auto& caseStatement : c->fStatements) {
+                    this->addStatement(cfg, caseStatement.get());
+                }
+            }
+            cfg.addExit(cfg.fCurrent, switchExit);
+            // note that unlike GLSL, our grammar requires the default case to be last
+            if (0 == ss->fCases.size() || ss->fCases[ss->fCases.size() - 1]->fValue) {
+                // switch does not have a default clause, mark that it can skip straight to the end
+                cfg.addExit(start, switchExit);
+            }
+            fLoopExits.pop();
+            cfg.fCurrent = switchExit;
             break;
         }
         default:
