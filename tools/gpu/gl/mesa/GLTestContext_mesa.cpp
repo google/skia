@@ -57,7 +57,8 @@ MesaGLContext::MesaGLContext(MesaGLContext* shareContext)
         : fContext(static_cast<Context>(0))
         , fImage(nullptr) {
     GR_STATIC_ASSERT(sizeof(Context) == sizeof(OSMesaContext));
-    Context mesaShareContext = shareContext ? shareContext->fContext : nullptr;
+    OSMesaContext mesaShareContext = shareContext ? (OSMesaContext)(shareContext->fContext)
+                                                  : nullptr;
 
     /* Create an RGBA-mode context */
 #if OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 305
