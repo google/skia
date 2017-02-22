@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
+#include "SkMutex.h"
 #include "SkShadowUtils.h"
 
 void draw_shadow(SkCanvas* canvas, const SkPath& path, int height, SkColor color, SkPoint3 lightPos,
@@ -22,6 +23,14 @@ static constexpr int kW = 700;
 static constexpr int kH = 800;
 
 DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
+    // SkShadowUtils uses a cache of SkVertices meshes. The vertices are created in a local
+    // coordinate system and then translated when reused. The coordinate system depends on
+    // parameters to the generating draw. To avoid slight rendering differences due to this property
+    // we only allow one thread into this GM at a time and we reset the cache before each run.
+    static SkMutex gMutex;
+    SkAutoMutexAcquire mutexLock(&gMutex);
+    SkShadowUtils::ClearCache();
+
     SkTArray<SkPath> paths;
     paths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
     SkRRect oddRRect;

@@ -83,6 +83,10 @@ sk_sp<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(GrContext*
 
 namespace {
 
+uint64_t resource_cache_shared_id() {
+    return 0x2020776f64616873llu;  // 'shadow  '
+}
+
 /** Factory for an ambient shadow mesh with particular shadow properties. */
 struct AmbientVerticesFactory {
     SkScalar fRadius = SK_ScalarNaN;  // NaN so that isCompatible will always fail until init'ed.
@@ -381,7 +385,7 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
         keyStorage.reset(keyDataBytes + sizeof(SkResourceCache::Key));
         key = new (keyStorage.begin()) SkResourceCache::Key();
         path.writeKey((uint32_t*)(keyStorage.begin() + sizeof(*key)));
-        key->init(&kNamespace, 0, keyDataBytes);
+        key->init(&kNamespace, resource_cache_shared_id(), keyDataBytes);
         SkResourceCache::Find(*key, FindVisitor<FACTORY>, &context);
     }
 
@@ -522,3 +526,5 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         draw_shadow(factory, canvas, shadowedPath, color);
     }
 }
+
+void SkShadowUtils::ClearCache() { SkResourceCache::PostPurgeSharedID(resource_cache_shared_id()); }
