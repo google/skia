@@ -171,6 +171,24 @@ _sk_clamp_a_aarch64:
   .long  0x4ea3f442                                      // fmin          v2.4s, v2.4s, v3.4s
   .long  0xd61f0060                                      // br            x3
 
+.globl _sk_set_rgb_aarch64
+_sk_set_rgb_aarch64:
+  .long  0xa8c10c28                                      // ldp           x8, x3, [x1],#16
+  .long  0x91002109                                      // add           x9, x8, #0x8
+  .long  0x4ddfc900                                      // ld1r          {v0.4s}, [x8], #4
+  .long  0x4d40c922                                      // ld1r          {v2.4s}, [x9]
+  .long  0x4d40c901                                      // ld1r          {v1.4s}, [x8]
+  .long  0xd61f0060                                      // br            x3
+
+.globl _sk_swap_rb_aarch64
+_sk_swap_rb_aarch64:
+  .long  0xf9400423                                      // ldr           x3, [x1,#8]
+  .long  0x4ea01c10                                      // mov           v16.16b, v0.16b
+  .long  0x91004021                                      // add           x1, x1, #0x10
+  .long  0x4ea21c40                                      // mov           v0.16b, v2.16b
+  .long  0x4eb01e02                                      // mov           v2.16b, v16.16b
+  .long  0xd61f0060                                      // br            x3
+
 .globl _sk_swap_aarch64
 _sk_swap_aarch64:
   .long  0xf9400423                                      // ldr           x3, [x1,#8]
@@ -760,6 +778,29 @@ _sk_clamp_a_vfp4:
   .long  0xf2200f03                                      // vmin.f32      d0, d0, d3
   .long  0xf2211f03                                      // vmin.f32      d1, d1, d3
   .long  0xf2222f03                                      // vmin.f32      d2, d2, d3
+  .long  0xe12fff13                                      // bx            r3
+
+.globl _sk_set_rgb_vfp4
+_sk_set_rgb_vfp4:
+  .long  0xe92d4800                                      // push          {fp, lr}
+  .long  0xe591e000                                      // ldr           lr, [r1]
+  .long  0xe591c004                                      // ldr           ip, [r1, #4]
+  .long  0xe2811008                                      // add           r1, r1, #8
+  .long  0xe28e3008                                      // add           r3, lr, #8
+  .long  0xf4ae0c9f                                      // vld1.32       {d0[]}, [lr :32]
+  .long  0xf4a32c9f                                      // vld1.32       {d2[]}, [r3 :32]
+  .long  0xe28e3004                                      // add           r3, lr, #4
+  .long  0xf4a31c9f                                      // vld1.32       {d1[]}, [r3 :32]
+  .long  0xe8bd4800                                      // pop           {fp, lr}
+  .long  0xe12fff1c                                      // bx            ip
+
+.globl _sk_swap_rb_vfp4
+_sk_swap_rb_vfp4:
+  .long  0xeef00b40                                      // vmov.f64      d16, d0
+  .long  0xe5913004                                      // ldr           r3, [r1, #4]
+  .long  0xe2811008                                      // add           r1, r1, #8
+  .long  0xeeb00b42                                      // vmov.f64      d0, d2
+  .long  0xeeb02b60                                      // vmov.f64      d2, d16
   .long  0xe12fff13                                      // bx            r3
 
 .globl _sk_swap_vfp4
@@ -1414,6 +1455,24 @@ _sk_clamp_a_hsw:
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
   .byte  0xff,0xe0                                       // jmpq          *%rax
 
+.globl _sk_set_rgb_hsw
+_sk_set_rgb_hsw:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0xe2,0x7d,0x18,0x00                        // vbroadcastss  (%rax),%ymm0
+  .byte  0xc4,0xe2,0x7d,0x18,0x48,0x04                   // vbroadcastss  0x4(%rax),%ymm1
+  .byte  0xc4,0xe2,0x7d,0x18,0x50,0x08                   // vbroadcastss  0x8(%rax),%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_swap_rb_hsw
+_sk_swap_rb_hsw:
+  .byte  0xc5,0x7c,0x28,0xc0                             // vmovaps       %ymm0,%ymm8
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xfc,0x28,0xc2                             // vmovaps       %ymm2,%ymm0
+  .byte  0xc5,0x7c,0x29,0xc2                             // vmovaps       %ymm8,%ymm2
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
 .globl _sk_swap_hsw
 _sk_swap_hsw:
   .byte  0xc5,0x7c,0x28,0xc3                             // vmovaps       %ymm3,%ymm8
@@ -1970,6 +2029,27 @@ _sk_clamp_a_sse41:
   .byte  0x0f,0x5d,0xcb                                  // minps         %xmm3,%xmm1
   .byte  0x0f,0x5d,0xd3                                  // minps         %xmm3,%xmm2
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_set_rgb_sse41
+_sk_set_rgb_sse41:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xf3,0x0f,0x10,0x00                             // movss         (%rax),%xmm0
+  .byte  0xf3,0x0f,0x10,0x48,0x04                        // movss         0x4(%rax),%xmm1
+  .byte  0x0f,0xc6,0xc0,0x00                             // shufps        $0x0,%xmm0,%xmm0
+  .byte  0x0f,0xc6,0xc9,0x00                             // shufps        $0x0,%xmm1,%xmm1
+  .byte  0xf3,0x0f,0x10,0x50,0x08                        // movss         0x8(%rax),%xmm2
+  .byte  0x0f,0xc6,0xd2,0x00                             // shufps        $0x0,%xmm2,%xmm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_swap_rb_sse41
+_sk_swap_rb_sse41:
+  .byte  0x44,0x0f,0x28,0xc0                             // movaps        %xmm0,%xmm8
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x0f,0x28,0xc2                                  // movaps        %xmm2,%xmm0
+  .byte  0x41,0x0f,0x28,0xd0                             // movaps        %xmm8,%xmm2
   .byte  0xff,0xe0                                       // jmpq          *%rax
 
 .globl _sk_swap_sse41
@@ -2695,6 +2775,27 @@ _sk_clamp_a_sse2:
   .byte  0x0f,0x5d,0xcb                                  // minps         %xmm3,%xmm1
   .byte  0x0f,0x5d,0xd3                                  // minps         %xmm3,%xmm2
   .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_set_rgb_sse2
+_sk_set_rgb_sse2:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xf3,0x0f,0x10,0x00                             // movss         (%rax),%xmm0
+  .byte  0xf3,0x0f,0x10,0x48,0x04                        // movss         0x4(%rax),%xmm1
+  .byte  0x0f,0xc6,0xc0,0x00                             // shufps        $0x0,%xmm0,%xmm0
+  .byte  0x0f,0xc6,0xc9,0x00                             // shufps        $0x0,%xmm1,%xmm1
+  .byte  0xf3,0x0f,0x10,0x50,0x08                        // movss         0x8(%rax),%xmm2
+  .byte  0x0f,0xc6,0xd2,0x00                             // shufps        $0x0,%xmm2,%xmm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_swap_rb_sse2
+_sk_swap_rb_sse2:
+  .byte  0x44,0x0f,0x28,0xc0                             // movaps        %xmm0,%xmm8
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x0f,0x28,0xc2                                  // movaps        %xmm2,%xmm0
+  .byte  0x41,0x0f,0x28,0xd0                             // movaps        %xmm8,%xmm2
   .byte  0xff,0xe0                                       // jmpq          *%rax
 
 .globl _sk_swap_sse2

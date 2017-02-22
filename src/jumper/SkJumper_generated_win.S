@@ -190,6 +190,24 @@ _sk_clamp_a_hsw LABEL PROC
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
   DB  255,224                                         ; jmpq          *%rax
 
+PUBLIC _sk_set_rgb_hsw
+_sk_set_rgb_hsw LABEL PROC
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  196,226,125,24,0                                ; vbroadcastss  (%rax),%ymm0
+  DB  196,226,125,24,72,4                             ; vbroadcastss  0x4(%rax),%ymm1
+  DB  196,226,125,24,80,8                             ; vbroadcastss  0x8(%rax),%ymm2
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  255,224                                         ; jmpq          *%rax
+
+PUBLIC _sk_swap_rb_hsw
+_sk_swap_rb_hsw LABEL PROC
+  DB  197,124,40,192                                  ; vmovaps       %ymm0,%ymm8
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  197,252,40,194                                  ; vmovaps       %ymm2,%ymm0
+  DB  197,124,41,194                                  ; vmovaps       %ymm8,%ymm2
+  DB  255,224                                         ; jmpq          *%rax
+
 PUBLIC _sk_swap_hsw
 _sk_swap_hsw LABEL PROC
   DB  197,124,40,195                                  ; vmovaps       %ymm3,%ymm8
@@ -773,6 +791,27 @@ _sk_clamp_a_sse41 LABEL PROC
   DB  15,93,203                                       ; minps         %xmm3,%xmm1
   DB  15,93,211                                       ; minps         %xmm3,%xmm2
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  255,224                                         ; jmpq          *%rax
+
+PUBLIC _sk_set_rgb_sse41
+_sk_set_rgb_sse41 LABEL PROC
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  243,15,16,0                                     ; movss         (%rax),%xmm0
+  DB  243,15,16,72,4                                  ; movss         0x4(%rax),%xmm1
+  DB  15,198,192,0                                    ; shufps        $0x0,%xmm0,%xmm0
+  DB  15,198,201,0                                    ; shufps        $0x0,%xmm1,%xmm1
+  DB  243,15,16,80,8                                  ; movss         0x8(%rax),%xmm2
+  DB  15,198,210,0                                    ; shufps        $0x0,%xmm2,%xmm2
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  255,224                                         ; jmpq          *%rax
+
+PUBLIC _sk_swap_rb_sse41
+_sk_swap_rb_sse41 LABEL PROC
+  DB  68,15,40,192                                    ; movaps        %xmm0,%xmm8
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  15,40,194                                       ; movaps        %xmm2,%xmm0
+  DB  65,15,40,208                                    ; movaps        %xmm8,%xmm2
   DB  255,224                                         ; jmpq          *%rax
 
 PUBLIC _sk_swap_sse41
@@ -1525,6 +1564,27 @@ _sk_clamp_a_sse2 LABEL PROC
   DB  15,93,203                                       ; minps         %xmm3,%xmm1
   DB  15,93,211                                       ; minps         %xmm3,%xmm2
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  255,224                                         ; jmpq          *%rax
+
+PUBLIC _sk_set_rgb_sse2
+_sk_set_rgb_sse2 LABEL PROC
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  243,15,16,0                                     ; movss         (%rax),%xmm0
+  DB  243,15,16,72,4                                  ; movss         0x4(%rax),%xmm1
+  DB  15,198,192,0                                    ; shufps        $0x0,%xmm0,%xmm0
+  DB  15,198,201,0                                    ; shufps        $0x0,%xmm1,%xmm1
+  DB  243,15,16,80,8                                  ; movss         0x8(%rax),%xmm2
+  DB  15,198,210,0                                    ; shufps        $0x0,%xmm2,%xmm2
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  255,224                                         ; jmpq          *%rax
+
+PUBLIC _sk_swap_rb_sse2
+_sk_swap_rb_sse2 LABEL PROC
+  DB  68,15,40,192                                    ; movaps        %xmm0,%xmm8
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  15,40,194                                       ; movaps        %xmm2,%xmm0
+  DB  65,15,40,208                                    ; movaps        %xmm8,%xmm2
   DB  255,224                                         ; jmpq          *%rax
 
 PUBLIC _sk_swap_sse2

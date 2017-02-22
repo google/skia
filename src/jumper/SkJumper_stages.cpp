@@ -321,6 +321,18 @@ STAGE(clamp_a) {
     b = min(b, a);
 }
 
+STAGE(set_rgb) {
+    auto rgb = (const float*)ctx;
+    r = rgb[0];
+    g = rgb[1];
+    b = rgb[2];
+}
+STAGE(swap_rb) {
+    auto tmp = r;
+    r = b;
+    b = tmp;
+}
+
 STAGE(swap) {
     auto swap = [](F& v, F& dv) {
         auto tmp = v;
