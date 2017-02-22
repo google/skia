@@ -7229,6 +7229,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release": {
@@ -7278,6 +7279,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug": {
@@ -12375,6 +12377,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release": {
@@ -12424,6 +12427,7 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "max_attempts": 1,
       "priority": 0.8
     },
     "Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug": {
