@@ -32,7 +32,7 @@ public:
     // A convenience for testing tools.
     // Creates and owns a thread pool, and passes it to SkExecutor::SetDefault().
     struct Enabler {
-        explicit Enabler(int threads = 1);  // -1 -> num_cores, 0 -> noop
+        explicit Enabler(int threads = -1);  // -1 -> num_cores, 0 -> noop
         std::unique_ptr<SkExecutor> fThreadPool;
     };
 
