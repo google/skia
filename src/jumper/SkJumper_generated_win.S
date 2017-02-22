@@ -336,6 +336,25 @@ _sk_scale_u8_hsw LABEL PROC
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
   DB  255,224                                         ; jmpq          *%rax
 
+PUBLIC _sk_lerp_u8_hsw
+_sk_lerp_u8_hsw LABEL PROC
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  72,139,0                                        ; mov           (%rax),%rax
+  DB  196,98,125,49,4,56                              ; vpmovzxbd     (%rax,%rdi,1),%ymm8
+  DB  196,65,124,91,192                               ; vcvtdq2ps     %ymm8,%ymm8
+  DB  196,98,125,24,74,12                             ; vbroadcastss  0xc(%rdx),%ymm9
+  DB  196,65,60,89,193                                ; vmulps        %ymm9,%ymm8,%ymm8
+  DB  197,252,92,196                                  ; vsubps        %ymm4,%ymm0,%ymm0
+  DB  196,226,61,168,196                              ; vfmadd213ps   %ymm4,%ymm8,%ymm0
+  DB  197,244,92,205                                  ; vsubps        %ymm5,%ymm1,%ymm1
+  DB  196,226,61,168,205                              ; vfmadd213ps   %ymm5,%ymm8,%ymm1
+  DB  197,236,92,214                                  ; vsubps        %ymm6,%ymm2,%ymm2
+  DB  196,226,61,168,214                              ; vfmadd213ps   %ymm6,%ymm8,%ymm2
+  DB  197,228,92,223                                  ; vsubps        %ymm7,%ymm3,%ymm3
+  DB  196,226,61,168,223                              ; vfmadd213ps   %ymm7,%ymm8,%ymm3
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  255,224                                         ; jmpq          *%rax
+
 PUBLIC _sk_load_tables_hsw
 _sk_load_tables_hsw LABEL PROC
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
@@ -959,6 +978,30 @@ _sk_scale_u8_sse41 LABEL PROC
   DB  65,15,89,201                                    ; mulps         %xmm9,%xmm1
   DB  65,15,89,209                                    ; mulps         %xmm9,%xmm2
   DB  65,15,89,217                                    ; mulps         %xmm9,%xmm3
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  255,224                                         ; jmpq          *%rax
+
+PUBLIC _sk_lerp_u8_sse41
+_sk_lerp_u8_sse41 LABEL PROC
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  72,139,0                                        ; mov           (%rax),%rax
+  DB  102,68,15,56,49,4,56                            ; pmovzxbd      (%rax,%rdi,1),%xmm8
+  DB  69,15,91,192                                    ; cvtdq2ps      %xmm8,%xmm8
+  DB  243,68,15,16,74,12                              ; movss         0xc(%rdx),%xmm9
+  DB  69,15,198,201,0                                 ; shufps        $0x0,%xmm9,%xmm9
+  DB  69,15,89,200                                    ; mulps         %xmm8,%xmm9
+  DB  15,92,196                                       ; subps         %xmm4,%xmm0
+  DB  65,15,89,193                                    ; mulps         %xmm9,%xmm0
+  DB  15,88,196                                       ; addps         %xmm4,%xmm0
+  DB  15,92,205                                       ; subps         %xmm5,%xmm1
+  DB  65,15,89,201                                    ; mulps         %xmm9,%xmm1
+  DB  15,88,205                                       ; addps         %xmm5,%xmm1
+  DB  15,92,214                                       ; subps         %xmm6,%xmm2
+  DB  65,15,89,209                                    ; mulps         %xmm9,%xmm2
+  DB  15,88,214                                       ; addps         %xmm6,%xmm2
+  DB  15,92,223                                       ; subps         %xmm7,%xmm3
+  DB  65,15,89,217                                    ; mulps         %xmm9,%xmm3
+  DB  15,88,223                                       ; addps         %xmm7,%xmm3
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
   DB  255,224                                         ; jmpq          *%rax
 
@@ -1688,6 +1731,33 @@ _sk_scale_u8_sse2 LABEL PROC
   DB  65,15,89,201                                    ; mulps         %xmm9,%xmm1
   DB  65,15,89,209                                    ; mulps         %xmm9,%xmm2
   DB  65,15,89,217                                    ; mulps         %xmm9,%xmm3
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  255,224                                         ; jmpq          *%rax
+
+PUBLIC _sk_lerp_u8_sse2
+_sk_lerp_u8_sse2 LABEL PROC
+  DB  72,173                                          ; lods          %ds:(%rsi),%rax
+  DB  72,139,0                                        ; mov           (%rax),%rax
+  DB  102,68,15,110,4,56                              ; movd          (%rax,%rdi,1),%xmm8
+  DB  102,69,15,239,201                               ; pxor          %xmm9,%xmm9
+  DB  102,69,15,96,193                                ; punpcklbw     %xmm9,%xmm8
+  DB  102,69,15,97,193                                ; punpcklwd     %xmm9,%xmm8
+  DB  69,15,91,192                                    ; cvtdq2ps      %xmm8,%xmm8
+  DB  243,68,15,16,74,12                              ; movss         0xc(%rdx),%xmm9
+  DB  69,15,198,201,0                                 ; shufps        $0x0,%xmm9,%xmm9
+  DB  69,15,89,200                                    ; mulps         %xmm8,%xmm9
+  DB  15,92,196                                       ; subps         %xmm4,%xmm0
+  DB  65,15,89,193                                    ; mulps         %xmm9,%xmm0
+  DB  15,88,196                                       ; addps         %xmm4,%xmm0
+  DB  15,92,205                                       ; subps         %xmm5,%xmm1
+  DB  65,15,89,201                                    ; mulps         %xmm9,%xmm1
+  DB  15,88,205                                       ; addps         %xmm5,%xmm1
+  DB  15,92,214                                       ; subps         %xmm6,%xmm2
+  DB  65,15,89,209                                    ; mulps         %xmm9,%xmm2
+  DB  15,88,214                                       ; addps         %xmm6,%xmm2
+  DB  15,92,223                                       ; subps         %xmm7,%xmm3
+  DB  65,15,89,217                                    ; mulps         %xmm9,%xmm3
+  DB  15,88,223                                       ; addps         %xmm7,%xmm3
   DB  72,173                                          ; lods          %ds:(%rsi),%rax
   DB  255,224                                         ; jmpq          *%rax
 
