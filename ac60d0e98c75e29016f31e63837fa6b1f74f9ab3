@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ae1f034_dec61082",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-22T18:11:47Z",
+      "side": 1,
+      "message": "¯\\_(ツ)_/¯",
+      "revId": "ac60d0e98c75e29016f31e63837fa6b1f74f9ab3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
