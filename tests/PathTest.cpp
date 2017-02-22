@@ -195,7 +195,7 @@ static void test_fuzz_crbug_662780() {
             SkBits2Float(0x41000000), SkBits2Float(0x431e0000), SkBits2Float(0x3f3504f3));
     path.close();
     canvas->clipPath(path, true);
-    canvas->drawRectCoords(0, 0, 250, 250, paint);
+    canvas->drawRect(SkRect::MakeWH(250, 250), paint);
 }
 
 static void test_mask_overflow() {
@@ -4418,7 +4418,7 @@ static void test_fuzz_crbug_662952(skiatest::Reporter* reporter) {
     SkPaint paint;
     paint.setAntiAlias(true);
     surface->getCanvas()->clipPath(path, true);
-    surface->getCanvas()->drawRectCoords(0, 0, 100, 100, paint);
+    surface->getCanvas()->drawRect(SkRect::MakeWH(100, 100), paint);
 }
 
 static void test_path_crbugskia6003() {
@@ -4441,7 +4441,7 @@ static void test_path_crbugskia6003() {
     path.lineTo(SkBits2Float(0x4325e666), SkBits2Float(0x42a1999a));  // 165.9f, 80.8f
     path.close();
     canvas->clipPath(path, true);
-    canvas->drawRectCoords(0, 0, 500, 500, paint);
+    canvas->drawRect(SkRect::MakeWH(500, 500), paint);
 }
 
 static void test_fuzz_crbug_662730(skiatest::Reporter* reporter) {

@@ -180,7 +180,7 @@ static void draw_transfer_fn(SkCanvas* canvas, SkGammaNamed gammaNamed, const Sk
     }
     paint.setColor(0xFF000000);
     paint.setStrokeWidth(3.0f);
-    canvas->drawRectCoords(ox, oy - gammaHeight, ox + gammaWidth, oy, paint);
+    canvas->drawRect({ ox, oy - gammaHeight, ox + gammaWidth, oy }, paint);
 }
 
 /**

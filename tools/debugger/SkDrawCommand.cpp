@@ -313,7 +313,7 @@ SkDrawCommand* SkDrawCommand::fromJSON(Json::Value& command, UrlDataManager& url
 namespace {
 
 void xlate_and_scale_to_bounds(SkCanvas* canvas, const SkRect& bounds) {
-    const SkISize& size = canvas->getDeviceSize();
+    const SkISize& size = canvas->getBaseLayerSize();
 
     static const SkScalar kInsetFrac = 0.9f; // Leave a border around object
 
@@ -348,7 +348,7 @@ void render_path(SkCanvas* canvas, const SkPath& path) {
 }
 
 void render_bitmap(SkCanvas* canvas, const SkBitmap& input, const SkRect* srcRect = nullptr) {
-    const SkISize& size = canvas->getDeviceSize();
+    const SkISize& size = canvas->getBaseLayerSize();
 
     SkScalar xScale = SkIntToScalar(size.fWidth-2) / input.width();
     SkScalar yScale = SkIntToScalar(size.fHeight-2) / input.height();

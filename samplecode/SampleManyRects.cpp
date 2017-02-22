@@ -33,7 +33,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkISize dsize = canvas->getDeviceSize();
+        SkISize dsize = canvas->getBaseLayerSize();
         canvas->clear(0xFFF0E0F0);
 
         for (int i = 0; i < N; ++i) {

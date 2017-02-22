@@ -204,7 +204,7 @@ protected:
             } break;
         }
 
-        SkISize size = canvas->getDeviceSize();
+        SkISize size = canvas->getBaseLayerSize();
         SkRect bigR = SkRect::MakeWH(SkIntToScalar(size.width()), SkIntToScalar(size.height()));
 
         SkPaint p;

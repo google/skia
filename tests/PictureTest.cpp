@@ -836,7 +836,7 @@ static void test_gen_id(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, empty->uniqueID() != SK_InvalidGenID);
 
     SkCanvas* canvas = recorder.beginRecording(1, 1);
-    canvas->drawARGB(255, 255, 255, 255);
+    canvas->drawColor(SK_ColorWHITE);
     sk_sp<SkPicture> hasData(recorder.finishRecordingAsPicture());
     // picture should have a non-zero id after recording
     REPORTER_ASSERT(reporter, hasData->uniqueID() != SK_InvalidGenID);
@@ -942,7 +942,7 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
 
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(100, 100);
-    canvas->drawARGB(0, 0, 0, 0);
+    canvas->drawColor(0);
 
     canvas->saveLayer(0, &semiTransparent);
     canvas->drawBitmap(blueBM, 25, 25);
