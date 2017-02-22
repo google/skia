@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "29af4bd5_d2c01c7f",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-22T21:41:55Z",
+      "side": 1,
+      "message": "We already have a local define for this (see line 17). Could make that more generally available for testing.",
+      "parentUuid": "fa463338_43624a8e",
+      "revId": "899e775ce99472818d1ba7614a6f191d08fa1efb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1f3d4b22_a6f1dd0e",
         "filename": "src/core/SkRecordOpts.cpp",
         "patchSetId": 1
