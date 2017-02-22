@@ -258,7 +258,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     this->initGLSL(ctxInfo);
     GrShaderCaps* shaderCaps = fShaderCaps.get();
 
-    if (!contextOptions.fSuppressPathRendering) {
+    if (contextOptions.fGpuPathRenderers & GrContextOptions::GpuPathRenderers::kStencilAndCover) {
         shaderCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
     }
 

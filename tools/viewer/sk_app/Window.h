@@ -187,6 +187,10 @@ public:
     virtual const DisplayParams& getDisplayParams();
     void setDisplayParams(const DisplayParams& params);
 
+    // Actual parameters in effect, obtained from the native window.
+    int sampleCount() const;
+    int stencilBits() const;
+
 protected:
     Window();
 

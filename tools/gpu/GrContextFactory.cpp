@@ -233,7 +233,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     SkASSERT(testCtx && testCtx->backend() == backend);
     GrContextOptions grOptions = fGlobalOptions;
     if (ContextOverrides::kDisableNVPR & overrides) {
-        grOptions.fSuppressPathRendering = true;
+        grOptions.fGpuPathRenderers &= ~GrContextOptions::GpuPathRenderers::kStencilAndCover;
     }
     if (ContextOverrides::kUseInstanced & overrides) {
         grOptions.fEnableInstancedRendering = true;

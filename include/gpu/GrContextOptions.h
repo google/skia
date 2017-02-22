@@ -83,12 +83,10 @@ struct GrContextOptions {
     bool fDisableGpuYUVConversion = false;
 
     /**
-     * If true, the caps will never report driver support for path rendering.
-     */
-    bool fSuppressPathRendering = false;
-
-    /**
-     * Allows the client to include or exclude specific GPU path renderers.
+     * Allows the client to include or exclude specific GPU path renderers. NOTE: excluding
+     * kStencilAndCover will have the side effect of causing the caps to report no driver support
+     * for path rendering. This will in turn disable mixed samples as well as the stencil-and-cover
+     * text context.
      */
     enum class GpuPathRenderers {
         kNone              = 0, // Always use sofware masks.
