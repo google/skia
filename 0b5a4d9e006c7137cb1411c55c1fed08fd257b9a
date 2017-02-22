@@ -52,6 +52,24 @@
       "revId": "0b5a4d9e006c7137cb1411c55c1fed08fd257b9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8383f031_1ea7b85a",
+        "filename": "samplecode/SampleApp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-22T17:06:15Z",
+      "side": 1,
+      "message": "Sure, though I don\u0027t think supporting the --pr flag in sample app is particularly desirable.",
+      "parentUuid": "38ec3ed4_8f5e4dcd",
+      "revId": "0b5a4d9e006c7137cb1411c55c1fed08fd257b9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
