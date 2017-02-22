@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f653d31_f92e24c0",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "Is it ok to ignore the value of constantPropagate here? I.e. is there anything like \"(-x).y \u003d 2\" that is actually legal?",
+      "range": {
+        "startLine": 158,
+        "startChar": 51,
+        "endLine": 159,
+        "endChar": 84
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47c4f20f_6ca74d05",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: Seems like this belongs in the start block, but since it must be a constant, it doesn\u0027t matter much.",
+      "range": {
+        "startLine": 361,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 17
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de2196d1_4b65f374",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: maybe comment that we require default to be last? (This is not required in C or GLSL.)",
+      "range": {
+        "startLine": 369,
+        "startChar": 42,
+        "endLine": 369,
+        "endChar": 83
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7ca599b_a8825c81",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "I don\u0027t see any way to get a nullptr here.",
+      "range": {
+        "startLine": 289,
+        "startChar": 20,
+        "endLine": 289,
+        "endChar": 35
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23a5c51b_4459d3d0",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "Need to coerce to int/uint for GLSL (or require int in IRGenerator).",
+      "range": {
+        "startLine": 764,
+        "startChar": 35,
+        "endLine": 764,
+        "endChar": 44
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b894a5e8_c5a59620",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: The GLSL spec says \"The statement following a switch (…) forms a nested scope.\"",
+      "range": {
+        "startLine": 385,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 4
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c382eaa8_f0f9c018",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: should check somewhere that there are no duplicate caseValues.",
+      "range": {
+        "startLine": 408,
+        "startChar": 4,
+        "endLine": 408,
+        "endChar": 10
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bea860c_4d5c0515",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: maybe comment that other parts of the compiler assume default is always last.",
+      "range": {
+        "startLine": 1034,
+        "startChar": 4,
+        "endLine": 1034,
+        "endChar": 47
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7556a6e_a7b15df0",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: \"\u0027default\u0027\" for consistency",
+      "range": {
+        "startLine": 1036,
+        "startChar": 52,
+        "endLine": 1036,
+        "endChar": 61
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cf97afe_7bb4ba25",
+        "filename": "src/sksl/ir/SkSLStatement.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: Assuming these aren\u0027t persisted anywhere, maintain alphabetical order.",
+      "range": {
+        "startLine": 32,
+        "startChar": 8,
+        "endLine": 32,
+        "endChar": 20
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a3ae66e_f2f25491",
+        "filename": "src/sksl/ir/SkSLSwitchCase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: wrong doc",
+      "range": {
+        "startLine": 16,
+        "startChar": 3,
+        "endLine": 16,
+        "endChar": 24
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4314272e_7834e719",
+        "filename": "src/sksl/ir/SkSLSwitchCase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: document nullptr \u003d\u003d default",
+      "range": {
+        "startLine": 19,
+        "startChar": 34,
+        "endLine": 19,
+        "endChar": 67
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f51dcfcb_e7d97383",
+        "filename": "src/sksl/ir/SkSLSwitchCase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "nit: incorrect indentation",
+      "range": {
+        "startLine": 20,
+        "startChar": 15,
+        "endLine": 20,
+        "endChar": 18
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa53ae9f_def50e51",
+        "filename": "src/sksl/lex.sksl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-22T18:29:25Z",
+      "side": 1,
+      "message": "Just want to ensure that you meant for the version number to decrease.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 35
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
