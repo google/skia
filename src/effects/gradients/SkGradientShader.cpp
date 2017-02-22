@@ -8,6 +8,7 @@
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"
+#include "SkGrPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
 #include "SkRadialGradient.h"
@@ -1674,6 +1675,8 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
 
             SkBitmap bitmap;
             shader.getGradientTableBitmap(&bitmap, bitmapType);
+            SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
+
 
             GrTextureStripAtlas::Desc desc;
             desc.fWidth  = bitmap.width();
@@ -1694,18 +1697,28 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
                 // This is 1/2 places where auto-normalization is disabled
-                fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(),
+                fCoordTransform.reset(args.fContext, *args.fMatrix,
+                                      fAtlas->asTextureProxyRef().get(),
                                       params.filterMode(), false);
-                fTextureSampler.reset(fAtlas->getTexture(), params);
+                fTextureSampler.reset(args.fContext->textureProvider(),
+                                      fAtlas->asTextureProxyRef(), params);
             } else {
-                sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(args.fContext, bitmap,
-                                                                  params, nullptr));
-                if (!texture) {
+                // In this instance we know the params are:
+                //   clampY, bilerp
+                // and the proxy is:
+                //   exact fit, power of two in both dimensions
+                // Only the x-tileMode is unknown. However, given all the other knowns we know
+                // that GrMakeCachedBitmapProxy is sufficient (i.e., it won't need to be
+                // extracted to a subset or mipmapped).
+                sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(args.fContext, bitmap);
+                if (!proxy) {
                     return;
                 }
                 // This is 2/2 places where auto-normalization is disabled
-                fCoordTransform.reset(*args.fMatrix, texture.get(), params.filterMode(), false);
-                fTextureSampler.reset(texture.get(), params);
+                fCoordTransform.reset(args.fContext, *args.fMatrix,
+                                      proxy.get(), params.filterMode(), false);
+                fTextureSampler.reset(args.fContext->textureProvider(),
+                                      std::move(proxy), params);
                 fYCoord = SK_ScalarHalf;
             }
 
