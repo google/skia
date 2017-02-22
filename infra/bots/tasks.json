@@ -300,12 +300,6 @@
         "Build-Ubuntu-GCC-x86_64-Release-Shared"
       ]
     },
-    "Build-Ubuntu-GCC-x86_64-Release-Valgrind": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
-      ]
-    },
     "Build-Win-Clang-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
@@ -3069,31 +3063,6 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Shared",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Ubuntu-GCC-x86_64-Release-Valgrind": {
-      "dimensions": [
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_compile",
-        "repository=<(REPO)",
-        "buildername=Build-Ubuntu-GCC-x86_64-Release-Valgrind",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -6264,7 +6233,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+        "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
         "gpu:10de:1244",
@@ -6312,7 +6281,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+        "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
         "gpu:10de:1244",
@@ -11165,7 +11134,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+        "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
         "gpu:10de:1244",
@@ -11213,7 +11182,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+        "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
         "gpu:10de:1244",
@@ -11261,7 +11230,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+        "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
         "gpu:10de:1244",
