@@ -34,6 +34,24 @@
       "revId": "0b5a4d9e006c7137cb1411c55c1fed08fd257b9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38ec3ed4_8f5e4dcd",
+        "filename": "samplecode/SampleApp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-22T17:04:31Z",
+      "side": 1,
+      "message": "An update is required in order to support the --pr flag and pass the GrContextOptions down to the context creation. (GrContextOptions didn\u0027t used to be on the class.) The change is pretty minimal, are we okay with leaving it as-is?",
+      "parentUuid": "52c7c309_aac05faf",
+      "revId": "0b5a4d9e006c7137cb1411c55c1fed08fd257b9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
