@@ -111,6 +111,20 @@ void Window::setDisplayParams(const DisplayParams& params) {
     fWindowContext->setDisplayParams(params);
 }
 
+int Window::sampleCount() const {
+    if (!fWindowContext) {
+        return 0;
+    }
+    return fWindowContext->sampleCount();
+}
+
+int Window::stencilBits() const {
+    if (!fWindowContext) {
+        return 0;
+    }
+    return fWindowContext->stencilBits();
+}
+
 void Window::inval() {
     if (!fIsContentInvalidated) {
         fIsContentInvalidated = true;
