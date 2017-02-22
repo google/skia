@@ -99,9 +99,8 @@ void GrContext::initCommon(const GrContextOptions& options) {
     rtOpListOptions.fMaxOpCombineLookback = options.fMaxOpCombineLookback;
     rtOpListOptions.fMaxOpCombineLookahead = options.fMaxOpCombineLookahead;
     GrPathRendererChain::Options prcOptions;
-    prcOptions.fDisableDistanceFieldRenderer = options.fDisableDistanceFieldPaths;
     prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
-    prcOptions.fDisableAllPathRenderers = options.fForceSWPathMasks;
+    prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
     fDrawingManager.reset(new GrDrawingManager(this, rtOpListOptions, prcOptions,
                                                options.fImmediateMode, &fSingleOwner));
 

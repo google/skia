@@ -29,37 +29,6 @@ const GrGLInterface* GrGLInterfaceAddTestDebugMarker(const GrGLInterface* interf
     return newInterface;
 }
 
-const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
-    GrGLInterface* newInterface = GrGLInterface::NewClone(interface);
-
-    newInterface->fExtensions.remove("GL_NV_path_rendering");
-    newInterface->fExtensions.remove("GL_CHROMIUM_path_rendering");
-    newInterface->fFunctions.fMatrixLoadf = nullptr;
-    newInterface->fFunctions.fMatrixLoadIdentity = nullptr;
-    newInterface->fFunctions.fPathCommands = nullptr;
-    newInterface->fFunctions.fPathParameteri = nullptr;
-    newInterface->fFunctions.fPathParameterf = nullptr;
-    newInterface->fFunctions.fGenPaths = nullptr;
-    newInterface->fFunctions.fDeletePaths = nullptr;
-    newInterface->fFunctions.fIsPath = nullptr;
-    newInterface->fFunctions.fPathStencilFunc = nullptr;
-    newInterface->fFunctions.fStencilFillPath = nullptr;
-    newInterface->fFunctions.fStencilStrokePath = nullptr;
-    newInterface->fFunctions.fStencilFillPathInstanced = nullptr;
-    newInterface->fFunctions.fStencilStrokePathInstanced = nullptr;
-    newInterface->fFunctions.fCoverFillPath = nullptr;
-    newInterface->fFunctions.fCoverStrokePath = nullptr;
-    newInterface->fFunctions.fCoverFillPathInstanced = nullptr;
-    newInterface->fFunctions.fCoverStrokePathInstanced = nullptr;
-    newInterface->fFunctions.fStencilThenCoverFillPath = nullptr;
-    newInterface->fFunctions.fStencilThenCoverStrokePath = nullptr;
-    newInterface->fFunctions.fStencilThenCoverFillPathInstanced = nullptr;
-    newInterface->fFunctions.fStencilThenCoverStrokePathInstanced = nullptr;
-    newInterface->fFunctions.fProgramPathFragmentInputGen = nullptr;
-    newInterface->fFunctions.fBindFragmentInputLocation = nullptr;
-    return newInterface;
-}
-
 GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;
 }

@@ -10,6 +10,7 @@
 
 #include "GrPathRenderer.h"
 
+#include "GrContextOptions.h"
 #include "SkTypes.h"
 #include "SkTArray.h"
 
@@ -24,13 +25,11 @@ class GrContext;
 class GrPathRendererChain : public SkNoncopyable {
 public:
     struct Options {
-        bool fDisableDistanceFieldRenderer = false;
+        using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
         bool fAllowPathMaskCaching = false;
-        bool fDisableAllPathRenderers = false;
+        GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
     };
     GrPathRendererChain(GrContext* context, const Options&);
-
-    ~GrPathRendererChain();
 
     /** Documents how the caller plans to use a GrPathRenderer to draw a path. It affects the PR
         returned by getPathRenderer */
@@ -49,13 +48,10 @@ public:
                                     GrPathRenderer::StencilSupport* stencilSupport);
 
 private:
-    // takes a ref and unrefs in destructor
-    GrPathRenderer* addPathRenderer(GrPathRenderer* pr);
-
     enum {
         kPreAllocCount = 8,
     };
-    SkSTArray<kPreAllocCount, GrPathRenderer*, true>    fChain;
+    SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
 };
 
 #endif
