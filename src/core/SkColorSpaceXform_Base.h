@@ -74,6 +74,7 @@ private:
 
     SrcGamma             fSrcGamma;
     DstGamma             fDstGamma;
+    bool                 fLinearPremul;
 
     friend class SkColorSpaceXform;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
@@ -92,6 +93,7 @@ struct StoreTablesContext {
     const uint8_t* fG;
     const uint8_t* fB;
     int            fCount;
+    bool           fLegacyPremul;
 };
 
 // For testing.  Bypasses opts for when src and dst color spaces are equal.
