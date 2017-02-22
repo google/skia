@@ -18,6 +18,7 @@ skia_gpu_sources = [
   "$_include/gpu/GrContextOptions.h",
   "$_include/gpu/GrContext.h",
   "$_include/gpu/GrCoordTransform.h",
+  "$_include/gpu/GrExternalTextureData.h",
   "$_include/gpu/GrFragmentProcessor.h",
   "$_include/gpu/GrGpuResource.h",
   "$_include/gpu/GrPaint.h",
