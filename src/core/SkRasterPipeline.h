@@ -72,7 +72,7 @@
     M(load_8888) M(store_8888)                                   \
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)            \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be)              \
-    M(load_tables) M(store_tables)                               \
+    M(load_tables)                                               \
     M(scale_u8) M(scale_1_float)                                 \
     M(lerp_u8) M(lerp_565) M(lerp_1_float)                       \
     M(dstatop) M(dstin) M(dstout) M(dstover)                     \
@@ -96,7 +96,7 @@
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
     M(save_xy) M(accumulate)                                     \
     M(linear_gradient_2stops)                                    \
-    M(byte_tables)                                               \
+    M(byte_tables) M(byte_tables_rgb)                            \
     M(shader_adapter)                                            \
     M(rgb_to_hsl)                                                \
     M(hsl_to_rgb)

@@ -311,6 +311,13 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), rgb4.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), rgb4.get()));
+
+    sk_sp<SkColorSpace> srgbFlag =
+            SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                  SkColorSpace::kSRGB_Gamut,
+                                  SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), srgbFlag.get()));
+    REPORTER_ASSERT(r, SkColorSpace_Base::EqualsIgnoreFlags(srgb.get(), srgbFlag.get()));
 }
 
 static inline bool matrix_almost_equal(const SkMatrix44& a, const SkMatrix44& b) {

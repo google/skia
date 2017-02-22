@@ -474,17 +474,7 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
     }
 }
 
-bool SkCodec::initializeColorXform(const SkImageInfo& info) {
-    // TODO (msarett):
-    // Handle equality checking and legacy behavior for flagged SkColorSpaces.
-    // Until this is implemented, remove any flags on output color spaces.  This
-    // will prevent strange behaviors.  Ex: sRGB != sRGB + flag, but we don't want
-    // this to trigger a color xform.
-    SkImageInfo dstInfo = info;
-    if (dstInfo.colorSpace()) {
-        dstInfo = info.makeColorSpace(as_CSB(dstInfo.colorSpace())->makeWithoutFlags());
-    }
-
+bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo) {
     fColorXform = nullptr;
     bool needsPremul = needs_premul(dstInfo, fEncodedInfo);
     if (needs_color_xform(dstInfo, fSrcInfo, needsPremul)) {

@@ -312,7 +312,7 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
 
     ColorSpaceMatch csm = kNone_ColorSpaceMatch;
     SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
-    if (SkColorSpace::Equals(srcSpace, dstSpace)) {
+    if (SkColorSpace_Base::EqualsIgnoreFlags(srcSpace, dstSpace)) {
         srcToDst.setIdentity();
         csm = kFull_ColorSpaceMatch;
     } else {
@@ -503,26 +503,6 @@ static AI void translate_gamut(const Sk4f& rTgTbT, Sk4f& dr, Sk4f& dg, Sk4f& db)
 
 static AI void translate_gamut_1(const Sk4f& rTgTbT, Sk4f& rgba) {
     rgba = rgba + rTgTbT;
-}
-
-static AI void premultiply(Sk4f& dr, Sk4f& dg, Sk4f& db, const Sk4f& da, bool kClamp) {
-    if (kClamp) {
-        dr = Sk4f::Min(dr, 1.0f);
-        dg = Sk4f::Min(dg, 1.0f);
-        db = Sk4f::Min(db, 1.0f);
-    }
-
-    dr = da * dr;
-    dg = da * dg;
-    db = da * db;
-}
-
-static AI void premultiply_1(const Sk4f& a, Sk4f& rgba, bool kClamp) {
-    if (kClamp) {
-        rgba = Sk4f::Min(rgba, 1.0f);
-    }
-
-    rgba = a * rgba;
 }
 
 template <Order kOrder>
@@ -765,8 +745,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
                              const uint8_t* const dstTables[3]) {
     LoadFn load;
     Load1Fn load_1;
-    const bool kLoadAlpha = (kPremul_SkAlphaType == kAlphaType) ||
-                            (kF16_Linear_DstFormat == kDst && kOpaque_SkAlphaType != kAlphaType);
+    const bool kLoadAlpha = kF16_Linear_DstFormat == kDst && kOpaque_SkAlphaType != kAlphaType;
     switch (kSrc) {
         case kRGBA_8888_Linear_SrcFormat:
             if (kLoadAlpha) {
@@ -859,14 +838,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             break;
     }
 
-    // We always clamp before converting to 8888 outputs (because we have to).
-    // In these cases, we also need a clamp before the premul step to make sure
-    // R, G, B are not logically greater than A.
-    const bool kClamp = kRGBA_8888_Linear_DstFormat == kDst ||
-                        kRGBA_8888_SRGB_DstFormat == kDst ||
-                        kRGBA_8888_2Dot2_DstFormat == kDst ||
-                        kRGBA_8888_Table_DstFormat == kDst;
-
     const uint32_t* src = (const uint32_t*) vsrc;
     Sk4f rXgXbX, rYgYbY, rZgZbZ, rTgTbT;
     load_matrix(matrix, rXgXbX, rYgYbY, rZgZbZ, rTgTbT);
@@ -891,10 +862,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
                 da = a;
             }
 
-            if (kPremul_SkAlphaType == kAlphaType) {
-                premultiply(dr, dg, db, da, kClamp);
-            }
-
             load(src, r, g, b, a, srcTables);
 
             store(dst, src - 4, dr, dg, db, da, dstTables);
@@ -913,10 +880,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             da = a;
         }
 
-        if (kPremul_SkAlphaType == kAlphaType) {
-            premultiply(dr, dg, db, da, kClamp);
-        }
-
         store(dst, src - 4, dr, dg, db, da, dstTables);
         dst = SkTAddOffset<void>(dst, 4 * sizeOfDstPixel);
     }
@@ -931,10 +894,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             translate_gamut_1(rTgTbT, rgba);
         } else {
             rgba = Sk4f(r[0], g[0], b[0], a[0]);
-        }
-
-        if (kPremul_SkAlphaType == kAlphaType) {
-            premultiply_1(a, rgba, kClamp);
         }
 
         store_1(dst, src, rgba, a, dstTables);
@@ -973,6 +932,7 @@ template <ColorSpaceMatch kCSM>
 SkColorSpaceXform_XYZ<kCSM>
 ::SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
                         SkColorSpace_XYZ* dstSpace)
+    : fLinearBlending(!dstSpace->nonLinearBlending())
 {
     fSrcToDst[ 0] = srcToDst.get(0, 0);
     fSrcToDst[ 1] = srcToDst.get(1, 0);
@@ -1031,10 +991,6 @@ static AI bool apply_set_alpha(void* dst, const void* src, int len, SkAlphaType 
     switch (alphaType) {
         case kOpaque_SkAlphaType:
             color_xform_RGBA<kSrc, kDst, kOpaque_SkAlphaType, kCSM>
-                    (dst, src, len, srcTables, matrix, dstTables);
-            return true;
-        case kPremul_SkAlphaType:
-            color_xform_RGBA<kSrc, kDst, kPremul_SkAlphaType, kCSM>
                     (dst, src, len, srcTables, matrix, dstTables);
             return true;
         case kUnpremul_SkAlphaType:
@@ -1106,7 +1062,8 @@ bool SkColorSpaceXform_XYZ<kCSM>
 
     if (kRGBA_F32_ColorFormat == dstColorFormat ||
         kRGBA_U16_BE_ColorFormat == srcColorFormat ||
-        kRGB_U16_BE_ColorFormat == srcColorFormat)
+        kRGB_U16_BE_ColorFormat == srcColorFormat ||
+        kPremul_SkAlphaType == alphaType)
     {
         return this->applyPipeline(dstColorFormat, dst, srcColorFormat, src, len, alphaType);
     }
@@ -1258,11 +1215,11 @@ bool SkColorSpaceXform_XYZ<kCSM>
         }
     }
 
-    if (kPremul_SkAlphaType == alphaType) {
+    if (kPremul_SkAlphaType == alphaType && fLinearBlending) {
         pipeline.append(SkRasterPipeline::premul);
     }
 
-    StoreTablesContext storeTables;
+    TablesContext tables;
     switch (fDstGamma) {
         case kSRGB_DstGamma:
             pipeline.append(SkRasterPipeline::to_srgb);
@@ -1270,45 +1227,36 @@ bool SkColorSpaceXform_XYZ<kCSM>
         case k2Dot2_DstGamma:
             pipeline.append(SkRasterPipeline::to_2dot2);
             break;
+        case kTable_DstGamma:
+            tables.fR = fDstGammaTables[0];
+            tables.fG = fDstGammaTables[1];
+            tables.fB = fDstGammaTables[2];
+            tables.fCount = SkColorSpaceXform_Base::kDstGammaTableSize;
+            pipeline.append(SkRasterPipeline::byte_tables_rgb, &tables);
         default:
             break;
     }
 
+    if (kPremul_SkAlphaType == alphaType && !fLinearBlending) {
+        pipeline.append(SkRasterPipeline::premul);
+    }
+
     switch (dstColorFormat) {
         case kRGBA_8888_ColorFormat:
-            if (kTable_DstGamma == fDstGamma) {
-                storeTables.fDst = (uint32_t*) dst;
-                storeTables.fR = fDstGammaTables[0];
-                storeTables.fG = fDstGammaTables[1];
-                storeTables.fB = fDstGammaTables[2];
-                storeTables.fCount = SkColorSpaceXform_Base::kDstGammaTableSize;
-                pipeline.append(SkRasterPipeline::store_tables, &storeTables);
-            } else {
-                pipeline.append(SkRasterPipeline::store_8888, &dst);
-            }
+             pipeline.append(SkRasterPipeline::store_8888, &dst);
             break;
         case kBGRA_8888_ColorFormat:
-            if (kTable_DstGamma == fDstGamma) {
-                storeTables.fDst = (uint32_t*) dst;
-                storeTables.fR = fDstGammaTables[2];
-                storeTables.fG = fDstGammaTables[1];
-                storeTables.fB = fDstGammaTables[0];
-                storeTables.fCount = SkColorSpaceXform_Base::kDstGammaTableSize;
-                pipeline.append(SkRasterPipeline::swap_rb);
-                pipeline.append(SkRasterPipeline::store_tables, &storeTables);
-            } else {
-                pipeline.append(SkRasterPipeline::swap_rb);
-                pipeline.append(SkRasterPipeline::store_8888, &dst);
-            }
+            pipeline.append(SkRasterPipeline::swap_rb);
+            pipeline.append(SkRasterPipeline::store_8888, &dst);
             break;
         case kRGBA_F16_ColorFormat:
-            if (kLinear_DstGamma != fDstGamma) {
+            if (kLinear_DstGamma != fDstGamma || !fLinearBlending) {
                 return false;
             }
             pipeline.append(SkRasterPipeline::store_f16, &dst);
             break;
         case kRGBA_F32_ColorFormat:
-            if (kLinear_DstGamma != fDstGamma) {
+            if (kLinear_DstGamma != fDstGamma || !fLinearBlending) {
                 return false;
             }
             pipeline.append(SkRasterPipeline::store_f32, &dst);
