@@ -184,7 +184,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(const SkDraw& draw,
 
     SkMatrix matrix = *draw.fMatrix;
     matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
-    const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-left, -top);
+    const SkIRect clipBounds = this->devClipBounds(draw).makeOffset(-left, -top);
     sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
     SkImageFilter::OutputProperties outputProperties(fRenderTargetContext->getColorSpace());
     SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
@@ -421,7 +421,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
         GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
-                                            draw.fRC->getBounds(), true);
+                                            this->devClipBounds(draw), true);
         return;
     }
 
@@ -462,7 +462,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPa
         if (rrect.transform(*draw.fMatrix, &devRRect)) {
             if (devRRect.allCornersCircular()) {
                 SkRect maskRect;
-                if (mf->canFilterMaskGPU(devRRect, draw.fRC->getBounds(),
+                if (mf->canFilterMaskGPU(devRRect, this->devClipBounds(draw),
                                          *draw.fMatrix, &maskRect)) {
                     SkIRect finalIRect;
                     maskRect.roundOut(&finalIRect);
@@ -491,7 +491,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPa
         GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
                                             fClip, path, paint,
                                             *draw.fMatrix, nullptr,
-                                            draw.fRC->getBounds(), true);
+                                            this->devClipBounds(draw), true);
         return;
     }
 
@@ -539,7 +539,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
                                         fClip, path, paint,
                                         *draw.fMatrix, nullptr,
-                                        draw.fRC->getBounds(), true);
+                                        this->devClipBounds(draw), true);
 }
 
 
@@ -711,7 +711,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
                                         fClip, origSrcPath, paint,
                                         *draw.fMatrix, prePathMatrix,
-                                        draw.fRC->getBounds(), pathIsMutable);
+                                        this->devClipBounds(draw), pathIsMutable);
 }
 
 static const int kBmpSmallTileSize = 1 << 10;
@@ -1743,7 +1743,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
     SkDEBUGCODE(this->validate();)
 
     fRenderTargetContext->drawText(fClip, paint, *draw.fMatrix,
-                                   (const char*)text, byteLength, x, y, draw.fRC->getBounds());
+                                   (const char*)text, byteLength, x, y, this->devClipBounds(draw));
 }
 
 void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteLength,
@@ -1756,7 +1756,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
 
     fRenderTargetContext->drawPosText(fClip, paint, *draw.fMatrix,
                                       (const char*)text, byteLength, pos, scalarsPerPos, offset,
-                                      draw.fRC->getBounds());
+                                      this->devClipBounds(draw));
 }
 
 void SkGpuDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkScalar x, SkScalar y,
@@ -1768,7 +1768,7 @@ void SkGpuDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSca
     SkDEBUGCODE(this->validate();)
 
     fRenderTargetContext->drawTextBlob(fClip, paint, *draw.fMatrix,
-                                       blob, x, y, drawFilter, draw.fRC->getBounds());
+                                       blob, x, y, drawFilter, this->devClipBounds(draw));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
