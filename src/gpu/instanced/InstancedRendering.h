@@ -154,7 +154,8 @@ protected:
         Draw* fTailDraw;
 
     private:
-        void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
+        void getFragmentProcessorAnalysisInputs(
+                FragmentProcessorAnalysisInputs* input) const override;
         void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
         void onPrepare(GrOpFlushState*) override {}

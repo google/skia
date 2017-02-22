@@ -26,7 +26,7 @@ public:
     /** Because src-over is so common we special case it for performance reasons. If this returns
         null then the SimpleSrcOverXP() below should be used. */
     static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
-                                                       const GrPipelineAnalysis&,
+                                                       const FragmentProcessorAnalysis&,
                                                        bool hasMixedSamples,
                                                        const GrXferProcessor::DstTexture*);
 
@@ -37,24 +37,22 @@ public:
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static bool WillSrcOverReadDst(const GrProcOptInfo& colorInput,
-                                   const GrProcOptInfo& coverageInput);
+    static bool WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis);
     static bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
                                                          GrColor* color);
-
-    static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
+    static bool WillSrcOverNeedDstTexture(const GrCaps&, const FragmentProcessorAnalysis&);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    bool willReadsDst(const GrProcOptInfo&, const GrProcOptInfo&) const override;
+    bool willReadsDst(const FragmentProcessorAnalysis&) const override;
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrPipelineAnalysis&,
+                                           const FragmentProcessorAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override;
+    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);

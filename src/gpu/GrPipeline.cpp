@@ -21,6 +21,7 @@
 
 GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrPipelineOptimizations* optimizations) {
+    SkASSERT(args.fAnalysis);
     GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
     if (!rt) {
         return nullptr;
@@ -59,8 +60,8 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
     sk_sp<GrXferProcessor> xferProcessor;
     if (xpFactory) {
-        xferProcessor.reset(xpFactory->createXferProcessor(
-                args.fAnalysis, hasMixedSamples, &args.fDstTexture, *args.fCaps));
+        xferProcessor.reset(xpFactory->createXferProcessor(*args.fAnalysis, hasMixedSamples,
+                                                           &args.fDstTexture, *args.fCaps));
         if (!xferProcessor) {
             pipeline->~GrPipeline();
             return nullptr;
@@ -68,17 +69,17 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     } else {
         // This may return nullptr in the common case of src-over implemented using hw blending.
         xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
-                *args.fCaps, args.fAnalysis, hasMixedSamples, &args.fDstTexture));
+                *args.fCaps, *args.fAnalysis, hasMixedSamples, &args.fDstTexture));
     }
     GrColor overrideColor = GrColor_ILLEGAL;
-    int colorFPsToEliminate = args.fAnalysis.fColorPOI.initialProcessorsToEliminate(&overrideColor);
+    int colorFPsToEliminate = args.fAnalysis->initialColorProcessorsToEliminate(&overrideColor);
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 
     const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
                                                        &GrPorterDuffXPFactory::SimpleSrcOverXP();
     optFlags = xpForOpts->getOptimizations(
-            args.fAnalysis, args.fUserStencil->doesWrite(args.fAppliedClip->hasStencilClip()),
+            *args.fAnalysis, args.fUserStencil->doesWrite(args.fAppliedClip->hasStencilClip()),
             &overrideColor, *args.fCaps);
 
     // When path rendering the stencil settings are not always set on the GrPipelineBuilder
@@ -144,8 +145,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         optimizations->fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
     }
 
-    if (GrXPFactory::WillReadDst(xpFactory, args.fAnalysis.fColorPOI,
-                                 args.fAnalysis.fCoveragePOI)) {
+    if (GrXPFactory::WillReadDst(xpFactory, *args.fAnalysis)) {
         optimizations->fFlags |= GrPipelineOptimizations::kXPReadsDst_Flag;
     }
 
