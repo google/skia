@@ -511,12 +511,15 @@ void SkPDFDevice::cleanUp() {
 
 void SkPDFDevice::drawAnnotation(const SkDraw& d, const SkRect& rect, const char key[],
                                  SkData* value) {
+    if (!value) {
+        return;
+    }
     if (0 == rect.width() && 0 == rect.height()) {
-        handlePointAnnotation({ rect.x(), rect.y() }, *d.fMatrix, key, value);
+        this->handlePointAnnotation({ rect.x(), rect.y() }, *d.fMatrix, key, value);
     } else {
         SkPath path;
         path.addRect(rect);
-        handlePathAnnotation(path, d, key, value);
+        this->handlePathAnnotation(path, d, key, value);
     }
 }
 
@@ -1623,10 +1626,7 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
 void SkPDFDevice::handlePointAnnotation(const SkPoint& point,
                                         const SkMatrix& matrix,
                                         const char key[], SkData* value) {
-    if (!value) {
-        return;
-    }
-
+    SkASSERT(value);
     if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
         SkPoint transformedPoint;
         matrix.mapXY(point.x(), point.y(), &transformedPoint);
@@ -1637,22 +1637,20 @@ void SkPDFDevice::handlePointAnnotation(const SkPoint& point,
 void SkPDFDevice::handlePathAnnotation(const SkPath& path,
                                        const SkDraw& d,
                                        const char key[], SkData* value) {
-    if (!value) {
-        return;
-    }
+    SkASSERT(value);
+    SkPath transformedPath;
+    path.transform(*d.fMatrix, &transformedPath);
+    SkPath clip;
+    (void)d.fClipStack->asPath(&clip);
+    SkIPoint deviceOrigin = this->getOrigin();
+    clip.offset(-deviceOrigin.x(), -deviceOrigin.y());
+    Op(clip, transformedPath, kIntersect_SkPathOp, &transformedPath);
+    SkRect transformedRect = transformedPath.getBounds();
 
-    SkRasterClip clip = *d.fRC;
-    clip.op(path, *d.fMatrix, SkIRect::MakeWH(width(), height()),
-            SkRegion::kIntersect_Op,
-            false);
-    SkRect transformedRect = SkRect::Make(clip.getBounds());
-
-    if (!strcmp(SkAnnotationKeys::URL_Key(), key)) {
-        if (!transformedRect.isEmpty()) {
+    if (!transformedRect.isEmpty()) {
+        if (!strcmp(SkAnnotationKeys::URL_Key(), key)) {
             fLinkToURLs.emplace_back(transformedRect, value);
-        }
-    } else if (!strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
-        if (!transformedRect.isEmpty()) {
+        } else if (!strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
             fLinkToDestinations.emplace_back(transformedRect, value);
         }
     }
