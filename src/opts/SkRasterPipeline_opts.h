@@ -282,6 +282,39 @@ SI SkNf SkNf_from_byte(const SkNi& x) {
 SI SkNf SkNf_from_byte(const SkNu& x) { return SkNf_from_byte(SkNi::Load(&x)); }
 SI SkNf SkNf_from_byte(const SkNb& x) { return SkNf_from_byte(SkNx_cast<int>(x)); }
 
+SI SkNb SkNb_mul_div255(const SkNb& x, const SkNb& y) {
+#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    SkNh xh = SkNx_cast<uint16_t>(x);
+    SkNh yh = SkNx_cast<uint16_t>(y);
+    SkNh _128 = SkNh(128);
+    SkNh _257 = SkNh(257);
+
+    // (x+127)/255 == ((x+128)*257)>>16 for 0 <= x <= 255*255.
+    return _mm256_mulhi_epu16(
+           _mm256_add_epi16(_mm256_mullo_epi16(xh.fVec, yh.fVec), _128.fVec), _257.fVec);
+#elif !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    SkNh xh = SkNx_cast<uint16_t>(x);
+    SkNh yh = SkNx_cast<uint16_t>(y);
+    SkNh _128 = SkNh(128);
+    SkNh _257 = SkNh(257);
+
+    // (x+127)/255 == ((x+128)*257)>>16 for 0 <= x <= 255*255.
+    return _mm_mulhi_epu16(_mm_add_epi16(_mm_mullo_epi16(xh.fVec, yh.fVec), _128.fVec), _257.fVec);
+#elif !defined(SKNX_NO_SIMD) && defined(SK_ARM_HAS_NEON)
+    auto div255_round = [](uint16x8_t x) {
+        return vraddhn_u16(x, vrshrq_n_u16(x, 8));
+    };
+
+    return div255_round(vmull_u8(x.fVec, y.fVec));
+#else
+    uint8_t result[N];
+    for (int i = 0; i < N; i++) {
+        result[i] = (x[i]*y[i] + 127)/255;
+    }
+    return SkNb::Load(result);
+#endif
+}
+
 SI void from_8888(const SkNu& _8888, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     *r = SkNf_from_byte((_8888      ) & 0xff);
     *g = SkNf_from_byte((_8888 >>  8) & 0xff);
@@ -716,6 +749,32 @@ STAGE_CTX(store_tables, const StoreTablesContext*) {
                 | SkNx_cast<int>(gather(tail, ctx->fG, gi)) << 8
                 | SkNx_cast<int>(gather(tail, ctx->fB, bi)) << 16
                 | SkNf_round(255.0f, a)                     << 24), (int*)ptr);
+}
+
+// Performs a gamma encoded premul after applying the transfer function represented by the tables.
+STAGE_CTX(store_tables_premul, const StoreTablesContext*) {
+    auto ptr = ctx->fDst + x;
+
+    float scale = ctx->fCount - 1;
+    SkNi ri = SkNf_round(scale, r);
+    SkNi gi = SkNf_round(scale, g);
+    SkNi bi = SkNf_round(scale, b);
+
+    SkNb rb = gather(tail, ctx->fR, ri);
+    SkNb gb = gather(tail, ctx->fG, gi);
+    SkNb bb = gather(tail, ctx->fB, bi);
+
+    SkNi ai = SkNf_round(255.0f, a);
+    SkNb ab = SkNx_cast<uint8_t>(ai);
+
+    rb = SkNb_mul_div255(rb, ab);
+    gb = SkNb_mul_div255(gb, ab);
+    bb = SkNb_mul_div255(bb, ab);
+
+    store(tail, ( SkNx_cast<int>(rb) << 0
+                | SkNx_cast<int>(gb) << 8
+                | SkNx_cast<int>(bb) << 16
+                |                ai  << 24), (int*)ptr);
 }
 
 SI SkNf inv(const SkNf& x) { return 1.0f - x; }

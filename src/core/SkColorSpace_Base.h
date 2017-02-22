@@ -207,6 +207,8 @@ public:
 
     static sk_sp<SkColorSpace> MakeNamed(Named);
 
+    static bool EqualsIgnoreFlags(SkColorSpace* src, SkColorSpace* dst);
+
 protected:
     SkColorSpace_Base(sk_sp<SkData> profileData, uint32_t flags);
 
