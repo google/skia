@@ -214,19 +214,13 @@ def perf_steps(api):
         'LIBGL_DRIVERS_PATH': dri_path,
       })
 
+  # See skia:2789.
+  if '_AbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
+    args.extend(['--abandonGpuContext', '--nocpu'])
+
   api.run(api.flavor.step, target, cmd=args,
           abort_on_failure=False,
           env=env)
-
-  # See skia:2789.
-  if ('Valgrind' in api.vars.builder_name and
-      api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU'):
-    abandonGpuContext = list(args)
-    abandonGpuContext.extend(['--abandonGpuContext', '--nocpu'])
-    api.run(api.flavor.step,
-            '%s --abandonGpuContext' % target,
-            cmd=abandonGpuContext, abort_on_failure=False,
-            env=api.vars.default_env)
 
   # Copy results to swarming out dir.
   if api.vars.upload_perf_results:

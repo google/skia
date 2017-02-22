@@ -86,6 +86,8 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		task_os := parts["os"]
 		ec := parts["extra_config"]
 		ec = strings.TrimSuffix(ec, "_Skpbench")
+		ec = strings.TrimSuffix(ec, "_AbandonGpuContext")
+		ec = strings.TrimSuffix(ec, "_PreAbandonGpuContext")
 		if task_os == "Android" {
 			if ec == "Vulkan" {
 				ec = "Android_Vulkan"
