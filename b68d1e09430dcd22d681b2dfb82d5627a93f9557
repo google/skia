@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a59115ac_af8ff596",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-22T21:36:26Z",
+      "side": 1,
+      "message": "nit: rect.isEmpty()",
+      "range": {
+        "startLine": 517,
+        "startChar": 18,
+        "endLine": 517,
+        "endChar": 23
+      },
+      "revId": "b68d1e09430dcd22d681b2dfb82d5627a93f9557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8da35ea4_91d9b312",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1641,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-22T21:36:26Z",
+      "side": 1,
+      "message": "Lets add some dox to make clear\n1. that you don\u0027t want the final rect in local coordinates\n2. which global space you do want things in (global or device)",
+      "range": {
+        "startLine": 1641,
+        "startChar": 11,
+        "endLine": 1641,
+        "endChar": 26
+      },
+      "revId": "b68d1e09430dcd22d681b2dfb82d5627a93f9557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
