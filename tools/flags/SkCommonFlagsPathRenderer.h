@@ -10,7 +10,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrContextFactory.h"
+#include "GrContextOptions.h"
 #include "SkCommandLineFlags.h"
 #include "SkTypes.h"
 
