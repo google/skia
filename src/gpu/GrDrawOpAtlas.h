@@ -55,7 +55,7 @@ public:
      */
     typedef void (*EvictionFunc)(GrDrawOpAtlas::AtlasID, void*);
 
-    GrDrawOpAtlas(sk_sp<GrTexture>, int numPlotsX, int numPlotsY);
+    GrDrawOpAtlas(GrContext*, sk_sp<GrTextureProxy>, int numPlotsX, int numPlotsY);
 
     /**
      * Adds a width x height subimage to the atlas. Upon success it returns an ID and the subimage's
@@ -72,7 +72,8 @@ public:
     bool addToAtlas(AtlasID*, GrDrawOp::Target*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
-    GrTexture* getTexture() const { return fTexture.get(); }
+    GrContext* context() const { return fContext; }
+    sk_sp<GrTextureProxy> getProxy() const { return fProxy; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
@@ -265,12 +266,13 @@ private:
 
     inline void processEviction(AtlasID);
 
-    sk_sp<GrTexture> fTexture;
-    int fPlotWidth;
-    int fPlotHeight;
-    SkDEBUGCODE(uint32_t fNumPlots;)
+    GrContext*            fContext;
+    sk_sp<GrTextureProxy> fProxy;
+    int                   fPlotWidth;
+    int                   fPlotHeight;
+    SkDEBUGCODE(uint32_t  fNumPlots;)
 
-    uint64_t fAtlasGeneration;
+    uint64_t              fAtlasGeneration;
 
     struct EvictionData {
         EvictionFunc fFunc;

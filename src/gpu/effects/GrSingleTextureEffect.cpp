@@ -12,17 +12,6 @@
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                             const SkMatrix& m, OptimizationFlags optFlags)
-        : INHERITED(optFlags)
-        , fCoordTransform(m, texture, GrSamplerParams::kNone_FilterMode)
-        , fTextureSampler(texture)
-        , fColorSpaceXform(std::move(colorSpaceXform)) {
-    this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
-}
-
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
-                                             sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& m,
                                              GrSamplerParams::FilterMode filterMode,
                                              OptimizationFlags optFlags)

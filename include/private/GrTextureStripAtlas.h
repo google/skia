@@ -15,6 +15,8 @@
 #include "SkTDynamicHash.h"
 #include "SkTypes.h"
 
+class GrTextureProxy;
+
 /**
  * Maintains a single large texture whose rows store many textures of a small fixed height,
  * stored in rows across the x-axis such that we can safely wrap/repeat them horizontally.
@@ -72,6 +74,8 @@ public:
 
     GrContext* getContext() const { return fDesc.fContext; }
     GrTexture* getTexture() const { return fTexture; }
+
+    sk_sp<GrTextureProxy> asTextureProxyRef() const;
 
 private:
 
