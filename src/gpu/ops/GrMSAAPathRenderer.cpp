@@ -456,6 +456,10 @@ private:
             return false;
         }
 
+        if (this->bounds().intersects(that->bounds())) {
+            return false;
+        }
+
         if (!fViewMatrix.cheapEqualTo(that->fViewMatrix)) {
             return false;
         }
