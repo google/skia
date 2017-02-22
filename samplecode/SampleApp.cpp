@@ -14,6 +14,7 @@
 #include "SkCanvas.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkCommandLineFlags.h"
+#include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkGraphics.h"
@@ -208,7 +209,7 @@ public:
 #endif
     }
 
-    void setUpBackend(SampleWindow* win, int msaaSampleCount, bool deepColor) override {
+    void setUpBackend(SampleWindow* win, const BackendOptions& backendOptions) override {
         SkASSERT(kNone_BackEndType == fBackend);
 
         fBackend = kNone_BackEndType;
@@ -231,27 +232,27 @@ public:
                 break;
         }
         AttachmentInfo attachmentInfo;
-        bool result = win->attach(fBackend, msaaSampleCount, deepColor, &attachmentInfo);
+        bool result = win->attach(fBackend, backendOptions.fMSAASampleCount,
+                                  backendOptions.fDeepColor, &attachmentInfo);
         if (!result) {
             SkDebugf("Failed to initialize GL");
             return;
         }
-        fMSAASampleCount = msaaSampleCount;
-        fDeepColor = deepColor;
+        fMSAASampleCount = backendOptions.fMSAASampleCount;
+        fDeepColor = backendOptions.fDeepColor;
         // Assume that we have at least 24-bit output, for backends that don't supply this data
         fActualColorBits = SkTMax(attachmentInfo.fColorBits, 24);
 
         SkASSERT(nullptr == fCurIntf);
-        sk_sp<const GrGLInterface> glInterface;
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
             case kGPU_DeviceType:
                 // all these guys use the native interface
-                glInterface.reset(GrGLCreateNativeInterface());
+                fCurIntf = GrGLCreateNativeInterface();
                 break;
 #if SK_ANGLE
             case kANGLE_DeviceType:
-                glInterface.reset(sk_gpu_test::CreateANGLEGLInterface());
+                fCurIntf = sk_gpu_test::CreateANGLEGLInterface();
                 break;
 #endif // SK_ANGLE
             default:
@@ -259,12 +260,9 @@ public:
                 break;
         }
 
-        // Currently SampleApp does not use NVPR. TODO: Provide an NVPR device type that is skipped
-        // when the driver doesn't support NVPR.
-        fCurIntf = GrGLInterfaceRemoveNVPR(glInterface.get());
-
         SkASSERT(nullptr == fCurContext);
-        fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
+        fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf,
+                                        backendOptions.fGrContextOptions);
 
         if (nullptr == fCurContext || nullptr == fCurIntf) {
             // We need some context and interface to see results
@@ -723,8 +721,6 @@ static void restrict_samples(SkTDArray<const SkViewFactory*>& factories, const S
 }
 
 DEFINE_string(slide, "", "Start on this sample.");
-DEFINE_int32(msaa, 0, "Request multisampling with this count.");
-DEFINE_bool(deepColor, false, "Request deep color (10-bit/channel or more) display buffer.");
 DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
 DEFINE_string(svg, "", "Path to single SVG file.");
@@ -736,6 +732,11 @@ DEFINE_bool(startgpu, false, "Start up with gpu?");
 DEFINE_bool(redraw, false, "Force continuous redrawing, for profiling or debugging tools.");
 #ifdef SAMPLE_PDF_FILE_VIEWER
 DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
+#endif
+#if SK_SUPPORT_GPU
+DEFINE_pathrenderer_flag;
+DEFINE_int32(msaa, 0, "Request multisampling with this count.");
+DEFINE_bool(deepColor, false, "Request deep color (10-bit/channel or more) display buffer.");
 #endif
 
 #include "SkTaskGroup.h"
@@ -826,8 +827,11 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         }
     }
 
-    fMSAASampleCount = FLAGS_msaa;
-    fDeepColor = FLAGS_deepColor;
+#if SK_SUPPORT_GPU
+    fBackendOptions.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    fBackendOptions.fMSAASampleCount = FLAGS_msaa;
+    fBackendOptions.fDeepColor = FLAGS_deepColor;
+#endif
     fColorConfigIndex = 0;
 
     if (FLAGS_list) {
@@ -996,7 +1000,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         devManager->ref();
         fDevManager = devManager;
     }
-    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
+    fDevManager->setUpBackend(this, fBackendOptions);
 
     // If another constructor set our dimensions, ensure that our
     // onSizeChange gets called.
@@ -1916,7 +1920,7 @@ void SampleWindow::setDeviceType(DeviceType type) {
 
     fDevManager->tearDownBackend(this);
     fDeviceType = type;
-    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
+    fDevManager->setUpBackend(this, fBackendOptions);
 
     this->updateTitle();
     this->inval(nullptr);
@@ -1926,7 +1930,7 @@ void SampleWindow::setDeviceColorType(SkColorType ct, sk_sp<SkColorSpace> cs) {
     this->setColorType(ct, std::move(cs));
 
     fDevManager->tearDownBackend(this);
-    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
+    fDevManager->setUpBackend(this, fBackendOptions);
 
     this->updateTitle();
     this->inval(nullptr);
@@ -1953,7 +1957,7 @@ void SampleWindow::toggleFPS() {
 void SampleWindow::toggleDistanceFieldFonts() {
     // reset backend
     fDevManager->tearDownBackend(this);
-    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
+    fDevManager->setUpBackend(this, fBackendOptions);
 
     SkSurfaceProps props = this->getSurfaceProps();
     uint32_t flags = props.flags() ^ SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
@@ -1966,7 +1970,7 @@ void SampleWindow::toggleDistanceFieldFonts() {
 void SampleWindow::setPixelGeometry(int pixelGeometryIndex) {
     // reset backend
     fDevManager->tearDownBackend(this);
-    fDevManager->setUpBackend(this, fMSAASampleCount, fDeepColor);
+    fDevManager->setUpBackend(this, fBackendOptions);
 
     const SkSurfaceProps& oldProps = this->getSurfaceProps();
     SkSurfaceProps newProps(oldProps.flags(), SkSurfaceProps::kLegacyFontHost_InitType);

@@ -185,10 +185,6 @@ int main(int argc, char** argv) {
     // setup GrContext
     sk_sp<const GrGLInterface> interface(GrGLCreateNativeInterface());
 
-    // To use NVPR, comment this out
-    interface.reset(GrGLInterfaceRemoveNVPR(interface));
-    SkASSERT(interface);
-
     // setup contexts
     sk_sp<GrContext> grContext(GrContext::Create(kOpenGL_GrBackend,
                                                  (GrBackendContext)interface.get()));

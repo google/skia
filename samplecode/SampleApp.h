@@ -22,6 +22,10 @@
 
 #include "SkPipe.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContextOptions.h"
+#endif
+
 class GrContext;
 class GrRenderTarget;
 
@@ -70,9 +74,15 @@ public:
      */
     class DeviceManager : public SkRefCnt {
     public:
+        struct BackendOptions {
+#if SK_SUPPORT_GPU
+            GrContextOptions   fGrContextOptions;
+            int                fMSAASampleCount;
+            bool               fDeepColor;
+#endif
+        };
 
-
-        virtual void setUpBackend(SampleWindow* win, int msaaSampleCount, bool deepColor) = 0;
+        virtual void setUpBackend(SampleWindow* win, const BackendOptions&) = 0;
 
         virtual void tearDownBackend(SampleWindow* win) = 0;
 
@@ -219,8 +229,8 @@ private:
     int fFilterQualityIndex;
     unsigned   fFlipAxis;
 
-    int fMSAASampleCount;
-    bool fDeepColor;
+    DeviceManager::BackendOptions fBackendOptions;
+
     int fColorConfigIndex;
 
     SkScalar fZoomCenterX, fZoomCenterY;
