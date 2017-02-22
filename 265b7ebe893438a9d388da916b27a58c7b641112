@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87ffcc2c_90970844",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2008,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-22T22:15:52Z",
+      "side": 1,
+      "message": "this sequence, that returns a device-local bounds, might get common. Later on might want to encapsulate it.\n\nI mention this, since this is what I expect will happen in the future :  https://skia-review.googlesource.com/c/8884/",
+      "range": {
+        "startLine": 2008,
+        "startChar": 19,
+        "endLine": 2008,
+        "endChar": 34
+      },
+      "revId": "265b7ebe893438a9d388da916b27a58c7b641112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
