@@ -58,6 +58,7 @@ void GrAtlasTextOp::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* inpu
             break;
         case kLCDCoverageMask_MaskType:
         case kLCDDistanceField_MaskType:
+
             input->pipelineCoverageInput()->setToLCDCoverage();
             break;
         case kColorBitmapMask_MaskType:
