@@ -1363,6 +1363,15 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_app("imgdiff") {
+    sources = [
+      "tools/imgdiff.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
+
   if (skia_enable_gpu && (is_android || is_linux || is_win || is_mac)) {
     test_app("viewer") {
       is_shared_library = is_android
