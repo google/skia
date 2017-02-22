@@ -92,6 +92,24 @@
       "revId": "8da26e981ae625ace1523e201bf5972d44bb70ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b565397_febcaf5d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-22T21:48:34Z",
+      "side": 1,
+      "message": "GrFence is in GrTypesPriv, which is in include.  But the signature needs to be valid for non-GPU builds, too, where that won\u0027t be accessible. (And it\u0027s a typedef for intptr_t, so we can\u0027t just forward declare it like GrContext).",
+      "parentUuid": "7a6e314a_9d47c3f5",
+      "revId": "8da26e981ae625ace1523e201bf5972d44bb70ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
