@@ -87,7 +87,7 @@ has been made current to the current thread when Skia calls are made.
     #include "SkImage.h"
     #include "SkStream.h"
     #include "SkSurface.h"
-    
+
     void gl_example(int width, int height, void(*draw)(SkCanvas*), const char* path) {
         // You've already created your OpenGL context and bound it.
         const GrGLInterface* interface = nullptr;
@@ -153,7 +153,7 @@ The SkPicture backend uses SkPictureRecorder instead of SkSurface.
         SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(width),
                                                             SkIntToScalar(height));
         draw(recordingCanvas);
-        sk_sp<SkPicture> picture(recorder.endRecordingAsPicture());
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
         SkFILEWStream skpStream(path);
         // Open SKP files with `SampleApp --picture SKP_FILE`
         picture->serialize(&skpStream);
