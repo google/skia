@@ -10,9 +10,10 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrPaint.h"
-#include "GrPipeline.h"
+#include "GrPipelineInput.h"
 #include "SkTemplates.h"
 
+class GrAppliedClip;
 class GrXPFactory;
 
 class GrProcessorSet : private SkNoncopyable {
@@ -43,18 +44,64 @@ public:
 
     const GrXPFactory* xpFactory() const { return fXPFactory; }
 
-    void analyzeFragmentProcessors(GrPipelineAnalysis* analysis) const {
-        const GrFragmentProcessor* const* fps = fFragmentProcessors.get();
-        analysis->fColorPOI.analyzeProcessors(fps, fColorFragmentProcessorCnt);
-        fps += fColorFragmentProcessorCnt;
-        analysis->fCoveragePOI.analyzeProcessors(fps, this->numCoverageFragmentProcessors());
-    }
-
     bool usesDistanceVectorField() const { return SkToBool(fFlags & kUseDistanceVectorField_Flag); }
     bool disableOutputConversionToSRGB() const {
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
     }
     bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
+
+    /**
+     * This is used to track analysis of color and coverage values through the fragment processors.
+     */
+    class FragmentProcessorAnalysis {
+    public:
+        FragmentProcessorAnalysis() = default;
+        // This version is used by a unit test that assumes no clip, no processors, and no PLS.
+        FragmentProcessorAnalysis(const GrPipelineInput& colorInput,
+                                  const GrPipelineInput coverageInput, const GrCaps&);
+
+        void reset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+                   const GrProcessorSet&, bool usesPLSDstRead, const GrAppliedClip&, const GrCaps&);
+
+        int initialColorProcessorsToEliminate(GrColor* newInputColor) const {
+            if (fInitialColorProcessorsToEliminate > 0) {
+                *newInputColor = fOverrideInputColor;
+            }
+            return fInitialColorProcessorsToEliminate;
+        }
+
+        bool usesPLSDstRead() const { return fUsesPLSDstRead; }
+        bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
+        bool isOutputColorOpaque() const {
+            return ColorType::kOpaque == fColorType || ColorType::kOpaqueConstant == fColorType;
+        }
+        bool hasKnownOutputColor(GrColor* color = nullptr) const {
+            bool constant =
+                    ColorType::kConstant == fColorType || ColorType::kOpaqueConstant == fColorType;
+            if (constant && color) {
+                *color = fKnownOutputColor;
+            }
+            return constant;
+        }
+        bool hasCoverage() const { return CoverageType::kNone != fCoverageType; }
+        bool hasLCDCoverage() const { return CoverageType::kLCD == fCoverageType; }
+
+    private:
+        void internalReset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+                           const GrProcessorSet&, bool usesPLSDstRead,
+                           const GrFragmentProcessor* clipFP, const GrCaps&);
+
+        enum class ColorType { kUnknown, kOpaqueConstant, kConstant, kOpaque };
+        enum class CoverageType { kNone, kSingleChannel, kLCD };
+
+        bool fUsesPLSDstRead = false;
+        bool fCompatibleWithCoverageAsAlpha = true;
+        CoverageType fCoverageType = CoverageType::kNone;
+        ColorType fColorType = ColorType::kUnknown;
+        int fInitialColorProcessorsToEliminate = 0;
+        GrColor fOverrideInputColor;
+        GrColor fKnownOutputColor;
+    };
 
 private:
     const GrXPFactory* fXPFactory = nullptr;
