@@ -50,7 +50,7 @@ private:
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                       size_t dstRowBytes, int x, int y) override;
     bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                       size_t srcRowBytes, int x, int y) override;
+                       size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
     GrTextureOpList* getOpList();
 

@@ -52,6 +52,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
         }
 
         srcSurface = srcProxy->instantiate(context->textureProvider());
+        // TODO: maybe add an assert here on srcSurfaces ref state to ensure it is what we
+        // expect.
         srcProxy.reset();
     }
 
@@ -103,8 +105,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
     }
 
     if (!context->caps()->preferVRAMUseOverFlushes()) {
+        sk_sp<GrTextureProxy> proxy = atlas->asTextureProxyRef();
+        GrTexture* tex = proxy->instantiate(context->textureProvider());
+
         // This is kindof dodgy since we released it!
-        REPORTER_ASSERT(reporter, srcSurface == atlas->getTexture());
+        REPORTER_ASSERT(reporter, srcSurface == tex);
     }
 
     atlas->unlockRow(lockedRow);
