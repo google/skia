@@ -214,7 +214,7 @@ void SkBitmapDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 
 void SkBitmapDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
                                 const SkPoint pts[], const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawPoints(mode, count, pts, paint);
+    PREPARE_DRAW(draw).drawPoints(mode, count, pts, paint, nullptr);
 }
 
 void SkBitmapDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
@@ -375,13 +375,14 @@ void SkBitmapDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkBitmapDevice::drawText(const SkDraw& draw, const void* text, size_t len,
                               SkScalar x, SkScalar y, const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawText((const char*)text, len, x, y, paint);
+    PREPARE_DRAW(draw).drawText((const char*)text, len, x, y, paint, &fSurfaceProps);
 }
 
 void SkBitmapDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
                                  const SkScalar xpos[], int scalarsPerPos,
                                  const SkPoint& offset, const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint);
+    PREPARE_DRAW(draw).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
+                                   paint, &fSurfaceProps);
 }
 
 void SkBitmapDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
