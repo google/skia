@@ -1,0 +1,154 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "SkTypes.h"
+
+#if SK_SUPPORT_GPU
+
+#include "GrContextFactory.h"
+#include "Resources.h"
+#include "SkAutoPixmapStorage.h"
+#include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkCrossContextImageData.h"
+#include "SkSurface.h"
+#include "Test.h"
+
+using namespace sk_gpu_test;
+
+static SkImageInfo read_pixels_info(SkImage* image) {
+    return SkImageInfo::MakeN32(image->width(), image->height(), image->alphaType());
+}
+
+static bool colors_are_close(SkColor a, SkColor b, int error) {
+    return SkTAbs((int)SkColorGetR(a) - (int)SkColorGetR(b)) <= error &&
+           SkTAbs((int)SkColorGetG(a) - (int)SkColorGetG(b)) <= error &&
+           SkTAbs((int)SkColorGetB(a) - (int)SkColorGetB(b)) <= error;
+}
+
+static void assert_equal(skiatest::Reporter* reporter, SkImage* a, SkImage* b, int error) {
+    REPORTER_ASSERT(reporter, a->width() == b->width());
+    REPORTER_ASSERT(reporter, a->height() == b->height());
+
+    SkAutoPixmapStorage pmapA, pmapB;
+    pmapA.alloc(read_pixels_info(a));
+    pmapB.alloc(read_pixels_info(b));
+
+    REPORTER_ASSERT(reporter, a->readPixels(pmapA, 0, 0));
+    REPORTER_ASSERT(reporter, b->readPixels(pmapB, 0, 0));
+
+    const size_t widthBytes = a->width() * 4;
+    for (int y = 0; y < a->height(); ++y) {
+        for (int x = 0; x < a->width(); ++x) {
+            SkColor ca = pmapA.getColor(x, y);
+            SkColor cb = pmapB.getColor(x, y);
+            if (!error) {
+                if (ca != cb) {
+                    ERRORF(reporter, "Expected 0x%08x but got 0x%08x at (%d, %d)", ca, cb, x, y);
+                    return;
+                }
+            } else {
+                if (!colors_are_close(ca, cb, error)) {
+                    ERRORF(reporter, "Expected 0x%08x +-%d but got 0x%08x at (%d, %d)",
+                           ca, error, cb, x, y);
+                    return;
+                }
+            }
+        }
+    }
+}
+
+static void draw_image_test_pattern(SkCanvas* canvas) {
+    canvas->clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    canvas->drawRect(SkRect::MakeXYWH(5, 5, 10, 10), paint);
+}
+
+static sk_sp<SkImage> create_test_image() {
+    SkBitmap bm;
+    bm.allocN32Pixels(20, 20, true);
+    SkCanvas canvas(bm);
+    draw_image_test_pattern(&canvas);
+
+    return SkImage::MakeFromBitmap(bm);
+}
+
+static sk_sp<SkData> create_test_data(SkEncodedImageFormat format) {
+    auto image = create_test_image();
+    return sk_sp<SkData>(image->encode(format, 100));
+}
+
+DEF_GPUTEST(CrossContextImage_SameContext, reporter, /*factory*/) {
+    GrContextFactory factory;
+    GrContextFactory::ContextOverrides noOverrides = GrContextFactory::ContextOverrides::kNone;
+    sk_sp<SkImage> testImage = create_test_image();
+
+    // Test both PNG and JPG, to exercise GPU YUV conversion
+    for (auto format : { SkEncodedImageFormat::kPNG, SkEncodedImageFormat::kJPEG }) {
+        sk_sp<SkData> encoded = create_test_data(format);
+
+        for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+            GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
+            if (!sk_gpu_test::GrContextFactory::IsRenderingContext(ctxType)) {
+                continue;
+            }
+
+            ContextInfo info = factory.getContextInfo(ctxType);
+            if (!info.grContext()) {
+                continue;
+            }
+
+            auto ccid = SkCrossContextImageData::MakeFromEncoded(info.grContext(), encoded,
+                                                                 nullptr);
+            REPORTER_ASSERT(reporter, ccid != nullptr);
+
+            auto image = SkImage::MakeFromCrossContextImageData(info.grContext(), std::move(ccid));
+            REPORTER_ASSERT(reporter, image != nullptr);
+
+            // JPEG encode -> decode won't round trip the image perfectly
+            assert_equal(reporter, testImage.get(), image.get(),
+                         SkEncodedImageFormat::kJPEG == format ? 2 : 0);
+        }
+    }
+}
+
+DEF_GPUTEST(CrossContextImage_SharedContextSameThread, reporter, /*factory*/) {
+    GrContextFactory factory;
+    GrContextFactory::ContextOverrides noOverrides = GrContextFactory::ContextOverrides::kNone;
+    sk_sp<SkImage> testImage = create_test_image();
+
+    // Test both PNG and JPG, to exercise GPU YUV conversion
+    for (auto format : { SkEncodedImageFormat::kPNG, SkEncodedImageFormat::kJPEG }) {
+        sk_sp<SkData> encoded = create_test_data(format);
+
+        for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+            GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
+            if (!sk_gpu_test::GrContextFactory::IsRenderingContext(ctxType)) {
+                continue;
+            }
+
+            ContextInfo info = factory.getContextInfo(ctxType);
+            if (!info.grContext()) {
+                continue;
+            }
+            auto ccid = SkCrossContextImageData::MakeFromEncoded(info.grContext(), encoded,
+                                                                 nullptr);
+            REPORTER_ASSERT(reporter, ccid != nullptr);
+
+            ContextInfo info2 = factory.getContextInfo(ctxType, noOverrides, info.grContext());
+            auto image = SkImage::MakeFromCrossContextImageData(info2.grContext(), std::move(ccid));
+            REPORTER_ASSERT(reporter, image != nullptr);
+
+            // JPEG encode -> decode won't round trip the image perfectly
+            assert_equal(reporter, testImage.get(), image.get(),
+                         SkEncodedImageFormat::kJPEG == format ? 2 : 0);
+        }
+    }
+}
+
+#endif
