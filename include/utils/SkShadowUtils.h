@@ -22,6 +22,7 @@ public:
                            const SkPoint3& lightPos, SkScalar lightRadius,
                            SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
                            uint32_t flags = SkShadowFlags::kNone_ShadowFlag);
+    static void ClearCache();
 };
 
 #endif
