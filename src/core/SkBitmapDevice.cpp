@@ -294,6 +294,8 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
             }
             // recompute dst, based on the smaller tmpSrc
             matrix.mapRect(&tmpDst, tmpSrc);
+            tmpDst.roundOut(&tmpDst);
+            matrix.setRectToRect(tmpSrc, tmpDst, SkMatrix::kFill_ScaleToFit);
             dstPtr = &tmpDst;
         }
     }
