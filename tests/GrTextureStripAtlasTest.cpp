@@ -52,6 +52,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
         }
 
         srcSurface = srcProxy->instantiate(context->textureProvider());
+        // TODO: maybe add an assert here on srcSurface's ref state to ensure it is what we
+        // expect.
         srcProxy.reset();
     }
 
@@ -64,7 +66,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
         atlasDesc.fConfig = desc.fConfig;
         atlasDesc.fWidth = desc.fWidth;
         atlasDesc.fHeight = desc.fHeight;
-        atlasDesc.fRowHeight = 1;
+        atlasDesc.fRowHeight = desc.fHeight;
         atlas = GrTextureStripAtlas::GetAtlas(atlasDesc);
     }
 
@@ -73,10 +75,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
 
     {
         SkImageInfo info = SkImageInfo::MakeN32(desc.fWidth, desc.fHeight, kPremul_SkAlphaType);
-        size_t rowBytes = desc.fWidth * GrBytesPerPixel(desc.fConfig);
         SkBitmap bitmap;
-        bitmap.allocPixels(info, rowBytes);
-        memset(bitmap.getPixels(), 1, rowBytes * desc.fHeight);
+        bitmap.allocPixels(info);
+        bitmap.eraseColor(SK_ColorBLACK);
         lockedRow = atlas->lockRow(bitmap);
     }
 
@@ -103,8 +104,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
     }
 
     if (!context->caps()->preferVRAMUseOverFlushes()) {
+        sk_sp<GrTextureProxy> proxy = atlas->asTextureProxyRef();
+        GrTexture* tex = proxy->instantiate(context->textureProvider());
+
         // This is kindof dodgy since we released it!
-        REPORTER_ASSERT(reporter, srcSurface == atlas->getTexture());
+        REPORTER_ASSERT(reporter, srcSurface == tex);
     }
 
     atlas->unlockRow(lockedRow);

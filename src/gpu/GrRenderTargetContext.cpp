@@ -186,15 +186,14 @@ bool GrRenderTargetContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBu
 
 // TODO: move this (and GrTextureContext::onReadPixels) to GrSurfaceContext?
 bool GrRenderTargetContext::onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                                          size_t srcRowBytes, int x, int y) {
+                                          size_t srcRowBytes, int x, int y, uint32_t flags) {
     // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
     GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
     if (kUnknown_GrPixelConfig == config) {
         return false;
     }
-    uint32_t flags = 0;
     if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
-        flags = GrContext::kUnpremul_PixelOpsFlag;
+        flags |= GrContext::kUnpremul_PixelOpsFlag;
     }
 
     // Deferral of the VRAM resources must end in this instance anyway
