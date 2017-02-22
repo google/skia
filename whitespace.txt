@@ -11,4 +11,4 @@ florin was here
 more  whitespace
 all the things!!!
 Yet another line.
-Driver update (after accidental downgrade).
+Driver update (after accidental downgrade)
