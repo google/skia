@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9eed3add_373f6034",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-22T21:32:21Z",
+      "side": 1,
+      "message": "You probably don\u0027t need to build this mode into this new GM.  DM can do this automatically, and we do that (and other similar modes, like one using SkLiteDL) for all GMs on the bots.\n\nYou can try this by running:\n  $ out/dm  -m picture_savelayer --config 8888 pic-8888 lite-8888 -w bad\n\nand looking at the images in bad (and the failures DM prints out).\n\nYou should see the pic-8888 images look bad, and the lite-8888 images are exactly the same as the 8888 images.",
+      "range": {
+        "startLine": 86,
+        "startChar": 28,
+        "endLine": 86,
+        "endChar": 38
+      },
+      "revId": "899e775ce99472818d1ba7614a6f191d08fa1efb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa463338_43624a8e",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-22T21:32:21Z",
+      "side": 1,
+      "message": "It would help to read something like\n\n// Set legacy don\u0027t-clip-to-layer flag.",
+      "revId": "899e775ce99472818d1ba7614a6f191d08fa1efb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f3d4b22_a6f1dd0e",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-22T21:32:21Z",
+      "side": 1,
+      "message": "Isn\u0027t only kDontClipToLayer_PrivateSaveLayerFlag bad?  kIsOpaque_SaveLayerFlag and kPreserveLCDText_SaveLayerFlag seem fine.",
+      "revId": "899e775ce99472818d1ba7614a6f191d08fa1efb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
