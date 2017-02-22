@@ -226,7 +226,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkISize dim = canvas->getDeviceSize();
+        SkISize dim = canvas->getBaseLayerSize();
         if (fFlags & kScale_Flag) {
             const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
             const SkScalar y = SkIntToScalar(dim.fHeight) / 2;

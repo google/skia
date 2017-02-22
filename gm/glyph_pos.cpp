@@ -26,53 +26,53 @@ static void draw_gm(SkCanvas* canvas,
                     SkScalar strokeWidth,
                     SkPaint::Style strokeStyle) {
         // There's a black pixel at 40, 40 for reference.
-        canvas->drawPoint(40.0f, 40.0f, SK_ColorBLACK);
+    canvas->drawPoint(40, 40, SkPaint());
 
-        // Two reference images.
-        canvas->translate(50.0f, 50.0f);
-        drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
+    // Two reference images.
+    canvas->translate(50.0f, 50.0f);
+    drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
 
-        canvas->translate(0.0f, 50.0f);
-        drawTestCase(canvas, 3.0f, strokeWidth, strokeStyle);
+    canvas->translate(0.0f, 50.0f);
+    drawTestCase(canvas, 3.0f, strokeWidth, strokeStyle);
 
-        // Uniform scaling test.
-        canvas->translate(0.0f, 100.0f);
-        canvas->save();
-        canvas->scale(3.0f, 3.0f);
-        drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
-        canvas->restore();
+    // Uniform scaling test.
+    canvas->translate(0.0f, 100.0f);
+    canvas->save();
+    canvas->scale(3.0f, 3.0f);
+    drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
+    canvas->restore();
 
-        // Non-uniform scaling test.
-        canvas->translate(0.0f, 100.0f);
-        canvas->save();
-        canvas->scale(3.0f, 6.0f);
-        drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
-        canvas->restore();
+    // Non-uniform scaling test.
+    canvas->translate(0.0f, 100.0f);
+    canvas->save();
+    canvas->scale(3.0f, 6.0f);
+    drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
+    canvas->restore();
 
-        // Skew test.
-        canvas->translate(0.0f, 80.0f);
-        canvas->save();
-        canvas->scale(3.0f, 3.0f);
-        SkMatrix skew;
-        skew.setIdentity();
-        skew.setSkewX(8.0f / 25.0f);
-        skew.setSkewY(2.0f / 25.0f);
-        canvas->concat(skew);
-        drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
-        canvas->restore();
+    // Skew test.
+    canvas->translate(0.0f, 80.0f);
+    canvas->save();
+    canvas->scale(3.0f, 3.0f);
+    SkMatrix skew;
+    skew.setIdentity();
+    skew.setSkewX(8.0f / 25.0f);
+    skew.setSkewY(2.0f / 25.0f);
+    canvas->concat(skew);
+    drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
+    canvas->restore();
 
-        // Perspective test.
-        canvas->translate(0.0f, 80.0f);
-        canvas->save();
-        SkMatrix perspective;
-        perspective.setIdentity();
-        perspective.setPerspX(-SkScalarInvert(340));
-        perspective.setSkewX(8.0f / 25.0f);
-        perspective.setSkewY(2.0f / 25.0f);
+    // Perspective test.
+    canvas->translate(0.0f, 80.0f);
+    canvas->save();
+    SkMatrix perspective;
+    perspective.setIdentity();
+    perspective.setPerspX(-SkScalarInvert(340));
+    perspective.setSkewX(8.0f / 25.0f);
+    perspective.setSkewY(2.0f / 25.0f);
 
-        canvas->concat(perspective);
-        drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
-        canvas->restore();
+    canvas->concat(perspective);
+    drawTestCase(canvas, 1.0f, strokeWidth, strokeStyle);
+    canvas->restore();
 }
 
 static void drawTestCase(SkCanvas* canvas,

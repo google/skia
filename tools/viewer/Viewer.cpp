@@ -709,7 +709,7 @@ void Viewer::drawStats(SkCanvas* canvas) {
     static const int kGraphPadding = 3;
     static const SkScalar kBaseMS = 1000.f / 60.f;  // ms/frame to hit 60 fps
 
-    SkISize canvasSize = canvas->getDeviceSize();
+    SkISize canvasSize = canvas->getBaseLayerSize();
     SkRect rect = SkRect::MakeXYWH(SkIntToScalar(canvasSize.fWidth-kDisplayWidth-kDisplayPadding),
                                    SkIntToScalar(kDisplayPadding),
                                    SkIntToScalar(kDisplayWidth), SkIntToScalar(kDisplayHeight));

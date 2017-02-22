@@ -150,10 +150,12 @@ public:
      */
     virtual SkISize getBaseLayerSize() const;
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
     /**
      *  DEPRECATED: call getBaseLayerSize
      */
     SkISize getDeviceSize() const { return this->getBaseLayerSize(); }
+#endif
 
     /**
      *  Create a new surface matching the specified info, one that attempts to
@@ -553,6 +555,7 @@ public:
         return !bounds->isEmpty();
     }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified ARGB color, using the specified mode.
         @param a    the alpha component (0..255) of the color to fill the canvas
@@ -562,6 +565,7 @@ public:
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
     void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode = SkBlendMode::kSrcOver);
+#endif
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified color and mode.
@@ -631,17 +635,18 @@ public:
     */
     void drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint);
 
-    /** Helper method for drawing a single point. See drawPoints() for a more
-        details.
-    */
+    /** Helper method for drawing a single point. See drawPoints() for more details.
+     */
     void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint);
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
     /** Draws a single pixel in the specified color.
         @param x        The X coordinate of which pixel to draw
         @param y        The Y coordiante of which pixel to draw
         @param color    The color to draw
     */
     void drawPoint(SkScalar x, SkScalar y, SkColor color);
+#endif
 
     /** Draw a line segment with the specified start and stop x,y coordinates,
         using the specified paint. NOTE: since a line is always "framed", the
@@ -652,8 +657,7 @@ public:
         @param y1    The y-coordinate of the end point of the line
         @param paint The paint used to draw the line
     */
-    void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1,
-                  const SkPaint& paint);
+    void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint);
 
     /** Draw the specified rectangle using the specified paint. The rectangle
         will be filled or stroked based on the Style in the paint.
@@ -673,6 +677,7 @@ public:
         this->drawRect(r, paint);
     }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
     /** Draw the specified rectangle using the specified paint. The rectangle
         will be filled or framed based on the Style in the paint.
         @param left     The left side of the rectangle to be drawn
@@ -683,6 +688,7 @@ public:
     */
     void drawRectCoords(SkScalar left, SkScalar top, SkScalar right,
                         SkScalar bottom, const SkPaint& paint);
+#endif
 
     /** Draw the outline of the specified region using the specified paint.
         @param region   The region to be drawn
@@ -720,8 +726,7 @@ public:
         @param radius   The radius of the cirle to be drawn
         @param paint    The paint used to draw the circle
     */
-    void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius,
-                    const SkPaint& paint);
+    void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint);
 
     /** Draw the specified arc, which will be scaled to fit inside the
         specified oval. Sweep angles are not treated as modulo 360 and thus can
@@ -747,8 +752,7 @@ public:
         @param ry       The y-radius of the oval used to round the corners
         @param paint    The paint used to draw the roundRect
     */
-    void drawRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
-                       const SkPaint& paint);
+    void drawRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, const SkPaint& paint);
 
     /** Draw the specified path using the specified paint. The path will be
         filled or framed based on the Style in the paint.
