@@ -25,6 +25,9 @@ public:
     // then if the counter is <= 0, sleep this thread until the counter is > 0.
     void wait();
 
+    // If the counter is positive, decrement it by 1 and return true, otherwise return false.
+    bool try_wait();
+
     // SkBaseSemaphore has no destructor.  Call this to clean it up.
     void cleanup();
 
@@ -78,6 +81,14 @@ inline void SkBaseSemaphore::wait() {
     if (fCount.fetch_sub(1, std::memory_order_acquire) <= 0) {
         this->osWait();
     }
+}
+
+inline bool SkBaseSemaphore::try_wait() {
+    int count = fCount.load(std::memory_order_relaxed);
+    if (count > 0) {
+        return fCount.compare_exchange_weak(count, count-1, std::memory_order_acquire);
+    }
+    return false;
 }
 
 #endif//SkSemaphore_DEFINED

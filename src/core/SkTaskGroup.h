@@ -8,24 +8,18 @@
 #ifndef SkTaskGroup_DEFINED
 #define SkTaskGroup_DEFINED
 
-#include <functional>
-
-#include "SkTypes.h"
 #include "SkAtomics.h"
-#include "SkTemplates.h"
+#include "SkExecutor.h"
+#include "SkTypes.h"
+#include <functional>
 
 class SkTaskGroup : SkNoncopyable {
 public:
-    // Create one of these in main() to enable SkTaskGroups globally.
-    struct Enabler : SkNoncopyable {
-        explicit Enabler(int threads = -1);  // Default is system-reported core count.
-        ~Enabler();
-    };
-
-    SkTaskGroup();
+    // Tasks added to this SkTaskGroup will run on this executor.
+    explicit SkTaskGroup(SkExecutor& executor = SkExecutor::GetDefault());
     ~SkTaskGroup() { this->wait(); }
 
-    // Add a task to this SkTaskGroup.  It will likely run on another thread.
+    // Add a task to this SkTaskGroup.
     void add(std::function<void(void)> fn);
 
     // Add a batch of N tasks, all calling fn with different arguments.
@@ -35,8 +29,15 @@ public:
     // You may safely reuse this SkTaskGroup after wait() returns.
     void wait();
 
+    // Creates a thread pool and sets it to be the default executor.
+    struct Enabler {
+        Enabler(int threads);
+        std::unique_ptr<SkExecutor> fExecutor;
+    };
+
 private:
     SkAtomic<int32_t> fPending;
+    SkExecutor&       fExecutor;
 };
 
 #endif//SkTaskGroup_DEFINED
