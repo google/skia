@@ -25,6 +25,9 @@ public:
     // then if the counter is <= 0, sleep this thread until the counter is > 0.
     void wait();
 
+    // If the counter is positive, decrement it by 1 and return true, otherwise return false.
+    bool try_wait();
+
     // SkBaseSemaphore has no destructor.  Call this to clean it up.
     void cleanup();
 

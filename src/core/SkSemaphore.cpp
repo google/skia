@@ -71,3 +71,11 @@ void SkBaseSemaphore::osWait() {
 void SkBaseSemaphore::cleanup() {
     delete fOSSemaphore;
 }
+
+bool SkBaseSemaphore::try_wait() {
+    int count = fCount.load(std::memory_order_relaxed);
+    if (count > 0) {
+        return fCount.compare_exchange_weak(count, count-1, std::memory_order_acquire);
+    }
+    return false;
+}
