@@ -101,8 +101,6 @@ public:
     enum Flags {
         kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
         kDither_Flag          = 0x04,   //!< mask to enable dithering
-        kUnderlineText_Flag   = 0x08,   //!< mask to enable underline text
-        kStrikeThruText_Flag  = 0x10,   //!< mask to enable strike-thru text
         kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
         kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
         kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
@@ -115,7 +113,12 @@ public:
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 
-        kAllFlags = 0xFFFF
+        kAllFlags = 0xFFFF,
+
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
+        kUnderlineText_Flag   = 0x08,
+        kStrikeThruText_Flag  = 0x10,
+#endif
     };
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -238,28 +241,16 @@ public:
     /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
         @return true if the underlineText bit is set in the paint's flags.
     */
-    bool isUnderlineText() const {
-        return SkToBool(this->getFlags() & kUnderlineText_Flag);
-    }
-
-    /** Helper for setFlags(), setting or clearing the kUnderlineText_Flag bit
-        @param underlineText true to set the underlineText bit in the paint's
-                             flags, false to clear it.
-    */
-    void setUnderlineText(bool underlineText);
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
+    bool isUnderlineText() const { return false; }
+#endif
 
     /** Helper for getFlags(), returns true if kStrikeThruText_Flag bit is set
         @return true if the strikeThruText bit is set in the paint's flags.
     */
-    bool isStrikeThruText() const {
-        return SkToBool(this->getFlags() & kStrikeThruText_Flag);
-    }
-
-    /** Helper for setFlags(), setting or clearing the kStrikeThruText_Flag bit
-        @param strikeThruText   true to set the strikeThruText bit in the
-                                paint's flags, false to clear it.
-    */
-    void setStrikeThruText(bool strikeThruText);
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
+    bool isStrikeThruText() const { return false; }
+#endif
 
     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
