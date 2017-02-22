@@ -433,7 +433,8 @@ private:
     friend class GrStencilAndCoverPathRenderer;  // for access to addDrawOp
     friend class GrTessellatingPathRenderer;     // for access to addDrawOp
     // for a unit test
-    friend void test_draw_op(GrRenderTargetContext*, sk_sp<GrFragmentProcessor>, GrTexture*);
+    friend void test_draw_op(GrContext*, GrRenderTargetContext*,
+                             sk_sp<GrFragmentProcessor>, sk_sp<GrTextureProxy>);
 
     void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
@@ -469,7 +470,7 @@ private:
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                       size_t dstRowBytes, int x, int y) override;
     bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                       size_t srcRowBytes, int x, int y) override;
+                       size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
     // This entry point allows the GrTextContext-derived classes to add their ops to the GrOpList.
     void addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);

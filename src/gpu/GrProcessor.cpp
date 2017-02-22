@@ -211,9 +211,7 @@ GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
 GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
                                             sk_sp<GrTextureProxy> proxy,
                                             const GrSamplerParams& params) {
-    // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
-    // to taking a GrSurfaceProxy just use the IORefs on the proxy
-    this->reset(proxy->instantiate(texProvider), params);
+    this->reset(texProvider, std::move(proxy), params);
 }
 
 GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
@@ -221,9 +219,7 @@ GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
                                             GrSamplerParams::FilterMode filterMode,
                                             SkShader::TileMode tileXAndY,
                                             GrShaderFlags visibility) {
-    // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
-    // to taking a GrSurfaceProxy just use the IORefs on the proxy
-    this->reset(proxy->instantiate(texProvider), filterMode, tileXAndY, visibility);
+    this->reset(texProvider, std::move(proxy), filterMode, tileXAndY, visibility);
 }
 
 void GrProcessor::TextureSampler::reset(GrTexture* texture,
@@ -240,6 +236,35 @@ void GrProcessor::TextureSampler::reset(GrTexture* texture,
                                         GrSamplerParams::FilterMode filterMode,
                                         SkShader::TileMode tileXAndY,
                                         GrShaderFlags visibility) {
+    SkASSERT(texture);
+    fTexture.set(SkRef(texture), kRead_GrIOType);
+    filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
+    fParams.reset(tileXAndY, filterMode);
+    fVisibility = visibility;
+}
+
+void GrProcessor::TextureSampler::reset(GrTextureProvider* texProvider,
+                                        sk_sp<GrTextureProxy> proxy,
+                                        const GrSamplerParams& params,
+                                        GrShaderFlags visibility) {
+    // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
+    // to taking a GrSurfaceProxy just use the IORefs on the proxy
+    GrTexture* texture = proxy->instantiate(texProvider);
+    SkASSERT(texture);
+    fTexture.set(SkRef(texture), kRead_GrIOType);
+    fParams = params;
+    fParams.setFilterMode(SkTMin(params.filterMode(), texture->texturePriv().highestFilterMode()));
+    fVisibility = visibility;
+}
+
+void GrProcessor::TextureSampler::reset(GrTextureProvider* texProvider,
+                                        sk_sp<GrTextureProxy> proxy,
+                                        GrSamplerParams::FilterMode filterMode,
+                                        SkShader::TileMode tileXAndY,
+                                        GrShaderFlags visibility) {
+    // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
+    // to taking a GrSurfaceProxy just use the IORefs on the proxy
+    GrTexture* texture = proxy->instantiate(texProvider);
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
     filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());

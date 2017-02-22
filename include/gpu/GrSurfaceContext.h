@@ -91,8 +91,8 @@ public:
      *              unsupported pixel config.
      */
     bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
-                     int x, int y) {
-        return this->onWritePixels(srcInfo, srcBuffer, srcRowBytes, x, y);
+                     int x, int y, uint32_t flags = 0) {
+        return this->onWritePixels(srcInfo, srcBuffer, srcRowBytes, x, y, flags);
     }
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
@@ -139,7 +139,7 @@ private:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                               size_t dstRowBytes, int x, int y) = 0;
     virtual bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                               size_t srcRowBytes, int x, int y) = 0;
+                               size_t srcRowBytes, int x, int y, uint32_t flags) = 0;
 
     GrDrawingManager*     fDrawingManager;
 
