@@ -101,7 +101,7 @@ static GrPipeline* construct_dummy_pipeline(GrRenderTargetContext* dc, void* sto
     GrProcessorSet::FragmentProcessorAnalysis analysis;
     GrPipeline::CreateArgs args;
     dummyBuilder.initPipelineCreateArgs(&args);
-    args.fRenderTargetContext = dc;
+    args.fRenderTarget = dc->accessRenderTarget();
     args.fAnalysis = &analysis;
     args.fCaps = dc->caps();
     args.fAppliedClip = &dummyAppliedClip;

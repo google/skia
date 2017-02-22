@@ -22,14 +22,10 @@
 GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrPipelineOptimizations* optimizations) {
     SkASSERT(args.fAnalysis);
-    GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
-    if (!rt) {
-        return nullptr;
-    }
+    SkASSERT(args.fRenderTarget);
 
     GrPipeline* pipeline = new (memory) GrPipeline;
-    pipeline->fRenderTarget.reset(rt);
-    SkASSERT(pipeline->fRenderTarget);
+    pipeline->fRenderTarget.reset(args.fRenderTarget);
     pipeline->fScissorState = args.fAppliedClip->scissorState();
     pipeline->fWindowRectsState = args.fAppliedClip->windowRectsState();
     pipeline->fUserStencilSettings = args.fUserStencil;
@@ -55,7 +51,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     bool isHWAA = kHWAntialias_Flag & args.fFlags;
 
     // Create XferProcessor from DS's XPFactory
-    bool hasMixedSamples = args.fRenderTargetContext->hasMixedSamples() &&
+    bool hasMixedSamples = args.fRenderTarget->isMixedSampled() &&
                            (isHWAA || pipeline->isStencilEnabled());
     const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
     sk_sp<GrXferProcessor> xferProcessor;

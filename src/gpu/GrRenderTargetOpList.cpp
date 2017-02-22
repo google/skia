@@ -292,7 +292,12 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     GrPipeline::CreateArgs args;
     pipelineBuilder.initPipelineCreateArgs(&args);
     args.fAppliedClip = &appliedClip;
-    args.fRenderTargetContext = renderTargetContext;
+    // This forces instantiation of the render target. Pipeline creation is moving to flush time
+    // by which point instantiation must have occurred anyway.
+    args.fRenderTarget = renderTargetContext->accessRenderTarget();
+    if (!args.fRenderTarget) {
+        return;
+    }
     args.fCaps = this->caps();
     args.fAnalysis = &analysis;
     if (analysis.usesPLSDstRead() || fClipOpToBounds) {
