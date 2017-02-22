@@ -16,6 +16,24 @@
       "revId": "0b5a4d9e006c7137cb1411c55c1fed08fd257b9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52c7c309_aac05faf",
+        "filename": "samplecode/SampleApp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-22T14:40:21Z",
+      "side": 1,
+      "message": "In theory, I don\u0027t think it does -- there are blocks of code in SampleApp.cpp enclosed in SK_SUPPORT_GPU. It\u0027s possible that it wouldn\u0027t compile without it, however.",
+      "parentUuid": "bfb0bfbf_fb144f15",
+      "revId": "0b5a4d9e006c7137cb1411c55c1fed08fd257b9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
