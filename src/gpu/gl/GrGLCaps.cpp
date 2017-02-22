@@ -258,7 +258,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     this->initGLSL(ctxInfo);
     GrShaderCaps* shaderCaps = fShaderCaps.get();
 
-    shaderCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
+    if (!contextOptions.fSuppressPathRendering) {
+        shaderCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
+    }
 
     // For now these two are equivalent but we could have dst read in shader via some other method.
     // Before setting this, initGLSL() must have been called.

@@ -33,6 +33,7 @@
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
+#include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
 #include "SkGraphics.h"
 #include "SkLeanWindows.h"
@@ -127,6 +128,10 @@ DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
 DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, piping, playback, skcodec, etc.");
+
+#if SK_SUPPORT_GPU
+DEFINE_pathrenderer_flag;
+#endif
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -1106,6 +1111,7 @@ int main(int argc, char** argv) {
 
 #if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
+    grContextOpts.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     gGrFactory.reset(new GrContextFactory(grContextOpts));
 #endif
 

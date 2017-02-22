@@ -8,6 +8,7 @@
 
 #include "GrContext.h"
 #include "GrRenderTarget.h"
+#include "SkCommonFlagsPathRenderer.h"
 #include "SkAutoMalloc.h"
 #include "SkSurface.h"
 #include "VulkanWindowContext.h"
@@ -61,7 +62,10 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     GET_DEV_PROC(AcquireNextImageKHR);
     GET_DEV_PROC(QueuePresentKHR);
 
-    fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) fBackendContext.get());
+    GrContextOptions ctxOptions;
+    ctxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) fBackendContext.get(),
+                                 ctxOptions);
 
     fSurface = createVkSurface(instance);
     if (VK_NULL_HANDLE == fSurface) {

@@ -7,6 +7,7 @@
  */
 
 #include "GrContext.h"
+#include "SkCommonFlagsPathRenderer.h"
 #include "SkSurface.h"
 #include "GLWindowContext.h"
 
@@ -30,12 +31,13 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
 
 void GLWindowContext::initializeContext() {
     this->onInitializeContext();
-    sk_sp<const GrGLInterface> glInterface;
-    glInterface.reset(GrGLCreateNativeInterface());
-    fBackendContext.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
-
     SkASSERT(nullptr == fContext);
-    fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fBackendContext.get());
+
+    GrContextOptions ctxOptions;
+    ctxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    fBackendContext.reset(GrGLCreateNativeInterface());
+    fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fBackendContext.get(),
+                                 ctxOptions);
 
     // We may not have real sRGB support (ANGLE, in particular), so check for
     // that, and fall back to L32:
