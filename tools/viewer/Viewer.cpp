@@ -135,14 +135,15 @@ static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BA
 
 static DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
 
+DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
 DEFINE_pathrenderer_flag;
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
-    " [OpenGL]",
+    "OpenGL",
 #ifdef SK_VULKAN
-    " [Vulkan]",
+    "Vulkan",
 #endif
-    " [Raster]"
+    "Raster"
 };
 
 static sk_app::Window::BackendType get_backend_type(const char* str) {
@@ -212,8 +213,12 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     }
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
+
+    DisplayParams displayParams;
+    displayParams.fMSAASampleCount = FLAGS_msaa;
+
     fWindow = Window::CreateNativeWindow(platformData);
-    fWindow->attach(fBackendType, DisplayParams());
+    fWindow->attach(fBackendType, displayParams);
 
     // register callbacks
     fCommands.attach(fWindow);
@@ -472,7 +477,12 @@ void Viewer::updateTitle() {
         title.append(" ColorManaged");
     }
 
+    title.append(" [");
     title.append(kBackendTypeStrings[fBackendType]);
+    if (int msaa = fWindow->sampleCount()) {
+        title.appendf(" MSAA: %i", msaa);
+    }
+    title.append("]");
     fWindow->setTitle(title.c_str());
 }
 
