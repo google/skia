@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfb0bfbf_fb144f15",
+        "filename": "samplecode/SampleApp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-22T14:11:03Z",
+      "side": 1,
+      "message": "I may be wrong, but I think SampleApp requires GPU. Also, if no update is required to keep SampleApp limping along as is I would say that is fine. (We already plan to never add Vulkan).",
+      "revId": "0b5a4d9e006c7137cb1411c55c1fed08fd257b9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
