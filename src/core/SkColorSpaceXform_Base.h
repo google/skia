@@ -74,6 +74,7 @@ private:
 
     SrcGamma             fSrcGamma;
     DstGamma             fDstGamma;
+    bool                 fLinearBlending;
 
     friend class SkColorSpaceXform;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
