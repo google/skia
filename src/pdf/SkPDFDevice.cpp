@@ -128,15 +128,13 @@ bool SkPDFDevice::GraphicStateEntry::compareInitialState(
 class GraphicStackState {
 public:
     GraphicStackState(const SkClipStack& existingClipStack,
-                      const SkRegion& existingClipRegion,
                       SkWStream* contentStream)
             : fStackDepth(0),
               fContentStream(contentStream) {
         fEntries[0].fClipStack = existingClipStack;
-        fEntries[0].fClipRegion = existingClipRegion;
     }
 
-    void updateClip(const SkClipStack& clipStack, const SkRegion& clipRegion,
+    void updateClip(const SkClipStack& clipStack,
                     const SkPoint& translation, const SkRect& bounds);
     void updateMatrix(const SkMatrix& matrix);
     void updateDrawingState(const SkPDFDevice::GraphicStateEntry& state);
@@ -256,7 +254,6 @@ static bool get_clip_stack_path(const SkMatrix& transform,
 // graphic state stack, and the fact that we can know all the clips used
 // on the page to optimize this.
 void GraphicStackState::updateClip(const SkClipStack& clipStack,
-                                   const SkRegion& clipRegion,
                                    const SkPoint& translation,
                                    const SkRect& bounds) {
     if (clipStack == currentEntry()->fClipStack) {
@@ -272,7 +269,6 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     push();
 
     currentEntry()->fClipStack = clipStack;
-    currentEntry()->fClipRegion = clipRegion;
 
     SkMatrix transform;
     transform.setTranslate(translation.fX, translation.fY);
@@ -391,16 +387,16 @@ public:
           fContentEntry(nullptr),
           fBlendMode(SkBlendMode::kSrcOver),
           fDstFormXObject(nullptr) {
-        init(draw.fClipStack, draw.fRC->bwRgn(), *draw.fMatrix, paint, hasText);
+        init(draw.fClipStack, *draw.fMatrix, paint, hasText);
     }
     ScopedContentEntry(SkPDFDevice* device, const SkClipStack* clipStack,
-                       const SkRegion& clipRegion, const SkMatrix& matrix,
+                       const SkMatrix& matrix,
                        const SkPaint& paint, bool hasText = false)
         : fDevice(device),
           fContentEntry(nullptr),
           fBlendMode(SkBlendMode::kSrcOver),
           fDstFormXObject(nullptr) {
-        init(clipStack, clipRegion, matrix, paint, hasText);
+        init(clipStack, matrix, paint, hasText);
     }
 
     ~ScopedContentEntry() {
@@ -456,7 +452,7 @@ private:
     sk_sp<SkPDFObject> fDstFormXObject;
     SkPath fShape;
 
-    void init(const SkClipStack* clipStack, const SkRegion& clipRegion,
+    void init(const SkClipStack* clipStack,
               const SkMatrix& matrix, const SkPaint& paint, bool hasText) {
         // Shape has to be flatten before we get here.
         if (matrix.hasPerspective()) {
@@ -464,8 +460,7 @@ private:
             return;
         }
         fBlendMode = paint.getBlendMode();
-        fContentEntry = fDevice->setUpContentEntry(clipStack, clipRegion,
-                                                   matrix, paint, hasText,
+        fContentEntry = fDevice->setUpContentEntry(clipStack, matrix, paint, hasText,
                                                    &fDstFormXObject);
     }
 };
@@ -476,7 +471,6 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* do
     : INHERITED(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fPageSize(pageSize)
-    , fExistingClipRegion(SkIRect::MakeSize(pageSize))
     , fRasterDpi(rasterDpi)
     , fDocument(doc) {
     SkASSERT(pageSize.width() > 0);
@@ -773,7 +767,7 @@ void SkPDFDevice::drawPath(const SkDraw& d,
         return;
     }
 
-    ScopedContentEntry content(this, d.fClipStack, d.fRC->bwRgn(), matrix, paint);
+    ScopedContentEntry content(this, d.fClipStack, matrix, paint);
     if (!content.entry()) {
         return;
     }
@@ -822,7 +816,7 @@ void SkPDFDevice::drawImageRect(const SkDraw& d,
         return;
     }
     transform.postConcat(*d.fMatrix);
-    this->internalDrawImage(transform, d.fClipStack, d.fRC->bwRgn(),
+    this->internalDrawImage(transform, d.fClipStack,
                             std::move(imageSubset), paint);
 }
 
@@ -860,7 +854,7 @@ void SkPDFDevice::drawBitmapRect(const SkDraw& d,
         return;
     }
     transform.postConcat(*d.fMatrix);
-    this->internalDrawImage(transform, d.fClipStack, d.fRC->bwRgn(),
+    this->internalDrawImage(transform, d.fClipStack,
                             std::move(imageSubset), paint);
 }
 
@@ -882,7 +876,7 @@ void SkPDFDevice::drawBitmap(const SkDraw& d,
     SkMatrix transform = matrix;
     transform.postConcat(*d.fMatrix);
     this->internalDrawImage(
-            transform, d.fClipStack, d.fRC->bwRgn(), std::move(imageSubset), paint);
+            transform, d.fClipStack, std::move(imageSubset), paint);
 }
 
 void SkPDFDevice::drawSprite(const SkDraw& d,
@@ -903,7 +897,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d,
     }
     SkMatrix transform = SkMatrix::MakeTrans(SkIntToScalar(x), SkIntToScalar(y));
     this->internalDrawImage(
-            transform, d.fClipStack, d.fRC->bwRgn(), std::move(imageSubset), paint);
+            transform, d.fClipStack, std::move(imageSubset), paint);
 }
 
 void SkPDFDevice::drawImage(const SkDraw& draw,
@@ -925,7 +919,7 @@ void SkPDFDevice::drawImage(const SkDraw& draw,
     SkMatrix transform = SkMatrix::MakeTrans(x, y);
     transform.postConcat(*draw.fMatrix);
     this->internalDrawImage(
-            transform, draw.fClipStack, draw.fRC->bwRgn(), std::move(imageSubset), paint);
+            transform, draw.fClipStack, std::move(imageSubset), paint);
 }
 
 namespace {
@@ -1480,7 +1474,7 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    ScopedContentEntry content(this, d.fClipStack, d.fRC->bwRgn(), matrix, paint);
+    ScopedContentEntry content(this, d.fClipStack, matrix, paint);
     if (!content.entry()) {
         return;
     }
@@ -1534,12 +1528,12 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
         SkPDFUtils::AppendTransform(fInitialTransform, &buffer);
     }
 
-    GraphicStackState gsState(fExistingClipStack, fExistingClipRegion, &buffer);
+    GraphicStackState gsState(fExistingClipStack, &buffer);
     for (const auto& entry : fContentEntries) {
         SkPoint translation;
         translation.iset(this->getOrigin());
         translation.negate();
-        gsState.updateClip(entry.fState.fClipStack, entry.fState.fClipRegion,
+        gsState.updateClip(entry.fState.fClipStack,
                            translation, SkRect::Make(this->getGlobalBounds()));
         gsState.updateMatrix(entry.fState.fMatrix);
         gsState.updateDrawingState(entry.fState);
@@ -1711,10 +1705,9 @@ sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice() {
 void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
                                           sk_sp<SkPDFObject> mask,
                                           const SkClipStack* clipStack,
-                                          const SkRegion& clipRegion,
                                           SkBlendMode mode,
                                           bool invertClip) {
-    if (clipRegion.isEmpty() && !invertClip) {
+    if (!invertClip && clipStack->isEmpty(this->getGlobalBounds())) {
         return;
     }
 
@@ -1726,7 +1719,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
     identity.reset();
     SkPaint paint;
     paint.setBlendMode(mode);
-    ScopedContentEntry content(this, clipStack, clipRegion, identity, paint);
+    ScopedContentEntry content(this, clipStack, identity, paint);
     if (!content.entry()) {
         return;
     }
@@ -1743,15 +1736,11 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
 }
 
 SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
-                                                          const SkRegion& clipRegion,
                                                           const SkMatrix& matrix,
                                                           const SkPaint& paint,
                                                           bool hasText,
                                                           sk_sp<SkPDFObject>* dst) {
     *dst = nullptr;
-    if (clipRegion.isEmpty()) {
-        return nullptr;
-    }
     SkASSERT(clipStack);
     SkBlendMode blendMode = paint.getBlendMode();
 
@@ -1792,8 +1781,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
     } else {
         entry = fContentEntries.emplace_front();
     }
-    populateGraphicStateEntryFromPaint(matrix, *clipStack, clipRegion, paint,
-                                       hasText, &entry->fState);
+    populateGraphicStateEntryFromPaint(matrix, *clipStack, paint, hasText, &entry->fState);
     return entry;
 }
 
@@ -1837,7 +1825,6 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
     // saved.
 
     SkClipStack clipStack = fContentEntries.front()->fState.fClipStack;
-    SkRegion clipRegion = fContentEntries.front()->fState.fClipRegion;
 
     SkMatrix identity;
     identity.reset();
@@ -1852,9 +1839,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
         // reduces to Dst.
         if (shape == nullptr || blendMode == SkBlendMode::kDstOut ||
                 blendMode == SkBlendMode::kSrcATop) {
-            ScopedContentEntry content(this, &fExistingClipStack,
-                                       fExistingClipRegion, identity,
-                                       stockPaint);
+            ScopedContentEntry content(this, &fExistingClipStack, identity, stockPaint);
             // TODO: addXObjectResource take sk_sp
             SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst.get()),
                                         &content.entry()->fContent);
@@ -1875,12 +1860,11 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
         // the non-transparent parts of the device and the outlines (shape) of
         // all images and devices drawn.
         drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()), dst,
-                                &fExistingClipStack, fExistingClipRegion,
-                                SkBlendMode::kSrcOver, true);
+                                &fExistingClipStack, SkBlendMode::kSrcOver, true);
     } else {
         if (shape != nullptr) {
             // Draw shape into a form-xobject.
-            SkRasterClip rc(clipRegion);
+            SkRasterClip rc;
             SkDraw d;
             d.fMatrix = &identity;
             d.fRC = &rc;
@@ -1891,12 +1875,12 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
             this->drawPath(d, *shape, filledPaint, nullptr, true);
             drawFormXObjectWithMask(addXObjectResource(dst.get()),
                                     this->makeFormXObjectFromDevice(),
-                                    &fExistingClipStack, fExistingClipRegion,
+                                    &fExistingClipStack,
                                     SkBlendMode::kSrcOver, true);
 
         } else {
             drawFormXObjectWithMask(addXObjectResource(dst.get()), srcFormXObject,
-                                    &fExistingClipStack, fExistingClipRegion,
+                                    &fExistingClipStack,
                                     SkBlendMode::kSrcOver, true);
         }
     }
@@ -1905,8 +1889,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
         return;
     } else if (blendMode == SkBlendMode::kSrc ||
             blendMode == SkBlendMode::kDstATop) {
-        ScopedContentEntry content(this, &fExistingClipStack,
-                                   fExistingClipRegion, identity, stockPaint);
+        ScopedContentEntry content(this, &fExistingClipStack, identity, stockPaint);
         if (content.entry()) {
             SkPDFUtils::DrawFormXObject(
                     this->addXObjectResource(srcFormXObject.get()),
@@ -1917,7 +1900,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
         }
     } else if (blendMode == SkBlendMode::kSrcATop) {
         ScopedContentEntry content(this, &fExistingClipStack,
-                                   fExistingClipRegion, identity, stockPaint);
+                                   identity, stockPaint);
         if (content.entry()) {
             SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst.get()),
                                         &content.entry()->fContent);
@@ -1937,7 +1920,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
             blendMode == SkBlendMode::kSrcATop) {
         drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()),
                                 std::move(dst),
-                                &fExistingClipStack, fExistingClipRegion,
+                                &fExistingClipStack,
                                 SkBlendMode::kSrcOver,
                                 blendMode == SkBlendMode::kSrcOut);
         return;
@@ -1947,12 +1930,11 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
         if (blendMode == SkBlendMode::kModulate) {
             drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()),
                                     std::move(dst), &fExistingClipStack,
-                                    fExistingClipRegion,
                                     SkBlendMode::kSrcOver, false);
             mode = SkBlendMode::kMultiply;
         }
         drawFormXObjectWithMask(resourceID, std::move(srcFormXObject),
-                                &fExistingClipStack, fExistingClipRegion, mode,
+                                &fExistingClipStack, mode,
                                 blendMode == SkBlendMode::kDstOut);
         return;
     }
@@ -1969,7 +1951,6 @@ bool SkPDFDevice::isContentEmpty() {
 void SkPDFDevice::populateGraphicStateEntryFromPaint(
         const SkMatrix& matrix,
         const SkClipStack& clipStack,
-        const SkRegion& clipRegion,
         const SkPaint& paint,
         bool hasText,
         SkPDFDevice::GraphicStateEntry* entry) {
@@ -1979,7 +1960,6 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
     entry->fMatrix = matrix;
     entry->fClipStack = clipStack;
-    entry->fClipRegion = clipRegion;
     entry->fColor = SkColorSetA(paint.getColor(), 0xFF);
     entry->fShaderIndex = -1;
 
@@ -2116,7 +2096,6 @@ static sk_sp<SkImage> color_filter(const SkImageSubset& imageSubset,
 ////////////////////////////////////////////////////////////////////////////////
 void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
                                     const SkClipStack* clipStack,
-                                    const SkRegion& origClipRegion,
                                     SkImageSubset imageSubset,
                                     const SkPaint& paint) {
     if (imageSubset.dimensions().isZero()) {
@@ -2126,8 +2105,6 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     gDrawImageCalls.fetch_add(1);
     #endif
     SkMatrix matrix = origMatrix;
-    SkRegion perspectiveBounds;
-    const SkRegion* clipRegion = &origClipRegion;
 
     // Rasterize the bitmap using perspective in a new bitmap.
     if (origMatrix.hasPerspective()) {
@@ -2197,9 +2174,6 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         matrix.setScale(1 / scaleX, 1 / scaleY);
         matrix.postTranslate(deltaX, deltaY);
 
-        perspectiveBounds.setRect(bounds.roundOut());
-        clipRegion = &perspectiveBounds;
-
         imageSubset = SkImageSubset(surface->makeImageSnapshot());
     }
 
@@ -2212,7 +2186,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     scaled.postScale(SkIntToScalar(imageSubset.dimensions().width()),
                      SkIntToScalar(imageSubset.dimensions().height()));
     scaled.postConcat(matrix);
-    ScopedContentEntry content(this, clipStack, *clipRegion, scaled, paint);
+    ScopedContentEntry content(this, clipStack, scaled, paint);
     if (!content.entry()) {
         return;
     }
