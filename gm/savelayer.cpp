@@ -6,6 +6,8 @@
  */
 
 #include "gm.h"
+#include "SkPictureRecorder.h"
+
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
@@ -67,7 +69,7 @@ protected:
             } else {
                 SkASSERT(Mode::kUnclipped == fMode);
                 canvas->saveLayer({ L, T, R, B }, nullptr);
-            } 
+            }
 
             do_draw(canvas);
         }
@@ -79,9 +81,56 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+class PictureSaveLayerGM : public skiagm::GM {
+public:
+    PictureSaveLayerGM(bool usePicture) : fUsePicture(usePicture) {}
+
+    SkString onShortName() override {
+        return SkString(fUsePicture ? "picture_savelayer_on" : "picture_savelayer_off");
+    }
+
+    SkISize onISize() override { return SkISize::Make(320, 640); }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPictureRecorder rec;
+        SkCanvas* recCanvas = rec.beginRecording({0, 0, 320, 640}, nullptr, 0);
+
+        if (!fUsePicture) {
+            recCanvas = canvas;
+        }
+
+        SkPaint paint1, paint2, paint3;
+        paint1.setAlpha(0x7f);
+        paint2.setAlpha(0x3f);
+        paint3.setColor(0xFFFF0000);
+        SkRect rect1{40, 5, 80, 70}, rect2{5, 40, 70, 80}, rect3{10, 10, 70, 70};
+
+        for(int i = 0; i < 2; ++i) {
+            recCanvas->translate(100 * i, 0);
+            auto flag = i ? 1U << 31 : 0;
+            recCanvas->saveLayer({ &rect1, &paint1, nullptr, flag});
+            recCanvas->saveLayer({ &rect2, &paint2, nullptr, flag});
+            recCanvas->drawRect(rect3, paint3);
+            recCanvas->restore();
+            recCanvas->restore();
+        }
+
+        if (fUsePicture) {
+            sk_sp<SkPicture> picture = rec.finishRecordingAsPicture();
+            picture->playback(canvas);
+        }
+    }
+
+private:
+    bool fUsePicture;
+
+    typedef skiagm::GM INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kClipped);)
 DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kUnclipped);)
-
+DEF_GM(return new PictureSaveLayerGM(true);)
+DEF_GM(return new PictureSaveLayerGM(false);)
 
