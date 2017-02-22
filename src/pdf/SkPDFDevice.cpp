@@ -2005,14 +2005,15 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
             // PDF doesn't support kClamp_TileMode, so we simulate it by making
             // a pattern the size of the current clip.
-            SkIRect bounds = clipRegion.getBounds();
+            SkRect clipStackBounds = clipStack.bounds(this->getGlobalBounds());
+            SkIPoint deviceOrigin = this->getOrigin();
+            clipStackBounds.offset(-deviceOrigin.x(), -deviceOrigin.y());
 
             // We need to apply the initial transform to bounds in order to get
             // bounds in a consistent coordinate system.
-            SkRect boundsTemp;
-            boundsTemp.set(bounds);
-            fInitialTransform.mapRect(&boundsTemp);
-            boundsTemp.roundOut(&bounds);
+            fInitialTransform.mapRect(&clipStackBounds);
+            SkIRect bounds;
+            clipStackBounds.roundOut(&bounds);
 
             SkScalar rasterScale =
                     SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE;
