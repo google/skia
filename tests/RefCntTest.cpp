@@ -25,8 +25,8 @@ static void test_refCnt(skiatest::Reporter* reporter) {
     SkThread thing1(bounce_ref, ref);
     SkThread thing2(bounce_ref, ref);
 
-    SkASSERT(thing1.start());
-    SkASSERT(thing2.start());
+    SkAssertResult(thing1.start());
+    SkAssertResult(thing2.start());
 
     thing1.join();
     thing2.join();
@@ -60,10 +60,10 @@ static void test_weakRefCnt(skiatest::Reporter* reporter) {
     SkThread thing3(bounce_weak_ref, ref);
     SkThread thing4(bounce_weak_weak_ref, ref);
 
-    SkASSERT(thing1.start());
-    SkASSERT(thing2.start());
-    SkASSERT(thing3.start());
-    SkASSERT(thing4.start());
+    SkAssertResult(thing1.start());
+    SkAssertResult(thing2.start());
+    SkAssertResult(thing3.start());
+    SkAssertResult(thing4.start());
 
     thing1.join();
     thing2.join();
