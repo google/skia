@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48166472_e373eb31",
+        "filename": "tools/imgdiff.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-22T21:08:11Z",
+      "side": 1,
+      "message": "I think this has an extra \u0027e\u0027.",
+      "range": {
+        "startLine": 8,
+        "startChar": 25,
+        "endLine": 8,
+        "endChar": 35
+      },
+      "revId": "c776ad384a80705fdd2118809ee7d9693f2c83ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d9a9818_d4d7994e",
+        "filename": "tools/imgdiff.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-22T21:08:11Z",
+      "side": 1,
+      "message": "I\u0027d have expected that we bail if the images aren\u0027t the same size.  If I\u0027m thinking right, any pixels one image has that the other doesn\u0027t will be treated as if transparent.  Is that what you want?",
+      "revId": "c776ad384a80705fdd2118809ee7d9693f2c83ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a33911b9_bbd0368c",
+        "filename": "tools/imgdiff.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-22T21:08:11Z",
+      "side": 1,
+      "message": "If N is going to be a size_t, i probably should be too.",
+      "range": {
+        "startLine": 43,
+        "startChar": 9,
+        "endLine": 43,
+        "endChar": 17
+      },
+      "revId": "c776ad384a80705fdd2118809ee7d9693f2c83ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4b4de82_d1cf1b66",
+        "filename": "tools/imgdiff.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-22T21:08:11Z",
+      "side": 1,
+      "message": "It\u0027s probably better to just read the pixels directly as unpremul?\n\nOr, write this without using Skia?  I think you\u0027re going to go through an unnecessary premul -\u003e unpremul no matter what you do using Skia, and that can certainly lose information.\n\nMight try readPixels() with caching disallowed?  Matt says that might keep unpremul unpremul.\n\nHere\u0027s how I do this in Go.  It\u0027s pretty simple, and never loses information from premultiplication.  https://github.com/mtklein/idiff/blob/master/idiff.go",
+      "revId": "c776ad384a80705fdd2118809ee7d9693f2c83ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76762c2b_21ee7ab1",
+        "filename": "tools/imgdiff.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-22T21:08:11Z",
+      "side": 1,
+      "message": "Probably best not to mention color-space given that this code doesn\u0027t do any color space correction ( a delta of ±1 byte doesn\u0027t mean the same thing at all byte values ).\n\n// Manhattan byte distance summed over each channel.\n\n?",
+      "range": {
+        "startLine": 47,
+        "startChar": 13,
+        "endLine": 47,
+        "endChar": 54
+      },
+      "revId": "c776ad384a80705fdd2118809ee7d9693f2c83ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
