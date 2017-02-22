@@ -43,6 +43,17 @@ void GrGpuResource::registerWithCacheWrapped() {
     get_resource_cache(fGpu)->resourceAccess().insertResource(this);
 }
 
+void GrGpuResource::detachFromCache() {
+    if (this->wasDestroyed()) {
+        return;
+    }
+    if (fUniqueKey.isValid()) {
+        this->removeUniqueKey();
+    }
+    this->removeScratchKey();
+    this->makeUnbudgeted();
+}
+
 GrGpuResource::~GrGpuResource() {
     // The cache should have released or destroyed this resource.
     SkASSERT(this->wasDestroyed());
