@@ -7,8 +7,23 @@
 
 #include "SkCpu.h"
 #include "SkJumper.h"
+#include "SkOnce.h"
 #include "SkRasterPipeline.h"
 #include "SkTemplates.h"
+#include <atomic>
+
+// A debugging mode that helps prioritize porting stages to SkJumper.
+#if 0
+    #define M(st) {0},
+    static std::atomic<int> gMissing[] = { SK_RASTER_PIPELINE_STAGES(M) };
+    #undef M
+
+    #define M(st) #st,
+    static const char* gNames[] = { SK_RASTER_PIPELINE_STAGES(M) };
+    #undef M
+
+    #define WHATS_NEXT
+#endif
 
 // We'll use __has_feature(memory_sanitizer) to detect MSAN.
 // SkJumper_generated.S is not compiled with MSAN, so MSAN would yell really loud.
@@ -145,7 +160,11 @@ extern "C" {
 #elif defined(__x86_64__) || defined(_M_X64)
     static StageFn* lookup_hsw(SkRasterPipeline::StockStage st) {
         switch (st) {
-            default: return nullptr;
+            default:
+        #ifdef WHATS_NEXT
+                gMissing[st]++;
+        #endif
+                return nullptr;
         #define M(st) case SkRasterPipeline::st: return ASM(st,hsw);
             STAGES(M)
         #undef M
@@ -153,7 +172,11 @@ extern "C" {
     }
     static StageFn* lookup_sse41(SkRasterPipeline::StockStage st) {
         switch (st) {
-            default: return nullptr;
+            default:
+        #ifdef WHATS_NEXT
+                gMissing[st]++;
+        #endif
+                return nullptr;
         #define M(st) case SkRasterPipeline::st: return ASM(st,sse41);
             STAGES(M)
         #undef M
@@ -179,6 +202,17 @@ static StageFn* lookup_portable(SkRasterPipeline::StockStage st) {
 }
 
 bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
+#ifdef WHATS_NEXT
+    static SkOnce once;
+    once([] {
+        atexit([] {
+            for (int i = 0; i < (int)SK_ARRAY_COUNT(gMissing); i++) {
+                SkDebugf("%10d %s\n", gMissing[i].load(), gNames[i]);
+            }
+        });
+    });
+#endif
+
     SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
     const size_t limit = x+n;
 
