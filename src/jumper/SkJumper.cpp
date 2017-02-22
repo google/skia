@@ -37,6 +37,8 @@ static K kConstants = {
     M(clamp_0)        \
     M(clamp_1)        \
     M(clamp_a)        \
+    M(set_rgb)        \
+    M(swap_rb)        \
     M(swap)           \
     M(move_src_dst)   \
     M(move_dst_src)   \
