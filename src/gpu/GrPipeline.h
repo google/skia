@@ -62,7 +62,7 @@ public:
         const GrProcessorSet::FragmentProcessorAnalysis* fAnalysis;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         GrAppliedClip* fAppliedClip = nullptr;
-        GrRenderTargetContext* fRenderTargetContext = nullptr;
+        GrRenderTarget* fRenderTarget = nullptr;
         const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstTexture fDstTexture;
     };
