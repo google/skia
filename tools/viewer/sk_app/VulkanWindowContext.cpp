@@ -241,6 +241,13 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         fDestroySwapchainKHR(fBackendContext->fDevice, swapchainCreateInfo.oldSwapchain, nullptr);
     }
 
+    if (params.fMSAASampleCount) {
+        SkDebugf("warning: Vulkan ignoring msaa sample count.");
+    }
+
+    // TODO: respect msaa on Vulkan.
+    fStencilBits = fSampleCount = 0;
+
     this->createBuffers(swapchainCreateInfo.imageFormat);
 
     return true;
@@ -272,8 +279,8 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         desc.fHeight = fHeight;
         desc.fConfig = fPixelConfig;
         desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-        desc.fSampleCnt = 0;
-        desc.fStencilBits = 0;
+        desc.fSampleCnt = fSampleCount;
+        desc.fStencilBits = fStencilBits;
         desc.fRenderTargetHandle = (GrBackendObject) &info;
 
         fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext, desc,
