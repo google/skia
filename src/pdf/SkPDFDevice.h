@@ -161,7 +161,6 @@ public:
         // we have to fall back to the region.  Treat fClipStack as authoritative.
         // See https://bugs.skia.org/221
         SkClipStack fClipStack;
-        SkRegion fClipRegion;
 
         // When emitting the content entry, we will ensure the graphic state
         // is set to these values first.
@@ -209,7 +208,6 @@ private:
     SkISize fPageSize;
     SkMatrix fInitialTransform;
     SkClipStack fExistingClipStack;
-    SkRegion fExistingClipRegion;
 
     SkTArray<RectWithData> fLinkToURLs;
     SkTArray<RectWithData> fLinkToDestinations;
@@ -245,7 +243,6 @@ private:
     void drawFormXObjectWithMask(int xObjectIndex,
                                  sk_sp<SkPDFObject> mask,
                                  const SkClipStack* clipStack,
-                                 const SkRegion& clipRegion,
                                  SkBlendMode,
                                  bool invertClip);
 
@@ -254,7 +251,6 @@ private:
     // setUpContentEntry and finishContentEntry can be used directly, but
     // the preferred method is to use the ScopedContentEntry helper class.
     ContentEntry* setUpContentEntry(const SkClipStack* clipStack,
-                                    const SkRegion& clipRegion,
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText,
@@ -264,7 +260,6 @@ private:
 
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
                                             const SkClipStack& clipStack,
-                                            const SkRegion& clipRegion,
                                             const SkPaint& paint,
                                             bool hasText,
                                             GraphicStateEntry* entry);
@@ -282,7 +277,6 @@ private:
 
     void internalDrawImage(const SkMatrix& origMatrix,
                            const SkClipStack* clipStack,
-                           const SkRegion& origClipRegion,
                            SkImageSubset imageSubset,
                            const SkPaint& paint);
 
