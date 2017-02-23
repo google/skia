@@ -524,7 +524,49 @@ STAGE(load_f16) {
     b = _mm256_cvtph_ps(_mm_unpacklo_epi64(ba0123, ba4567));
     a = _mm256_cvtph_ps(_mm_unpackhi_epi64(ba0123, ba4567));
 #elif defined(__AVX__)
-    // TODO
+    auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
+         _23 = _mm_loadu_si128(((__m128i*)ptr) + 1),
+         _45 = _mm_loadu_si128(((__m128i*)ptr) + 2),
+         _67 = _mm_loadu_si128(((__m128i*)ptr) + 3);
+
+    auto _02 = _mm_unpacklo_epi16(_01, _23),  // r0 r2 g0 g2 b0 b2 a0 a2
+         _13 = _mm_unpackhi_epi16(_01, _23),  // r1 r3 g1 g3 b1 b3 a1 a3
+         _46 = _mm_unpacklo_epi16(_45, _67),
+         _57 = _mm_unpackhi_epi16(_45, _67);
+
+    auto rg0123 = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
+         ba0123 = _mm_unpackhi_epi16(_02, _13),  // b0 b1 b2 b3 a0 a1 a2 a3
+         rg4567 = _mm_unpacklo_epi16(_46, _57),
+         ba4567 = _mm_unpackhi_epi16(_46, _57);
+
+    // half_to_float() slows down ~10x for denorm inputs, so we flush them to zero.
+    // With a signed comparison this conveniently also flushes negative half floats to zero.
+    auto ftz = [k](__m128i v) {
+        return _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(k->_0x04000400)), v);
+    };
+    rg0123 = ftz(rg0123);
+    ba0123 = ftz(ba0123);
+    rg4567 = ftz(rg4567);
+    ba4567 = ftz(ba4567);
+
+    U32 R = _mm256_setr_m128i(_mm_unpacklo_epi16(rg0123, _mm_setzero_si128()),
+                              _mm_unpacklo_epi16(rg4567, _mm_setzero_si128())),
+        G = _mm256_setr_m128i(_mm_unpackhi_epi16(rg0123, _mm_setzero_si128()),
+                              _mm_unpackhi_epi16(rg4567, _mm_setzero_si128())),
+        B = _mm256_setr_m128i(_mm_unpacklo_epi16(ba0123, _mm_setzero_si128()),
+                              _mm_unpacklo_epi16(ba4567, _mm_setzero_si128())),
+        A = _mm256_setr_m128i(_mm_unpackhi_epi16(ba0123, _mm_setzero_si128()),
+                              _mm_unpackhi_epi16(ba4567, _mm_setzero_si128()));
+
+    auto half_to_float = [&](U32 h) {
+        return bit_cast<F>(h << 13)               // Line up the mantissa,
+             * bit_cast<F>(U32(k->_0x77800000));  // then fix up the exponent.
+    };
+
+    r = half_to_float(R);
+    g = half_to_float(G);
+    b = half_to_float(B);
+    a = half_to_float(A);
 
 #elif defined(__SSE2__)
     auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
@@ -536,10 +578,12 @@ STAGE(load_f16) {
     auto rg = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
          ba = _mm_unpackhi_epi16(_02, _13);  // b0 b1 b2 b3 a0 a1 a2 a3
 
-    // half_to_float() slows down ~10x for denorm inputs, so we flush them to zero.
-    // With a signed comparison this conveniently also flushes negative half floats to zero.
-    rg = _mm_andnot_si128(_mm_cmplt_epi16(rg, U32(k->_0x04000400)), rg);
-    ba = _mm_andnot_si128(_mm_cmplt_epi16(ba, U32(k->_0x04000400)), ba);
+    // Same deal as AVX, flush denorms and negatives to zero.
+    auto ftz = [k](__m128i v) {
+        return _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(k->_0x04000400)), v);
+    };
+    rg = ftz(rg);
+    ba = ftz(ba);
 
     auto half_to_float = [&](U32 h) {
         return bit_cast<F>(h << 13)               // Line up the mantissa,
@@ -596,7 +640,30 @@ STAGE(store_f16) {
     _mm_storeu_si128((__m128i*)ptr + 2, _mm_unpacklo_epi32(rg4567, ba4567));
     _mm_storeu_si128((__m128i*)ptr + 3, _mm_unpackhi_epi32(rg4567, ba4567));
 #elif defined(__AVX__)
-    // TODO
+    auto float_to_half = [&](F f) {
+        return bit_cast<U32>(f * bit_cast<F>(U32(k->_0x07800000)))  // Fix up the exponent,
+            >> 13;                                                  // then line up the mantissa.
+    };
+    U32 R = float_to_half(r),
+        G = float_to_half(g),
+        B = float_to_half(b),
+        A = float_to_half(a);
+    auto r0123 = _mm256_extractf128_si256(R, 0),
+         r4567 = _mm256_extractf128_si256(R, 1),
+         g0123 = _mm256_extractf128_si256(G, 0),
+         g4567 = _mm256_extractf128_si256(G, 1),
+         b0123 = _mm256_extractf128_si256(B, 0),
+         b4567 = _mm256_extractf128_si256(B, 1),
+         a0123 = _mm256_extractf128_si256(A, 0),
+         a4567 = _mm256_extractf128_si256(A, 1);
+    auto rg0123 = r0123 | _mm_slli_si128(g0123,2),
+         rg4567 = r4567 | _mm_slli_si128(g4567,2),
+         ba0123 = b0123 | _mm_slli_si128(a0123,2),
+         ba4567 = b4567 | _mm_slli_si128(a4567,2);
+    _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg0123, ba0123));
+    _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg0123, ba0123));
+    _mm_storeu_si128((__m128i*)ptr + 2, _mm_unpacklo_epi32(rg4567, ba4567));
+    _mm_storeu_si128((__m128i*)ptr + 3, _mm_unpackhi_epi32(rg4567, ba4567));
 #elif defined(__SSE2__)
     auto float_to_half = [&](F f) {
         return bit_cast<U32>(f * bit_cast<F>(U32(k->_0x07800000)))  // Fix up the exponent,
