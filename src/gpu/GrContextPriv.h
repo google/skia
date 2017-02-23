@@ -12,6 +12,7 @@
 #include "GrSurfaceContext.h"
 
 class GrSurfaceProxy;
+class GrAtlasHelper;
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
@@ -59,9 +60,20 @@ public:
 
     bool disableGpuYUVConversion() const { return fContext->fDisableGpuYUVConversion; }
 
+    /*
+     * An atlas callback allows subsystems (e.g., text, path renderers) to create an atlas for a
+     * specific flush. All the GrOpLists required for the flush are passed into the callback.
+     */
+    typedef void (*PFAtlasCallBack)(GrAtlasHelper*, const SkTDArray<GrOpList*>&, void* data);
+
+    /*
+     * The 'data' parameter is passed back to the CB when it is invoked.
+     */
+    void addAtlasCallback(PFAtlasCallBack, void* data);
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
-    GrContextPriv(const GrContextPriv&) {} // unimpl
+    GrContextPriv(const GrContextPriv&); // unimpl
     GrContextPriv& operator=(const GrContextPriv&); // unimpl
 
     // No taking addresses of this type.

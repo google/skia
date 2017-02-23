@@ -12,6 +12,7 @@ tests_sources = [
   "$_tests/ApplyGammaTest.cpp",
   "$_tests/ArenaAllocTest.cpp",
   "$_tests/AsADashTest.cpp",
+  "$_tests/AtlasCallbackTest.cpp",
   "$_tests/BadIcoTest.cpp",
   "$_tests/BitmapCopyTest.cpp",
   "$_tests/BitmapGetColorTest.cpp",
