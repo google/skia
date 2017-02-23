@@ -356,10 +356,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
      **************************************************************************/
 
     // We need dual source blending and the ability to disable multisample in order to support mixed
-    // samples in every corner case.
+    // samples in every corner case. We only use mixed samples if the stencil-and-cover path
+    // renderer is available and enabled; no other path renderers support this feature.
     if (fMultisampleDisableSupport &&
         shaderCaps->dualSourceBlendingSupport() &&
-        fShaderCaps->pathRenderingSupport()) {
+        fShaderCaps->pathRenderingSupport() &&
+        (contextOptions.fGpuPathRenderers & GrContextOptions::GpuPathRenderers::kStencilAndCover)) {
         fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
                 ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
         // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
