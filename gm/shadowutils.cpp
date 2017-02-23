@@ -8,15 +8,15 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
-#include "SkMutex.h"
+#include "SkResourceCache.h"
 #include "SkShadowUtils.h"
 
 void draw_shadow(SkCanvas* canvas, const SkPath& path, int height, SkColor color, SkPoint3 lightPos,
-                 SkScalar lightR, bool isAmbient, uint32_t flags) {
+                 SkScalar lightR, bool isAmbient, uint32_t flags, SkResourceCache* cache) {
     SkScalar ambientAlpha = isAmbient ? .5f : 0.f;
     SkScalar spotAlpha = isAmbient ? 0.f : .5f;
     SkShadowUtils::DrawShadow(canvas, path, height, lightPos, lightR, ambientAlpha, spotAlpha,
-                              color, flags);
+                              color, flags, cache);
 }
 
 static constexpr int kW = 700;
@@ -25,11 +25,10 @@ static constexpr int kH = 800;
 DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
     // SkShadowUtils uses a cache of SkVertices meshes. The vertices are created in a local
     // coordinate system and then translated when reused. The coordinate system depends on
-    // parameters to the generating draw. To avoid slight rendering differences due to this property
-    // we only allow one thread into this GM at a time and we reset the cache before each run.
-    static SkMutex gMutex;
-    SkAutoMutexAcquire mutexLock(&gMutex);
-    SkShadowUtils::ClearCache();
+    // parameters to the generating draw. If other threads are hitting the cache while this GM is
+    // running then we may have different cache behavior leading to slight rendering differences.
+    // To avoid that we use our own isolated cache rather than the global cache.
+    SkResourceCache cache(1 << 20);
 
     SkTArray<SkPath> paths;
     paths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
@@ -70,8 +69,10 @@ DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
 
                 canvas->save();
                 canvas->concat(m);
-                draw_shadow(canvas, path, kHeight, SK_ColorRED, kLightPos, kLightR, true, flags);
-                draw_shadow(canvas, path, kHeight, SK_ColorBLUE, kLightPos, kLightR, false, flags);
+                draw_shadow(canvas, path, kHeight, SK_ColorRED, kLightPos, kLightR, true, flags,
+                            &cache);
+                draw_shadow(canvas, path, kHeight, SK_ColorBLUE, kLightPos, kLightR, false, flags,
+                            &cache);
 
                 // Draw the path outline in green on top of the ambient and spot shadows.
                 SkPaint paint;
