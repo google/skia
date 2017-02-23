@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7156a400_83cc906a",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-02-23T15:08:46Z",
+      "side": 1,
+      "message": "Thank you Mike! But this let me wonder whether we\u0027ll break the dm: 8888 and pic-8888 will generate different pixels. Shall we just add it to the expected failure list?",
+      "parentUuid": "9eed3add_373f6034",
+      "range": {
+        "startLine": 86,
+        "startChar": 28,
+        "endLine": 86,
+        "endChar": 38
+      },
+      "revId": "899e775ce99472818d1ba7614a6f191d08fa1efb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fa463338_43624a8e",
         "filename": "gm/savelayer.cpp",
         "patchSetId": 1
@@ -60,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "992d01c9_2e105ac7",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-02-23T15:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29af4bd5_d2c01c7f",
+      "revId": "899e775ce99472818d1ba7614a6f191d08fa1efb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f3d4b22_a6f1dd0e",
         "filename": "src/core/SkRecordOpts.cpp",
         "patchSetId": 1
@@ -71,6 +113,24 @@
       "writtenOn": "2017-02-22T21:32:21Z",
       "side": 1,
       "message": "Isn\u0027t only kDontClipToLayer_PrivateSaveLayerFlag bad?  kIsOpaque_SaveLayerFlag and kPreserveLCDText_SaveLayerFlag seem fine.",
+      "revId": "899e775ce99472818d1ba7614a6f191d08fa1efb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35facc65_551e08c5",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-02-23T15:08:46Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "1f3d4b22_a6f1dd0e",
       "revId": "899e775ce99472818d1ba7614a6f191d08fa1efb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
