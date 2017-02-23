@@ -342,23 +342,23 @@ private:
 
 namespace GrAAFillRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRect& rect,
                                const SkRect& devRect) {
-    return std::unique_ptr<GrDrawOp>(new AAFillRectOp(color, viewMatrix, rect, devRect, nullptr));
+    return std::unique_ptr<GrMeshDrawOp>(new AAFillRectOp(color, viewMatrix, rect, devRect, nullptr));
 }
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkMatrix& localMatrix,
                                const SkRect& rect,
                                const SkRect& devRect) {
-    return std::unique_ptr<GrDrawOp>(
+    return std::unique_ptr<GrMeshDrawOp>(
             new AAFillRectOp(color, viewMatrix, rect, devRect, &localMatrix));
 }
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkMatrix& localMatrix,
                                const SkRect& rect) {
@@ -367,7 +367,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
     return Make(color, viewMatrix, localMatrix, rect, devRect);
 }
 
-std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrColor color,
+std::unique_ptr<GrMeshDrawOp> MakeWithLocalRect(GrColor color,
                                             const SkMatrix& viewMatrix,
                                             const SkRect& rect,
                                             const SkRect& localRect) {

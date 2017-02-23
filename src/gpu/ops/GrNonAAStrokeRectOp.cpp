@@ -63,7 +63,7 @@ public:
         return string;
     }
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
                                           const SkRect& rect, const SkStrokeRec& stroke,
                                           bool snapToPixelCenters) {
         if (!allowed_stroke(stroke)) {
@@ -96,7 +96,7 @@ public:
         } else {
             op->setTransformedBounds(bounds, op->fViewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
         }
-        return std::unique_ptr<GrDrawOp>(op);
+        return std::unique_ptr<GrMeshDrawOp>(op);
     }
 
 private:
@@ -185,7 +185,7 @@ private:
 
 namespace GrNonAAStrokeRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRect& rect,
                                const SkStrokeRec& stroke,
