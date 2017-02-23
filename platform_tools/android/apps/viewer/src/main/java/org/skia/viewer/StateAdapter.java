@@ -126,6 +126,7 @@ public class StateAdapter extends BaseAdapter implements AdapterView.OnItemSelec
 
         String value = item.getString(VALUE);
         itemView.setTag(item.toString()); // To save unnecessary view update
+        itemView.setTag(R.integer.value_tag_key, value);
 
         nameText.setText(item.getString(NAME));
 
