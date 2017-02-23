@@ -273,4 +273,16 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
 }
 
+ContextInfo GrContextFactory::getSharedContextInfo(GrContext* shareContext, uint32_t shareIndex) {
+    SkASSERT(shareContext);
+    for (int i = 0; i < fContexts.count(); ++i) {
+        if (!fContexts[i].fAbandoned && fContexts[i].fGrContext == shareContext) {
+            return this->getContextInfo(fContexts[i].fType, fContexts[i].fOverrides,
+                                        shareContext, shareIndex);
+        }
+    }
+
+    return ContextInfo();
+}
+
 }  // namespace sk_gpu_test

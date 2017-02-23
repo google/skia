@@ -382,6 +382,10 @@ public:
     virtual bool waitFence(GrFence, uint64_t timeout = 1000) const = 0;
     virtual void deleteFence(GrFence) const = 0;
 
+    // Ensures that all queued up driver-level commands have been sent to the GPU. For example, on
+    // OpenGL, this calls glFlush.
+    virtual void flush() = 0;
+
     ///////////////////////////////////////////////////////////////////////////
     // Debugging and Stats
 

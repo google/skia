@@ -152,6 +152,11 @@ public:
                                ContextOverrides overrides = ContextOverrides::kNone,
                                GrContext* shareContext = nullptr, uint32_t shareIndex = 0);
     /**
+     * Get a context in the same share group as the passed in GrContext, with the same type and
+     * overrides.
+     */
+    ContextInfo getSharedContextInfo(GrContext* shareContext, uint32_t shareIndex = 0);
+    /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
     GrContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone) {

@@ -4741,3 +4741,7 @@ bool GrGLGpu::waitFence(GrFence fence, uint64_t timeout) const {
 void GrGLGpu::deleteFence(GrFence fence) const {
     GL_CALL(DeleteSync((GrGLsync)fence));
 }
+
+void GrGLGpu::flush() {
+    GL_CALL(Flush());
+}
