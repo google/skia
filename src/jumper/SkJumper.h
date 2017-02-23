@@ -47,6 +47,16 @@ struct SkJumper_constants {
     uint32_t _0x77800000;
     uint32_t _0x07800000;
     uint32_t _0x04000400;
+
+    // 565
+    uint32_t r_565_mask;
+    uint32_t g_565_mask;
+    uint32_t b_565_mask;
+    float    r_565_scale;
+    float    g_565_scale;
+    float    b_565_scale;
+    float    _31;
+    float    _63;
 };
 
 #endif//SkJumper_DEFINED

@@ -11,6 +11,19 @@
 // It's tricky to relocate code referencing ordinary constants, so we read them from this struct.
 using K = const SkJumper_constants;
 
+template <typename T, typename P>
+static T unaligned_load(const P* p) {
+    T v;
+    memcpy(&v, p, sizeof(v));
+    return v;
+}
+
+template <typename Dst, typename Src>
+static Dst bit_cast(const Src& src) {
+    static_assert(sizeof(Dst) == sizeof(Src), "");
+    return unaligned_load<Dst>(&src);
+}
+
 #if !defined(JUMPER)
     // This path should lead to portable code that can be compiled directly into Skia.
     // (All other paths are compiled offline by Clang into SkJumper_generated.h.)
@@ -19,6 +32,7 @@ using K = const SkJumper_constants;
     using F   = float;
     using I32 =  int32_t;
     using U32 = uint32_t;
+    using U16 = uint16_t;
     using U8  = uint8_t;
 
     static F   mad(F f, F m, F a)  { return f*m+a; }
@@ -27,6 +41,7 @@ using K = const SkJumper_constants;
     static F   rcp  (F v)          { return 1.0f / v; }
     static F   rsqrt(F v)          { return 1.0f / sqrtf(v); }
     static U32 round(F v, F scale) { return (uint32_t)lrintf(v*scale); }
+    static U16 pack(U32 v)         { return (U16)v; }
 
     static F if_then_else(I32 c, F t, F e) { return c ? t : e; }
 
@@ -41,6 +56,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(4)));
     using I32 =  int32_t __attribute__((ext_vector_type(4)));
     using U32 = uint32_t __attribute__((ext_vector_type(4)));
+    using U16 = uint16_t __attribute__((ext_vector_type(4)));
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
@@ -50,6 +66,7 @@ using K = const SkJumper_constants;
     static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
     static U32 round(F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
+    static U16 pack(U32 v)                          { return __builtin_convertvector(v, U16); }
 
     static F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
@@ -67,6 +84,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(2)));
     using I32 =  int32_t __attribute__((ext_vector_type(2)));
     using U32 = uint32_t __attribute__((ext_vector_type(2)));
+    using U16 = uint16_t __attribute__((ext_vector_type(2)));
     using U8  = uint8_t  __attribute__((ext_vector_type(2)));
 
     static F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
@@ -75,6 +93,7 @@ using K = const SkJumper_constants;
     static F   rcp  (F v) { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
     static F   rsqrt(F v) { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
     static U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
+    static U16 pack(U32 v)                         { return __builtin_convertvector(v, U16); }
 
     static F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
 
@@ -89,6 +108,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(8)));
     using I32 =  int32_t __attribute__((ext_vector_type(8)));
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
+    using U16 = uint16_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
     static F   mad(F f, F m, F a)  { return _mm256_fmadd_ps(f,m,a);}
@@ -97,6 +117,12 @@ using K = const SkJumper_constants;
     static F   rcp  (F v)          { return _mm256_rcp_ps  (v);    }
     static F   rsqrt(F v)          { return _mm256_rsqrt_ps(v);    }
     static U32 round(F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
+
+    static U16 pack(U32 v) {
+        __m128i lo = _mm256_extractf128_si256(v, 0),
+                hi = _mm256_extractf128_si256(v, 1);
+        return _mm_packus_epi32(lo, hi);
+    }
 
     static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
 
@@ -110,6 +136,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(8)));
     using I32 =  int32_t __attribute__((ext_vector_type(8)));
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
+    using U16 = uint16_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
     static F   mad(F f, F m, F a)  { return f*m+a;              }
@@ -118,6 +145,12 @@ using K = const SkJumper_constants;
     static F   rcp  (F v)          { return _mm256_rcp_ps  (v); }
     static F   rsqrt(F v)          { return _mm256_rsqrt_ps(v); }
     static U32 round(F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
+
+    static U16 pack(U32 v) {
+        __m128i lo = _mm256_extractf128_si256(v, 0),
+                hi = _mm256_extractf128_si256(v, 1);
+        return _mm_packus_epi32(lo, hi);
+    }
 
     static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
 
@@ -134,6 +167,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(4)));
     using I32 =  int32_t __attribute__((ext_vector_type(4)));
     using U32 = uint32_t __attribute__((ext_vector_type(4)));
+    using U16 = uint16_t __attribute__((ext_vector_type(4)));
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     static F   mad(F f, F m, F a)  { return f*m+a;           }
@@ -142,6 +176,17 @@ using K = const SkJumper_constants;
     static F   rcp  (F v)          { return _mm_rcp_ps  (v); }
     static F   rsqrt(F v)          { return _mm_rsqrt_ps(v); }
     static U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
+
+    static U16 pack(U32 v) {
+    #if defined(__SSE4_1__)
+        auto p = _mm_packus_epi32(v,v);
+    #else
+        // Sign extend so that _mm_packs_epi32() does the pack we want.
+        auto p = _mm_srai_epi32(_mm_slli_epi32(v, 16), 16);
+        p = _mm_packs_epi32(p,p);
+    #endif
+        return unaligned_load<U16>(&p);  // We have two copies.  Return (the lower) one.
+    }
 
     static F if_then_else(I32 c, F t, F e) {
     #if defined(__SSE4_1__)
@@ -160,32 +205,29 @@ using K = const SkJumper_constants;
     #endif
 #endif
 
-static F lerp(F from, F to, F t) {
-    return mad(to-from, t, from);
-}
-
 // We need to be a careful with casts.
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
 #if defined(JUMPER)
     static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
+    static U32 expand(U16 v) { return __builtin_convertvector(     v, U32); }
     static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
 #else
     static F   cast  (U32 v) { return (F)v; }
+    static U32 expand(U16 v) { return (U32)v; }
     static U32 expand(U8  v) { return (U32)v; }
 #endif
 
-template <typename T, typename P>
-static T unaligned_load(const P* p) {
-    T v;
-    memcpy(&v, p, sizeof(v));
-    return v;
+
+static F lerp(F from, F to, F t) {
+    return mad(to-from, t, from);
 }
 
-template <typename Dst, typename Src>
-static Dst bit_cast(const Src& src) {
-    static_assert(sizeof(Dst) == sizeof(Src), "");
-    return unaligned_load<Dst>(&src);
+static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
+    U32 wide = expand(_565);
+    *r = cast(wide & k->r_565_mask) * k->r_565_scale;
+    *g = cast(wide & k->g_565_mask) * k->g_565_scale;
+    *b = cast(wide & k->b_565_mask) * k->b_565_scale;
 }
 
 // Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
@@ -453,6 +495,22 @@ STAGE(load_tables) {
     g = gather(c->g, (px >>  8) & k->_0x000000ff);
     b = gather(c->b, (px >> 16) & k->_0x000000ff);
     a = cast(        (px >> 24)) * k->_1_255;
+}
+
+STAGE(load_565) {
+    auto ptr = *(const uint16_t**)ctx + x;
+
+    auto px = unaligned_load<U16>(ptr);
+    from_565(px, &r,&g,&b, k);
+    a = k->_1;
+}
+STAGE(store_565) {
+    auto ptr = *(uint16_t**)ctx + x;
+
+    U16 px = pack( round(r, k->_31) << 11
+                 | round(g, k->_63) <<  5
+                 | round(b, k->_31)      );
+    memcpy(ptr, &px, sizeof(px));
 }
 
 STAGE(load_8888) {
