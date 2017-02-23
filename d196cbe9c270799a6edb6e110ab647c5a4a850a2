@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae0508da_f5d36a8c",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-23T17:35:41Z",
+      "side": 1,
+      "message": "This flag is defined in SkCanvas.h (private section)\n\nkDontClipToLayer_PrivateSaveLayerFlag\n\nPerhaps we can friend something so we don\u0027t have to repeat the actual bit value...",
+      "revId": "d196cbe9c270799a6edb6e110ab647c5a4a850a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
