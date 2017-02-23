@@ -262,19 +262,15 @@ protected:
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 PerGlyphInfo, const uint32_t*, uint32_t) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
-    int onCharsToGlyphs(const void* chars, Encoding encoding,
-                        uint16_t glyphs[], int glyphCount) const override;
+    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
+                                uint16_t glyphs[], int glyphCount) const override;
     int onCountGlyphs() const override;
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
-    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                     int coordinateCount) const override
-    {
-        return -1;
-    }
     int onGetTableTags(SkFontTableTag tags[]) const override;
-    size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
+    virtual size_t onGetTableData(SkFontTableTag, size_t offset,
+                                  size_t length, void* data) const override;
 };
 
 class FontMemResourceTypeface : public LogFontTypeface {
@@ -2459,20 +2455,17 @@ protected:
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
         std::unique_ptr<SkStreamAsset> stream(bareStream);
-        if (ttcIndex != 0) {
-            return nullptr;
-        }
         return create_from_stream(stream.get());
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
         // could be in base impl
-        return this->createFromStream(new SkMemoryStream(sk_ref_sp(data)), ttcIndex);
+        return this->createFromStream(new SkMemoryStream(sk_ref_sp(data)));
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         // could be in base impl
-        return this->createFromStream(SkStream::MakeFromFile(path).release(), ttcIndex);
+        return this->createFromStream(SkStream::MakeFromFile(path).release());
     }
 
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
