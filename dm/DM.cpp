@@ -226,6 +226,7 @@ static void find_culprit() {
     }
 
     static void setup_crash_handler() {
+        if (false)
         SetUnhandledExceptionFilter(crash_handler);
     }
 #else
