@@ -192,6 +192,11 @@ struct SaveLayerDrawRestoreNooper {
             return false;
         }
 
+        if (match->first<SaveLayer>()->saveLayerFlags & (1U << 31)) {
+            // can't throw away the layer if the kDontClipToLayer_PrivateSaveLayerFlag is set
+            return false;
+        }
+
         // A SaveLayer's bounds field is just a hint, so we should be free to ignore it.
         SkPaint* layerPaint = match->first<SaveLayer>()->paint;
         SkPaint* drawPaint = match->second<SkPaint>();
