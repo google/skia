@@ -61,6 +61,12 @@ public:
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 
     /**
+     * Clients may call this to indicate the passage of frames. Currently this is only used
+     * by the context to implement purgeResourceNotUsedInFrames().
+     */
+    void nextFrame();
+
+    /**
      * The GrContext normally assumes that no outsider is setting state
      * within the underlying 3D API's context/device/whatever. This call informs
      * the context that the state was modified and it should resend. Shouldn't
@@ -161,6 +167,12 @@ public:
      * and is not defined in normal builds of Skia.
      */
     void purgeAllUnlockedResources();
+
+    /**
+     * Purge GPU resources that haven't been used in the last 'n' frames, regardless of whether
+     * the context is currently under budget.
+     */
+    void purgeResourceNotUsedInFrames(int n);
 
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps; }

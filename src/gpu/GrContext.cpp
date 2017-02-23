@@ -140,6 +140,11 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return fThreadSafeProxy;
 }
 
+void GrContext::nextFrame() {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->nextFrame();
+}
+
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
@@ -192,6 +197,11 @@ void GrContext::freeGpuResources() {
     fDrawingManager->freeGpuResources();
 
     fResourceCache->purgeAllUnlocked();
+}
+
+void GrContext::purgeResourceNotUsedInFrames(int n) {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->purgeResourceNotUsedInFrames(n);
 }
 
 void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
