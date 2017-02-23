@@ -61,7 +61,8 @@ public:
      *  guaranteed to be the same.  If the ICC representation was not a table, the length
      *  will be chosen arbitrarily.
      *
-     *  Entries in the tables are guaranteed to be in [0, 1].
+     *  The lengths of the tables are all guaranteed to be at least 2.  Entries in the
+     *  tables are guaranteed to be in [0, 1].
      *
      *  This API may be deleted in favor of a numerical approximation of the raw data.
      *
@@ -78,14 +79,32 @@ public:
         Channel fGreen;
         Channel fBlue;
 
-        const float* red() {
-            return (const float*) (fStorage->bytes() + fRed.fOffset);
+        const float* table(int i) {
+            SkASSERT(0 <= i && i <= 2);
+            switch (i) {
+                case 0:
+                    return (const float*) (fStorage->bytes() + fRed.fOffset);
+                case 1:
+                    return (const float*) (fStorage->bytes() + fGreen.fOffset);
+                case 2:
+                    return (const float*) (fStorage->bytes() + fBlue.fOffset);
+                default:
+                    return nullptr;
+            }
         }
-        const float* green() {
-            return (const float*) (fStorage->bytes() + fGreen.fOffset);
-        }
-        const float* blue() {
-            return (const float*) (fStorage->bytes() + fBlue.fOffset);
+
+        int count(int i) {
+            SkASSERT(0 <= i && i <= 2);
+            switch (i) {
+                case 0:
+                    return fRed.fCount;
+                case 1:
+                    return fGreen.fCount;
+                case 2:
+                    return fBlue.fCount;
+                default:
+                    return 0;
+            }
         }
 
         sk_sp<SkData> fStorage;
