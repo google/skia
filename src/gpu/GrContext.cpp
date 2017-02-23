@@ -716,6 +716,11 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                            surfaceProps);
 }
 
+void GrContextPriv::addAtlasCallback(PFAtlasCallBack atlasCB, void* data) {
+    fContext->fDrawingManager->addAtlasCallBack(atlasCB, data);
+}
+
+
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
