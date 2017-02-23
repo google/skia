@@ -117,7 +117,9 @@ public:
         return fCompiler;
     }
 
-    void onResolveRenderTarget(GrRenderTarget* target) override;
+    void onResolveRenderTarget(GrRenderTarget* target) override {
+        this->internalResolveRenderTarget(target, true);
+    }
 
     void submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer*,
                                       const GrVkRenderPass*,
@@ -200,6 +202,8 @@ private:
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
     // work in the queue to finish before returning.
     void submitCommandBuffer(SyncQueue sync);
+
+    void internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit);
 
     void copySurfaceAsCopyImage(GrSurface* dst,
                                 GrSurface* src,
