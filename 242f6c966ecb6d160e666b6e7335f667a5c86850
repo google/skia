@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2f3e680_4bdaa99a",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1706,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-23T13:55:29Z",
+      "side": 1,
+      "message": "Might be worth checking whether this is really reachable.",
+      "revId": "242f6c966ecb6d160e666b6e7335f667a5c86850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
