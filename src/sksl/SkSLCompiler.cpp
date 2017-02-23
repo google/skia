@@ -286,8 +286,12 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
                 if (e1 != e2) {
                     // definition has changed, merge and add exit block to worklist
                     workList->insert(exitId);
-                    exit.fBefore[pair.first] =
+                    if (e1 && e2) {
+                        exit.fBefore[pair.first] =
                                        (std::unique_ptr<Expression>*) &fContext.fDefined_Expression;
+                    } else {
+                        exit.fBefore[pair.first] = nullptr;
+                    }
                 }
             }
         }
@@ -316,6 +320,7 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
 }
 
 void Compiler::scanCFG(const FunctionDefinition& f) {
+    SkDebugf("Scanning CFG: %s\n", f.description().c_str());
     CFG cfg = CFGGenerator().getCFG(f);
 
     // compute the data flow
@@ -347,6 +352,7 @@ void Compiler::scanCFG(const FunctionDefinition& f) {
         }
     }
     if (fErrorCount) {
+        SkDebugf("Finished with errors\n");
         return;
     }
 
@@ -384,11 +390,13 @@ void Compiler::scanCFG(const FunctionDefinition& f) {
             this->error(f.fPosition, SkString("function can exit without returning a value"));
         }
     }
+    SkDebugf("Finished!\n");
 }
 
 void Compiler::internalConvertProgram(SkString text,
                                       Modifiers::Flag* defaultPrecision,
                                       std::vector<std::unique_ptr<ProgramElement>>* result) {
+    SkDebugf("##### converting %s\n", text.c_str());
     Parser parser(text, *fTypes, *this);
     std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
     if (fErrorCount) {
@@ -411,6 +419,7 @@ void Compiler::internalConvertProgram(SkString text,
                 std::unique_ptr<FunctionDefinition> f = fIRGenerator->convertFunction(
                                                                                (ASTFunction&) decl);
                 if (!fErrorCount && f) {
+                    SkDebugf("CFG scan\n");
                     this->scanCFG(*f);
                     result->push_back(std::move(f));
                 }
@@ -447,6 +456,7 @@ void Compiler::internalConvertProgram(SkString text,
                 ABORT("unsupported declaration: %s\n", decl.description().c_str());
         }
     }
+    SkDebugf("#### finished converting!\n");
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString text,
@@ -467,18 +477,25 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString t
             this->internalConvertProgram(SkString(SKSL_GEOM_INCLUDE), &ignored, &elements);
             break;
     }
+    SkDebugf("convert 1\n");
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+    SkDebugf("convert 2\n");
     Modifiers::Flag defaultPrecision;
     this->internalConvertProgram(text, &defaultPrecision, &elements);
+    SkDebugf("convert 3\n");
     auto result = std::unique_ptr<Program>(new Program(kind, settings, defaultPrecision, &fContext,
                                                        std::move(elements),
                                                        fIRGenerator->fSymbolTable,
                                                        fIRGenerator->fInputs));
+    SkDebugf("convert 4\n");
     fIRGenerator->finish();
+    SkDebugf("convert 5\n");
     this->writeErrorCount();
     if (fErrorCount) {
+        SkDebugf("convert 6\n");
         return nullptr;
     }
+    SkDebugf("convert 7\n");
     return result;
 }
 
