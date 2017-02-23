@@ -6,6 +6,7 @@
  */
 
 
+#include "SkDOM.h"
 #include "SkEvent.h"
 
 void SkEvent::initialize(const char* type, size_t typeLen,
