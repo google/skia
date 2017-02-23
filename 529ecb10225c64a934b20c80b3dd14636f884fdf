@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "178bc00c_aceb4809",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-23T14:40:53Z",
+      "side": 1,
+      "message": "I think we commonly use \"internal\" rather than \"inner\"",
+      "revId": "529ecb10225c64a934b20c80b3dd14636f884fdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
