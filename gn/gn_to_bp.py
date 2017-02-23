@@ -205,7 +205,7 @@ subprocess.check_call(['gn', 'gen', tmp, '--args=%s' % gn_args, '--ide=json'])
 js = json.load(open(os.path.join(tmp, 'project.json')))
 
 def strip_slashes(lst):
-  return [str(p.lstrip('/')) for p in lst]
+  return {str(p.lstrip('/')) for p in lst}
 
 srcs            = strip_slashes(js['targets']['//:skia']['sources'])
 local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
@@ -228,16 +228,17 @@ def GrabDependentSrcs(name, srcs_to_extend, exclude):
       continue   # We'll handle all cpu-specific sources manually later.
     if exclude and exclude in dep:
       continue
-    srcs_to_extend.extend(strip_slashes(js['targets'][dep].get('sources', [])))
+    srcs_to_extend.update(strip_slashes(js['targets'][dep].get('sources', [])))
+    GrabDependentSrcs(dep, srcs_to_extend, exclude)
 
 GrabDependentSrcs('//:skia', srcs, None)
 GrabDependentSrcs('//:dm', dm_srcs, 'skia')
 GrabDependentSrcs('//:nanobench', nanobench_srcs, 'skia')
 
 # No need to list headers.
-srcs            = [s for s in srcs           if not s.endswith('.h')]
-dm_srcs         = [s for s in dm_srcs        if not s.endswith('.h')]
-nanobench_srcs  = [s for s in nanobench_srcs if not s.endswith('.h')]
+srcs            = {s for s in srcs           if not s.endswith('.h')}
+dm_srcs         = {s for s in dm_srcs        if not s.endswith('.h')}
+nanobench_srcs  = {s for s in nanobench_srcs if not s.endswith('.h')}
 
 # Most defines go into SkUserConfig.h, where they're seen by Skia and its users.
 # Start with the defines :skia uses, minus a couple.  We'll add more in a bit.
