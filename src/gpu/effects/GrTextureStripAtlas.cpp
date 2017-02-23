@@ -207,24 +207,24 @@ void GrTextureStripAtlas::lockTexture() {
     builder.finish();
 
     // MDB TODO (caching): this side-steps the issue of proxies with unique IDs
-    GrTexture* texture = fDesc.fContext->textureProvider()->findAndRefTextureByUniqueKey(key);
+    sk_sp<GrTexture> texture(fDesc.fContext->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!texture) {
-        texture = fDesc.fContext->textureProvider()->createTexture(texDesc, SkBudgeted::kYes,
-                                                                   nullptr, 0);
+        texture.reset(fDesc.fContext->textureProvider()->createTexture(texDesc, SkBudgeted::kYes,
+                                                                       nullptr, 0));
         if (!texture) {
             return;
         }
 
         // We will be issuing writes to the surface using kDontFlush_PixelOpsFlag, so we
         // need to make sure any existing IO is flushed
-        fDesc.fContext->flushSurfaceIO(texture);
-        fDesc.fContext->textureProvider()->assignUniqueKeyToTexture(key, texture);
+        fDesc.fContext->flushSurfaceIO(texture.get());
+        fDesc.fContext->textureProvider()->assignUniqueKeyToTexture(key, texture.get());
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();
     }
     SkASSERT(texture);
-    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(sk_ref_sp(texture));
+    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(std::move(texture));
 }
 
 void GrTextureStripAtlas::unlockTexture() {
