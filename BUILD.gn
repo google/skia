@@ -407,6 +407,10 @@ optional("gpu") {
     sources += [ "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
+    libs += [
+      "GL",
+      "GLU",
+    ]
   } else if (is_mac) {
     sources += [ "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp" ]
   } else if (is_ios) {
@@ -674,11 +678,6 @@ component("skia") {
   }
 
   if (is_linux) {
-    libs += [
-      "GL",
-      "GLU",
-      "X11",
-    ]
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
   }
 
@@ -857,6 +856,7 @@ if (skia_enable_tools) {
         libs += [ "OpenGLES.framework" ]
       } else if (is_linux) {
         sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+        libs += [ "X11" ]
       } else if (is_mac) {
         sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
       } else if (is_win) {
@@ -1032,6 +1032,10 @@ if (skia_enable_tools) {
       sources += [
         "src/views/unix/SkOSWindow_Unix.cpp",
         "src/views/unix/keysym2ucs.c",
+      ]
+      libs += [
+        "GL",
+        "X11",
       ]
     } else if (is_mac) {
       sources += [
