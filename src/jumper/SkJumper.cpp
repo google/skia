@@ -276,7 +276,7 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
             return false;
         }
     }
-    if (0 && SkCpu::Supports(SkCpu::AVX)) {
+    if (1 && SkCpu::Supports(SkCpu::AVX)) {
         if (!build_and_run(8, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
             return false;
         }
