@@ -145,12 +145,12 @@ static inline void test_raw_transfer_fn(skiatest::Reporter* r, SkICC* icc) {
     bool result = icc->rawTransferFnData(&tables);
     REPORTER_ASSERT(r, result);
 
-    REPORTER_ASSERT(r, 0.0f == tables.red()[0]);
-    REPORTER_ASSERT(r, 0.0f == tables.green()[0]);
-    REPORTER_ASSERT(r, 0.0f == tables.blue()[0]);
-    REPORTER_ASSERT(r, 1.0f == tables.red()[tables.fRed.fCount - 1]);
-    REPORTER_ASSERT(r, 1.0f == tables.green()[tables.fGreen.fCount - 1]);
-    REPORTER_ASSERT(r, 1.0f == tables.blue()[tables.fBlue.fCount - 1]);
+    REPORTER_ASSERT(r, 0.0f == tables.table(0)[0]);
+    REPORTER_ASSERT(r, 0.0f == tables.table(1)[0]);
+    REPORTER_ASSERT(r, 0.0f == tables.table(2)[0]);
+    REPORTER_ASSERT(r, 1.0f == tables.table(0)[tables.fRed.fCount - 1]);
+    REPORTER_ASSERT(r, 1.0f == tables.table(1)[tables.fGreen.fCount - 1]);
+    REPORTER_ASSERT(r, 1.0f == tables.table(2)[tables.fBlue.fCount - 1]);
 }
 
 class ICCTest {
