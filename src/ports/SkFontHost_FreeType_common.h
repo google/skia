@@ -17,11 +17,8 @@
 
 #include "SkFontMgr.h"
 
-// These are forward declared to avoid pimpl but also hide the FreeType implementation.
-typedef struct FT_LibraryRec_* FT_Library;
-typedef struct FT_FaceRec_* FT_Face;
-typedef struct FT_StreamRec_* FT_Stream;
-typedef signed long FT_Pos;
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 class SkScalerContext_FreeType_Base : public SkScalerContext {
 protected:
@@ -62,7 +59,7 @@ public:
                       AxisDefinitions* axes) const;
         static void computeAxisValues(
             AxisDefinitions axisDefinitions,
-            const SkFontArguments::VariationPosition position,
+            const SkFontMgr::FontParameters::Axis* requestedAxis, int requestedAxisCount,
             SkFixed* axisValues,
             const SkString& name);
 
@@ -91,8 +88,6 @@ protected:
 
     LocalizedStrings* onCreateFamilyNameIterator() const override;
 
-    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                     int coordinateCount) const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset,
                           size_t length, void* data) const override;

@@ -167,8 +167,8 @@ static const TagHandler axisHandler = {
                 if (valueLen == 4) {
                     axisTag = SkSetFourByteTag(value[0], value[1], value[2], value[3]);
                     axisTagIsValid = true;
-                    for (int j = 0; j < file.fVariationDesignPosition.count() - 1; ++j) {
-                        if (file.fVariationDesignPosition[j].axis == axisTag) {
+                    for (int j = 0; j < file.fAxes.count() - 1; ++j) {
+                        if (file.fAxes[j].fTag == axisTag) {
                             axisTagIsValid = false;
                             SK_FONTCONFIGPARSER_WARNING("'%c%c%c%c' axis specified more than once",
                                                         (axisTag >> 24) & 0xFF,
@@ -189,9 +189,9 @@ static const TagHandler axisHandler = {
             }
         }
         if (axisTagIsValid && axisStyleValueIsValid) {
-            auto& coordinate = file.fVariationDesignPosition.push_back();
-            coordinate.axis = axisTag;
-            coordinate.value = SkFixedToScalar(axisStyleValue);
+            SkFontMgr::FontParameters::Axis& axis = file.fAxes.push_back();
+            axis.fTag = axisTag;
+            axis.fStyleValue = SkFixedToScalar(axisStyleValue);
         }
     },
     /*end*/nullptr,
