@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1d0d561_6ac90b8e",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-23T15:22:11Z",
+      "side": 1,
+      "message": "Might want to name this something like\n\n    SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag\n\nso that it\u0027s clear where to find the original.",
+      "range": {
+        "startLine": 11,
+        "startChar": 22,
+        "endLine": 11,
+        "endChar": 59
+      },
+      "revId": "0d38113870548473d0e1c110e97873a7537139d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "760a73b7_a8ac7c57",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-23T15:22:11Z",
+      "side": 1,
+      "message": "This looks like a good candidate for DEF_SIMPLE_GM now.",
+      "revId": "0d38113870548473d0e1c110e97873a7537139d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb6daf4a_853e8f00",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-23T15:22:11Z",
+      "side": 1,
+      "message": "This is dead code right?",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 21
+      },
+      "revId": "0d38113870548473d0e1c110e97873a7537139d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
