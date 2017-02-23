@@ -16,6 +16,24 @@
       "revId": "529ecb10225c64a934b20c80b3dd14636f884fdf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a179566_9b4a8377",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-23T14:44:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "178bc00c_aceb4809",
+      "revId": "529ecb10225c64a934b20c80b3dd14636f884fdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
