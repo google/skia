@@ -13,7 +13,8 @@
 #include <atomic>
 
 // A debugging mode that helps prioritize porting stages to SkJumper.
-#if 0
+#if 1
+    #include "SkColorPriv.h"
     #define M(st) {0},
     static std::atomic<int> gMissing[] = { SK_RASTER_PIPELINE_STAGES(M) };
     #undef M
@@ -40,6 +41,9 @@ static K kConstants = {
     0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
     12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
     0x77800000, 0x07800000, 0x04000400,                // fp16 <-> fp32
+         0x0000f800,      0x000007e0,      0x0000001f, // 565
+    1.0f/0x0000f800, 1.0f/0x000007e0, 1.0f/0x0000001f,
+    31.0f, 63.0f,
 };
 
 #define STAGES(M)     \
@@ -64,6 +68,8 @@ static K kConstants = {
     M(scale_u8)       \
     M(lerp_u8)        \
     M(load_tables)    \
+    M(load_565)       \
+    M(store_565)      \
     M(load_8888)      \
     M(store_8888)     \
     M(load_f16)       \
@@ -222,6 +228,9 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
 #ifdef WHATS_NEXT
     static SkOnce once;
     once([] {
+        SkDebugf("%08x %08x %08x %g %g %g\n",
+                      SK_R16_MASK_IN_PLACE,      SK_G16_MASK_IN_PLACE,      SK_B16_MASK_IN_PLACE,
+                 1.0f/SK_R16_MASK_IN_PLACE, 1.0f/SK_G16_MASK_IN_PLACE, 1.0f/SK_B16_MASK_IN_PLACE);
         atexit([] {
             for (int i = 0; i < (int)SK_ARRAY_COUNT(gMissing); i++) {
                 SkDebugf("%10d %s\n", gMissing[i].load(), gNames[i]);
