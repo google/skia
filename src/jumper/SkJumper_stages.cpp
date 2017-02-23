@@ -26,7 +26,7 @@ using K = const SkJumper_constants;
     static F   max(F a, F b)       { return fmaxf(a,b); }
     static F   rcp  (F v)          { return 1.0f / v; }
     static F   rsqrt(F v)          { return 1.0f / sqrtf(v); }
-    static U32 round(F v, F scale) { return (uint32_t)(v*scale); }
+    static U32 round(F v, F scale) { return (uint32_t)lrintf(v*scale); }
 
     static F if_then_else(I32 c, F t, F e) { return c ? t : e; }
 
