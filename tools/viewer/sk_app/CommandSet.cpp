@@ -112,6 +112,7 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
 
     SkPaint groupPaint;
     groupPaint.setTextSize(18);
+    groupPaint.setUnderlineText(true);
     groupPaint.setAntiAlias(true);
     groupPaint.setColor(0xFFFFFFFF);
 
