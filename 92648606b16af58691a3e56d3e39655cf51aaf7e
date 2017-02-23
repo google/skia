@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "df353d89_a7b65c78",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-23T00:41:54Z",
+      "side": 1,
+      "message": "The only way e1 or e2 can be nullptr is if nullptr is a value in fBefore. The only way fBefore can have a nullptr value is if either e1 or e2 are nullptr. Which came first, the chicken or the egg? Or did I miss a sneaky nullptr in addDefinitions?",
+      "parentUuid": "e27b89ff_2a6e1e2d",
+      "range": {
+        "startLine": 289,
+        "startChar": 20,
+        "endLine": 289,
+        "endChar": 35
+      },
+      "revId": "92648606b16af58691a3e56d3e39655cf51aaf7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "23a5c51b_4459d3d0",
         "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
         "patchSetId": 2
