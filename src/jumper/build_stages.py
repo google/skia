@@ -68,9 +68,12 @@ subprocess.check_call(['clang++'] + cflags + vfp4 +
                       ['-o', 'vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
-  globl, label, comment, dehex = '.globl', ':', '// ', lambda h: '0x'+h
+  globl, label, comment = '.globl', ':', '// '
   if 'win' in dot_o:
     globl, label, comment = 'PUBLIC', ' LABEL PROC', '; '
+
+  dehex = lambda h: '0x'+h
+  if directive != '.long':
     dehex = lambda h: str(int(h, 16))
 
   cmd = [ objdump, '-d', '--insn-width=9', dot_o]
@@ -108,7 +111,7 @@ def parse_object_file(dot_o, directive, target=None):
 
     hexed = ','.join(dehex(x) for x in code.split(' '))
 
-    print '  ' + directive + '  ' + hexed + ' '*(48-len(hexed)) + \
+    print '  ' + directive + '  ' + hexed + ' '*(36-len(hexed)) + \
           comment + inst  + (' '*(14-len(inst)) + args if args else '')
 
 sys.stdout = open('src/jumper/SkJumper_generated.S', 'w')
