@@ -13,6 +13,7 @@
 #include "SkBitmapKey.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
+#include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilterCache.h"
@@ -46,6 +47,23 @@
 #define DPI_FOR_RASTER_SCALE_ONE 72
 
 // Utility functions
+
+static void draw_points(SkCanvas::PointMode mode,
+                        size_t count,
+                        const SkPoint* points,
+                        const SkPaint& paint,
+                        const SkIRect& bounds,
+                        const SkMatrix& ctm,
+                        SkBaseDevice* device) {
+    SkRasterClip rc(bounds);
+    SkDraw draw;
+    draw.fDst = SkPixmap(SkImageInfo::MakeUnknown(bounds.right(), bounds.bottom()), nullptr, 0);
+    draw.fMatrix = &ctm;
+    draw.fRC = &rc;
+    draw.drawPoints(mode, count, points, paint, device);
+}
+
+static SkIRect size(const SkBaseDevice& dev) { return {0, 0, dev.width(), dev.height()}; }
 
 // If the paint will definitely draw opaquely, replace kSrc with
 // kSrcOver.  http://crbug.com/473572
@@ -511,10 +529,6 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     path.transform(this->ctm(), &path);
     SkPath clip;
     (void)this->cs().asPath(&clip);
-    SkIPoint deviceOrigin = this->getOrigin();
-    clip.offset(-deviceOrigin.x(), -deviceOrigin.y());
-    // Offset here to make clip and path share coordinates.
-    // We remove the offset in SkPDFDevice::drawDevice().
     Op(clip, path, kIntersect_SkPathOp, &path);
     // PDF wants a rectangle only.
     SkRect transformedRect = path.getBounds();
@@ -570,11 +584,11 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     // We only use this when there's a path effect because of the overhead
     // of multiple calls to setUpContentEntry it causes.
     if (passedPaint.getPathEffect()) {
-        if (this->cs().isEmpty(this->getGlobalBounds())) {
+        if (this->cs().isEmpty(size(*this))) {
             return;
         }
-        //FIXME
-        //d.drawPoints(mode, count, points, passedPaint, this);
+        draw_points(mode, count, points, passedPaint,
+                    this->devClipBounds(), this->ctm(), this);
         return;
     }
 
@@ -692,7 +706,7 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     r.sort();
 
     if (paint.getPathEffect()) {
-        if (this->cs().isEmpty(this->getGlobalBounds())) {
+        if (this->cs().isEmpty(size(*this))) {
             return;
         }
         SkPath path;
@@ -761,7 +775,7 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
     }
 
     if (paint.getPathEffect()) {
-        if (clipStack.isEmpty(this->getGlobalBounds())) {
+        if (clipStack.isEmpty(size(*this))) {
             return;
         }
         if (!pathIsMutable) {
@@ -876,7 +890,7 @@ void SkPDFDevice::drawBitmapRect(const SkBitmap& bitmap,
 void SkPDFDevice::drawBitmap(const SkBitmap& bitmap,
                              const SkMatrix& matrix,
                              const SkPaint& srcPaint) {
-    if (bitmap.drawsNothing() || this->cs().isEmpty(this->getGlobalBounds())) {
+    if (bitmap.drawsNothing() || this->cs().isEmpty(size(*this))) {
         return;
     }
     SkPaint paint = srcPaint;
@@ -896,7 +910,7 @@ void SkPDFDevice::drawSprite(const SkBitmap& bitmap,
                              int x,
                              int y,
                              const SkPaint& srcPaint) {
-    if (bitmap.drawsNothing() || this->cs().isEmpty(this->getGlobalBounds())) {
+    if (bitmap.drawsNothing() || this->cs().isEmpty(size(*this))) {
         return;
     }
     SkPaint paint = srcPaint;
@@ -1439,7 +1453,7 @@ void SkPDFDevice::drawVertices(SkCanvas::VertexMode,
                                const SkPoint texs[], const SkColor colors[],
                                SkBlendMode, const uint16_t indices[],
                                int indexCount, const SkPaint& paint) {
-    if (this->cs().isEmpty(this->getGlobalBounds())) {
+    if (this->cs().isEmpty(size(*this))) {
         return;
     }
     // TODO: implement drawVertices
@@ -1480,8 +1494,7 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
         return;
     }
 
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
+    SkMatrix matrix = SkMatrix::MakeTrans(SkIntToScalar(x), SkIntToScalar(y));
     ScopedContentEntry content(this, this->cs(), matrix, paint);
     if (!content.entry()) {
         return;
@@ -1538,11 +1551,8 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
 
     GraphicStackState gsState(fExistingClipStack, &buffer);
     for (const auto& entry : fContentEntries) {
-        SkPoint translation;
-        translation.iset(this->getOrigin());
-        translation.negate();
         gsState.updateClip(entry.fState.fClipStack,
-                           translation, SkRect::Make(this->getGlobalBounds()));
+                {0, 0}, SkRect::Make(size(*this)));
         gsState.updateMatrix(entry.fState.fMatrix);
         gsState.updateDrawingState(entry.fState);
 
@@ -1570,7 +1580,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
         return false;
     }
 
-    if (this->cs().isEmpty(this->getGlobalBounds())) {
+    if (this->cs().isEmpty(size(*this))) {
         return false;
     }
 
@@ -1605,9 +1615,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     if (!totalMatrix.invert(&transformInverse)) {
         return false;
     }
-    SkRect bounds = this->cs().bounds(this->getGlobalBounds());
-    SkIPoint deviceOrigin = this->getOrigin();
-    bounds.offset(-deviceOrigin.x(), -deviceOrigin.y());
+    SkRect bounds = this->cs().bounds(size(*this));
     transformInverse.mapRect(&bounds);
 
     // Extend the bounds by the line width (plus some padding)
@@ -1677,7 +1685,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
                                           const SkClipStack& clipStack,
                                           SkBlendMode mode,
                                           bool invertClip) {
-    if (!invertClip && clipStack.isEmpty(this->getGlobalBounds())) {
+    if (!invertClip && clipStack.isEmpty(size(*this))) {
         return;
     }
 
@@ -1946,9 +1954,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
             // PDF doesn't support kClamp_TileMode, so we simulate it by making
             // a pattern the size of the current clip.
-            SkRect clipStackBounds = clipStack.bounds(this->getGlobalBounds());
-            SkIPoint deviceOrigin = this->getOrigin();
-            clipStackBounds.offset(-deviceOrigin.x(), -deviceOrigin.y());
+            SkRect clipStackBounds = clipStack.bounds(size(*this));
 
             // We need to apply the initial transform to bounds in order to get
             // bounds in a consistent coordinate system.
