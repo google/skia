@@ -7,6 +7,7 @@
 
 #include "GrDrawingManager.h"
 
+#include "GrAtlasHelper.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrPathRenderingRenderTargetContext.h"
@@ -78,6 +79,12 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
+
+    GrAtlasHelper atlasHelper(this);
+
+    for (int i = 0; i < fAtlasCallBacks.count(); ++i) {
+        (*fAtlasCallBacks[i])(&atlasHelper, fOpLists, fAtlasData[i]);
+    }
 
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareOps(&fFlushState);
