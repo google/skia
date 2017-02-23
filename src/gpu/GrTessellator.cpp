@@ -417,10 +417,9 @@ struct Edge {
 };
 
 struct EdgeList {
-    EdgeList() : fHead(nullptr), fTail(nullptr), fNext(nullptr) {}
+    EdgeList() : fHead(nullptr), fTail(nullptr) {}
     Edge* fHead;
     Edge* fTail;
-    EdgeList* fNext;
     void insert(Edge* edge, Edge* prev, Edge* next) {
         list_insert<Edge, &Edge::fLeft, &Edge::fRight>(edge, prev, next, &fHead, &fTail);
     }
@@ -605,13 +604,6 @@ Poly* new_poly(Poly** head, Vertex* v, int winding, SkArenaAlloc& alloc) {
     poly->fNext = *head;
     *head = poly;
     return poly;
-}
-
-EdgeList* new_contour(EdgeList** head, SkArenaAlloc& alloc) {
-    EdgeList* contour = alloc.make<EdgeList>();
-    contour->fNext = *head;
-    *head = contour;
-    return contour;
 }
 
 Vertex* append_point_to_contour(const SkPoint& p, Vertex* prev, Vertex** head,
@@ -1621,20 +1613,19 @@ void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, Sk
     }
 }
 
-// Stage 5b: Extract boundary edges.
+// Stage 5b: Extract boundaries from mesh, simplify and stroke them into a new mesh.
 
-EdgeList* extract_boundaries(const VertexList& mesh, SkPath::FillType fillType,
-                             SkArenaAlloc& alloc) {
-    LOG("extracting boundaries\n");
-    remove_non_boundary_edges(mesh, fillType, alloc);
-    EdgeList* boundaries = nullptr;
-    for (Vertex* v = mesh.fHead; v != nullptr; v = v->fNext) {
+void extract_boundaries(const VertexList& inMesh, VertexList* outMesh, SkPath::FillType fillType,
+                        Comparator& c, SkArenaAlloc& alloc) {
+    remove_non_boundary_edges(inMesh, fillType, alloc);
+    for (Vertex* v = inMesh.fHead; v; v = v->fNext) {
         while (v->fFirstEdgeBelow) {
-            EdgeList* boundary = new_contour(&boundaries, alloc);
-            extract_boundary(boundary, v->fFirstEdgeBelow, fillType, alloc);
+            EdgeList boundary;
+            extract_boundary(&boundary, v->fFirstEdgeBelow, fillType, alloc);
+            simplify_boundary(&boundary, c, alloc);
+            boundary_to_aa_mesh(&boundary, outMesh, c, alloc);
         }
     }
-    return boundaries;
 }
 
 // This is a driver function which calls stages 2-5 in turn.
@@ -1685,12 +1676,8 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fill
     contours_to_mesh(contours, contourCnt, antialias, &mesh, c, alloc);
     sort_and_simplify(&mesh, c, alloc);
     if (antialias) {
-        EdgeList* boundaries = extract_boundaries(mesh, fillType, alloc);
         VertexList aaMesh;
-        for (EdgeList* boundary = boundaries; boundary != nullptr; boundary = boundary->fNext) {
-            simplify_boundary(boundary, c, alloc);
-            boundary_to_aa_mesh(boundary, &aaMesh, c, alloc);
-        }
+        extract_boundaries(mesh, &aaMesh, fillType, c, alloc);
         sort_and_simplify(&aaMesh, c, alloc);
         return tessellate(aaMesh, alloc);
     } else {
