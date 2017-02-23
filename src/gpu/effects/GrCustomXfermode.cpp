@@ -54,7 +54,7 @@ static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
 
 static bool can_use_hw_blend_equation(GrBlendEquation equation,
                                       bool usePLSRead,
-                                      bool isLCDCoverage,
+                                      bool hasLCDCoverage,
                                       const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
         return false;
@@ -62,7 +62,7 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
     if (usePLSRead) {
         return false;
     }
-    if (isLCDCoverage) {
+    if (hasLCDCoverage) {
         return false; // LCD coverage must be applied after the blend equation.
     }
     if (caps.canUseAdvancedBlendEquation(equation)) {

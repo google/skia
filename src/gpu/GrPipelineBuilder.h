@@ -139,7 +139,7 @@ private:
     uint32_t fFlags;
     GrDrawFace fDrawFace;
     const GrUserStencilSettings* fUserStencilSettings;
-    GrProcessorSet fProcessors;
+    mutable GrProcessorSet fProcessors;
 };
 
 #endif
