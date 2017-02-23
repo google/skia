@@ -49,7 +49,7 @@ public:
         SkScalar y = Y(start);
         Span span{{x, y}, length, count};
 
-        if (span.completelyWithin(0.0f, fXMax)) {
+        if (span.completelyWithin(0.0f, fXMaxPixel)) {
             next->pointSpan(span);
             return true;
         }
@@ -92,7 +92,7 @@ public:
                 leftClamped.clampToSinglePixel({SK_ScalarHalf, y});
                 next->pointSpan(leftClamped);
             }
-            Span center = span.breakAt(fXMax, dx);
+            Span center = span.breakAt(fXMaxPixel, dx);
             if (!center.isEmpty()) {
                 next->pointSpan(center);
             }
@@ -101,7 +101,7 @@ public:
                 next->pointSpan(span);
             }
         } else {
-            Span rightClamped = span.breakAt(fXMax, dx);
+            Span rightClamped = span.breakAt(fXMaxPixel, dx);
             if (!rightClamped.isEmpty()) {
                 rightClamped.clampToSinglePixel({fXMaxPixel, y});
                 next->pointSpan(rightClamped);
