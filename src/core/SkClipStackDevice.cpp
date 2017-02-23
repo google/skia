@@ -52,13 +52,8 @@ void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
     }
 }
 
-SkIRect SkClipStackDevice::devClipBounds(const SkDraw& draw) const {
-#ifdef SK_USE_DEVICE_CLIPPING
+SkIRect SkClipStackDevice::devClipBounds() const {
     SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();
     SkASSERT(this->imageInfo().bounds().contains(r));
-    SkASSERT(draw.fRC->getBounds().contains(r));
     return r;
-#else
-    return draw.fRC->getBounds();
-#endif
 }
