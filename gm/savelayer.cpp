@@ -7,14 +7,16 @@
 
 #include "gm.h"
 
+
+static const uint32_t SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag = 1U << 31;
+
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
 
 static void save_layer_unclipped(SkCanvas* canvas,
                                  SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
-    static const uint32_t kSecretDeprecated_DontClipToLayerFlag = 1U << 31;
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
-    canvas->saveLayer({ &rect, nullptr, nullptr, kSecretDeprecated_DontClipToLayerFlag });
+    canvas->saveLayer({ &rect, nullptr, nullptr, SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag });
 }
 
 static void do_draw(SkCanvas* canvas) {
@@ -67,7 +69,7 @@ protected:
             } else {
                 SkASSERT(Mode::kUnclipped == fMode);
                 canvas->saveLayer({ L, T, R, B }, nullptr);
-            } 
+            }
 
             do_draw(canvas);
         }
@@ -79,9 +81,26 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
+    SkPaint paint1, paint2, paint3;
+    paint1.setAlpha(0x7f);
+    paint2.setAlpha(0x3f);
+    paint3.setColor(0xFFFF0000);
+    SkRect rect1{40, 5, 80, 70}, rect2{5, 40, 70, 80}, rect3{10, 10, 70, 70};
+    // In the future, we might also test the clipped case by allowing i = 0
+    for(int i = 1; i < 2; ++i) {
+        canvas->translate(100 * i, 0);
+        auto flag = i ? SkCanvas_kDontClipToLayer_PrivateSaveLayerFlag : 0;
+        canvas->saveLayer({ &rect1, &paint1, nullptr, flag});
+        canvas->saveLayer({ &rect2, &paint2, nullptr, flag});
+        canvas->drawRect(rect3, paint3);
+        canvas->restore();
+        canvas->restore();
+    }
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kClipped);)
 DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kUnclipped);)
-
 
