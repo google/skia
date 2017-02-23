@@ -174,26 +174,33 @@ struct AAParams {
 
 typedef bool (*CompareFunc)(const SkPoint& a, const SkPoint& b);
 
-struct Comparator {
-    CompareFunc sweep_lt;
-    CompareFunc sweep_gt;
-};
-
 bool sweep_lt_horiz(const SkPoint& a, const SkPoint& b) {
-    return a.fX == b.fX ? a.fY > b.fY : a.fX < b.fX;
+    return a.fX < b.fX || (a.fX == b.fX && a.fY > b.fY);
 }
 
 bool sweep_lt_vert(const SkPoint& a, const SkPoint& b) {
-    return a.fY == b.fY ? a.fX < b.fX : a.fY < b.fY;
+    return a.fY < b.fY || (a.fY == b.fY && a.fX < b.fX);
 }
 
 bool sweep_gt_horiz(const SkPoint& a, const SkPoint& b) {
-    return a.fX == b.fX ? a.fY < b.fY : a.fX > b.fX;
+    return a.fX > b.fX || (a.fX == b.fX && a.fY < b.fY);
 }
 
 bool sweep_gt_vert(const SkPoint& a, const SkPoint& b) {
-    return a.fY == b.fY ? a.fX > b.fX : a.fY > b.fY;
+    return a.fY > b.fY || (a.fY == b.fY && a.fX > b.fX);
 }
+
+struct Comparator {
+    enum class Direction { kVertical, kHorizontal };
+    Comparator(Direction direction) : fDirection(direction) {}
+    bool sweep_lt(const SkPoint& a, const SkPoint& b) const {
+        return fDirection == Direction::kHorizontal ? sweep_lt_horiz(a, b) : sweep_lt_vert(a, b);
+    }
+    bool sweep_gt(const SkPoint& a, const SkPoint& b) const {
+        return fDirection == Direction::kHorizontal ? sweep_gt_horiz(a, b) : sweep_gt_vert(a, b);
+    }
+    Direction fDirection;
+};
 
 inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
     if (!aaParams) {
@@ -237,6 +244,7 @@ void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, const AAParams* aaParams
 
 struct VertexList {
     VertexList() : fHead(nullptr), fTail(nullptr) {}
+    VertexList(Vertex* head, Vertex* tail) : fHead(head), fTail(tail) {}
     Vertex* fHead;
     Vertex* fTail;
     void insert(Vertex* v, Vertex* prev, Vertex* next) {
@@ -1209,69 +1217,50 @@ void build_edges(Vertex** contours, int contourCnt, VertexList* mesh, Comparator
 
 // Stage 3: sort the vertices by increasing sweep direction.
 
-void sorted_merge(Vertex* a, Vertex* b, VertexList* result, Comparator& c);
-
-void front_back_split(VertexList* v, VertexList* front, VertexList* back) {
-    Vertex* fast;
-    Vertex* slow;
-    if (!v->fHead || !v->fHead->fNext) {
-        *front = *v;
-    } else {
-        slow = v->fHead;
-        fast = v->fHead->fNext;
-
-        while (fast != nullptr) {
-            fast = fast->fNext;
-            if (fast != nullptr) {
-                slow = slow->fNext;
-                fast = fast->fNext;
-            }
-        }
-        front->fHead = v->fHead;
-        front->fTail = slow;
-        back->fHead = slow->fNext;
-        back->fTail = v->fTail;
-        slow->fNext->fPrev = nullptr;
-        slow->fNext = nullptr;
-    }
-    v->fHead = v->fTail = nullptr;
-}
-
-void merge_sort(VertexList* mesh, Comparator& c) {
-    if (!mesh->fHead || !mesh->fHead->fNext) {
+template <CompareFunc sweep_lt>
+void merge_sort(VertexList* vertices) {
+    Vertex* slow = vertices->fHead;
+    if (!slow) {
         return;
     }
+    Vertex* fast = slow->fNext;
+    if (!fast) {
+        return;
+    }
+    do {
+        fast = fast->fNext;
+        if (fast) {
+            fast = fast->fNext;
+            slow = slow->fNext;
+        }
+    } while (fast);
+    VertexList front(vertices->fHead, slow);
+    VertexList back(slow->fNext, vertices->fTail);
+    front.fTail->fNext = back.fHead->fPrev = nullptr;
 
-    VertexList a;
-    VertexList b;
-    front_back_split(mesh, &a, &b);
+    merge_sort<sweep_lt>(&front);
+    merge_sort<sweep_lt>(&back);
 
-    merge_sort(&a, c);
-    merge_sort(&b, c);
-
-    sorted_merge(a.fHead, b.fHead, mesh, c);
-}
-
-void sorted_merge(Vertex* a, Vertex* b, VertexList* result, Comparator& c) {
-    VertexList vertices;
+    vertices->fHead = vertices->fTail = nullptr;
+    Vertex* a = front.fHead;
+    Vertex* b = back.fHead;
     while (a && b) {
-        if (c.sweep_lt(a->fPoint, b->fPoint)) {
+        if (sweep_lt(a->fPoint, b->fPoint)) {
             Vertex* next = a->fNext;
-            vertices.append(a);
+            vertices->append(a);
             a = next;
         } else {
             Vertex* next = b->fNext;
-            vertices.append(b);
+            vertices->append(b);
             b = next;
         }
     }
     if (a) {
-        vertices.insert(a, vertices.fTail, a->fNext);
+        vertices->insert(a, vertices->fTail, a->fNext);
     }
     if (b) {
-        vertices.insert(b, vertices.fTail, b->fNext);
+        vertices->insert(b, vertices->fTail, b->fNext);
     }
-    *result = vertices;
 }
 
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
@@ -1672,7 +1661,11 @@ void sort_and_simplify(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc)
     }
 
     // Sort vertices in Y (secondarily in X).
-    merge_sort(vertices, c);
+    if (c.fDirection == Comparator::Direction::kHorizontal) {
+        merge_sort<sweep_lt_horiz>(vertices);
+    } else {
+        merge_sort<sweep_lt_vert>(vertices);
+    }
     merge_coincident_vertices(vertices, c, alloc);
 #if LOGGING_ENABLED
     for (Vertex* v = vertices->fHead; v != nullptr; v = v->fNext) {
@@ -1686,14 +1679,8 @@ void sort_and_simplify(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc)
 Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fillType,
                         const SkRect& pathBounds, bool antialias,
                         SkArenaAlloc& alloc) {
-    Comparator c;
-    if (pathBounds.width() > pathBounds.height()) {
-        c.sweep_lt = sweep_lt_horiz;
-        c.sweep_gt = sweep_gt_horiz;
-    } else {
-        c.sweep_lt = sweep_lt_vert;
-        c.sweep_gt = sweep_gt_vert;
-    }
+    Comparator c(pathBounds.width() > pathBounds.height() ? Comparator::Direction::kHorizontal
+                                                          : Comparator::Direction::kVertical);
     VertexList mesh;
     contours_to_mesh(contours, contourCnt, antialias, &mesh, c, alloc);
     sort_and_simplify(&mesh, c, alloc);
