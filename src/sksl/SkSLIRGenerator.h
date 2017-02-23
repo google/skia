@@ -29,7 +29,6 @@
 #include "ast/SkSLASTReturnStatement.h"
 #include "ast/SkSLASTStatement.h"
 #include "ast/SkSLASTSuffixExpression.h"
-#include "ast/SkSLASTSwitchStatement.h"
 #include "ast/SkSLASTTernaryExpression.h"
 #include "ast/SkSLASTVarDeclaration.h"
 #include "ast/SkSLASTVarDeclarationStatement.h"
@@ -141,7 +140,6 @@ private:
     std::unique_ptr<Statement> convertContinue(const ASTContinueStatement& c);
     std::unique_ptr<Statement> convertDiscard(const ASTDiscardStatement& d);
     std::unique_ptr<Statement> convertDo(const ASTDoStatement& d);
-    std::unique_ptr<Statement> convertSwitch(const ASTSwitchStatement& s);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTBinaryExpression& expression);
     std::unique_ptr<Extension> convertExtension(const ASTExtension& e);
     std::unique_ptr<Statement> convertExpressionStatement(const ASTExpressionStatement& s);
@@ -172,12 +170,10 @@ private:
     std::unordered_map<SkString, CapValue> fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable;
     int fLoopLevel;
-    int fSwitchLevel;
     ErrorReporter& fErrors;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
-    friend class AutoSwitchLevel;
     friend class Compiler;
 };
 
