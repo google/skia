@@ -19,6 +19,7 @@ using K = const SkJumper_constants;
     using F   = float;
     using I32 =  int32_t;
     using U32 = uint32_t;
+    using U16 = uint16_t;
     using U8  = uint8_t;
 
     static F   mad(F f, F m, F a)  { return f*m+a; }
@@ -41,6 +42,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(4)));
     using I32 =  int32_t __attribute__((ext_vector_type(4)));
     using U32 = uint32_t __attribute__((ext_vector_type(4)));
+    using U16 = uint16_t __attribute__((ext_vector_type(4)));
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
@@ -67,6 +69,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(2)));
     using I32 =  int32_t __attribute__((ext_vector_type(2)));
     using U32 = uint32_t __attribute__((ext_vector_type(2)));
+    using U16 = uint16_t __attribute__((ext_vector_type(2)));
     using U8  = uint8_t  __attribute__((ext_vector_type(2)));
 
     static F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
@@ -89,6 +92,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(8)));
     using I32 =  int32_t __attribute__((ext_vector_type(8)));
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
+    using U16 = uint16_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
     static F   mad(F f, F m, F a)  { return _mm256_fmadd_ps(f,m,a);}
@@ -110,6 +114,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(8)));
     using I32 =  int32_t __attribute__((ext_vector_type(8)));
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
+    using U16 = uint16_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
     static F   mad(F f, F m, F a)  { return f*m+a;              }
@@ -134,6 +139,7 @@ using K = const SkJumper_constants;
     using F   = float    __attribute__((ext_vector_type(4)));
     using I32 =  int32_t __attribute__((ext_vector_type(4)));
     using U32 = uint32_t __attribute__((ext_vector_type(4)));
+    using U16 = uint16_t __attribute__((ext_vector_type(4)));
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     static F   mad(F f, F m, F a)  { return f*m+a;           }
@@ -160,19 +166,19 @@ using K = const SkJumper_constants;
     #endif
 #endif
 
-static F lerp(F from, F to, F t) {
-    return mad(to-from, t, from);
-}
-
 // We need to be a careful with casts.
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
 #if defined(JUMPER)
     static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
+    static U32 expand(U16 v) { return __builtin_convertvector(     v, U32); }
     static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
+    static U16   pack(U32 v) { return __builtin_convertvector(     v, U16); }
 #else
     static F   cast  (U32 v) { return (F)v; }
+    static U32 expand(U16 v) { return (U32)v; }
     static U32 expand(U8  v) { return (U32)v; }
+    static U16   pack(U32 v) { return (U16)v; }
 #endif
 
 template <typename T, typename P>
@@ -188,6 +194,17 @@ static Dst bit_cast(const Src& src) {
     return unaligned_load<Dst>(&src);
 }
 
+static F lerp(F from, F to, F t) {
+    return mad(to-from, t, from);
+}
+
+static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
+    U32 wide = expand(_565);
+    *r = cast(wide & k->r_565_mask) * k->r_565_scale;
+    *g = cast(wide & k->g_565_mask) * k->g_565_scale;
+    *b = cast(wide & k->b_565_mask) * k->b_565_scale;
+}
+
 // Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
 #if defined(JUMPER)
     using F4 = float __attribute__((ext_vector_type(4)));
@@ -197,6 +214,7 @@ static Dst bit_cast(const Src& src) {
         float operator[](int i) const { return vals[i]; }
     };
 #endif
+
 
 // Stages tail call between each other by following program,
 // an interlaced sequence of Stage pointers and context pointers.
@@ -453,6 +471,22 @@ STAGE(load_tables) {
     g = gather(c->g, (px >>  8) & k->_0x000000ff);
     b = gather(c->b, (px >> 16) & k->_0x000000ff);
     a = cast(        (px >> 24)) * k->_1_255;
+}
+
+STAGE(load_565) {
+    auto ptr = *(const uint16_t**)ctx + x;
+
+    auto px = unaligned_load<U16>(ptr);
+    from_565(px, &r,&g,&b, k);
+    a = k->_1;
+}
+STAGE(store_565) {
+    auto ptr = *(uint16_t**)ctx + x;
+
+    U16 px = pack( round(r, k->_31) << 11
+                 | round(g, k->_63) <<  5
+                 | round(b, k->_31)      );
+    memcpy(ptr, &px, sizeof(px));
 }
 
 STAGE(load_8888) {
