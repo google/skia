@@ -405,17 +405,21 @@ void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const S
     fCurrentCmdBuffer->resolveImage(this, *src->msaaImage(), *dst, 1, &resolveInfo);
 }
 
-void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
+void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {
     if (target->needsResolve()) {
         SkASSERT(target->numColorSamples() > 1);
         GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
         SkASSERT(rt->msaaImage());
-        
+
         const SkIRect& srcRect = rt->getResolveRect();
 
         this->resolveImage(rt, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
 
         rt->flagAsResolved();
+
+        if (requiresSubmit) {
+            this->submitCommandBuffer(kSkip_SyncQueue);
+        }
     }
 }
 
@@ -823,7 +827,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex) {
     // We may need to resolve the texture first if it is also a render target
     GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(tex->asRenderTarget());
     if (texRT) {
-        this->onResolveRenderTarget(texRT);
+        this->internalResolveRenderTarget(texRT, false);
     }
 
     int width = tex->width();
@@ -1652,7 +1656,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
             case GrVkRenderTarget::kAutoResolves_ResolveType:
                 break;
             case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->onResolveRenderTarget(rt);
+                this->internalResolveRenderTarget(rt, false);
                 break;
             default:
                 SkFAIL("Unknown resolve type");
