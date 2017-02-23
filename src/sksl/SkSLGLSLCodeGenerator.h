@@ -34,7 +34,6 @@
 #include "ir/SkSLProgramElement.h"
 #include "ir/SkSLReturnStatement.h"
 #include "ir/SkSLStatement.h"
-#include "ir/SkSLSwitchStatement.h"
 #include "ir/SkSLSwizzle.h"
 #include "ir/SkSLTernaryExpression.h"
 #include "ir/SkSLVarDeclarations.h"
@@ -155,8 +154,6 @@ private:
     void writeWhileStatement(const WhileStatement& w);
 
     void writeDoStatement(const DoStatement& d);
-
-    void writeSwitchStatement(const SwitchStatement& s);
 
     void writeReturnStatement(const ReturnStatement& r);
 

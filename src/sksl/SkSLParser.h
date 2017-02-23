@@ -37,8 +37,6 @@ struct ASTPrecision;
 struct ASTReturnStatement;
 struct ASTStatement;
 struct ASTSuffix;
-struct ASTSwitchCase;
-struct ASTSwitchStatement;
 struct ASTType;
 struct ASTWhileStatement;
 struct ASTVarDeclarations;
@@ -144,10 +142,6 @@ private:
     std::unique_ptr<ASTWhileStatement> whileStatement();
 
     std::unique_ptr<ASTForStatement> forStatement();
-
-    std::unique_ptr<ASTSwitchCase> switchCase();
-
-    std::unique_ptr<ASTStatement> switchStatement();
 
     std::unique_ptr<ASTReturnStatement> returnStatement();
 

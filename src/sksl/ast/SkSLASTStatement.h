@@ -26,7 +26,6 @@ struct ASTStatement : public ASTPositionNode {
         kFor_Kind,
         kWhile_Kind,
         kDo_Kind,
-        kSwitch_Kind,
         kReturn_Kind,
         kBreak_Kind,
         kContinue_Kind,

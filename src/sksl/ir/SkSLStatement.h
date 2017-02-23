@@ -27,7 +27,6 @@ struct Statement : public IRNode {
         kFor_Kind,
         kIf_Kind,
         kReturn_Kind,
-        kSwitch_Kind,
         kVarDeclarations_Kind,
         kWhile_Kind
     };
