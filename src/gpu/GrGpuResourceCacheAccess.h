@@ -63,6 +63,10 @@ private:
         SkASSERT(fResource->isPurgeable());
         fResource->fExternalFlushCntWhenBecamePurgeable = cnt;
     }
+    void setFrameNumberWhenResourceBecamePurgeable(GrFrameNumber frameNumber) {
+        SkASSERT(fResource->isPurgeable());
+        fResource->fFrameNumberWhenBecamePurgeable = frameNumber;
+    }
     /**
      * Called by the cache to determine whether this resource has been puregable for more than
      * a threshold number of external flushes.
@@ -70,6 +74,14 @@ private:
     uint32_t flushCntWhenResourceBecamePurgeable() {
         SkASSERT(fResource->isPurgeable());
         return fResource->fExternalFlushCntWhenBecamePurgeable;
+    }
+    /**
+     * Called by the cache to determine whether this resource has been puregable for more than
+     * a threshold number of frames.
+     */
+    GrFrameNumber frameNumberWhenResourceBecamePurgeable() {
+        SkASSERT(fResource->isPurgeable());
+        return fResource->fFrameNumberWhenBecamePurgeable;
     }
 
     int* accessCacheIndex() const { return &fResource->fCacheArrayIndex; }

@@ -568,4 +568,25 @@ template <typename T> T * const * sk_sp_address_as_pointer_address(sk_sp<T> cons
  */
 typedef intptr_t GrFence;
 
+class GrFrameNumber {
+public:
+    GrFrameNumber() = default;
+    GrFrameNumber(const GrFrameNumber&) = default;
+    GrFrameNumber& operator=(const GrFrameNumber&) = default;
+    bool operator==(const GrFrameNumber& that) const { return fNum == that.fNum; }
+    bool operator!=(const GrFrameNumber& that) const { return !(*this == that); }
+    bool operator<(const GrFrameNumber& that) const  { return fNum < that.fNum; }
+    bool operator<=(const GrFrameNumber& that) const  { return fNum <= that.fNum; }
+    bool operator>(const GrFrameNumber& that) const  { return fNum > that.fNum; }
+    bool operator>=(const GrFrameNumber& that) const  { return fNum <= that.fNum; }
+    GrFrameNumber& operator++() {
+        ++fNum;
+        return *this;
+    }
+    GrFrameNumber operator++(int) { return GrFrameNumber(fNum++); }
+    friend GrFrameNumber operator-(GrFrameNumber f, int n) { return GrFrameNumber(f.fNum - n); }
+private:
+    GrFrameNumber(int num) : fNum(num) {}
+    uint64_t fNum = 0;
+};
 #endif

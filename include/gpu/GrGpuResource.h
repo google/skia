@@ -319,6 +319,7 @@ private:
     // by the cache.
     uint32_t                    fTimestamp;
     uint32_t                    fExternalFlushCntWhenBecamePurgeable;
+    GrFrameNumber               fFrameNumberWhenBecamePurgeable;
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     GrScratchKey                fScratchKey;
