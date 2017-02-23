@@ -6,7 +6,6 @@
  */
 
 #include "SkBitmap.h"
-#include "SkGrPriv.h"
 #include "SkRect.h"
 #include "SkTemplates.h"
 #include "Test.h"

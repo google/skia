@@ -99,7 +99,6 @@ config("skia_private") {
     "src/effects",
     "src/effects/gradients",
     "src/fonts",
-    "src/gpu",
     "src/image",
     "src/images",
     "src/lazy",
@@ -147,6 +146,9 @@ config("skia_private") {
     } else {
       libs += [ "vulkan" ]
     }
+  }
+  if (skia_enable_gpu) {
+    include_dirs += [ "src/gpu" ]
   }
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
