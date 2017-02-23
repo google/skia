@@ -375,8 +375,8 @@ def dm_flags(bot):
     match.append('~GPUMemorySize')
 
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Ubuntu' in bot:
-    # skia:6245
-    match.append('~VkHeapTests')
+    match.extend(['~VkHeapTests', # skia:6245
+                  '~XfermodeImageFilterCroppedInput_Gpu']) #skia:6280
 
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~IntTexture') # skia:6086
