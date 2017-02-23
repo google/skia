@@ -1854,6 +1854,674 @@ _sk_linear_gradient_2stops_hsw:
   .byte  0xc5,0x7c,0x29,0xc0                             // vmovaps       %ymm8,%ymm0
   .byte  0xff,0xe0                                       // jmpq          *%rax
 
+.globl _sk_start_pipeline_avx
+_sk_start_pipeline_avx:
+  .byte  0x41,0x57                                       // push          %r15
+  .byte  0x41,0x56                                       // push          %r14
+  .byte  0x41,0x55                                       // push          %r13
+  .byte  0x41,0x54                                       // push          %r12
+  .byte  0x53                                            // push          %rbx
+  .byte  0x49,0x89,0xcf                                  // mov           %rcx,%r15
+  .byte  0x49,0x89,0xd6                                  // mov           %rdx,%r14
+  .byte  0x48,0x89,0xfb                                  // mov           %rdi,%rbx
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x49,0x89,0xc4                                  // mov           %rax,%r12
+  .byte  0x49,0x89,0xf5                                  // mov           %rsi,%r13
+  .byte  0x48,0x8d,0x43,0x08                             // lea           0x8(%rbx),%rax
+  .byte  0x4c,0x39,0xf8                                  // cmp           %r15,%rax
+  .byte  0x76,0x05                                       // jbe           28 <_sk_start_pipeline_avx+0x28>
+  .byte  0x48,0x89,0xd8                                  // mov           %rbx,%rax
+  .byte  0xeb,0x3c                                       // jmp           64 <_sk_start_pipeline_avx+0x64>
+  .byte  0xc5,0xfc,0x57,0xc0                             // vxorps        %ymm0,%ymm0,%ymm0
+  .byte  0xc5,0xf4,0x57,0xc9                             // vxorps        %ymm1,%ymm1,%ymm1
+  .byte  0xc5,0xec,0x57,0xd2                             // vxorps        %ymm2,%ymm2,%ymm2
+  .byte  0xc5,0xe4,0x57,0xdb                             // vxorps        %ymm3,%ymm3,%ymm3
+  .byte  0xc5,0xdc,0x57,0xe4                             // vxorps        %ymm4,%ymm4,%ymm4
+  .byte  0xc5,0xd4,0x57,0xed                             // vxorps        %ymm5,%ymm5,%ymm5
+  .byte  0xc5,0xcc,0x57,0xf6                             // vxorps        %ymm6,%ymm6,%ymm6
+  .byte  0xc5,0xc4,0x57,0xff                             // vxorps        %ymm7,%ymm7,%ymm7
+  .byte  0x48,0x89,0xdf                                  // mov           %rbx,%rdi
+  .byte  0x4c,0x89,0xee                                  // mov           %r13,%rsi
+  .byte  0x4c,0x89,0xf2                                  // mov           %r14,%rdx
+  .byte  0x41,0xff,0xd4                                  // callq         *%r12
+  .byte  0x48,0x8d,0x43,0x08                             // lea           0x8(%rbx),%rax
+  .byte  0x48,0x83,0xc3,0x10                             // add           $0x10,%rbx
+  .byte  0x4c,0x39,0xfb                                  // cmp           %r15,%rbx
+  .byte  0x48,0x89,0xc3                                  // mov           %rax,%rbx
+  .byte  0x76,0xc4                                       // jbe           28 <_sk_start_pipeline_avx+0x28>
+  .byte  0x5b                                            // pop           %rbx
+  .byte  0x41,0x5c                                       // pop           %r12
+  .byte  0x41,0x5d                                       // pop           %r13
+  .byte  0x41,0x5e                                       // pop           %r14
+  .byte  0x41,0x5f                                       // pop           %r15
+  .byte  0xc5,0xf8,0x77                                  // vzeroupper
+  .byte  0xc3                                            // retq
+
+.globl _sk_just_return_avx
+_sk_just_return_avx:
+  .byte  0xc3                                            // retq
+
+.globl _sk_seed_shader_avx
+_sk_seed_shader_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xf9,0x6e,0xc7                             // vmovd         %edi,%xmm0
+  .byte  0xc4,0xe3,0x79,0x04,0xc0,0x00                   // vpermilps     $0x0,%xmm0,%xmm0
+  .byte  0xc4,0xe3,0x7d,0x18,0xc0,0x01                   // vinsertf128   $0x1,%xmm0,%ymm0,%ymm0
+  .byte  0xc5,0xfc,0x5b,0xc0                             // vcvtdq2ps     %ymm0,%ymm0
+  .byte  0xc4,0xe2,0x7d,0x18,0x4a,0x04                   // vbroadcastss  0x4(%rdx),%ymm1
+  .byte  0xc5,0xfc,0x58,0xc1                             // vaddps        %ymm1,%ymm0,%ymm0
+  .byte  0xc5,0xfc,0x58,0x42,0x14                        // vaddps        0x14(%rdx),%ymm0,%ymm0
+  .byte  0xc5,0xf9,0x6e,0x10                             // vmovd         (%rax),%xmm2
+  .byte  0xc4,0xe3,0x79,0x04,0xd2,0x00                   // vpermilps     $0x0,%xmm2,%xmm2
+  .byte  0xc4,0xe3,0x6d,0x18,0xd2,0x01                   // vinsertf128   $0x1,%xmm2,%ymm2,%ymm2
+  .byte  0xc5,0xfc,0x5b,0xd2                             // vcvtdq2ps     %ymm2,%ymm2
+  .byte  0xc5,0xec,0x58,0xc9                             // vaddps        %ymm1,%ymm2,%ymm1
+  .byte  0xc4,0xe2,0x7d,0x18,0x12                        // vbroadcastss  (%rdx),%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xe4,0x57,0xdb                             // vxorps        %ymm3,%ymm3,%ymm3
+  .byte  0xc5,0xdc,0x57,0xe4                             // vxorps        %ymm4,%ymm4,%ymm4
+  .byte  0xc5,0xd4,0x57,0xed                             // vxorps        %ymm5,%ymm5,%ymm5
+  .byte  0xc5,0xcc,0x57,0xf6                             // vxorps        %ymm6,%ymm6,%ymm6
+  .byte  0xc5,0xc4,0x57,0xff                             // vxorps        %ymm7,%ymm7,%ymm7
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_constant_color_avx
+_sk_constant_color_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0xe2,0x7d,0x18,0x00                        // vbroadcastss  (%rax),%ymm0
+  .byte  0xc4,0xe2,0x7d,0x18,0x48,0x04                   // vbroadcastss  0x4(%rax),%ymm1
+  .byte  0xc4,0xe2,0x7d,0x18,0x50,0x08                   // vbroadcastss  0x8(%rax),%ymm2
+  .byte  0xc4,0xe2,0x7d,0x18,0x58,0x0c                   // vbroadcastss  0xc(%rax),%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_clear_avx
+_sk_clear_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xfc,0x57,0xc0                             // vxorps        %ymm0,%ymm0,%ymm0
+  .byte  0xc5,0xf4,0x57,0xc9                             // vxorps        %ymm1,%ymm1,%ymm1
+  .byte  0xc5,0xec,0x57,0xd2                             // vxorps        %ymm2,%ymm2,%ymm2
+  .byte  0xc5,0xe4,0x57,0xdb                             // vxorps        %ymm3,%ymm3,%ymm3
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_plus__avx
+_sk_plus__avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xfc,0x58,0xc4                             // vaddps        %ymm4,%ymm0,%ymm0
+  .byte  0xc5,0xf4,0x58,0xcd                             // vaddps        %ymm5,%ymm1,%ymm1
+  .byte  0xc5,0xec,0x58,0xd6                             // vaddps        %ymm6,%ymm2,%ymm2
+  .byte  0xc5,0xe4,0x58,0xdf                             // vaddps        %ymm7,%ymm3,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_srcover_avx
+_sk_srcover_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x02                        // vbroadcastss  (%rdx),%ymm8
+  .byte  0xc5,0x3c,0x5c,0xc3                             // vsubps        %ymm3,%ymm8,%ymm8
+  .byte  0xc5,0x3c,0x59,0xcc                             // vmulps        %ymm4,%ymm8,%ymm9
+  .byte  0xc5,0xb4,0x58,0xc0                             // vaddps        %ymm0,%ymm9,%ymm0
+  .byte  0xc5,0x3c,0x59,0xcd                             // vmulps        %ymm5,%ymm8,%ymm9
+  .byte  0xc5,0xb4,0x58,0xc9                             // vaddps        %ymm1,%ymm9,%ymm1
+  .byte  0xc5,0x3c,0x59,0xce                             // vmulps        %ymm6,%ymm8,%ymm9
+  .byte  0xc5,0xb4,0x58,0xd2                             // vaddps        %ymm2,%ymm9,%ymm2
+  .byte  0xc5,0x3c,0x59,0xc7                             // vmulps        %ymm7,%ymm8,%ymm8
+  .byte  0xc5,0xbc,0x58,0xdb                             // vaddps        %ymm3,%ymm8,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_dstover_avx
+_sk_dstover_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x02                        // vbroadcastss  (%rdx),%ymm8
+  .byte  0xc5,0x3c,0x5c,0xc7                             // vsubps        %ymm7,%ymm8,%ymm8
+  .byte  0xc5,0xbc,0x59,0xc0                             // vmulps        %ymm0,%ymm8,%ymm0
+  .byte  0xc5,0xfc,0x58,0xc4                             // vaddps        %ymm4,%ymm0,%ymm0
+  .byte  0xc5,0xbc,0x59,0xc9                             // vmulps        %ymm1,%ymm8,%ymm1
+  .byte  0xc5,0xf4,0x58,0xcd                             // vaddps        %ymm5,%ymm1,%ymm1
+  .byte  0xc5,0xbc,0x59,0xd2                             // vmulps        %ymm2,%ymm8,%ymm2
+  .byte  0xc5,0xec,0x58,0xd6                             // vaddps        %ymm6,%ymm2,%ymm2
+  .byte  0xc5,0xbc,0x59,0xdb                             // vmulps        %ymm3,%ymm8,%ymm3
+  .byte  0xc5,0xe4,0x58,0xdf                             // vaddps        %ymm7,%ymm3,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_clamp_0_avx
+_sk_clamp_0_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x41,0x3c,0x57,0xc0                        // vxorps        %ymm8,%ymm8,%ymm8
+  .byte  0xc4,0xc1,0x7c,0x5f,0xc0                        // vmaxps        %ymm8,%ymm0,%ymm0
+  .byte  0xc4,0xc1,0x74,0x5f,0xc8                        // vmaxps        %ymm8,%ymm1,%ymm1
+  .byte  0xc4,0xc1,0x6c,0x5f,0xd0                        // vmaxps        %ymm8,%ymm2,%ymm2
+  .byte  0xc4,0xc1,0x64,0x5f,0xd8                        // vmaxps        %ymm8,%ymm3,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_clamp_1_avx
+_sk_clamp_1_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x02                        // vbroadcastss  (%rdx),%ymm8
+  .byte  0xc4,0xc1,0x7c,0x5d,0xc0                        // vminps        %ymm8,%ymm0,%ymm0
+  .byte  0xc4,0xc1,0x74,0x5d,0xc8                        // vminps        %ymm8,%ymm1,%ymm1
+  .byte  0xc4,0xc1,0x6c,0x5d,0xd0                        // vminps        %ymm8,%ymm2,%ymm2
+  .byte  0xc4,0xc1,0x64,0x5d,0xd8                        // vminps        %ymm8,%ymm3,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_clamp_a_avx
+_sk_clamp_a_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x02                        // vbroadcastss  (%rdx),%ymm8
+  .byte  0xc4,0xc1,0x64,0x5d,0xd8                        // vminps        %ymm8,%ymm3,%ymm3
+  .byte  0xc5,0xfc,0x5d,0xc3                             // vminps        %ymm3,%ymm0,%ymm0
+  .byte  0xc5,0xf4,0x5d,0xcb                             // vminps        %ymm3,%ymm1,%ymm1
+  .byte  0xc5,0xec,0x5d,0xd3                             // vminps        %ymm3,%ymm2,%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_set_rgb_avx
+_sk_set_rgb_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0xe2,0x7d,0x18,0x00                        // vbroadcastss  (%rax),%ymm0
+  .byte  0xc4,0xe2,0x7d,0x18,0x48,0x04                   // vbroadcastss  0x4(%rax),%ymm1
+  .byte  0xc4,0xe2,0x7d,0x18,0x50,0x08                   // vbroadcastss  0x8(%rax),%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_swap_rb_avx
+_sk_swap_rb_avx:
+  .byte  0xc5,0x7c,0x28,0xc0                             // vmovaps       %ymm0,%ymm8
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xfc,0x28,0xc2                             // vmovaps       %ymm2,%ymm0
+  .byte  0xc5,0x7c,0x29,0xc2                             // vmovaps       %ymm8,%ymm2
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_swap_avx
+_sk_swap_avx:
+  .byte  0xc5,0x7c,0x28,0xc3                             // vmovaps       %ymm3,%ymm8
+  .byte  0xc5,0x7c,0x28,0xca                             // vmovaps       %ymm2,%ymm9
+  .byte  0xc5,0x7c,0x28,0xd1                             // vmovaps       %ymm1,%ymm10
+  .byte  0xc5,0x7c,0x28,0xd8                             // vmovaps       %ymm0,%ymm11
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xfc,0x28,0xc4                             // vmovaps       %ymm4,%ymm0
+  .byte  0xc5,0xfc,0x28,0xcd                             // vmovaps       %ymm5,%ymm1
+  .byte  0xc5,0xfc,0x28,0xd6                             // vmovaps       %ymm6,%ymm2
+  .byte  0xc5,0xfc,0x28,0xdf                             // vmovaps       %ymm7,%ymm3
+  .byte  0xc5,0x7c,0x29,0xdc                             // vmovaps       %ymm11,%ymm4
+  .byte  0xc5,0x7c,0x29,0xd5                             // vmovaps       %ymm10,%ymm5
+  .byte  0xc5,0x7c,0x29,0xce                             // vmovaps       %ymm9,%ymm6
+  .byte  0xc5,0x7c,0x29,0xc7                             // vmovaps       %ymm8,%ymm7
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_move_src_dst_avx
+_sk_move_src_dst_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xfc,0x28,0xe0                             // vmovaps       %ymm0,%ymm4
+  .byte  0xc5,0xfc,0x28,0xe9                             // vmovaps       %ymm1,%ymm5
+  .byte  0xc5,0xfc,0x28,0xf2                             // vmovaps       %ymm2,%ymm6
+  .byte  0xc5,0xfc,0x28,0xfb                             // vmovaps       %ymm3,%ymm7
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_move_dst_src_avx
+_sk_move_dst_src_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xfc,0x28,0xc4                             // vmovaps       %ymm4,%ymm0
+  .byte  0xc5,0xfc,0x28,0xcd                             // vmovaps       %ymm5,%ymm1
+  .byte  0xc5,0xfc,0x28,0xd6                             // vmovaps       %ymm6,%ymm2
+  .byte  0xc5,0xfc,0x28,0xdf                             // vmovaps       %ymm7,%ymm3
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_premul_avx
+_sk_premul_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0xfc,0x59,0xc3                             // vmulps        %ymm3,%ymm0,%ymm0
+  .byte  0xc5,0xf4,0x59,0xcb                             // vmulps        %ymm3,%ymm1,%ymm1
+  .byte  0xc5,0xec,0x59,0xd3                             // vmulps        %ymm3,%ymm2,%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_unpremul_avx
+_sk_unpremul_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x41,0x3c,0x57,0xc0                        // vxorps        %ymm8,%ymm8,%ymm8
+  .byte  0xc4,0x41,0x64,0xc2,0xc8,0x00                   // vcmpeqps      %ymm8,%ymm3,%ymm9
+  .byte  0xc4,0x62,0x7d,0x18,0x12                        // vbroadcastss  (%rdx),%ymm10
+  .byte  0xc5,0x2c,0x5e,0xd3                             // vdivps        %ymm3,%ymm10,%ymm10
+  .byte  0xc4,0x43,0x2d,0x4a,0xc0,0x90                   // vblendvps     %ymm9,%ymm8,%ymm10,%ymm8
+  .byte  0xc5,0xbc,0x59,0xc0                             // vmulps        %ymm0,%ymm8,%ymm0
+  .byte  0xc5,0xbc,0x59,0xc9                             // vmulps        %ymm1,%ymm8,%ymm1
+  .byte  0xc5,0xbc,0x59,0xd2                             // vmulps        %ymm2,%ymm8,%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_from_srgb_avx
+_sk_from_srgb_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x42,0x40                   // vbroadcastss  0x40(%rdx),%ymm8
+  .byte  0xc5,0x3c,0x59,0xc8                             // vmulps        %ymm0,%ymm8,%ymm9
+  .byte  0xc5,0x7c,0x59,0xd0                             // vmulps        %ymm0,%ymm0,%ymm10
+  .byte  0xc4,0x62,0x7d,0x18,0x5a,0x3c                   // vbroadcastss  0x3c(%rdx),%ymm11
+  .byte  0xc4,0x62,0x7d,0x18,0x62,0x38                   // vbroadcastss  0x38(%rdx),%ymm12
+  .byte  0xc5,0x24,0x59,0xe8                             // vmulps        %ymm0,%ymm11,%ymm13
+  .byte  0xc4,0x41,0x14,0x58,0xec                        // vaddps        %ymm12,%ymm13,%ymm13
+  .byte  0xc4,0x62,0x7d,0x18,0x72,0x34                   // vbroadcastss  0x34(%rdx),%ymm14
+  .byte  0xc4,0x41,0x2c,0x59,0xd5                        // vmulps        %ymm13,%ymm10,%ymm10
+  .byte  0xc4,0x41,0x0c,0x58,0xd2                        // vaddps        %ymm10,%ymm14,%ymm10
+  .byte  0xc4,0x62,0x7d,0x18,0x6a,0x44                   // vbroadcastss  0x44(%rdx),%ymm13
+  .byte  0xc4,0xc1,0x7c,0xc2,0xc5,0x01                   // vcmpltps      %ymm13,%ymm0,%ymm0
+  .byte  0xc4,0xc3,0x2d,0x4a,0xc1,0x00                   // vblendvps     %ymm0,%ymm9,%ymm10,%ymm0
+  .byte  0xc5,0x3c,0x59,0xc9                             // vmulps        %ymm1,%ymm8,%ymm9
+  .byte  0xc5,0x74,0x59,0xd1                             // vmulps        %ymm1,%ymm1,%ymm10
+  .byte  0xc5,0x24,0x59,0xf9                             // vmulps        %ymm1,%ymm11,%ymm15
+  .byte  0xc4,0x41,0x04,0x58,0xfc                        // vaddps        %ymm12,%ymm15,%ymm15
+  .byte  0xc4,0x41,0x2c,0x59,0xd7                        // vmulps        %ymm15,%ymm10,%ymm10
+  .byte  0xc4,0x41,0x0c,0x58,0xd2                        // vaddps        %ymm10,%ymm14,%ymm10
+  .byte  0xc4,0xc1,0x74,0xc2,0xcd,0x01                   // vcmpltps      %ymm13,%ymm1,%ymm1
+  .byte  0xc4,0xc3,0x2d,0x4a,0xc9,0x10                   // vblendvps     %ymm1,%ymm9,%ymm10,%ymm1
+  .byte  0xc5,0x3c,0x59,0xc2                             // vmulps        %ymm2,%ymm8,%ymm8
+  .byte  0xc5,0x6c,0x59,0xca                             // vmulps        %ymm2,%ymm2,%ymm9
+  .byte  0xc5,0x24,0x59,0xd2                             // vmulps        %ymm2,%ymm11,%ymm10
+  .byte  0xc4,0x41,0x2c,0x58,0xd4                        // vaddps        %ymm12,%ymm10,%ymm10
+  .byte  0xc4,0x41,0x34,0x59,0xca                        // vmulps        %ymm10,%ymm9,%ymm9
+  .byte  0xc4,0x41,0x0c,0x58,0xc9                        // vaddps        %ymm9,%ymm14,%ymm9
+  .byte  0xc4,0xc1,0x6c,0xc2,0xd5,0x01                   // vcmpltps      %ymm13,%ymm2,%ymm2
+  .byte  0xc4,0xc3,0x35,0x4a,0xd0,0x20                   // vblendvps     %ymm2,%ymm8,%ymm9,%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_to_srgb_avx
+_sk_to_srgb_avx:
+  .byte  0xc5,0x7c,0x52,0xc0                             // vrsqrtps      %ymm0,%ymm8
+  .byte  0xc4,0x41,0x7c,0x53,0xc8                        // vrcpps        %ymm8,%ymm9
+  .byte  0xc4,0x41,0x7c,0x52,0xd0                        // vrsqrtps      %ymm8,%ymm10
+  .byte  0xc4,0x62,0x7d,0x18,0x42,0x48                   // vbroadcastss  0x48(%rdx),%ymm8
+  .byte  0xc5,0x3c,0x59,0xd8                             // vmulps        %ymm0,%ymm8,%ymm11
+  .byte  0xc4,0x62,0x7d,0x18,0x22                        // vbroadcastss  (%rdx),%ymm12
+  .byte  0xc4,0x62,0x7d,0x18,0x6a,0x4c                   // vbroadcastss  0x4c(%rdx),%ymm13
+  .byte  0xc4,0x62,0x7d,0x18,0x72,0x50                   // vbroadcastss  0x50(%rdx),%ymm14
+  .byte  0xc4,0x62,0x7d,0x18,0x7a,0x54                   // vbroadcastss  0x54(%rdx),%ymm15
+  .byte  0xc4,0x41,0x34,0x59,0xce                        // vmulps        %ymm14,%ymm9,%ymm9
+  .byte  0xc4,0x41,0x34,0x58,0xcf                        // vaddps        %ymm15,%ymm9,%ymm9
+  .byte  0xc4,0x41,0x2c,0x59,0xd5                        // vmulps        %ymm13,%ymm10,%ymm10
+  .byte  0xc4,0x41,0x2c,0x58,0xc9                        // vaddps        %ymm9,%ymm10,%ymm9
+  .byte  0xc4,0x41,0x1c,0x5d,0xc9                        // vminps        %ymm9,%ymm12,%ymm9
+  .byte  0xc4,0x62,0x7d,0x18,0x52,0x58                   // vbroadcastss  0x58(%rdx),%ymm10
+  .byte  0xc4,0xc1,0x7c,0xc2,0xc2,0x01                   // vcmpltps      %ymm10,%ymm0,%ymm0
+  .byte  0xc4,0xc3,0x35,0x4a,0xc3,0x00                   // vblendvps     %ymm0,%ymm11,%ymm9,%ymm0
+  .byte  0xc5,0x7c,0x52,0xc9                             // vrsqrtps      %ymm1,%ymm9
+  .byte  0xc4,0x41,0x7c,0x53,0xd9                        // vrcpps        %ymm9,%ymm11
+  .byte  0xc4,0x41,0x7c,0x52,0xc9                        // vrsqrtps      %ymm9,%ymm9
+  .byte  0xc4,0x41,0x0c,0x59,0xdb                        // vmulps        %ymm11,%ymm14,%ymm11
+  .byte  0xc4,0x41,0x04,0x58,0xdb                        // vaddps        %ymm11,%ymm15,%ymm11
+  .byte  0xc4,0x41,0x14,0x59,0xc9                        // vmulps        %ymm9,%ymm13,%ymm9
+  .byte  0xc4,0x41,0x34,0x58,0xcb                        // vaddps        %ymm11,%ymm9,%ymm9
+  .byte  0xc5,0x3c,0x59,0xd9                             // vmulps        %ymm1,%ymm8,%ymm11
+  .byte  0xc4,0x41,0x1c,0x5d,0xc9                        // vminps        %ymm9,%ymm12,%ymm9
+  .byte  0xc4,0xc1,0x74,0xc2,0xca,0x01                   // vcmpltps      %ymm10,%ymm1,%ymm1
+  .byte  0xc4,0xc3,0x35,0x4a,0xcb,0x10                   // vblendvps     %ymm1,%ymm11,%ymm9,%ymm1
+  .byte  0xc5,0x7c,0x52,0xca                             // vrsqrtps      %ymm2,%ymm9
+  .byte  0xc4,0x41,0x7c,0x53,0xd9                        // vrcpps        %ymm9,%ymm11
+  .byte  0xc4,0x41,0x0c,0x59,0xdb                        // vmulps        %ymm11,%ymm14,%ymm11
+  .byte  0xc4,0x41,0x04,0x58,0xdb                        // vaddps        %ymm11,%ymm15,%ymm11
+  .byte  0xc4,0x41,0x7c,0x52,0xc9                        // vrsqrtps      %ymm9,%ymm9
+  .byte  0xc4,0x41,0x14,0x59,0xc9                        // vmulps        %ymm9,%ymm13,%ymm9
+  .byte  0xc4,0x41,0x34,0x58,0xcb                        // vaddps        %ymm11,%ymm9,%ymm9
+  .byte  0xc4,0x41,0x1c,0x5d,0xc9                        // vminps        %ymm9,%ymm12,%ymm9
+  .byte  0xc5,0x3c,0x59,0xc2                             // vmulps        %ymm2,%ymm8,%ymm8
+  .byte  0xc4,0xc1,0x6c,0xc2,0xd2,0x01                   // vcmpltps      %ymm10,%ymm2,%ymm2
+  .byte  0xc4,0xc3,0x35,0x4a,0xd0,0x20                   // vblendvps     %ymm2,%ymm8,%ymm9,%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_scale_u8_avx
+_sk_scale_u8_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0x8b,0x00                                  // mov           (%rax),%rax
+  .byte  0xc4,0x62,0x79,0x31,0x44,0x38,0x04              // vpmovzxbd     0x4(%rax,%rdi,1),%xmm8
+  .byte  0xc4,0x62,0x79,0x31,0x0c,0x38                   // vpmovzxbd     (%rax,%rdi,1),%xmm9
+  .byte  0xc4,0x43,0x35,0x18,0xc0,0x01                   // vinsertf128   $0x1,%xmm8,%ymm9,%ymm8
+  .byte  0xc4,0x41,0x7c,0x5b,0xc0                        // vcvtdq2ps     %ymm8,%ymm8
+  .byte  0xc4,0x62,0x7d,0x18,0x4a,0x0c                   // vbroadcastss  0xc(%rdx),%ymm9
+  .byte  0xc4,0x41,0x3c,0x59,0xc1                        // vmulps        %ymm9,%ymm8,%ymm8
+  .byte  0xc5,0xbc,0x59,0xc0                             // vmulps        %ymm0,%ymm8,%ymm0
+  .byte  0xc5,0xbc,0x59,0xc9                             // vmulps        %ymm1,%ymm8,%ymm1
+  .byte  0xc5,0xbc,0x59,0xd2                             // vmulps        %ymm2,%ymm8,%ymm2
+  .byte  0xc5,0xbc,0x59,0xdb                             // vmulps        %ymm3,%ymm8,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_lerp_u8_avx
+_sk_lerp_u8_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0x8b,0x00                                  // mov           (%rax),%rax
+  .byte  0xc4,0x62,0x79,0x31,0x44,0x38,0x04              // vpmovzxbd     0x4(%rax,%rdi,1),%xmm8
+  .byte  0xc4,0x62,0x79,0x31,0x0c,0x38                   // vpmovzxbd     (%rax,%rdi,1),%xmm9
+  .byte  0xc4,0x43,0x35,0x18,0xc0,0x01                   // vinsertf128   $0x1,%xmm8,%ymm9,%ymm8
+  .byte  0xc4,0x41,0x7c,0x5b,0xc0                        // vcvtdq2ps     %ymm8,%ymm8
+  .byte  0xc4,0x62,0x7d,0x18,0x4a,0x0c                   // vbroadcastss  0xc(%rdx),%ymm9
+  .byte  0xc4,0x41,0x3c,0x59,0xc1                        // vmulps        %ymm9,%ymm8,%ymm8
+  .byte  0xc5,0xfc,0x5c,0xc4                             // vsubps        %ymm4,%ymm0,%ymm0
+  .byte  0xc4,0xc1,0x7c,0x59,0xc0                        // vmulps        %ymm8,%ymm0,%ymm0
+  .byte  0xc5,0xfc,0x58,0xc4                             // vaddps        %ymm4,%ymm0,%ymm0
+  .byte  0xc5,0xf4,0x5c,0xcd                             // vsubps        %ymm5,%ymm1,%ymm1
+  .byte  0xc4,0xc1,0x74,0x59,0xc8                        // vmulps        %ymm8,%ymm1,%ymm1
+  .byte  0xc5,0xf4,0x58,0xcd                             // vaddps        %ymm5,%ymm1,%ymm1
+  .byte  0xc5,0xec,0x5c,0xd6                             // vsubps        %ymm6,%ymm2,%ymm2
+  .byte  0xc4,0xc1,0x6c,0x59,0xd0                        // vmulps        %ymm8,%ymm2,%ymm2
+  .byte  0xc5,0xec,0x58,0xd6                             // vaddps        %ymm6,%ymm2,%ymm2
+  .byte  0xc5,0xe4,0x5c,0xdf                             // vsubps        %ymm7,%ymm3,%ymm3
+  .byte  0xc4,0xc1,0x64,0x59,0xd8                        // vmulps        %ymm8,%ymm3,%ymm3
+  .byte  0xc5,0xe4,0x58,0xdf                             // vaddps        %ymm7,%ymm3,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_load_tables_avx
+_sk_load_tables_avx:
+  .byte  0x41,0x57                                       // push          %r15
+  .byte  0x41,0x56                                       // push          %r14
+  .byte  0x41,0x54                                       // push          %r12
+  .byte  0x53                                            // push          %rbx
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x4c,0x8b,0x00                                  // mov           (%rax),%r8
+  .byte  0x48,0x8b,0x48,0x08                             // mov           0x8(%rax),%rcx
+  .byte  0xc4,0x41,0x7c,0x10,0x14,0xb8                   // vmovups       (%r8,%rdi,4),%ymm10
+  .byte  0xc5,0xf9,0x6e,0x42,0x10                        // vmovd         0x10(%rdx),%xmm0
+  .byte  0xc4,0xe3,0x79,0x04,0xc0,0x00                   // vpermilps     $0x0,%xmm0,%xmm0
+  .byte  0xc4,0x63,0x7d,0x18,0xc8,0x01                   // vinsertf128   $0x1,%xmm0,%ymm0,%ymm9
+  .byte  0xc4,0xc1,0x34,0x54,0xc2                        // vandps        %ymm10,%ymm9,%ymm0
+  .byte  0xc4,0xc1,0xf9,0x7e,0xc0                        // vmovq         %xmm0,%r8
+  .byte  0x45,0x89,0xc1                                  // mov           %r8d,%r9d
+  .byte  0xc4,0xc3,0xf9,0x16,0xc2,0x01                   // vpextrq       $0x1,%xmm0,%r10
+  .byte  0x45,0x89,0xd3                                  // mov           %r10d,%r11d
+  .byte  0x49,0xc1,0xea,0x20                             // shr           $0x20,%r10
+  .byte  0x49,0xc1,0xe8,0x20                             // shr           $0x20,%r8
+  .byte  0xc4,0xe3,0x7d,0x19,0xc0,0x01                   // vextractf128  $0x1,%ymm0,%xmm0
+  .byte  0xc4,0xc1,0xf9,0x7e,0xc7                        // vmovq         %xmm0,%r15
+  .byte  0x45,0x89,0xfe                                  // mov           %r15d,%r14d
+  .byte  0xc4,0xe3,0xf9,0x16,0xc3,0x01                   // vpextrq       $0x1,%xmm0,%rbx
+  .byte  0x41,0x89,0xdc                                  // mov           %ebx,%r12d
+  .byte  0x48,0xc1,0xeb,0x20                             // shr           $0x20,%rbx
+  .byte  0x49,0xc1,0xef,0x20                             // shr           $0x20,%r15
+  .byte  0xc4,0xa1,0x7a,0x10,0x04,0xb1                   // vmovss        (%rcx,%r14,4),%xmm0
+  .byte  0xc4,0xa3,0x79,0x21,0x04,0xb9,0x10              // vinsertps     $0x10,(%rcx,%r15,4),%xmm0,%xmm0
+  .byte  0xc4,0xa3,0x79,0x21,0x04,0xa1,0x20              // vinsertps     $0x20,(%rcx,%r12,4),%xmm0,%xmm0
+  .byte  0xc4,0xe3,0x79,0x21,0x04,0x99,0x30              // vinsertps     $0x30,(%rcx,%rbx,4),%xmm0,%xmm0
+  .byte  0xc4,0xa1,0x7a,0x10,0x0c,0x89                   // vmovss        (%rcx,%r9,4),%xmm1
+  .byte  0xc4,0xa3,0x71,0x21,0x0c,0x81,0x10              // vinsertps     $0x10,(%rcx,%r8,4),%xmm1,%xmm1
+  .byte  0xc4,0xa3,0x71,0x21,0x0c,0x99,0x20              // vinsertps     $0x20,(%rcx,%r11,4),%xmm1,%xmm1
+  .byte  0xc4,0xa3,0x71,0x21,0x0c,0x91,0x30              // vinsertps     $0x30,(%rcx,%r10,4),%xmm1,%xmm1
+  .byte  0xc4,0xe3,0x75,0x18,0xc0,0x01                   // vinsertf128   $0x1,%xmm0,%ymm1,%ymm0
+  .byte  0x4c,0x8b,0x78,0x10                             // mov           0x10(%rax),%r15
+  .byte  0xc4,0xc1,0x71,0x72,0xd2,0x08                   // vpsrld        $0x8,%xmm10,%xmm1
+  .byte  0xc4,0x43,0x7d,0x19,0xd0,0x01                   // vextractf128  $0x1,%ymm10,%xmm8
+  .byte  0xc4,0xc1,0x69,0x72,0xd0,0x08                   // vpsrld        $0x8,%xmm8,%xmm2
+  .byte  0xc4,0xe3,0x75,0x18,0xca,0x01                   // vinsertf128   $0x1,%xmm2,%ymm1,%ymm1
+  .byte  0xc5,0xb4,0x54,0xc9                             // vandps        %ymm1,%ymm9,%ymm1
+  .byte  0xc4,0xc1,0xf9,0x7e,0xc8                        // vmovq         %xmm1,%r8
+  .byte  0x45,0x89,0xc2                                  // mov           %r8d,%r10d
+  .byte  0xc4,0xc3,0xf9,0x16,0xc9,0x01                   // vpextrq       $0x1,%xmm1,%r9
+  .byte  0x45,0x89,0xcb                                  // mov           %r9d,%r11d
+  .byte  0x49,0xc1,0xe9,0x20                             // shr           $0x20,%r9
+  .byte  0x49,0xc1,0xe8,0x20                             // shr           $0x20,%r8
+  .byte  0xc4,0xe3,0x7d,0x19,0xc9,0x01                   // vextractf128  $0x1,%ymm1,%xmm1
+  .byte  0xc4,0xe1,0xf9,0x7e,0xcb                        // vmovq         %xmm1,%rbx
+  .byte  0x41,0x89,0xde                                  // mov           %ebx,%r14d
+  .byte  0xc4,0xe3,0xf9,0x16,0xc9,0x01                   // vpextrq       $0x1,%xmm1,%rcx
+  .byte  0x41,0x89,0xcc                                  // mov           %ecx,%r12d
+  .byte  0x48,0xc1,0xe9,0x20                             // shr           $0x20,%rcx
+  .byte  0x48,0xc1,0xeb,0x20                             // shr           $0x20,%rbx
+  .byte  0xc4,0x81,0x7a,0x10,0x0c,0xb7                   // vmovss        (%r15,%r14,4),%xmm1
+  .byte  0xc4,0xc3,0x71,0x21,0x0c,0x9f,0x10              // vinsertps     $0x10,(%r15,%rbx,4),%xmm1,%xmm1
+  .byte  0xc4,0x81,0x7a,0x10,0x14,0xa7                   // vmovss        (%r15,%r12,4),%xmm2
+  .byte  0xc4,0xe3,0x71,0x21,0xca,0x20                   // vinsertps     $0x20,%xmm2,%xmm1,%xmm1
+  .byte  0xc4,0xc1,0x7a,0x10,0x14,0x8f                   // vmovss        (%r15,%rcx,4),%xmm2
+  .byte  0xc4,0xe3,0x71,0x21,0xca,0x30                   // vinsertps     $0x30,%xmm2,%xmm1,%xmm1
+  .byte  0xc4,0x81,0x7a,0x10,0x14,0x97                   // vmovss        (%r15,%r10,4),%xmm2
+  .byte  0xc4,0x83,0x69,0x21,0x14,0x87,0x10              // vinsertps     $0x10,(%r15,%r8,4),%xmm2,%xmm2
+  .byte  0xc4,0x81,0x7a,0x10,0x1c,0x9f                   // vmovss        (%r15,%r11,4),%xmm3
+  .byte  0xc4,0xe3,0x69,0x21,0xd3,0x20                   // vinsertps     $0x20,%xmm3,%xmm2,%xmm2
+  .byte  0xc4,0x81,0x7a,0x10,0x1c,0x8f                   // vmovss        (%r15,%r9,4),%xmm3
+  .byte  0xc4,0xe3,0x69,0x21,0xd3,0x30                   // vinsertps     $0x30,%xmm3,%xmm2,%xmm2
+  .byte  0xc4,0xe3,0x6d,0x18,0xc9,0x01                   // vinsertf128   $0x1,%xmm1,%ymm2,%ymm1
+  .byte  0x48,0x8b,0x40,0x18                             // mov           0x18(%rax),%rax
+  .byte  0xc4,0xc1,0x69,0x72,0xd2,0x10                   // vpsrld        $0x10,%xmm10,%xmm2
+  .byte  0xc4,0xc1,0x61,0x72,0xd0,0x10                   // vpsrld        $0x10,%xmm8,%xmm3
+  .byte  0xc4,0xe3,0x6d,0x18,0xd3,0x01                   // vinsertf128   $0x1,%xmm3,%ymm2,%ymm2
+  .byte  0xc5,0xb4,0x54,0xd2                             // vandps        %ymm2,%ymm9,%ymm2
+  .byte  0xc4,0xc1,0xf9,0x7e,0xd0                        // vmovq         %xmm2,%r8
+  .byte  0x45,0x89,0xc1                                  // mov           %r8d,%r9d
+  .byte  0xc4,0xc3,0xf9,0x16,0xd6,0x01                   // vpextrq       $0x1,%xmm2,%r14
+  .byte  0x45,0x89,0xf2                                  // mov           %r14d,%r10d
+  .byte  0x49,0xc1,0xee,0x20                             // shr           $0x20,%r14
+  .byte  0x49,0xc1,0xe8,0x20                             // shr           $0x20,%r8
+  .byte  0xc4,0xe3,0x7d,0x19,0xd2,0x01                   // vextractf128  $0x1,%ymm2,%xmm2
+  .byte  0xc4,0xe1,0xf9,0x7e,0xd3                        // vmovq         %xmm2,%rbx
+  .byte  0x41,0x89,0xdb                                  // mov           %ebx,%r11d
+  .byte  0xc4,0xe3,0xf9,0x16,0xd1,0x01                   // vpextrq       $0x1,%xmm2,%rcx
+  .byte  0x41,0x89,0xcf                                  // mov           %ecx,%r15d
+  .byte  0x48,0xc1,0xe9,0x20                             // shr           $0x20,%rcx
+  .byte  0x48,0xc1,0xeb,0x20                             // shr           $0x20,%rbx
+  .byte  0xc4,0xa1,0x7a,0x10,0x14,0x98                   // vmovss        (%rax,%r11,4),%xmm2
+  .byte  0xc4,0xe3,0x69,0x21,0x14,0x98,0x10              // vinsertps     $0x10,(%rax,%rbx,4),%xmm2,%xmm2
+  .byte  0xc4,0xa1,0x7a,0x10,0x1c,0xb8                   // vmovss        (%rax,%r15,4),%xmm3
+  .byte  0xc4,0xe3,0x69,0x21,0xd3,0x20                   // vinsertps     $0x20,%xmm3,%xmm2,%xmm2
+  .byte  0xc5,0xfa,0x10,0x1c,0x88                        // vmovss        (%rax,%rcx,4),%xmm3
+  .byte  0xc4,0x63,0x69,0x21,0xcb,0x30                   // vinsertps     $0x30,%xmm3,%xmm2,%xmm9
+  .byte  0xc4,0xa1,0x7a,0x10,0x1c,0x88                   // vmovss        (%rax,%r9,4),%xmm3
+  .byte  0xc4,0xa3,0x61,0x21,0x1c,0x80,0x10              // vinsertps     $0x10,(%rax,%r8,4),%xmm3,%xmm3
+  .byte  0xc4,0xa1,0x7a,0x10,0x14,0x90                   // vmovss        (%rax,%r10,4),%xmm2
+  .byte  0xc4,0xe3,0x61,0x21,0xd2,0x20                   // vinsertps     $0x20,%xmm2,%xmm3,%xmm2
+  .byte  0xc4,0xa1,0x7a,0x10,0x1c,0xb0                   // vmovss        (%rax,%r14,4),%xmm3
+  .byte  0xc4,0xe3,0x69,0x21,0xd3,0x30                   // vinsertps     $0x30,%xmm3,%xmm2,%xmm2
+  .byte  0xc4,0xc3,0x6d,0x18,0xd1,0x01                   // vinsertf128   $0x1,%xmm9,%ymm2,%ymm2
+  .byte  0xc4,0xc1,0x31,0x72,0xd2,0x18                   // vpsrld        $0x18,%xmm10,%xmm9
+  .byte  0xc4,0xc1,0x61,0x72,0xd0,0x18                   // vpsrld        $0x18,%xmm8,%xmm3
+  .byte  0xc4,0xe3,0x35,0x18,0xdb,0x01                   // vinsertf128   $0x1,%xmm3,%ymm9,%ymm3
+  .byte  0xc5,0xfc,0x5b,0xdb                             // vcvtdq2ps     %ymm3,%ymm3
+  .byte  0xc4,0x62,0x7d,0x18,0x42,0x0c                   // vbroadcastss  0xc(%rdx),%ymm8
+  .byte  0xc4,0xc1,0x64,0x59,0xd8                        // vmulps        %ymm8,%ymm3,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x5b                                            // pop           %rbx
+  .byte  0x41,0x5c                                       // pop           %r12
+  .byte  0x41,0x5e                                       // pop           %r14
+  .byte  0x41,0x5f                                       // pop           %r15
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_load_8888_avx
+_sk_load_8888_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0x8b,0x00                                  // mov           (%rax),%rax
+  .byte  0xc5,0xfc,0x10,0x1c,0xb8                        // vmovups       (%rax,%rdi,4),%ymm3
+  .byte  0xc5,0xf9,0x6e,0x42,0x10                        // vmovd         0x10(%rdx),%xmm0
+  .byte  0xc4,0xe3,0x79,0x04,0xc0,0x00                   // vpermilps     $0x0,%xmm0,%xmm0
+  .byte  0xc4,0x63,0x7d,0x18,0xd8,0x01                   // vinsertf128   $0x1,%xmm0,%ymm0,%ymm11
+  .byte  0xc5,0xa4,0x54,0xc3                             // vandps        %ymm3,%ymm11,%ymm0
+  .byte  0xc5,0xfc,0x5b,0xc0                             // vcvtdq2ps     %ymm0,%ymm0
+  .byte  0xc4,0x62,0x7d,0x18,0x42,0x0c                   // vbroadcastss  0xc(%rdx),%ymm8
+  .byte  0xc5,0xbc,0x59,0xc0                             // vmulps        %ymm0,%ymm8,%ymm0
+  .byte  0xc5,0xa9,0x72,0xd3,0x08                        // vpsrld        $0x8,%xmm3,%xmm10
+  .byte  0xc4,0xc3,0x7d,0x19,0xd9,0x01                   // vextractf128  $0x1,%ymm3,%xmm9
+  .byte  0xc4,0xc1,0x71,0x72,0xd1,0x08                   // vpsrld        $0x8,%xmm9,%xmm1
+  .byte  0xc4,0xe3,0x2d,0x18,0xc9,0x01                   // vinsertf128   $0x1,%xmm1,%ymm10,%ymm1
+  .byte  0xc5,0xa4,0x54,0xc9                             // vandps        %ymm1,%ymm11,%ymm1
+  .byte  0xc5,0xfc,0x5b,0xc9                             // vcvtdq2ps     %ymm1,%ymm1
+  .byte  0xc5,0xbc,0x59,0xc9                             // vmulps        %ymm1,%ymm8,%ymm1
+  .byte  0xc5,0xa9,0x72,0xd3,0x10                        // vpsrld        $0x10,%xmm3,%xmm10
+  .byte  0xc4,0xc1,0x69,0x72,0xd1,0x10                   // vpsrld        $0x10,%xmm9,%xmm2
+  .byte  0xc4,0xe3,0x2d,0x18,0xd2,0x01                   // vinsertf128   $0x1,%xmm2,%ymm10,%ymm2
+  .byte  0xc5,0xa4,0x54,0xd2                             // vandps        %ymm2,%ymm11,%ymm2
+  .byte  0xc5,0xfc,0x5b,0xd2                             // vcvtdq2ps     %ymm2,%ymm2
+  .byte  0xc5,0xbc,0x59,0xd2                             // vmulps        %ymm2,%ymm8,%ymm2
+  .byte  0xc5,0xa9,0x72,0xd3,0x18                        // vpsrld        $0x18,%xmm3,%xmm10
+  .byte  0xc4,0xc1,0x61,0x72,0xd1,0x18                   // vpsrld        $0x18,%xmm9,%xmm3
+  .byte  0xc4,0xe3,0x2d,0x18,0xdb,0x01                   // vinsertf128   $0x1,%xmm3,%ymm10,%ymm3
+  .byte  0xc5,0xfc,0x5b,0xdb                             // vcvtdq2ps     %ymm3,%ymm3
+  .byte  0xc4,0xc1,0x64,0x59,0xd8                        // vmulps        %ymm8,%ymm3,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_store_8888_avx
+_sk_store_8888_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0x8b,0x00                                  // mov           (%rax),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x42,0x08                   // vbroadcastss  0x8(%rdx),%ymm8
+  .byte  0xc5,0x3c,0x59,0xc8                             // vmulps        %ymm0,%ymm8,%ymm9
+  .byte  0xc4,0x41,0x7d,0x5b,0xc9                        // vcvtps2dq     %ymm9,%ymm9
+  .byte  0xc5,0x3c,0x59,0xd1                             // vmulps        %ymm1,%ymm8,%ymm10
+  .byte  0xc4,0x41,0x7d,0x5b,0xd2                        // vcvtps2dq     %ymm10,%ymm10
+  .byte  0xc4,0xc1,0x21,0x72,0xf2,0x08                   // vpslld        $0x8,%xmm10,%xmm11
+  .byte  0xc4,0x43,0x7d,0x19,0xd2,0x01                   // vextractf128  $0x1,%ymm10,%xmm10
+  .byte  0xc4,0xc1,0x29,0x72,0xf2,0x08                   // vpslld        $0x8,%xmm10,%xmm10
+  .byte  0xc4,0x43,0x25,0x18,0xd2,0x01                   // vinsertf128   $0x1,%xmm10,%ymm11,%ymm10
+  .byte  0xc4,0x41,0x2d,0x56,0xc9                        // vorpd         %ymm9,%ymm10,%ymm9
+  .byte  0xc5,0x3c,0x59,0xd2                             // vmulps        %ymm2,%ymm8,%ymm10
+  .byte  0xc4,0x41,0x7d,0x5b,0xd2                        // vcvtps2dq     %ymm10,%ymm10
+  .byte  0xc4,0xc1,0x21,0x72,0xf2,0x10                   // vpslld        $0x10,%xmm10,%xmm11
+  .byte  0xc4,0x43,0x7d,0x19,0xd2,0x01                   // vextractf128  $0x1,%ymm10,%xmm10
+  .byte  0xc4,0xc1,0x29,0x72,0xf2,0x10                   // vpslld        $0x10,%xmm10,%xmm10
+  .byte  0xc4,0x43,0x25,0x18,0xd2,0x01                   // vinsertf128   $0x1,%xmm10,%ymm11,%ymm10
+  .byte  0xc4,0x41,0x35,0x56,0xca                        // vorpd         %ymm10,%ymm9,%ymm9
+  .byte  0xc5,0x3c,0x59,0xc3                             // vmulps        %ymm3,%ymm8,%ymm8
+  .byte  0xc4,0x41,0x7d,0x5b,0xc0                        // vcvtps2dq     %ymm8,%ymm8
+  .byte  0xc4,0xc1,0x29,0x72,0xf0,0x18                   // vpslld        $0x18,%xmm8,%xmm10
+  .byte  0xc4,0x43,0x7d,0x19,0xc0,0x01                   // vextractf128  $0x1,%ymm8,%xmm8
+  .byte  0xc4,0xc1,0x39,0x72,0xf0,0x18                   // vpslld        $0x18,%xmm8,%xmm8
+  .byte  0xc4,0x43,0x2d,0x18,0xc0,0x01                   // vinsertf128   $0x1,%xmm8,%ymm10,%ymm8
+  .byte  0xc4,0x41,0x35,0x56,0xc0                        // vorpd         %ymm8,%ymm9,%ymm8
+  .byte  0xc5,0x7d,0x11,0x04,0xb8                        // vmovupd       %ymm8,(%rax,%rdi,4)
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_load_f16_avx
+_sk_load_f16_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_store_f16_avx
+_sk_store_f16_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_clamp_x_avx
+_sk_clamp_x_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x00                        // vbroadcastss  (%rax),%ymm8
+  .byte  0xc4,0x43,0x7d,0x19,0xc1,0x01                   // vextractf128  $0x1,%ymm8,%xmm9
+  .byte  0xc4,0x41,0x29,0x76,0xd2                        // vpcmpeqd      %xmm10,%xmm10,%xmm10
+  .byte  0xc4,0x41,0x31,0xfe,0xca                        // vpaddd        %xmm10,%xmm9,%xmm9
+  .byte  0xc4,0x41,0x39,0xfe,0xc2                        // vpaddd        %xmm10,%xmm8,%xmm8
+  .byte  0xc4,0x43,0x3d,0x18,0xc1,0x01                   // vinsertf128   $0x1,%xmm9,%ymm8,%ymm8
+  .byte  0xc4,0xc1,0x7c,0x5d,0xc0                        // vminps        %ymm8,%ymm0,%ymm0
+  .byte  0xc4,0x41,0x3c,0x57,0xc0                        // vxorps        %ymm8,%ymm8,%ymm8
+  .byte  0xc5,0xbc,0x5f,0xc0                             // vmaxps        %ymm0,%ymm8,%ymm0
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_clamp_y_avx
+_sk_clamp_y_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x00                        // vbroadcastss  (%rax),%ymm8
+  .byte  0xc4,0x43,0x7d,0x19,0xc1,0x01                   // vextractf128  $0x1,%ymm8,%xmm9
+  .byte  0xc4,0x41,0x29,0x76,0xd2                        // vpcmpeqd      %xmm10,%xmm10,%xmm10
+  .byte  0xc4,0x41,0x31,0xfe,0xca                        // vpaddd        %xmm10,%xmm9,%xmm9
+  .byte  0xc4,0x41,0x39,0xfe,0xc2                        // vpaddd        %xmm10,%xmm8,%xmm8
+  .byte  0xc4,0x43,0x3d,0x18,0xc1,0x01                   // vinsertf128   $0x1,%xmm9,%ymm8,%ymm8
+  .byte  0xc4,0xc1,0x74,0x5d,0xc8                        // vminps        %ymm8,%ymm1,%ymm1
+  .byte  0xc4,0x41,0x3c,0x57,0xc0                        // vxorps        %ymm8,%ymm8,%ymm8
+  .byte  0xc5,0xbc,0x5f,0xc9                             // vmaxps        %ymm1,%ymm8,%ymm1
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_matrix_2x3_avx
+_sk_matrix_2x3_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x00                        // vbroadcastss  (%rax),%ymm8
+  .byte  0xc4,0x62,0x7d,0x18,0x48,0x08                   // vbroadcastss  0x8(%rax),%ymm9
+  .byte  0xc4,0x62,0x7d,0x18,0x50,0x10                   // vbroadcastss  0x10(%rax),%ymm10
+  .byte  0xc5,0x34,0x59,0xc9                             // vmulps        %ymm1,%ymm9,%ymm9
+  .byte  0xc4,0x41,0x34,0x58,0xca                        // vaddps        %ymm10,%ymm9,%ymm9
+  .byte  0xc5,0x3c,0x59,0xc0                             // vmulps        %ymm0,%ymm8,%ymm8
+  .byte  0xc4,0x41,0x3c,0x58,0xc1                        // vaddps        %ymm9,%ymm8,%ymm8
+  .byte  0xc4,0x62,0x7d,0x18,0x48,0x04                   // vbroadcastss  0x4(%rax),%ymm9
+  .byte  0xc4,0x62,0x7d,0x18,0x50,0x0c                   // vbroadcastss  0xc(%rax),%ymm10
+  .byte  0xc4,0x62,0x7d,0x18,0x58,0x14                   // vbroadcastss  0x14(%rax),%ymm11
+  .byte  0xc5,0xac,0x59,0xc9                             // vmulps        %ymm1,%ymm10,%ymm1
+  .byte  0xc4,0xc1,0x74,0x58,0xcb                        // vaddps        %ymm11,%ymm1,%ymm1
+  .byte  0xc5,0xb4,0x59,0xc0                             // vmulps        %ymm0,%ymm9,%ymm0
+  .byte  0xc5,0xfc,0x58,0xc9                             // vaddps        %ymm1,%ymm0,%ymm1
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0x7c,0x29,0xc0                             // vmovaps       %ymm8,%ymm0
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_matrix_3x4_avx
+_sk_matrix_3x4_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0x62,0x7d,0x18,0x00                        // vbroadcastss  (%rax),%ymm8
+  .byte  0xc4,0x62,0x7d,0x18,0x48,0x0c                   // vbroadcastss  0xc(%rax),%ymm9
+  .byte  0xc4,0x62,0x7d,0x18,0x50,0x18                   // vbroadcastss  0x18(%rax),%ymm10
+  .byte  0xc4,0x62,0x7d,0x18,0x58,0x24                   // vbroadcastss  0x24(%rax),%ymm11
+  .byte  0xc5,0x2c,0x59,0xd2                             // vmulps        %ymm2,%ymm10,%ymm10
+  .byte  0xc4,0x41,0x2c,0x58,0xd3                        // vaddps        %ymm11,%ymm10,%ymm10
+  .byte  0xc5,0x34,0x59,0xc9                             // vmulps        %ymm1,%ymm9,%ymm9
+  .byte  0xc4,0x41,0x34,0x58,0xca                        // vaddps        %ymm10,%ymm9,%ymm9
+  .byte  0xc5,0x3c,0x59,0xc0                             // vmulps        %ymm0,%ymm8,%ymm8
+  .byte  0xc4,0x41,0x3c,0x58,0xc1                        // vaddps        %ymm9,%ymm8,%ymm8
+  .byte  0xc4,0x62,0x7d,0x18,0x48,0x04                   // vbroadcastss  0x4(%rax),%ymm9
+  .byte  0xc4,0x62,0x7d,0x18,0x50,0x10                   // vbroadcastss  0x10(%rax),%ymm10
+  .byte  0xc4,0x62,0x7d,0x18,0x58,0x1c                   // vbroadcastss  0x1c(%rax),%ymm11
+  .byte  0xc4,0x62,0x7d,0x18,0x60,0x28                   // vbroadcastss  0x28(%rax),%ymm12
+  .byte  0xc5,0x24,0x59,0xda                             // vmulps        %ymm2,%ymm11,%ymm11
+  .byte  0xc4,0x41,0x24,0x58,0xdc                        // vaddps        %ymm12,%ymm11,%ymm11
+  .byte  0xc5,0x2c,0x59,0xd1                             // vmulps        %ymm1,%ymm10,%ymm10
+  .byte  0xc4,0x41,0x2c,0x58,0xd3                        // vaddps        %ymm11,%ymm10,%ymm10
+  .byte  0xc5,0x34,0x59,0xc8                             // vmulps        %ymm0,%ymm9,%ymm9
+  .byte  0xc4,0x41,0x34,0x58,0xca                        // vaddps        %ymm10,%ymm9,%ymm9
+  .byte  0xc4,0x62,0x7d,0x18,0x50,0x08                   // vbroadcastss  0x8(%rax),%ymm10
+  .byte  0xc4,0x62,0x7d,0x18,0x58,0x14                   // vbroadcastss  0x14(%rax),%ymm11
+  .byte  0xc4,0x62,0x7d,0x18,0x60,0x20                   // vbroadcastss  0x20(%rax),%ymm12
+  .byte  0xc4,0x62,0x7d,0x18,0x68,0x2c                   // vbroadcastss  0x2c(%rax),%ymm13
+  .byte  0xc5,0x9c,0x59,0xd2                             // vmulps        %ymm2,%ymm12,%ymm2
+  .byte  0xc4,0xc1,0x6c,0x58,0xd5                        // vaddps        %ymm13,%ymm2,%ymm2
+  .byte  0xc5,0xa4,0x59,0xc9                             // vmulps        %ymm1,%ymm11,%ymm1
+  .byte  0xc5,0xf4,0x58,0xca                             // vaddps        %ymm2,%ymm1,%ymm1
+  .byte  0xc5,0xac,0x59,0xc0                             // vmulps        %ymm0,%ymm10,%ymm0
+  .byte  0xc5,0xfc,0x58,0xd1                             // vaddps        %ymm1,%ymm0,%ymm2
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0x7c,0x29,0xc0                             // vmovaps       %ymm8,%ymm0
+  .byte  0xc5,0x7c,0x29,0xc9                             // vmovaps       %ymm9,%ymm1
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
+.globl _sk_linear_gradient_2stops_avx
+_sk_linear_gradient_2stops_avx:
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc4,0xe2,0x7d,0x18,0x48,0x10                   // vbroadcastss  0x10(%rax),%ymm1
+  .byte  0xc4,0xe2,0x7d,0x18,0x10                        // vbroadcastss  (%rax),%ymm2
+  .byte  0xc5,0xf4,0x59,0xc8                             // vmulps        %ymm0,%ymm1,%ymm1
+  .byte  0xc5,0x6c,0x58,0xc1                             // vaddps        %ymm1,%ymm2,%ymm8
+  .byte  0xc4,0xe2,0x7d,0x18,0x48,0x14                   // vbroadcastss  0x14(%rax),%ymm1
+  .byte  0xc4,0xe2,0x7d,0x18,0x50,0x04                   // vbroadcastss  0x4(%rax),%ymm2
+  .byte  0xc5,0xf4,0x59,0xc8                             // vmulps        %ymm0,%ymm1,%ymm1
+  .byte  0xc5,0xec,0x58,0xc9                             // vaddps        %ymm1,%ymm2,%ymm1
+  .byte  0xc4,0xe2,0x7d,0x18,0x50,0x18                   // vbroadcastss  0x18(%rax),%ymm2
+  .byte  0xc4,0xe2,0x7d,0x18,0x58,0x08                   // vbroadcastss  0x8(%rax),%ymm3
+  .byte  0xc5,0xec,0x59,0xd0                             // vmulps        %ymm0,%ymm2,%ymm2
+  .byte  0xc5,0xe4,0x58,0xd2                             // vaddps        %ymm2,%ymm3,%ymm2
+  .byte  0xc4,0xe2,0x7d,0x18,0x58,0x1c                   // vbroadcastss  0x1c(%rax),%ymm3
+  .byte  0xc4,0x62,0x7d,0x18,0x48,0x0c                   // vbroadcastss  0xc(%rax),%ymm9
+  .byte  0xc5,0xe4,0x59,0xc0                             // vmulps        %ymm0,%ymm3,%ymm0
+  .byte  0xc5,0xb4,0x58,0xd8                             // vaddps        %ymm0,%ymm9,%ymm3
+  .byte  0x48,0xad                                       // lods          %ds:(%rsi),%rax
+  .byte  0xc5,0x7c,0x29,0xc0                             // vmovaps       %ymm8,%ymm0
+  .byte  0xff,0xe0                                       // jmpq          *%rax
+
 .globl _sk_start_pipeline_sse41
 _sk_start_pipeline_sse41:
   .byte  0x41,0x57                                       // push          %r15

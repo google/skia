@@ -104,6 +104,30 @@ using K = const SkJumper_constants;
 
     #define WRAP(name) sk_##name##_hsw
 
+#elif defined(__AVX__)
+    #include <immintrin.h>
+
+    using F   = float    __attribute__((ext_vector_type(8)));
+    using I32 =  int32_t __attribute__((ext_vector_type(8)));
+    using U32 = uint32_t __attribute__((ext_vector_type(8)));
+    using U8  = uint8_t  __attribute__((ext_vector_type(8)));
+
+    static F   mad(F f, F m, F a)  { return f*m+a;              }
+    static F   min(F a, F b)       { return _mm256_min_ps(a,b); }
+    static F   max(F a, F b)       { return _mm256_max_ps(a,b); }
+    static F   rcp  (F v)          { return _mm256_rcp_ps  (v); }
+    static F   rsqrt(F v)          { return _mm256_rsqrt_ps(v); }
+    static U32 round(F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
+
+    static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
+
+    static F gather(const float* p, U32 ix) {
+        return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
+                 p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
+    }
+
+    #define WRAP(name) sk_##name##_avx
+
 #elif defined(__SSE2__)
     #include <immintrin.h>
 
@@ -499,6 +523,9 @@ STAGE(load_f16) {
     g = _mm256_cvtph_ps(_mm_unpackhi_epi64(rg0123, rg4567));
     b = _mm256_cvtph_ps(_mm_unpacklo_epi64(ba0123, ba4567));
     a = _mm256_cvtph_ps(_mm_unpackhi_epi64(ba0123, ba4567));
+#elif defined(__AVX__)
+    // TODO
+
 #elif defined(__SSE2__)
     auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
          _23 = _mm_loadu_si128(((__m128i*)ptr) + 1);
@@ -568,6 +595,8 @@ STAGE(store_f16) {
     _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg0123, ba0123));
     _mm_storeu_si128((__m128i*)ptr + 2, _mm_unpacklo_epi32(rg4567, ba4567));
     _mm_storeu_si128((__m128i*)ptr + 3, _mm_unpackhi_epi32(rg4567, ba4567));
+#elif defined(__AVX__)
+    // TODO
 #elif defined(__SSE2__)
     auto float_to_half = [&](F f) {
         return bit_cast<U32>(f * bit_cast<F>(U32(k->_0x07800000)))  // Fix up the exponent,

@@ -33,6 +33,14 @@ subprocess.check_call(['clang++'] + cflags + sse41 + ['-DWIN'] +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_sse41.o'])
 
+avx = '-mno-red-zone -mavx'.split()
+subprocess.check_call(['clang++'] + cflags + avx +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'avx.o'])
+subprocess.check_call(['clang++'] + cflags + avx + ['-DWIN'] +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'win_avx.o'])
+
 hsw = '-mno-red-zone -mavx2 -mfma -mf16c'.split()
 subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
@@ -125,6 +133,7 @@ parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
 parse_object_file('hsw.o',   '.byte')
+parse_object_file('avx.o',   '.byte')
 parse_object_file('sse41.o', '.byte')
 parse_object_file('sse2.o',  '.byte')
 print '#endif'
@@ -141,6 +150,7 @@ print '''; Copyright 2017 Google Inc.
 '''
 print '_text SEGMENT'
 parse_object_file('win_hsw.o',   'DB')
+parse_object_file('win_avx.o',   'DB')
 parse_object_file('win_sse41.o', 'DB')
 parse_object_file('win_sse2.o',  'DB')
 print 'END'

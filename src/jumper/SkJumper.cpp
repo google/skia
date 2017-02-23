@@ -106,14 +106,19 @@ extern "C" {
 
 #elif defined(__x86_64__) || defined(_M_X64)
     size_t ASM(start_pipeline,hsw  )(size_t, void**, K*, size_t);
+    size_t ASM(start_pipeline,avx  )(size_t, void**, K*, size_t);
     size_t ASM(start_pipeline,sse41)(size_t, void**, K*, size_t);
     size_t ASM(start_pipeline,sse2 )(size_t, void**, K*, size_t);
 
     StageFn ASM(just_return,hsw),
+            ASM(just_return,avx),
             ASM(just_return,sse41),
             ASM(just_return,sse2);
 
     #define M(st) StageFn ASM(st,hsw);
+        STAGES(M)
+    #undef M
+    #define M(st) StageFn ASM(st,avx);
         STAGES(M)
     #undef M
     #define M(st) StageFn ASM(st,sse41);
@@ -166,6 +171,18 @@ extern "C" {
         #endif
                 return nullptr;
         #define M(st) case SkRasterPipeline::st: return ASM(st,hsw);
+            STAGES(M)
+        #undef M
+        }
+    }
+    static StageFn* lookup_avx(SkRasterPipeline::StockStage st) {
+        switch (st) {
+            default:
+        #ifdef WHATS_NEXT
+                gMissing[st]++;
+        #endif
+                return nullptr;
+        #define M(st) case SkRasterPipeline::st: return ASM(st,avx);
             STAGES(M)
         #undef M
         }
@@ -256,6 +273,11 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
 #elif defined(__x86_64__) || defined(_M_X64)
     if (1 && SkCpu::Supports(SkCpu::HSW)) {
         if (!build_and_run(8, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
+            return false;
+        }
+    }
+    if (0 && SkCpu::Supports(SkCpu::AVX)) {
+        if (!build_and_run(8, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
             return false;
         }
     }
