@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28202339_9705868a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-24T22:08:24Z",
+      "side": 1,
+      "message": "for in -\u003e in?",
+      "range": {
+        "startLine": 9,
+        "startChar": 42,
+        "endLine": 9,
+        "endChar": 48
+      },
+      "revId": "6a2413cc75aa5d51b811149d1eeab15cd59e502c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ccb2ea3_1656710e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-24T22:08:24Z",
+      "side": 1,
+      "message": "Can you make this name reflect that it coverts from CMYK? Maybe this is too long, but what about\n\n  needs_swizzler_to_convert_from_cmyk\n\n?",
+      "range": {
+        "startLine": 556,
+        "startChar": 19,
+        "endLine": 556,
+        "endChar": 51
+      },
+      "revId": "6a2413cc75aa5d51b811149d1eeab15cd59e502c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0416f13b_0075ff1e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-24T22:08:24Z",
+      "side": 1,
+      "message": "Why not:\n\n  if (JCS_CMYK !\u003d jpegColorType) {\n    return false;\n  }\n\n?",
+      "range": {
+        "startLine": 558,
+        "startChar": 4,
+        "endLine": 558,
+        "endChar": 43
+      },
+      "revId": "6a2413cc75aa5d51b811149d1eeab15cd59e502c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfce6e82_3d63a7ec",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-24T22:08:24Z",
+      "side": 1,
+      "message": "Two callers of this method already called needs_swizzler_format_conversion. Would it make sense to pass bool skipFormatConversion to this method?",
+      "range": {
+        "startLine": 645,
+        "startChar": 9,
+        "endLine": 645,
+        "endChar": 29
+      },
+      "revId": "6a2413cc75aa5d51b811149d1eeab15cd59e502c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
