@@ -29,7 +29,7 @@ Window* Window::CreateNativeWindow(void* platformData) {
     SkASSERT(display);
 
     Window_unix* window = new Window_unix();
-    if (!window->initWindow(display, nullptr)) {
+    if (!window->initWindow(display)) {
         delete window;
         return nullptr;
     }
@@ -41,8 +41,8 @@ const long kEventMask = ExposureMask | StructureNotifyMask |
                         KeyPressMask | KeyReleaseMask | 
                         PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
 
-bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
-    if (params && params->fMSAASampleCount != fMSAASampleCount) {
+bool Window_unix::initWindow(Display* display) {
+    if (fRequestedDisplayParams.fMSAASampleCount != fMSAASampleCount) {
         this->closeWindow();
     }
     // we already have a window
@@ -63,7 +63,7 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
         None
     };
     SkASSERT(nullptr == fVisualInfo);
-    if (params && params->fMSAASampleCount > 0) {
+    if (fRequestedDisplayParams.fMSAASampleCount > 0) {
         static const GLint kAttCount = SK_ARRAY_COUNT(att);
         GLint msaaAtt[kAttCount + 4];
         memcpy(msaaAtt, att, sizeof(att));
@@ -71,14 +71,12 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
         msaaAtt[kAttCount - 1] = GLX_SAMPLE_BUFFERS_ARB;
         msaaAtt[kAttCount + 0] = 1;
         msaaAtt[kAttCount + 1] = GLX_SAMPLES_ARB;
-        msaaAtt[kAttCount + 2] = params->fMSAASampleCount;
+        msaaAtt[kAttCount + 2] = fRequestedDisplayParams.fMSAASampleCount;
         msaaAtt[kAttCount + 3] = None;
         fVisualInfo = glXChooseVisual(display, DefaultScreen(display), msaaAtt);
-        fMSAASampleCount = params->fMSAASampleCount;
     }
     if (nullptr == fVisualInfo) {
         fVisualInfo = glXChooseVisual(display, DefaultScreen(display), att);
-        fMSAASampleCount = 0;
     }
 
     if (fVisualInfo) {
@@ -115,6 +113,8 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
         return false;
     }
 
+    fMSAASampleCount = fRequestedDisplayParams.fMSAASampleCount;
+
     // set up to catch window delete message
     fWmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(display, fWindow, &fWmDeleteMessage, 1);
@@ -132,15 +132,15 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
 void Window_unix::closeWindow() {
     if (fDisplay) {
         this->detach();
-        SkASSERT(fGC);
-        XFreeGC(fDisplay, fGC);
-        fGC = nullptr;
+        if (fGC) {
+            XFreeGC(fDisplay, fGC);
+            fGC = nullptr;
+        }
         gWindowMap.remove(fWindow);
         XDestroyWindow(fDisplay, fWindow);
         fWindow = 0;
         fVisualInfo = nullptr;
         fDisplay = nullptr;
-        fMSAASampleCount = 0;
     }
 }
 
@@ -292,8 +292,8 @@ void Window_unix::show() {
     XMapWindow(fDisplay, fWindow);
 }
 
-bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
-    this->initWindow(fDisplay, &params);
+bool Window_unix::attach(BackendType attachType) {
+    this->initWindow(fDisplay);
 
     window_context_factory::XlibWindowInfo winInfo;
     winInfo.fDisplay = fDisplay;
@@ -311,14 +311,16 @@ bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
     switch (attachType) {
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = window_context_factory::NewVulkanForXlib(winInfo, params);
+            fWindowContext = window_context_factory::NewVulkanForXlib(winInfo,
+                                                                      fRequestedDisplayParams);
             break;
 #endif
         case kNativeGL_BackendType:
-            fWindowContext = window_context_factory::NewGLForXlib(winInfo, params);
+            fWindowContext = window_context_factory::NewGLForXlib(winInfo, fRequestedDisplayParams);
             break;
         case kRaster_BackendType:
-            fWindowContext = window_context_factory::NewRasterForXlib(winInfo, params);
+            fWindowContext = window_context_factory::NewRasterForXlib(winInfo,
+                                                                      fRequestedDisplayParams);
             break;
     }
     this->onBackendCreated();

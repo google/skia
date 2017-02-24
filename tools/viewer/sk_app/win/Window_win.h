@@ -23,7 +23,7 @@ public:
     void setTitle(const char*) override;
     void show() override;
 
-    bool attach(BackendType attachType, const DisplayParams& params) override;
+    bool attach(BackendType) override;
 
     void onInval() override;
 
