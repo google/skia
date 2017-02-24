@@ -39,9 +39,8 @@ public:
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
     const GrGLIRect& getViewport() const { return fViewport; }
 
-    // The following two functions return the same ID when a
-    // texture/render target is multisampled, and different IDs when
-    // it is.
+    // The following two functions return the same ID when a texture/render target is not
+    // multisampled, and different IDs when it is multisampled.
     // FBO ID used to render into
     GrGLuint renderFBOID() const { return fRTFBOID; }
     // FBO ID that has texture ID attached.
