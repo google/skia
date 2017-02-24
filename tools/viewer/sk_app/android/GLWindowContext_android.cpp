@@ -74,6 +74,9 @@ void GLWindowContext_android::onInitializeContext() {
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
+        EGL_STENCIL_SIZE, 8,
+        EGL_SAMPLE_BUFFERS, fDisplayParams.fMSAASampleCount ? 1 : 0,
+        EGL_SAMPLES, fDisplayParams.fMSAASampleCount,
         EGL_NONE
     };
 
