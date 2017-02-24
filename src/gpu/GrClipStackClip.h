@@ -12,9 +12,7 @@
 #include "SkClipStack.h"
 
 class GrPathRenderer;
-class GrTexture;
-class GrTextureProvider;
-class GrUniqueKey;
+class GrTextureProxy;
 
 /**
  * GrClipStackClip can apply a generic SkClipStack to the draw state. It may need to generate an
@@ -40,7 +38,7 @@ public:
 
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const override;
 
-    sk_sp<GrTexture> testingOnly_createClipMask(GrContext*) const;
+    sk_sp<GrTextureProxy> testingOnly_createClipMask(GrContext*) const;
     static const char kMaskTestTag[];
 
 private:
@@ -54,10 +52,10 @@ private:
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
-    sk_sp<GrTexture> createAlphaClipMask(GrContext*, const GrReducedClip&) const;
+    sk_sp<GrTextureProxy> createAlphaClipMask(GrContext*, const GrReducedClip&) const;
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
-    sk_sp<GrTexture> createSoftwareClipMask(GrContext*, const GrReducedClip&) const;
+    sk_sp<GrTextureProxy> createSoftwareClipMask(GrContext*, const GrReducedClip&) const;
 
     static bool UseSWOnlyPath(GrContext*,
                               bool hasUserStencilSettings,

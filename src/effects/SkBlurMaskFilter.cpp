@@ -780,7 +780,7 @@ public:
             return nullptr;
         }
 
-        sk_sp<GrTexture> blurProfile(CreateBlurProfileTexture(textureProvider, sigma));
+        sk_sp<GrTextureProxy> blurProfile(CreateBlurProfileTexture(textureProvider, sigma));
         if (!blurProfile) {
            return nullptr;
         }
@@ -804,8 +804,8 @@ public:
             precision = kDefault_GrSLPrecision;
         }
 
-        return sk_sp<GrFragmentProcessor>(
-                new GrRectBlurEffect(rect, sigma, blurProfile.get(), precision));
+        return sk_sp<GrFragmentProcessor>(new GrRectBlurEffect(textureProvider, rect, sigma,
+                                                               std::move(blurProfile), precision));
     }
 
     const SkRect& getRect() const { return fRect; }
@@ -813,8 +813,8 @@ public:
     GrSLPrecision precision() const { return fPrecision; }
 
 private:
-    GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile,
-                     GrSLPrecision fPrecision);
+    GrRectBlurEffect(GrTextureProvider*, const SkRect& rect, float sigma,
+                     sk_sp<GrTextureProxy> blurProfile, GrSLPrecision fPrecision);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -822,7 +822,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    static GrTexture* CreateBlurProfileTexture(GrTextureProvider*, float sigma);
+    static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrTextureProvider*, float sigma);
 
     SkRect          fRect;
     float           fSigma;
@@ -940,8 +940,9 @@ void GrGLRectBlurEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.set1f(fProfileSizeUniform, SkScalarCeilToScalar(6*rbe.getSigma()));
 }
 
-GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* textureProvider,
-                                                      float sigma) {
+// MDB TODO (caching): This side-steps the issue of texture proxies with unique IDs
+sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* textureProvider,
+                                                                 float sigma) {
     GrSurfaceDesc texDesc;
 
     unsigned int profileSize = SkScalarCeilToInt(6*sigma);
@@ -957,26 +958,31 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
     builder[0] = profileSize;
     builder.finish();
 
-    GrTexture *blurProfile = textureProvider->findAndRefTextureByUniqueKey(key);
+    sk_sp<GrTexture> blurProfile(textureProvider->findAndRefTextureByUniqueKey(key));
 
     if (!blurProfile) {
         std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
-        blurProfile = textureProvider->createTexture(texDesc, SkBudgeted::kYes, profile.get(), 0);
-        if (blurProfile) {
-            textureProvider->assignUniqueKeyToTexture(key, blurProfile);
+        blurProfile.reset(textureProvider->createTexture(texDesc, SkBudgeted::kYes,
+                                                         profile.get(), 0));
+        if (!blurProfile) {
+            return nullptr;
         }
+
+        textureProvider->assignUniqueKeyToTexture(key, blurProfile.get());
     }
 
-    return blurProfile;
+    return GrSurfaceProxy::MakeWrapped(std::move(blurProfile));
 }
 
-GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture* blurProfile,
+GrRectBlurEffect::GrRectBlurEffect(GrTextureProvider* textureProvider,
+                                   const SkRect& rect, float sigma,
+                                   sk_sp<GrTextureProxy> blurProfile,
                                    GrSLPrecision precision)
         : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRect(rect)
         , fSigma(sigma)
-        , fBlurProfileSampler(blurProfile)
+        , fBlurProfileSampler(textureProvider, std::move(blurProfile))
         , fPrecision(precision) {
     this->initClassID<GrRectBlurEffect>();
     this->addTextureSampler(&fBlurProfileSampler);
@@ -1070,7 +1076,7 @@ public:
                                            float sigma, float xformedSigma,
                                            const SkRRect& srcRRect, const SkRRect& devRRect);
 
-    virtual ~GrRRectBlurEffect() {}
+    ~GrRRectBlurEffect() override {}
     const char* name() const override { return "GrRRectBlur"; }
 
     const SkRRect& getRRect() const { return fRRect; }
@@ -1079,7 +1085,8 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    GrRRectBlurEffect(float sigma, const SkRRect&, GrTexture* profileTexture);
+    GrRRectBlurEffect(GrTextureProvider*, float sigma, const SkRRect&,
+                      sk_sp<GrTextureProxy> profileProxy);
 
     virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override;
@@ -1095,10 +1102,11 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
-                                                       const SkRRect& rrectToDraw,
-                                                       const SkISize& size,
-                                                       float xformedSigma) {
+// MDB TODO (caching): This side-steps the issue of texture proxies with unique IDs
+static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
+                                                            const SkRRect& rrectToDraw,
+                                                            const SkISize& size,
+                                                            float xformedSigma) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
     GrUniqueKey::Builder builder(&key, kDomain, 9);
@@ -1152,7 +1160,7 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
         context->textureProvider()->assignUniqueKeyToTexture(key, mask.get());
     }
 
-    return mask;
+    return GrSurfaceProxy::MakeWrapped(std::move(mask));
 }
 
 sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
@@ -1186,21 +1194,25 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrTexture> mask(find_or_create_rrect_blur_mask(context, rrectToDraw, size, xformedSigma));
+    sk_sp<GrTextureProxy> mask(find_or_create_rrect_blur_mask(context, rrectToDraw,
+                                                              size, xformedSigma));
     if (!mask) {
         return nullptr;
     }
 
-    return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(xformedSigma,
+    return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(context->textureProvider(),
+                                                            xformedSigma,
                                                             devRRect,
-                                                            mask.get()));
+                                                            std::move(mask)));
 }
 
-GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTexture* ninePatchTexture)
+GrRRectBlurEffect::GrRRectBlurEffect(GrTextureProvider* textureProvider,
+                                     float sigma, const SkRRect& rrect,
+                                     sk_sp<GrTextureProxy> ninePatchProxy)
         : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRRect(rrect)
         , fSigma(sigma)
-        , fNinePatchSampler(ninePatchTexture) {
+        , fNinePatchSampler(textureProvider, std::move(ninePatchProxy)) {
     this->initClassID<GrRRectBlurEffect>();
     this->addTextureSampler(&fNinePatchSampler);
 }

@@ -85,10 +85,11 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
 
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask.
-static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
+static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrContext* context,
+                                                     sk_sp<GrTextureProxy> mask,
                                                      const SkIRect &devBound) {
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
-    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(result, domainTexels,
+    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(context, std::move(mask), domainTexels,
                                                             {devBound.fLeft, devBound.fTop});
 }
 
@@ -338,7 +339,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
 
     // If the stencil buffer is multisampled we can use it to do everything.
     if (!renderTargetContext->isStencilBufferMultisampled() && reducedClip.requiresAA()) {
-        sk_sp<GrTexture> result;
+        sk_sp<GrTextureProxy> result;
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
@@ -352,7 +353,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
             // clipSpace bounds. We determine the mask's position WRT to the render target here.
             SkIRect rtSpaceMaskBounds = reducedClip.ibounds();
             rtSpaceMaskBounds.offset(-fOrigin);
-            out->addCoverageFP(create_fp_for_mask(result.get(), rtSpaceMaskBounds));
+            out->addCoverageFP(create_fp_for_mask(context, std::move(result), rtSpaceMaskBounds));
             return true;
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
@@ -409,13 +410,16 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, int32_t clip
     SkDEBUGFAIL("Gen ID was not found in stack.");
 }
 
-sk_sp<GrTexture> GrClipStackClip::createAlphaClipMask(GrContext* context,
-                                                      const GrReducedClip& reducedClip) const {
+// MDB TODO (caching): this side-steps the issue of texture proxies cached by unique ID
+sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
+                                                           const GrReducedClip& reducedClip) const {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
-    if (GrTexture* texture = resourceProvider->findAndRefTextureByUniqueKey(key)) {
-        return sk_sp<GrTexture>(texture);
+
+    sk_sp<GrTexture> texture(resourceProvider->findAndRefTextureByUniqueKey(key));
+    if (texture) {
+        return GrSurfaceProxy::MakeWrapped(std::move(texture));
     }
 
     sk_sp<GrRenderTargetContext> rtc(context->makeRenderTargetContextWithFallback(
@@ -432,22 +436,32 @@ sk_sp<GrTexture> GrClipStackClip::createAlphaClipMask(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture(rtc->asTexture());
-    if (!texture) {
+    sk_sp<GrTextureProxy> result(rtc->asTextureProxyRef());
+    if (!result) {
         return nullptr;
     }
 
-    texture->resourcePriv().setUniqueKey(key);
+    GrTexture* tex = result->instantiate(context->textureProvider());
+    if (!tex) {
+        return nullptr;
+    }
+
+    tex->resourcePriv().setUniqueKey(key);
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
-    return texture;
+
+    return result;
 }
 
-sk_sp<GrTexture> GrClipStackClip::createSoftwareClipMask(GrContext* context,
-                                                         const GrReducedClip& reducedClip) const {
+// MDB TODO (caching): This side-steps the caching of texture proxies by unique ID
+sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
+                                                          GrContext* context,
+                                                          const GrReducedClip& reducedClip) const {
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
-    if (GrTexture* texture = context->textureProvider()->findAndRefTextureByUniqueKey(key)) {
-        return sk_sp<GrTexture>(texture);
+
+    sk_sp<GrTexture> texture(context->textureProvider()->findAndRefTextureByUniqueKey(key));
+    if (texture) {
+        return GrSurfaceProxy::MakeWrapped(std::move(texture));
     }
 
     // The mask texture may be larger than necessary. We round out the clip space bounds and pin
@@ -510,5 +524,5 @@ sk_sp<GrTexture> GrClipStackClip::createSoftwareClipMask(GrContext* context,
 
     tex->resourcePriv().setUniqueKey(key);
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
-    return sk_ref_sp(tex);
+    return result;
 }

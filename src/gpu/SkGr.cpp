@@ -269,8 +269,8 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                                                  nullptr, scaleAdjust);
 }
 
-// For better or for worse, this method currently sidesteps the issue of caching an uninstantiated
-// proxy via a key.
+// MDB TODO (caching): For better or for worse, this method currently side-steps the issue of
+// caching an uninstantiated proxy via a key.
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap) {
     GrUniqueKey originalKey;
 

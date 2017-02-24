@@ -34,8 +34,7 @@ public:
         return str;
     }
 
-    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider*textureProvider,
-                                           const SkRect& circle, float sigma);
+    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider*, const SkRect& circle, float sigma);
 
 private:
     // This nested GLSL processor implementation is defined in the cpp file.
@@ -46,8 +45,9 @@ private:
      * The x texture coord should map from 0 to 1 across the radius range of solidRadius to
      * solidRadius + textureRadius.
      */
-    GrCircleBlurFragmentProcessor(const SkRect& circle, float textureRadius, float innerRadius,
-                                  GrTexture* blurProfile);
+    GrCircleBlurFragmentProcessor(GrTextureProvider*, const SkRect& circle,
+                                  float textureRadius, float innerRadius,
+                                  sk_sp<GrTextureProxy> blurProfile);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
