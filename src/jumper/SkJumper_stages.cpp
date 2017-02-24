@@ -38,7 +38,7 @@ static Dst bit_cast(const Src& src) {
     static F   mad(F f, F m, F a)  { return f*m+a; }
     static F   min(F a, F b)       { return fminf(a,b); }
     static F   max(F a, F b)       { return fmaxf(a,b); }
-    static F   abs  (F v)          { return fabsf(v); }
+    static F   abs_ (F v)          { return fabsf(v); }
     static F   floor(F v, K*)      { return floorf(v); }
     static F   rcp  (F v)          { return 1.0f / v; }
     static F   rsqrt(F v)          { return 1.0f / sqrtf(v); }
@@ -66,7 +66,7 @@ static Dst bit_cast(const Src& src) {
     static F   mad(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
     static F   min(F a, F b)                        { return vminq_f32(a,b);          }
     static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
-    static F   abs  (F v)                           { return vabsq_f32(v);            }
+    static F   abs_ (F v)                           { return vabsq_f32(v);            }
     static F   floor(F v, K*)                       { return vrndmq_f32(v);           }
     static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
@@ -96,7 +96,7 @@ static Dst bit_cast(const Src& src) {
     static F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
     static F   min(F a, F b)                       { return vmin_f32(a,b);          }
     static F   max(F a, F b)                       { return vmax_f32(a,b);          }
-    static F   abs  (F v)                          { return vabs_f32(v);            }
+    static F   abs_ (F v)                          { return vabs_f32(v);            }
     static F   rcp  (F v) { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
     static F   rsqrt(F v) { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
     static U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
@@ -127,7 +127,7 @@ static Dst bit_cast(const Src& src) {
     static F   mad(F f, F m, F a)  { return _mm256_fmadd_ps(f,m,a);}
     static F   min(F a, F b)       { return _mm256_min_ps(a,b);    }
     static F   max(F a, F b)       { return _mm256_max_ps(a,b);    }
-    static F   abs(F v)            { return _mm256_and_ps(v, 0-v); }
+    static F   abs_(F v)           { return _mm256_and_ps(v, 0-v); }
     static F   floor(F v, K*)      { return _mm256_floor_ps(v);    }
     static F   rcp  (F v)          { return _mm256_rcp_ps  (v);    }
     static F   rsqrt(F v)          { return _mm256_rsqrt_ps(v);    }
@@ -161,7 +161,7 @@ static Dst bit_cast(const Src& src) {
     static F   mad(F f, F m, F a)  { return f*m+a;                 }
     static F   min(F a, F b)       { return _mm256_min_ps(a,b);    }
     static F   max(F a, F b)       { return _mm256_max_ps(a,b);    }
-    static F   abs(F v)            { return _mm256_and_ps(v, 0-v); }
+    static F   abs_(F v)           { return _mm256_and_ps(v, 0-v); }
     static F   floor(F v, K*)      { return _mm256_floor_ps(v);    }
     static F   rcp  (F v)          { return _mm256_rcp_ps  (v);    }
     static F   rsqrt(F v)          { return _mm256_rsqrt_ps(v);    }
@@ -198,7 +198,7 @@ static Dst bit_cast(const Src& src) {
     static F   mad(F f, F m, F a)  { return f*m+a;              }
     static F   min(F a, F b)       { return _mm_min_ps(a,b);    }
     static F   max(F a, F b)       { return _mm_max_ps(a,b);    }
-    static F   abs(F v)            { return _mm_and_ps(v, 0-v); }
+    static F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
     static F   rcp  (F v)          { return _mm_rcp_ps  (v);    }
     static F   rsqrt(F v)          { return _mm_rsqrt_ps(v);    }
     static U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
@@ -831,7 +831,7 @@ static F repeat(F v, float limit, K* k) {
     return min(v, ulp_before(limit));
 }
 static F mirror(F v, float limit, K* k) {
-    v = abs( (v-limit) - (limit+limit)*floor((v-limit)/(limit+limit),k) - limit );
+    v = abs_( (v-limit) - (limit+limit)*floor((v-limit)/(limit+limit),k) - limit );
     return min(v, ulp_before(limit));
 }
 STAGE(clamp_x)  { r = clamp (r, *(const float*)ctx, k); }
