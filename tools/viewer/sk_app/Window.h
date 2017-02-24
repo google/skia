@@ -128,6 +128,7 @@ public:
     };
 
     // return value of 'true' means 'I have handled this event'
+    typedef void(*OnBackendCreatedFunc)(void* userData);
     typedef bool(*OnCharFunc)(SkUnichar c, uint32_t modifiers, void* userData);
     typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
     typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
@@ -136,6 +137,11 @@ public:
     typedef void(*OnUIStateChangedFunc)(
             const SkString& stateName, const SkString& stateValue, void* userData);
     typedef void(*OnPaintFunc)(SkCanvas*, void* userData);
+
+    void registerBackendCreatedFunc(OnBackendCreatedFunc func, void* userData) {
+        fBackendCreatedFunc = func;
+        fBackendCreatedUserData = userData;
+    }
 
     void registerCharFunc(OnCharFunc func, void* userData) {
         fCharFunc = func;
@@ -172,6 +178,7 @@ public:
         fUIStateChangedUserData = userData;
     }
 
+    void onBackendCreated();
     bool onChar(SkUnichar c, uint32_t modifiers);
     bool onKey(Key key, InputState state, uint32_t modifiers);
     bool onMouse(int x, int y, InputState state, uint32_t modifiers);
@@ -181,8 +188,8 @@ public:
     void onPaint();
     void onResize(int width, int height);
 
-    int width() { return fWidth; }
-    int height() { return fHeight;  }
+    int width();
+    int height();
 
     virtual const DisplayParams& getDisplayParams();
     void setDisplayParams(const DisplayParams& params);
@@ -190,24 +197,22 @@ public:
 protected:
     Window();
 
-    int          fWidth;
-    int          fHeight;
-
-    OnCharFunc   fCharFunc;
-    void*        fCharUserData;
-    OnKeyFunc    fKeyFunc;
-    void*        fKeyUserData;
-    OnMouseFunc  fMouseFunc;
-    void*        fMouseUserData;
-    OnMouseWheelFunc fMouseWheelFunc;
-    void*        fMouseWheelUserData;
-    OnTouchFunc  fTouchFunc;
-    void*        fTouchUserData;
-    OnUIStateChangedFunc
-                 fUIStateChangedFunc;
-    void*        fUIStateChangedUserData;
-    OnPaintFunc  fPaintFunc;
-    void*        fPaintUserData;
+    OnBackendCreatedFunc   fBackendCreatedFunc;
+    void*                  fBackendCreatedUserData;
+    OnCharFunc             fCharFunc;
+    void*                  fCharUserData;
+    OnKeyFunc              fKeyFunc;
+    void*                  fKeyUserData;
+    OnMouseFunc            fMouseFunc;
+    void*                  fMouseUserData;
+    OnMouseWheelFunc       fMouseWheelFunc;
+    void*                  fMouseWheelUserData;
+    OnTouchFunc            fTouchFunc;
+    void*                  fTouchUserData;
+    OnUIStateChangedFunc   fUIStateChangedFunc;
+    void*                  fUIStateChangedUserData;
+    OnPaintFunc            fPaintFunc;
+    void*                  fPaintUserData;
 
     WindowContext* fWindowContext = nullptr;
 

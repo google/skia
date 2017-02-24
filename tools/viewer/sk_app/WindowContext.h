@@ -44,6 +44,9 @@ public:
     virtual GrBackendContext getBackendContext() = 0;
     GrContext* getGrContext() const { return fContext; }
 
+    int width() const { return fWidth; }
+    int height() const { return fHeight; }
+
 protected:
     virtual bool isGpuContext() { return true;  }
 

@@ -33,8 +33,8 @@ bool Window_mac::initWindow(const DisplayParams* params) {
         return true;
     } 
 
-    fWidth = 1280;
-    fHeight = 960;
+    constexpr int initialWidth = 1280;
+    constexpr int initialHeight = 960;
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -59,7 +59,7 @@ bool Window_mac::initWindow(const DisplayParams* params) {
 
     uint32_t windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
     fWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                               fWidth, fHeight, windowFlags);
+                               initialWidth, initialHeight, windowFlags);
 
     if (!fWindow) {
         return false;
@@ -259,6 +259,7 @@ bool Window_mac::attach(BackendType attachType, const DisplayParams& params) {
             fWindowContext = NewGLForMac(info, params);
             break;
     }
+    this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
 }

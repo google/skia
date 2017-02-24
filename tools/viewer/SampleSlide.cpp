@@ -21,22 +21,25 @@ SampleSlide::SampleSlide(const SkViewFactory* factory) : fViewFactory(factory) {
 SampleSlide::~SampleSlide() {}
 
 void SampleSlide::draw(SkCanvas* canvas) {
+    SkASSERT(fView);
     fView->draw(canvas);
 }
 
 void SampleSlide::load(SkScalar winWidth, SkScalar winHeight) {
-    fView = (*fViewFactory)();
+    fView.reset((*fViewFactory)());
     fView->setVisibleP(true);
     fView->setClipToBounds(false);
     fView->setSize(winWidth, winHeight);
 }
 
 void SampleSlide::unload() {
-    fView->unref();
-    fView = nullptr;
+    fView.reset();
 }
 
 bool SampleSlide::onChar(SkUnichar c) {
+    if (!fView) {
+        return false;
+    }
     SkEvent evt(gCharEvtName);
     evt.setFast32(c);
     return fView->doQuery(&evt);

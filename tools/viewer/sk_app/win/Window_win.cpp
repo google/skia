@@ -304,6 +304,7 @@ bool Window_win::attach(BackendType attachType, const DisplayParams& params) {
             break;
 #endif
     }
+    this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
 }

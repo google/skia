@@ -23,6 +23,7 @@ public:
     Viewer(int argc, char** argv, void* platformData);
     ~Viewer() override;
 
+    void onBackendCreated();
     void onPaint(SkCanvas* canvas);
     void onIdle() override;
     bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y);
@@ -58,7 +59,6 @@ private:
     SkAnimTimer            fAnimTimer;
     SkTArray<sk_sp<Slide>> fSlides;
     int                    fCurrentSlide;
-    bool                   fSetupFirstFrame;
 
     bool                   fDisplayStats;
     bool                   fRefresh; // whether to continuously refresh for measuring render time

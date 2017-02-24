@@ -39,6 +39,12 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
 }
 
+static void on_backend_created_func(void* userData) {
+    Viewer* vv = reinterpret_cast<Viewer*>(userData);
+
+    return vv->onBackendCreated();
+}
+
 static void on_paint_handler(SkCanvas* canvas, void* userData) {
     Viewer* vv = reinterpret_cast<Viewer*>(userData);
 
@@ -214,7 +220,6 @@ const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
-    , fSetupFirstFrame(false)
     , fDisplayStats(false)
     , fRefresh(false)
     , fShowImGuiDebugWindow(false)
@@ -253,10 +258,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);
-    fWindow->attach(fBackendType, DisplayParams());
 
     // register callbacks
     fCommands.attach(fWindow);
+    fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
     fWindow->registerPaintFunc(on_paint_handler, this);
     fWindow->registerTouchFunc(on_touch_handler, this);
     fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
@@ -358,10 +363,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         }
 #endif
         fWindow->attach(fBackendType, DisplayParams());
-
-        this->updateTitle();
-        fWindow->inval();
-        fWindow->show();
     });
 
     // set up slides
@@ -422,7 +423,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
 
-    fWindow->show();
+    fWindow->attach(fBackendType, DisplayParams());
 }
 
 void Viewer::initSlides() {
@@ -563,7 +564,6 @@ void Viewer::setupCurrentSlide(int previousSlide) {
     if (fCurrentSlide == previousSlide) {
         return; // no change; do nothing
     }
-
     // prepare dimensions for image slides
     fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()), SkIntToScalar(fWindow->height()));
 
@@ -712,14 +712,15 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     }
 }
 
-void Viewer::onPaint(SkCanvas* canvas) {
-    // We have to wait until the first draw to make sure the window size is set correctly
-    if (!fSetupFirstFrame) {
-        // set up first frame
-        setupCurrentSlide(-1);
-        fSetupFirstFrame = true;
-    }
+void Viewer::onBackendCreated() {
+    this->updateTitle();
+    this->updateUIState();
+    this->setupCurrentSlide(-1);
+    fWindow->show();
+    fWindow->inval();
+}
 
+void Viewer::onPaint(SkCanvas* canvas) {
     // Update ImGui input
     ImGuiIO& io = ImGui::GetIO();
     io.DeltaTime = 1.0f / 60.0f;
@@ -1135,9 +1136,6 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                     fBackendType = (sk_app::Window::BackendType)i;
                     fWindow->detach();
                     fWindow->attach(fBackendType, DisplayParams());
-                    fWindow->inval();
-                    updateTitle();
-                    updateUIState();
                 }
                 break;
             }
