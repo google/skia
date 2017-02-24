@@ -98,7 +98,6 @@ DEF_GPUTEST(GrContextFactory_abandon, reporter, /*factory*/) {
 
 DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, /*factory*/) {
     GrContextFactory testFactory;
-    GrContextFactory::ContextOverrides noOverrides = GrContextFactory::ContextOverrides::kNone;
 
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
@@ -112,7 +111,7 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, /*factory*/) {
         testFactory.abandonContexts();
 
         // Test that creating a context in a share group with an abandoned context fails.
-        ContextInfo info2 = testFactory.getContextInfo(ctxType, noOverrides, info1.grContext());
+        ContextInfo info2 = testFactory.getSharedContextInfo(info1.grContext());
         REPORTER_ASSERT(reporter, !info2.grContext());
         info1.grContext()->unref();
 
@@ -120,7 +119,7 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, /*factory*/) {
         ContextInfo info3 = testFactory.getContextInfo(ctxType);
 
         // Creating a context in a share group may fail, but should never crash.
-        ContextInfo info4 = testFactory.getContextInfo(ctxType, noOverrides, info3.grContext());
+        ContextInfo info4 = testFactory.getSharedContextInfo(info3.grContext());
         if (!info4.grContext()) {
             continue;
         }
@@ -128,23 +127,11 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, /*factory*/) {
         REPORTER_ASSERT(reporter, info3.testContext() != info4.testContext());
 
         // Passing a different index should create a new (unique) context.
-        ContextInfo info5 = testFactory.getContextInfo(ctxType, noOverrides, info3.grContext(), 1);
+        ContextInfo info5 = testFactory.getSharedContextInfo(info3.grContext(), 1);
         REPORTER_ASSERT(reporter, info5.grContext());
         REPORTER_ASSERT(reporter, info5.testContext());
         REPORTER_ASSERT(reporter, info5.grContext() != info4.grContext());
         REPORTER_ASSERT(reporter, info5.testContext() != info4.testContext());
-
-        // Creating a shared context with a different type should always fail.
-        for (int j = 0; j < GrContextFactory::kContextTypeCnt; ++j) {
-            if (i == j) {
-                continue;
-            }
-            GrContextFactory::ContextType differentCtxType =
-                    static_cast<GrContextFactory::ContextType>(j);
-            ContextInfo info6 = testFactory.getContextInfo(differentCtxType, noOverrides,
-                                                           info3.grContext());
-            REPORTER_ASSERT(reporter, !info6.grContext());
-        }
     }
 }
 

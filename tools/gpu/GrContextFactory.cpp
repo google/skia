@@ -103,8 +103,8 @@ const GrContextFactory::ContextType GrContextFactory::kNativeGL_ContextType =
     GrContextFactory::kGLES_ContextType;
 #endif
 
-ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides overrides,
-                                             GrContext* shareContext, uint32_t shareIndex) {
+ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOverrides overrides,
+                                                     GrContext* shareContext, uint32_t shareIndex) {
     // (shareIndex != 0) -> (shareContext != nullptr)
     SkASSERT((shareIndex == 0) || (shareContext != nullptr));
 
@@ -129,10 +129,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
                 break;
             }
         }
-
-        if (!masterContext || masterContext->fType != type) {
-            return ContextInfo();
-        }
+        SkASSERT(masterContext && masterContext->fType == type);
     }
 
     std::unique_ptr<TestContext> testCtx;
@@ -271,6 +268,22 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
     context.fShareContext = shareContext;
     context.fShareIndex = shareIndex;
     return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
+}
+
+ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides overrides) {
+    return this->getContextInfoInternal(type, overrides, nullptr, 0);
+}
+
+ContextInfo GrContextFactory::getSharedContextInfo(GrContext* shareContext, uint32_t shareIndex) {
+    SkASSERT(shareContext);
+    for (int i = 0; i < fContexts.count(); ++i) {
+        if (!fContexts[i].fAbandoned && fContexts[i].fGrContext == shareContext) {
+            return this->getContextInfoInternal(fContexts[i].fType, fContexts[i].fOverrides,
+                                                shareContext, shareIndex);
+        }
+    }
+
+    return ContextInfo();
 }
 
 }  // namespace sk_gpu_test

@@ -144,13 +144,17 @@ public:
 
     /**
      * Get a context initialized with a type of GL context. It also makes the GL context current.
-     * If shareContextInfo is supplied, then a context is created or returned in the same share
-     * group (able to share resources). To get multiple contexts in a single share group, pass the
-     * same shareContextInfo, with different values for shareIndex.
      */
     ContextInfo getContextInfo(ContextType type,
-                               ContextOverrides overrides = ContextOverrides::kNone,
-                               GrContext* shareContext = nullptr, uint32_t shareIndex = 0);
+                               ContextOverrides overrides = ContextOverrides::kNone);
+
+    /**
+     * Get a context in the same share group as the passed in GrContext, with the same type and
+     * overrides. To get multiple contexts in a single share group, pass the same shareContext,
+     * with different values for shareIndex.
+     */
+    ContextInfo getSharedContextInfo(GrContext* shareContext, uint32_t shareIndex = 0);
+
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
@@ -160,6 +164,9 @@ public:
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
+    ContextInfo getContextInfoInternal(ContextType type, ContextOverrides overrides,
+                                       GrContext* shareContext, uint32_t shareIndex);
+
     struct Context {
         ContextType       fType;
         ContextOverrides  fOverrides;
