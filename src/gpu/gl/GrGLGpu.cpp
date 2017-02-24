@@ -49,7 +49,7 @@
     #define CHECK_ALLOC_ERROR(iface)          GR_GL_NO_ERROR
 #endif
 
-//#define USE_NSIGHT
+#define USE_NSIGHT
 
 ///////////////////////////////////////////////////////////////////////////////
 
