@@ -63,6 +63,8 @@
 #include "ast/SkSLASTReturnStatement.h"
 #include "ast/SkSLASTStatement.h"
 #include "ast/SkSLASTSuffixExpression.h"
+#include "ast/SkSLASTSwitchCase.h"
+#include "ast/SkSLASTSwitchStatement.h"
 #include "ast/SkSLASTTernaryExpression.h"
 #include "ast/SkSLASTType.h"
 #include "ast/SkSLASTVarDeclaration.h"
@@ -770,6 +772,8 @@ std::unique_ptr<ASTStatement> Parser::statement() {
             return this->doStatement();
         case Token::WHILE:
             return this->whileStatement();
+        case Token::SWITCH:
+            return this->switchStatement();
         case Token::RETURN:
             return this->returnStatement();
         case Token::BREAK:
@@ -973,6 +977,115 @@ std::unique_ptr<ASTWhileStatement> Parser::whileStatement() {
     return std::unique_ptr<ASTWhileStatement>(new ASTWhileStatement(start.fPosition,
                                                                     std::move(test),
                                                                     std::move(statement)));
+}
+
+/* CASE expression COLON statement* */
+std::unique_ptr<ASTSwitchCase> Parser::switchCase() {
+    SkDebugf("switch case 1\n");
+    if (!this->expect(Token::CASE, "'case'")) {
+        SkDebugf("switch case 2\n");
+        return nullptr;
+    }
+    SkDebugf("switch case 3\n");
+    std::unique_ptr<ASTExpression> value = this->expression();
+    SkDebugf("switch case 4\n");
+    if (!value) {
+        SkDebugf("switch case 5\n");
+        return nullptr;
+    }
+    SkDebugf("switch case 6\n");
+    if (!this->expect(Token::COLON, "':'")) {
+        SkDebugf("switch case 7\n");
+        return nullptr;
+    }
+    std::vector<std::unique_ptr<ASTStatement>> statements;
+    SkDebugf("switch case 8\n");
+    while (this->peek().fKind != Token::RBRACE && this->peek().fKind != Token::CASE &&
+           this->peek().fKind != Token::DEFAULT) {
+        SkDebugf("switch case 9\n");
+        std::unique_ptr<ASTStatement> s = this->statement();
+        SkDebugf("switch case 10\n");
+        if (!s) {
+            SkDebugf("switch case 11\n");
+            return nullptr;
+        }
+        SkDebugf("switch case 12\n");
+        statements.push_back(std::move(s));
+    }
+    SkDebugf("switch case 13:\n");
+    SkDebugf("value: %s\n", value->description().c_str());
+    SkDebugf("statements: %d\n", statements.size());
+    for (const auto& s : statements) {
+        SkDebugf("    %s\n", s->description().c_str());
+    }
+    return std::unique_ptr<ASTSwitchCase>(new ASTSwitchCase(value->fPosition, std::move(value),
+                                                            std::move(statements)));
+}
+
+/* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
+std::unique_ptr<ASTStatement> Parser::switchStatement() {
+    SkDebugf("parsing switch 1\n");
+    Token start;
+    if (!this->expect(Token::SWITCH, "'switch'", &start)) {
+        return nullptr;
+    }
+    SkDebugf("parsing switch 2\n");
+    if (!this->expect(Token::LPAREN, "'('")) {
+        return nullptr;
+    }
+    SkDebugf("parsing switch 3\n");
+    std::unique_ptr<ASTExpression> value(this->expression());
+    if (!value) {
+        return nullptr;
+    }
+    SkDebugf("parsing switch 4\n");
+    if (!this->expect(Token::RPAREN, "')'")) {
+        return nullptr;
+    }
+    if (!this->expect(Token::LBRACE, "'{'")) {
+        return nullptr;
+    }
+    SkDebugf("parsing switch 5\n");
+    std::vector<std::unique_ptr<ASTSwitchCase>> cases;
+    while (this->peek().fKind == Token::CASE) {
+        SkDebugf("parsing switch 6\n");
+        std::unique_ptr<ASTSwitchCase> c = this->switchCase();
+        SkDebugf("got %p\n", c.get());
+        if (!c) {
+            return nullptr;
+        }
+        SkDebugf("parsing switch 7\n");
+        cases.push_back(std::move(c));
+    }
+    // Requiring default: to be last (in defiance of C and GLSL) was a deliberate decision. Other
+    // parts of the compiler may rely upon this assumption.
+    SkDebugf("parsing switch 8\n");
+    if (this->peek().fKind == Token::DEFAULT) {
+        Token defaultStart;
+    SkDebugf("parsing switch 9\n");
+        SkAssertResult(this->expect(Token::DEFAULT, "'default'", &defaultStart));
+        if (!this->expect(Token::COLON, "':'")) {
+            return nullptr;
+        }
+        std::vector<std::unique_ptr<ASTStatement>> statements;
+        while (this->peek().fKind != Token::RBRACE) {
+            std::unique_ptr<ASTStatement> s = this->statement();
+            if (!s) {
+                return nullptr;
+            }
+            statements.push_back(std::move(s));
+        }
+        cases.emplace_back(new ASTSwitchCase(defaultStart.fPosition, nullptr,
+                                             std::move(statements)));
+    }
+    SkDebugf("parsing switch 10\n");
+    if (!this->expect(Token::RBRACE, "'}'")) {
+        return nullptr;
+    }
+    SkDebugf("parsing switch 11\n");
+    return std::unique_ptr<ASTStatement>(new ASTSwitchStatement(Position(),
+                                                                std::unique_ptr<ASTExpression>(new ASTIntLiteral(Position(), 0)),
+                                                                std::vector<std::unique_ptr<ASTSwitchCase>>()));
 }
 
 /* FOR LPAREN (declaration | expression)? SEMICOLON expression? SEMICOLON expression? RPAREN
