@@ -53,7 +53,7 @@ public:
         kBackendTypeCount = kLast_BackendType + 1
     };
 
-    virtual bool attach(BackendType attachType,  const DisplayParams& params) = 0;
+    virtual bool attach(BackendType) = 0;
     void detach();
 
     // input handling
@@ -191,8 +191,12 @@ public:
     int width();
     int height();
 
-    virtual const DisplayParams& getDisplayParams();
-    void setDisplayParams(const DisplayParams& params);
+    virtual const DisplayParams& getRequestedDisplayParams() { return fRequestedDisplayParams; }
+    void setRequestedDisplayParams(const DisplayParams&);
+
+    // Actual parameters in effect, obtained from the native window.
+    int sampleCount() const;
+    int stencilBits() const;
 
 protected:
     Window();
@@ -213,6 +217,7 @@ protected:
     void*                  fUIStateChangedUserData;
     OnPaintFunc            fPaintFunc;
     void*                  fPaintUserData;
+    DisplayParams          fRequestedDisplayParams;
 
     WindowContext* fWindowContext = nullptr;
 

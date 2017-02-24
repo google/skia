@@ -125,12 +125,25 @@ int Window::height() {
     return fWindowContext->height();
 }
 
-const DisplayParams& Window::getDisplayParams() {
-    return fWindowContext->getDisplayParams();
+void Window::setRequestedDisplayParams(const DisplayParams& params) {
+    fRequestedDisplayParams = params;
+    if (fWindowContext) {
+        fWindowContext->setDisplayParams(fRequestedDisplayParams);
+    }
 }
 
-void Window::setDisplayParams(const DisplayParams& params) {
-    fWindowContext->setDisplayParams(params);
+int Window::sampleCount() const {
+    if (!fWindowContext) {
+        return -1;
+    }
+    return fWindowContext->sampleCount();
+}
+
+int Window::stencilBits() const {
+    if (!fWindowContext) {
+        return -1;
+    }
+    return fWindowContext->stencilBits();
 }
 
 void Window::inval() {

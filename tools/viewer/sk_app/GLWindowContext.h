@@ -52,12 +52,6 @@ protected:
 
     sk_sp<const GrGLInterface> fBackendContext;
     sk_sp<SkSurface>           fSurface;
-
-    // parameters obtained from the native window
-    // Note that the platform .cpp file is responsible for
-    // initializing fSampleCount and fStencilBits!
-    int                        fSampleCount;
-    int                        fStencilBits;
 };
 
 }   // namespace sk_app

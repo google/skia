@@ -25,12 +25,12 @@ public:
         , fMSAASampleCount(0) {}
     ~Window_mac() override { this->closeWindow(); }
 
-    bool initWindow(const DisplayParams* params);
+    bool initWindow();
 
     void setTitle(const char*) override;
     void show() override;
 
-    bool attach(BackendType attachType, const DisplayParams& params) override;
+    bool attach(BackendType) override;
 
     void onInval() override;
 

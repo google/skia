@@ -290,17 +290,19 @@ void Window_win::show() {
 }
 
 
-bool Window_win::attach(BackendType attachType, const DisplayParams& params) {
+bool Window_win::attach(BackendType attachType) {
     switch (attachType) {
         case kNativeGL_BackendType:
-            fWindowContext = window_context_factory::NewGLForWin(fHWnd, params);
+            fWindowContext = window_context_factory::NewGLForWin(fHWnd, fRequestedDisplayParams);
             break;
         case kRaster_BackendType:
-            fWindowContext = window_context_factory::NewRasterForWin(fHWnd, params);
+            fWindowContext = window_context_factory::NewRasterForWin(fHWnd,
+                                                                     fRequestedDisplayParams);
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = window_context_factory::NewVulkanForWin(fHWnd, params);
+            fWindowContext = window_context_factory::NewVulkanForWin(fHWnd,
+                                                                     fRequestedDisplayParams);
             break;
 #endif
     }

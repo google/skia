@@ -27,16 +27,6 @@ bool Window_android::init(SkiaAndroidApp* skiaAndroidApp) {
     return true;
 }
 
-const DisplayParams& Window_android::getDisplayParams() {
-    if (fWindowContext) {
-        return fWindowContext->getDisplayParams();
-    } else {
-        // fWindowContext doesn't exist because we haven't
-        // initDisplay yet.
-        return fDisplayParams;
-    }
-}
-
 void Window_android::setTitle(const char* title) {
     fSkiaAndroidApp->setTitle(title);
 }
@@ -45,9 +35,8 @@ void Window_android::setUIState(const Json::Value& state) {
     fSkiaAndroidApp->setUIState(state);
 }
 
-bool Window_android::attach(BackendType attachType, const DisplayParams& params) {
+bool Window_android::attach(BackendType attachType) {
     fBackendType = attachType;
-    fDisplayParams = params;
 
     // We delay the creation of fWindowContext until Android informs us that
     // the native window is ready to use.
@@ -60,14 +49,17 @@ void Window_android::initDisplay(ANativeWindow* window) {
     switch (fBackendType) {
         case kNativeGL_BackendType:
         default:
-            fWindowContext = window_context_factory::NewGLForAndroid(window, fDisplayParams);
+            fWindowContext = window_context_factory::NewGLForAndroid(window,
+                                                                     fRequestedDisplayParams);
             break;
         case kRaster_BackendType:
-            fWindowContext = window_context_factory::NewRasterForAndroid(window, fDisplayParams);
+            fWindowContext = window_context_factory::NewRasterForAndroid(window,
+                                                                         fRequestedDisplayParams);
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = window_context_factory::NewVulkanForAndroid(window, fDisplayParams);
+            fWindowContext = window_context_factory::NewVulkanForAndroid(window,
+                                                                         fRequestedDisplayParams);
             break;
 #endif
     }
