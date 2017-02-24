@@ -45,6 +45,23 @@
       "revId": "853c340a40e4fff207390792d5e5d3165d7c1d11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "274735e8_00ad0e4e",
+        "filename": "tools/viewer/sk_app/android/Window_android.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-02-24T15:14:55Z",
+      "side": 1,
+      "message": "According to where onSurfaceCreated is called, this seems to be more like \"onContextCreated\"? Note that Android already has a surfaceCreated callback which might be a little confusing with this onSurfaceCreated. Anyway, I\u0027m still OK with onSurfaceCreated as the meaning of surface might be different between Android and Skia.",
+      "revId": "853c340a40e4fff207390792d5e5d3165d7c1d11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
