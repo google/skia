@@ -58,7 +58,6 @@ enum {
 
 enum {
     kNone_OptFlags                    = GrXferProcessor::kNone_OptFlags,
-    kSkipDraw_OptFlag                 = GrXferProcessor::kSkipDraw_OptFlag,
     kIgnoreColor_OptFlag              = GrXferProcessor::kIgnoreColor_OptFlag,
     kCanTweakAlphaForCoverage_OptFlag = GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag
 };
@@ -127,8 +126,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 break;
             case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fReadsDst);
-                TEST_ASSERT((kSkipDraw_OptFlag |
-                             kIgnoreColor_OptFlag |
+                TEST_ASSERT((kIgnoreColor_OptFlag |
                              kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
                 TEST_ASSERT(kNone_OutputType == xpi.fPrimaryOutputType);
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);
@@ -297,8 +295,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 break;
             case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fReadsDst);
-                TEST_ASSERT((kSkipDraw_OptFlag |
-                             kIgnoreColor_OptFlag |
+                TEST_ASSERT((kIgnoreColor_OptFlag |
                              kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
                 TEST_ASSERT(kNone_OutputType == xpi.fPrimaryOutputType);
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);
@@ -468,8 +465,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 break;
             case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fReadsDst);
-                TEST_ASSERT((kSkipDraw_OptFlag |
-                             kIgnoreColor_OptFlag |
+                TEST_ASSERT((kIgnoreColor_OptFlag |
                              kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
                 TEST_ASSERT(kNone_OutputType == xpi.fPrimaryOutputType);
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);
@@ -640,8 +636,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 break;
             case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fReadsDst);
-                TEST_ASSERT((kSkipDraw_OptFlag |
-                             kIgnoreColor_OptFlag |
+                TEST_ASSERT((kIgnoreColor_OptFlag |
                              kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
                 TEST_ASSERT(kNone_OutputType == xpi.fPrimaryOutputType);
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);
@@ -682,8 +677,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 break;
             case SkBlendMode::kDstIn:
                 TEST_ASSERT(xpi.fReadsDst);
-                TEST_ASSERT((kSkipDraw_OptFlag |
-                             kIgnoreColor_OptFlag |
+                TEST_ASSERT((kIgnoreColor_OptFlag |
                              kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
                 TEST_ASSERT(kNone_OutputType == xpi.fPrimaryOutputType);
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);
@@ -814,8 +808,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 break;
             case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fReadsDst);
-                TEST_ASSERT((kSkipDraw_OptFlag |
-                             kIgnoreColor_OptFlag |
+                TEST_ASSERT((kIgnoreColor_OptFlag |
                              kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
                 TEST_ASSERT(kNone_OutputType == xpi.fPrimaryOutputType);
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);
@@ -856,8 +849,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 break;
             case SkBlendMode::kDstIn:
                 TEST_ASSERT(xpi.fReadsDst);
-                TEST_ASSERT((kSkipDraw_OptFlag |
-                             kIgnoreColor_OptFlag |
+                TEST_ASSERT((kIgnoreColor_OptFlag |
                              kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
                 TEST_ASSERT(kNone_OutputType == xpi.fPrimaryOutputType);
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);

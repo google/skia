@@ -78,14 +78,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
             *args.fAnalysis, args.fUserStencil->doesWrite(args.fAppliedClip->hasStencilClip()),
             &overrideColor, *args.fCaps);
 
-    // When path rendering the stencil settings are not always set on the GrPipelineBuilder
-    // so we must check the draw type. In cases where we will skip drawing we simply return a
-    // null GrPipeline.
-    if (GrXferProcessor::kSkipDraw_OptFlag & optFlags) {
-        pipeline->~GrPipeline();
-        return nullptr;
-    }
-
     // No need to have an override color if it isn't even going to be used.
     if (SkToBool(GrXferProcessor::kIgnoreColor_OptFlag & optFlags)) {
         overrideColor = GrColor_ILLEGAL;

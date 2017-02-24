@@ -456,9 +456,6 @@ GrXferProcessor::OptFlags PorterDuffXferProcessor::onGetOptimizations(
         const GrCaps& caps) const {
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
     if (!fBlendFormula.modifiesDst()) {
-        if (!doesStencilWrite) {
-            optFlags |= GrXferProcessor::kSkipDraw_OptFlag;
-        }
         optFlags |= (GrXferProcessor::kIgnoreColor_OptFlag |
                      GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag);
     } else {
