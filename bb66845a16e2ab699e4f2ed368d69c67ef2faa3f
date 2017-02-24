@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c34060a_778c3024",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-24T16:31:23Z",
+      "side": 1,
+      "message": "This change is a big improvement! Do you think we might eventually switch to system where to make a few member calls instead of filling out a struct? e.g.\n\nsetStencil()\nsetClip()\nEtc.",
+      "range": {
+        "startLine": 58,
+        "startChar": 19,
+        "endLine": 58,
+        "endChar": 20
+      },
+      "revId": "bb66845a16e2ab699e4f2ed368d69c67ef2faa3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
