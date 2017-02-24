@@ -73,6 +73,11 @@ protected:
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         return new EmptyLocalizedStrings;
     }
+    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
+                                     int coordinateCount) const override
+    {
+        return 0;
+    }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
         return 0;
@@ -202,6 +207,12 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+int SkTypeface::getVariationDesignPosition(
+        SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
+{
+    return this->onGetVariationDesignPosition(coordinates, coordinateCount);
+}
+
 int SkTypeface::countTables() const {
     return this->onGetTableTags(nullptr);
 }
@@ -238,6 +249,13 @@ std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
     std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
     return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 };
+
+// This implementation is temporary until this method can be made pure virtual.
+int SkTypeface::onGetVariationDesignPosition(
+        SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
+{
+    return -1;
+}
 
 int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
                               uint16_t glyphs[], int glyphCount) const {

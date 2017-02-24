@@ -11,6 +11,7 @@
 #include "../private/SkBitmaskEnum.h"
 #include "../private/SkOnce.h"
 #include "../private/SkWeakRefCnt.h"
+#include "SkFontArguments.h"
 #include "SkFontStyle.h"
 #include "SkRect.h"
 #include "SkString.h"
@@ -77,6 +78,20 @@ public:
      */
     bool isFixedPitch() const { return fIsFixedPitch; }
 
+    /** Copy into 'coordinates' (allocated by the caller) the design variation coordinates.
+     *
+     *  @param coordinates the buffer into which to write the design variation coordinates.
+     *  @param coordinateCount the number of entries available through 'coordinates'.
+     *
+     *  @return The number of axes, or -1 if there is an error.
+     *  If 'coordinates != nullptr' and 'coordinateCount >= numAxes' then 'coordinates' will be
+     *  filled with the variation coordinates describing the position of this typeface in design
+     *  variation space. It is possible the number of axes can be retrieved but actual position
+     *  cannot.
+     */
+    int getVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
+                                   int coordinateCount) const;
+
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
      */
@@ -96,16 +111,16 @@ public:
     /** Returns the default typeface, which is never nullptr. */
     static sk_sp<SkTypeface> MakeDefault(Style style = SkTypeface::kNormal);
 
-  /** Creates a new reference to the typeface that most closely matches the
-      requested familyName and fontStyle. This method allows extended font
-      face specifiers as in the SkFontStyle type. Will never return null.
+    /** Creates a new reference to the typeface that most closely matches the
+        requested familyName and fontStyle. This method allows extended font
+        face specifiers as in the SkFontStyle type. Will never return null.
 
-      @param familyName  May be NULL. The name of the font family.
-      @param fontStyle   The style of the typeface.
-      @return reference to the closest-matching typeface. Call must call
+        @param familyName  May be NULL. The name of the font family.
+        @param fontStyle   The style of the typeface.
+        @return reference to the closest-matching typeface. Call must call
               unref() when they are done.
     */
-  static sk_sp<SkTypeface> MakeFromName(const char familyName[], SkFontStyle fontStyle);
+    static sk_sp<SkTypeface> MakeFromName(const char familyName[], SkFontStyle fontStyle);
 
     /** Return the typeface that most closely matches the requested typeface and style.
         Use this to pick a new style from the same family of the existing typeface.
@@ -340,6 +355,11 @@ protected:
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
     virtual std::unique_ptr<SkFontData> onMakeFontData() const;
+
+    // TODO: make pure virtual.
+    virtual int onGetVariationDesignPosition(
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const;
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
