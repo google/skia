@@ -646,8 +646,28 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
     // Does not take the ownership of rawStream.
     SkPiexStream piexStream(rawStream.get());
     ::piex::PreviewImageData imageData;
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeSRGB();
     if (::piex::IsRaw(&piexStream)) {
         ::piex::Error error = ::piex::GetPreviewImageData(&piexStream, &imageData);
+        if (error == ::piex::Error::kFail) {
+            return nullptr;
+        }
+
+        switch (imageData.color_space) {
+            case ::piex::PreviewImageData::kSrgb:
+                break;
+            case ::piex::PreviewImageData::kAdobeRgb:
+                SkColorSpaceTransferFn fn;
+                fn.fA = 1.0f;
+                fn.fB = 0.0f;
+                fn.fC = 0.0f;
+                fn.fD = 0.0f;
+                fn.fE = 0.0f;
+                fn.fF = 0.0f;
+                fn.fG = 2.2f;
+                colorSpace = SkColorSpace::MakeRGB(fn, SkColorSpace::kAdobeRGB_Gamut);
+                break;
+        }
 
         //  Theoretically PIEX can return JPEG compressed image or uncompressed RGB image. We only
         //  handle the JPEG compressed preview image here.
@@ -659,9 +679,8 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
             // FIXME: one may avoid the copy of memoryStream and use the buffered rawStream.
             SkMemoryStream* memoryStream =
                 rawStream->transferBuffer(imageData.preview.offset, imageData.preview.length);
-            return memoryStream ? SkJpegCodec::NewFromStream(memoryStream) : nullptr;
-        } else if (error == ::piex::Error::kFail) {
-            return nullptr;
+            return memoryStream ? SkJpegCodec::NewFromStream(memoryStream, std::move(colorSpace))
+                                : nullptr;
         }
     }
 
@@ -671,7 +690,7 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
         return nullptr;
     }
 
-    return new SkRawCodec(dngImage.release());
+    return new SkRawCodec(dngImage.release(), std::move(colorSpace));
 }
 
 SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
@@ -792,7 +811,7 @@ bool SkRawCodec::onDimensionsSupported(const SkISize& dim) {
 
 SkRawCodec::~SkRawCodec() {}
 
-SkRawCodec::SkRawCodec(SkDngImage* dngImage)
+SkRawCodec::SkRawCodec(SkDngImage* dngImage, sk_sp<SkColorSpace> colorSpace)
     : INHERITED(dngImage->width(), dngImage->height(), dngImage->getEncodedInfo(), nullptr,
-                SkColorSpace::MakeSRGB())
+                std::move(colorSpace))
     , fDngImage(dngImage) {}

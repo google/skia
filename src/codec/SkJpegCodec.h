@@ -62,6 +62,11 @@ protected:
 private:
 
     /*
+     * Allows SkRawCodec to communicate the color space from the exif data.
+     */
+    static SkCodec* NewFromStream(SkStream*, sk_sp<SkColorSpace> defaultColorSpace);
+
+    /*
      * Read enough of the stream to initialize the SkJpegCodec.
      * Returns a bool representing success or failure.
      *
@@ -79,9 +84,12 @@ private:
      * codecOut will take ownership of it in the case where we created a codec.
      * Ownership is unchanged when we set decoderMgrOut.
      *
+     * @param defaultColorSpace
+     * If the jpeg does not have an embedded color space, the image data should
+     * be tagged with this color space.
      */
     static bool ReadHeader(SkStream* stream, SkCodec** codecOut,
-            JpegDecoderMgr** decoderMgrOut);
+            JpegDecoderMgr** decoderMgrOut, sk_sp<SkColorSpace> defaultColorSpace);
 
     /*
      * Creates an instance of the decoder
@@ -133,6 +141,8 @@ private:
     SkIRect                            fSwizzlerSubset;
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
+
+    friend class SkRawCodec;
 
     typedef SkCodec INHERITED;
 };
