@@ -44,6 +44,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    void onPlatformReleaseCurrent() const override;
 
     void onPlatformSwapBuffers() const override;
 
@@ -133,6 +134,10 @@ void MesaGLContext::onPlatformMakeCurrent() const {
             SkDebugf("Could not make MESA context current.");
         }
     }
+}
+
+void MesaGLContext::onPlatformReleaseCurrent() const {
+    // The Mesa docs (comments in osmesa.h) don't describe how to do this. May not be supported.
 }
 
 void MesaGLContext::onPlatformSwapBuffers() const { }

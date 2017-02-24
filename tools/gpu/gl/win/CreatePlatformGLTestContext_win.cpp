@@ -25,6 +25,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    void onPlatformReleaseCurrent() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
@@ -85,7 +86,11 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
         kGLES_GrGLStandard == forcedGpuAPI ?
         kGLES_SkWGLContextRequest : kGLPreferCompatibilityProfile_SkWGLContextRequest;
 
-    HGLRC winShareContext = shareContext ? shareContext->fGlRenderContext : nullptr;
+    HGLRC winShareContext = nullptr;
+    if (shareContext) {
+        winShareContext = shareContext->fPbufferContext ? shareContext->fPbufferContext->getGLRC()
+                                                        : shareContext->fGlRenderContext;
+    }
     fPbufferContext = SkWGLPbufferContext::Create(fDeviceContext, 0, contextType, winShareContext);
 
     HDC dc;
@@ -165,6 +170,20 @@ void WinGLTestContext::onPlatformMakeCurrent() const {
 
     if (!wglMakeCurrent(dc, glrc)) {
         SkDebugf("Could not create rendering context.\n");
+    }
+}
+
+void WinGLTestContext::onPlatformReleaseCurrent() const {
+    HDC dc;
+
+    if (nullptr == fPbufferContext) {
+        dc = fDeviceContext;
+    } else {
+        dc = fPbufferContext->getDC();
+    }
+
+    if (!wglMakeCurrent(dc, nullptr)) {
+        SkDebugf("Could not release rendering context.\n");
     }
 }
 

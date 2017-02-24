@@ -62,6 +62,7 @@ private:
                                         GLXContext glxSharedContext);
 
     void onPlatformMakeCurrent() const override;
+    void onPlatformReleaseCurrent() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -330,6 +331,12 @@ GLXContext GLXGLTestContext::CreateBestContext(bool isES, Display* display, GLXF
 
 void GLXGLTestContext::onPlatformMakeCurrent() const {
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
+        SkDebugf("Could not set the context.\n");
+    }
+}
+
+void GLXGLTestContext::onPlatformReleaseCurrent() const {
+    if (!glXMakeCurrent(fDisplay, 0, 0)) {
         SkDebugf("Could not set the context.\n");
     }
 }
