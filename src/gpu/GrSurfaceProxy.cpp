@@ -205,8 +205,8 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    size_t rowBytes) {
     if (srcData) {
         // If we have srcData, for now, we create a wrapped GrTextureProxy
-        sk_sp<GrSurface> surf(texProvider->createTexture(desc, budgeted, srcData, rowBytes));
-        return GrSurfaceProxy::MakeWrapped(std::move(surf));
+        sk_sp<GrTexture> tex(texProvider->createTexture(desc, budgeted, srcData, rowBytes));
+        return GrSurfaceProxy::MakeWrapped(std::move(tex));
     }
 
     return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);
