@@ -22,6 +22,30 @@
       "revId": "bb66845a16e2ab699e4f2ed368d69c67ef2faa3f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cfdbe88_b957b978",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-24T18:41:22Z",
+      "side": 1,
+      "message": "Possibly, I\u0027m not sure exactly yet where this is going to end up. At a minimum things that can change without building a vkpipelines will be allowed to change on grpipeline or be specified separately from grpipeline.",
+      "parentUuid": "7c34060a_778c3024",
+      "range": {
+        "startLine": 58,
+        "startChar": 19,
+        "endLine": 58,
+        "endChar": 20
+      },
+      "revId": "bb66845a16e2ab699e4f2ed368d69c67ef2faa3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
