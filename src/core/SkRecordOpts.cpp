@@ -7,6 +7,7 @@
 
 #include "SkRecordOpts.h"
 
+#include "SkRecordDraw.h"
 #include "SkRecordPattern.h"
 #include "SkRecords.h"
 #include "SkTDArray.h"
@@ -194,6 +195,13 @@ struct SaveLayerDrawRestoreNooper {
 
         if (match->first<SaveLayer>()->saveLayerFlags & (1U << 31)) {
             // can't throw away the layer if the kDontClipToLayer_PrivateSaveLayerFlag is set
+            return false;
+        }
+
+        SkRect drawBounds = SkRecordGetBounds(*record, begin + 1);
+        SkRect* saveLayerBounds = match->first<SaveLayer>()->bounds;
+        if (saveLayerBounds && !saveLayerBounds->contains(drawBounds)) {
+            // Android requires the saveLayerBounds to be clipped so we cannot discard it.
             return false;
         }
 

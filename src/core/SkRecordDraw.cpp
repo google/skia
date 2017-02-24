@@ -628,3 +628,13 @@ void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkRect b
     visitor.cleanUp();
 }
 
+SkRect SkRecordGetBounds(const SkRecord& record, int i) {
+    SkRect bounds[1];
+    // We don't need the cullRect, so we set an arbitrary SkRect as the first argument.
+    // FillBounds writes the bounds into theThirdArgument[i] so we send in bounds - i.
+    SkRecords::FillBounds fillBounds(bounds[0], record, bounds - i);
+    fillBounds.setCurrentOp(i);
+    record.visit(i, fillBounds);
+    fillBounds.cleanUp();
+    return bounds[0];
+}

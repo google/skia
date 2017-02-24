@@ -20,6 +20,9 @@ class SkLayerInfo;
 // Calculate conservative identity space bounds for each op in the record.
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&, SkRect bounds[]);
 
+// Calculate bounds for the i-th (draw) op in the record.
+SkRect SkRecordGetBounds(const SkRecord&, int i);
+
 // SkRecordFillBounds(), and gathers information about saveLayers and stores it for later
 // use (e.g., layer hoisting). The gathered information is sufficient to determine
 // where each saveLayer will land and which ops in the picture it represents.
