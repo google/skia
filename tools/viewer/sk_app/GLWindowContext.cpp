@@ -19,6 +19,7 @@
 
 #include "SkCanvas.h"
 #include "SkImage_Base.h"
+#include "SkMathPriv.h"
 
 namespace sk_app {
 
@@ -27,6 +28,9 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
     , fBackendContext(nullptr)
     , fSurface(nullptr) {
     fDisplayParams = params;
+    fDisplayParams.fMSAASampleCount = fDisplayParams.fMSAASampleCount ?
+                                      GrNextPow2(fDisplayParams.fMSAASampleCount) :
+                                      0;
 }
 
 void GLWindowContext::initializeContext() {
@@ -38,11 +42,20 @@ void GLWindowContext::initializeContext() {
     fBackendContext.reset(GrGLCreateNativeInterface());
     fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fBackendContext.get(),
                                  ctxOptions);
+    if (!fContext && fDisplayParams.fMSAASampleCount) {
+        fDisplayParams.fMSAASampleCount /= 2;
+        this->initializeContext();
+        return;
+    }
 
-    // We may not have real sRGB support (ANGLE, in particular), so check for
-    // that, and fall back to L32:
-    fPixelConfig = fContext->caps()->srgbSupport() && fDisplayParams.fColorSpace
-                   ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+    if (fContext) {
+        // We may not have real sRGB support (ANGLE, in particular), so check for
+        // that, and fall back to L32:
+        fPixelConfig = fContext->caps()->srgbSupport() && fDisplayParams.fColorSpace
+                       ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+    } else {
+        fPixelConfig = kUnknown_GrPixelConfig;
+    }
 }
 
 void GLWindowContext::destroyContext() {
