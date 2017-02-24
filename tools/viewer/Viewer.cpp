@@ -279,10 +279,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
         if (sk_app::Window::kRaster_BackendType == fBackendType) {
             fBackendType = sk_app::Window::kNativeGL_BackendType;
-#ifdef SK_VULKAN
-        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
-            fBackendType = sk_app::Window::kVulkan_BackendType;
-#endif
+//#ifdef SK_VULKAN
+//        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
+//            fBackendType = sk_app::Window::kVulkan_BackendType;
+//#endif
         } else {
             fBackendType = sk_app::Window::kRaster_BackendType;
         }
