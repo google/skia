@@ -39,6 +39,10 @@ sk_data_t* sk_data_new_subset(const sk_data_t* csrc, size_t offset, size_t lengt
     return ToData(SkData::MakeSubset(AsData(csrc), offset, length).release());
 }
 
+sk_data_t* sk_data_new_with_proc(const void* ptr, size_t length, sk_data_release_proc proc, void* ctx) {
+    return ToData(SkData::MakeWithProc(ptr, length, proc, ctx).release());
+}
+
 void sk_data_ref(const sk_data_t* cdata) {
     SkSafeRef(AsData(cdata));
 }

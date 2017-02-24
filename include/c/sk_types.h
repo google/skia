@@ -726,6 +726,8 @@ typedef enum {
 
 typedef void (*sk_bitmap_release_proc)(void* addr, void* context);
 
+typedef void (*sk_data_release_proc)(const void* ptr, void* context);
+
 typedef void (*sk_image_raster_release_proc)(const void* addr, void* context);
 typedef void (*sk_image_texture_release_proc)(void* context);
 
