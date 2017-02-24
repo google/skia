@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "064c44bd_254e73ed",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-24T18:53:01Z",
+      "side": 1,
+      "message": "It seems weird that we pass in what we want to be the default. It almost seems better to be able to supply it afterwards, but that would mean modifying the SkImageInfo...",
+      "range": {
+        "startLine": 274,
+        "startChar": 74,
+        "endLine": 274,
+        "endChar": 91
+      },
+      "revId": "2ba91d9a1381ebb953379b0c87e1d75093fe702a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "944dce4b_56647e8f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-24T18:53:01Z",
+      "side": 1,
+      "message": "Don\u0027t you still want to use the supplied default?",
+      "range": {
+        "startLine": 359,
+        "startChar": 58,
+        "endLine": 359,
+        "endChar": 65
+      },
+      "revId": "2ba91d9a1381ebb953379b0c87e1d75093fe702a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eea28f0c_0dd9927a",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-24T18:53:01Z",
+      "side": 1,
+      "message": "Is this a standard that applies for AdobeRGB, or is it just for RawCodec? Just wondering if this should be centralized somewhere.",
+      "range": {
+        "startLine": 660,
+        "startChar": 16,
+        "endLine": 660,
+        "endChar": 38
+      },
+      "revId": "2ba91d9a1381ebb953379b0c87e1d75093fe702a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
