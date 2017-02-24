@@ -64,8 +64,11 @@ static K kConstants = {
     M(unpremul)       \
     M(from_srgb)      \
     M(to_srgb)        \
+    M(scale_1_float)  \
     M(scale_u8)       \
+    M(lerp_1_float)   \
     M(lerp_u8)        \
+    M(lerp_565)       \
     M(load_tables)    \
     M(load_565)       \
     M(store_565)      \
