@@ -859,6 +859,16 @@ STAGE(matrix_3x4) {
     g = G;
     b = B;
 }
+STAGE(matrix_perspective) {
+    // N.B. Unlike the other matrix_ stages, this matrix is row-major.
+    auto m = (const float*)ctx;
+
+    auto R = mad(r,m[0], mad(g,m[1], m[2])),
+         G = mad(r,m[3], mad(g,m[4], m[5])),
+         Z = mad(r,m[6], mad(g,m[7], m[8]));
+    r = R * rcp(Z);
+    g = G * rcp(Z);
+}
 
 STAGE(linear_gradient_2stops) {
     struct Ctx { F4 c0, dc; };
