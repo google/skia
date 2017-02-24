@@ -17,6 +17,7 @@
 #include "SkFrontBufferedStream.h"
 #include "SkImageEncoder.h"
 #include "SkMD5.h"
+#include "SkOSPath.h"
 #include "SkPngChunkReader.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -1466,19 +1467,19 @@ DEF_TEST(Codec_InvalidImages, r) {
 }
 
 DEF_TEST(Codec_InvalidBmp, r) {
-    // This file reports a header size that crashes when we try to read this
-    // much directly from a file using SkFILEStream.
-    SkString path = GetResourcePath("invalid_images/b33651913.bmp");
-    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(path.c_str()));
-    if (!stream->isValid()) {
-        ERRORF(r, "no stream");
-        return;
-    }
+    // These files report values that have caused problems with SkFILEStreams.
+    // They are invalid, and should not create SkCodecs.
+    for (auto* bmp : { "b33651913.bmp", "b34778578.bmp" } ) {
+        SkString path = SkOSPath::Join("invalid_images", bmp);
+        path = GetResourcePath(path.c_str());
+        std::unique_ptr<SkFILEStream> stream(new SkFILEStream(path.c_str()));
+        if (!stream->isValid()) {
+            return;
+        }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-    // This file is invalid, but more importantly, we did not crash before
-    // reaching here.
-    REPORTER_ASSERT(r, !codec);
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+        REPORTER_ASSERT(r, !codec);
+    }
 }
 
 DEF_TEST(Codec_InvalidRLEBmp, r) {
