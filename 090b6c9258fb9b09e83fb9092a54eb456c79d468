@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d637ccc8_136cc39e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-24T15:35:42Z",
+      "side": 1,
+      "message": "In general we are trying to move away from directly accessing the gpu object via the GrContext.\n\nI think we could have a waitFence on GrContextPriv that just does what you\u0027re doing here.\n\nAre our fences reusable? Could we make wait also delete? Maybe GrFence should be more of a real type that gets std::moved into wait? This is a bit of an orthogonal request to improve how we interact with fences at the GrContext level and I\u0027m ok with landing this as is and following up.",
+      "range": {
+        "startLine": 438,
+        "startChar": 8,
+        "endLine": 439,
+        "endChar": 46
+      },
+      "revId": "090b6c9258fb9b09e83fb9092a54eb456c79d468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
