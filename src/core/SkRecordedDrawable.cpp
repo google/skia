@@ -60,8 +60,10 @@ void SkRecordedDrawable::flatten(SkWriteBuffer& buffer) const {
 
     // Record the draw commands.
     pictureRecord.beginRecording();
-    SkRecordDraw(*fRecord, &pictureRecord, nullptr, fDrawableList->begin(), fDrawableList->count(),
-                bbh, nullptr);
+    SkRecordDraw(*fRecord, &pictureRecord, nullptr,
+                 fDrawableList ? fDrawableList->begin() : nullptr,
+                 fDrawableList ? fDrawableList->count() : 0,
+                 bbh, nullptr);
     pictureRecord.endRecording();
 
     // Flatten the recorded commands and drawables.
