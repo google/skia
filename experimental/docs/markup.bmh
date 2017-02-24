@@ -1,0 +1,154 @@
+##Comment Book Maker Hunk file format
+
+  text, except for the single markup character, requires no annotation
+
+  definitions (excepting anchors) must start at the beginning of the line
+##alpha_:num             definition
+ ##                      end of definition
+
+  references are defined types (e.g. Class) and names (e.g. SkCanvas)
+  references may appear anywhere on the line
+#alpha_:num              reference
+
+  tables use unnamed references for data
+#                        first column in table
+ #                       next column in table
+##                       end of row
+
+  an unnamed reference that is not terminated with ## is a comment
+# inline comment  optional -> #
+
+  special characters may be inserted with #0
+#0xalphanum              UTF-8 character in hex
+#0num                    UTF-8 character in octal
+
+  the markup character is initially # at the start of any .bmh file
+###x                     redefine the markup character
+xxx#                     restore the default markup character
+
+  anchor, ala HTML
+  anchors may start anywhere in the line
+##A text #_reference ##
+
+  class description
+##Class #_reference
+description
+methods
+##Class #__optional_reference_ ##
+
+##Comment #__optional_name    block comment
+##Comment #__optional_name    comments may nest   ##
+
+  the description to be written to the Skia include
+##Doxygen #__optional_method_reference
+description
+##Doxygen #__optional_method_reference ##
+
+  the description extracted from the Skia cinclude
+#Doxygen -L number,number path/to/file yyyy-mm-dd hh:mm:ss +/-zone
+
+##Enum #__required_reference
+description
+##Table
+# name # value # is default ##
+##Table ##
+example
+##Enum ##
+
+  if the example is not named, it inherits the name of its container
+##Example #__optional_reference
+##Example #__optional_reference ##
+
+  reference to existing example, so same example can be used by multiple method definitions
+#Example #__required_reference
+
+  method description
+  the _method_reference must be unique within the class
+##Method method type name(params..) #__method_reference
+#Parameter #param description
+description
+example
+##Method #__optional_method_reference ##
+
+  if StdOut is not named, it inherits the name of its container
+##StdOut #__optional_reference
+expected example output
+##StdOut #__optional_reference ##
+
+  reference to existing output
+#StdOut #__required_reference
+
+##Table #__optional_reference
+# cell # cell ##
+# cell # cell ##
+##Table #__optional_reference ##
+
+##ToDo  #__optional_name__  description ##
+
+##Comment ##
+
+# move the following into path.bmh once it exists
+
+--------------------------------------------------------------------------------
+##Topic Path
+
+#SubTopic
+    Path Fill Type
+        Winding
+        Even Odd
+        Inverse Winding
+        Inverse Even Odd
+#SubTopic ##
+
+##Topic ##
+--------------------------------------------------------------------------------
+# move the following into canvas.bmh
+
+##Topic Shape
+
+#SubTopic
+    Fill
+        Bitmap
+            Bitmap Lattice
+            Bitmap Nine
+            Bitmap Rect
+        Color
+        Image
+            Image Lattice
+            Image Nine
+            Image Rect
+        Patch
+        Sprite
+            Atlas
+        Vertex
+
+    Stroke
+        Arc
+        Line
+        Point
+        Points
+
+    Fill or Stroke or Both
+        Circle
+        Oval
+        Path
+        Rectangle
+        Region
+        Rounded Rectangle
+        Text
+            Text Blob
+            Text Decorations
+            Text on Path
+            Transformed Text
+                Horizontal Positioned Text
+                Positioned Text
+                Rotated Scaled Text
+
+    Collection
+        Drawable
+        Picture
+            Shadowed Picture
+#SubTopic ##
+
+##Topic ##
+--------------------------------------------------------------------------------
