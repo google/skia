@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8033bf1b_b40dce8f",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-24T13:42:54Z",
+      "side": 1,
+      "message": "Looking at the code I suspect you are correct, though it is untested in our current calling patterns.",
+      "parentUuid": "7b07aef0_ae1379c8",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 37
+      },
+      "revId": "2c5b5ac2892cfeacf9f5e2a2796b2ed5d7560908",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf4a3327_6102ef70",
         "filename": "src/gpu/GrPipeline.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e186bb3e_cd3ecb27",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-24T13:42:54Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "bf4a3327_6102ef70",
+      "range": {
+        "startLine": 77,
+        "startChar": 7,
+        "endLine": 77,
+        "endChar": 22
+      },
+      "revId": "2c5b5ac2892cfeacf9f5e2a2796b2ed5d7560908",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1b33332_6ad13b89",
         "filename": "src/gpu/GrPipeline.cpp",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2017-02-24T03:39:38Z",
       "side": 1,
       "message": "Is this meant to signal failure or just not fully initialized yet? Seems the bool return signifies success or not (though the only return of false is for a skip which is hard to argue is a \"failure\")",
+      "range": {
+        "startLine": 140,
+        "startChar": 7,
+        "endLine": 140,
+        "endChar": 87
+      },
+      "revId": "2c5b5ac2892cfeacf9f5e2a2796b2ed5d7560908",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25b88c6e_b8dafec0",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-24T13:42:54Z",
+      "side": 1,
+      "message": "I\u0027m not sure what else to call it. I updated the comments to indicated why it fails.",
+      "parentUuid": "d1b33332_6ad13b89",
       "range": {
         "startLine": 140,
         "startChar": 7,
