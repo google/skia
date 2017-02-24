@@ -260,11 +260,6 @@ protected:
     // final class).
     void registerWithCacheWrapped();
 
-    // This is only called by resources that are being exported from Ganesh to client code. It
-    // ensures that the cache can no longer reach this resource, and that it no longer counts
-    // against the budget.
-    void detachFromCache();
-
     GrGpuResource(GrGpu*);
     virtual ~GrGpuResource();
 
