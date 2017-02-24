@@ -460,6 +460,14 @@ STAGE(to_srgb) {
     b = fn(b);
 }
 
+STAGE(scale_1_float) {
+    auto c = *(const float*)ctx;
+
+    r = r * c;
+    g = g * c;
+    b = b * c;
+    a = a * c;
+}
 STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
@@ -471,6 +479,15 @@ STAGE(scale_u8) {
     b = b * c;
     a = a * c;
 }
+
+STAGE(lerp_1_float) {
+    auto c = *(const float*)ctx;
+
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
+}
 STAGE(lerp_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
@@ -481,6 +498,17 @@ STAGE(lerp_u8) {
     g = lerp(dg, g, c);
     b = lerp(db, b, c);
     a = lerp(da, a, c);
+}
+STAGE(lerp_565) {
+    auto ptr = *(const uint16_t**)ctx + x;
+
+    F cr,cg,cb;
+    from_565(unaligned_load<U16>(ptr), &cr, &cg, &cb, k);
+
+    r = lerp(dr, r, cr);
+    g = lerp(dg, g, cg);
+    b = lerp(db, b, cb);
+    a = k->_1;
 }
 
 STAGE(load_tables) {
@@ -500,8 +528,7 @@ STAGE(load_tables) {
 STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
-    auto px = unaligned_load<U16>(ptr);
-    from_565(px, &r,&g,&b, k);
+    from_565(unaligned_load<U16>(ptr), &r,&g,&b, k);
     a = k->_1;
 }
 STAGE(store_565) {
