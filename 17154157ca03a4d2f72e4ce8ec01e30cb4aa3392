@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3cf3006a_91fff32f",
+        "filename": "src/core/SkRecordDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-02-24T21:41:25Z",
+      "side": 1,
+      "message": "agreed.  An alternative approach is to have the framwork issue a clip call after they save the layer.  That would also ensure that we don\u0027t draw outside of the bounds provided.",
+      "parentUuid": "588c9e90_d111828b",
+      "revId": "17154157ca03a4d2f72e4ce8ec01e30cb4aa3392",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0126cdd0_689a78ed",
         "filename": "src/core/SkRecordOpts.cpp",
         "patchSetId": 1
