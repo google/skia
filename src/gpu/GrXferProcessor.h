@@ -107,21 +107,17 @@ public:
      */
     enum OptFlags {
         /**
-         * The draw can be skipped completely.
-         */
-        kSkipDraw_OptFlag = 0x1,
-        /**
          * GrXferProcessor will ignore color, thus no need to provide
          */
-        kIgnoreColor_OptFlag = 0x2,
+        kIgnoreColor_OptFlag = 0x1,
         /**
          * Clear color stages and override input color to that returned by getOptimizations
          */
-        kOverrideColor_OptFlag = 0x4,
+        kOverrideColor_OptFlag = 0x2,
         /**
          * Can tweak alpha for coverage. Currently this flag should only be used by a GrDrawOp.
          */
-        kCanTweakAlphaForCoverage_OptFlag = 0x8,
+        kCanTweakAlphaForCoverage_OptFlag = 0x4,
     };
 
     static const OptFlags kNone_OptFlags = (OptFlags)0;
