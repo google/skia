@@ -57,7 +57,7 @@ public:
     GrDrawOp(uint32_t classID);
     ~GrDrawOp() override;
 
-    bool installPipeline(const GrPipeline::CreateArgs&);
+    bool installPipeline(const GrPipeline::InitArgs&);
 
     /**
      * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the

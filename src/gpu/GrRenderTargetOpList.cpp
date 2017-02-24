@@ -289,8 +289,8 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     GrProcessorSet::FragmentProcessorAnalysis analysis;
     op->analyzeProcessors(&analysis, pipelineBuilder.processors(), appliedClip, *this->caps());
 
-    GrPipeline::CreateArgs args;
-    pipelineBuilder.initPipelineCreateArgs(&args);
+    GrPipeline::InitArgs args;
+    pipelineBuilder.getPipelineInitArgs(&args);
     args.fAppliedClip = &appliedClip;
     // This forces instantiation of the render target. Pipeline creation is moving to flush time
     // by which point instantiation must have occurred anyway.

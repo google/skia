@@ -15,10 +15,10 @@ GrDrawOp::~GrDrawOp() {
     }
 }
 
-bool GrDrawOp::installPipeline(const GrPipeline::CreateArgs& args) {
+bool GrDrawOp::installPipeline(const GrPipeline::InitArgs& args) {
     GrPipelineOptimizations optimizations;
-    void* location = fPipelineStorage.get();
-    if (!GrPipeline::CreateAt(location, args, &optimizations)) {
+    GrPipeline* pipeline = new (fPipelineStorage.get()) GrPipeline();
+    if (!pipeline->init(args, &optimizations)) {
         return false;
     }
     fPipelineInstalled = true;
