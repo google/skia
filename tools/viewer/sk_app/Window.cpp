@@ -55,6 +55,10 @@ void Window::detach() {
     fWindowContext = nullptr;
 }
 
+void Window::onSurfaceCreated() {
+    fSurfaceCreatedFunc(fSurfaceCreatedUserData);
+}
+
 bool Window::onChar(SkUnichar c, uint32_t modifiers) {
     return fCharFunc(c, modifiers, fCharUserData);
 }

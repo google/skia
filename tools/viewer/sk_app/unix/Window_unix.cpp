@@ -312,6 +312,7 @@ bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
             fWindowContext = window_context_factory::NewRasterForXlib(winInfo, params);
             break;
     }
+    this->onSurfaceCreated();
 
     return (SkToBool(fWindowContext));
 }

@@ -128,6 +128,7 @@ public:
     };
 
     // return value of 'true' means 'I have handled this event'
+    typedef void(*OnSurfaceCreatedFunc)(void* userData);
     typedef bool(*OnCharFunc)(SkUnichar c, uint32_t modifiers, void* userData);
     typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
     typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
@@ -136,6 +137,11 @@ public:
     typedef void(*OnUIStateChangedFunc)(
             const SkString& stateName, const SkString& stateValue, void* userData);
     typedef void(*OnPaintFunc)(SkCanvas*, void* userData);
+
+    void registerSurfaceCreatedFunc(OnSurfaceCreatedFunc func, void* userData) {
+        fSurfaceCreatedFunc = func;
+        fSurfaceCreatedUserData = userData;
+    }
 
     void registerCharFunc(OnCharFunc func, void* userData) {
         fCharFunc = func;
@@ -172,6 +178,7 @@ public:
         fUIStateChangedUserData = userData;
     }
 
+    void onSurfaceCreated();
     bool onChar(SkUnichar c, uint32_t modifiers);
     bool onKey(Key key, InputState state, uint32_t modifiers);
     bool onMouse(int x, int y, InputState state, uint32_t modifiers);
@@ -193,6 +200,9 @@ protected:
     int          fWidth;
     int          fHeight;
 
+    OnSurfaceCreatedFunc
+                 fSurfaceCreatedFunc;
+    void*        fSurfaceCreatedUserData;
     OnCharFunc   fCharFunc;
     void*        fCharUserData;
     OnKeyFunc    fKeyFunc;

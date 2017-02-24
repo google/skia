@@ -71,6 +71,9 @@ void Window_android::initDisplay(ANativeWindow* window) {
             break;
 #endif
     }
+    fWidth = ANativeWindow_getWidth(window);
+    fHeight = ANativeWindow_getHeight(window);
+    this->onSurfaceCreated();
 }
 
 void Window_android::onDisplayDestroyed() {

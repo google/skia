@@ -259,6 +259,7 @@ bool Window_mac::attach(BackendType attachType, const DisplayParams& params) {
             fWindowContext = NewGLForMac(info, params);
             break;
     }
+    this->onSurfaceCreated();
 
     return (SkToBool(fWindowContext));
 }
