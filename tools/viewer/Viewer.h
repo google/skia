@@ -33,7 +33,7 @@ public:
 private:
     void initSlides();
     void updateTitle();
-    void setColorMode(SkColorType, sk_sp<SkColorSpace>);
+    void setColorMode(SkColorType, bool colorManaged);
     void setStartupSlide();
     void setupCurrentSlide(int previousSlide);
     void listNames();
@@ -64,6 +64,7 @@ private:
     bool                   fRefresh; // whether to continuously refresh for measuring render time
 
     SkPaint                fImGuiFontPaint;
+    SkPaint                fImGuiGamutPaint;
     bool                   fShowImGuiDebugWindow;
     bool                   fShowImGuiTestWindow;
 
@@ -74,7 +75,8 @@ private:
 
     // Color properties for slide rendering
     SkColorType            fColorType;
-    sk_sp<SkColorSpace>    fColorSpace;
+    bool                   fColorManaged;
+    SkColorSpacePrimaries  fColorSpacePrimaries;
 
     // transform data
     SkScalar               fZoomCenterX;
