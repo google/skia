@@ -487,6 +487,18 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
+class ViaSRGBNonLinear : public Via {
+public:
+    ViaSRGBNonLinear(Sink*) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
+class ViaSRGBNonLinearGPU : public Via {
+public:
+    ViaSRGBNonLinear(Sink*) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
 }  // namespace DM
 
 #endif//DMSrcSink_DEFINED
