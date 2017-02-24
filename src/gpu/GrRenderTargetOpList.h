@@ -8,6 +8,7 @@
 #ifndef GrRenderTargetOpList_DEFINED
 #define GrRenderTargetOpList_DEFINED
 
+#include "GrAppliedClip.h"
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrOpList.h"
@@ -15,9 +16,7 @@
 #include "GrPrimitiveProcessor.h"
 #include "GrPathRendering.h"
 #include "GrXferProcessor.h"
-
 #include "ops/GrDrawOp.h"
-
 #include "SkClipStack.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
@@ -31,8 +30,9 @@ class GrAuditTrail;
 class GrClearOp;
 class GrClip;
 class GrCaps;
+class GrDrawOp;
 class GrPath;
-class GrDrawPathOpBase;
+class GrMeshDrawOp;
 class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
@@ -78,8 +78,9 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
-                   std::unique_ptr<GrDrawOp>);
+    void addMeshDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
+                       std::unique_ptr<GrMeshDrawOp>);
+    void addDrawOp(GrRenderTargetContext*, const GrClip&, std::unique_ptr<GrDrawOp>);
 
     void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         this->recordOp(std::move(op), renderTargetContext);
@@ -131,6 +132,16 @@ public:
 private:
     friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
 
+    struct RecordedOp {
+        RecordedOp(std::unique_ptr<GrOp> op, const SkRect& clippedBounds, GrRenderTarget* rt, int clipIdx)
+                : fOp(std::move(op)), fClippedBounds(clippedBounds), fRenderTarget(rt), fClipIdx(clipIdx) {}
+        std::unique_ptr<GrOp> fOp;
+        SkRect fClippedBounds;
+        // TODO: These ops will all to target the same render target and this won't be needed.
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+        int fClipIdx;
+    };
+
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
     GrOp* recordOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
@@ -139,7 +150,7 @@ private:
     }
 
     // Variant that allows an explicit bounds (computed from the Op's bounds and a clip).
-    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds);
+    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds, int clipIdx = -1);
 
     void forwardCombine();
 
@@ -154,15 +165,27 @@ private:
     // Used only via GrRenderTargetContextPriv.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
-    struct RecordedOp {
-        RecordedOp(std::unique_ptr<GrOp> op, const SkRect& clippedBounds, GrRenderTarget* rt)
-                : fOp(std::move(op)), fClippedBounds(clippedBounds), fRenderTarget(rt) {}
-        std::unique_ptr<GrOp> fOp;
-        SkRect fClippedBounds;
-        // TODO: These ops will all to target the same render target and this won't be needed.
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
-    };
+    // TODO: use this
+    bool combinedIfPossible(RecordedOp* a, const RecordedOp& b) {
+        bool aHasClip = SkToBool(a->fClipIdx);
+        bool bHasClip = SkToBool(b.fClipIdx);
+        if (aHasClip != bHasClip) {
+            return false;
+        }
+        const GrAppliedClip* clip = nullptr;
+        if (aHasClip) {
+            const GrAppliedClip& aClip = fAppliedClips[a->fClipIdx];
+            const GrAppliedClip& bClip = fAppliedClips[b.fClipIdx];
+            if (!aClip.isCompatibleWith(bClip)) {
+                return false;
+            }
+            clip = &aClip;
+        }
+        return a->fOp->combineIfPossible(b.fOp, this->caps(), clip);
+    }
+
     SkSTArray<256, RecordedOp, true> fRecordedOps;
+    SkSTArray<32, GrAppliedClip, true> fAppliedClips;
 
     GrClearOp* fLastFullClearOp = nullptr;
     GrGpuResource::UniqueID fLastFullClearRenderTargetID = GrGpuResource::UniqueID::InvalidID();

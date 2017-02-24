@@ -12,6 +12,7 @@
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
     : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
 
+
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
     Target target(state, this);
     this->onPrepareDraws(&target);
@@ -59,7 +60,10 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
                                  quadsToDraw);
 }
 
-void GrMeshDrawOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
+void GrMeshDrawOp::onExecute(GrOpFlushState* state, const SkRect& bounds,
+                             const GrAppliedClip* clip, GrRenderTarget* rt) {
+    SkASSERT(!clip);
+    SkASSERT(rt == this->pipeline()->getRenderTarget());
     int currUploadIdx = 0;
     int currMeshIdx = 0;
 

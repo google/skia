@@ -125,7 +125,7 @@ public:
         fMiterStroke = true;
     }
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
                                           const SkRect& rect, const SkStrokeRec& stroke) {
         bool isMiter;
         if (!allowed_stroke(stroke, &isMiter)) {
@@ -140,7 +140,7 @@ public:
         info.fColor = color;
         op->setBounds(info.fDevOutside, HasAABloat::kYes, IsZeroArea::kNo);
         op->fViewMatrix = viewMatrix;
-        return std::unique_ptr<GrDrawOp>(op);
+        return std::unique_ptr<GrMeshDrawOp>(op);
     }
 
     const char* name() const override { return "AAStrokeRect"; }
@@ -188,7 +188,7 @@ private:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool miterStroke() const { return fMiterStroke; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&, const GrAppliedClip*) override;
 
     void generateAAStrokeRectGeometry(void* vertices,
                                       size_t offset,
@@ -374,7 +374,7 @@ const GrBuffer* AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvi
     }
 }
 
-bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) {
     AAStrokeRectOp* that = t->cast<AAStrokeRectOp>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -562,14 +562,14 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
 
 namespace GrAAStrokeRectOp {
 
-std::unique_ptr<GrDrawOp> MakeFillBetweenRects(GrColor color,
+std::unique_ptr<GrMeshDrawOp> MakeFillBetweenRects(GrColor color,
                                                const SkMatrix& viewMatrix,
                                                const SkRect& devOutside,
                                                const SkRect& devInside) {
-    return std::unique_ptr<GrDrawOp>(new AAStrokeRectOp(color, viewMatrix, devOutside, devInside));
+    return std::unique_ptr<GrMeshDrawOp>(new AAStrokeRectOp(color, viewMatrix, devOutside, devInside));
 }
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRect& rect,
                                const SkStrokeRec& stroke) {

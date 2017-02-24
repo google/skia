@@ -340,6 +340,7 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
     fInfo.fHasParams = true;
 }
 
+#if 0
 void InstancedRendering::Op::getFragmentProcessorAnalysisInputs(
         FragmentProcessorAnalysisInputs* input) const {
     input->colorInput()->setToConstant(this->getSingleInstance().fColor);
@@ -386,16 +387,17 @@ void InstancedRendering::Op::applyPipelineOptimizations(
     fInstancedRendering->fTrackedOps.addToTail(this);
     fIsTracked = true;
 }
+#endif
 
-bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
+bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps, const GrAppliedClip*) {
     Op* that = static_cast<Op*>(other);
     SkASSERT(fInstancedRendering == that->fInstancedRendering);
     SkASSERT(fTailDraw);
     SkASSERT(that->fTailDraw);
 
-    if (!OpInfo::CanCombine(fInfo, that->fInfo) ||
+    if (!OpInfo::CanCombine(fInfo, that->fInfo) /*||
         !GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+                                that->bounds(), caps)*/) {
         return false;
     }
 
@@ -467,17 +469,18 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     this->onBeginFlush(rp);
 }
 
-void InstancedRendering::Op::onExecute(GrOpFlushState* state, const SkRect& bounds) {
+void InstancedRendering::Op::onExecute(GrOpFlushState* state, const SkRect& bounds, const GrAppliedClip*, GrRenderTarget*) {
     SkASSERT(State::kFlushing == fInstancedRendering->fState);
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 
     state->gpu()->handleDirtyContext();
+#if 0
     if (GrXferBarrierType barrierType = this->pipeline()->xferBarrierType(*state->gpu()->caps())) {
         state->gpu()->xferBarrier(this->pipeline()->getRenderTarget(), barrierType);
     }
-
     InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer.get());
     fInstancedRendering->onDraw(*this->pipeline(), instProc, this);
+#endif
 }
 
 void InstancedRendering::endFlush() {
