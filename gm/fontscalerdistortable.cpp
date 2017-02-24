@@ -49,9 +49,12 @@ protected:
 
                 SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
                 SkScalar styleValue = SkDoubleToScalar(0.5 + (5*j + i) * ((2.0 - 0.5) / (2 * 5)));
-                SkFontMgr::FontParameters::Axis axes[] = { { tag, styleValue } };
+                SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
+                SkFontArguments::VariationPosition position =
+                        { coordinates, SK_ARRAY_COUNT(coordinates) };
                 paint.setTypeface(sk_sp<SkTypeface>(fontMgr->createFromStream(
-                        distortable->duplicate(), SkFontMgr::FontParameters().setAxes(axes, 1))));
+                        distortable->duplicate(),
+                        SkFontArguments().setVariationDesignPosition(position))));
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));
