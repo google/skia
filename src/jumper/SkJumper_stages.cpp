@@ -42,6 +42,7 @@ static Dst bit_cast(const Src& src) {
     static F   rsqrt(F v)          { return 1.0f / sqrtf(v); }
     static U32 round(F v, F scale) { return (uint32_t)lrintf(v*scale); }
     static U16 pack(U32 v)         { return (U16)v; }
+    static U8  pack(U16 v)         { return  (U8)v; }
 
     static F if_then_else(I32 c, F t, F e) { return c ? t : e; }
 
@@ -67,6 +68,7 @@ static Dst bit_cast(const Src& src) {
     static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
     static U32 round(F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
     static U16 pack(U32 v)                          { return __builtin_convertvector(v, U16); }
+    static U8  pack(U16 v)                          { return __builtin_convertvector(v,  U8); }
 
     static F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
@@ -94,6 +96,7 @@ static Dst bit_cast(const Src& src) {
     static F   rsqrt(F v) { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
     static U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
     static U16 pack(U32 v)                         { return __builtin_convertvector(v, U16); }
+    static U8  pack(U16 v)                         { return __builtin_convertvector(v,  U8); }
 
     static F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
 
@@ -123,6 +126,10 @@ static Dst bit_cast(const Src& src) {
                 hi = _mm256_extractf128_si256(v, 1);
         return _mm_packus_epi32(lo, hi);
     }
+    static U8 pack(U16 v) {
+        __m128i r = _mm_packus_epi16(v,v);
+        return unaligned_load<U8>(&r);
+    }
 
     static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
 
@@ -150,6 +157,10 @@ static Dst bit_cast(const Src& src) {
         __m128i lo = _mm256_extractf128_si256(v, 0),
                 hi = _mm256_extractf128_si256(v, 1);
         return _mm_packus_epi32(lo, hi);
+    }
+    static U8 pack(U16 v) {
+        __m128i r = _mm_packus_epi16(v,v);
+        return unaligned_load<U8>(&r);
     }
 
     static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
@@ -187,6 +198,12 @@ static Dst bit_cast(const Src& src) {
     #endif
         return unaligned_load<U16>(&p);  // We have two copies.  Return (the lower) one.
     }
+    static U8 pack(U16 v) {
+        __m128i r;
+        memcpy(&r, &v, sizeof(v));
+        r = _mm_packus_epi16(r,r);
+        return unaligned_load<U8>(&r);
+    }
 
     static F if_then_else(I32 c, F t, F e) {
     #if defined(__SSE4_1__)
@@ -213,7 +230,7 @@ static Dst bit_cast(const Src& src) {
     static U32 expand(U16 v) { return __builtin_convertvector(     v, U32); }
     static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
 #else
-    static F   cast  (U32 v) { return (F)v; }
+    static F   cast  (U32 v) { return   (F)v; }
     static U32 expand(U16 v) { return (U32)v; }
     static U32 expand(U8  v) { return (U32)v; }
 #endif
@@ -523,6 +540,19 @@ STAGE(load_tables) {
     g = gather(c->g, (px >>  8) & k->_0x000000ff);
     b = gather(c->b, (px >> 16) & k->_0x000000ff);
     a = cast(        (px >> 24)) * k->_1_255;
+}
+
+STAGE(load_a8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+
+    r = g = b = 0.0f;
+    a = cast(expand(unaligned_load<U8>(ptr))) * k->_1_255;
+}
+STAGE(store_a8) {
+    auto ptr = *(uint8_t**)ctx + x;
+
+    U8 packed = pack(pack(round(a, k->_255)));
+    memcpy(ptr, &packed, sizeof(packed));
 }
 
 STAGE(load_565) {
