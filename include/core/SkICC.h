@@ -61,7 +61,8 @@ public:
      *  guaranteed to be the same.  If the ICC representation was not a table, the length
      *  will be chosen arbitrarily.
      *
-     *  Entries in the tables are guaranteed to be in [0, 1].
+     *  The lengths of the tables are all guaranteed to be at least 2.  Entries in the
+     *  tables are guaranteed to be in [0, 1].
      *
      *  This API may be deleted in favor of a numerical approximation of the raw data.
      *
