@@ -55,7 +55,7 @@ public:
         kSnapVerticesToPixelCenters_Flag = 0x2,
     };
 
-    struct CreateArgs {
+    struct InitArgs {
         uint32_t fFlags = 0;
         GrDrawFace fDrawFace = GrDrawFace::kBoth;
         const GrProcessorSet* fProcessors = nullptr;
@@ -67,8 +67,10 @@ public:
         GrXferProcessor::DstTexture fDstTexture;
     };
 
-    /** Creates a pipeline into a pre-allocated buffer */
-    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineOptimizations*);
+    GrPipeline() = default;  // init() must be called in order to draw with this.
+    bool init(const InitArgs&, GrPipelineOptimizations*);
+
+    bool isInitialized() const { return SkToBool(fRenderTarget.get()); }
 
     /**
      * Creates a simple pipeline with default settings and no processors. The provided blend mode
@@ -195,8 +197,6 @@ public:
     GrDrawFace getDrawFace() const { return static_cast<GrDrawFace>(fDrawFace); }
 
 private:
-    GrPipeline() { /** Initialized in factory function*/ }
-
     /** This is a continuation of the public "Flags" enum. */
     enum PrivateFlags {
         kDisableOutputConversionToSRGB_Flag = 0x4,

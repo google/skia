@@ -55,9 +55,8 @@ public:
     class Target;
 
     GrDrawOp(uint32_t classID);
-    ~GrDrawOp() override;
 
-    bool installPipeline(const GrPipeline::CreateArgs&);
+    bool initPipeline(const GrPipeline::InitArgs&);
 
     /**
      * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
@@ -106,8 +105,8 @@ protected:
     }
 
     const GrPipeline* pipeline() const {
-        SkASSERT(fPipelineInstalled);
-        return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
+        SkASSERT(fPipeline.isInitialized());
+        return &fPipeline;
     }
 
     /**
@@ -155,8 +154,7 @@ protected:
     SkTArray<QueuedUpload>                          fInlineUploads;
 
 private:
-    SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;
-    bool                                            fPipelineInstalled;
+    GrPipeline fPipeline;
     typedef GrOp INHERITED;
 };
 
