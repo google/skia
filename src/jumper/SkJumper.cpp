@@ -7,13 +7,14 @@
 
 #include "SkCpu.h"
 #include "SkJumper.h"
-#include "SkOnce.h"
 #include "SkRasterPipeline.h"
 #include "SkTemplates.h"
-#include <atomic>
 
 // A debugging mode that helps prioritize porting stages to SkJumper.
 #if 0
+    #include "SkOnce.h"
+    #include <atomic>
+
     #define M(st) {0},
     static std::atomic<int> gMissing[] = { SK_RASTER_PIPELINE_STAGES(M) };
     #undef M
@@ -82,6 +83,10 @@ static K kConstants = {
     M(matrix_3x4)     \
     M(clamp_x)        \
     M(clamp_y)        \
+    M(repeat_x)       \
+    M(repeat_y)       \
+    M(mirror_x)       \
+    M(mirror_y)       \
     M(linear_gradient_2stops)
 
 // We can't express the real types of most stage functions portably, so we use a stand-in.
