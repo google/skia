@@ -190,7 +190,7 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(
 
 std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVarDeclarations& decl,
                                                                      Variable::Storage storage) {
-    std::vector<VarDeclaration> variables;
+    std::vector<std::unique_ptr<VarDeclaration>> variables;
     const Type* baseType = this->convertType(*decl.fType);
     if (!baseType) {
         return nullptr;
@@ -234,6 +234,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 return nullptr;
             }
             value = this->coerce(std::move(value), *type);
+            var->fWriteCount = 1;
         }
         if (storage == Variable::kGlobal_Storage && varDecl.fName == SkString("sk_FragColor") &&
             (*fSymbolTable)[varDecl.fName]) {
@@ -245,7 +246,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             Variable* old = (Variable*) (*fSymbolTable)[varDecl.fName];
             old->fModifiers = var->fModifiers;
         } else {
-            variables.emplace_back(var.get(), std::move(sizes), std::move(value));
+            variables.emplace_back(new VarDeclaration(var.get(), std::move(sizes),
+                                                      std::move(value)));
             fSymbolTable->add(varDecl.fName, std::move(var));
         }
     }
@@ -534,16 +536,16 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             return nullptr;
         }
         for (const auto& var : decl->fVars) {
-            fields.push_back(Type::Field(var.fVar->fModifiers, var.fVar->fName,
-                                         &var.fVar->fType));
-            if (var.fValue) {
+            fields.push_back(Type::Field(var->fVar->fModifiers, var->fVar->fName,
+                                         &var->fVar->fType));
+            if (var->fValue) {
                 fErrors.error(decl->fPosition,
                               "initializers are not permitted on interface block fields");
             }
-            if (var.fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
-                                               Modifiers::kOut_Flag |
-                                               Modifiers::kUniform_Flag |
-                                               Modifiers::kConst_Flag)) {
+            if (var->fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                                Modifiers::kOut_Flag |
+                                                Modifiers::kUniform_Flag |
+                                                Modifiers::kConst_Flag)) {
                 fErrors.error(decl->fPosition,
                               "interface block fields may not have storage qualifiers");
             }
@@ -1071,7 +1073,8 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
             return nullptr;
         }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->markWrittenTo(*arguments[i], true);
+            this->markWrittenTo(*arguments[i], 
+                                function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag);
         }
     }
     return std::unique_ptr<FunctionCall>(new FunctionCall(position, *returnType, function,

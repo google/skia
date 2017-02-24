@@ -25,6 +25,10 @@ struct BoolLiteral : public Expression {
         return SkString(fValue ? "true" : "false");
     }
 
+    bool hasSideEffects() const override {
+        return false;
+    }
+
     bool isConstant() const override {
         return true;
     }
