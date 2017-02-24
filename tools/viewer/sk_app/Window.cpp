@@ -55,6 +55,10 @@ void Window::detach() {
     fWindowContext = nullptr;
 }
 
+void Window::onBackendCreated() {
+    fBackendCreatedFunc(fBackendCreatedUserData);
+}
+
 bool Window::onChar(SkUnichar c, uint32_t modifiers) {
     return fCharFunc(c, modifiers, fCharUserData);
 }
@@ -80,6 +84,9 @@ void Window::onUIStateChanged(const SkString& stateName, const SkString& stateVa
 }
 
 void Window::onPaint() {
+    if (!fWindowContext) {
+        return;
+    }
     markInvalProcessed();
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer) {
@@ -98,9 +105,24 @@ void Window::onPaint() {
 }
 
 void Window::onResize(int w, int h) {
-    fWidth = w;
-    fHeight = h;
+    if (!fWindowContext) {
+        return;
+    }
     fWindowContext->resize(w, h);
+}
+
+int Window::width() {
+    if (!fWindowContext) {
+        return 0;
+    }
+    return fWindowContext->width();
+}
+
+int Window::height() {
+    if (!fWindowContext) {
+        return 0;
+    }
+    return fWindowContext->height();
 }
 
 const DisplayParams& Window::getDisplayParams() {
@@ -112,6 +134,9 @@ void Window::setDisplayParams(const DisplayParams& params) {
 }
 
 void Window::inval() {
+    if (!fWindowContext) {
+        return;
+    }
     if (!fIsContentInvalidated) {
         fIsContentInvalidated = true;
         onInval();
