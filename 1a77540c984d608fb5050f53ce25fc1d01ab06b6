@@ -46,6 +46,30 @@
       "revId": "1a77540c984d608fb5050f53ce25fc1d01ab06b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e5c8b0e_7d2ee1be",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-24T20:47:28Z",
+      "side": 1,
+      "message": "Right, not my change.\n\nYou can diff against \"base\" to double check which changes I made.",
+      "parentUuid": "46dcca56_df76c4e7",
+      "range": {
+        "startLine": 171,
+        "startChar": 7,
+        "endLine": 171,
+        "endChar": 29
+      },
+      "revId": "1a77540c984d608fb5050f53ce25fc1d01ab06b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
