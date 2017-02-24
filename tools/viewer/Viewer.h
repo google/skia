@@ -92,6 +92,8 @@ private:
     SkMatrix               fDefaultMatrix;
     SkMatrix               fDefaultMatrixInv;
 
+    SkTArray<std::function<void(void)>> fDeferredActions;
+
     Json::Value            fAllSlideNames; // cache all slide names for fast updateUIState
 };
 

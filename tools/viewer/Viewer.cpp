@@ -934,8 +934,12 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 ImGui::RadioButton("Color Managed 8888", &newMode, 1);
                 ImGui::RadioButton("Color Managed F16", &newMode, 2);
                 if (newMode != oldMode) {
-                    this->setColorMode(2 == newMode ? kRGBA_F16_SkColorType : kN32_SkColorType,
-                                       0 != newMode);
+                    // It isn't safe to switch color mode now (in the middle of painting). We might
+                    // tear down the back-end, etc... Defer this change until the next onIdle.
+                    fDeferredActions.push_back([=]() {
+                        this->setColorMode(2 == newMode ? kRGBA_F16_SkColorType : kN32_SkColorType,
+                                           0 != newMode);
+                    });
                 }
 
                 // Pick from common gamuts:
@@ -1038,6 +1042,11 @@ void Viewer::drawImGui(SkCanvas* canvas) {
 }
 
 void Viewer::onIdle() {
+    for (int i = 0; i < fDeferredActions.count(); ++i) {
+        fDeferredActions[i]();
+    }
+    fDeferredActions.reset();
+
     double startTime = SkTime::GetMSecs();
     fAnimTimer.updateTime();
     bool animateWantsInval = fSlides[fCurrentSlide]->animate(fAnimTimer);
