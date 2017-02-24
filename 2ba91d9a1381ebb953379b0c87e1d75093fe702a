@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "78bbf9d3_f6954c6e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-24T19:54:11Z",
+      "side": 1,
+      "message": "Part of the problem here is what to do if the jpeg itself has an embedded color profile.  In that case, I\u0027m going with what the jpeg reports instead of what the exif data says.\n\nBut if we wait until after the SkJpegCodec is created to modify the info, we won\u0027t know whether the sRGB color space was a \"deafult\" or was actually specified by an ICC profile.",
+      "parentUuid": "064c44bd_254e73ed",
+      "range": {
+        "startLine": 274,
+        "startChar": 74,
+        "endLine": 274,
+        "endChar": 91
+      },
+      "revId": "2ba91d9a1381ebb953379b0c87e1d75093fe702a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "944dce4b_56647e8f",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "963bd9db_6818b0a0",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-24T19:54:11Z",
+      "side": 1,
+      "message": "Doesn\u0027t matter, since outCodec is null (this is a rewind), we won\u0027t reread the color space.",
+      "parentUuid": "944dce4b_56647e8f",
+      "range": {
+        "startLine": 359,
+        "startChar": 58,
+        "endLine": 359,
+        "endChar": 65
+      },
+      "revId": "2ba91d9a1381ebb953379b0c87e1d75093fe702a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eea28f0c_0dd9927a",
         "filename": "src/codec/SkRawCodec.cpp",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2017-02-24T18:53:01Z",
       "side": 1,
       "message": "Is this a standard that applies for AdobeRGB, or is it just for RawCodec? Just wondering if this should be centralized somewhere.",
+      "range": {
+        "startLine": 660,
+        "startChar": 16,
+        "endLine": 660,
+        "endChar": 38
+      },
+      "revId": "2ba91d9a1381ebb953379b0c87e1d75093fe702a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0662e1be_203a43af",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-24T19:54:11Z",
+      "side": 1,
+      "message": "Actually, there is a better way to do this.  It\u0027s no longer in the public API, but it does still exist...",
+      "parentUuid": "eea28f0c_0dd9927a",
       "range": {
         "startLine": 660,
         "startChar": 16,
