@@ -55,26 +55,35 @@ public:
         kSnapVerticesToPixelCenters_Flag = 0x2,
     };
 
-    struct CreateArgs {
+    struct InitArgs {
         uint32_t fFlags = 0;
         GrDrawFace fDrawFace = GrDrawFace::kBoth;
         const GrProcessorSet* fProcessors = nullptr;
         const GrProcessorSet::FragmentProcessorAnalysis* fAnalysis;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
-        GrAppliedClip* fAppliedClip = nullptr;
+        const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
         const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
-    /** Creates a pipeline into a pre-allocated buffer */
-    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineOptimizations*);
+    /**
+     * A Default constructed pipeline is unusable until init() is called.
+     **/
+    GrPipeline() = default;
 
     /**
      * Creates a simple pipeline with default settings and no processors. The provided blend mode
-     * must be "Porter Duff" (<= kLastCoeffMode).
+     * must be "Porter Duff" (<= kLastCoeffMode). This pipeline is initialized without requiring
+     * a call to init().
      **/
     GrPipeline(GrRenderTarget*, SkBlendMode);
+
+    /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
+    GrPipelineOptimizations init(const InitArgs&);
+
+    /** True if the pipeline has been initialized. */
+    bool isInitialized() const { return SkToBool(fRenderTarget.get()); }
 
     /// @}
 
@@ -195,8 +204,6 @@ public:
     GrDrawFace getDrawFace() const { return static_cast<GrDrawFace>(fDrawFace); }
 
 private:
-    GrPipeline() { /** Initialized in factory function*/ }
-
     /** This is a continuation of the public "Flags" enum. */
     enum PrivateFlags {
         kDisableOutputConversionToSRGB_Flag = 0x4,

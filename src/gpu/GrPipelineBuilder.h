@@ -128,7 +128,7 @@ public:
 
     /// @}
 
-    void initPipelineCreateArgs(GrPipeline::CreateArgs* args) const {
+    void getPipelineInitArgs(GrPipeline::InitArgs* args) const {
         args->fFlags = fFlags;
         args->fUserStencil = fUserStencilSettings;
         args->fDrawFace = fDrawFace;

@@ -256,7 +256,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrDiscardOp.h",
   "$_src/gpu/ops/GrDrawAtlasOp.cpp",
   "$_src/gpu/ops/GrDrawAtlasOp.h",
-  "$_src/gpu/ops/GrDrawOp.cpp",
   "$_src/gpu/ops/GrDrawOp.h",
   "$_src/gpu/ops/GrDrawPathOp.cpp",
   "$_src/gpu/ops/GrDrawPathOp.h",

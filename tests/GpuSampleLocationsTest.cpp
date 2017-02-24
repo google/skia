@@ -91,24 +91,21 @@ public:
     virtual ~TestSampleLocationsInterface() {}
 };
 
-static GrPipeline* construct_dummy_pipeline(GrRenderTargetContext* dc, void* storage) {
+static void construct_dummy_pipeline(GrRenderTargetContext* dc, GrPipeline* pipeline) {
     GrPipelineBuilder dummyBuilder(GrPaint(), GrAAType::kNone);
     GrScissorState dummyScissor;
     GrWindowRectsState dummyWindows;
-    GrPipelineOptimizations dummyOverrides;
 
     GrAppliedClip dummyAppliedClip(SkRect::MakeLargest());
     GrProcessorSet::FragmentProcessorAnalysis analysis;
-    GrPipeline::CreateArgs args;
-    dummyBuilder.initPipelineCreateArgs(&args);
+    GrPipeline::InitArgs args;
+    dummyBuilder.getPipelineInitArgs(&args);
     args.fRenderTarget = dc->accessRenderTarget();
     args.fAnalysis = &analysis;
     args.fCaps = dc->caps();
     args.fAppliedClip = &dummyAppliedClip;
     args.fDstTexture = GrXferProcessor::DstTexture();
-
-    GrPipeline::CreateAt(storage, args, &dummyOverrides);
-    return reinterpret_cast<GrPipeline*>(storage);
+    pipeline->init(args);
 }
 
 void assert_equal(skiatest::Reporter* reporter, const SamplePattern& pattern,
@@ -149,17 +146,16 @@ void test_sampleLocations(skiatest::Reporter* reporter, TestSampleLocationsInter
     }
 
     // Ensure all sample locations get queried and/or cached properly.
-    SkAlignedSTStorage<1, GrPipeline> pipelineStorage;
     for (int repeat = 0; repeat < 2; ++repeat) {
         for (int i = 0; i < numTestPatterns; ++i) {
             testInterface->overrideSamplePattern(kTestPatterns[i]);
             for (GrRenderTargetContext* dc : {bottomUps[i].get(), topDowns[i].get()}) {
-                GrPipeline* dummyPipe = construct_dummy_pipeline(dc, pipelineStorage.get());
+                GrPipeline dummyPipeline;
+                construct_dummy_pipeline(dc, &dummyPipeline);
                 GrRenderTarget* rt = dc->accessRenderTarget();
                 assert_equal(reporter, kTestPatterns[i],
-                             rt->renderTargetPriv().getMultisampleSpecs(*dummyPipe),
+                             rt->renderTargetPriv().getMultisampleSpecs(dummyPipeline),
                              kBottomLeft_GrSurfaceOrigin == rt->origin());
-                dummyPipe->~GrPipeline();
             }
         }
     }
