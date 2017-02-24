@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b07aef0_ae1379c8",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-24T03:39:38Z",
+      "side": 1,
+      "message": "so if half way through initialization we return false, I assume it\u0027s safe to call init again with a different set of args (code looks like its safe)?",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 37
+      },
+      "revId": "2c5b5ac2892cfeacf9f5e2a2796b2ed5d7560908",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf4a3327_6102ef70",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-24T03:39:38Z",
+      "side": 1,
+      "message": "update comment",
+      "range": {
+        "startLine": 77,
+        "startChar": 7,
+        "endLine": 77,
+        "endChar": 22
+      },
+      "revId": "2c5b5ac2892cfeacf9f5e2a2796b2ed5d7560908",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1b33332_6ad13b89",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-24T03:39:38Z",
+      "side": 1,
+      "message": "Is this meant to signal failure or just not fully initialized yet? Seems the bool return signifies success or not (though the only return of false is for a skip which is hard to argue is a \"failure\")",
+      "range": {
+        "startLine": 140,
+        "startChar": 7,
+        "endLine": 140,
+        "endChar": 87
+      },
+      "revId": "2c5b5ac2892cfeacf9f5e2a2796b2ed5d7560908",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
