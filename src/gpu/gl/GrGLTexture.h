@@ -71,7 +71,6 @@ protected:
     void onRelease() override;
     void setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                           const SkString& dumpName) const override;
-    std::unique_ptr<GrExternalTextureData> detachBackendTexture() override;
 
 private:
     TexParams                       fTexParams;

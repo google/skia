@@ -313,7 +313,6 @@ public:
     GrFence SK_WARN_UNUSED_RESULT insertFence() const override { return 0; }
     bool waitFence(GrFence, uint64_t) const override { return true; }
     void deleteFence(GrFence) const override {}
-    void flush() override {}
 
 private:
     void onResetContext(uint32_t resetBits) override {}

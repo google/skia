@@ -150,8 +150,6 @@ public:
     bool waitFence(GrFence, uint64_t timeout) const override;
     void deleteFence(GrFence) const override;
 
-    void flush() override;
-
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 

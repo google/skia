@@ -1860,6 +1860,3 @@ void GrVkGpu::deleteFence(GrFence fence) const {
     GR_VK_CALL(this->vkInterface(), DestroyFence(this->device(), (VkFence)fence, nullptr));
 }
 
-void GrVkGpu::flush() {
-    // We submit the command buffer to the queue whenever Ganesh is flushed, so nothing is needed
-}
