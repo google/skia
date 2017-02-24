@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "588c9e90_d111828b",
+        "filename": "src/core/SkRecordDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-24T21:38:07Z",
+      "side": 1,
+      "message": "No idea if this is correct/optimal. mtklein needs to comment.",
+      "revId": "17154157ca03a4d2f72e4ce8ec01e30cb4aa3392",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0126cdd0_689a78ed",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-24T21:38:07Z",
+      "side": 1,
+      "message": "Are drawBounds in the same coordinate system as saveLayerBounds?\n\nThe user specifies it in local coordinates, as with their drawing bounds (e.g. drawRect), but could there be any matrix changes in the canvas between these two?",
+      "range": {
+        "startLine": 203,
+        "startChar": 31,
+        "endLine": 203,
+        "endChar": 32
+      },
+      "revId": "17154157ca03a4d2f72e4ce8ec01e30cb4aa3392",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
