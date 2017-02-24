@@ -1356,6 +1356,10 @@ public:
      */
     void temporary_internal_describeTopLayer(SkMatrix* matrix, SkIRect* clip_bounds);
 
+    /**
+     *  Returns the global clip as a region. If the clip contains AA, then only the bounds
+     *  of the clip may be returned.
+     */
     void temporary_internal_getRgnClip(SkRegion*);
 
 protected:
@@ -1520,7 +1524,7 @@ private:
 
         SkBaseDevice*   device() const;
         const SkMatrix& matrix() const;
-        const SkRasterClip& clip() const;
+        void clip(SkRegion*) const;
         const SkPaint&  paint() const;
         int             x() const;
         int             y() const;
@@ -1542,7 +1546,7 @@ private:
 
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                      SkBaseDevice* dst, const SkIPoint& dstOrigin,
-                                     const SkMatrix& ctm, const SkClipStack* clipStack);
+                                     const SkMatrix& ctm);
 
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
@@ -1564,7 +1568,6 @@ private:
 
     class MCRec;
 
-    sk_sp<SkClipStack> fClipStack;
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
@@ -1592,9 +1595,7 @@ private:
     friend class SkSurface_Base;
     friend class SkSurface_Gpu;
 
-    bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     SkIRect fClipRestrictionRect = SkIRect::MakeEmpty();
-    void updateDeviceCMCache();
 
     void doSave();
     void checkForDeferredSave();
@@ -1664,14 +1665,11 @@ private:
      */
     bool canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkPaint&);
 
-    /** Return the clip stack. The clip stack stores all the individual
-     *  clips organized by the save/restore frame in which they were
-     *  added.
-     *  @return the current clip stack ("list" of individual clip elements)
+    /**
+     *  Returns true if the clip (for any active layer) contains antialiasing.
+     *  If the clip is empty, this will return false.
      */
-    const SkClipStack* getClipStack() const {
-        return fClipStack.get();
-    }
+    bool androidFramework_isClipAA() const;
 
     /**
      *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows
