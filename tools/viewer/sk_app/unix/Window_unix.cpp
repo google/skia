@@ -51,8 +51,8 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
     }
     fDisplay = display;
 
-    fWidth = 1280;
-    fHeight = 960;
+    constexpr int initialWidth = 1280;
+    constexpr int initialHeight = 960;
 
     // Attempt to create a window that supports GL
     GLint att[] = {
@@ -92,7 +92,7 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
         fWindow = XCreateWindow(display,
                                 RootWindow(display, fVisualInfo->screen),
                                 0, 0, // x, y
-                                fWidth, fHeight,
+                                initialWidth, initialHeight,
                                 0, // border width
                                 fVisualInfo->depth,
                                 InputOutput,
@@ -104,7 +104,7 @@ bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
         fWindow = XCreateSimpleWindow(display,
                                       DefaultRootWindow(display),
                                       0, 0,  // x, y
-                                      fWidth, fHeight,
+                                      initialWidth, initialHeight,
                                       0,     // border width
                                       0,     // border value
                                       0);    // background value
@@ -299,6 +299,15 @@ bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
     winInfo.fDisplay = fDisplay;
     winInfo.fWindow = fWindow;
     winInfo.fVisualInfo = fVisualInfo;
+
+    XWindowAttributes attrs;
+    if (XGetWindowAttributes(fDisplay, fWindow, &attrs)) {
+        winInfo.fWidth = attrs.width;
+        winInfo.fHeight = attrs.height;
+    } else {
+        winInfo.fWidth = winInfo.fHeight = 0;
+    }
+
     switch (attachType) {
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
@@ -312,6 +321,7 @@ bool Window_unix::attach(BackendType attachType, const DisplayParams& params) {
             fWindowContext = window_context_factory::NewRasterForXlib(winInfo, params);
             break;
     }
+    this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
 }
@@ -324,8 +334,8 @@ void Window_unix::onInval() {
     event.xexpose.window = fWindow;
     event.xexpose.x = 0;
     event.xexpose.y = 0;
-    event.xexpose.width = fWidth;
-    event.xexpose.height = fHeight;
+    event.xexpose.width = this->width();
+    event.xexpose.height = this->height();
     event.xexpose.count = 0;
     
     XSendEvent(fDisplay, fWindow, False, 0, &event);

@@ -58,7 +58,7 @@ public:
     }
 
     void markPendingResize(int width, int height) {
-        if (width != fWidth || height != fHeight){
+        if (width != this->width() || height != this->height()){
             fPendingResize = true;
             fPendingWidth = width;
             fPendingHeight = height;
