@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "01cb2461_655a2302",
+        "filename": "src/core/SkBitmapDevice.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-24T19:11:53Z",
+      "side": 1,
+      "message": "Since this is setup we didn\u0027t used to pay for (on each draw) I was interested in ensuring that it was inlined etc.",
+      "parentUuid": "2254c7a4_8b69fe78",
+      "revId": "c52c341a94685dabbd4a2d2a62c17bbc85849590",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "90e98494_481419f7",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 9
