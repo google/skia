@@ -32,6 +32,8 @@
 
 #include "imgui.h"
 
+#include <stdlib.h>
+
 using namespace sk_app;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
@@ -141,14 +143,15 @@ static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BA
 
 static DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
 
+DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
 DEFINE_pathrenderer_flag;
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
-    " [OpenGL]",
+    "OpenGL",
 #ifdef SK_VULKAN
-    " [Vulkan]",
+    "Vulkan",
 #endif
-    " [Raster]"
+    "Raster"
 };
 
 static sk_app::Window::BackendType get_backend_type(const char* str) {
@@ -172,6 +175,7 @@ const char* kValue = "value";
 const char* kOptions = "options";
 const char* kSlideStateName = "Slide";
 const char* kBackendStateName = "Backend";
+const char* kMSAAStateName = "MSAA";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
 const char* kFpsStateName = "FPS";
@@ -322,7 +326,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             fWindow->registerCharFunc(on_char_handler, this);
         }
 #endif
-        fWindow->attach(fBackendType, DisplayParams());
+        fWindow->attach(fBackendType, fWindow->getDisplayParams());
     });
 
     // set up slides
@@ -374,7 +378,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiFontPaint.setFilterQuality(kLow_SkFilterQuality);
     io.Fonts->TexID = &fImGuiFontPaint;
 
-    fWindow->attach(fBackendType, DisplayParams());
+    DisplayParams displayParams;
+    displayParams.fMSAASampleCount = FLAGS_msaa;
+    fWindow->attach(fBackendType, displayParams);
 }
 
 void Viewer::initSlides() {
@@ -463,6 +469,13 @@ Viewer::~Viewer() {
 }
 
 void Viewer::updateTitle() {
+    if (!fWindow) {
+        return;
+    }
+    if (fWindow->sampleCount() < 0) {
+        return; // Surface hasn't been created yet.
+    }
+
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
 
@@ -473,7 +486,12 @@ void Viewer::updateTitle() {
         title.append(" ColorManaged");
     }
 
+    title.append(" [");
     title.append(kBackendTypeStrings[fBackendType]);
+    if (int msaa = fWindow->sampleCount()) {
+        title.appendf(" MSAA: %i", msaa);
+    }
+    title.append("]");
     fWindow->setTitle(title.c_str());
 }
 
@@ -890,6 +908,13 @@ void Viewer::onIdle() {
 }
 
 void Viewer::updateUIState() {
+    if (!fWindow) {
+        return;
+    }
+    if (fWindow->sampleCount() < 0) {
+        return; // Surface hasn't been created yet.
+    }
+
     // Slide state
     Json::Value slideState(Json::objectValue);
     slideState[kName] = kSlideStateName;
@@ -908,6 +933,19 @@ void Viewer::updateUIState() {
     backendState[kOptions] = Json::Value(Json::arrayValue);
     for (auto str : kBackendTypeStrings) {
         backendState[kOptions].append(Json::Value(str));
+    }
+
+    // MSAA state
+    Json::Value msaaState(Json::objectValue);
+    msaaState[kName] = kMSAAStateName;
+    msaaState[kValue] = fWindow->sampleCount();
+    msaaState[kOptions] = Json::Value(Json::arrayValue);
+    if (sk_app::Window::kRaster_BackendType == fBackendType) {
+        msaaState[kOptions].append(Json::Value(0));
+    } else {
+        for (int msaa : {0, 4, 8, 16}) {
+            msaaState[kOptions].append(Json::Value(msaa));
+        }
     }
 
     // Softkey state
@@ -934,6 +972,7 @@ void Viewer::updateUIState() {
     Json::Value state(Json::arrayValue);
     state.append(slideState);
     state.append(backendState);
+    state.append(msaaState);
     state.append(softkeyState);
     state.append(fpsState);
 
@@ -965,10 +1004,19 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                 if (fBackendType != i) {
                     fBackendType = (sk_app::Window::BackendType)i;
                     fWindow->detach();
-                    fWindow->attach(fBackendType, DisplayParams());
+                    fWindow->attach(fBackendType, fWindow->getDisplayParams());
                 }
                 break;
             }
+        }
+    } else if (stateName.equals(kMSAAStateName)) {
+        DisplayParams params = fWindow->getDisplayParams();
+        int sampleCount = atoi(stateValue.c_str());
+        if (sampleCount != params.fMSAASampleCount) {
+            params.fMSAASampleCount = sampleCount;
+            fWindow->setDisplayParams(params);
+            fWindow->inval();
+            updateTitle();
         }
     } else if (stateName.equals(kSoftkeyStateName)) {
         if (!stateValue.equals(kSoftkeyHint)) {
