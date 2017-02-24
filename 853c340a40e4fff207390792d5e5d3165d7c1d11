@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1597766c_e108e0ec",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-24T14:20:33Z",
+      "side": 1,
+      "message": "Is this the right order? It seems like you\u0027d want to show the window, then inval.",
+      "range": {
+        "startLine": 654,
+        "startChar": 13,
+        "endLine": 654,
+        "endChar": 18
+      },
+      "revId": "853c340a40e4fff207390792d5e5d3165d7c1d11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a0a2537_7399f448",
+        "filename": "tools/viewer/sk_app/Window.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-24T14:20:33Z",
+      "side": 1,
+      "message": "Nit: this indenting seems odd. Usually we\u0027d just push all the variable names out to the same level.",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 24
+      },
+      "revId": "853c340a40e4fff207390792d5e5d3165d7c1d11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
