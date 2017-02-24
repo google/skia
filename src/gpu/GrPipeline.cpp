@@ -19,49 +19,43 @@
 
 #include "ops/GrOp.h"
 
-GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
-                                 GrPipelineOptimizations* optimizations) {
+GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     SkASSERT(args.fAnalysis);
     SkASSERT(args.fRenderTarget);
 
-    GrPipeline* pipeline = new (memory) GrPipeline;
-    pipeline->fRenderTarget.reset(args.fRenderTarget);
-    pipeline->fScissorState = args.fAppliedClip->scissorState();
-    pipeline->fWindowRectsState = args.fAppliedClip->windowRectsState();
-    pipeline->fUserStencilSettings = args.fUserStencil;
-    pipeline->fDrawFace = static_cast<int16_t>(args.fDrawFace);
+    fRenderTarget.reset(args.fRenderTarget);
+    fScissorState = args.fAppliedClip->scissorState();
+    fWindowRectsState = args.fAppliedClip->windowRectsState();
+    fUserStencilSettings = args.fUserStencil;
+    fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
-    pipeline->fFlags = args.fFlags;
+    fFlags = args.fFlags;
     if (args.fProcessors->usesDistanceVectorField()) {
-        pipeline->fFlags |= kUsesDistanceVectorField_Flag;
+        fFlags |= kUsesDistanceVectorField_Flag;
     }
     if (args.fAppliedClip->hasStencilClip()) {
-        pipeline->fFlags |= kHasStencilClip_Flag;
+        fFlags |= kHasStencilClip_Flag;
     }
     if (!args.fUserStencil->isDisabled(args.fAppliedClip->hasStencilClip())) {
-        pipeline->fFlags |= kStencilEnabled_Flag;
+        fFlags |= kStencilEnabled_Flag;
     }
     if (args.fProcessors->disableOutputConversionToSRGB()) {
-        pipeline->fFlags |= kDisableOutputConversionToSRGB_Flag;
+        fFlags |= kDisableOutputConversionToSRGB_Flag;
     }
     if (args.fProcessors->allowSRGBInputs()) {
-        pipeline->fFlags |= kAllowSRGBInputs_Flag;
+        fFlags |= kAllowSRGBInputs_Flag;
     }
 
     bool isHWAA = kHWAntialias_Flag & args.fFlags;
 
     // Create XferProcessor from DS's XPFactory
-    bool hasMixedSamples = args.fRenderTarget->isMixedSampled() &&
-                           (isHWAA || pipeline->isStencilEnabled());
+    bool hasMixedSamples = args.fRenderTarget->isMixedSampled() && (isHWAA || isStencilEnabled());
     const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
     sk_sp<GrXferProcessor> xferProcessor;
     if (xpFactory) {
         xferProcessor.reset(xpFactory->createXferProcessor(*args.fAnalysis, hasMixedSamples,
                                                            &args.fDstTexture, *args.fCaps));
-        if (!xferProcessor) {
-            pipeline->~GrPipeline();
-            return nullptr;
-        }
+        SkASSERT(xferProcessor);
     } else {
         // This may return nullptr in the common case of src-over implemented using hw blending.
         xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
@@ -83,7 +77,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         overrideColor = GrColor_ILLEGAL;
     }
 
-    pipeline->fXferProcessor.reset(xferProcessor.get());
+    fXferProcessor.reset(xferProcessor.get());
 
     if ((optFlags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (optFlags & GrXferProcessor::kOverrideColor_OptFlag)) {
@@ -94,50 +88,49 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 
     // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline, possibly removing some of the
     // color fragment processors.
-    pipeline->fNumColorProcessors =
-            args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
+    fNumColorProcessors = args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
     int numTotalProcessors =
-            pipeline->fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
+            fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
     if (args.fAppliedClip->clipCoverageFragmentProcessor()) {
         ++numTotalProcessors;
     }
-    pipeline->fFragmentProcessors.reset(numTotalProcessors);
+    fFragmentProcessors.reset(numTotalProcessors);
     int currFPIdx = 0;
     for (int i = colorFPsToEliminate; i < args.fProcessors->numColorFragmentProcessors();
          ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
-        pipeline->fFragmentProcessors[currFPIdx].reset(fp);
+        fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
 
     for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
-        pipeline->fFragmentProcessors[currFPIdx].reset(fp);
+        fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
     if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
-        pipeline->fFragmentProcessors[currFPIdx].reset(fp);
+        fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
-    optimizations->fFlags = 0;
+    GrPipelineOptimizations optimizations;
+    optimizations.fFlags = 0;
     if (GrColor_ILLEGAL != overrideColor) {
-        optimizations->fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
-        optimizations->fOverrideColor = overrideColor;
+        optimizations.fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
+        optimizations.fOverrideColor = overrideColor;
     }
     if (usesLocalCoords) {
-        optimizations->fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
+        optimizations.fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
     }
     if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
-        optimizations->fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
+        optimizations.fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
     }
 
     if (GrXPFactory::WillReadDst(xpFactory, *args.fAnalysis)) {
-        optimizations->fFlags |= GrPipelineOptimizations::kXPReadsDst_Flag;
+        optimizations.fFlags |= GrPipelineOptimizations::kXPReadsDst_Flag;
     }
-
-    return pipeline;
+    return optimizations;
 }
 
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
