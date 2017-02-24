@@ -548,6 +548,19 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
 }
 
 /*
+ * This is a bit tricky.  We only need the swizzler to do format conversion if the jpeg is
+ * encoded as CMYK.
+ * And even then we still may not need it.  If the jpeg has a CMYK color space and a color
+ * xform, the color xform will handle the CMYK->RGB conversion.
+ */
+static inline bool needs_swizzler_format_conversion(J_COLOR_SPACE jpegColorType,
+        const SkImageInfo& srcInfo, bool hasColorSpaceXform) {
+    bool isCMYK = JCS_CMYK == jpegColorType;
+    bool hasCMYKColorSpace = as_CSB(srcInfo.colorSpace())->onIsCMYK();
+    return isCMYK && (!hasCMYKColorSpace || !hasColorSpaceXform);
+}
+
+/*
  * Performs the jpeg decode
  */
 SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
@@ -584,8 +597,8 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     // If it's not, we want to know because it means our strategy is not optimal.
     SkASSERT(1 == dinfo->rec_outbuf_height);
 
-    J_COLOR_SPACE colorSpace = dinfo->out_color_space;
-    if (JCS_CMYK == colorSpace && nullptr == this->colorXform()) {
+    if (needs_swizzler_format_conversion(dinfo->out_color_space, this->getInfo(),
+            this->colorXform())) {
         this->initializeSwizzler(dstInfo, options);
     }
 
@@ -627,10 +640,10 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
 
 void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
     // libjpeg-turbo will handle format conversion from YUV to RGBA, BGRA, or 565.  fColorXform
-    // will handle format conversion from CMYK.  We only need the swizzler to perform format
-    // conversion when we have a CMYK image without a fColorXform.
-    bool skipFormatConversion = this->colorXform() ||
-                                (JCS_CMYK != fDecoderMgr->dinfo()->out_color_space);
+    // will sometimes handle format conversion from CMYK.  We only need the swizzler to perform
+    // format conversion when we have a CMYK image without a CMYK color xform.
+    bool skipFormatConversion = !needs_swizzler_format_conversion(
+            fDecoderMgr->dinfo()->out_color_space, this->getInfo(), this->colorXform());
 
     SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
     if (!skipFormatConversion) {
@@ -650,8 +663,8 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     }
 
     SkImageInfo swizzlerDstInfo = dstInfo;
-    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
-        // The color xform will handle conversion to F16.  It will be expecting RGBA 8888 input.
+    if (this->colorXform()) {
+        // The color xform will be expecting RGBA 8888 input.
         swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_8888_SkColorType);
     }
 
@@ -731,7 +744,8 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     }
 
     // Make sure we have a swizzler if we are converting from CMYK.
-    if (!fSwizzler && JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
+    if (!fSwizzler && needs_swizzler_format_conversion(fDecoderMgr->dinfo()->out_color_space,
+            this->getInfo(), this->colorXform())) {
         this->initializeSwizzler(dstInfo, options);
     }
 
