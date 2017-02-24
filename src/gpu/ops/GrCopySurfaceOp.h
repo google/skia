@@ -57,7 +57,8 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state, const SkRect& /*bounds*/) override {
+    void onExecute(GrOpFlushState* state, const SkRect& /*bounds*/, const GrAppliedClip*,
+                   GrRenderTarget* rt) override {
         if (!state->commandBuffer()) {
             state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
         } else {

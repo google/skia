@@ -16,6 +16,7 @@
 #include "GrProcOptInfo.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
+#include "GrProcessorSet.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
@@ -61,7 +62,7 @@ public:
         const GrProcessorSet* fProcessors = nullptr;
         const GrProcessorSet::FragmentProcessorAnalysis* fAnalysis;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
-        GrAppliedClip* fAppliedClip = nullptr;
+        const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
         const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstTexture fDstTexture;

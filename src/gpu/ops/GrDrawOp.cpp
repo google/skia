@@ -8,12 +8,3 @@
 #include "GrDrawOp.h"
 
 GrDrawOp::GrDrawOp(uint32_t classID) : INHERITED(classID) {}
-
-bool GrDrawOp::initPipeline(const GrPipeline::InitArgs& args) {
-    GrPipelineOptimizations optimizations;
-    if (!fPipeline.init(args, &optimizations)) {
-        return false;
-    }
-    this->applyPipelineOptimizations(optimizations);
-    return true;
-}
