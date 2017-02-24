@@ -16,7 +16,7 @@ namespace {
 
 class RasterWindowContext_xlib : public RasterWindowContext {
 public:
-    RasterWindowContext_xlib(Display*, XWindow, const DisplayParams&);
+    RasterWindowContext_xlib(Display*, XWindow, int width, int height, const DisplayParams&);
 
     sk_sp<SkSurface> getBackbufferSurface() override;
     void swapBuffers() override;
@@ -31,15 +31,13 @@ protected:
     GC       fGC;
 };
 
-RasterWindowContext_xlib::RasterWindowContext_xlib(Display* display, XWindow window,
-                                                   const DisplayParams& params)
+RasterWindowContext_xlib::RasterWindowContext_xlib(Display* display, XWindow window, int width,
+                                                   int height, const DisplayParams& params)
         : fDisplay(display)
         , fWindow(window) {
     fDisplayParams = params;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(fDisplay, fWindow, &attrs);
     fGC = XCreateGC(fDisplay, fWindow, 0, nullptr);
-    this->resize(attrs.width, attrs.height);
+    this->resize(width, height);
 }
 
 void RasterWindowContext_xlib::setDisplayParams(const DisplayParams& params) {
@@ -88,7 +86,8 @@ namespace sk_app {
 namespace window_context_factory {
 
 WindowContext* NewRasterForXlib(const XlibWindowInfo& info, const DisplayParams& params) {
-    WindowContext* ctx = new RasterWindowContext_xlib(info.fDisplay, info.fWindow, params);
+    WindowContext* ctx = new RasterWindowContext_xlib(info.fDisplay, info.fWindow, info.fWidth,
+                                                      info.fHeight, params);
     if (!ctx->isValid()) {
         delete ctx;
         ctx = nullptr;

@@ -44,6 +44,8 @@ GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo, const 
         , fWindow(winInfo.fWindow)
         , fVisualInfo(winInfo.fVisualInfo)
         , fGLContext() {
+    fWidth = winInfo.fWidth;
+    fHeight = winInfo.fHeight;
     this->initializeContext();
 }
 

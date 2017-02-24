@@ -71,6 +71,7 @@ void Window_android::initDisplay(ANativeWindow* window) {
             break;
 #endif
     }
+    this->onBackendCreated();
 }
 
 void Window_android::onDisplayDestroyed() {

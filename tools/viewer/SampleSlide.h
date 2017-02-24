@@ -20,8 +20,8 @@ public:
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void unload() override;
     bool animate(const SkAnimTimer& timer) override {
-        if (SampleView::IsSampleView(fView)) {
-            return ((SampleView*)fView)->animate(timer);
+        if (fView && SampleView::IsSampleView(fView.get())) {
+            return ((SampleView*)fView.get())->animate(timer);
         }
         return false;
     }
@@ -30,7 +30,7 @@ public:
 
 private:
     const SkViewFactory*   fViewFactory;
-    SkView*                fView;
+    sk_sp<SkView>          fView;
 };
 
 #endif
