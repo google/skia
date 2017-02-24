@@ -648,6 +648,19 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
     ::piex::PreviewImageData imageData;
     if (::piex::IsRaw(&piexStream)) {
         ::piex::Error error = ::piex::GetPreviewImageData(&piexStream, &imageData);
+        if (error == ::piex::Error::kFail) {
+            return nullptr;
+        }
+
+        sk_sp<SkColorSpace> colorSpace;
+        switch (imageData.color_space) {
+            case ::piex::PreviewImageData::kSrgb:
+                colorSpace = SkColorSpace::MakeSRGB();
+                break;
+            case ::piex::PreviewImageData::kAdobeRgb:
+                colorSpace = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+                break;
+        }
 
         //  Theoretically PIEX can return JPEG compressed image or uncompressed RGB image. We only
         //  handle the JPEG compressed preview image here.
@@ -659,9 +672,8 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
             // FIXME: one may avoid the copy of memoryStream and use the buffered rawStream.
             SkMemoryStream* memoryStream =
                 rawStream->transferBuffer(imageData.preview.offset, imageData.preview.length);
-            return memoryStream ? SkJpegCodec::NewFromStream(memoryStream) : nullptr;
-        } else if (error == ::piex::Error::kFail) {
-            return nullptr;
+            return memoryStream ? SkJpegCodec::NewFromStream(memoryStream, std::move(colorSpace))
+                                : nullptr;
         }
     }
 
