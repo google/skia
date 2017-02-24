@@ -19,49 +19,42 @@
 
 #include "ops/GrOp.h"
 
-GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
-                                 GrPipelineOptimizations* optimizations) {
+bool GrPipeline::init(const InitArgs& args, GrPipelineOptimizations* optimizations) {
     SkASSERT(args.fAnalysis);
     SkASSERT(args.fRenderTarget);
 
-    GrPipeline* pipeline = new (memory) GrPipeline;
-    pipeline->fRenderTarget.reset(args.fRenderTarget);
-    pipeline->fScissorState = args.fAppliedClip->scissorState();
-    pipeline->fWindowRectsState = args.fAppliedClip->windowRectsState();
-    pipeline->fUserStencilSettings = args.fUserStencil;
-    pipeline->fDrawFace = static_cast<int16_t>(args.fDrawFace);
+    fScissorState = args.fAppliedClip->scissorState();
+    fWindowRectsState = args.fAppliedClip->windowRectsState();
+    fUserStencilSettings = args.fUserStencil;
+    fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
-    pipeline->fFlags = args.fFlags;
+    fFlags = args.fFlags;
     if (args.fProcessors->usesDistanceVectorField()) {
-        pipeline->fFlags |= kUsesDistanceVectorField_Flag;
+        fFlags |= kUsesDistanceVectorField_Flag;
     }
     if (args.fAppliedClip->hasStencilClip()) {
-        pipeline->fFlags |= kHasStencilClip_Flag;
+        fFlags |= kHasStencilClip_Flag;
     }
     if (!args.fUserStencil->isDisabled(args.fAppliedClip->hasStencilClip())) {
-        pipeline->fFlags |= kStencilEnabled_Flag;
+        fFlags |= kStencilEnabled_Flag;
     }
     if (args.fProcessors->disableOutputConversionToSRGB()) {
-        pipeline->fFlags |= kDisableOutputConversionToSRGB_Flag;
+        fFlags |= kDisableOutputConversionToSRGB_Flag;
     }
     if (args.fProcessors->allowSRGBInputs()) {
-        pipeline->fFlags |= kAllowSRGBInputs_Flag;
+        fFlags |= kAllowSRGBInputs_Flag;
     }
 
     bool isHWAA = kHWAntialias_Flag & args.fFlags;
 
     // Create XferProcessor from DS's XPFactory
-    bool hasMixedSamples = args.fRenderTarget->isMixedSampled() &&
-                           (isHWAA || pipeline->isStencilEnabled());
+    bool hasMixedSamples = args.fRenderTarget->isMixedSampled() && (isHWAA || isStencilEnabled());
     const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
     sk_sp<GrXferProcessor> xferProcessor;
     if (xpFactory) {
         xferProcessor.reset(xpFactory->createXferProcessor(*args.fAnalysis, hasMixedSamples,
                                                            &args.fDstTexture, *args.fCaps));
-        if (!xferProcessor) {
-            pipeline->~GrPipeline();
-            return nullptr;
-        }
+        SkASSERT(xferProcessor);
     } else {
         // This may return nullptr in the common case of src-over implemented using hw blending.
         xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
@@ -79,11 +72,10 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
             &overrideColor, *args.fCaps);
 
     // When path rendering the stencil settings are not always set on the GrPipelineBuilder
-    // so we must check the draw type. In cases where we will skip drawing we simply return a
-    // null GrPipeline.
+    // so we must check the draw type. In cases where we will skip drawing we simply fail to
+    // initialize the pipeline and rely on the caller to check the return value and abort.
     if (GrXferProcessor::kSkipDraw_OptFlag & optFlags) {
-        pipeline->~GrPipeline();
-        return nullptr;
+        return false;
     }
 
     // No need to have an override color if it isn't even going to be used.
@@ -91,7 +83,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         overrideColor = GrColor_ILLEGAL;
     }
 
-    pipeline->fXferProcessor.reset(xferProcessor.get());
+    fXferProcessor.reset(xferProcessor.get());
 
     if ((optFlags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (optFlags & GrXferProcessor::kOverrideColor_OptFlag)) {
@@ -102,29 +94,28 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 
     // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline, possibly removing some of the
     // color fragment processors.
-    pipeline->fNumColorProcessors =
-            args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
+    fNumColorProcessors = args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
     int numTotalProcessors =
-            pipeline->fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
+            fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
     if (args.fAppliedClip->clipCoverageFragmentProcessor()) {
         ++numTotalProcessors;
     }
-    pipeline->fFragmentProcessors.reset(numTotalProcessors);
+    fFragmentProcessors.reset(numTotalProcessors);
     int currFPIdx = 0;
     for (int i = colorFPsToEliminate; i < args.fProcessors->numColorFragmentProcessors();
          ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
-        pipeline->fFragmentProcessors[currFPIdx].reset(fp);
+        fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
 
     for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
-        pipeline->fFragmentProcessors[currFPIdx].reset(fp);
+        fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
     if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
-        pipeline->fFragmentProcessors[currFPIdx].reset(fp);
+        fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
 
@@ -145,7 +136,11 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         optimizations->fFlags |= GrPipelineOptimizations::kXPReadsDst_Flag;
     }
 
-    return pipeline;
+    // Initialize this last because a null render target is used to signal the
+    // caller should abort drawing.
+    fRenderTarget.reset(args.fRenderTarget);
+
+    return true;
 }
 
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
