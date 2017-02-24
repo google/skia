@@ -934,28 +934,35 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 ImGui::RadioButton("Color Managed 8888", &newMode, 1);
                 ImGui::RadioButton("Color Managed F16", &newMode, 2);
                 if (newMode != oldMode) {
-                    this->setColorMode(2 == newMode ? kRGBA_F16_SkColorType : kN32_SkColorType,
-                                       0 != newMode);
+                    // It isn't safe to switch color mode now (in the middle of painting). We might
+                    // tear down the back-end, etc... Defer this change until the next onIdle.
+                    fDeferredActions.push_back([=]() {
+                        this->setColorMode(2 == newMode ? kRGBA_F16_SkColorType : kN32_SkColorType,
+                                           0 != newMode);
+                    });
                 }
 
-                // Pick from common gamuts:
-                int primariesIdx = 4; // Default: Custom
-                for (size_t i = 0; i < SK_ARRAY_COUNT(gNamedPrimaries); ++i) {
-                    if (primaries_equal(*gNamedPrimaries[i].fPrimaries, fColorSpacePrimaries)) {
-                        primariesIdx = i;
-                        break;
+                // Allow editing of color-space, if we're not in legacy mode
+                if (fColorManaged) {
+                    // Pick from common gamuts:
+                    int primariesIdx = 4; // Default: Custom
+                    for (size_t i = 0; i < SK_ARRAY_COUNT(gNamedPrimaries); ++i) {
+                        if (primaries_equal(*gNamedPrimaries[i].fPrimaries, fColorSpacePrimaries)) {
+                            primariesIdx = i;
+                            break;
+                        }
                     }
-                }
 
-                if (ImGui::Combo("Primaries", &primariesIdx,
-                                 "sRGB\0AdobeRGB\0P3\0Rec. 2020\0Custom\0\0")) {
-                    if (primariesIdx >= 0 && primariesIdx <= 3) {
-                        fColorSpacePrimaries = *gNamedPrimaries[primariesIdx].fPrimaries;
+                    if (ImGui::Combo("Primaries", &primariesIdx,
+                                     "sRGB\0AdobeRGB\0P3\0Rec. 2020\0Custom\0\0")) {
+                        if (primariesIdx >= 0 && primariesIdx <= 3) {
+                            fColorSpacePrimaries = *gNamedPrimaries[primariesIdx].fPrimaries;
+                        }
                     }
-                }
 
-                // Allow direct editing of gamut
-                ImGui_Primaries(&fColorSpacePrimaries, &fImGuiGamutPaint);
+                    // Allow direct editing of gamut
+                    ImGui_Primaries(&fColorSpacePrimaries, &fImGuiGamutPaint);
+                }
             }
         }
 
@@ -1038,6 +1045,11 @@ void Viewer::drawImGui(SkCanvas* canvas) {
 }
 
 void Viewer::onIdle() {
+    for (int i = 0; i < fDeferredActions.count(); ++i) {
+        fDeferredActions[i]();
+    }
+    fDeferredActions.reset();
+
     double startTime = SkTime::GetMSecs();
     fAnimTimer.updateTime();
     bool animateWantsInval = fSlides[fCurrentSlide]->animate(fAnimTimer);
