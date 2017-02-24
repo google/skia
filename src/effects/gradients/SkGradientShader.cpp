@@ -8,6 +8,7 @@
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"
+#include "SkGrPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
 #include "SkRadialGradient.h"

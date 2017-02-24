@@ -104,7 +104,7 @@ GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& para
     if (texColorSpace) {
         *texColorSpace = this->fColorSpace;
     }
-    GrTextureAdjuster adjuster(fTexture.get(), this->alphaType(), this->bounds(),
+    GrTextureAdjuster adjuster(ctx, fTexture.get(), this->alphaType(), this->bounds(),
                                this->uniqueID(), this->fColorSpace.get());
     return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
 }

@@ -36,7 +36,7 @@ public:
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
-    GrTextureAdjuster(GrTexture*, SkAlphaType, const SkIRect& area, uint32_t uniqueID,
+    GrTextureAdjuster(GrContext*, GrTexture*, SkAlphaType, const SkIRect& area, uint32_t uniqueID,
                       SkColorSpace*);
 
 protected:
@@ -52,6 +52,7 @@ protected:
 
 private:
     SkTLazy<SkIRect>    fContentArea;
+    GrContext*          fContext;
     GrTexture*          fOriginal;
     SkAlphaType         fAlphaType;
     SkColorSpace*       fColorSpace;
