@@ -143,10 +143,15 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
     }
 }
 
+#include "GrResourceProvider.h"
+
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
-                                                   SkBudgeted budgeted) {
+                                                   SkBudgeted budgeted,
+                                                   uint32_t flags) {
+    SkASSERT(0 == flags || GrResourceProvider::kNoPendingIO_Flag == flags);
+
     // TODO: share this testing code with check_texture_creation_params
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         if (SkBackingFit::kApprox == fit || kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
@@ -191,7 +196,8 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(caps, copyDesc, fit, budgeted));
+        return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(caps, copyDesc, fit,
+                                                                    budgeted));
     }
 
     return sk_sp<GrSurfaceProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0));
@@ -205,8 +211,8 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    size_t rowBytes) {
     if (srcData) {
         // If we have srcData, for now, we create a wrapped GrTextureProxy
-        sk_sp<GrSurface> surf(texProvider->createTexture(desc, budgeted, srcData, rowBytes));
-        return GrSurfaceProxy::MakeWrapped(std::move(surf));
+        sk_sp<GrTexture> tex(texProvider->createTexture(desc, budgeted, srcData, rowBytes));
+        return GrSurfaceProxy::MakeWrapped(std::move(tex));
     }
 
     return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);

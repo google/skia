@@ -8,6 +8,7 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
+#include "GrContextPriv.h"
 #include "GrOpFlushState.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
@@ -67,6 +68,11 @@ public:
 
     void prepareSurfaceForExternalIO(GrSurface*);
 
+    void addAtlasCallBack(GrContextPriv::PFAtlasCallBack atlasCB, void* data) {
+        fAtlasCallBacks.push_back() = atlasCB;
+        fAtlasData.push_back() = data;
+    }
+
 private:
     GrDrawingManager(GrContext* context,
                      const GrRenderTargetOpList::Options& optionsForOpLists,
@@ -92,6 +98,7 @@ private:
     void internalFlush(GrResourceCache::FlushType);
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
+    friend class GrAtlasHelper;
 
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
@@ -115,6 +122,9 @@ private:
     bool                              fFlushing;
 
     bool                              fIsImmediateMode;
+
+    SkTArray<GrContextPriv::PFAtlasCallBack> fAtlasCallBacks;
+    SkTArray<void*>                          fAtlasData;
 };
 
 #endif
