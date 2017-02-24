@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f7a7309_2e771146",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-24T01:44:33Z",
+      "side": 1,
+      "message": "None of the GrXPFactory subclasses return null.",
+      "range": {
+        "startLine": 58,
+        "startChar": 8,
+        "endLine": 58,
+        "endChar": 31
+      },
+      "revId": "d5245255a4ba4e0311f76e9e80d9735807249d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
