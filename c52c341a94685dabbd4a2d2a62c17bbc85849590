@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2254c7a4_8b69fe78",
+        "filename": "src/core/SkBitmapDevice.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-24T14:40:20Z",
+      "side": 1,
+      "message": "looks like this could live in the .cpp, and then we could skip the SkDraw.h include too.",
+      "revId": "c52c341a94685dabbd4a2d2a62c17bbc85849590",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90e98494_481419f7",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1631,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-24T14:40:20Z",
+      "side": 1,
+      "message": "TODO: implement with device method, I presume.\n\nOr delete if no clients?",
+      "revId": "c52c341a94685dabbd4a2d2a62c17bbc85849590",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
