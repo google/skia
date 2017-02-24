@@ -551,6 +551,22 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
 }
 
 /*
+ * This is a bit tricky.  We only need the swizzler to do format conversion if the jpeg is
+ * encoded as CMYK.
+ * And even then we still may not need it.  If the jpeg has a CMYK color space and a color
+ * xform, the color xform will handle the CMYK->RGB conversion.
+ */
+static inline bool needs_swizzler_to_convert_from_cmyk(J_COLOR_SPACE jpegColorType,
+        const SkImageInfo& srcInfo, bool hasColorSpaceXform) {
+    if (JCS_CMYK != jpegColorType) {
+        return false;
+    }
+
+    bool hasCMYKColorSpace = as_CSB(srcInfo.colorSpace())->onIsCMYK();
+    return !hasCMYKColorSpace || !hasColorSpaceXform;
+}
+
+/*
  * Performs the jpeg decode
  */
 SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
@@ -587,9 +603,9 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     // If it's not, we want to know because it means our strategy is not optimal.
     SkASSERT(1 == dinfo->rec_outbuf_height);
 
-    J_COLOR_SPACE colorSpace = dinfo->out_color_space;
-    if (JCS_CMYK == colorSpace && nullptr == this->colorXform()) {
-        this->initializeSwizzler(dstInfo, options);
+    if (needs_swizzler_to_convert_from_cmyk(dinfo->out_color_space, this->getInfo(),
+            this->colorXform())) {
+        this->initializeSwizzler(dstInfo, options, true);
     }
 
     this->allocateStorage(dstInfo);
@@ -628,15 +644,10 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
     }
 }
 
-void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
-    // libjpeg-turbo will handle format conversion from YUV to RGBA, BGRA, or 565.  fColorXform
-    // will handle format conversion from CMYK.  We only need the swizzler to perform format
-    // conversion when we have a CMYK image without a fColorXform.
-    bool skipFormatConversion = this->colorXform() ||
-                                (JCS_CMYK != fDecoderMgr->dinfo()->out_color_space);
-
+void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
+        bool needsCMYKToRGB) {
     SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
-    if (!skipFormatConversion) {
+    if (needsCMYKToRGB) {
         swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kInvertedCMYK_Color,
                                            swizzlerInfo.alpha(),
                                            swizzlerInfo.bitsPerComponent());
@@ -653,13 +664,13 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     }
 
     SkImageInfo swizzlerDstInfo = dstInfo;
-    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
-        // The color xform will handle conversion to F16.  It will be expecting RGBA 8888 input.
+    if (this->colorXform()) {
+        // The color xform will be expecting RGBA 8888 input.
         swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_8888_SkColorType);
     }
 
     fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, swizzlerDstInfo,
-                                               swizzlerOptions, nullptr, skipFormatConversion));
+                                               swizzlerOptions, nullptr, !needsCMYKToRGB));
     SkASSERT(fSwizzler);
 }
 
@@ -669,7 +680,9 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
         return fSwizzler.get();
     }
 
-    this->initializeSwizzler(this->dstInfo(), this->options());
+    bool needsCMYKToRGB = needs_swizzler_to_convert_from_cmyk(
+            fDecoderMgr->dinfo()->out_color_space, this->getInfo(), this->colorXform());
+    this->initializeSwizzler(this->dstInfo(), this->options(), needsCMYKToRGB);
     this->allocateStorage(this->dstInfo());
     return fSwizzler.get();
 }
@@ -696,6 +709,8 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
+    bool needsCMYKToRGB = needs_swizzler_to_convert_from_cmyk(
+            fDecoderMgr->dinfo()->out_color_space, this->getInfo(), this->colorXform());
     if (options.fSubset) {
         uint32_t startX = options.fSubset->x();
         uint32_t width = options.fSubset->width();
@@ -729,13 +744,13 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         // subset that we request.
         if (startX != (uint32_t) options.fSubset->x() ||
                 width != (uint32_t) options.fSubset->width()) {
-            this->initializeSwizzler(dstInfo, options);
+            this->initializeSwizzler(dstInfo, options, needsCMYKToRGB);
         }
     }
 
     // Make sure we have a swizzler if we are converting from CMYK.
-    if (!fSwizzler && JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
-        this->initializeSwizzler(dstInfo, options);
+    if (!fSwizzler && needsCMYKToRGB) {
+        this->initializeSwizzler(dstInfo, options, true);
     }
 
     this->allocateStorage(dstInfo);
