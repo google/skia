@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "2d517c46_4ad82b1c",
+        "filename": "src/core/SkRecordDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-02-24T21:55:39Z",
+      "side": 1,
+      "message": "We can clip a reversely transformed rect (e.g., rotate back) to simulate HWUI\u0027s behavior. But that seems to be more costly than this approach?",
+      "parentUuid": "3cf3006a_91fff32f",
+      "revId": "17154157ca03a4d2f72e4ce8ec01e30cb4aa3392",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0126cdd0_689a78ed",
         "filename": "src/core/SkRecordOpts.cpp",
         "patchSetId": 1
@@ -48,6 +66,30 @@
       "writtenOn": "2017-02-24T21:38:07Z",
       "side": 1,
       "message": "Are drawBounds in the same coordinate system as saveLayerBounds?\n\nThe user specifies it in local coordinates, as with their drawing bounds (e.g. drawRect), but could there be any matrix changes in the canvas between these two?",
+      "range": {
+        "startLine": 203,
+        "startChar": 31,
+        "endLine": 203,
+        "endChar": 32
+      },
+      "revId": "17154157ca03a4d2f72e4ce8ec01e30cb4aa3392",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08a6e200_1bd851ca",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-02-24T21:55:39Z",
+      "side": 1,
+      "message": "Since the match is \"savelayer -\u003e draw -\u003e restore\", there should be no matrix changes between savelayer and draw.",
+      "parentUuid": "0126cdd0_689a78ed",
       "range": {
         "startLine": 203,
         "startChar": 31,
