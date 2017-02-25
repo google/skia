@@ -157,23 +157,28 @@ void span_fallback(Span span, Stage* stage) {
     SkScalar length;
     int count;
     std::tie(start, length, count) = span;
-    Sk4f xs{X(start)};
+    Sk4f startXs{X(start)};
     Sk4f ys{Y(start)};
+    Sk4f mults = {0.0f, 1.0f, 2.0f, 3.0f};
 
     // Initializing this is not needed, but some compilers can't figure this out.
-    Sk4s fourDx{0.0f};
+    Sk4s dXs{0.0f};
     if (count > 1) {
         SkScalar dx = length / (count - 1);
-        xs = xs + Sk4f{0.0f, 1.0f, 2.0f, 3.0f} * dx;
-        // Only used if count is >= 4.
-        fourDx = Sk4f{4.0f * dx};
+        dXs = Sk4f{dx};
     }
 
+    // Instead of using xs = xs + dx every round, this uses xs = i * dx + X(start). This
+    // eliminates the rounding error for the sum.
+    Sk4f xs = startXs + mults * dXs;
     while (count >= 4) {
         stage->pointList4(xs, ys);
-        xs = xs + fourDx;
+
+        mults += Sk4f{4.0f};
+        xs = mults * dXs + startXs;
         count -= 4;
     }
+
     if (count > 0) {
         stage->pointListFew(count, xs, ys);
     }
