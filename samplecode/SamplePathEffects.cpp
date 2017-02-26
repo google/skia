@@ -45,7 +45,7 @@ static sk_sp<SkPathEffect> make_pe(int flags, SkScalar phase) {
 
     auto inner = SkCornerPathEffect::Make(SkIntToScalar(CORNER_RADIUS));
 
-    return SkComposePathEffect::Make(outer, inner);
+    return SkPathEffect::MakeCompose(outer, inner);
 }
 
 static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
@@ -61,7 +61,7 @@ static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
         path, 12, phase, SkPath1DPathEffect::kMorph_Style);
     auto inner = SkCornerPathEffect::Make(SkIntToScalar(CORNER_RADIUS));
 
-    return SkComposePathEffect::Make(outer, inner);
+    return SkPathEffect::MakeCompose(outer, inner);
 }
 
 ///////////////////////////////////////////////////////////

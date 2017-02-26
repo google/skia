@@ -20,7 +20,7 @@ static void compose_pe(SkPaint* paint) {
     sk_sp<SkPathEffect> corner = SkCornerPathEffect::Make(25);
     sk_sp<SkPathEffect> compose;
     if (pe) {
-        compose = SkComposePathEffect::Make(sk_ref_sp(pe), corner);
+        compose = SkPathEffect::MakeCompose(sk_ref_sp(pe), corner);
     } else {
         compose = corner;
     }

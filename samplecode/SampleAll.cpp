@@ -490,7 +490,7 @@ protected:
             gPhase, SkPath1DPathEffect::kRotate_Style);
         auto inner = SkDiscretePathEffect::Make(SkIntToScalar(2),
             SkIntToScalar(1)/10); // SkCornerPathEffect(SkIntToScalar(2));
-        return SkComposePathEffect::Make(outer, inner);
+        return SkPathEffect::MakeCompose(outer, inner);
     }
 
     sk_sp<SkShader> shaderTest() {
