@@ -104,7 +104,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath1DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLine2DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath2DPathEffect)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSumPathEffect)
 
     // ImageFilter
     SkImageFilter::InitializeFlattenables();
