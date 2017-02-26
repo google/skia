@@ -422,7 +422,7 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
             pathEffect = SkArcToPathEffect::Make(make_scalar(true));
             break;
         case 1:
-            pathEffect = SkComposePathEffect::Make(make_path_effect(false),
+            pathEffect = SkPathEffect::MakeCompose(make_path_effect(false),
                                                    make_path_effect(false));
             break;
         case 2:
@@ -452,7 +452,7 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
             break;
         case 8:
         default:
-            pathEffect = SkSumPathEffect::Make(make_path_effect(false),
+            pathEffect = SkPathEffect::MakeSum(make_path_effect(false),
                                                make_path_effect(false));
             break;
     }
