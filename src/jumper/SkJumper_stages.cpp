@@ -270,40 +270,35 @@ static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
     *b = cast(wide & k->b_565_mask) * k->b_565_scale;
 }
 
-template <typename V, typename T>
-static V load(const T* ptr, size_t tail) {
-#if !defined(JUMPER)
-    return *ptr;
-#else
-    V v{};
+template <typename T>
+static inline void small_memcpy(T* dst, const T* src, size_t tail) {
+    __builtin_assume(tail > 0);
     __builtin_assume(tail < sizeof(F) / sizeof(float));
-    switch (__builtin_expect(tail, 0)) {
-        case 0: memcpy(&v, ptr,   sizeof(v)); break;
-        case 7: v[6] = ptr[6];
-        case 6: v[5] = ptr[5];
-        case 5: v[4] = ptr[4];
-        case 4: memcpy(&v, ptr, 4*sizeof(T)); break;
-        case 3: v[2] = ptr[2];
-        case 2: memcpy(&v, ptr, 2*sizeof(T)); break;
-        case 1: memcpy(&v, ptr, 1*sizeof(T)); break;
+    while (tail --> 0) {
+        *dst++ = *src++;
     }
-    return v;
-#endif
 }
 
 template <typename V, typename T>
-static void store(T* ptr, V v, size_t tail) {
-#if !defined(JUMPER)
-    *ptr = v;
-#else
-    if (tail == 0) {
-        memcpy(ptr, &v, sizeof(v));
-        return;
-    }
-    for (size_t i = 0; i < tail; i++) {
-        ptr[i] = v[i];
-    }
+static inline V load(const T* ptr, size_t tail) {
+    V v{};
+#if defined(JUMPER)
+    if (tail) {
+        small_memcpy((T*)&v, ptr, tail);
+    } else
 #endif
+    memcpy(&v, ptr, sizeof(v));
+    return v;
+}
+
+template <typename V, typename T>
+static inline void store(T* ptr, V v, size_t tail) {
+#if defined(JUMPER)
+    if (tail) {
+        small_memcpy(ptr, (T*)&v, tail);
+    } else
+#endif
+    memcpy(ptr, &v, sizeof(v));
 }
 
 // Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
