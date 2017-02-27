@@ -7,12 +7,12 @@
 
 #include "SkCpu.h"
 #include "SkJumper.h"
+#include "SkOnce.h"
 #include "SkRasterPipeline.h"
 #include "SkTemplates.h"
 
 // A debugging mode that helps prioritize porting stages to SkJumper.
 #if 0
-    #include "SkOnce.h"
     #include <atomic>
 
     #define M(st) {0},
@@ -107,24 +107,24 @@ extern "C" {
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
-    size_t ASM(start_pipeline,aarch64)(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,aarch64)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,aarch64);
     #define M(st) StageFn ASM(st,aarch64);
         STAGES(M)
     #undef M
 
 #elif defined(__arm__)
-    size_t ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,vfp4);
     #define M(st) StageFn ASM(st,vfp4);
         STAGES(M)
     #undef M
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    size_t ASM(start_pipeline,hsw  )(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,avx  )(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,sse41)(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,sse2 )(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,hsw  )(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,avx  )(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,sse41)(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,sse2 )(size_t, void**, K*, size_t);
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,avx),
@@ -146,7 +146,7 @@ extern "C" {
 #endif
 
     // Portable, single-pixel stages.
-    size_t sk_start_pipeline(size_t, void**, K*, size_t);
+    void sk_start_pipeline(size_t, void**, K*, size_t);
     StageFn sk_just_return;
     #define M(st) StageFn sk_##st;
         STAGES(M)
@@ -236,79 +236,75 @@ static StageFn* lookup_portable(SkRasterPipeline::StockStage st) {
 
 bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
 #ifdef WHATS_NEXT
-    static SkOnce once;
-    once([] {
-        atexit([] {
-            for (int i = 0; i < (int)SK_ARRAY_COUNT(gMissing); i++) {
-                SkDebugf("%10d %s\n", gMissing[i].load(), gNames[i]);
-            }
+    {
+        static SkOnce once;
+        once([] {
+            atexit([] {
+                for (int i = 0; i < (int)SK_ARRAY_COUNT(gMissing); i++) {
+                    SkDebugf("%10d %s\n", gMissing[i].load(), gNames[i]);
+                }
+            });
         });
-    });
+    }
 #endif
+
+    static auto lookup         = lookup_portable;
+    static auto just_return    = sk_just_return;
+    static auto start_pipeline = sk_start_pipeline;
+
+    static SkOnce once;
+    once([&] {
+    #if __has_feature(memory_sanitizer)
+        // We'll just run portable code.
+
+    #elif defined(__aarch64__)
+        if (1) {
+            lookup         = lookup_aarch64;
+            just_return    = sk_just_return_aarch64;
+            start_pipeline = sk_start_pipeline_aarch64;
+        }
+    #elif defined(__arm__)
+        if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
+            lookup         = lookup_vfp4;
+            just_return    = sk_just_return_vfp4;
+            start_pipeline = sk_start_pipeline_vfp4;
+        }
+    #elif defined(__x86_64__) || defined(_M_X64)
+        if (1 && SkCpu::Supports(SkCpu::SSE2)) {
+            lookup         = lookup_sse2;
+            just_return    = sk_just_return_sse2;
+            start_pipeline = sk_start_pipeline_sse2;
+        }
+        if (1 && SkCpu::Supports(SkCpu::SSE41)) {
+            lookup         = lookup_sse41;
+            just_return    = sk_just_return_sse41;
+            start_pipeline = sk_start_pipeline_sse41;
+        }
+        if (1 && SkCpu::Supports(SkCpu::AVX)) {
+            lookup         = lookup_avx;
+            just_return    = sk_just_return_avx;
+            start_pipeline = sk_start_pipeline_avx;
+        }
+        if (1 && SkCpu::Supports(SkCpu::HSW)) {
+            lookup         = lookup_hsw;
+            just_return    = sk_just_return_hsw;
+            start_pipeline = sk_start_pipeline_hsw;
+        }
+    #endif
+    });
 
     SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
-    const size_t limit = x+n;
-
-    auto build_and_run = [&](size_t   stride,
-                             StageFn* (*lookup)(SkRasterPipeline::StockStage),
-                             StageFn* just_return,
-                             size_t   (*start_pipeline)(size_t, void**, K*, size_t)) {
-        if (x + stride <= limit) {
-            void** ip = program.get();
-            for (auto&& st : fStages) {
-                auto fn = lookup(st.stage);
-                if (!fn) {
-                    return false;
-                }
-                *ip++ = (void*)fn;
-                *ip++ = st.ctx;
-            }
-            *ip = (void*)just_return;
-
-            x = start_pipeline(x, program.get(), &kConstants, limit);
-        }
-        return true;
-    };
-
-    // While possible, build and run at full vector stride.
-#if __has_feature(memory_sanitizer)
-    // We'll just run portable code.
-
-#elif defined(__aarch64__)
-    if (!build_and_run(4, lookup_aarch64, ASM(just_return,aarch64), ASM(start_pipeline,aarch64))) {
-        return false;
-    }
-
-#elif defined(__arm__)
-    if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
-        if (!build_and_run(2, lookup_vfp4, ASM(just_return,vfp4), ASM(start_pipeline,vfp4))) {
+    void** ip = program.get();
+    for (auto&& st : fStages) {
+        auto fn = lookup(st.stage);
+        if (!fn) {
             return false;
         }
+        *ip++ = (void*)fn;
+        *ip++ = st.ctx;
     }
+    *ip = (void*)just_return;
 
-#elif defined(__x86_64__) || defined(_M_X64)
-    if (1 && SkCpu::Supports(SkCpu::HSW)) {
-        if (!build_and_run(8, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
-            return false;
-        }
-    }
-    if (1 && SkCpu::Supports(SkCpu::AVX)) {
-        if (!build_and_run(8, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
-            return false;
-        }
-    }
-    if (1 && SkCpu::Supports(SkCpu::SSE41)) {
-        if (!build_and_run(4, lookup_sse41, ASM(just_return,sse41), ASM(start_pipeline,sse41))) {
-            return false;
-        }
-    }
-    if (1 && SkCpu::Supports(SkCpu::SSE2)) {
-        if (!build_and_run(4, lookup_sse2, ASM(just_return,sse2), ASM(start_pipeline,sse2))) {
-            return false;
-        }
-    }
-#endif
-
-    // Finish up any leftover with portable code one pixel at a time.
-    return build_and_run(1, lookup_portable, sk_just_return, sk_start_pipeline);
+    start_pipeline(x, program.get(), &kConstants, x+n);
+    return true;
 }

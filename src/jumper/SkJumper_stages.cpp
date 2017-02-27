@@ -283,7 +283,7 @@ static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
 
 // Stages tail call between each other by following program,
 // an interlaced sequence of Stage pointers and context pointers.
-using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
+using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
 
 static void* load_and_inc(void**& program) {
 #if defined(__GNUC__) && defined(__x86_64__)
@@ -313,16 +313,16 @@ static void* load_and_inc(void**& program) {
 }
 
 #define STAGE(name)                                                           \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
+    static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
+    extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
                               F r, F g, F b, F a, F dr, F dg, F db, F da) {   \
         auto ctx = load_and_inc(program);                                     \
-        name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
+        name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
         auto next = (Stage*)load_and_inc(program);                            \
-        next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
+        next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
     }                                                                         \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
+    static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 // Some glue stages that don't fit the normal pattern of stages.
@@ -330,15 +330,17 @@ static void* load_and_inc(void**& program) {
 #if defined(JUMPER) && defined(WIN)
 __attribute__((ms_abi))
 #endif
-extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
     F v{};
     size_t stride = sizeof(F) / sizeof(float);
     auto start = (Stage*)load_and_inc(program);
     while (x + stride <= limit) {
-        start(x,program,k, v,v,v,v, v,v,v,v);
+        start(x,program,k,0, v,v,v,v, v,v,v,v);
         x += stride;
     }
-    return x;
+    if (size_t tail = limit - x) {
+        start(x,program,k,tail, v,v,v,v, v,v,v,v);
+    }
 }
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
