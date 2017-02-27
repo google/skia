@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5f846c6_0f9c7f6c",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1179,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-02-27T23:03:07Z",
+      "side": 1,
+      "message": "I\u0027m not sure how costly it is to generate the prState[kOptions]. If it is fairly costly, I would compute it once and just set prState[kOptions] \u003d fAvailablePathRendererOptions (like fAllSlideNames). That\u0027s because updateUIState would be run at each frame and this could be the bottleneck to limit the FPS. If the generation time is almost free (e.g.,  \u003c 0.2ms), then I\u0027m fine with just computing it every time.",
+      "revId": "4ee06e6f3f26259298d33c139c87717bc591e662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ed63f4a_363f403b",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-02-27T23:03:07Z",
+      "side": 1,
+      "message": "According to the comment in 1213, I think you need to updateUIState both in kPathRendererStateName case, and kMSAAStateName case, unless you have some other hooks that call it (e.g., kSlideStateName has that in setupCurrentSlide, and kBackendStateName has that in onBackendCreated)",
+      "revId": "4ee06e6f3f26259298d33c139c87717bc591e662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
