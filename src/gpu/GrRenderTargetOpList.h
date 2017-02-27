@@ -128,6 +128,8 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
+    SkDEBUGCODE(void validateForAtlas() const;)
+
 private:
     friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
 
