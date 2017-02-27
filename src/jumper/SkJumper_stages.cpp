@@ -259,7 +259,6 @@ static Dst bit_cast(const Src& src) {
     static U32 expand(U8  v) { return (U32)v; }
 #endif
 
-
 static F lerp(F from, F to, F t) {
     return mad(to-from, t, from);
 }
@@ -269,6 +268,42 @@ static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
     *r = cast(wide & k->r_565_mask) * k->r_565_scale;
     *g = cast(wide & k->g_565_mask) * k->g_565_scale;
     *b = cast(wide & k->b_565_mask) * k->b_565_scale;
+}
+
+template <typename V, typename T>
+static V load(const T* ptr, size_t tail) {
+#if !defined(JUMPER)
+    return *ptr;
+#else
+    V v{};
+    __builtin_assume(tail < sizeof(F) / sizeof(float));
+    switch (__builtin_expect(tail, 0)) {
+        case 0: memcpy(&v, ptr,   sizeof(v)); break;
+        case 7: v[6] = ptr[6];
+        case 6: v[5] = ptr[5];
+        case 5: v[4] = ptr[4];
+        case 4: memcpy(&v, ptr, 4*sizeof(T)); break;
+        case 3: v[2] = ptr[2];
+        case 2: memcpy(&v, ptr, 2*sizeof(T)); break;
+        case 1: memcpy(&v, ptr, 1*sizeof(T)); break;
+    }
+    return v;
+#endif
+}
+
+template <typename V, typename T>
+static void store(T* ptr, V v, size_t tail) {
+#if !defined(JUMPER)
+    *ptr = v;
+#else
+    if (tail == 0) {
+        memcpy(ptr, &v, sizeof(v));
+        return;
+    }
+    for (size_t i = 0; i < tail; i++) {
+        ptr[i] = v[i];
+    }
+#endif
 }
 
 // Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
@@ -283,7 +318,7 @@ static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
 
 // Stages tail call between each other by following program,
 // an interlaced sequence of Stage pointers and context pointers.
-using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
+using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
 
 static void* load_and_inc(void**& program) {
 #if defined(__GNUC__) && defined(__x86_64__)
@@ -313,16 +348,16 @@ static void* load_and_inc(void**& program) {
 }
 
 #define STAGE(name)                                                           \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
+    static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
+    extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
                               F r, F g, F b, F a, F dr, F dg, F db, F da) {   \
         auto ctx = load_and_inc(program);                                     \
-        name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
+        name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
         auto next = (Stage*)load_and_inc(program);                            \
-        next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
+        next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
     }                                                                         \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
+    static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 // Some glue stages that don't fit the normal pattern of stages.
@@ -330,15 +365,17 @@ static void* load_and_inc(void**& program) {
 #if defined(JUMPER) && defined(WIN)
 __attribute__((ms_abi))
 #endif
-extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
     F v{};
     size_t stride = sizeof(F) / sizeof(float);
     auto start = (Stage*)load_and_inc(program);
     while (x + stride <= limit) {
-        start(x,program,k, v,v,v,v, v,v,v,v);
+        start(x,program,k,0, v,v,v,v, v,v,v,v);
         x += stride;
     }
-    return x;
+    if (size_t tail = limit - x) {
+        start(x,program,k,tail, v,v,v,v, v,v,v,v);
+    }
 }
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
@@ -512,7 +549,7 @@ STAGE(scale_1_float) {
 STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
-    auto scales = unaligned_load<U8>(ptr);
+    auto scales = load<U8>(ptr, tail);
     auto c = cast(expand(scales)) * k->_1_255;
 
     r = r * c;
@@ -532,7 +569,7 @@ STAGE(lerp_1_float) {
 STAGE(lerp_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
-    auto scales = unaligned_load<U8>(ptr);
+    auto scales = load<U8>(ptr, tail);
     auto c = cast(expand(scales)) * k->_1_255;
 
     r = lerp(dr, r, c);
@@ -544,7 +581,7 @@ STAGE(lerp_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
     F cr,cg,cb;
-    from_565(unaligned_load<U16>(ptr), &cr, &cg, &cb, k);
+    from_565(load<U16>(ptr, tail), &cr, &cg, &cb, k);
 
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
@@ -559,7 +596,7 @@ STAGE(load_tables) {
     };
     auto c = (const Ctx*)ctx;
 
-    auto px = unaligned_load<U32>(c->src + x);
+    auto px = load<U32>(c->src + x, tail);
     r = gather(c->r, (px      ) & k->_0x000000ff);
     g = gather(c->g, (px >>  8) & k->_0x000000ff);
     b = gather(c->b, (px >> 16) & k->_0x000000ff);
@@ -570,19 +607,19 @@ STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     r = g = b = 0.0f;
-    a = cast(expand(unaligned_load<U8>(ptr))) * k->_1_255;
+    a = cast(expand(load<U8>(ptr, tail))) * k->_1_255;
 }
 STAGE(store_a8) {
     auto ptr = *(uint8_t**)ctx + x;
 
     U8 packed = pack(pack(round(a, k->_255)));
-    memcpy(ptr, &packed, sizeof(packed));
+    store(ptr, packed, tail);
 }
 
 STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
-    from_565(unaligned_load<U16>(ptr), &r,&g,&b, k);
+    from_565(load<U16>(ptr, tail), &r,&g,&b, k);
     a = k->_1;
 }
 STAGE(store_565) {
@@ -591,13 +628,13 @@ STAGE(store_565) {
     U16 px = pack( round(r, k->_31) << 11
                  | round(g, k->_63) <<  5
                  | round(b, k->_31)      );
-    memcpy(ptr, &px, sizeof(px));
+    store(ptr, px, tail);
 }
 
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
 
-    auto px = unaligned_load<U32>(ptr);
+    auto px = load<U32>(ptr, tail);
     r = cast((px      ) & k->_0x000000ff) * k->_1_255;
     g = cast((px >>  8) & k->_0x000000ff) * k->_1_255;
     b = cast((px >> 16) & k->_0x000000ff) * k->_1_255;
@@ -611,7 +648,7 @@ STAGE(store_8888) {
            | round(g, k->_255) <<  8
            | round(b, k->_255) << 16
            | round(a, k->_255) << 24;
-    memcpy(ptr, &px, sizeof(px));
+    store(ptr, px, tail);
 }
 
 STAGE(load_f16) {
