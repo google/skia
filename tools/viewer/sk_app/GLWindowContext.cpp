@@ -7,7 +7,6 @@
  */
 
 #include "GrContext.h"
-#include "SkCommonFlagsPathRenderer.h"
 #include "SkSurface.h"
 #include "GLWindowContext.h"
 
@@ -37,11 +36,9 @@ void GLWindowContext::initializeContext() {
     this->onInitializeContext();
     SkASSERT(nullptr == fContext);
 
-    GrContextOptions ctxOptions;
-    ctxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     fBackendContext.reset(GrGLCreateNativeInterface());
     fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fBackendContext.get(),
-                                 ctxOptions);
+                                 fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();

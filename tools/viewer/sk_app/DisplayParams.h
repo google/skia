@@ -7,6 +7,7 @@
 #ifndef DisplayParams_DEFINED
 #define DisplayParams_DEFINED
 
+#include "GrContextOptions.h"
 #include "SkImageInfo.h"
 
 namespace sk_app {
@@ -20,6 +21,7 @@ struct DisplayParams {
     SkColorType         fColorType;
     sk_sp<SkColorSpace> fColorSpace;
     int                 fMSAASampleCount;
+    GrContextOptions    fGrContextOptions;
 };
 
 }   // namespace sk_app

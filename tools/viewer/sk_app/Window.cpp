@@ -146,6 +146,13 @@ int Window::stencilBits() const {
     return fWindowContext->stencilBits();
 }
 
+const GrContext* Window::getGrContext() const {
+    if (!fWindowContext) {
+        return nullptr;
+    }
+    return fWindowContext->getGrContext();
+}
+
 void Window::inval() {
     if (!fWindowContext) {
         return;

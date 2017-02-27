@@ -14,6 +14,7 @@
 #include "SkTypes.h"
 #include "SkJSONCPP.h"
 
+class GrContext;
 class SkCanvas;
 class SkSurface;
 
@@ -197,6 +198,9 @@ public:
     // Actual parameters in effect, obtained from the native window.
     int sampleCount() const;
     int stencilBits() const;
+
+    // Returns null if there is not a GPU backend or if the backend is not yet created.
+    const GrContext* getGrContext() const;
 
 protected:
     Window();
