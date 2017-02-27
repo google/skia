@@ -79,6 +79,21 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
 
+    GrPerFlushResourceProvider perFlushProvider(this);
+
+    for (int i = 0; i < fPerFlushCBObjects.count(); ++i) {
+        sk_sp<GrRenderTargetOpList> opList(fPerFlushCBObjects[i]->preFlush(&perFlushProvider,
+                                                                           fOpLists));
+        if (!opList) {
+            continue;       // This is fine. No atlases of this type are required for this flush
+        }
+        SkDEBUGCODE(opList->validateForAtlas());
+        opList->prepareOps(&fFlushState);
+        if (!opList->executeOps(&fFlushState)) {
+            return;         // This is bad
+        }
+    }
+
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareOps(&fFlushState);
     }
@@ -143,6 +158,10 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
     if (fContext->getGpu() && rt) {
         fContext->getGpu()->resolveRenderTarget(rt);
     }
+}
+
+void GrDrawingManager::addPerFlushCallbackObject(sk_sp<GrPerFlushCallbackObject> perFlushCBObject) {
+    fPerFlushCBObjects.push_back(perFlushCBObject);
 }
 
 GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
