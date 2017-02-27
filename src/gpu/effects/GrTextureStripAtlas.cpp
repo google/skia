@@ -8,6 +8,7 @@
 #include "GrTextureStripAtlas.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "SkGr.h"
 #include "SkPixelRef.h"
@@ -209,15 +210,14 @@ void GrTextureStripAtlas::lockTexture() {
     // MDB TODO (caching): this side-steps the issue of proxies with unique IDs
     sk_sp<GrTexture> texture(fDesc.fContext->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!texture) {
-        texture.reset(fDesc.fContext->textureProvider()->createTexture(texDesc, SkBudgeted::kYes,
-                                                                       nullptr, 0));
+        texture.reset(fDesc.fContext->textureProvider()->createTexture(
+                                                        texDesc, SkBudgeted::kYes,
+                                                        nullptr, 0,
+                                                        GrResourceProvider::kNoPendingIO_Flag));
         if (!texture) {
             return;
         }
 
-        // We will be issuing writes to the surface using kDontFlush_PixelOpsFlag, so we
-        // need to make sure any existing IO is flushed
-        fDesc.fContext->flushSurfaceIO(texture.get());
         fDesc.fContext->textureProvider()->assignUniqueKeyToTexture(key, texture.get());
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();

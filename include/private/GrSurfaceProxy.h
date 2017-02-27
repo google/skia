@@ -171,7 +171,7 @@ public:
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
 
     static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, const GrSurfaceDesc&,
-                                              SkBackingFit, SkBudgeted);
+                                              SkBackingFit, SkBudgeted, uint32_t flags = 0);
 
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
@@ -304,10 +304,11 @@ public:
 
 protected:
     // Deferred version
-    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)
+    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
         : fDesc(desc)
         , fFit(fit)
         , fBudgeted(budgeted)
+        , fFlags(flags)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
@@ -329,6 +330,7 @@ protected:
     const GrSurfaceDesc  fDesc;
     const SkBackingFit   fFit;      // always exact for wrapped resources
     const SkBudgeted     fBudgeted; // set from the backing resource for wrapped resources
+    const uint32_t       fFlags;
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);

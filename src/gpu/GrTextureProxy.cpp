@@ -10,8 +10,8 @@
 #include "GrTextureProvider.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
-                               const void* srcData, size_t /*rowBytes*/)
-    : INHERITED(srcDesc, fit, budgeted) {
+                               const void* srcData, size_t /*rowBytes*/, uint32_t flags)
+    : INHERITED(srcDesc, fit, budgeted, flags) {
     SkASSERT(!srcData);   // currently handled in Make()
 }
 
