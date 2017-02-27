@@ -229,6 +229,8 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
                                                           uint32_t flags) {
     SkASSERT(scratchKey.isValid());
 
+    flags |= kRequireNoPendingIO_ScratchFlag;
+
     GrGpuResource* resource;
     if (flags & (kPreferNoPendingIO_ScratchFlag | kRequireNoPendingIO_ScratchFlag)) {
         resource = fScratchMap.find(scratchKey, AvailableForScratchUse(true));
@@ -248,7 +250,7 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
             return nullptr;
         }
     }
-    resource = fScratchMap.find(scratchKey, AvailableForScratchUse(false));
+    resource = fScratchMap.find(scratchKey, AvailableForScratchUse(true));
     if (resource) {
         this->refAndMakeResourceMRU(resource);
         this->validate();
