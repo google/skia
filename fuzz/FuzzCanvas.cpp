@@ -11,6 +11,7 @@
 // CORE
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
+#include "SkFontMgr.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
@@ -29,15 +30,10 @@
 // TODO:
 //   SkCanvas::drawTextBlob
 //   SkCanvas::drawTextRSXform
-//   SkPaint::kGlyphID_TextEncoding
-//   SkPaint::kUTF16_TextEncoding
-//   SkPaint::kUTF32_TextEncoding
 //   SkColorFilter
 //   SkImageFilter
 //   SkMaskFilter
 //   SkPathEffect
-//   SkPictureShader
-//   SkTypeface
 
 template <typename T, void (SkPaint::*S)(T)>
 inline void fuzz_input(Fuzz* fuzz, SkPaint* paint) {
@@ -178,7 +174,10 @@ template <> inline void Fuzz::next(SkBlendMode* mode) {
 }
 
 sk_sp<SkImage> MakeFuzzImage(Fuzz*);
+
 SkBitmap MakeFuzzBitmap(Fuzz*);
+
+static sk_sp<SkPicture> make_picture(Fuzz*, int depth);
 
 sk_sp<SkColorFilter> MakeColorFilter(Fuzz* fuzz) { return nullptr; /*TODO*/ }
 
@@ -210,7 +209,7 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
     if (depth <= 0) {
         return nullptr;
     }
-    fuzz->nextRange(&shaderType, 0, 13);
+    fuzz->nextRange(&shaderType, 0, 14);
     switch (shaderType) {
         case 0:
             return nullptr;
@@ -246,10 +245,26 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
             shader2 = MakeFuzzShader(fuzz, depth - 1);
             fuzz->next(&blendMode);
             return SkShader::MakeComposeShader(std::move(shader1), std::move(shader2), blendMode);
-        // EFFECTS:
         case 8:
-            return SkGaussianEdgeShader::Make();
+            {
+                auto pic = make_picture(fuzz, depth);
+                bool useTile;
+                SkRect tile;
+                fuzz->next(&tmX, &tmY, &useMatrix, &useTile);
+                if (useMatrix) {
+                    fuzz->next(&matrix);
+                }
+                if (useTile) {
+                    fuzz->next(&tile);
+                }
+                return SkShader::MakePictureShader(std::move(pic), tmX, tmY,
+                                                   useMatrix ? &matrix : nullptr,
+                                                   useTile ? &tile : nullptr);
+            }
+        // EFFECTS:
         case 9:
+            return SkGaussianEdgeShader::Make();
+        case 10:
             {
                 constexpr int kMaxColors = 12;
                 SkPoint pts[2];
@@ -274,7 +289,7 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
                                                     tmX, 0,
                                                     useMatrix ? &matrix : nullptr);
             }
-        case 10:
+        case 11:
             {
                 constexpr int kMaxColors = 12;
                 SkPoint center;
@@ -297,7 +312,7 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
                                                     colorCount, tmX, 0,
                                                     useMatrix ? &matrix : nullptr);
             }
-        case 11:
+        case 12:
             {
                 constexpr int kMaxColors = 12;
                 SkPoint start, end;
@@ -320,7 +335,7 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
                                                              colorCount, tmX, 0,
                                                              useMatrix ? &matrix : nullptr);
             }
-        case 12:
+        case 13:
             {
                 constexpr int kMaxColors = 12;
                 SkScalar cx, cy;
@@ -340,7 +355,7 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
                 return SkGradientShader::MakeSweep(cx, cy, colors, usePos ? pos : nullptr,
                                                    colorCount, 0, useMatrix ? &matrix : nullptr);
             }
-        case 13:
+        case 14:
             {
                 SkScalar baseFrequencyX, baseFrequencyY, seed;
                 int numOctaves;
@@ -372,7 +387,20 @@ sk_sp<SkPathEffect> MakeFuzzPathEffect(Fuzz* fuzz) { return nullptr; /*TODO*/ }
 
 sk_sp<SkMaskFilter> MakeFuzzMaskFilter(Fuzz* fuzz) { return nullptr; /*TODO*/ }
 
-sk_sp<SkTypeface> MakeFuzzTypeface(Fuzz* fuzz) { return nullptr; /*TODO*/ }
+sk_sp<SkTypeface> MakeFuzzTypeface(Fuzz* fuzz) {
+    if (make_bool(fuzz)) {
+        return nullptr;
+    }
+    auto fontMugger = SkFontMgr::RefDefault();
+    SkASSERT(fontMugger);
+    int familyCount = fontMugger->countFamilies();
+    int i, j;
+    fuzz->nextRange(&i, 0, familyCount - 1);
+    sk_sp<SkFontStyleSet> family(fontMugger->createStyleSet(i));
+    int styleCount = family->count();
+    fuzz->nextRange(&j, 0, styleCount - 1);
+    return sk_sp<SkTypeface>(family->createTypeface(j));
+}
 
 sk_sp<SkImageFilter> MakeFuzzImageFilter(Fuzz* fuzz) { return nullptr; /*TODO*/ }
 
@@ -409,47 +437,6 @@ SkBitmap MakeFuzzBitmap(Fuzz* fuzz) {
     }
     return bitmap;
 }
-
-
-SkString MakeRandomUtf8(Fuzz* fuzz) {
-    SkString result;
-    const SkUnichar ranges[][2] = {
-        {0x0020, 0x007F},
-        {0x00A1, 0x0250},
-        {0x0400, 0x0500},
-    };
-    int32_t count = 0;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(ranges); ++i){
-        count += (ranges[i][1] - ranges[i][0]);
-    }
-    constexpr int kMaxLength = 30;
-    SkUnichar buffer[kMaxLength];
-    int length;
-    fuzz->nextRange(&length, 1, kMaxLength);
-    size_t utf8len = 0;
-    for (int j = 0; j < length; ++j) {
-        int32_t value;
-        fuzz->nextRange(&value, 0, count);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(ranges); ++i){
-            if (value + ranges[i][0] < ranges[i][1]) {
-                buffer[j] = value + ranges[i][0];
-                break;
-            } else {
-                value -= (ranges[i][1] - ranges[i][0]);
-            }
-        }
-        utf8len += SkUTF8_FromUnichar(buffer[j], nullptr);
-    }
-    result.resize(utf8len);
-    char* ptr = result.writable_str();
-    for (int j = 0; j < length; ++j) {
-        ptr += SkUTF8_FromUnichar(buffer[j], ptr);
-    }
-    return result;
-};
-
-
-
 
 void FuzzPaint(Fuzz* fuzz, SkPaint* paint, int depth) {
     if (!fuzz || !paint || depth <= 0) {
@@ -499,13 +486,81 @@ void FuzzPaintText(Fuzz* fuzz, SkPaint* paint) {
     fuzz_input<bool, &SkPaint::setDevKernText>(fuzz, paint);
     fuzz_enum_input<SkPaint::Align, &SkPaint::setTextAlign>(fuzz, paint, SkPaint::kLeft_Align,
                                                                SkPaint::kRight_Align);
-    paint->setTextEncoding(SkPaint::kUTF8_TextEncoding);
-    // TODO: handle other encodings.
-    // fuzz_enum_input<SkPaint::TextEncoding, &SkPaint::setTextEncoding>(
-    //         fuzz, paint, SkPaint::kUTF8_TextEncoding, SkPaint::kGlyphID_TextEncoding);
+    fuzz_enum_input<SkPaint::TextEncoding, &SkPaint::setTextEncoding>(
+            fuzz, paint, SkPaint::kUTF8_TextEncoding, SkPaint::kGlyphID_TextEncoding);
 }
 
-static sk_sp<SkPicture> make_picture(Fuzz*, int depth);
+SkTDArray<uint8_t> fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
+    SkTDArray<uint8_t> array;
+    if (SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding()) {
+        int glyphRange = paint.getTypeface()
+                       ? paint.getTypeface()->countGlyphs()
+                       : SkTypeface::MakeDefault()->countGlyphs();
+        constexpr int kMaxGlyphCount = 20;
+        int glyphCount;
+        fuzz->nextRange(&glyphCount, 0, kMaxGlyphCount);
+        SkGlyphID* glyphs = (SkGlyphID*)array.append(glyphCount * sizeof(SkGlyphID));
+        for (int i = 0; i < glyphCount; ++i) {
+            fuzz->nextRange(&glyphs[i], 0, glyphRange - 1);
+        }
+        return array;
+    }
+    static const SkUnichar ranges[][2] = {
+        {0x0020, 0x007F},
+        {0x00A1, 0x0250},
+        {0x0400, 0x0500},
+    };
+    int32_t count = 0;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(ranges); ++i){
+        count += (ranges[i][1] - ranges[i][0]);
+    }
+    constexpr int kMaxLength = 30;
+    SkUnichar buffer[kMaxLength];
+    int length;
+    fuzz->nextRange(&length, 1, kMaxLength);
+    for (int j = 0; j < length; ++j) {
+        int32_t value;
+        fuzz->nextRange(&value, 0, count - 1);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(ranges); ++i){
+            if (value + ranges[i][0] < ranges[i][1]) {
+                buffer[j] = value + ranges[i][0];
+                break;
+            } else {
+                value -= (ranges[i][1] - ranges[i][0]);
+            }
+        }
+    }
+    switch (paint.getTextEncoding()) {
+        case SkPaint::kUTF8_TextEncoding:
+            {
+                size_t utf8len = 0;
+                for (int j = 0; j < length; ++j) {
+                    utf8len += SkUTF8_FromUnichar(buffer[j], nullptr);
+                }
+                char* ptr = (char*)array.append(utf8len);
+                for (int j = 0; j < length; ++j) {
+                    ptr += SkUTF8_FromUnichar(buffer[j], ptr);
+                }
+            }
+        case SkPaint::kUTF16_TextEncoding:
+            {
+                size_t utf16len = 0;
+                for (int j = 0; j < length; ++j) {
+                    utf16len += SkUTF16_FromUnichar(buffer[j]);
+                }
+                uint16_t* ptr = (uint16_t*)array.append(utf16len);
+                for (int j = 0; j < length; ++j) {
+                    ptr += SkUTF16_FromUnichar(buffer[j], ptr);
+                }
+            }
+        case SkPaint::kUTF32_TextEncoding:
+            memcpy(array.append(length * sizeof(SkUnichar)), buffer, length * sizeof(SkUnichar));
+        default:
+           SkASSERT(false);
+    }
+    return array;
+}
+
 
 void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
     if (!fuzz || !canvas || depth <= 0) {
@@ -915,23 +970,25 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 break;
             }
             case 45: {
+                FuzzPaint(fuzz, &paint, depth);
                 FuzzPaintText(fuzz, &paint);
-                SkString str = MakeRandomUtf8(fuzz);
                 SkScalar x, y;
                 fuzz->next(&x, &y);
-                canvas->drawText(str.c_str(), str.size(), x, y, paint);
+                SkTDArray<uint8_t> text = fuzz_text(fuzz, paint);
+                canvas->drawText(text.begin(), SkToSizeT(text.count()), x, y, paint);
                 break;
             }
             case 46: {
+                FuzzPaint(fuzz, &paint, depth);
                 FuzzPaintText(fuzz, &paint);
-                SkString str = MakeRandomUtf8(fuzz);
-                int glyphCount = paint.countText(str.c_str(), str.size());
+                SkTDArray<uint8_t> text = fuzz_text(fuzz, paint);
+                int glyphCount = paint.countText(text.begin(), SkToSizeT(text.count()));
                 if (glyphCount < 1) {
                     break;
                 }
                 SkAutoTMalloc<SkPoint> pos(glyphCount);
                 SkAutoTMalloc<SkScalar> widths(glyphCount);
-                paint.getTextWidths(str.c_str(), str.size(), widths.get());
+                paint.getTextWidths(text.begin(), SkToSizeT(text.count()), widths.get());
                 pos[0] = {0, 0};
                 for (int i = 1; i < glyphCount; ++i) {
                     float y;
@@ -939,18 +996,19 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                                          0.5f * paint.getTextSize());
                     pos[i] = {pos[i - 1].x() + widths[i - 1], y};
                 }
-                canvas->drawPosText(str.c_str(), str.size(), pos.get(), paint);
+                canvas->drawPosText(text.begin(), SkToSizeT(text.count()), pos.get(), paint);
                 break;
             }
             case 47: {
+                FuzzPaint(fuzz, &paint, depth);
                 FuzzPaintText(fuzz, &paint);
-                SkString str = MakeRandomUtf8(fuzz);
-                int glyphCount = paint.countText(str.c_str(), str.size());
+                SkTDArray<uint8_t> text = fuzz_text(fuzz, paint);
+                int glyphCount = paint.countText(text.begin(), SkToSizeT(text.count()));
                 SkAutoTMalloc<SkScalar> widths(glyphCount);
                 if (glyphCount < 1) {
                     break;
                 }
-                paint.getTextWidths(str.c_str(), str.size(), widths.get());
+                paint.getTextWidths(text.begin(), SkToSizeT(text.count()), widths.get());
                 SkScalar x = widths[0];
                 for (int i = 0; i < glyphCount; ++i) {
                     SkTSwap(x, widths[i]);
@@ -962,17 +1020,20 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 }
                 SkScalar y;
                 fuzz->next(&y);
-                canvas->drawPosTextH(str.c_str(), str.size(), widths.get(), y, paint);
+                canvas->drawPosTextH(text.begin(), SkToSizeT(text.count()),
+                                     widths.get(), y, paint);
                 break;
             }
             case 48: {
+                FuzzPaint(fuzz, &paint, depth);
                 FuzzPaintText(fuzz, &paint);
-                SkString str = MakeRandomUtf8(fuzz);
+                SkTDArray<uint8_t> text = fuzz_text(fuzz, paint);
                 SkPath path;
                 fuzz_path<20>(fuzz, &path);
                 SkScalar hOffset, vOffset;
                 fuzz->next(&hOffset, &vOffset);
-                canvas->drawTextOnPathHV(str.c_str(), str.size(), path, hOffset, vOffset, paint);
+                canvas->drawTextOnPathHV(text.begin(), SkToSizeT(text.count()),
+                                         path, hOffset, vOffset, paint);
                 break;
             }
             case 49: {
@@ -981,11 +1042,12 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 if (useMatrix) {
                     fuzz->next(&matrix);
                 }
+                FuzzPaint(fuzz, &paint, depth);
                 FuzzPaintText(fuzz, &paint);
-                SkString str = MakeRandomUtf8(fuzz);
+                SkTDArray<uint8_t> text = fuzz_text(fuzz, paint);
                 SkPath path;
                 fuzz_path<20>(fuzz, &path);
-                canvas->drawTextOnPath(str.c_str(), str.size(), path,
+                canvas->drawTextOnPath(text.begin(), SkToSizeT(text.count()), path,
                                        useMatrix ? &matrix : nullptr, paint);
                 break;
             }
