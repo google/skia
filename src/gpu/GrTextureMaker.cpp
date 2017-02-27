@@ -94,9 +94,14 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     SkASSERT(kTightCopy_DomainMode != domainMode);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
                                                                        dstColorSpace);
-    return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),
+#if 0
+    return CreateFragmentProcessorForDomainAndFilter(fContext, texture.get(),
+                                                     std::move(colorSpaceXform),
                                                      adjustedMatrix, domainMode, domain,
                                                      filterOrNullForBicubic);
+#else
+    return nullptr;
+#endif
 }
 
 GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams, bool willBeMipped,
@@ -105,5 +110,6 @@ GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams
     if (!original) {
         return nullptr;
     }
-    return CopyOnGpu(original.get(), nullptr, copyParams);
+    return nullptr;
+    //return CopyOnGpu(original.get(), nullptr, copyParams);
 }

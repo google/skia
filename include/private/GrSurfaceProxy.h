@@ -115,6 +115,9 @@ private:
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrGpuResourceRef;
     template <typename, GrIOType> friend class GrPendingIOResource;
+    // This is for a unit test.
+    template <typename T>
+    friend void testingOnly_getIORefCnts(const T*, int* refCnt, int* readCnt, int* writeCnt);
 
     void addPendingRead() const {
         this->validate();
