@@ -681,6 +681,9 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::kDo_Kind:
             this->writeDoStatement((DoStatement&) s);
             break;
+        case Statement::kSwitch_Kind:
+            this->writeSwitchStatement((SwitchStatement&) s);
+            break;
         case Statement::kBreak_Kind:
             this->write("break;");
             break;
@@ -748,6 +751,30 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->write(" while (");
     this->writeExpression(*d.fTest, kTopLevel_Precedence);
     this->write(");");
+}
+
+void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
+    this->write("switch (");
+    this->writeExpression(*s.fValue, kTopLevel_Precedence);
+    this->writeLine(") {");
+    fIndentation++;
+    for (const auto& c : s.fCases) {
+        if (c->fValue) {
+            this->write("case ");
+            this->writeExpression(*c->fValue, kTopLevel_Precedence);
+            this->writeLine(":");
+        } else {
+            this->writeLine("default:");
+        }
+        fIndentation++;
+        for (const auto& stmt : c->fStatements) {
+            this->writeStatement(*stmt);
+            this->writeLine();
+        }
+        fIndentation--;
+    }
+    fIndentation--;
+    this->write("}");
 }
 
 void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
