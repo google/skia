@@ -107,7 +107,7 @@ static Dst bit_cast(const Src& src) {
 
     static F floor(F v, K* k) {
         F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
-        return roundtrip - if_then_else(roundtrip > v, k->_1, 0);
+        return roundtrip - if_then_else(roundtrip > v, 1.0f, 0.0f);
     }
 
     static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
@@ -233,7 +233,7 @@ static Dst bit_cast(const Src& src) {
         return _mm_floor_ps(v);
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-        return roundtrip - if_then_else(roundtrip > v, k->_1, 0);
+        return roundtrip - if_then_else(roundtrip > v, 1.0f, 0.0f);
     #endif
     }
 
@@ -366,11 +366,11 @@ STAGE(seed_shader) {
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
 
-    r = cast(x) + k->_0_5 + unaligned_load<F>(k->iota);
-    g = cast(y) + k->_0_5;
-    b = k->_1;
-    a = 0;
-    dr = dg = db = da = 0;
+    r = cast(x) + 0.5f + unaligned_load<F>(k->iota);
+    g = cast(y) + 0.5f;
+    b = 1.0f;
+    a = 0.0f;
+    dr = dg = db = da = 0.0f;
 }
 
 STAGE(constant_color) {
@@ -382,7 +382,7 @@ STAGE(constant_color) {
 }
 
 STAGE(clear) {
-    r = g = b = a = 0;
+    r = g = b = a = 0.0f;
 }
 
 STAGE(plus_) {
@@ -393,14 +393,14 @@ STAGE(plus_) {
 }
 
 STAGE(srcover) {
-    auto A = k->_1 - a;
+    auto A = 1.0f - a;
     r = mad(dr, A, r);
     g = mad(dg, A, g);
     b = mad(db, A, b);
     a = mad(da, A, a);
 }
 STAGE(dstover) {
-    auto DA = k->_1 - da;
+    auto DA = 1.0f - da;
     r = mad(r, DA, dr);
     g = mad(g, DA, dg);
     b = mad(b, DA, db);
@@ -408,21 +408,21 @@ STAGE(dstover) {
 }
 
 STAGE(clamp_0) {
-    r = max(r, 0);
-    g = max(g, 0);
-    b = max(b, 0);
-    a = max(a, 0);
+    r = max(r, 0.0f);
+    g = max(g, 0.0f);
+    b = max(b, 0.0f);
+    a = max(a, 0.0f);
 }
 
 STAGE(clamp_1) {
-    r = min(r, k->_1);
-    g = min(g, k->_1);
-    b = min(b, k->_1);
-    a = min(a, k->_1);
+    r = min(r, 1.0f);
+    g = min(g, 1.0f);
+    b = min(b, 1.0f);
+    a = min(a, 1.0f);
 }
 
 STAGE(clamp_a) {
-    a = min(a, k->_1);
+    a = min(a, 1.0f);
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
@@ -470,7 +470,7 @@ STAGE(premul) {
     b = b * a;
 }
 STAGE(unpremul) {
-    auto scale = if_then_else(a == 0, 0, k->_1 / a);
+    auto scale = if_then_else(a == 0, 0, 1.0f / a);
     r = r * scale;
     g = g * scale;
     b = b * scale;
@@ -478,7 +478,7 @@ STAGE(unpremul) {
 
 STAGE(from_srgb) {
     auto fn = [&](F s) {
-        auto lo = s * k->_1_1292;
+        auto lo = s * (1/12.92f);
         auto hi = mad(s*s, mad(s, k->_03000, k->_06975), k->_00025);
         return if_then_else(s < k->_0055, lo, hi);
     };
