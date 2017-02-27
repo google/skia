@@ -257,7 +257,7 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
                 SkScalar pos[kMaxColors];
                 int colorCount;
                 bool usePos;
-                fuzz->nextN(&pts, 2);
+                fuzz->nextN(pts, 2);
                 fuzz->nextRange(&colorCount, 2, kMaxColors);
                 fuzz->nextN(colors, colorCount);
                 fuzz->next(&tmX, &useMatrix, &usePos);
@@ -364,7 +364,7 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
         default:
             break;
     }
-    return nullptr; 
+    return nullptr;
 }
 
 
@@ -1070,5 +1070,6 @@ static sk_sp<SkPicture> make_picture(Fuzz* fuzz, int depth) {
 
 void FuzzCanvas(Fuzz* fuzz, SkCanvas* canvas) {
     fuzz_canvas(fuzz, canvas);
+    SkDebugf("[terminated] Finished Canvas Calls.\n");
 }
 
