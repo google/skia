@@ -334,7 +334,7 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
     SkASSERT(buffer);
     SkASSERT(startVertex);
 
-    size_t offset = 0; // assign to suppress warning
+    size_t offset SK_INIT_TO_AVOID_WARNING;
     void* ptr = INHERITED::makeSpace(vertexSize * vertexCount,
                                      vertexSize,
                                      buffer,
@@ -359,7 +359,7 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
     SkASSERT(buffer);
     SkASSERT(startIndex);
 
-    size_t offset = 0; // assign to suppress warning
+    size_t offset SK_INIT_TO_AVOID_WARNING;
     void* ptr = INHERITED::makeSpace(indexCount * sizeof(uint16_t),
                                      sizeof(uint16_t),
                                      buffer,
