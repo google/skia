@@ -270,33 +270,36 @@ static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
     *b = cast(wide & k->b_565_mask) * k->b_565_scale;
 }
 
+#if defined(JUMPER)
 template <typename T>
-static inline void small_memcpy(T* dst, const T* src, size_t tail) {
+static inline void copy_tail(T* dst, const T* src, size_t tail) {
     __builtin_assume(tail > 0);
     __builtin_assume(tail < sizeof(F) / sizeof(float));
     while (tail --> 0) {
         *dst++ = *src++;
     }
 }
+#endif
 
 template <typename V, typename T>
 static inline V load(const T* ptr, size_t tail) {
-    V v{};
 #if defined(JUMPER)
-    if (tail) {
-        small_memcpy((T*)&v, ptr, tail);
-    } else
+    if (__builtin_expect(tail, 0)) {
+        V v{};
+        copy_tail((T*)&v, ptr, tail);
+        return v;
+    }
 #endif
-    memcpy(&v, ptr, sizeof(v));
-    return v;
+    return unaligned_load<V>(ptr);
 }
 
 template <typename V, typename T>
 static inline void store(T* ptr, V v, size_t tail) {
 #if defined(JUMPER)
-    if (tail) {
-        small_memcpy(ptr, (T*)&v, tail);
-    } else
+    if (__builtin_expect(tail, 0)) {
+        copy_tail(ptr, (T*)&v, tail);
+        return;
+    }
 #endif
     memcpy(ptr, &v, sizeof(v));
 }
