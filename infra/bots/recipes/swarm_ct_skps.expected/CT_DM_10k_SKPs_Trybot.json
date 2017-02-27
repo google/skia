@@ -975,12 +975,10 @@
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-dm-1",
+      "stepname:ct-dm-1 on Ubuntu-14.04",
       "[dummy hash for ct-dm-1]"
     ],
-    "name": "[trigger] ct-dm-1",
+    "name": "[trigger] ct-dm-1 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1047,12 +1045,10 @@
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-dm-2",
+      "stepname:ct-dm-2 on Ubuntu-14.04",
       "[dummy hash for ct-dm-2]"
     ],
-    "name": "[trigger] ct-dm-2",
+    "name": "[trigger] ct-dm-2 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1119,12 +1115,10 @@
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-dm-3",
+      "stepname:ct-dm-3 on Ubuntu-14.04",
       "[dummy hash for ct-dm-3]"
     ],
-    "name": "[trigger] ct-dm-3",
+    "name": "[trigger] ct-dm-3 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1191,12 +1185,10 @@
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-dm-4",
+      "stepname:ct-dm-4 on Ubuntu-14.04",
       "[dummy hash for ct-dm-4]"
     ],
-    "name": "[trigger] ct-dm-4",
+    "name": "[trigger] ct-dm-4 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1263,12 +1255,10 @@
       "--tag",
       "rietveld:codereview.chromium.org/1499623002/#ps1",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-dm-5",
+      "stepname:ct-dm-5 on Ubuntu-14.04",
       "[dummy hash for ct-dm-5]"
     ],
-    "name": "[trigger] ct-dm-5",
+    "name": "[trigger] ct-dm-5 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1303,7 +1293,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-dm-1"
     ],
-    "name": "ct-dm-1",
+    "name": "ct-dm-1 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1365,7 +1355,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-dm-2"
     ],
-    "name": "ct-dm-2",
+    "name": "ct-dm-2 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1427,7 +1417,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-dm-3"
     ],
-    "name": "ct-dm-3",
+    "name": "ct-dm-3 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1489,7 +1479,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-dm-4"
     ],
-    "name": "ct-dm-4",
+    "name": "ct-dm-4 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1551,7 +1541,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-dm-5"
     ],
-    "name": "ct-dm-5",
+    "name": "ct-dm-5 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
