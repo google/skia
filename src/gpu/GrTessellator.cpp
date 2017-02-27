@@ -182,22 +182,11 @@ bool sweep_lt_vert(const SkPoint& a, const SkPoint& b) {
     return a.fY < b.fY || (a.fY == b.fY && a.fX < b.fX);
 }
 
-bool sweep_gt_horiz(const SkPoint& a, const SkPoint& b) {
-    return a.fX > b.fX || (a.fX == b.fX && a.fY < b.fY);
-}
-
-bool sweep_gt_vert(const SkPoint& a, const SkPoint& b) {
-    return a.fY > b.fY || (a.fY == b.fY && a.fX > b.fX);
-}
-
 struct Comparator {
     enum class Direction { kVertical, kHorizontal };
     Comparator(Direction direction) : fDirection(direction) {}
     bool sweep_lt(const SkPoint& a, const SkPoint& b) const {
         return fDirection == Direction::kHorizontal ? sweep_lt_horiz(a, b) : sweep_lt_vert(a, b);
-    }
-    bool sweep_gt(const SkPoint& a, const SkPoint& b) const {
-        return fDirection == Direction::kHorizontal ? sweep_gt_horiz(a, b) : sweep_gt_vert(a, b);
     }
     Direction fDirection;
 };
@@ -826,8 +815,8 @@ void find_enclosing_edges(Edge* edge, EdgeList* edges, Comparator& c, Edge** lef
     Edge* prev = nullptr;
     Edge* next;
     for (next = edges->fHead; next != nullptr; next = next->fRight) {
-        if ((c.sweep_gt(edge->fTop->fPoint, next->fTop->fPoint) && next->isRightOf(edge->fTop)) ||
-            (c.sweep_gt(next->fTop->fPoint, edge->fTop->fPoint) && edge->isLeftOf(next->fTop)) ||
+        if ((c.sweep_lt(next->fTop->fPoint, edge->fTop->fPoint) && next->isRightOf(edge->fTop)) ||
+            (c.sweep_lt(edge->fTop->fPoint, next->fTop->fPoint) && edge->isLeftOf(next->fTop)) ||
             (c.sweep_lt(edge->fBottom->fPoint, next->fBottom->fPoint) &&
              next->isRightOf(edge->fBottom)) ||
             (c.sweep_lt(next->fBottom->fPoint, edge->fBottom->fPoint) &&
@@ -858,7 +847,7 @@ void fix_active_state(Edge* edge, EdgeList* activeEdges, Comparator& c) {
 
 void insert_edge_above(Edge* edge, Vertex* v, Comparator& c) {
     if (edge->fTop->fPoint == edge->fBottom->fPoint ||
-        c.sweep_gt(edge->fTop->fPoint, edge->fBottom->fPoint)) {
+        c.sweep_lt(edge->fBottom->fPoint, edge->fTop->fPoint)) {
         return;
     }
     LOG("insert edge (%g -> %g) above vertex %g\n", edge->fTop->fID, edge->fBottom->fID, v->fID);
@@ -876,7 +865,7 @@ void insert_edge_above(Edge* edge, Vertex* v, Comparator& c) {
 
 void insert_edge_below(Edge* edge, Vertex* v, Comparator& c) {
     if (edge->fTop->fPoint == edge->fBottom->fPoint ||
-        c.sweep_gt(edge->fTop->fPoint, edge->fBottom->fPoint)) {
+        c.sweep_lt(edge->fBottom->fPoint, edge->fTop->fPoint)) {
         return;
     }
     LOG("insert edge (%g -> %g) below vertex %g\n", edge->fTop->fID, edge->fBottom->fID, v->fID);
@@ -997,9 +986,9 @@ void cleanup_active_edges(Edge* edge, EdgeList* activeEdges, Comparator& c, SkAr
     if (edge->fLeft) {
         Vertex* leftTop = edge->fLeft->fTop;
         Vertex* leftBottom = edge->fLeft->fBottom;
-        if (c.sweep_gt(top->fPoint, leftTop->fPoint) && !edge->fLeft->isLeftOf(top)) {
+        if (c.sweep_lt(leftTop->fPoint, top->fPoint) && !edge->fLeft->isLeftOf(top)) {
             split_edge(edge->fLeft, edge->fTop, activeEdges, c, alloc);
-        } else if (c.sweep_gt(leftTop->fPoint, top->fPoint) && !edge->isRightOf(leftTop)) {
+        } else if (c.sweep_lt(top->fPoint, leftTop->fPoint) && !edge->isRightOf(leftTop)) {
             split_edge(edge, leftTop, activeEdges, c, alloc);
         } else if (c.sweep_lt(bottom->fPoint, leftBottom->fPoint) &&
                    !edge->fLeft->isLeftOf(bottom)) {
@@ -1011,9 +1000,9 @@ void cleanup_active_edges(Edge* edge, EdgeList* activeEdges, Comparator& c, SkAr
     if (edge->fRight) {
         Vertex* rightTop = edge->fRight->fTop;
         Vertex* rightBottom = edge->fRight->fBottom;
-        if (c.sweep_gt(top->fPoint, rightTop->fPoint) && !edge->fRight->isRightOf(top)) {
+        if (c.sweep_lt(rightTop->fPoint, top->fPoint) && !edge->fRight->isRightOf(top)) {
             split_edge(edge->fRight, top, activeEdges, c, alloc);
-        } else if (c.sweep_gt(rightTop->fPoint, top->fPoint) && !edge->isLeftOf(rightTop)) {
+        } else if (c.sweep_lt(top->fPoint, rightTop->fPoint) && !edge->isLeftOf(rightTop)) {
             split_edge(edge, rightTop, activeEdges, c, alloc);
         } else if (c.sweep_lt(bottom->fPoint, rightBottom->fPoint) &&
                    !edge->fRight->isRightOf(bottom)) {
@@ -1031,7 +1020,7 @@ void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Comparator& c, SkA
         v->fID, v->fPoint.fX, v->fPoint.fY);
     if (c.sweep_lt(v->fPoint, edge->fTop->fPoint)) {
         set_top(edge, v, activeEdges, c);
-    } else if (c.sweep_gt(v->fPoint, edge->fBottom->fPoint)) {
+    } else if (c.sweep_lt(edge->fBottom->fPoint, v->fPoint)) {
         set_bottom(edge, v, activeEdges, c);
     } else {
         Edge* newEdge = alloc.make<Edge>(v, edge->fBottom, edge->fWinding, edge->fType);
@@ -1096,13 +1085,13 @@ Vertex* check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, C
         if (p == edge->fTop->fPoint || c.sweep_lt(p, edge->fTop->fPoint)) {
             split_edge(other, edge->fTop, activeEdges, c, alloc);
             v = edge->fTop;
-        } else if (p == edge->fBottom->fPoint || c.sweep_gt(p, edge->fBottom->fPoint)) {
+        } else if (p == edge->fBottom->fPoint || c.sweep_lt(edge->fBottom->fPoint, p)) {
             split_edge(other, edge->fBottom, activeEdges, c, alloc);
             v = edge->fBottom;
         } else if (p == other->fTop->fPoint || c.sweep_lt(p, other->fTop->fPoint)) {
             split_edge(edge, other->fTop, activeEdges, c, alloc);
             v = other->fTop;
-        } else if (p == other->fBottom->fPoint || c.sweep_gt(p, other->fBottom->fPoint)) {
+        } else if (p == other->fBottom->fPoint || c.sweep_lt(other->fBottom->fPoint, p)) {
             split_edge(edge, other->fBottom, activeEdges, c, alloc);
             v = other->fBottom;
         } else {
