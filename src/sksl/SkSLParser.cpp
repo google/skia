@@ -63,6 +63,8 @@
 #include "ast/SkSLASTReturnStatement.h"
 #include "ast/SkSLASTStatement.h"
 #include "ast/SkSLASTSuffixExpression.h"
+#include "ast/SkSLASTSwitchCase.h"
+#include "ast/SkSLASTSwitchStatement.h"
 #include "ast/SkSLASTTernaryExpression.h"
 #include "ast/SkSLASTType.h"
 #include "ast/SkSLASTVarDeclaration.h"
@@ -770,6 +772,8 @@ std::unique_ptr<ASTStatement> Parser::statement() {
             return this->doStatement();
         case Token::WHILE:
             return this->whileStatement();
+        case Token::SWITCH:
+            return this->switchStatement();
         case Token::RETURN:
             return this->returnStatement();
         case Token::BREAK:
@@ -973,6 +977,86 @@ std::unique_ptr<ASTWhileStatement> Parser::whileStatement() {
     return std::unique_ptr<ASTWhileStatement>(new ASTWhileStatement(start.fPosition,
                                                                     std::move(test),
                                                                     std::move(statement)));
+}
+
+/* CASE expression COLON statement* */
+std::unique_ptr<ASTSwitchCase> Parser::switchCase() {
+    Token start;
+    if (!this->expect(Token::CASE, "'case'", &start)) {
+        return nullptr;
+    }
+    std::unique_ptr<ASTExpression> value = this->expression();
+    if (!value) {
+        return nullptr;
+    }
+    if (!this->expect(Token::COLON, "':'")) {
+        return nullptr;
+    }
+    std::vector<std::unique_ptr<ASTStatement>> statements;
+    while (this->peek().fKind != Token::RBRACE && this->peek().fKind != Token::CASE &&
+           this->peek().fKind != Token::DEFAULT) {
+        std::unique_ptr<ASTStatement> s = this->statement();
+        if (!s) {
+            return nullptr;
+        }
+        statements.push_back(std::move(s));
+    }
+    return std::unique_ptr<ASTSwitchCase>(new ASTSwitchCase(start.fPosition, std::move(value),
+                                                            std::move(statements)));
+}
+
+/* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
+std::unique_ptr<ASTStatement> Parser::switchStatement() {
+    Token start;
+    if (!this->expect(Token::SWITCH, "'switch'", &start)) {
+        return nullptr;
+    }
+    if (!this->expect(Token::LPAREN, "'('")) {
+        return nullptr;
+    }
+    std::unique_ptr<ASTExpression> value(this->expression());
+    if (!value) {
+        return nullptr;
+    }
+    if (!this->expect(Token::RPAREN, "')'")) {
+        return nullptr;
+    }
+    if (!this->expect(Token::LBRACE, "'{'")) {
+        return nullptr;
+    }
+    std::vector<std::unique_ptr<ASTSwitchCase>> cases;
+    while (this->peek().fKind == Token::CASE) {
+        std::unique_ptr<ASTSwitchCase> c = this->switchCase();
+        if (!c) {
+            return nullptr;
+        }
+        cases.push_back(std::move(c));
+    }
+    // Requiring default: to be last (in defiance of C and GLSL) was a deliberate decision. Other
+    // parts of the compiler may rely upon this assumption.
+    if (this->peek().fKind == Token::DEFAULT) {
+        Token defaultStart;
+        SkAssertResult(this->expect(Token::DEFAULT, "'default'", &defaultStart));
+        if (!this->expect(Token::COLON, "':'")) {
+            return nullptr;
+        }
+        std::vector<std::unique_ptr<ASTStatement>> statements;
+        while (this->peek().fKind != Token::RBRACE) {
+            std::unique_ptr<ASTStatement> s = this->statement();
+            if (!s) {
+                return nullptr;
+            }
+            statements.push_back(std::move(s));
+        }
+        cases.emplace_back(new ASTSwitchCase(defaultStart.fPosition, nullptr,
+                                             std::move(statements)));
+    }
+    if (!this->expect(Token::RBRACE, "'}'")) {
+        return nullptr;
+    }
+    return std::unique_ptr<ASTStatement>(new ASTSwitchStatement(start.fPosition,
+                                                                std::move(value),
+                                                                std::move(cases)));
 }
 
 /* FOR LPAREN (declaration | expression)? SEMICOLON expression? SEMICOLON expression? RPAREN
