@@ -224,6 +224,54 @@ static void make_accessibility(SkPath* path) {
     path->close();
 }
 
+// test case for http://crbug.com/695196
+static void make_visualizer(SkPath* path) {
+    path->moveTo(1.9520f, 2.0000f);
+    path->conicTo(1.5573f, 1.9992f, 1.2782f, 2.2782f, 0.9235f);
+    path->conicTo(0.9992f, 2.5573f, 1.0000f, 2.9520f, 0.9235f);
+    path->lineTo(1.0000f, 5.4300f);
+    path->lineTo(17.0000f, 5.4300f);
+    path->lineTo(17.0000f, 2.9520f);
+    path->conicTo(17.0008f, 2.5573f, 16.7218f, 2.2782f, 0.9235f);
+    path->conicTo(16.4427f, 1.9992f, 16.0480f, 2.0000f, 0.9235f);
+    path->lineTo(1.9520f, 2.0000f);
+    path->close();
+    path->moveTo(2.7140f, 3.1430f);
+    path->conicTo(3.0547f, 3.1287f, 3.2292f, 3.4216f, 0.8590f);
+    path->conicTo(3.4038f, 3.7145f, 3.2292f, 4.0074f, 0.8590f);
+    path->conicTo(3.0547f, 4.3003f, 2.7140f, 4.2860f, 0.8590f);
+    path->conicTo(2.1659f, 4.2631f, 2.1659f, 3.7145f, 0.7217f);
+    path->conicTo(2.1659f, 3.1659f, 2.7140f, 3.1430f, 0.7217f);
+    path->lineTo(2.7140f, 3.1430f);
+    path->close();
+    path->moveTo(5.0000f, 3.1430f);
+    path->conicTo(5.3407f, 3.1287f, 5.5152f, 3.4216f, 0.8590f);
+    path->conicTo(5.6898f, 3.7145f, 5.5152f, 4.0074f, 0.8590f);
+    path->conicTo(5.3407f, 4.3003f, 5.0000f, 4.2860f, 0.8590f);
+    path->conicTo(4.4519f, 4.2631f, 4.4519f, 3.7145f, 0.7217f);
+    path->conicTo(4.4519f, 3.1659f, 5.0000f, 3.1430f, 0.7217f);
+    path->lineTo(5.0000f, 3.1430f);
+    path->close();
+    path->moveTo(7.2860f, 3.1430f);
+    path->conicTo(7.6267f, 3.1287f, 7.8012f, 3.4216f, 0.8590f);
+    path->conicTo(7.9758f, 3.7145f, 7.8012f, 4.0074f, 0.8590f);
+    path->conicTo(7.6267f, 4.3003f, 7.2860f, 4.2860f, 0.8590f);
+    path->conicTo(6.7379f, 4.2631f, 6.7379f, 3.7145f, 0.7217f);
+    path->conicTo(6.7379f, 3.1659f, 7.2860f, 3.1430f, 0.7217f);
+    path->close();
+    path->moveTo(1.0000f, 6.1900f);
+    path->lineTo(1.0000f, 14.3810f);
+    path->conicTo(0.9992f, 14.7757f, 1.2782f, 15.0548f, 0.9235f);
+    path->conicTo(1.5573f, 15.3338f, 1.9520f, 15.3330f, 0.9235f);
+    path->lineTo(16.0480f, 15.3330f);
+    path->conicTo(16.4427f, 15.3338f, 16.7218f, 15.0548f, 0.9235f);
+    path->conicTo(17.0008f, 14.7757f, 17.0000f, 14.3810f, 0.9235f);
+    path->lineTo(17.0000f, 6.1910f);
+    path->lineTo(1.0000f, 6.1910f);
+    path->lineTo(1.0000f, 6.1900f);
+    path->close();
+}
+
 constexpr MakePathProc gProcs[] = {
     make_frame,
     make_triangle,
@@ -244,6 +292,7 @@ class PathFillGM : public skiagm::GM {
     SkScalar fDY[N];
     SkPath  fInfoPath;
     SkPath  fAccessibilityPath;
+    SkPath  fVisualizerPath;
 protected:
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < N; i++) {
@@ -252,6 +301,7 @@ protected:
 
         make_info(&fInfoPath);
         make_accessibility(&fAccessibilityPath);
+        make_visualizer(&fVisualizerPath);
     }
 
 
@@ -281,6 +331,10 @@ protected:
         canvas->scale(2, 2);
         canvas->translate(5, 15);
         canvas->drawPath(fAccessibilityPath, paint);
+
+        canvas->scale(0.5f, 0.5f);
+        canvas->translate(5, 50);
+        canvas->drawPath(fVisualizerPath, paint);
     }
 
 private:
