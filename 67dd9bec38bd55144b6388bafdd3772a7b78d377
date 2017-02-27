@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8de77a6_f9a1cc01",
+        "filename": "gm/pathfill.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-27T17:51:18Z",
+      "side": 1,
+      "message": "// This is an interesting test case bc \n\n?",
+      "revId": "67dd9bec38bd55144b6388bafdd3772a7b78d377",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "551dea3c_a62e88ad",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-27T17:51:18Z",
+      "side": 1,
+      "message": "Have we removed the sub-pixel positioning here ?",
+      "revId": "67dd9bec38bd55144b6388bafdd3772a7b78d377",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2152e052_2491ea21",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-27T17:51:18Z",
+      "side": 1,
+      "message": "Why is this repeat ?",
+      "revId": "67dd9bec38bd55144b6388bafdd3772a7b78d377",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fff7c6b_11d2ca1f",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-27T17:51:18Z",
+      "side": 1,
+      "message": "Do we only need \u0027invert\u0027 for this code path?",
+      "revId": "67dd9bec38bd55144b6388bafdd3772a7b78d377",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2496f61_b329d254",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-27T17:51:18Z",
+      "side": 1,
+      "message": "This would be a different CL, but it looks like \u0027shapeData\u0027 could benefit from being a unique_ptr",
+      "revId": "67dd9bec38bd55144b6388bafdd3772a7b78d377",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4d4bf2e_4abaaef8",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-27T17:51:18Z",
+      "side": 1,
+      "message": "const \u0026 ?",
+      "revId": "67dd9bec38bd55144b6388bafdd3772a7b78d377",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
