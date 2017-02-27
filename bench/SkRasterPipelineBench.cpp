@@ -9,7 +9,7 @@
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
 
-static const int N = 1023;
+static const int N = 15;
 
 static uint64_t dst[N];  // sRGB or F16
 static uint32_t src[N];  // sRGB
