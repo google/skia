@@ -257,7 +257,7 @@ sk_sp<SkShader> MakeFuzzShader(Fuzz* fuzz, int depth) {
                 SkScalar pos[kMaxColors];
                 int colorCount;
                 bool usePos;
-                fuzz->nextN(&pts, 2);
+                fuzz->nextN(pts, 2);
                 fuzz->nextRange(&colorCount, 2, kMaxColors);
                 fuzz->nextN(colors, colorCount);
                 fuzz->next(&tmX, &useMatrix, &usePos);
