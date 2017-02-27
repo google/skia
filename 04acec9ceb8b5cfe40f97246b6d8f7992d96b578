@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbd70e5d_9d45cf0a",
+        "filename": "BUILD.gn",
+        "patchSetId": 14
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-27T17:58:59Z",
+      "side": 1,
+      "message": "Please alphabetize this list",
+      "revId": "04acec9ceb8b5cfe40f97246b6d8f7992d96b578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db9bf8e6_2a05c043",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-27T17:58:59Z",
+      "side": 1,
+      "message": "I think fuzz_input is a better name for this.  fuzz_enum_input for below too.",
+      "range": {
+        "startLine": 44,
+        "startChar": 12,
+        "endLine": 44,
+        "endChar": 25
+      },
+      "revId": "04acec9ceb8b5cfe40f97246b6d8f7992d96b578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
