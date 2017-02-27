@@ -716,6 +716,11 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                            surfaceProps);
 }
 
+void GrContextPriv::addPerFlushCallbackObject(sk_sp<GrPerFlushCallbackObject> perFlushCBObject) {
+    fContext->fDrawingManager->addPerFlushCallbackObject(std::move(perFlushCBObject));
+}
+
+
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:

@@ -19,7 +19,9 @@
  */
 class GrTestMeshDrawOp : public GrMeshDrawOp {
 public:
-    virtual const char* name() const override = 0;
+    const char* name() const override = 0;
+
+    GrColor color() const { return fColor; }
 
 protected:
     GrTestMeshDrawOp(uint32_t classID, const SkRect& bounds, GrColor color)
@@ -28,9 +30,9 @@ protected:
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kYes);
     }
 
-    GrColor color() const { return fColor; }
-
     bool usesLocalCoords() const { return fUsesLocalCoords; }
+
+    GrColor fColor;
 
 private:
     void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
@@ -45,7 +47,6 @@ private:
 
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
-    GrColor fColor;
     bool fUsesLocalCoords = false;
 
     typedef GrMeshDrawOp INHERITED;
