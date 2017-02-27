@@ -763,9 +763,11 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info, bool flipGrad) 
         if (info->fColorCount >= fColorCount) {
             SkColor* colorLoc;
             Rec*     recLoc;
+            SkAutoSTArray<8, SkColor> colorStorage;
+            SkAutoSTArray<8, Rec> recStorage;
             if (flipGrad && (info->fColors || info->fColorOffsets)) {
-                SkAutoSTArray<8, SkColor> colorStorage(fColorCount);
-                SkAutoSTArray<8, Rec> recStorage(fColorCount);
+                colorStorage.reset(fColorCount);
+                recStorage.reset(fColorCount);
                 colorLoc = colorStorage.get();
                 recLoc = recStorage.get();
                 FlipGradientColors(colorLoc, recLoc, fOrigColors, fRecs, fColorCount);
