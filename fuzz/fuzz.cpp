@@ -10,33 +10,41 @@
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkDebugCanvas.h"
 #include "SkDocument.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
 #include "SkNullCanvas.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkSurface.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPath.h"
 #include "SkPicture.h"
+#include "SkRegion.h"
+#include "SkStream.h"
+#include "SkSurface.h"
+
 #if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
 #endif
-#include "SkStream.h"
 
+#include <iostream>
 #include <signal.h>
 
 #include "sk_tool_utils.h"
 
 #include "FuzzCanvas.h"
 
-DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the contents will be used as the fuzz bytes. If a directory, all files in the directory will be used as fuzz bytes for the fuzzer, one at a time.");
+DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
+        "contents will be used as the fuzz bytes. If a directory, all files "
+        "in the directory will be used as fuzz bytes for the fuzzer, one at a "
+        "time.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
 
-DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image_scale', 'image_mode', 'skp', 'icc', or 'api'.");
-DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a PNG with this name.");
+DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image_scale'"
+        ", 'image_mode', 'skp', 'icc', or 'api'.");
+DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a "
+        "PNG with this name.");
 
 static int printUsage() {
     SkDebugf("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n");
@@ -53,6 +61,7 @@ static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_pdf_canvas(sk_sp<SkData>);
 static void fuzz_null_canvas(sk_sp<SkData>);
+static void fuzz_dump_canvas(sk_sp<SkData>);
 static void fuzz_raster_n32_canvas(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
 #if SK_SUPPORT_GPU
@@ -128,6 +137,11 @@ static int fuzz_file(const char* path) {
         }
         if (0 == strcmp("n32_canvas", FLAGS_type[0])) {
             fuzz_raster_n32_canvas(bytes);
+            return 0;
+        }
+        // not a "real" thing to fuzz, used to debug errors found while fuzzing.
+        if (0 == strcmp("_dump_canvas", FLAGS_type[0])) {
+            fuzz_dump_canvas(bytes);
             return 0;
         }
         if (0 == strcmp("null_canvas", FLAGS_type[0])) {
@@ -476,6 +490,16 @@ static void fuzz_pdf_canvas(sk_sp<SkData> bytes) {
     } stream;
     auto doc = SkDocument::MakePDF(&stream);
     FuzzCanvas(&fuzz, doc->beginPage(612.0f, 792.0f));
+}
+
+static void fuzz_dump_canvas(sk_sp<SkData> bytes) {
+    Fuzz fuzz(std::move(bytes));
+    SkDebugCanvas debugCanvas(612, 792);
+    FuzzCanvas(&fuzz, &debugCanvas);
+    std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
+    UrlDataManager dataManager(SkString("data"));
+    Json::Value json = debugCanvas.toJSON(dataManager, debugCanvas.getSize(), nullCanvas.get());
+    Json::StyledStreamWriter("  ").write(std::cout, json);
 }
 
 static void fuzz_skp(sk_sp<SkData> bytes) {
