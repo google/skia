@@ -146,9 +146,9 @@ public:
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    std::unique_ptr<GrDrawOpAtlas> makeAtlas(GrPixelConfig, int width, int height, int numPlotsX,
-                                             int numPlotsY, GrDrawOpAtlas::EvictionFunc func,
-                                             void* data);
+    std::unique_ptr<GrDrawOpAtlas> makeAtlas(GrContext*, GrPixelConfig, int width, int height,
+                                             int numPlotsX, int numPlotsY,
+                                             GrDrawOpAtlas::EvictionFunc func, void* data);
 
     /**
      * If passed in render target already has a stencil buffer, return it. Otherwise attempt to
@@ -156,6 +156,7 @@ public:
      */
     GrStencilAttachment* attachStencilAttachment(GrRenderTarget* rt);
 
+    GrContext* context() { return this->gpu()->getContext(); }
     const GrCaps* caps() { return this->gpu()->caps(); }
 
      /**
