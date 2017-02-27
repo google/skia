@@ -149,31 +149,6 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     fDomain.setData(pdman, conv.domain(), texture);
 }
 
-GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
-                                                     const SkIRect& bounds,
-                                                     const SkISize& kernelSize,
-                                                     const SkScalar* kernel,
-                                                     SkScalar gain,
-                                                     SkScalar bias,
-                                                     const SkIPoint& kernelOffset,
-                                                     GrTextureDomain::Mode tileMode,
-                                                     bool convolveAlpha)
-        // To advertise the preserves opaqueness optimization we'd have to examine the parameters.
-        : INHERITED(texture, nullptr, SkMatrix::I(),
-                    kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-        , fKernelSize(kernelSize)
-        , fGain(SkScalarToFloat(gain))
-        , fBias(SkScalarToFloat(bias) / 255.0f)
-        , fConvolveAlpha(convolveAlpha)
-        , fDomain(texture, GrTextureDomain::MakeTexelDomainForMode(bounds, tileMode), tileMode) {
-    this->initClassID<GrMatrixConvolutionEffect>();
-    for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
-        fKernel[i] = SkScalarToFloat(kernel[i]);
-    }
-    fKernelOffset[0] = static_cast<float>(kernelOffset.x());
-    fKernelOffset[1] = static_cast<float>(kernelOffset.y());
-}
-
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrContext* context,
                                                      sk_sp<GrTextureProxy> proxy,
                                                      const SkIRect& bounds,
@@ -251,25 +226,6 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 
 
 // Static function to create a 2D convolution
-sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(GrTexture* texture,
-                                                                   const SkIRect& bounds,
-                                                                   const SkISize& kernelSize,
-                                                                   SkScalar gain,
-                                                                   SkScalar bias,
-                                                                   const SkIPoint& kernelOffset,
-                                                                   GrTextureDomain::Mode tileMode,
-                                                                   bool convolveAlpha,
-                                                                   SkScalar sigmaX,
-                                                                   SkScalar sigmaY) {
-    float kernel[MAX_KERNEL_SIZE];
-
-    fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
-
-    return sk_sp<GrFragmentProcessor>(
-        new GrMatrixConvolutionEffect(texture, bounds, kernelSize, kernel, gain, bias,
-                                      kernelOffset, tileMode, convolveAlpha));
-}
-
 sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(GrContext* context,
                                                                    sk_sp<GrTextureProxy> proxy,
                                                                    const SkIRect& bounds,

@@ -49,7 +49,7 @@ public:
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
                           SkRect* maskRect) const override;
-    bool directFilterMaskGPU(GrTextureProvider* texProvider,
+    bool directFilterMaskGPU(GrContext*,
                              GrRenderTargetContext* renderTargetContext,
                              GrPaint&&,
                              const GrClip&,
@@ -770,7 +770,7 @@ public:
 
     const char* name() const override { return "RectBlur"; }
 
-    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider *textureProvider,
+    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider* textureProvider,
                                            const SkRect& rect, float sigma) {
         int doubleProfileSize = SkScalarCeilToInt(12*sigma);
 
@@ -959,7 +959,6 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvid
     builder.finish();
 
     sk_sp<GrTexture> blurProfile(textureProvider->findAndRefTextureByUniqueKey(key));
-
     if (!blurProfile) {
         std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
@@ -1009,12 +1008,12 @@ sk_sp<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* d) 
     float sigma = d->fRandom->nextRangeF(3,8);
     float width = d->fRandom->nextRangeF(200,300);
     float height = d->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(d->context()->textureProvider(), SkRect::MakeWH(width, height),
-                                  sigma);
+    return GrRectBlurEffect::Make(d->context()->textureProvider(),
+                                  SkRect::MakeWH(width, height), sigma);
 }
 #endif
 
-bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
+bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
                                                GrRenderTargetContext* renderTargetContext,
                                                GrPaint&& paint,
                                                const GrClip& clip,
@@ -1041,9 +1040,9 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
         SkScalar pad = 3.0f * xformedSigma;
         rect.outset(pad, pad);
 
-        fp = GrRectBlurEffect::Make(texProvider, rect, xformedSigma);
+        fp = GrRectBlurEffect::Make(context->textureProvider(), rect, xformedSigma);
     } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height())) {
-        fp = GrCircleBlurFragmentProcessor::Make(texProvider, rect, xformedSigma);
+        fp = GrCircleBlurFragmentProcessor::Make(context->textureProvider(), rect, xformedSigma);
 
         // expand the rect for the coverage geometry
         int pad = SkScalarCeilToInt(6*xformedSigma)/2;
@@ -1121,7 +1120,7 @@ static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
     }
     builder.finish();
 
-    sk_sp<GrTexture> mask(context->textureProvider()->findAndRefTextureByUniqueKey(key));
+    sk_sp<GrTextureProxy> mask; //(context->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!mask) {
         // TODO: this could be approx but the texture coords will need to be updated
         sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContextWithFallback(
@@ -1153,14 +1152,14 @@ static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
             return nullptr;
         }
 
-        mask = rtc2->asTexture();
+        mask = rtc2->asTextureProxyRef();
         if (!mask) {
             return nullptr;
         }
-        context->textureProvider()->assignUniqueKeyToTexture(key, mask.get());
+        //context->textureProvider()->assignUniqueKeyToTexture(key, mask.get());
     }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(mask));
+    return mask;
 }
 
 sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
@@ -1372,8 +1371,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             fp = GrRectBlurEffect::Make(context->textureProvider(), dstCoverageRect, xformedSigma);
         } else {
             fp = GrCircleBlurFragmentProcessor::Make(context->textureProvider(),
-                                                     devRRect.rect(),
-                                                     xformedSigma);
+                                                     devRRect.rect(), xformedSigma);
         }
 
         if (!fp) {

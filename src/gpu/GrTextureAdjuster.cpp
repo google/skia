@@ -13,11 +13,12 @@
 #include "GrTexture.h"
 #include "SkGrPriv.h"
 
-GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
+GrTextureAdjuster::GrTextureAdjuster(GrContext* context, GrTexture* original, SkAlphaType alphaType,
                                      const SkIRect& contentArea, uint32_t uniqueID,
                                      SkColorSpace* cs)
     : INHERITED(contentArea.width(), contentArea.height(),
                 GrPixelConfigIsAlphaOnly(original->config()))
+    , fContext(context)
     , fOriginal(original)
     , fAlphaType(alphaType)
     , fColorSpace(cs)
@@ -53,7 +54,7 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
             return cachedCopy;
         }
     }
-    GrTexture* copy = CopyOnGpu(texture, contentArea, copyParams);
+    GrTexture* copy = nullptr; //CopyOnGpu(texture, contentArea, copyParams);
     if (copy) {
         if (key.isValid()) {
             copy->resourcePriv().setUniqueKey(key);
@@ -162,7 +163,9 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace,
                                                                        dstColorSpace);
-    return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),
-                                                     textureMatrix, domainMode, domain,
-                                                     filterOrNullForBicubic);
+    return nullptr;
+//    return CreateFragmentProcessorForDomainAndFilter(fContext, texture.get(),
+//                                                     std::move(colorSpaceXform),
+//                                                     textureMatrix, domainMode, domain,
+//                                                     filterOrNullForBicubic);
 }
