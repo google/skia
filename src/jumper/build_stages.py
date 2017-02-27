@@ -68,30 +68,39 @@ subprocess.check_call(['clang++'] + cflags + vfp4 +
                       ['-o', 'vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
-  globl, label, comment = '.globl', ':', '// '
+  globl, label, comment, align = '.globl', ':', '// ', '.balign'
   if 'win' in dot_o:
-    globl, label, comment = 'PUBLIC', ' LABEL PROC', '; '
+    globl, label, comment, align = 'PUBLIC', ' LABEL PROC', '; ', 'ALIGN'
 
   dehex = lambda h: '0x'+h
   if directive != '.long':
     dehex = lambda h: str(int(h, 16))
 
-  cmd = [ objdump, '-d', '--insn-width=9', dot_o]
+  cmd = [ objdump, '-D', '--insn-width=10', dot_o]
   if target:
     cmd += ['--target', target]
+  for section in ['.text', '.literal4', '.literal8', '.literal16', '.const']:
+    cmd += [ '-j', section ]
 
+  print align, 16
   for line in subprocess.check_output(cmd).split('\n'):
     line = line.strip()
 
-    if not line or line.startswith(dot_o) or line.startswith('Disassembly'):
+    if not line or line.startswith(dot_o) or line.startswith('Disassembly') \
+        or line.startswith('...'):
       continue
 
     # E.g. 00000000000003a4 <_load_f16>:
     m = re.match('''[0-9a-f]+ <_?(.*)>:''', line)
     if m:
       print
-      print globl + ' _' + m.group(1)
-      print '_' + m.group(1) + label
+      if '.literal' in m.group(1):
+        print align, m.group(1).replace('.literal', '')
+      elif '.const' in m.group(1):
+        print align, 4
+      else:
+        print globl + ' _' + m.group(1)
+        print '_' + m.group(1) + label
       continue
 
     columns = line.split('\t')
@@ -104,10 +113,6 @@ def parse_object_file(dot_o, directive, target=None):
       if ' ' in columns[2]:
         inst, args = columns[2].split(' ', 1)
     code, inst, args = code.strip(), inst.strip(), args.strip()
-
-    # We can't work with code that uses ip-relative addressing.
-    for arg in args:
-      assert 'rip' not in arg  # TODO: detect on aarch64 too
 
     hexed = ','.join(dehex(x) for x in code.split(' '))
 
@@ -127,11 +132,9 @@ print '''# Copyright 2017 Google Inc.
 print '.text'
 
 print '#if defined(__aarch64__)'
-print '.balign 4'
 parse_object_file('aarch64.o', '.long')
 
 print '#elif defined(__arm__)'
-print '.balign 4'
 parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
