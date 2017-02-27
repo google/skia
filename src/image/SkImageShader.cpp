@@ -166,12 +166,14 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner;
+#if 0
     if (doBicubic) {
         inner = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), lmInverse, tm);
     } else {
         inner = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform),
                                             lmInverse, params);
     }
+#endif
 
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
         return inner;
