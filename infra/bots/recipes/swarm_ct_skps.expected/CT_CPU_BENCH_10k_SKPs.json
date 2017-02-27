@@ -969,12 +969,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-nanobench-1",
+      "stepname:ct-nanobench-1 on Ubuntu-14.04",
       "[dummy hash for ct-nanobench-1]"
     ],
-    "name": "[trigger] ct-nanobench-1",
+    "name": "[trigger] ct-nanobench-1 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1041,12 +1039,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-nanobench-2",
+      "stepname:ct-nanobench-2 on Ubuntu-14.04",
       "[dummy hash for ct-nanobench-2]"
     ],
-    "name": "[trigger] ct-nanobench-2",
+    "name": "[trigger] ct-nanobench-2 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1113,12 +1109,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-nanobench-3",
+      "stepname:ct-nanobench-3 on Ubuntu-14.04",
       "[dummy hash for ct-nanobench-3]"
     ],
-    "name": "[trigger] ct-nanobench-3",
+    "name": "[trigger] ct-nanobench-3 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1185,12 +1179,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-nanobench-4",
+      "stepname:ct-nanobench-4 on Ubuntu-14.04",
       "[dummy hash for ct-nanobench-4]"
     ],
-    "name": "[trigger] ct-nanobench-4",
+    "name": "[trigger] ct-nanobench-4 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1257,12 +1249,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "slavename:skiabot-linux-swarm-000",
-      "--tag",
-      "stepname:ct-nanobench-5",
+      "stepname:ct-nanobench-5 on Ubuntu-14.04",
       "[dummy hash for ct-nanobench-5]"
     ],
-    "name": "[trigger] ct-nanobench-5",
+    "name": "[trigger] ct-nanobench-5 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1297,7 +1287,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-1"
     ],
-    "name": "ct-nanobench-1",
+    "name": "ct-nanobench-1 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1369,7 +1359,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1391,7 +1381,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1426,7 +1416,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-2"
     ],
-    "name": "ct-nanobench-2",
+    "name": "ct-nanobench-2 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1498,7 +1488,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1520,7 +1510,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1555,7 +1545,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-3"
     ],
-    "name": "ct-nanobench-3",
+    "name": "ct-nanobench-3 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1627,7 +1617,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1649,7 +1639,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1684,7 +1674,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-4"
     ],
-    "name": "ct-nanobench-4",
+    "name": "ct-nanobench-4 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1756,7 +1746,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1778,7 +1768,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1813,7 +1803,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-5"
     ],
-    "name": "ct-nanobench-5",
+    "name": "ct-nanobench-5 on Ubuntu-14.04",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1885,7 +1875,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
@@ -1907,7 +1897,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
+      "RECIPE_MODULE[depot_tools::gsutil]/resources/gsutil_smart_retry.py",
       "--",
       "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
       "----",
