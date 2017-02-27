@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script>
+        function getAjax(url, success) {
+            var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+            xhr.open('GET', url);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState > 3 && xhr.status == 200) success(xhr.responseText);
+            };
+            xhr.send();
+            return xhr;
+        }
+
+        function postAjax(url, data, success) {
+            var params = typeof data == 'string' ? data : Object.keys(data).map(
+                    function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
+                ).join('&');
+
+            var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+            xhr.open('POST', url);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState > 3 && xhr.status == 200) { success(xhr.responseText); }
+            };
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(params);
+            return xhr;
+        }
+
+        function testResult(data) {
+            var obj = JSON.parse(data);
+            if (obj.compile_errors) {
+                console.log("compile_errors:");
+                for (var err in obj.compile_errors)
+                    console.log(err);
+            }
+            if (obj.runtime_error) {
+                console.log("runtime_error:");
+                console.log(runtime_error);
+            }
+            if (obj.fiddleHash) {
+                console.log("fiddleHash:");
+                console.log(obj.fiddleHash);
+//                getAjax("https://fiddle.skia.org/i/" + obj.fiddleHash + ".txt", function (data) { console.log(data); });
+            }
+        }
+
+        function testfiddle() {
+            var Paint_Font_Metrics_code =
+            "void draw(SkCanvas* canvas) {\n" +
+            "    SkPaint paint;\n" +
+            "    paint.setAntiAlias(true);\n" +
+            "    paint.setTextSize(120);\n" +
+            "    SkPaint::FontMetrics fm;\n" +
+            "    SkScalar lineHeight = paint.getFontMetrics(&fm);\n" +
+            "    SkPoint pt = { 70, 180 };\n" +
+            "    canvas->clear(SK_ColorWHITE);\n" +
+            "    canvas->drawText(\"M\", 1, pt.fX, pt.fY, paint);\n" +
+            "    canvas->drawLine(pt.fX, pt.fY, pt.fX, pt.fY + fm.fTop, paint);\n" +
+            "    SkScalar ascent = pt.fY + fm.fAscent;\n" +
+            "    canvas->drawLine(pt.fX - 25, ascent, pt.fX - 25, ascent + lineHeight, paint);\n" +
+            "    canvas->drawLine(pt.fX - 50, pt.fY, pt.fX - 50, pt.fY + fm.fDescent, paint);\n" +
+            "    canvas->drawLine(pt.fX + 100, pt.fY, pt.fX + 100, pt.fY + fm.fAscent, paint);\n" +
+            "    canvas->drawLine(pt.fX + 125, pt.fY, pt.fX + 125, pt.fY - fm.fXHeight, paint);\n" +
+            "    canvas->drawLine(pt.fX + 150, pt.fY, pt.fX + 150, pt.fY - fm.fCapHeight, paint);\n" +
+            "    canvas->drawLine(pt.fX + 5, pt.fY, pt.fX + 5, pt.fY + fm.fBottom, paint);\n" +
+            "    SkScalar xmin = pt.fX + fm.fXMin;\n" +
+            "    canvas->drawLine(xmin, pt.fY + 60, xmin + fm.fMaxCharWidth, pt.fY + 60, paint);\n" +
+            "    canvas->drawLine(xmin, pt.fY - 145, pt.fX, pt.fY - 145, paint);\n" +
+            "    canvas->drawLine(pt.fX + fm.fXMax, pt.fY - 160, pt.fX, pt.fY - 160, paint);\n" +
+            "    SkScalar upos = pt.fY + fm.fUnderlinePosition;\n" +
+            "    canvas->drawLine(pt.fX + 25, upos, pt.fX + 130, upos, paint);\n" +
+            "    SkScalar urad = fm.fUnderlineThickness / 2;\n" +
+            "    canvas->drawLine(pt.fX + 130, upos - urad, pt.fX + 160, upos - urad, paint);\n" +
+            "    canvas->drawLine(pt.fX + 130, upos + urad, pt.fX + 160, upos + urad, paint);\n" +
+            "    paint.setTextSize(12);\n" +
+            "    canvas->drawText(\"x-min\", 5,         pt.fX - 50, pt.fY - 148, paint);\n" +
+            "    canvas->drawText(\"x-max\", 5,         pt.fX + 140, pt.fY - 150, paint);\n" +
+            "    canvas->drawText(\"max char width\", 14, pt.fX + 120, pt.fY + 57, paint);\n" +
+            "    canvas->drawText(\"underline position\", 18, pt.fX + 30, pt.fY + 22, paint);\n" +
+            "    canvas->drawText(\"underline thickness\", 19, pt.fX + 162, pt.fY + 13, paint);\n" +
+            "    canvas->rotate(-90);\n" +
+            "    canvas->drawText(\"descent\", 7,      -pt.fY - 30, pt.fX - 54,  paint);\n" +
+            "    canvas->drawText(\"line height\", 11, -pt.fY,      pt.fX - 29,  paint);\n" +
+            "    canvas->drawText(\"top\", 3,          -pt.fY + 30, pt.fX - 4,   paint);\n" +
+            "    canvas->drawText(\"ascent\", 6,       -pt.fY,      pt.fX + 110, paint);\n" +
+            "    canvas->drawText(\"x-height\", 8,     -pt.fY,      pt.fX + 135, paint);\n" +
+            "    canvas->drawText(\"cap-height\", 10,  -pt.fY,      pt.fX + 160, paint);\n" +
+            "    canvas->drawText(\"bottom\", 6,       -pt.fY - 50, pt.fX + 15,  paint);\n" +
+            "}\n";
+
+            var Paint_Font_Metrics_json = {
+                "code": Paint_Font_Metrics_code,
+                "options": {
+                    "width": 512,
+                    "height": 256,
+                    "source": 0,
+                    "textOnly": false
+                },
+                "name": "Paint_Font_Metrics",
+                "overwrite": true
+            }
+
+            postAjax("https://fiddle.skia.org/_/run", JSON.stringify(Paint_Font_Metrics_json), testResult);
+
+            var Paint_Text_Encoding_code =
+            "void draw(SkCanvas* canvas) {\n" +
+            "    SkPaint paint;\n" +
+            "    const char hello8[] = \"Hello!\";\n" +
+            "    const uint16_t hello16[] = { 'H', 'e', 'l', 'l', 'o', '!' };\n" +
+            "    const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', '!' };\n" +
+            "    paint.setTextSize(24);\n" +
+            "    canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);\n" +
+            "    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);\n" +
+            "    canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);\n" +
+            "    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);\n" +
+            "    canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);\n" +
+            "    uint16_t glyphs[SK_ARRAY_COUNT(hello32)];\n" +
+            "    paint.textToGlyphs(hello32, sizeof(hello32), glyphs);\n" +
+            "    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n" +
+            "    canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);\n" +
+            "}\n";
+
+            var Paint_Text_Encoding_json = {
+                "code": Paint_Text_Encoding_code,
+                "options": {
+                    "width": 256,
+                    "height": 256,
+                    "source": 0,
+                    "textOnly": false
+                },
+                "name": "Paint_Text_Encoding",
+                "overwrite": true
+            }
+
+            postAjax("https://fiddle.skia.org/_/run", JSON.stringify(Paint_Text_Encoding_json), testResult);
+        }
+
+    </script>
+</head>
+<body onload="testfiddle();">
+
+</body>
+</html>
