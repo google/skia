@@ -320,6 +320,7 @@ public:
     enum {
         kIsOpaque_SaveLayerFlag         = 1 << 0,
         kPreserveLCDText_SaveLayerFlag  = 1 << 1,
+        kInitWithPrevious_SaveLayerFlag = 1 << 2,
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
