@@ -29,7 +29,7 @@ protected:
 
     // Deferred version
     GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
-                   const void* srcData, size_t srcRowBytes, uint32_t flags);
+                   const void* srcData, size_t srcRowBytes);
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>);
 

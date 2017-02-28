@@ -31,8 +31,7 @@ GrTextureProvider::GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingl
 }
 
 GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                     const GrMipLevel* texels, int mipLevelCount,
-                                                     uint32_t flags) {
+                                                     const GrMipLevel* texels, int mipLevelCount) {
     ASSERT_SINGLE_OWNER
 
     if (this->isAbandoned()) {
@@ -55,8 +54,9 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
     }
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         if (mipLevelCount < 2) {
-            flags |= kExact_ScratchTextureFlag | kNoCreate_ScratchTextureFlag;
-            if (GrTexture* texture = this->refScratchTexture(desc, flags)) {
+            static const uint32_t kFlags = kExact_ScratchTextureFlag |
+                                           kNoCreate_ScratchTextureFlag;
+            if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
                 if (!mipLevelCount ||
                     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                          texels[0].fPixels, texels[0].fRowBytes)) {
@@ -78,7 +78,7 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
 }
 
 GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                            const void* srcData, size_t rowBytes, uint32_t flags) {
+                                            const void* srcData, size_t rowBytes) {
     GrMipLevel tempTexels;
     GrMipLevel* texels = nullptr;
     int levelCount = 0;
@@ -88,12 +88,12 @@ GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgete
         texels = &tempTexels;
         levelCount = 1;
     }
-    return this->createMipMappedTexture(desc, budgeted, texels, levelCount, flags);
+    return this->createMipMappedTexture(desc, budgeted, texels, levelCount);
 }
 
-GrTexture* GrTextureProvider::createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
+GrTexture* GrTextureProvider::createApproxTexture(const GrSurfaceDesc& desc) {
     ASSERT_SINGLE_OWNER
-    return this->internalCreateApproxTexture(desc, flags);
+    return this->internalCreateApproxTexture(desc, 0);
 }
 
 GrTexture* GrTextureProvider::internalCreateApproxTexture(const GrSurfaceDesc& desc,
