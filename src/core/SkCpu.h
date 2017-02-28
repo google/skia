@@ -12,21 +12,32 @@
 
 struct SkCpu {
     enum {
-        SSE1  = 1 << 0,
-        SSE2  = 1 << 1,
-        SSE3  = 1 << 2,
-        SSSE3 = 1 << 3,
-        SSE41 = 1 << 4,
-        SSE42 = 1 << 5,
-        AVX   = 1 << 6,
-        F16C  = 1 << 7,
-        FMA   = 1 << 8,
-        AVX2  = 1 << 9,
-        BMI1  = 1 << 10,
-        BMI2  = 1 << 11,
-
+        SSE1       = 1 << 0,
+        SSE2       = 1 << 1,
+        SSE3       = 1 << 2,
+        SSSE3      = 1 << 3,
+        SSE41      = 1 << 4,
+        SSE42      = 1 << 5,
+        AVX        = 1 << 6,
+        F16C       = 1 << 7,
+        FMA        = 1 << 8,
+        AVX2       = 1 << 9,
+        BMI1       = 1 << 10,
+        BMI2       = 1 << 11,
         // Handy alias for all the cool Haswell+ instructions.
         HSW = AVX2 | BMI1 | BMI2 | F16C | FMA,
+
+        AVX512F    = 1 << 12,
+        AVX512DQ   = 1 << 13,
+        AVX512IFMA = 1 << 14,
+        AVX512PF   = 1 << 15,
+        AVX512ER   = 1 << 16,
+        AVX512CD   = 1 << 17,
+        AVX512BW   = 1 << 18,
+        AVX512VL   = 1 << 19,
+
+        // Handy alias for all the cool Skylake Xeon+ instructions.
+        SKY = AVX512F  | AVX512DQ | AVX512CD | AVX512BW | AVX512VL,
     };
     enum {
         NEON     = 1 << 0,
