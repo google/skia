@@ -13,6 +13,8 @@
 
 namespace sk_app {
 
+static void default_backend_created_func(void* userData) {}
+
 static bool default_char_func(SkUnichar c, uint32_t modifiers, void* userData) {
     return false;
 }
@@ -41,7 +43,8 @@ static void default_ui_state_changed_func(
 
 static void default_paint_func(SkCanvas*, void* userData) {}
 
-Window::Window() : fCharFunc(default_char_func)
+Window::Window() : fBackendCreatedFunc(default_backend_created_func)
+                 , fCharFunc(default_char_func)
                  , fKeyFunc(default_key_func)
                  , fMouseFunc(default_mouse_func)
                  , fMouseWheelFunc(default_mouse_wheel_func)
