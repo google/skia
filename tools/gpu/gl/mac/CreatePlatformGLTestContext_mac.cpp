@@ -23,6 +23,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    void onPlatformReleaseCurrent() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -96,6 +97,10 @@ void MacGLTestContext::destroyGLContext() {
 
 void MacGLTestContext::onPlatformMakeCurrent() const {
     CGLSetCurrentContext(fContext);
+}
+
+void MacGLTestContext::onPlatformReleaseCurrent() const {
+    CGLSetCurrentContext(nullptr);
 }
 
 void MacGLTestContext::onPlatformSwapBuffers() const {
