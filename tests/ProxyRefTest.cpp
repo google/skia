@@ -71,7 +71,8 @@ static sk_sp<GrSurfaceProxy> make_deferred(const GrCaps& caps, GrTextureProvider
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kApprox, SkBudgeted::kYes);
+    return GrSurfaceProxy::MakeDeferred(provider, caps, desc,
+                                        SkBackingFit::kApprox, SkBudgeted::kYes);
 }
 
 static sk_sp<GrSurfaceProxy> make_wrapped(const GrCaps& caps, GrTextureProvider* provider) {

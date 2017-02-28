@@ -170,8 +170,8 @@ public:
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
 
-    static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, const GrSurfaceDesc&,
-                                              SkBackingFit, SkBudgeted);
+    static sk_sp<GrSurfaceProxy> MakeDeferred(GrTextureProvider*, const GrCaps&,
+                                              const GrSurfaceDesc&, SkBackingFit, SkBudgeted);
 
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
