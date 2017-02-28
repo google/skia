@@ -183,6 +183,7 @@ public:
     bool sampleShadingSupport() const { return fSampleShadingSupport; }
 
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
+    bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
 
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
@@ -224,6 +225,9 @@ protected:
     bool fSampleShadingSupport                       : 1;
     // TODO: this may need to be an enum to support different fence types
     bool fFenceSyncSupport                           : 1;
+
+    // Vulkan doesn't support this (yet) and some drivers have issues, too
+    bool fCrossContextTextureSupport                 : 1;
 
     InstancedSupport fInstancedSupport;
 

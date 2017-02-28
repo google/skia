@@ -53,6 +53,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMustClearUploadedBufferData = false;
     fSampleShadingSupport = false;
     fFenceSyncSupport = false;
+    fCrossContextTextureSupport = false;
 
     fUseDrawInsteadOfClear = false;
 
@@ -141,6 +142,7 @@ SkString GrCaps::dump() const {
     r.appendf("Must clear buffer memory           : %s\n", gNY[fMustClearUploadedBufferData]);
     r.appendf("Sample shading support             : %s\n", gNY[fSampleShadingSupport]);
     r.appendf("Fence sync support                 : %s\n", gNY[fFenceSyncSupport]);
+    r.appendf("Cross context texture support      : %s\n", gNY[fCrossContextTextureSupport]);
 
     r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
     r.appendf("Draw Instead of TexSubImage [workaround] : %s\n",
