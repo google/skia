@@ -173,7 +173,16 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
     switch (outputColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-        case kIndex_8_SkColorType:
+        case kIndex_8_SkColorType: {
+            SkColorSpace* encodedSpace = fCodec->getInfo().colorSpace();
+            SkColorSpaceTransferFn fn;
+            bool isNumerical = encodedSpace->isNumericalTransferFn(&fn);
+            if (isNumerical) {
+                // Leave the pixels in the encoded color space.  Color space conversion
+                // will be handled after decode time.
+                return as_CSB(encodedSpace)->makeWithNonLinearBlending();
+            }
+
             if (is_wide_gamut(fCodec->getInfo().colorSpace())) {
                 return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                              SkColorSpace::kDCIP3_D65_Gamut,
@@ -183,6 +192,7 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
             return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                          SkColorSpace::kSRGB_Gamut,
                                          SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
+        }
         case kRGBA_F16_SkColorType:
             return SkColorSpace::MakeSRGBLinear();
         default:
