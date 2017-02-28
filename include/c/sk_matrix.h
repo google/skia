@@ -149,7 +149,7 @@ SK_C_API void sk_matrix44_set_row_major (sk_matrix44_t* matrix, float* dst);
 SK_C_API void sk_matrix44_set_translate (sk_matrix44_t* matrix, float dx, float dy, float dz);
 SK_C_API void sk_matrix44_pre_translate (sk_matrix44_t* matrix, float dx, float dy, float dz);
 SK_C_API void sk_matrix44_post_translate (sk_matrix44_t* matrix, float dx, float dy, float dz);
-SK_C_API void sk_matrix44_set_sccle (sk_matrix44_t* matrix, float sx, float sy, float sz);
+SK_C_API void sk_matrix44_set_scale (sk_matrix44_t* matrix, float sx, float sy, float sz);
 SK_C_API void sk_matrix44_pre_scale (sk_matrix44_t* matrix, float sx, float sy, float sz);
 SK_C_API void sk_matrix44_post_scale (sk_matrix44_t* matrix, float sx, float sy, float sz);
 SK_C_API void sk_matrix44_set_rotate_about_degrees (sk_matrix44_t* matrix, float x, float y, float z, float degrees);
