@@ -34,6 +34,7 @@ public:
 private:
     void initSlides();
     void updateTitle();
+    void setBackend(sk_app::Window::BackendType);
     void setColorMode(SkColorType, bool colorManaged);
     void setStartupSlide();
     void setupCurrentSlide(int previousSlide);
