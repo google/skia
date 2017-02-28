@@ -8,7 +8,6 @@
 #ifndef SkDataTable_DEFINED
 #define SkDataTable_DEFINED
 
-#include "../private/SkChunkAlloc.h"
 #include "../private/SkTDArray.h"
 #include "SkData.h"
 #include "SkString.h"
@@ -115,60 +114,6 @@ private:
     friend class SkDataTableBuilder;    // access to Dir
 
     typedef SkRefCnt INHERITED;
-};
-
-/**
- *  Helper class that allows for incrementally building up the data needed to
- *  create a SkDataTable.
- */
-class SK_API SkDataTableBuilder : SkNoncopyable {
-public:
-    SkDataTableBuilder(size_t minChunkSize);
-    ~SkDataTableBuilder();
-
-    int  count() const { return fDir.count(); }
-    size_t minChunkSize() const { return fMinChunkSize; }
-
-    /**
-     *  Forget any previously appended entries, setting count() back to 0.
-     */
-    void reset(size_t minChunkSize);
-    void reset() {
-        this->reset(fMinChunkSize);
-    }
-
-    /**
-     *  Copy size-bytes from data, and append it to the growing SkDataTable.
-     */
-    void append(const void* data, size_t size);
-
-    /**
-     *  Helper version of append() passes strlen() + 1 for the size,
-     *  so the trailing-zero will be copied as well.
-     */
-    void appendStr(const char str[]) {
-        this->append(str, strlen(str) + 1);
-    }
-
-    /**
-     *  Helper version of append() passes string.size() + 1 for the size,
-     *  so the trailing-zero will be copied as well.
-     */
-    void appendString(const SkString& string) {
-        this->append(string.c_str(), string.size() + 1);
-    }
-
-    /**
-     *  Return an SkDataTable from the accumulated entries that were added by
-     *  calls to append(). This call also clears any accumluated entries from
-     *  this builder, so its count() will be 0 after this call.
-     */
-    sk_sp<SkDataTable> detachDataTable();
-
-private:
-    SkTDArray<SkDataTable::Dir> fDir;
-    SkChunkAlloc*               fHeap;
-    size_t                      fMinChunkSize;
 };
 
 #endif
