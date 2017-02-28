@@ -121,7 +121,6 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
     std::unique_ptr<Op> op = this->makeOp();
     op->fInfo.fAntialiasMode = antialiasMode;
     op->fInfo.fShapeTypes = GetShapeFlag(type);
-    op->fInfo.fCannotDiscard = !info.fCanDiscard;
 
     Instance& instance = op->getSingleInstance();
     instance.fInfo = (int)type << kShapeType_InfoBit;
@@ -201,16 +200,11 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
                                                     const GrInstancedPipelineInfo& info,
                                                     GrAAType* aaType,
                                                     AntialiasMode* antialiasMode) {
-    SkASSERT(!info.fColorDisabled || info.fDrawingShapeToStencil);
     SkASSERT(!info.fIsMixedSampled || info.fIsMultisampled);
     SkASSERT(GrCaps::InstancedSupport::kNone != fGpu->caps()->instancedSupport());
 
     if (!info.fIsMultisampled || fGpu->caps()->multisampleDisableSupport()) {
         if (GrAA::kNo == aa) {
-            if (info.fDrawingShapeToStencil && !info.fCanDiscard) {
-                // We can't draw to the stencil buffer without discard (or sample mask if MSAA).
-                return false;
-            }
             *antialiasMode = AntialiasMode::kNone;
             *aaType = GrAAType::kNone;
             return true;
@@ -225,7 +219,7 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
 
     if (info.fIsMultisampled &&
         fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMultisampled) {
-        if (!info.fIsMixedSampled || info.fColorDisabled) {
+        if (!info.fIsMixedSampled) {
             *antialiasMode = AntialiasMode::kMSAA;
             *aaType = GrAAType::kMSAA;
             return true;
