@@ -148,8 +148,9 @@ private:
 
     // TODO just use class params
     // TODO trying to figure out why lcd is so whack
-    sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor filteredColor,
-                                                GrColor color, GrTexture* texture) const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor(GrContext*, const
+                                                SkMatrix& viewMatrix, SkColor filteredColor,
+                                                GrColor color, sk_sp<GrTextureProxy> proxy) const;
 
     GrColor fColor;
     bool fUsesLocalCoords;

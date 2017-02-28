@@ -18,16 +18,6 @@
 class GrGaussianConvolutionFragmentProcessor : public Gr1DKernelEffect {
 public:
     /// Convolve with a Gaussian kernel
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
-                                           Direction dir,
-                                           int halfWidth,
-                                           float gaussianSigma,
-                                           bool useBounds,
-                                           int* bounds) {
-        return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
-                tex, dir, halfWidth, gaussianSigma, useBounds, bounds));
-    }
-
     static sk_sp<GrFragmentProcessor> Make(GrContext* context,
                                            sk_sp<GrTextureProxy> proxy,
                                            Direction dir,
@@ -59,9 +49,6 @@ public:
 
 private:
     /// Convolve with a Gaussian kernel
-    GrGaussianConvolutionFragmentProcessor(GrTexture*, Direction, int halfWidth,
-                                           float gaussianSigma, bool useBounds, int bounds[2]);
-
     GrGaussianConvolutionFragmentProcessor(GrContext*, sk_sp<GrTextureProxy>, Direction,
                                            int halfWidth, float gaussianSigma, bool useBounds,
                                            int bounds[2]);

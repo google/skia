@@ -17,31 +17,6 @@
 
 class GrMatrixConvolutionEffect : public GrSingleTextureEffect {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* texture,
-                                           const SkIRect& bounds,
-                                           const SkISize& kernelSize,
-                                           const SkScalar* kernel,
-                                           SkScalar gain,
-                                           SkScalar bias,
-                                           const SkIPoint& kernelOffset,
-                                           GrTextureDomain::Mode tileMode,
-                                           bool convolveAlpha) {
-        return sk_sp<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(texture, bounds, kernelSize, kernel, gain, bias,
-                                          kernelOffset, tileMode, convolveAlpha));
-    }
-
-    static sk_sp<GrFragmentProcessor> MakeGaussian(GrTexture* texture,
-                                                   const SkIRect& bounds,
-                                                   const SkISize& kernelSize,
-                                                   SkScalar gain,
-                                                   SkScalar bias,
-                                                   const SkIPoint& kernelOffset,
-                                                   GrTextureDomain::Mode tileMode,
-                                                   bool convolveAlpha,
-                                                   SkScalar sigmaX,
-                                                   SkScalar sigmaY);
-
     static sk_sp<GrFragmentProcessor> Make(GrContext* context,
                                            sk_sp<GrTextureProxy> proxy,
                                            const SkIRect& bounds,
@@ -81,16 +56,6 @@ public:
     const char* name() const override { return "MatrixConvolution"; }
 
 private:
-    GrMatrixConvolutionEffect(GrTexture*,
-                              const SkIRect& bounds,
-                              const SkISize& kernelSize,
-                              const SkScalar* kernel,
-                              SkScalar gain,
-                              SkScalar bias,
-                              const SkIPoint& kernelOffset,
-                              GrTextureDomain::Mode tileMode,
-                              bool convolveAlpha);
-
     GrMatrixConvolutionEffect(GrContext*,
                               sk_sp<GrTextureProxy> proxy,
                               const SkIRect& bounds,

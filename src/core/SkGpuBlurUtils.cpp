@@ -372,12 +372,12 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
         // FIXME:  this should be mitchell, not bilinear.
         GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
-        sk_sp<GrTexture> tex(srcRenderTargetContext->asTexture());
-        if (!tex) {
+        sk_sp<GrTextureProxy> proxy(srcRenderTargetContext->asTextureProxyRef());
+        if (!proxy) {
             return nullptr;
         }
 
-        paint.addColorTextureProcessor(tex.get(), nullptr, SkMatrix::I(), params);
+        paint.addColorTextureProcessor(context, std::move(proxy), nullptr, SkMatrix::I(), params);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         SkIRect dstRect(srcRect);

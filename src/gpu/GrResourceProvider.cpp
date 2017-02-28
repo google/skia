@@ -135,7 +135,8 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     return buffer;
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config, int width,
+std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrContext* context,
+                                                             GrPixelConfig config, int width,
                                                              int height, int numPlotsX,
                                                              int numPlotsY,
                                                              GrDrawOpAtlas::EvictionFunc func,
@@ -154,8 +155,18 @@ std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrPixelConfig confi
     if (!texture) {
         return nullptr;
     }
+    // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
+    // possess the correct properties (e.g., no pendingIO) should fall out of the system but
+    // should receive special attention.
+    // Note: When switching over to the deferred proxy, use the kExact flag to create
+    // the atlas.
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture));
+    if (!proxy) {
+        return nullptr;
+    }
+
     std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(std::move(texture), numPlotsX, numPlotsY));
+            new GrDrawOpAtlas(context, std::move(proxy), numPlotsX, numPlotsY));
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }

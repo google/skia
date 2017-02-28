@@ -28,15 +28,6 @@ public:
         kY_Direction,
     };
 
-    Gr1DKernelEffect(GrTexture* texture,
-                     Direction direction,
-                     int radius,
-                     OptimizationFlags optFlags)
-        : INHERITED(texture, nullptr, SkMatrix::I(), optFlags)
-        , fDirection(direction)
-        , fRadius(radius) {
-    }
-
     Gr1DKernelEffect(GrContext* ctx, OptimizationFlags optFlags, sk_sp<GrTextureProxy> proxy,
                      Direction direction, int radius)
         : INHERITED(ctx, optFlags, std::move(proxy), nullptr, SkMatrix::I())

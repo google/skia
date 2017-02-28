@@ -168,22 +168,6 @@ static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianS
     }
 }
 
-GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(GrTexture* texture,
-                                                                               Direction direction,
-                                                                               int radius,
-                                                                               float gaussianSigma,
-                                                                               bool useBounds,
-                                                                               int bounds[2])
-        : INHERITED(texture, direction, radius, ModulationFlags(texture->config()))
-        , fUseBounds(useBounds) {
-    this->initClassID<GrGaussianConvolutionFragmentProcessor>();
-    SkASSERT(radius <= kMaxKernelRadius);
-
-    fill_in_1D_guassian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
-
-    memcpy(fBounds, bounds, sizeof(fBounds));
-}
-
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                                     GrContext* context,
                                                                     sk_sp<GrTextureProxy> proxy,

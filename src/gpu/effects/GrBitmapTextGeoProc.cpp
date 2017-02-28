@@ -120,28 +120,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
-                                         const GrSamplerParams& params, GrMaskFormat format,
-                                         const SkMatrix& localMatrix, bool usesLocalCoords)
-    : fColor(color)
-    , fLocalMatrix(localMatrix)
-    , fUsesLocalCoords(usesLocalCoords)
-    , fTextureSampler(texture, params)
-    , fInColor(nullptr)
-    , fMaskFormat(format) {
-    this->initClassID<GrBitmapTextGeoProc>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
-
-    bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
-                          kA565_GrMaskFormat == fMaskFormat;
-    if (hasVertexColor) {
-        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    }
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords",  kVec2us_GrVertexAttribType,
-                                              kHigh_GrSLPrecision);
-    this->addTextureSampler(&fTextureSampler);
-}
-
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrContext* context, GrColor color,
                                          sk_sp<GrTextureProxy> proxy,
                                          const GrSamplerParams& params, GrMaskFormat format,

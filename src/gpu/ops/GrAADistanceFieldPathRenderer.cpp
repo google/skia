@@ -17,6 +17,7 @@
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
 #include "GrSurfacePriv.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
@@ -233,8 +234,8 @@ private:
             flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
-            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                this->color(), this->viewMatrix(), atlas->getTexture(), params, flags,
+            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(atlas->context(),
+                this->color(), this->viewMatrix(), atlas->getProxy(), params, flags,
                 this->usesLocalCoords());
         } else {
             GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
@@ -250,8 +251,8 @@ private:
                 invert.preTranslate(-fShapes[0].fTranslate.fX, -fShapes[0].fTranslate.fY);
             }
 
-            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                this->color(), atlas->getTexture(), params, kA8_GrMaskFormat, invert,
+            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(atlas->context(),
+                this->color(), atlas->getProxy(), params, kA8_GrMaskFormat, invert,
                 this->usesLocalCoords());
         }
 
@@ -643,9 +644,12 @@ private:
         texBottom += translate.fY;
 
         // convert texcoords to unsigned short format
-        GrTexture* texture = atlas->getTexture();
-        SkScalar uFactor = 65535.f / texture->width();
-        SkScalar vFactor = 65535.f / texture->height();
+        sk_sp<GrTextureProxy> proxy = atlas->getProxy();
+
+        // The proxy must be exact for this normalization to work correctly
+        SkASSERT(proxy->priv().isExact());
+        SkScalar uFactor = 65535.f / proxy->width();
+        SkScalar vFactor = 65535.f / proxy->height();
         uint16_t l = (uint16_t)(texLeft*uFactor);
         uint16_t t = (uint16_t)(texTop*vFactor);
         uint16_t r = (uint16_t)(texRight*uFactor);
@@ -742,7 +746,8 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = args.fResourceProvider->makeAtlas(kAlpha_8_GrPixelConfig,
+        fAtlas = args.fResourceProvider->makeAtlas(args.fResourceProvider->context(),
+                                                   kAlpha_8_GrPixelConfig,
                                                    ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                    NUM_PLOTS_X, NUM_PLOTS_Y,
                                                    &GrAADistanceFieldPathRenderer::HandleEviction,
@@ -816,7 +821,7 @@ DRAW_OP_TEST_DEFINE(AADistanceFieldPathOp) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
         gTestStruct.fAtlas =
-                context->resourceProvider()->makeAtlas(kAlpha_8_GrPixelConfig,
+                context->resourceProvider()->makeAtlas(context, kAlpha_8_GrPixelConfig,
                                                        ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                        NUM_PLOTS_X, NUM_PLOTS_Y,
                                                        &PathTestStruct::HandleEviction,
