@@ -146,7 +146,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
 
 #include "GrResourceProvider.h"
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(GrTextureProvider* texProvider,
+                                                   const GrCaps& caps,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
@@ -194,6 +195,21 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
     GrSurfaceDesc copyDesc = desc;
     copyDesc.fSampleCnt = SkTMin(desc.fSampleCnt, caps.maxSampleCount());
 
+#ifdef SK_DISABLE_DEFERRED_PROXIES
+    sk_sp<GrSurface> surf;
+
+    if (SkBackingFit::kApprox == fit) {
+        surf.reset(texProvider->createApproxTexture(copyDesc));
+    } else {
+        surf.reset(texProvider->createTexture(copyDesc, budgeted));
+    }
+
+    if (!surf) {
+        return nullptr;
+    }
+
+    return GrSurfaceProxy::MakeWrapped(std::move(surf));
+#else
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
@@ -202,6 +218,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
     }
 
     return sk_sp<GrSurfaceProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
+#endif
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
@@ -216,7 +233,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
         return GrSurfaceProxy::MakeWrapped(std::move(tex));
     }
 
-    return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);
+    return GrSurfaceProxy::MakeDeferred(texProvider, caps, desc, SkBackingFit::kExact, budgeted);
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
