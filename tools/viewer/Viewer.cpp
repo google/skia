@@ -382,6 +382,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
             // re-register callbacks
             fCommands.attach(fWindow);
+            fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
             fWindow->registerPaintFunc(on_paint_handler, this);
             fWindow->registerTouchFunc(on_touch_handler, this);
             fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
