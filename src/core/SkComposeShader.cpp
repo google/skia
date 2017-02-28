@@ -69,12 +69,6 @@ void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.write32((int)fMode);
 }
 
-template <typename T> void safe_call_destructor(T* obj) {
-    if (obj) {
-        obj->~T();
-    }
-}
-
 SkShader::Context* SkComposeShader::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
@@ -96,8 +90,6 @@ SkShader::Context* SkComposeShader::onMakeContext(
     SkShader::Context* contextA = fShaderA->makeContext(newRec, alloc);
     SkShader::Context* contextB = fShaderB->makeContext(newRec, alloc);
     if (!contextA || !contextB) {
-        safe_call_destructor(contextA);
-        safe_call_destructor(contextB);
         return nullptr;
     }
 
