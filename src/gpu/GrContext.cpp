@@ -296,7 +296,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
 
     sk_sp<GrTextureProxy> tempTextureProxy;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        sk_sp<GrSurfaceProxy> temp = GrSurfaceProxy::MakeDeferred(*this->caps(),
+        sk_sp<GrSurfaceProxy> temp = GrSurfaceProxy::MakeDeferred(this->textureProvider(),
+                                                                  *this->caps(),
                                                                   tempDrawInfo.fTempSurfaceDesc,
                                                                   SkBackingFit::kApprox,
                                                                   SkBudgeted::kYes);
@@ -624,7 +625,8 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
                                                                   SkBackingFit fit,
                                                                   SkBudgeted isDstBudgeted) {
 
-    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*fContext->caps(), dstDesc,
+    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(fContext->textureProvider(),
+                                                               *fContext->caps(), dstDesc,
                                                                fit, isDstBudgeted);
     if (!proxy) {
         return nullptr;
@@ -823,7 +825,8 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     desc.fConfig = config;
     desc.fSampleCnt = sampleCnt;
 
-    sk_sp<GrSurfaceProxy> rtp = GrSurfaceProxy::MakeDeferred(*this->caps(), desc, fit, budgeted);
+    sk_sp<GrSurfaceProxy> rtp = GrSurfaceProxy::MakeDeferred(this->textureProvider(),
+                                                             *this->caps(), desc, fit, budgeted);
     if (!rtp) {
         return nullptr;
     }
