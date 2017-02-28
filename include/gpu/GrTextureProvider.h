@@ -28,8 +28,7 @@ public:
      * @param mipLevelCount The amount of elements in the texels array
      */
     GrTexture* createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                      const GrMipLevel* texels, int mipLevelCount,
-                                      uint32_t flags = 0);
+                                      const GrMipLevel* texels, int mipLevelCount);
 
     /**
      * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
@@ -41,11 +40,11 @@ public:
      *                  field is ignored.
      */
     GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* srcData,
-                             size_t rowBytes, uint32_t flags = 0);
+                             size_t rowBytes);
 
     /** Shortcut for creating a texture with no initial data to upload. */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, uint32_t flags = 0) {
-        return this->createTexture(desc, budgeted, nullptr, 0, flags);
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
+        return this->createTexture(desc, budgeted, nullptr, 0);
     }
 
     /** Assigns a unique key to the texture. The texture will be findable via this key using
@@ -73,18 +72,18 @@ public:
      * The contents of the texture are undefined. The caller owns a ref on the returned texture and
      * must balance with a call to unref.
      */
-    GrTexture* createApproxTexture(const GrSurfaceDesc&, uint32_t flags = 0);
+    GrTexture* createApproxTexture(const GrSurfaceDesc&);
 
     /** Legacy function that no longer should be used. */
     enum ScratchTexMatch {
         kExact_ScratchTexMatch,
         kApprox_ScratchTexMatch
     };
-    GrTexture* refScratchTexture(const GrSurfaceDesc& desc, ScratchTexMatch match, uint32_t flags) {
+    GrTexture* refScratchTexture(const GrSurfaceDesc& desc, ScratchTexMatch match) {
         if (kApprox_ScratchTexMatch == match) {
-            return this->createApproxTexture(desc, flags);
+            return this->createApproxTexture(desc);
         } else {
-            return this->createTexture(desc, SkBudgeted::kYes, flags);
+            return this->createTexture(desc, SkBudgeted::kYes);
         }
     }
 
