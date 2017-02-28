@@ -1148,7 +1148,9 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     draw.fClipStack = clipStack;
 
     SkPaint p;
-    p.setImageFilter(filter->makeWithLocalMatrix(ctm));
+    if (filter) {
+        p.setImageFilter(filter->makeWithLocalMatrix(ctm));
+    }
 
     int x = src->getOrigin().x() - dstOrigin.x();
     int y = src->getOrigin().y() - dstOrigin.y();
@@ -1275,7 +1277,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     fMCRec->fLayer = layer;
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
-    if (rec.fBackdrop) {
+    if ((rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) || rec.fBackdrop) {
         DrawDeviceWithFilter(priorDevice, rec.fBackdrop, newDevice.get(), { ir.fLeft, ir.fTop },
                              fMCRec->fMatrix, this->getClipStack());
     }
