@@ -16,10 +16,10 @@ class GrDrawAtlasOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
                                           int spriteCount, const SkRSXform* xforms,
                                           const SkRect* rects, const SkColor* colors) {
-        return std::unique_ptr<GrDrawOp>(
+        return std::unique_ptr<GrMeshDrawOp>(
                 new GrDrawAtlasOp(color, viewMatrix, spriteCount, xforms, rects, colors));
     }
 
@@ -57,7 +57,7 @@ private:
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&, const GrAppliedClip*) override;
 
     struct Geometry {
         GrColor fColor;

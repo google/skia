@@ -24,20 +24,17 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     SkASSERT(args.fRenderTarget);
 
     fRenderTarget.reset(args.fRenderTarget);
-    fScissorState = args.fAppliedClip->scissorState();
-    fWindowRectsState = args.fAppliedClip->windowRectsState();
-    fUserStencilSettings = args.fUserStencil;
-    fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
     fFlags = args.fFlags;
+    if (args.fAppliedClip) {
+        fScissorState = args.fAppliedClip->scissorState();
+        if (args.fAppliedClip->hasStencilClip()) {
+            fFlags |= kHasStencilClip_Flag;
+        }
+        fWindowRectsState = args.fAppliedClip->windowRectsState();
+    }
     if (args.fProcessors->usesDistanceVectorField()) {
         fFlags |= kUsesDistanceVectorField_Flag;
-    }
-    if (args.fAppliedClip->hasStencilClip()) {
-        fFlags |= kHasStencilClip_Flag;
-    }
-    if (!args.fUserStencil->isDisabled(args.fAppliedClip->hasStencilClip())) {
-        fFlags |= kStencilEnabled_Flag;
     }
     if (args.fProcessors->disableOutputConversionToSRGB()) {
         fFlags |= kDisableOutputConversionToSRGB_Flag;
@@ -45,6 +42,14 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     if (args.fProcessors->allowSRGBInputs()) {
         fFlags |= kAllowSRGBInputs_Flag;
     }
+
+    if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
+        fFlags |= kStencilEnabled_Flag;
+    }
+
+    fUserStencilSettings = args.fUserStencil;
+
+    fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
     bool isHWAA = kHWAntialias_Flag & args.fFlags;
 
@@ -69,7 +74,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
                                                        &GrPorterDuffXPFactory::SimpleSrcOverXP();
     optFlags = xpForOpts->getOptimizations(
-            *args.fAnalysis, args.fUserStencil->doesWrite(args.fAppliedClip->hasStencilClip()),
+            *args.fAnalysis, args.fUserStencil->doesWrite(fFlags & kHasStencilClip_Flag),
             &overrideColor, *args.fCaps);
 
     // No need to have an override color if it isn't even going to be used.
@@ -91,7 +96,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     fNumColorProcessors = args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
     int numTotalProcessors =
             fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
-    if (args.fAppliedClip->clipCoverageFragmentProcessor()) {
+    if (args.fAppliedClip && args.fAppliedClip->clipCoverageFragmentProcessor()) {
         ++numTotalProcessors;
     }
     fFragmentProcessors.reset(numTotalProcessors);
@@ -108,9 +113,11 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
         fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
-    if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
-        fFragmentProcessors[currFPIdx].reset(fp);
-        usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
+    if (args.fAppliedClip) {
+        if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
+            fFragmentProcessors[currFPIdx].reset(fp);
+            usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
+        }
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
