@@ -20,6 +20,7 @@ TEST_BUILDERS = {
     'skiabot-linux-swarm-000': [
       ('Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug' +
        '-GN_Android_Vulkan'),
+      'Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android',
       'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android',
       'Perf-Android-Clang-Nexus6-GPU-Adreno420-arm-Release-GN_Android',
       'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android',
