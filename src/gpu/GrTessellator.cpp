@@ -382,12 +382,22 @@ struct Edge {
         if (fTop == other.fTop || fBottom == other.fBottom) {
             return false;
         }
+        const SkPoint p0 = fTop->fPoint;
+        const SkPoint p1 = fBottom->fPoint;
+        const SkPoint q0 = other.fTop->fPoint;
+        const SkPoint q1 = other.fBottom->fPoint;
+        if ((p0.fX < q0.fX && p0.fX < q1.fX && p1.fX < q0.fX && p1.fX < q1.fX) ||
+            (p0.fX > q0.fX && p0.fX > q1.fX && p1.fX > q0.fX && p1.fX > q1.fX) ||
+            (p0.fY < q0.fY && p0.fY < q1.fY && p1.fY < q0.fY && p1.fY < q1.fX) ||
+            (p0.fY > q0.fY && p0.fY > q1.fY && p1.fY > q0.fY && p1.fY > q1.fX)) {
+            return false;
+        }
         double denom = fLine.fA * other.fLine.fB - fLine.fB * other.fLine.fA;
         if (denom == 0.0) {
             return false;
         }
-        double dx = static_cast<double>(other.fTop->fPoint.fX) - fTop->fPoint.fX;
-        double dy = static_cast<double>(other.fTop->fPoint.fY) - fTop->fPoint.fY;
+        double dx = static_cast<double>(q0.fX) - p0.fX;
+        double dy = static_cast<double>(q0.fY) - p0.fY;
         double sNumer = dy * other.fLine.fB + dx * other.fLine.fA;
         double tNumer = dy * fLine.fB + dx * fLine.fA;
         // If (sNumer / denom) or (tNumer / denom) is not in [0..1], exit early.
@@ -398,8 +408,8 @@ struct Edge {
         }
         double s = sNumer / denom;
         SkASSERT(s >= 0.0 && s <= 1.0);
-        p->fX = SkDoubleToScalar(fTop->fPoint.fX - s * fLine.fB);
-        p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fLine.fA);
+        p->fX = SkDoubleToScalar(p0.fX - s * fLine.fB);
+        p->fY = SkDoubleToScalar(p0.fY + s * fLine.fA);
         if (alpha) {
             if (fType == Type::kConnector) {
                 *alpha = (1.0 - s) * fTop->fAlpha + s * fBottom->fAlpha;
