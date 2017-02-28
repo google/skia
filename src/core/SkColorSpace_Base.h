@@ -181,6 +181,7 @@ public:
     virtual sk_sp<SkColorSpace> makeSRGBGamma() = 0;
 
     sk_sp<SkColorSpace> makeWithoutFlags();
+    sk_sp<SkColorSpace> makeWithNonLinearBlending();
 
     enum class Type : uint8_t {
         kXYZ,
