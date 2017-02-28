@@ -321,6 +321,9 @@ public:
         kIsOpaque_SaveLayerFlag         = 1 << 0,
         kPreserveLCDText_SaveLayerFlag  = 1 << 1,
 
+        /** initialize the new layer with the contents of the previous layer */
+        kInitWithPrevious_SaveLayerFlag = 1 << 2,
+
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
 #endif
