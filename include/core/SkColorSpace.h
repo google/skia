@@ -115,6 +115,14 @@ public:
     bool gammaIsLinear() const;
 
     /**
+     *  If the transfer function can be represented as coefficients to the standard
+     *  equation, returns true and sets |fn| to the proper values.
+     *
+     *  If not, returns false.
+     */
+    bool isNumericalTransferFn(SkColorSpaceTransferFn* fn) const;
+
+    /**
      *  Returns true and sets |toXYZD50| if the color gamut can be described as a matrix.
      *  Returns false otherwise.
      */
