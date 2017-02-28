@@ -99,18 +99,18 @@ mailing address.
 // Send the data to the display front-end.
 bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
 {
-    int drowStart = irow;
-    int drowEnd = irow;
+    int drowStart = fIRow;
+    int drowEnd = fIRow;
 
     // Haeberli-inspired hack for interlaced GIFs: Replicate lines while
     // displaying to diminish the "venetian-blind" effect as the image is
     // loaded. Adjust pixel vertical positions to avoid the appearance of the
     // image crawling up the screen as successive passes are drawn.
-    if (m_frameContext->progressiveDisplay() && m_frameContext->interlaced() && ipass < 4) {
+    if (fFrameContext->progressiveDisplay() && fFrameContext->interlaced() && fIPass < 4) {
         unsigned rowDup = 0;
         unsigned rowShift = 0;
 
-        switch (ipass) {
+        switch (fIPass) {
         case 1:
             rowDup = 7;
             rowShift = 3;
@@ -131,126 +131,126 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
         drowEnd = drowStart + rowDup;
 
         // Extend if bottom edge isn't covered because of the shift upward.
-        if (((m_frameContext->height() - 1) - drowEnd) <= rowShift)
-            drowEnd = m_frameContext->height() - 1;
+        if (((fFrameContext->height() - 1) - drowEnd) <= rowShift)
+            drowEnd = fFrameContext->height() - 1;
 
         // Clamp first and last rows to upper and lower edge of image.
         if (drowStart < 0)
             drowStart = 0;
 
-        if ((unsigned)drowEnd >= m_frameContext->height())
-            drowEnd = m_frameContext->height() - 1;
+        if ((unsigned)drowEnd >= fFrameContext->height())
+            drowEnd = fFrameContext->height() - 1;
     }
 
     // Protect against too much image data.
-    if ((unsigned)drowStart >= m_frameContext->height())
+    if ((unsigned)drowStart >= fFrameContext->height())
         return true;
 
     // CALLBACK: Let the client know we have decoded a row.
-    const bool writeTransparentPixels = (SkCodec::kNone == m_frameContext->getRequiredFrame());
-    if (!m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
+    const bool writeTransparentPixels = (SkCodec::kNone == fFrameContext->getRequiredFrame());
+    if (!fCodec->haveDecodedRow(fFrameContext->frameId(), rowBegin,
         drowStart, drowEnd - drowStart + 1, writeTransparentPixels))
         return false;
 
-    if (!m_frameContext->interlaced())
-        irow++;
+    if (!fFrameContext->interlaced())
+        fIRow++;
     else {
         do {
-            switch (ipass) {
+            switch (fIPass) {
             case 1:
-                irow += 8;
-                if (irow >= m_frameContext->height()) {
-                    ipass++;
-                    irow = 4;
+                fIRow += 8;
+                if (fIRow >= fFrameContext->height()) {
+                    fIPass++;
+                    fIRow = 4;
                 }
                 break;
 
             case 2:
-                irow += 8;
-                if (irow >= m_frameContext->height()) {
-                    ipass++;
-                    irow = 2;
+                fIRow += 8;
+                if (fIRow >= fFrameContext->height()) {
+                    fIPass++;
+                    fIRow = 2;
                 }
                 break;
 
             case 3:
-                irow += 4;
-                if (irow >= m_frameContext->height()) {
-                    ipass++;
-                    irow = 1;
+                fIRow += 4;
+                if (fIRow >= fFrameContext->height()) {
+                    fIPass++;
+                    fIRow = 1;
                 }
                 break;
 
             case 4:
-                irow += 2;
-                if (irow >= m_frameContext->height()) {
-                    ipass++;
-                    irow = 0;
+                fIRow += 2;
+                if (fIRow >= fFrameContext->height()) {
+                    fIPass++;
+                    fIRow = 0;
                 }
                 break;
 
             default:
                 break;
             }
-        } while (irow > (m_frameContext->height() - 1));
+        } while (fIRow > (fFrameContext->height() - 1));
     }
     return true;
 }
 
 // Perform Lempel-Ziv-Welch decoding.
-// Returns true if decoding was successful. In this case the block will have been completely consumed and/or rowsRemaining will be 0.
+// Returns true if decoding was successful. In this case the block will have been completely consumed and/or fRowsRem will be 0.
 // Otherwise, decoding failed; returns false in this case, which will always cause the SkGifImageReader to set the "decode failed" flag.
 bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
 {
-    const size_t width = m_frameContext->width();
+    const size_t width = fFrameContext->width();
 
-    if (rowIter == rowBuffer.end())
+    if (fRowIter == fRowBuffer.end())
         return true;
 
     for (const unsigned char* ch = block; bytesInBlock-- > 0; ch++) {
         // Feed the next byte into the decoder's 32-bit input buffer.
-        datum += ((int) *ch) << bits;
-        bits += 8;
+        fBitStream += ((int) *ch) << fBitsRem;
+        fBitsRem += 8;
 
         // Check for underflow of decoder's 32-bit input buffer.
-        while (bits >= codesize) {
+        while (fBitsRem >= fCodeSize) {
             // Get the leading variable-length symbol from the data stream.
-            int code = datum & codemask;
-            datum >>= codesize;
-            bits -= codesize;
+            int code = fBitStream & fCodeMask;
+            fBitStream >>= fCodeSize;
+            fBitsRem -= fCodeSize;
 
             // Reset the dictionary to its original state, if requested.
-            if (code == clearCode) {
-                codesize = m_frameContext->dataSize() + 1;
-                codemask = (1 << codesize) - 1;
-                avail = clearCode + 2;
-                oldcode = -1;
+            if (code == fClearCode) {
+                fCodeSize = fFrameContext->dataSize() + 1;
+                fCodeMask = (1 << fCodeSize) - 1;
+                fNextNewCode  = fClearCode + 2;
+                fPrevCode = kNoPrevCode;
                 continue;
             }
 
             // Check for explicit end-of-stream code.
-            if (code == (clearCode + 1)) {
+            if (code == (fClearCode + 1)) {
                 // end-of-stream should only appear after all image data.
-                if (!rowsRemaining)
+                if (!fRowsRem)
                     return true;
                 return false;
             }
 
             const int tempCode = code;
             unsigned short codeLength = 0;
-            if (code < avail) {
+            if (code < fNextNewCode ) {
                 // This is a pre-existing code, so we already know what it
                 // encodes.
-                codeLength = suffixLength[code];
-                rowIter += codeLength;
-            } else if (code == avail && oldcode != -1) {
+                codeLength = fSuffixLength[code];
+                fRowIter += codeLength;
+            } else if (code == fNextNewCode  && fPrevCode != kNoPrevCode) {
                 // This is a new code just being added to the dictionary.
                 // It must encode the contents of the previous code, plus
                 // the first character of the previous code again.
-                codeLength = suffixLength[oldcode] + 1;
-                rowIter += codeLength;
-                *--rowIter = firstchar;
-                code = oldcode;
+                codeLength = fSuffixLength[fPrevCode] + 1;
+                fRowIter += codeLength;
+                *--fRowIter = fFirstIndex;
+                code = fPrevCode;
             } else {
                 // This is an invalid code. The dictionary is just initialized
                 // and the code is incomplete. We don't know how to handle
@@ -258,47 +258,47 @@ bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
                 return false;
             }
 
-            while (code >= clearCode) {
-                *--rowIter = suffix[code];
-                code = prefix[code];
+            while (code >= fClearCode) {
+                *--fRowIter = fSuffix[code];
+                code = fPrefix[code];
             }
 
-            *--rowIter = firstchar = suffix[code];
+            *--fRowIter = fFirstIndex = fSuffix[code];
 
             // Define a new codeword in the dictionary as long as we've read
             // more than one value from the stream.
-            if (avail < SK_MAX_DICTIONARY_ENTRIES && oldcode != -1) {
-                prefix[avail] = oldcode;
-                suffix[avail] = firstchar;
-                suffixLength[avail] = suffixLength[oldcode] + 1;
-                ++avail;
+            if (fNextNewCode  < SK_MAX_DICTIONARY_ENTRIES && fPrevCode != kNoPrevCode) {
+                fPrefix[fNextNewCode ] = fPrevCode;
+                fSuffix[fNextNewCode ] = fFirstIndex;
+                fSuffixLength[fNextNewCode ] = fSuffixLength[fPrevCode] + 1;
+                ++fNextNewCode ;
 
                 // If we've used up all the codewords of a given length
                 // increase the length of codewords by one bit, but don't
                 // exceed the specified maximum codeword size.
-                if (!(avail & codemask) && avail < SK_MAX_DICTIONARY_ENTRIES) {
-                    ++codesize;
-                    codemask += avail;
+                if (!(fNextNewCode  & fCodeMask) && fNextNewCode  < SK_MAX_DICTIONARY_ENTRIES) {
+                    ++fCodeSize;
+                    fCodeMask += fNextNewCode ;
                 }
             }
-            oldcode = tempCode;
-            rowIter += codeLength;
+            fPrevCode = tempCode;
+            fRowIter += codeLength;
 
             // Output as many rows as possible.
-            unsigned char* rowBegin = rowBuffer.begin();
-            for (; rowBegin + width <= rowIter; rowBegin += width) {
+            unsigned char* rowBegin = fRowBuffer.begin();
+            for (; rowBegin + width <= fRowIter; rowBegin += width) {
                 if (!outputRow(rowBegin))
                     return false;
-                rowsRemaining--;
-                if (!rowsRemaining)
+                fRowsRem--;
+                if (!fRowsRem)
                     return true;
             }
 
-            if (rowBegin != rowBuffer.begin()) {
+            if (rowBegin != fRowBuffer.begin()) {
                 // Move the remaining bytes to the beginning of the buffer.
-                const size_t bytesToCopy = rowIter - rowBegin;
-                memcpy(&rowBuffer.front(), rowBegin, bytesToCopy);
-                rowIter = rowBuffer.begin() + bytesToCopy;
+                const size_t bytesToCopy = fRowIter - rowBegin;
+                memcpy(&fRowBuffer.front(), rowBegin, bytesToCopy);
+                fRowIter = fRowBuffer.begin() + bytesToCopy;
             }
         }
     }
@@ -945,20 +945,20 @@ void SkGifImageReader::setRequiredFrame(SkGIFFrameContext* frame) {
 // FIXME: Move this method to close to doLZW().
 bool SkGIFLZWContext::prepareToDecode()
 {
-    SkASSERT(m_frameContext->isDataSizeDefined() && m_frameContext->isHeaderDefined());
+    SkASSERT(fFrameContext->isDataSizeDefined() && fFrameContext->isHeaderDefined());
 
-    // Since we use a codesize of 1 more than the datasize, we need to ensure
+    // Since we use a fCodeSize of 1 more than the datasize, we need to ensure
     // that our datasize is strictly less than the SK_MAX_DICTIONARY_ENTRY_BITS.
-    if (m_frameContext->dataSize() >= SK_MAX_DICTIONARY_ENTRY_BITS)
+    if (fFrameContext->dataSize() >= SK_MAX_DICTIONARY_ENTRY_BITS)
         return false;
-    clearCode = 1 << m_frameContext->dataSize();
-    avail = clearCode + 2;
-    oldcode = -1;
-    codesize = m_frameContext->dataSize() + 1;
-    codemask = (1 << codesize) - 1;
-    datum = bits = 0;
-    ipass = m_frameContext->interlaced() ? 1 : 0;
-    irow = 0;
+    fClearCode = 1 << fFrameContext->dataSize();
+    fNextNewCode  = fClearCode + 2;
+    fPrevCode = kNoPrevCode;
+    fCodeSize = fFrameContext->dataSize() + 1;
+    fCodeMask = (1 << fCodeSize) - 1;
+    fBitStream = fBitsRem = 0;
+    fIPass = fFrameContext->interlaced() ? 1 : 0;
+    fIRow = 0;
 
     // We want to know the longest sequence encodable by a dictionary with
     // SK_MAX_DICTIONARY_ENTRIES entries. If we ignore the need to encode the base
@@ -982,14 +982,14 @@ bool SkGIFLZWContext::prepareToDecode()
     // until we have at least one row worth of data, then call outputRow().
     // This means worst case we may have (row width - 1) bytes in the buffer
     // and then decode a sequence |maxBytes| long to append.
-    rowBuffer.reset(m_frameContext->width() - 1 + maxBytes);
-    rowIter = rowBuffer.begin();
-    rowsRemaining = m_frameContext->height();
+    fRowBuffer.reset(fFrameContext->width() - 1 + maxBytes);
+    fRowIter = fRowBuffer.begin();
+    fRowsRem = fFrameContext->height();
 
-    // Clearing the whole suffix table lets us be more tolerant of bad data.
-    for (int i = 0; i < clearCode; ++i) {
-        suffix[i] = i;
-        suffixLength[i] = 1;
+    // Clearing the whole fSuffix table lets us be more tolerant of bad data.
+    for (int i = 0; i < fClearCode; ++i) {
+        fSuffix[i] = i;
+        fSuffixLength[i] = 1;
     }
     return true;
 }

@@ -92,49 +92,52 @@ class SkGIFColorMap;
 class SkGIFLZWContext final : public SkNoncopyable {
 public:
     SkGIFLZWContext(SkGifCodec* client, const SkGIFFrameContext* frameContext)
-        : codesize(0)
-        , codemask(0)
-        , clearCode(0)
-        , avail(0)
-        , oldcode(0)
-        , firstchar(0)
-        , bits(0)
-        , datum(0)
-        , ipass(0)
-        , irow(0)
-        , rowsRemaining(0)
-        , rowIter(0)
-        , m_client(client)
-        , m_frameContext(frameContext)
-    { }
+        : fCodec(client)
+        , fFrameContext(frameContext)
+        , fRowIter(nullptr)
+        , fIPass(0)
+        , fIRow(0)
+        , fRowsRem(0)
+        , fBitStream(0)
+        , fCodeMask(0)
+        , fClearCode(0)
+        , fNextNewCode(0)
+        , fPrevCode(kNoPrevCode)
+        , fCodeSize(0)
+        , fFirstIndex(0)
+        , fBitsRem(0)
+    {}
 
     bool prepareToDecode();
     bool outputRow(const unsigned char* rowBegin);
     bool doLZW(const unsigned char* block, size_t bytesInBlock);
-    bool hasRemainingRows() { return SkToBool(rowsRemaining); }
+    bool hasRemainingRows() { return SkToBool(fRowsRem); }
 
 private:
+    static const uint16_t    kNoPrevCode = 0xFFFF;
+
+    SkGifCodec* const        fCodec;
+    const SkGIFFrameContext* fFrameContext;
+
+    SkGIFRow                 fRowBuffer;   // Single scanline temporary buffer.
+    uint8_t*                 fRowIter;     // Pointer into fRowBuffer.
+
+    uint32_t                 fIPass;       // Interlace pass; Ranges 1-4 if interlaced.
+    uint32_t                 fIRow;        // Current output row, starting at zero.
+    uint32_t                 fRowsRem;     // Rows remaining to be output.
+
     // LZW decoding states and output states.
-    int codesize;
-    int codemask;
-    int clearCode; // Codeword used to trigger dictionary reset.
-    int avail; // Index of next available slot in dictionary.
-    int oldcode;
-    unsigned char firstchar;
-    int bits; // Number of unread bits in "datum".
-    int datum; // 32-bit input buffer.
-    int ipass; // Interlace pass; Ranges 1-4 if interlaced.
-    size_t irow; // Current output row, starting at zero.
-    size_t rowsRemaining; // Rows remaining to be output.
-
-    unsigned short prefix[SK_MAX_DICTIONARY_ENTRIES];
-    unsigned char suffix[SK_MAX_DICTIONARY_ENTRIES];
-    unsigned short suffixLength[SK_MAX_DICTIONARY_ENTRIES];
-    SkGIFRow rowBuffer; // Single scanline temporary buffer.
-    unsigned char* rowIter;
-
-    SkGifCodec* const m_client;
-    const SkGIFFrameContext* m_frameContext;
+    uint32_t                 fBitStream;   // 32-bit input buffer.
+    uint16_t                 fPrefix[SK_MAX_DICTIONARY_ENTRIES];
+    uint16_t                 fSuffixLength[SK_MAX_DICTIONARY_ENTRIES];
+    uint16_t                 fCodeMask;
+    uint16_t                 fClearCode;   // Codeword used to trigger dictionary reset.
+    uint16_t                 fNextNewCode; // Index of next available slot in dictionary.
+    uint16_t                 fPrevCode;
+    uint8_t                  fSuffix[SK_MAX_DICTIONARY_ENTRIES];
+    uint8_t                  fCodeSize;
+    uint8_t                  fFirstIndex;
+    uint8_t                  fBitsRem;     // Number of unread bits in |fBitStream|.
 };
 
 struct SkGIFLZWBlock {
