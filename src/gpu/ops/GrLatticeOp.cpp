@@ -135,7 +135,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -165,10 +165,10 @@ private:
 };
 
 namespace GrLatticeOp {
-std::unique_ptr<GrDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
+std::unique_ptr<GrMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
                                     int imageHeight, std::unique_ptr<SkLatticeIter> iter,
                                     const SkRect& dst) {
-    return std::unique_ptr<GrDrawOp>(
+    return std::unique_ptr<GrMeshDrawOp>(
             new NonAALatticeOp(color, viewMatrix, imageWidth, imageHeight, std::move(iter), dst));
 }
 };

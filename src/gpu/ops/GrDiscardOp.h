@@ -35,13 +35,13 @@ private:
                         IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps, const GrAppliedClip*) override {
         return fRenderTarget.get() == that->cast<GrDiscardOp>()->fRenderTarget.get();
     }
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state, const SkRect& /*bounds*/) override {
+    void onExecute(GrOpFlushState* state, const SkRect& /*bounds*/, const GrAppliedClip*, GrRenderTarget*) override {
         state->commandBuffer()->discard(fRenderTarget.get());
     }
 

@@ -758,9 +758,9 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 class PLSPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkPath& path,
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkPath& path,
                                           const SkMatrix& viewMatrix) {
-        return std::unique_ptr<GrDrawOp>(new PLSPathOp(color, path, viewMatrix));
+        return std::unique_ptr<GrMeshDrawOp>(new PLSPathOp(color, path, viewMatrix));
     }
 
     const char* name() const override { return "PLSPathOp"; }
@@ -901,7 +901,7 @@ private:
         target->draw(finishProcessor.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         return false;
     }
 
@@ -921,11 +921,11 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    std::unique_ptr<GrDrawOp> op = PLSPathOp::Make(args.fPaint.getColor(), path, *args.fViewMatrix);
+    std::unique_ptr<GrMeshDrawOp> op = PLSPathOp::Make(args.fPaint.getColor(), path, *args.fViewMatrix);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     SkDEBUGCODE(inPLSDraw = false;)
     return true;
 

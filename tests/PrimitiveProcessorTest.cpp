@@ -31,8 +31,8 @@ public:
 
     const char* name() const override { return "Dummy Op"; }
 
-    static std::unique_ptr<GrDrawOp> Make(int numAttribs) {
-        return std::unique_ptr<GrDrawOp>(new Op(numAttribs));
+    static std::unique_ptr<GrMeshDrawOp> Make(int numAttribs) {
+        return std::unique_ptr<GrMeshDrawOp>(new Op(numAttribs));
     }
 
 private:
@@ -46,7 +46,7 @@ private:
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations&) override {}
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
+    bool onCombineIfPossible(GrOp*, const GrCaps&, const GrAppliedClip*) override { return false; }
     void onPrepareDraws(Target* target) const override {
         class GP : public GrGeometryProcessor {
         public:

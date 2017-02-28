@@ -43,7 +43,7 @@ private:
         fUsesLocalCoords = optimizations.readsLocalCoords();
     }
 
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
+    bool onCombineIfPossible(GrOp*, const GrCaps&, const GrAppliedClip*) override { return false; }
 
     GrColor fColor;
     bool fUsesLocalCoords = false;
