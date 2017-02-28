@@ -80,6 +80,8 @@ private:
 
     typedef skiagm::GM INHERITED;
 };
+DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kClipped);)
+DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kUnclipped);)
 
 DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     SkPaint paint1, paint2, paint3;
@@ -99,8 +101,18 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////
+#include "Resources.h"
+DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
+    canvas->drawImage(GetResourceAsImage("mandrill_256.png"), 0, 0, nullptr);
 
-DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kClipped);)
-DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kUnclipped);)
+    SkCanvas::SaveLayerRec rec;
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kPlus);
+    rec.fSaveLayerFlags = SkCanvas::kInitWithPrevious_SaveLayerFlag;
+    rec.fPaint = &paint;
+    canvas->saveLayer(rec);
+    paint.setBlendMode(SkBlendMode::kClear);
+    canvas->drawCircle(128, 128, 96, paint);
+    canvas->restore();
+};
 
