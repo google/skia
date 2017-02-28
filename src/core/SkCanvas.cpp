@@ -2169,7 +2169,7 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
         return;
     }
 
-    SkRect r, storage;
+    SkRect r;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
         // special-case 2 points (common for drawing a single line)
@@ -2178,6 +2178,7 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
         } else {
             r.set(pts, SkToInt(count));
         }
+        SkRect storage;
         if (this->quickReject(paint.computeFastStrokeBounds(r, &storage))) {
             return;
         }
@@ -2205,22 +2206,20 @@ static bool needs_autodrawlooper(SkCanvas* canvas, const SkPaint& paint) {
 
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRect()");
-    SkRect storage;
-    const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
         // Skia will draw an inverted rect, because it explicitly "sorts" it downstream.
         // To prevent accidental rejecting at this stage, we have to sort it before we check.
         SkRect tmp(r);
         tmp.sort();
 
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(tmp, &storage))) {
             return;
         }
-        bounds = &r;
     }
 
     if (needs_autodrawlooper(this, paint)) {
-        LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kRect_Type, bounds, false)
+        LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, SkDrawFilter::kRect_Type, &r, false)
 
         while (iter.next()) {
             iter.fDevice->drawRect(iter, r, looper.paint());
@@ -2228,7 +2227,7 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
 
         LOOPER_END
     } else {
-        this->predrawNotify(bounds, &paint, false);
+        this->predrawNotify(&r, &paint, false);
         SkDrawIter iter(this);
         while (iter.next()) {
             iter.fDevice->drawRect(iter, r, paint);
@@ -2237,17 +2236,15 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
-    SkRect storage;
     SkRect regionRect = SkRect::Make(region.getBounds());
-    const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(regionRect, &storage))) {
             return;
         }
-        bounds = &regionRect;
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, bounds)
+    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, &regionRect)
 
     while (iter.next()) {
         iter.fDevice->drawRegion(iter, region, looper.paint());
@@ -2258,16 +2255,14 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 
 void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawOval()");
-    SkRect storage;
-    const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
             return;
         }
-        bounds = &oval;
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, bounds)
+    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, &oval)
 
     while (iter.next()) {
         iter.fDevice->drawOval(iter, oval, looper.paint());
@@ -2280,17 +2275,15 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
                          SkScalar sweepAngle, bool useCenter,
                          const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawArc()");
-    const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
         SkRect storage;
         // Note we're using the entire oval as the bounds.
         if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
             return;
         }
-        bounds = &oval;
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, bounds)
+    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, &oval)
 
     while (iter.next()) {
         iter.fDevice->drawArc(iter, oval, startAngle, sweepAngle, useCenter, looper.paint());
@@ -2301,13 +2294,11 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
 
 void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRRect()");
-    SkRect storage;
-    const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(rrect.getBounds(), &storage))) {
             return;
         }
-        bounds = &rrect.getBounds();
     }
 
     if (rrect.isRect()) {
@@ -2320,7 +2311,7 @@ void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
         return;
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, bounds)
+    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, &rrect.getBounds())
 
     while (iter.next()) {
         iter.fDevice->drawRRect(iter, rrect, looper.paint());
@@ -2329,18 +2320,15 @@ void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     LOOPER_END
 }
 
-void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
-                            const SkPaint& paint) {
-    SkRect storage;
-    const SkRect* bounds = nullptr;
+void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
     if (paint.canComputeFastBounds()) {
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(outer.getBounds(), &storage))) {
             return;
         }
-        bounds = &outer.getBounds();
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, bounds)
+    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, &outer.getBounds())
 
     while (iter.next()) {
         iter.fDevice->drawDRRect(iter, outer, inner, looper.paint());
@@ -2355,25 +2343,22 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
         return;
     }
 
-    SkRect storage;
-    const SkRect* bounds = nullptr;
+    const SkRect& pathBounds = path.getBounds();
     if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
-        const SkRect& pathBounds = path.getBounds();
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(pathBounds, &storage))) {
             return;
         }
-        bounds = &pathBounds;
     }
 
-    const SkRect& r = path.getBounds();
-    if (r.width() <= 0 && r.height() <= 0) {
+    if (pathBounds.width() <= 0 && pathBounds.height() <= 0) {
         if (path.isInverseFillType()) {
             this->internalDrawPaint(paint);
             return;
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, bounds)
+    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, &pathBounds)
 
     while (iter.next()) {
         iter.fDevice->drawPath(iter, path, looper.paint());
@@ -2490,23 +2475,20 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
         paint = lazy.init();
     }
 
-    const SkMatrix matrix = SkMatrix::MakeTrans(x, y);
-
-    SkRect storage;
-    const SkRect* bounds = nullptr;
-    if (paint->canComputeFastBounds()) {
-        bitmap.getBounds(&storage);
-        matrix.mapRect(&storage);
-        SkRect tmp = storage;
-        if (this->quickReject(paint->computeFastBounds(tmp, &tmp))) {
+    SkRect bounds;
+    bitmap.getBounds(&bounds);
+    bounds.offset(x, y);
+    bool canFastBounds = paint->canComputeFastBounds();
+    if (canFastBounds) {
+        SkRect storage;
+        if (this->quickReject(paint->computeFastBounds(bounds, &storage))) {
             return;
         }
-        bounds = &storage;
     }
 
     sk_sp<SkSpecialImage> special;
-    bool drawAsSprite = bounds && this->canDrawBitmapAsSprite(x, y, bitmap.width(), bitmap.height(),
-                                                              *paint);
+    bool drawAsSprite = canFastBounds && this->canDrawBitmapAsSprite(x, y, bitmap.width(),
+                                                                     bitmap.height(), *paint);
     if (drawAsSprite && paint->getImageFilter()) {
         special = this->getDevice()->makeSpecial(bitmap);
         if (!special) {
@@ -2514,7 +2496,9 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
         }
     }
 
-    LOOPER_BEGIN_DRAWBITMAP(*paint, drawAsSprite, bounds)
+    const SkMatrix matrix = SkMatrix::MakeTrans(x, y);
+
+    LOOPER_BEGIN_DRAWBITMAP(*paint, drawAsSprite, &bounds)
 
     while (iter.next()) {
         const SkPaint& pnt = looper.paint();
