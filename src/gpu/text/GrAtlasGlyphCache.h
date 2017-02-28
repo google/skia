@@ -126,12 +126,12 @@ public:
 
     void freeAll();
 
-    // if texture returns nullptr, the client must not try to use other functions on the
+    // if getProxy returns nullptr, the client must not try to use other functions on the
     // GrAtlasGlyphCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas.
-    GrTexture* getTexture(GrMaskFormat format) {
+    sk_sp<GrTextureProxy> getProxy(GrMaskFormat format) {
         if (this->initAtlas(format)) {
-            return this->getAtlas(format)->getTexture();
+            return this->getAtlas(format)->getProxy();
         }
         return nullptr;
     }
@@ -184,6 +184,8 @@ public:
 #endif
 
     void setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]);
+
+    GrContext* context() const { return fContext; }
 
 private:
     static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format, const GrCaps& caps) {
