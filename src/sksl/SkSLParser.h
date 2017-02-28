@@ -206,6 +206,7 @@ private:
     bool identifier(SkString* dest);
 
     void* fScanner;
+    void* fLayoutScanner;
     YY_BUFFER_STATE fBuffer;
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs
@@ -213,29 +214,6 @@ private:
     Token fPushback;
     SymbolTable& fTypes;
     ErrorReporter& fErrors;
-    enum LayoutKey {
-        kLocation_LayoutKey,
-        kOffset_LayoutKey,
-        kBinding_LayoutKey,
-        kIndex_LayoutKey,
-        kSet_LayoutKey,
-        kBuiltin_LayoutKey,
-        kInputAttachmentIndex_LayoutKey,
-        kOriginUpperLeft_LayoutKey,
-        kOverrideCoverage_LayoutKey,
-        kBlendSupportAllEquations_LayoutKey,
-        kPushConstant_LayoutKey,
-        kPoints_LayoutKey,
-        kLines_LayoutKey,
-        kLineStrip_LayoutKey,
-        kLinesAdjacency_LayoutKey,
-        kTriangles_LayoutKey,
-        kTriangleStrip_LayoutKey,
-        kTrianglesAdjacency_LayoutKey,
-        kMaxVertices_LayoutKey,
-        kInvocations_LayoutKey
-    };
-    std::unordered_map<SkString, LayoutKey> fLayoutKeys;
 
     friend class AutoDepth;
 };
