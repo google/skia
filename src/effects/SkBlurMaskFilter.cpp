@@ -770,7 +770,7 @@ public:
 
     const char* name() const override { return "RectBlur"; }
 
-    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider *textureProvider,
+    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider* textureProvider,
                                            const SkRect& rect, float sigma) {
         int doubleProfileSize = SkScalarCeilToInt(12*sigma);
 
@@ -959,7 +959,6 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvid
     builder.finish();
 
     sk_sp<GrTexture> blurProfile(textureProvider->findAndRefTextureByUniqueKey(key));
-
     if (!blurProfile) {
         std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 

@@ -27,31 +27,6 @@ inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor:
 }
 
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
-                                                           GrTexture* texture,
-                                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                                           GrTexture* maskTexture,
-                                                           float innerThreshold,
-                                                           float outerThreshold,
-                                                           const SkIRect& bounds)
-        : INHERITED(OptFlags(outerThreshold))
-        , fInnerThreshold(innerThreshold)
-        , fOuterThreshold(outerThreshold)
-        , fImageCoordTransform(SkMatrix::I(), texture, GrSamplerParams::kNone_FilterMode)
-        , fImageTextureSampler(texture)
-        , fColorSpaceXform(std::move(colorSpaceXform))
-        , fMaskCoordTransform(
-                  SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
-                  maskTexture,
-                  GrSamplerParams::kNone_FilterMode)
-        , fMaskTextureSampler(maskTexture) {
-    this->initClassID<GrAlphaThresholdFragmentProcessor>();
-    this->addCoordTransform(&fImageCoordTransform);
-    this->addTextureSampler(&fImageTextureSampler);
-    this->addCoordTransform(&fMaskCoordTransform);
-    this->addTextureSampler(&fMaskTextureSampler);
-}
-
-GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
                                                            GrContext* context,
                                                            sk_sp<GrTextureProxy> proxy,
                                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
