@@ -49,9 +49,7 @@
         if (abcd[2] & (1<<19)) { features |= SkCpu::SSE41; }
         if (abcd[2] & (1<<20)) { features |= SkCpu::SSE42; }
 
-        uint64_t xcr0 = xgetbv(0);
-        if ((abcd[2] & (3<<26)) == (3<<26)    // XSAVE + OSXSAVE
-             && (xcr0 & (3<<1)) == (3<<1)) {  // XMM and YMM state enabled.
+        if ((abcd[2] & (3<<26)) == (3<<26) && (xgetbv(0) & 6) == 6) {  // XSAVE + OSXSAVE
             if (abcd[2] & (1<<28)) { features |= SkCpu:: AVX; }
             if (abcd[2] & (1<<29)) { features |= SkCpu::F16C; }
             if (abcd[2] & (1<<12)) { features |= SkCpu:: FMA; }
@@ -60,17 +58,6 @@
             if (abcd[1] & (1<<5)) { features |= SkCpu::AVX2; }
             if (abcd[1] & (1<<3)) { features |= SkCpu::BMI1; }
             if (abcd[1] & (1<<8)) { features |= SkCpu::BMI2; }
-
-            if ((xcr0 & (7<<5)) == (7<<5)) {  // All ZMM state bits enabled too.
-              if (abcd[1] & (1<<16)) { features |= SkCpu::AVX512F; }
-              if (abcd[1] & (1<<17)) { features |= SkCpu::AVX512DQ; }
-              if (abcd[1] & (1<<21)) { features |= SkCpu::AVX512IFMA; }
-              if (abcd[1] & (1<<26)) { features |= SkCpu::AVX512PF; }
-              if (abcd[1] & (1<<27)) { features |= SkCpu::AVX512ER; }
-              if (abcd[1] & (1<<28)) { features |= SkCpu::AVX512CD; }
-              if (abcd[1] & (1<<30)) { features |= SkCpu::AVX512BW; }
-              if (abcd[1] & (1<<31)) { features |= SkCpu::AVX512VL; }
-            }
         }
         return features;
     }
