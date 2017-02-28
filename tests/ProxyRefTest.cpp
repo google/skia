@@ -15,8 +15,6 @@
 #include "GrRenderTargetPriv.h"
 #include "GrRenderTargetProxy.h"
 
-static const int kWidthHeight = 128;
-
 int32_t GrIORefProxy::getProxyRefCnt_TestOnly() const {
     return fRefCnt;
 }
@@ -47,6 +45,10 @@ int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
     return fPendingWrites;
 }
 
+#ifndef SK_DISABLE_DEFERRED_PROXIES
+
+static const int kWidthHeight = 128;
+
 static void check_refs(skiatest::Reporter* reporter,
                        GrSurfaceProxy* proxy,
                        int32_t expectedProxyRefs,
@@ -71,7 +73,8 @@ static sk_sp<GrSurfaceProxy> make_deferred(const GrCaps& caps, GrTextureProvider
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kApprox, SkBudgeted::kYes);
+    return GrSurfaceProxy::MakeDeferred(provider, caps, desc,
+                                        SkBackingFit::kApprox, SkBudgeted::kYes);
 }
 
 static sk_sp<GrSurfaceProxy> make_wrapped(const GrCaps& caps, GrTextureProvider* provider) {
@@ -203,5 +206,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         }
     }
 }
+#endif
 
 #endif
