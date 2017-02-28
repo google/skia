@@ -222,34 +222,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
-                                                           const SkMatrix& viewMatrix,
-                                                           GrTexture* texture,
-                                                           const GrSamplerParams& params,
-#ifdef SK_GAMMA_APPLY_TO_A8
-                                                           float distanceAdjust,
-#endif
-                                                           uint32_t flags,
-                                                           bool usesLocalCoords)
-    : fColor(color)
-    , fViewMatrix(viewMatrix)
-    , fTextureSampler(texture, params)
-#ifdef SK_GAMMA_APPLY_TO_A8
-    , fDistanceAdjust(distanceAdjust)
-#endif
-    , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInColor(nullptr)
-    , fUsesLocalCoords(usesLocalCoords) {
-    SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    this->initClassID<GrDistanceFieldA8TextGeoProc>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                         kHigh_GrSLPrecision);
-    fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType,
-                                              kHigh_GrSLPrecision);
-    this->addTextureSampler(&fTextureSampler);
-}
-
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrContext* context,
                                                            GrColor color,
                                                            const SkMatrix& viewMatrix,
@@ -499,30 +471,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
-        GrColor color,
-        const SkMatrix& viewMatrix,
-        GrTexture* texture,
-        const GrSamplerParams& params,
-        uint32_t flags,
-        bool usesLocalCoords)
-    : fColor(color)
-    , fViewMatrix(viewMatrix)
-    , fTextureSampler(texture, params)
-    , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInColor(nullptr)
-    , fUsesLocalCoords(usesLocalCoords) {
-    SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    this->initClassID<GrDistanceFieldPathGeoProc>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                         kHigh_GrSLPrecision);
-    fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType);
-    this->addTextureSampler(&fTextureSampler);
-}
-
-
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         GrContext* context,
         GrColor color,
@@ -828,28 +776,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
-                                                  GrColor color, const SkMatrix& viewMatrix,
-                                                  GrTexture* texture, const GrSamplerParams& params,
-                                                  DistanceAdjust distanceAdjust,
-                                                  uint32_t flags, bool usesLocalCoords)
-    : fColor(color)
-    , fViewMatrix(viewMatrix)
-    , fTextureSampler(texture, params)
-    , fDistanceAdjust(distanceAdjust)
-    , fFlags(flags & kLCD_DistanceFieldEffectMask)
-    , fUsesLocalCoords(usesLocalCoords) {
-    SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
-    this->initClassID<GrDistanceFieldLCDTextGeoProc>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                         kHigh_GrSLPrecision);
-    fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType,
-                                              kHigh_GrSLPrecision);
-    this->addTextureSampler(&fTextureSampler);
-}
-
 GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrContext* context,
                                                   GrColor color, const SkMatrix& viewMatrix,
