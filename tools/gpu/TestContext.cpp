@@ -31,6 +31,8 @@ TestContext::~TestContext() {
 
 void TestContext::makeCurrent() const { this->onPlatformMakeCurrent(); }
 
+void TestContext::releaseCurrent() const { this->onPlatformReleaseCurrent(); }
+
 void TestContext::swapBuffers() { this->onPlatformSwapBuffers(); }
 
 void TestContext::waitOnSyncOrSwap() {

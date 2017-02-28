@@ -23,6 +23,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    void onPlatformReleaseCurrent() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -84,6 +85,12 @@ void IOSGLTestContext::destroyGLContext() {
 void IOSGLTestContext::onPlatformMakeCurrent() const {
     if (![EAGLContext setCurrentContext:EAGLCTX]) {
         SkDebugf("Could not set the context.\n");
+    }
+}
+
+void IOSGLTestContext::onPlatformReleaseCurrent() const {
+    if (![EAGLContext setCurrentContext:nil]) {
+        SkDebugf("Could not release the context.\n");
     }
 }
 

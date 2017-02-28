@@ -139,6 +139,7 @@ private:
     }
 
     void onPlatformMakeCurrent() const override {}
+    void onPlatformReleaseCurrent() const override {}
     void onPlatformSwapBuffers() const override {}
 
     typedef sk_gpu_test::VkTestContext INHERITED;

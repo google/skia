@@ -265,6 +265,15 @@ void CommandBufferGLTestContext::onPlatformMakeCurrent() const {
     }
 }
 
+void CommandBufferGLTestContext::onPlatformReleaseCurrent() const {
+    if (!gfFunctionsLoadedSuccessfully) {
+        return;
+    }
+    if (!gfMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
+        SkDebugf("Command Buffer: Could not release EGL context.\n");
+    }
+}
+
 void CommandBufferGLTestContext::onPlatformSwapBuffers() const {
     if (!gfFunctionsLoadedSuccessfully) {
         return;

@@ -22,6 +22,7 @@ public:
 
 private:
     void onPlatformMakeCurrent() const override {}
+    void onPlatformReleaseCurrent() const override {}
     void onPlatformSwapBuffers() const override {}
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override { return nullptr; }
 };

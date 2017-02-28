@@ -42,6 +42,7 @@ public:
     }
 
     void makeCurrent() const;
+    void releaseCurrent() const;
 
     virtual GrBackend backend() = 0;
     virtual GrBackendContext backendContext() = 0;
@@ -90,6 +91,7 @@ protected:
     virtual void teardown();
 
     virtual void onPlatformMakeCurrent() const = 0;
+    virtual void onPlatformReleaseCurrent() const = 0;
     virtual void onPlatformSwapBuffers() const = 0;
 
 private:

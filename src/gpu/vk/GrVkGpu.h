@@ -133,6 +133,8 @@ public:
     bool waitFence(GrFence, uint64_t timeout) const override;
     void deleteFence(GrFence) const override;
 
+    void flush() override;
+
     void generateMipmap(GrVkTexture* tex);
 
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);

@@ -50,6 +50,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    void onPlatformReleaseCurrent() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -271,6 +272,12 @@ std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
 void EGLGLTestContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.\n");
+    }
+}
+
+void EGLGLTestContext::onPlatformReleaseCurrent() const {
+    if (!eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
+        SkDebugf("Could not release the context.\n");
     }
 }
 

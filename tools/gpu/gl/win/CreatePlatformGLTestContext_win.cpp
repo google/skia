@@ -25,6 +25,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    void onPlatformReleaseCurrent() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
@@ -169,6 +170,20 @@ void WinGLTestContext::onPlatformMakeCurrent() const {
 
     if (!wglMakeCurrent(dc, glrc)) {
         SkDebugf("Could not create rendering context.\n");
+    }
+}
+
+void WinGLTestContext::onPlatformReleaseCurrent() const {
+    HDC dc;
+
+    if (nullptr == fPbufferContext) {
+        dc = fDeviceContext;
+    } else {
+        dc = fPbufferContext->getDC();
+    }
+
+    if (!wglMakeCurrent(dc, nullptr)) {
+        SkDebugf("Could not release rendering context.\n");
     }
 }
 

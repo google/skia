@@ -41,6 +41,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    void onPlatformReleaseCurrent() const override;
 
     void onPlatformSwapBuffers() const override;
 
