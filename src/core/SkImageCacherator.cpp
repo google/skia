@@ -229,13 +229,13 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 
 #if SK_SUPPORT_GPU
     // Try to get a texture and read it back to raster (and then cache that with our ID)
-    sk_sp<GrTexture> tex;
+    sk_sp<GrTextureProxy> proxy;
 
     {
         ScopedGenerator generator(fSharedGenerator);
-        tex.reset(generator->generateTexture(nullptr, cacheInfo, fOrigin));
+        proxy = generator->generateProxy(nullptr, cacheInfo, fOrigin));
     }
-    if (!tex) {
+    if (!proxy) {
         bitmap->reset();
         return false;
     }
@@ -245,7 +245,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         return false;
     }
 
-    if (!tex->readPixels(fInfo.colorSpace(), 0, 0, bitmap->width(), bitmap->height(),
+    if (!proxy->readPixels(fInfo.colorSpace(), 0, 0, bitmap->width(), bitmap->height(),
                          SkImageInfo2GrPixelConfig(cacheInfo, *tex->getContext()->caps()),
                          cacheInfo.colorSpace(), bitmap->getPixels(), bitmap->rowBytes())) {
         bitmap->reset();

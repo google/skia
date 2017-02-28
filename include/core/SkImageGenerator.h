@@ -139,7 +139,7 @@ public:
      *  - its internal context is the same
      *  - it can somehow convert its texture into one that is valid for the provided context.
      */
-    GrTexture* generateTexture(GrContext*, const SkImageInfo& info, const SkIPoint& origin);
+    sk_sp<GrTextureProxy> generateProxy(GrContext*, const SkImageInfo& info, const SkIPoint& origin);
 
     struct SupportedSizes {
         SkISize fSizes[2];

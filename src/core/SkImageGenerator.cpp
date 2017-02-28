@@ -77,8 +77,8 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
     return this->onGetYUV8Planes(sizeInfo, planes);
 }
 
-GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
-                                             const SkIPoint& origin) {
+sk_sp<GrTextureProxy> SkImageGenerator::generateProxy(GrContext* ctx, const SkImageInfo& info,
+                                                      const SkIPoint& origin) {
     SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
     if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
         return nullptr;
