@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "710046dc_1be47e38",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2175,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-28T20:48:22Z",
+      "side": 1,
+      "message": "Do you want to just always compute \u0027r\u0027 outside of the if-test (and then always pass it into the ADL)?",
+      "revId": "0db1dcc34d6e1c7c35a935f7f9474d5748478246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92ccd3cb_3923c826",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2478,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-28T20:48:22Z",
+      "side": 1,
+      "message": "Maybe move this down closer to where it is used ?",
+      "revId": "0db1dcc34d6e1c7c35a935f7f9474d5748478246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
