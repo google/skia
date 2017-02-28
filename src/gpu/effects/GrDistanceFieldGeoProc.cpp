@@ -518,7 +518,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
                                          kHigh_GrSLPrecision);
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2f_GrVertexAttribType);
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType);
     this->addTextureSampler(&fTextureSampler);
 }
 
@@ -542,7 +542,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
                                          kHigh_GrSLPrecision);
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2f_GrVertexAttribType);
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType);
     this->addTextureSampler(&fTextureSampler);
 }
 
