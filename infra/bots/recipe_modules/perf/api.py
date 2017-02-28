@@ -27,7 +27,8 @@ def nanobench_flags(bot):
     args.extend(['--skps', 'ignore_skps'])
 
   config = ['8888', 'gpu', 'nonrendering', 'hwui' ]
-  if 'AndroidOne' not in bot:
+  if 'Android' not in bot or 'CPU' not in bot:
+    # These take too long and cause the task to time out.
     config += [ 'f16', 'srgb' ]
   if '-GCE-' in bot:
     config += [ '565' ]
