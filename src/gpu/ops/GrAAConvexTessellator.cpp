@@ -365,7 +365,7 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     SkPath::Iter iter(path, true);
     SkPoint pts[4];
     SkPath::Verb verb;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kLine_Verb:
                 this->lineTo(m, pts[1], kSharp_CurveState);

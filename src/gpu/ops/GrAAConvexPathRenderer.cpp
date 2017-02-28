@@ -281,7 +281,7 @@ static bool get_segments(const SkPath& path,
 
     for (;;) {
         SkPoint pts[4];
-        SkPath::Verb verb = iter.next(pts);
+        SkPath::Verb verb = iter.next(pts, true, true);
         switch (verb) {
             case SkPath::kMove_Verb:
                 m.mapPoints(pts, 1);
