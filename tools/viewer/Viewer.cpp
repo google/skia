@@ -13,6 +13,7 @@
 #include "SampleSlide.h"
 #include "SKPSlide.h"
 
+#include "GrContext.h"
 #include "SkATrace.h"
 #include "SkCanvas.h"
 #include "SkColorSpace_Base.h"
@@ -22,6 +23,7 @@
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
 #include "SkMetaData.h"
+#include "SkOnce.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkRandom.h"
@@ -34,8 +36,12 @@
 #include "imgui.h"
 
 #include <stdlib.h>
+#include <map>
 
 using namespace sk_app;
+
+using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
+static std::map<GpuPathRenderers, std::string> gPathRendererNames;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
@@ -215,6 +221,7 @@ const char* kOptions = "options";
 const char* kSlideStateName = "Slide";
 const char* kBackendStateName = "Backend";
 const char* kMSAAStateName = "MSAA";
+const char* kPathRendererStateName = "Path renderer";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
 const char* kFpsStateName = "FPS";
@@ -241,6 +248,19 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 {
     static SkTaskGroup::Enabler kTaskGroupEnabler;
     SkGraphics::Init();
+
+    static SkOnce initPathRendererNames;
+    initPathRendererNames([]() {
+        gPathRendererNames[GpuPathRenderers::kAll] = "Default Ganesh Behavior (best path renderer)";
+        gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
+        gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
+        gPathRendererNames[GpuPathRenderers::kPLS] = "Pixel local storage";
+        gPathRendererNames[GpuPathRenderers::kDistanceField] = "Distance field (small paths only)";
+        gPathRendererNames[GpuPathRenderers::kTesselating] = "Tessellating";
+        gPathRendererNames[GpuPathRenderers::kDefault] = "Original Ganesh path renderer";
+        gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
+    });
+
     memset(fPaintTimes, 0, sizeof(fPaintTimes));
     memset(fFlushTimes, 0, sizeof(fFlushTimes));
     memset(fAnimateTimes, 0, sizeof(fAnimateTimes));
@@ -265,6 +285,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
+    displayParams.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     fWindow->setRequestedDisplayParams(displayParams);
 
     // register callbacks
@@ -551,6 +572,12 @@ void Viewer::updateTitle() {
         title.appendf(" MSAA: %i", msaa);
     }
     title.append("]");
+
+    GpuPathRenderers pr = fWindow->getRequestedDisplayParams().fGrContextOptions.fGpuPathRenderers;
+    if (GpuPathRenderers::kAll != pr) {
+        title.appendf(" [Path renderer: %s]", gPathRendererNames[pr].c_str());
+    }
+
     fWindow->setTitle(title.c_str());
 }
 
@@ -1120,6 +1147,36 @@ void Viewer::updateUIState() {
         }
     }
 
+    // Path renderer state
+    GpuPathRenderers pr = fWindow->getRequestedDisplayParams().fGrContextOptions.fGpuPathRenderers;
+    Json::Value prState(Json::objectValue);
+    prState[kName] = kPathRendererStateName;
+    prState[kValue] = gPathRendererNames[pr];
+    prState[kOptions] = Json::Value(Json::arrayValue);
+    const GrContext* ctx = fWindow->getGrContext();
+    if (!ctx) {
+        prState[kOptions].append("Software");
+    } else if (fWindow->sampleCount()) {
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
+        if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
+            prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kStencilAndCover]);
+        }
+        if (ctx->caps()->sampleShadingSupport()) {
+            prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kMSAA]);
+        }
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTesselating]);
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
+    } else {
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
+        if (ctx->caps()->shaderCaps()->plsPathRenderingSupport()) {
+            prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kPLS]);
+        }
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDistanceField]);
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTesselating]);
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
+    }
+
     // Softkey state
     Json::Value softkeyState(Json::objectValue);
     softkeyState[kName] = kSoftkeyStateName;
@@ -1145,6 +1202,7 @@ void Viewer::updateUIState() {
     state.append(slideState);
     state.append(backendState);
     state.append(msaaState);
+    state.append(prState);
     state.append(softkeyState);
     state.append(fpsState);
 
@@ -1189,6 +1247,21 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
             fWindow->setRequestedDisplayParams(params);
             fWindow->inval();
             updateTitle();
+            updateUIState();
+        }
+    } else if (stateName.equals(kPathRendererStateName)) {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
+        for (const auto& pair : gPathRendererNames) {
+            if (pair.second == stateValue.c_str()) {
+                if (params.fGrContextOptions.fGpuPathRenderers != pair.first) {
+                    params.fGrContextOptions.fGpuPathRenderers = pair.first;
+                    fWindow->setRequestedDisplayParams(params);
+                    fWindow->inval();
+                    updateTitle();
+                    updateUIState();
+                }
+                break;
+            }
         }
     } else if (stateName.equals(kSoftkeyStateName)) {
         if (!stateValue.equals(kSoftkeyHint)) {
