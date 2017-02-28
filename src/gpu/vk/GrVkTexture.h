@@ -42,6 +42,7 @@ protected:
 
     void onAbandon() override;
     void onRelease() override;
+    std::unique_ptr<GrExternalTextureData> detachBackendTexture() override;
 
 private:
     enum Wrapped { kWrapped };

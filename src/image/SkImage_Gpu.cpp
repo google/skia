@@ -14,6 +14,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureAdjuster.h"
@@ -21,6 +22,7 @@
 #include "GrTextureProxy.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
+#include "SkCrossContextImageData.h"
 #include "SkBitmapCache.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
@@ -357,7 +359,7 @@ static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType
                                    std::move(texColorSpace), SkBudgeted::kNo);
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context, SkColorSpace* dstColorSpace) const {
+sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const {
     if (!context) {
         return nullptr;
     }
@@ -375,6 +377,64 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context, SkColorSpace* dstCo
         return create_image_from_maker(&maker, this->alphaType(), this->uniqueID(), dstColorSpace);
     }
     return nullptr;
+}
+
+std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncoded(
+        GrContext* context, sk_sp<SkData> encoded, SkColorSpace* dstColorSpace) {
+    sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(std::move(encoded));
+    if (!codecImage) {
+        return nullptr;
+    }
+
+    // Some backends or drivers don't support (safely) moving resources between contexts
+    if (!context->caps()->crossContextTextureSupport()) {
+        return std::unique_ptr<SkCrossContextImageData>(
+            new SkCrossContextImageData(std::move(codecImage)));
+    }
+
+    sk_sp<SkImage> textureImage = codecImage->makeTextureImage(context, dstColorSpace);
+    if (!textureImage) {
+        // TODO: Force decode to raster here? Do mip-mapping, like getDeferredTextureImageData?
+        return std::unique_ptr<SkCrossContextImageData>(
+            new SkCrossContextImageData(std::move(codecImage)));
+    }
+
+    // Crack open the gpu image, extract the backend data, stick it in the SkCCID
+    GrTexture* texture = as_IB(textureImage)->peekTexture();
+    SkASSERT(texture);
+
+    GrBackendTextureDesc desc;
+    desc.fFlags = kNone_GrBackendTextureFlag;
+    desc.fOrigin = texture->origin();
+    desc.fWidth = texture->width();
+    desc.fHeight = texture->height();
+    desc.fConfig = texture->config();
+    desc.fSampleCnt = 0;
+
+    auto textureData = texture->texturePriv().detachBackendTexture();
+    SkASSERT(textureData);
+
+    SkImageInfo info = as_IB(textureImage)->onImageInfo();
+    return std::unique_ptr<SkCrossContextImageData>(new SkCrossContextImageData(
+        desc, std::move(textureData), info.alphaType(), info.refColorSpace()));
+}
+
+sk_sp<SkImage> SkImage::MakeFromCrossContextImageData(
+        GrContext* context, std::unique_ptr<SkCrossContextImageData> ccid) {
+    if (ccid->fImage) {
+        // No pre-existing GPU resource. We could upload it now (with makeTextureImage),
+        // but we'd need a dstColorSpace.
+        return ccid->fImage;
+    }
+
+    if (ccid->fTextureData) {
+        GrFence fence = ccid->fTextureData->getFence();
+        context->getGpu()->waitFence(fence);
+        context->getGpu()->deleteFence(fence);
+    }
+
+    return MakeFromAdoptedTexture(context, ccid->fDesc, ccid->fAlphaType,
+                                  std::move(ccid->fColorSpace));
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {

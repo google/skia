@@ -144,6 +144,12 @@ GrBackendObject GrVkTexture::getTextureHandle() const {
     return (GrBackendObject)&fInfo;
 }
 
+std::unique_ptr<GrExternalTextureData> GrVkTexture::detachBackendTexture() {
+    // Not supported on Vulkan yet
+    // TODO: Add thread-safe memory pools, and implement this.
+    return nullptr;
+}
+
 GrVkGpu* GrVkTexture::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());

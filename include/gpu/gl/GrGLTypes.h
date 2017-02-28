@@ -9,6 +9,7 @@
 #ifndef GrGLTypes_DEFINED
 #define GrGLTypes_DEFINED
 
+#include "GrExternalTextureData.h"
 #include "GrGLConfig.h"
 
 /**
@@ -110,6 +111,23 @@ typedef unsigned int GrEGLBoolean;
 struct GrGLTextureInfo {
     GrGLenum fTarget;
     GrGLuint fID;
+};
+
+class GrGLExternalTextureData : public GrExternalTextureData {
+public:
+    GrGLExternalTextureData(const GrGLTextureInfo& info, GrFence fence)
+            : INHERITED(fence)
+            , fInfo(info) {}
+    GrBackend getBackend() const override { return kOpenGL_GrBackend; }
+
+protected:
+    GrBackendObject getBackendObject() const override {
+        return reinterpret_cast<GrBackendObject>(&fInfo);
+    }
+
+    GrGLTextureInfo fInfo;
+
+    typedef GrExternalTextureData INHERITED;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));

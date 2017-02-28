@@ -37,6 +37,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fUseDrawInsteadOfClear = false;
     fFenceSyncSupport = true;   // always available in Vulkan
+    fCrossContextTextureSupport = false; // TODO: Add thread-safe memory pools so we can enable this
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
