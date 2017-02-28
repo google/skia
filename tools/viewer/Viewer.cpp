@@ -371,28 +371,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             fBackendType = sk_app::Window::kRaster_BackendType;
         }
 #endif
-        fWindow->detach();
 
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_VULKAN)
-        // Switching from OpenGL to Vulkan in the same window is problematic at this point on
-        // Windows, so we just delete the window and recreate it.
-        if (sk_app::Window::kVulkan_BackendType == fBackendType) {
-            delete fWindow;
-            fWindow = Window::CreateNativeWindow(nullptr);
-
-            // re-register callbacks
-            fCommands.attach(fWindow);
-            fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
-            fWindow->registerPaintFunc(on_paint_handler, this);
-            fWindow->registerTouchFunc(on_touch_handler, this);
-            fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
-            fWindow->registerMouseFunc(on_mouse_handler, this);
-            fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
-            fWindow->registerKeyFunc(on_key_handler, this);
-            fWindow->registerCharFunc(on_char_handler, this);
-        }
-#endif
-        fWindow->attach(fBackendType);
+        this->setBackend(fBackendType);
     });
 
     // set up slides
@@ -684,6 +664,34 @@ SkMatrix Viewer::computeMatrix() {
     return m;
 }
 
+void Viewer::setBackend(sk_app::Window::BackendType backendType) {
+    fBackendType = backendType;
+
+    fWindow->detach();
+
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_VULKAN)
+    // Switching from OpenGL to Vulkan in the same window is problematic at this point on
+    // Windows, so we just delete the window and recreate it.
+    if (sk_app::Window::kVulkan_BackendType == fBackendType) {
+        delete fWindow;
+        fWindow = Window::CreateNativeWindow(nullptr);
+
+        // re-register callbacks
+        fCommands.attach(fWindow);
+        fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
+        fWindow->registerPaintFunc(on_paint_handler, this);
+        fWindow->registerTouchFunc(on_touch_handler, this);
+        fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
+        fWindow->registerMouseFunc(on_mouse_handler, this);
+        fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
+        fWindow->registerKeyFunc(on_key_handler, this);
+        fWindow->registerCharFunc(on_char_handler, this);
+    }
+#endif
+
+    fWindow->attach(fBackendType);
+}
+
 void Viewer::setColorMode(SkColorType colorType, bool colorManaged) {
     fColorType = colorType;
     fColorManaged = colorManaged;
@@ -949,13 +957,28 @@ void Viewer::drawImGui(SkCanvas* canvas) {
         ImGui::ShowTestWindow(&fShowImGuiTestWindow);
     }
 
-    SkPaint gamutImagePaint;
     if (fShowImGuiDebugWindow) {
         // We have some dynamic content that sizes to fill available size. If the scroll bar isn't
         // always visible, we can end up in a layout feedback loop.
         ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiSetCond_FirstUseEver);
         if (ImGui::Begin("Tools", &fShowImGuiDebugWindow,
                          ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
+            if (ImGui::CollapsingHeader("Backend")) {
+                int newBackend = static_cast<int>(fBackendType);
+                ImGui::RadioButton("Raster", &newBackend, sk_app::Window::kRaster_BackendType);
+                ImGui::SameLine();
+                ImGui::RadioButton("OpenGL", &newBackend, sk_app::Window::kNativeGL_BackendType);
+#if defined(SK_VULKAN)
+                ImGui::SameLine();
+                ImGui::RadioButton("Vulkan", &newBackend, sk_app::Window::kVulkan_BackendType);
+#endif
+                if (newBackend != fBackendType) {
+                    fDeferredActions.push_back([=]() {
+                        this->setBackend(static_cast<sk_app::Window::BackendType>(newBackend));
+                    });
+                }
+            }
+
             if (ImGui::CollapsingHeader("Slide")) {
                 static ImGuiTextFilter filter;
                 filter.Draw();
