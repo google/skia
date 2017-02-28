@@ -1019,6 +1019,49 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                         });
                     }
                 }
+
+                if (ImGui::TreeNode("Path Renderers")) {
+                    const GrContext* ctx = fWindow->getGrContext();
+                    DisplayParams params = fWindow->getRequestedDisplayParams();
+                    int pr = static_cast<int>(params.fGrContextOptions.fGpuPathRenderers);
+                    auto prButton = [&](GpuPathRenderers x) {
+                        ImGui::RadioButton(gPathRendererNames[x].c_str(), &pr, static_cast<int>(x));
+                    };
+
+                    if (!ctx) {
+                        ImGui::RadioButton("Software", true);
+                    } else if (fWindow->sampleCount()) {
+                        prButton(GpuPathRenderers::kAll);
+                        if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
+                            prButton(GpuPathRenderers::kStencilAndCover);
+                        }
+                        if (ctx->caps()->sampleShadingSupport()) {
+                            prButton(GpuPathRenderers::kMSAA);
+                        }
+                        prButton(GpuPathRenderers::kTesselating);
+                        prButton(GpuPathRenderers::kDefault);
+                        prButton(GpuPathRenderers::kNone);
+                    } else {
+                        prButton(GpuPathRenderers::kAll);
+                        if (ctx->caps()->shaderCaps()->plsPathRenderingSupport()) {
+                            prButton(GpuPathRenderers::kPLS);
+                        }
+                        prButton(GpuPathRenderers::kDistanceField);
+                        prButton(GpuPathRenderers::kTesselating);
+                        prButton(GpuPathRenderers::kNone);
+                    }
+
+                    if (pr != static_cast<int>(params.fGrContextOptions.fGpuPathRenderers)) {
+                        params.fGrContextOptions.fGpuPathRenderers =
+                                static_cast<GpuPathRenderers>(pr);
+                        fDeferredActions.push_back([=]() {
+                            fWindow->setRequestedDisplayParams(params);
+                            fWindow->inval();
+                            this->updateTitle();
+                        });
+                    }
+                    ImGui::TreePop();
+                }
             }
 
             if (ImGui::CollapsingHeader("Slide")) {
