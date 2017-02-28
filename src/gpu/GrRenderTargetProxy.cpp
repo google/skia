@@ -18,8 +18,8 @@
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
 // cases to make the sampleConfig/numSamples stuff more rational.
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
-                                         SkBackingFit fit, SkBudgeted budgeted)
-    : INHERITED(desc, fit, budgeted)
+                                         SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
+    : INHERITED(desc, fit, budgeted, flags)
     , fFlags(GrRenderTarget::Flags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.

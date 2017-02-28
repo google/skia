@@ -94,7 +94,6 @@ tests_sources = [
   "$_tests/GrShapeTest.cpp",
   "$_tests/GrSurfaceTest.cpp",
   "$_tests/GrTextureMipMapInvalidationTest.cpp",
-  "$_tests/GrTextureStripAtlasTest.cpp",
   "$_tests/GrTRecorderTest.cpp",
   "$_tests/HashTest.cpp",
   "$_tests/HighContrastFilterTest.cpp",
