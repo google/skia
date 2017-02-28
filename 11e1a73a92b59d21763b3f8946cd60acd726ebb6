@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cc8888f_bd8cbede",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-28T15:01:09Z",
+      "side": 1,
+      "message": "Let\u0027s make this \u0027-arm-\u0027 to leave them on for the Pixel Cs.",
+      "range": {
+        "startLine": 30,
+        "startChar": 5,
+        "endLine": 30,
+        "endChar": 25
+      },
+      "revId": "11e1a73a92b59d21763b3f8946cd60acd726ebb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7daa2564_96579732",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-28T15:01:09Z",
+      "side": 1,
+      "message": "?  If you want to do this kind of cleanup it\u0027s fine, but probably best left for separate CLs that don\u0027t simultaneously change behavior.",
+      "range": {
+        "startLine": 30,
+        "startChar": 26,
+        "endLine": 30,
+        "endChar": 45
+      },
+      "revId": "11e1a73a92b59d21763b3f8946cd60acd726ebb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
