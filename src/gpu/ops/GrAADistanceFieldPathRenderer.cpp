@@ -17,6 +17,7 @@
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
 #include "GrSurfacePriv.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
@@ -216,9 +217,10 @@ private:
 
         // Setup GrGeometryProcessor
         GrDrawOpAtlas* atlas = fAtlas;
-        flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(this->color(),
+        flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(atlas->context(),
+                                                                        this->color(),
                                                                         this->viewMatrix(),
-                                                                        atlas->getTexture(),
+                                                                        atlas->getProxy(),
                                                                         params,
                                                                         flags,
                                                                         this->usesLocalCoords());
@@ -485,11 +487,14 @@ private:
         // vertex texture coords
         // TODO make these int16_t
         SkPoint* textureCoords = (SkPoint*)(offset + sizeof(SkPoint) + sizeof(GrColor));
-        GrTexture* texture = atlas->getTexture();
-        textureCoords->setRectFan(texLeft / texture->width(),
-                                  texTop / texture->height(),
-                                  texRight / texture->width(),
-                                  texBottom / texture->height(),
+        sk_sp<GrTextureProxy> proxy = atlas->getProxy();
+
+        // The proxy must be exact for this normalization to work correctly
+        SkASSERT(proxy->priv().isExact());
+        textureCoords->setRectFan(texLeft / proxy->width(),
+                                  texTop / proxy->height(),
+                                  texRight / proxy->width(),
+                                  texBottom / proxy->height(),
                                   vertexStride);
     }
 
@@ -553,7 +558,8 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = args.fResourceProvider->makeAtlas(kAlpha_8_GrPixelConfig,
+        fAtlas = args.fResourceProvider->makeAtlas(args.fResourceProvider->context(),
+                                                   kAlpha_8_GrPixelConfig,
                                                    ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                    NUM_PLOTS_X, NUM_PLOTS_Y,
                                                    &GrAADistanceFieldPathRenderer::HandleEviction,
@@ -627,7 +633,7 @@ DRAW_OP_TEST_DEFINE(AADistanceFieldPathOp) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
         gTestStruct.fAtlas =
-                context->resourceProvider()->makeAtlas(kAlpha_8_GrPixelConfig,
+                context->resourceProvider()->makeAtlas(context, kAlpha_8_GrPixelConfig,
                                                        ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                        NUM_PLOTS_X, NUM_PLOTS_Y,
                                                        &PathTestStruct::HandleEviction,
