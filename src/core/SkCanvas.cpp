@@ -53,6 +53,30 @@
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
+static inline bool should_perform_quickreject(const SkPaint* paint) {
+#ifdef SK_ENABLE_CANVAS_QUICKREJECT
+    return paint && paint->canComputeFastBounds();
+#else
+    // only quick-reject if we have an imagefilter -- until we can unravel its behavior
+    //
+    // If we drawOval with an imagefilter on its paint, we apply the paint's blendmode AFTER
+    // we have run the filter, which means we have lost the distinction between coverage and
+    // src-alpha. When the blendmode is invoked, it will see the entire (rectangular) image
+    // (the result of the imagefilter), including the parts in the corners (not in the oval)
+    // has having src-alpha. Thus if we draw with a mode like DstIn, we will punch out the entire
+    // rectangle, instead of just the parts in the oval...
+    //
+    // Not sure what to do : this is undefined behavior, since the number of pixels we change
+    // (due to the blendmode) depends on implementation details like how large the imagefilter's
+    // buffer(s) are.
+    //
+    // For now, we keep the old quick-reject behavior if we have an imagefilter, as that code
+    // has the side-effect of also computing a bounds which we pass to impl the imagefilter.
+    //
+    return paint && paint->getImageFilter() && paint->canComputeFastBounds();
+#endif
+}
+
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -2169,9 +2193,9 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
         return;
     }
 
-    SkRect r, storage;
     const SkRect* bounds = nullptr;
-    if (paint.canComputeFastBounds()) {
+    SkRect r, storage;
+    if (should_perform_quickreject(&paint)) {
         // special-case 2 points (common for drawing a single line)
         if (2 == count) {
             r.set(pts[0], pts[1]);
@@ -2205,9 +2229,9 @@ static bool needs_autodrawlooper(SkCanvas* canvas, const SkPaint& paint) {
 
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRect()");
-    SkRect storage;
     const SkRect* bounds = nullptr;
-    if (paint.canComputeFastBounds()) {
+    SkRect storage;
+    if (should_perform_quickreject(&paint)) {
         // Skia will draw an inverted rect, because it explicitly "sorts" it downstream.
         // To prevent accidental rejecting at this stage, we have to sort it before we check.
         SkRect tmp(r);
@@ -2237,10 +2261,10 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    const SkRect* bounds = nullptr;
     SkRect storage;
     SkRect regionRect = SkRect::Make(region.getBounds());
-    const SkRect* bounds = nullptr;
-    if (paint.canComputeFastBounds()) {
+    if (should_perform_quickreject(&paint)) {
         if (this->quickReject(paint.computeFastBounds(regionRect, &storage))) {
             return;
         }
@@ -2258,9 +2282,9 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 
 void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawOval()");
-    SkRect storage;
     const SkRect* bounds = nullptr;
-    if (paint.canComputeFastBounds()) {
+    if (should_perform_quickreject(&paint)) {
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
             return;
         }
@@ -2281,7 +2305,7 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
                          const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawArc()");
     const SkRect* bounds = nullptr;
-    if (paint.canComputeFastBounds()) {
+    if (should_perform_quickreject(&paint)) {
         SkRect storage;
         // Note we're using the entire oval as the bounds.
         if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
@@ -2301,9 +2325,9 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
 
 void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawRRect()");
-    SkRect storage;
     const SkRect* bounds = nullptr;
-    if (paint.canComputeFastBounds()) {
+    if (should_perform_quickreject(&paint)) {
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(rrect.getBounds(), &storage))) {
             return;
         }
@@ -2329,11 +2353,10 @@ void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     LOOPER_END
 }
 
-void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
-                            const SkPaint& paint) {
-    SkRect storage;
+void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
     const SkRect* bounds = nullptr;
-    if (paint.canComputeFastBounds()) {
+    if (should_perform_quickreject(&paint)) {
+        SkRect storage;
         if (this->quickReject(paint.computeFastBounds(outer.getBounds(), &storage))) {
             return;
         }
@@ -2355,9 +2378,9 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
         return;
     }
 
-    SkRect storage;
     const SkRect* bounds = nullptr;
-    if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
+    if (!path.isInverseFillType() && should_perform_quickreject(&paint)) {
+        SkRect storage;
         const SkRect& pathBounds = path.getBounds();
         if (this->quickReject(paint.computeFastBounds(pathBounds, &storage))) {
             return;
@@ -2407,7 +2430,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImage()");
     SkRect bounds = SkRect::MakeXYWH(x, y,
                                      SkIntToScalar(image->width()), SkIntToScalar(image->height()));
-    if (nullptr == paint || paint->canComputeFastBounds()) {
+    if (should_perform_quickreject(paint)) {
         SkRect tmp = bounds;
         if (paint) {
             paint->computeFastBounds(tmp, &tmp);
@@ -2453,7 +2476,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint, SrcRectConstraint constraint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageRect()");
-    if (nullptr == paint || paint->canComputeFastBounds()) {
+    if (should_perform_quickreject(paint)) {
         SkRect storage = dst;
         if (paint) {
             paint->computeFastBounds(dst, &storage);
@@ -2492,9 +2515,9 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
 
     const SkMatrix matrix = SkMatrix::MakeTrans(x, y);
 
-    SkRect storage;
     const SkRect* bounds = nullptr;
-    if (paint->canComputeFastBounds()) {
+    if (should_perform_quickreject(paint)) {
+        SkRect storage;
         bitmap.getBounds(&storage);
         matrix.mapRect(&storage);
         SkRect tmp = storage;
@@ -2540,7 +2563,7 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         return;
     }
 
-    if (nullptr == paint || paint->canComputeFastBounds()) {
+    if (should_perform_quickreject(paint)) {
         SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
@@ -2573,7 +2596,7 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
                                const SkPaint* paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawImageNine()");
 
-    if (nullptr == paint || paint->canComputeFastBounds()) {
+    if (should_perform_quickreject(paint)) {
         SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
@@ -2599,7 +2622,7 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawBitmapNine()");
     SkDEBUGCODE(bitmap.validate();)
 
-    if (nullptr == paint || paint->canComputeFastBounds()) {
+    if (should_perform_quickreject(paint)) {
         SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
@@ -2622,7 +2645,7 @@ void SkCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, c
 
 void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                   const SkPaint* paint) {
-    if (nullptr == paint || paint->canComputeFastBounds()) {
+    if (should_perform_quickreject(paint)) {
         SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
@@ -2645,7 +2668,7 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 
 void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
                                    const SkRect& dst, const SkPaint* paint) {
-    if (nullptr == paint || paint->canComputeFastBounds()) {
+    if (should_perform_quickreject(paint)) {
         SkRect storage;
         if (this->quickReject(paint ? paint->computeFastBounds(dst, &storage) : dst)) {
             return;
@@ -2743,9 +2766,11 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
 
 void SkCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                  const SkRect* cullRect, const SkPaint& paint) {
+#ifdef SK_ENABLE_CANVAS_QUICKREJECT
     if (cullRect && this->quickReject(*cullRect)) {
         return;
     }
+#endif
 
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, nullptr)
 
@@ -2758,11 +2783,9 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRS
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
-
-    SkRect storage;
     const SkRect* bounds = nullptr;
-    if (paint.canComputeFastBounds()) {
-        storage = blob->bounds().makeOffset(x, y);
+    if (should_perform_quickreject(&paint)) {
+        SkRect storage = blob->bounds().makeOffset(x, y);
         SkRect tmp;
         if (this->quickReject(paint.computeFastBounds(storage, &tmp))) {
             return;
@@ -2885,11 +2908,13 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPaint& paint) {
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
+#ifdef SK_ENABLE_CANVAS_QUICKREJECT
     SkRect bounds;
     bounds.set(cubics, SkPatchUtils::kNumCtrlPts);
     if (this->quickReject(bounds)) {
         return;
     }
+#endif
 
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
 
@@ -2927,9 +2952,11 @@ void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
 void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                            const SkColor colors[], int count, SkBlendMode bmode,
                            const SkRect* cull, const SkPaint* paint) {
+#ifdef SK_ENABLE_CANVAS_QUICKREJECT
     if (cull && this->quickReject(*cull)) {
         return;
     }
+#endif
 
     SkPaint pnt;
     if (paint) {
@@ -3097,9 +3124,11 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
         if (matrix) {
             matrix->mapRect(&bounds);
         }
+#ifdef SK_ENABLE_CANVAS_QUICKREJECT
         if (this->quickReject(bounds)) {
             return;
         }
+#endif
     }
 
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
@@ -3130,9 +3159,11 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
         if (matrix) {
             matrix->mapRect(&bounds);
         }
+#ifdef SK_ENABLE_CANVAS_QUICKREJECT
         if (this->quickReject(bounds)) {
             return;
         }
+#endif
     }
 
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
