@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "03837146_732da0cc",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2175,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-28T21:42:39Z",
+      "side": 1,
+      "message": "Could be expensive (this is why we need a diff primitive with cached bounds), so only do it when needed (for quickreject or imagefilters)",
+      "parentUuid": "710046dc_1be47e38",
+      "revId": "0db1dcc34d6e1c7c35a935f7f9474d5748478246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "92ccd3cb_3923c826",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "0db1dcc34d6e1c7c35a935f7f9474d5748478246",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "010f1790_bbb748ae",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2478,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-28T21:42:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92ccd3cb_3923c826",
+      "revId": "0db1dcc34d6e1c7c35a935f7f9474d5748478246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
