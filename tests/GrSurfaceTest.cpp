@@ -13,6 +13,7 @@
 #include "GrGpu.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
+#include "GrTextureProvider.h"
 #include "GrSurfacePriv.h"
 #include "Test.h"
 

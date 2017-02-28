@@ -18,6 +18,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrTextureAdjuster.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProvider.h"
 #include "GrTextureProxy.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
