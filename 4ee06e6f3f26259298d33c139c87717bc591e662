@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "79009429_a10a389a",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1179,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-28T00:06:56Z",
+      "side": 1,
+      "message": "It\u0027s a tiny element with 4-6 options max. This shouldn\u0027t be a perf burden.\n\nIf we are concerned about perf, maybe we ought to consider not updating the UI on every frame (i.e. paint the fps counter with canvas-\u003edrawText rather than going through the android framework to do the exact same thing).",
+      "parentUuid": "f5f846c6_0f9c7f6c",
+      "revId": "4ee06e6f3f26259298d33c139c87717bc591e662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ed63f4a_363f403b",
         "filename": "tools/viewer/Viewer.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "4ee06e6f3f26259298d33c139c87717bc591e662",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd3d1be5_7c2da225",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-28T00:06:56Z",
+      "side": 1,
+      "message": "Done. Good catch!",
+      "parentUuid": "0ed63f4a_363f403b",
+      "revId": "4ee06e6f3f26259298d33c139c87717bc591e662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
