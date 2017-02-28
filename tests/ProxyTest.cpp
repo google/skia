@@ -140,6 +140,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(
+                                                                                provider,
                                                                                 caps, desc,
                                                                                 fit, budgeted));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(sProxy));
@@ -172,7 +173,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                     tex.reset(provider->createTexture(desc, budgeted));
                                 }
 
-                                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(caps,
+                                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(provider,
+                                                                                          caps,
                                                                                           desc,
                                                                                           fit,
                                                                                           budgeted));

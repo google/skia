@@ -138,7 +138,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
         {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
             bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
-            sk_sp<GrSurfaceProxy> proxy1(GrSurfaceProxy::MakeDeferred(*context->caps(), desc,
+            sk_sp<GrSurfaceProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->textureProvider(),
+                                                                      *context->caps(), desc,
                                                                       SkBackingFit::kExact,
                                                                       SkBudgeted::kYes));
             sk_sp<GrTexture> texture2(
