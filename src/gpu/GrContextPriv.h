@@ -12,6 +12,7 @@
 #include "GrSurfaceContext.h"
 
 class GrSurfaceProxy;
+class GrPerFlushCallbackObject;
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
@@ -59,9 +60,15 @@ public:
 
     bool disableGpuYUVConversion() const { return fContext->fDisableGpuYUVConversion; }
 
+    /*
+     * A ref will be taken on the perFlushCallbackObject which will be removed when the
+     * context is destroyed.
+     */
+    void addPerFlushCallbackObject(sk_sp<GrPerFlushCallbackObject>);
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
-    GrContextPriv(const GrContextPriv&) {} // unimpl
+    GrContextPriv(const GrContextPriv&); // unimpl
     GrContextPriv& operator=(const GrContextPriv&); // unimpl
 
     // No taking addresses of this type.
