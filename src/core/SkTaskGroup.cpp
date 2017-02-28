@@ -35,7 +35,7 @@ void SkTaskGroup::wait() {
     // no thread ever blocks waiting for others to do its work.
     // (We may end up doing work that's not part of our task group.  That's fine.)
     while (fPending.load(std::memory_order_acquire) > 0) {
-        fExecutor.borrow();
+        // fExecutor.borrow();
     }
 }
 

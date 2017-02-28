@@ -20,6 +20,7 @@
 #include "SkScalar.h"
 #include "SkSize.h"
 #include "SkSurfaceProps.h"
+#include "SkTaskGroup.h"
 
 class SkDraw;
 class SkImageFilterCache;
@@ -36,6 +37,8 @@ struct SkPoint;
 ///////////////////////////////////////////////////////////////////////////////
 class SK_API SkBitmapDevice : public SkBaseDevice {
 public:
+    static const int kThread = 4;
+
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,
@@ -64,6 +67,8 @@ public:
 protected:
     bool onShouldDisableLCD(const SkPaint&) const override;
     void* getRasterHandle() const override { return fRasterHandle; }
+
+    void flush() override;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -114,7 +119,7 @@ protected:
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
@@ -136,6 +141,14 @@ protected:
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
     void validateDevBounds(const SkIRect& r) override;
 
+    ~SkBitmapDevice() {
+        // SkDebugf("~SkBitmapDevice fEnabler = %x, fTasks = %x\n", fEnabler, fTasks); // TODO TEST
+        for(int i = 0; i < kThread; ++i) {
+            delete fTasks[i];
+        }
+        // delete fThreadPool;
+    }
+
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
@@ -155,6 +168,11 @@ private:
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
     SkImageFilterCache* getImageFilterCache() override;
+
+    std::unique_ptr<SkExecutor> fThreadPools[kThread];
+    SkTaskGroup* fTasks[kThread];
+    SkIRect fThreadRects[kThread];
+    int fDrawCnt;
 
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;

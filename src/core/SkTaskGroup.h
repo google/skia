@@ -17,7 +17,10 @@ class SkTaskGroup : SkNoncopyable {
 public:
     // Tasks added to this SkTaskGroup will run on its executor.
     explicit SkTaskGroup(SkExecutor& executor = SkExecutor::GetDefault());
-    ~SkTaskGroup() { this->wait(); }
+    ~SkTaskGroup() {
+        // SkDebugf("~SkTaskGroup this = %x\n", this); // TODO TEST
+        this->wait();
+    }
 
     // Add a task to this SkTaskGroup.
     void add(std::function<void(void)> fn);

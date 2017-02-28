@@ -50,6 +50,7 @@ void SkExecutor::SetDefault(SkExecutor* executor) {
 class SkThreadPool final : public SkExecutor {
 public:
     explicit SkThreadPool(int threads) {
+        fIndex = 0;
         for (int i = 0; i < threads; i++) {
             fThreads.emplace_back(new SkThread(&Loop, this));
             fThreads.back()->start();
@@ -78,6 +79,7 @@ public:
     }
 
     virtual void borrow() override {
+        // SkDebugf("SkThreadPool::borrow\n"); // TODO TEST
         // If there is work waiting, do it.
         if (fWorkAvailable.try_wait()) {
             SkAssertResult(this->do_work());
@@ -90,9 +92,9 @@ private:
         std::function<void(void)> work;
         {
             SkAutoExclusive lock(fWorkLock);
-            SkASSERT(!fWork.empty());        // TODO: if (fWork.empty()) { return true; } ?
-            work = std::move(fWork.back());
-            fWork.pop_back();
+            if (fIndex < fWork.count()) {
+                work = fWork[fIndex++];
+            }
         }
 
         if (!work) {
@@ -106,6 +108,7 @@ private:
     static void Loop(void* ctx) {
         auto pool = (SkThreadPool*)ctx;
         do {
+            // SkDebugf("SkThreadPool::Loop do\n"); // TODO TEST
             pool->fWorkAvailable.wait();
         } while (pool->do_work());
     }
@@ -117,6 +120,7 @@ private:
     SkTArray<std::function<void(void)>> fWork;
     Lock                                fWorkLock;
     SkSemaphore                         fWorkAvailable;
+    int                                 fIndex;
 };
 
 std::unique_ptr<SkExecutor> SkExecutor::MakeThreadPool(int threads) {

@@ -21,6 +21,8 @@
 #include "SkSpecialImage.h"
 #include "SkSurface.h"
 
+#define USE_TASKS_FOR_DRAWING
+
 class SkColorTable;
 
 static bool valid_for_bitmap_device(const SkImageInfo& info,
@@ -74,6 +76,15 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
+    int width = bitmap.width();
+    int height = bitmap.height();
+    int threadHeight = (height + kThread - 1) / kThread;
+    for(int i = 0; i < kThread; ++i) {
+        fThreadPools[i] = SkExecutor::MakeThreadPool(1);
+        fTasks[i] = new SkTaskGroup(*fThreadPools[i]);
+        fThreadRects[i] = SkIRect::MakeLTRB(0, threadHeight * i, width, threadHeight * (i + 1));
+    }
+    fDrawCnt = 0;
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
@@ -89,6 +100,15 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
+    int width = bitmap.width();
+    int height = bitmap.height();
+    int threadHeight = (height + kThread - 1) / kThread;
+    for(int i = 0; i < kThread; ++i) {
+        fThreadPools[i] = SkExecutor::MakeThreadPool(1);
+        fTasks[i] = new SkTaskGroup(*fThreadPools[i]);
+        fThreadRects[i] = SkIRect::MakeLTRB(0, threadHeight * i, width, threadHeight * (i + 1));
+    }
+    fDrawCnt = 0;
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
@@ -190,10 +210,20 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct DrawState {
+    SkPixmap        fPixmap;
+    SkRasterClip    fClip;
+    SkMatrix        fCTM;
+
+    DrawState(const SkDraw& draw) : fPixmap(draw.fDst), fClip(*draw.fRC), fCTM(*draw.fMatrix)
+    {}
+};
+
 #ifdef SK_USE_DEVICE_CLIPPING
 class ModifiedDraw : public SkDraw {
 public:
     ModifiedDraw(const SkMatrix& cmt, const SkRasterClip& rc, const SkDraw& draw) : SkDraw(draw) {
+        // SkDebugf("ModifiedDraw\n"); // TODO TEST
         SkASSERT(cmt == *draw.fMatrix);
         fRC = &rc;
     }
@@ -204,7 +234,36 @@ public:
 #endif
 
 void SkBitmapDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
+#ifdef USE_TASKS_FOR_DRAWING
+    DrawState ds(draw);
+    // SkDebugf("SkBitmapDevice::drawPaint fTasks = %x\n", fTasks); // TODO TEST
+    int myCnt = fDrawCnt++;
+    for(int tid = 0; tid < kThread; ++tid) {
+        SkIRect rect = fThreadRects[tid];
+        fTasks[tid]->add([ds, paint, myCnt, rect](){
+            // SkDebugf("Threaded drawPaint %d\n", myCnt); // TODO TEST
+            SkDraw d = {};
+            d.fDst = ds.fPixmap;
+            d.fRC = &ds.fClip;
+            d.fMatrix = &ds.fCTM;
+            SkRasterClip clip = ds.fClip;
+            clip.op(rect, SkRegion::kIntersect_Op);
+            d.fRC = &clip;
+            d.drawPaint(paint);
+            // SkDebugf("Threaded drawPaint %d ended\n", myCnt); // TODO TEST
+        });
+    }
+    return;
+#endif
     PREPARE_DRAW(draw).drawPaint(paint);
+}
+
+void SkBitmapDevice::flush() {
+#ifdef USE_TASKS_FOR_DRAWING
+    // SkDebugf("SkBitmapDevice::flush fTasks = %x\n", fTasks); // TODO TEST
+    for(int i = 0; i < kThread; ++i)
+        fTasks[i]->wait();
+#endif
 }
 
 void SkBitmapDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
@@ -213,6 +272,28 @@ void SkBitmapDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, si
 }
 
 void SkBitmapDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
+#ifdef USE_TASKS_FOR_DRAWING
+    DrawState ds(draw);
+    int myCnt = fDrawCnt++;
+    for(int tid = 0; tid < kThread; ++tid) {
+        if (!SkIRect::Intersects(r.roundOut(), fThreadRects[tid])) {
+            continue;
+        }
+        SkIRect rect = fThreadRects[tid];
+        fTasks[tid]->add([ds, r, paint, myCnt, rect](){
+            // SkDebugf("Threaded drawRect %d\n", myCnt); // TODO TEST
+            SkDraw d = {};
+            d.fDst = ds.fPixmap;
+            SkRasterClip clip = ds.fClip;
+            clip.op(rect, SkRegion::kIntersect_Op);
+            d.fRC = &clip;
+            d.fMatrix = &ds.fCTM;
+            d.drawRect(r, paint);
+            // SkDebugf("Threaded drawRect %d ended\n", myCnt); // TODO TEST
+        });
+    }
+    return;
+#endif
     PREPARE_DRAW(draw).drawRect(r, paint);
 }
 
@@ -233,6 +314,21 @@ void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const S
     // required to override drawRRect.
     this->drawPath(draw, path, paint, nullptr, true);
 #else
+#ifdef USE_TASKS_FOR_DRAWING
+    DrawState ds(draw);
+    // SkDebugf("SkBitmapDevice::drawPath fTasks = %x\n", fTasks); // TODO TEST
+    int myCnt = fDrawCnt++;
+    fTasks[0]->add([ds, rrect, paint, myCnt](){
+        // SkDebugf("Threaded rrect %d\n", myCnt); // TODO TEST
+        SkDraw d = {};
+        d.fDst = ds.fPixmap;
+        d.fRC = &ds.fClip;
+        d.fMatrix = &ds.fCTM;
+        d.drawRRect(rrect, paint);
+        // SkDebugf("Threaded drawRRect %d ended\n", myCnt); // TODO TEST
+    });
+    return;
+#endif
     PREPARE_DRAW(draw).drawRRect(rrect, paint);
 #endif
 }
@@ -240,6 +336,30 @@ void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const S
 void SkBitmapDevice::drawPath(const SkDraw& draw, const SkPath& path,
                               const SkPaint& paint, const SkMatrix* prePathMatrix,
                               bool pathIsMutable) {
+#ifdef USE_TASKS_FOR_DRAWING
+    DrawState ds(draw);
+    // SkDebugf("SkBitmapDevice::drawPath fTasks = %x\n", fTasks); // TODO TEST
+    int myCnt = fDrawCnt++;
+    for(int tid = 0; tid < kThread; ++tid) {
+        if (!SkIRect::Intersects(path.getBounds().roundOut(), fThreadRects[tid])) {
+            continue;
+        }
+        SkIRect rect = fThreadRects[tid];
+        fTasks[tid]->add([ds, path, paint, pathIsMutable, myCnt, rect](){
+            // SkDebugf("Threaded drawPath %d\n", myCnt); // TODO TEST
+            SkDraw d = {};
+            d.fDst = ds.fPixmap;
+            d.fRC = &ds.fClip;
+            d.fMatrix = &ds.fCTM;
+            SkRasterClip clip = ds.fClip;
+            clip.op(rect, SkRegion::kIntersect_Op);
+            d.fRC = &clip;
+            d.drawPath(path, paint, nullptr, pathIsMutable);
+            // SkDebugf("Threaded drawPath %d ended\n", myCnt); // TODO TEST
+        });
+    }
+    return;
+#endif
     PREPARE_DRAW(draw).drawPath(path, paint, prePathMatrix, pathIsMutable);
 }
 

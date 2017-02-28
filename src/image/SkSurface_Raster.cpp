@@ -131,6 +131,7 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
 }
 
 sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(SkBudgeted) {
+    SkDebugf("SkSurface_Raster::onNewImageSnapshot"); // TODO TEST
     SkCopyPixelsMode cpm = kIfMutable_SkCopyPixelsMode;
     if (fWeOwnThePixels) {
         // SkImage_raster requires these pixels are immutable for its full lifetime.
@@ -141,6 +142,8 @@ sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(SkBudgeted) {
     } else {
         cpm = kAlways_SkCopyPixelsMode;
     }
+
+    this->getCachedCanvas()->flush();
 
     // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
     // Lock the shared pixel ref to ensure peekPixels() is usable.
