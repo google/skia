@@ -42,15 +42,6 @@ enum class Attrib : uint8_t {
 };
 constexpr int kNumAttribs = 1 + (int)Attrib::kLocalRect;
 
-// TODO: replace with GrAAType?
-enum class AntialiasMode : uint8_t {
-    kNone,
-    kCoverage,
-    kMSAA,
-    kMixedSamples
-};
-constexpr int kNumAntialiasModes = 1 + (int)AntialiasMode::kMixedSamples;
-
 enum class ShapeType : uint8_t {
     kRect,
     kOval,
@@ -135,7 +126,7 @@ struct OpInfo {
 
     union {
         struct {
-            AntialiasMode   fAntialiasMode;
+            GrAAType        fAAType                       : 8;
             uint8_t         fShapeTypes;
             uint8_t         fInnerShapeTypes;
             bool            fHasPerspective               : 1;
@@ -151,7 +142,7 @@ struct OpInfo {
 };
 
 inline bool OpInfo::CanCombine(const OpInfo& a, const OpInfo& b) {
-    if (a.fAntialiasMode != b.fAntialiasMode) {
+    if (a.fAAType != b.fAAType) {
         return false;
     }
     if (SkToBool(a.fInnerShapeTypes) != SkToBool(b.fInnerShapeTypes)) {
