@@ -312,6 +312,21 @@ sk_sp<SkColorSpace> SkColorSpace_Base::makeWithoutFlags() {
     return SkColorSpace::MakeRGB(fn, *this->toXYZD50(), 0);
 }
 
+sk_sp<SkColorSpace> SkColorSpace_Base::makeWithNonLinearBlending() {
+    if (SkToBool(SkColorSpace::kNonLinearBlending_ColorSpaceFlag & fFlags)) {
+        return sk_ref_sp(this);
+    }
+
+    // This should only be called on XYZ color spaces.  A2B color spaces are never
+    // allowed to be destinations - which means that this flag does not make any
+    // sense for them.
+    SkASSERT(Type::kXYZ == this->type());
+    SkColorSpaceTransferFn fn;
+    SkAssertResult(this->onIsNumericalTransferFn(&fn));
+    return SkColorSpace::MakeRGB(fn, *this->toXYZD50(),
+                                 SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum Version {
