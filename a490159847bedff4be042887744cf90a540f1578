@@ -87,6 +87,30 @@
       "revId": "a490159847bedff4be042887744cf90a540f1578",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e40fec78_a762e755",
+        "filename": "src/core/SkLiteDL.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-01T18:56:28Z",
+      "side": 1,
+      "message": "Why don\u0027t we pass the rect into SkLiteRecorder::reset() instead?  No need for the SkLiteDL to carry it around, or even know about it.",
+      "parentUuid": "ede1dfa7_cef59251",
+      "range": {
+        "startLine": 98,
+        "startChar": 27,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "a490159847bedff4be042887744cf90a540f1578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
