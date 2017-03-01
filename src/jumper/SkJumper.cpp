@@ -287,12 +287,12 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     }
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    if (1 && SkCpu::Supports(SkCpu::HSW)) {
+    if (0 && SkCpu::Supports(SkCpu::HSW)) {
         if (!build_and_run(8, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
             return false;
         }
     }
-    if (1 && SkCpu::Supports(SkCpu::AVX)) {
+    if (0 && SkCpu::Supports(SkCpu::AVX)) {
         if (!build_and_run(8, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
             return false;
         }
