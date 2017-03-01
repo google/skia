@@ -74,8 +74,7 @@ protected:
         return new EmptyLocalizedStrings;
     }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                     int coordinateCount) const override
-    {
+                                     int coordinateCount) const override {
         return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
