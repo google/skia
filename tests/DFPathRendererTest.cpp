@@ -18,8 +18,7 @@
 // Because of inaccuracies in large floating point values this causes the
 // the path renderer to attempt to add a path DF to its atlas that is larger
 // than the plot size which used to crash rather than fail gracefully.
-static void test_far_from_origin(GrResourceProvider* rp,
-                                 GrRenderTargetContext* renderTargetContext,
+static void test_far_from_origin(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
                                  GrPathRenderer* pr) {
     SkPath path;
     path.lineTo(49.0255089839f, 0.473541f);
@@ -47,7 +46,7 @@ static void test_far_from_origin(GrResourceProvider* rp,
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
     GrNoClip noClip;
-    GrPathRenderer::DrawPathArgs args{rp,
+    GrPathRenderer::DrawPathArgs args{ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
@@ -78,7 +77,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) 
     GrAADistanceFieldPathRenderer dfpr;
 
     ctx->flush();
-    test_far_from_origin(ctx->resourceProvider(), rtc.get(), &dfpr);
+    test_far_from_origin(ctx, rtc.get(), &dfpr);
     ctx->flush();
 }
 #endif

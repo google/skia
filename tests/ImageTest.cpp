@@ -507,7 +507,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
 
             sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get()));
             if (!texImage) {
-                // We execpt to fail if image comes from a different GrContext.
+                // We expect to fail if image comes from a different GrContext.
                 if (!origTexture || origTexture->getContext() == context) {
                     ERRORF(reporter, "makeTextureImage failed.");
                 }

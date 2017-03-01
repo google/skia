@@ -1496,7 +1496,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     paint.setCoverageSetOpXPFactory(op, invert);
 
     GrPathRenderer::DrawPathArgs args{
-            fRenderTargetContext->drawingManager()->getContext()->resourceProvider(),
+            fRenderTargetContext->drawingManager()->getContext(),
             std::move(paint),
             ss,
             fRenderTargetContext,
@@ -1593,7 +1593,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
         return;
     }
 
-    GrPathRenderer::DrawPathArgs args{this->drawingManager()->getContext()->resourceProvider(),
+    GrPathRenderer::DrawPathArgs args{this->drawingManager()->getContext(),
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       this,
