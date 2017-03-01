@@ -530,6 +530,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     if (glVer >= GR_GL_VER(3, 2) || extensions.has("GL_ARB_sync")) {
         GET_PROC(FenceSync);
         GET_PROC(ClientWaitSync);
+        GET_PROC(WaitSync);
         GET_PROC(DeleteSync);
     }
 
@@ -937,6 +938,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(FenceSync);
         GET_PROC(ClientWaitSync);
+        GET_PROC(WaitSync);
         GET_PROC(DeleteSync);
     }
 

@@ -768,6 +768,7 @@ bool GrGLInterface::validate() const {
         if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_sync")) {
             if (nullptr == fFunctions.fFenceSync ||
                 nullptr == fFunctions.fClientWaitSync ||
+                nullptr == fFunctions.fWaitSync ||
                 nullptr == fFunctions.fDeleteSync) {
                 RETURN_FALSE_INTERFACE
             }
@@ -776,6 +777,7 @@ bool GrGLInterface::validate() const {
         if (glVer >= GR_GL_VER(3, 0)) {
             if (nullptr == fFunctions.fFenceSync ||
                 nullptr == fFunctions.fClientWaitSync ||
+                nullptr == fFunctions.fWaitSync ||
                 nullptr == fFunctions.fDeleteSync) {
                 RETURN_FALSE_INTERFACE
             }
