@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e0275bf_924561ba",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-01T18:55:13Z",
+      "side": 1,
+      "message": "Can probably delete a few spaces  now.",
+      "range": {
+        "startLine": 776,
+        "startChar": 31,
+        "endLine": 776,
+        "endChar": 38
+      },
+      "revId": "a07474960c1c4088530992f92f340330f9451382",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdc437be_b752b24f",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-01T18:55:13Z",
+      "side": 1,
+      "message": "We should probably add a unit test for this?",
+      "range": {
+        "startLine": 779,
+        "startChar": 4,
+        "endLine": 779,
+        "endChar": 43
+      },
+      "revId": "a07474960c1c4088530992f92f340330f9451382",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

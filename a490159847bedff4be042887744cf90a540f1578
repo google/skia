@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "5cf7fd12_03d10d79",
+        "filename": "src/core/SkLiteDL.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-01T18:55:13Z",
+      "side": 1,
+      "message": "Best to make this explicit if we keep the bounds parameter.",
+      "revId": "a490159847bedff4be042887744cf90a540f1578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f43c72f6_cdf32a0a",
         "filename": "src/core/SkLiteDL.h",
         "patchSetId": 1
@@ -36,6 +53,30 @@
       "writtenOn": "2017-03-01T18:53:47Z",
       "side": 1,
       "message": "Not in the short term.  It is used by the SkLiteRecorder which needs it to supply a width/height to the canvas.",
+      "parentUuid": "f43c72f6_cdf32a0a",
+      "range": {
+        "startLine": 98,
+        "startChar": 27,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "a490159847bedff4be042887744cf90a540f1578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ede1dfa7_cef59251",
+        "filename": "src/core/SkLiteDL.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-01T18:55:13Z",
+      "side": 1,
+      "message": "Right, as far as I can remember it\u0027s only here to satisfy the SkDrawable interface.",
       "parentUuid": "f43c72f6_cdf32a0a",
       "range": {
         "startLine": 98,
