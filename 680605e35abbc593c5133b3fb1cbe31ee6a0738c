@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa32ecc0_4260e986",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-01T00:12:23Z",
+      "side": 1,
+      "message": "Should be in lex.layout.h?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 0
+      },
+      "revId": "680605e35abbc593c5133b3fb1cbe31ee6a0738c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27be1eaa_ac89981b",
+        "filename": "src/sksl/SkSLToken.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-01T00:12:23Z",
+      "side": 1,
+      "message": "Why not INPUT_ATTACHMENT_INDEX, etc.?",
+      "range": {
+        "startLine": 117,
+        "startChar": 8,
+        "endLine": 117,
+        "endChar": 28
+      },
+      "revId": "680605e35abbc593c5133b3fb1cbe31ee6a0738c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31ffc899_b1592a10",
+        "filename": "src/sksl/layout.flex",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-01T00:12:23Z",
+      "side": 1,
+      "message": "just wondering -- shouldn\u0027t this file have a copyright notice also?",
+      "range": {
+        "startLine": 11,
+        "startChar": 36,
+        "endLine": 11,
+        "endChar": 52
+      },
+      "revId": "680605e35abbc593c5133b3fb1cbe31ee6a0738c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
