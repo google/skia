@@ -15,7 +15,7 @@ class SkLiteDL;
 class SkLiteRecorder final : public SkNoDrawCanvas {
 public:
     SkLiteRecorder();
-    void reset(SkLiteDL*);
+    void reset(SkLiteDL*, const SkIRect& bounds);
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 

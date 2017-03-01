@@ -13,8 +13,8 @@ SkLiteRecorder::SkLiteRecorder()
     : INHERITED(1, 1)
     , fDL(nullptr) {}
 
-void SkLiteRecorder::reset(SkLiteDL* dl) {
-    this->resetForNextPicture(dl->getBounds().roundOut());
+void SkLiteRecorder::reset(SkLiteDL* dl, const SkIRect& bounds) {
+    this->resetForNextPicture(bounds);
     fDL = dl;
 }
 
