@@ -21,6 +21,8 @@ class SkString;
     SkMatrix does not have a constructor, so it must be explicitly initialized
     using either reset() - to construct an identity matrix, or one of the set
     functions (e.g. setTranslate, setRotate, etc.).
+
+    SkMatrix is not thread safe unless you've first called SkMatrix::getType().
 */
 SK_BEGIN_REQUIRE_DENSE
 class SK_API SkMatrix {
