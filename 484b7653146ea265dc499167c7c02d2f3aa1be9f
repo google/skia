@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ce23e8e_dd4ff019",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1856,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-01T18:38:31Z",
+      "side": 1,
+      "message": "I don\u0027t think this is the right heuristic, but it\u0027s a start.",
+      "range": {
+        "startLine": 1852,
+        "startChar": 12,
+        "endLine": 1856,
+        "endChar": 13
+      },
+      "revId": "484b7653146ea265dc499167c7c02d2f3aa1be9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
