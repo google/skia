@@ -63,6 +63,7 @@ void RasterWindowContext_xlib::swapBuffers() {
     }
     int bitsPerPixel = pm.info().bytesPerPixel() * 8;
     XImage image;
+    memset(&image, 0, sizeof(image));
     image.width = pm.width();
     image.height = pm.height();
     image.format = ZPixmap;
