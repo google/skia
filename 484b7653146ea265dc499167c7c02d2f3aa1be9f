@@ -46,6 +46,30 @@
       "revId": "484b7653146ea265dc499167c7c02d2f3aa1be9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32648449_4b423010",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1856,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-01T19:00:40Z",
+      "side": 1,
+      "message": "Like, if we expect these to draw the same as reference mode, why wouldn\u0027t the client just use reference mode?",
+      "parentUuid": "8ebfc9c2_1eb08680",
+      "range": {
+        "startLine": 1852,
+        "startChar": 12,
+        "endLine": 1856,
+        "endChar": 13
+      },
+      "revId": "484b7653146ea265dc499167c7c02d2f3aa1be9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
