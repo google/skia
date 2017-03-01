@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97ec62c5_25e10752",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1041,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-01T15:40:21Z",
+      "side": 1,
+      "message": "Nit: I didn\u0027t notice this before, but this should be kTessellating",
+      "range": {
+        "startLine": 1041,
+        "startChar": 51,
+        "endLine": 1041,
+        "endChar": 63
+      },
+      "revId": "b2461eb4cad55207c58bd4de7866e252339e3aed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
