@@ -110,9 +110,6 @@ def dm_flags(bot):
   if 'Vulkan' not in bot or 'NexusPlayer' not in bot:
     args.append('svg')
 
-  if 'GalaxyS' in bot:
-    args.extend(('--threads', '0'))
-
   blacklisted = []
   def blacklist(quad):
     config, src, options, name = quad.split(' ') if type(quad) is str else quad
