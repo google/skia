@@ -67,8 +67,8 @@ InstanceProcessor::InstanceProcessor(OpInfo opInfo, GrBuffer* paramsBuffer) : fO
         this->addBufferAccess(&fParamsAccess);
     }
 
-    if (fOpInfo.fAntialiasMode >= AntialiasMode::kMSAA) {
-        if (!fOpInfo.isSimpleRects() || AntialiasMode::kMixedSamples == fOpInfo.fAntialiasMode) {
+    if (GrAATypeIsHW(fOpInfo.aaType())) {
+        if (!fOpInfo.isSimpleRects() || GrAAType::kMixedSamples == fOpInfo.aaType()) {
             this->setWillUseSampleLocations();
         }
     }
@@ -1076,7 +1076,7 @@ public:
     }
 
 private:
-    bool isMixedSampled() const { return AntialiasMode::kMixedSamples == fOpInfo.fAntialiasMode; }
+    bool isMixedSampled() const { return GrAAType::kMixedSamples == fOpInfo.aaType(); }
 
     void onInit(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*) override;
     void setupRect(GrGLSLVertexBuilder*) override;
@@ -1673,15 +1673,15 @@ void GLSLInstanceProcessor::BackendMultisample::acceptCoverageMask(GrGLSLPPFragm
 GLSLInstanceProcessor::Backend* GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline,
                                                                        OpInfo opInfo,
                                                                        const VertexInputs& inputs) {
-    switch (opInfo.fAntialiasMode) {
+    switch (opInfo.aaType()) {
         default:
             SkFAIL("Unexpected antialias mode.");
-        case AntialiasMode::kNone:
+        case GrAAType::kNone:
             return new BackendNonAA(opInfo, inputs);
-        case AntialiasMode::kCoverage:
+        case GrAAType::kCoverage:
             return new BackendCoverage(opInfo, inputs);
-        case AntialiasMode::kMSAA:
-        case AntialiasMode::kMixedSamples: {
+        case GrAAType::kMSAA:
+        case GrAAType::kMixedSamples: {
             const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
             const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
             return new BackendMultisample(opInfo, inputs, specs.fEffectiveSampleCnt);
@@ -2027,60 +2027,50 @@ const GrBuffer* InstanceProcessor::FindOrCreateIndex8Buffer(GrGpu* gpu) {
     return nullptr;
 }
 
-IndexRange InstanceProcessor::GetIndexRangeForRect(AntialiasMode aa) {
-    static constexpr IndexRange kRectRanges[kNumAntialiasModes] = {
-        {kRect_FirstIndex,        3 * kRect_TriCount},        // kNone
-        {kFramedRect_FirstIndex,  3 * kFramedRect_TriCount},  // kCoverage
-        {kRect_FirstIndex,        3 * kRect_TriCount},        // kMSAA
-        {kRect_FirstIndex,        3 * kRect_TriCount}         // kMixedSamples
-    };
-
-    SkASSERT(aa >= AntialiasMode::kNone && aa <= AntialiasMode::kMixedSamples);
-    return kRectRanges[(int)aa];
-
-    GR_STATIC_ASSERT(0 == (int)AntialiasMode::kNone);
-    GR_STATIC_ASSERT(1 == (int)AntialiasMode::kCoverage);
-    GR_STATIC_ASSERT(2 == (int)AntialiasMode::kMSAA);
-    GR_STATIC_ASSERT(3 == (int)AntialiasMode::kMixedSamples);
+IndexRange InstanceProcessor::GetIndexRangeForRect(GrAAType aaType) {
+    switch (aaType) {
+        case GrAAType::kCoverage:
+            return {kFramedRect_FirstIndex, 3 * kFramedRect_TriCount};
+        case GrAAType::kNone:
+        case GrAAType::kMSAA:
+        case GrAAType::kMixedSamples:
+            return {kRect_FirstIndex, 3 * kRect_TriCount};
+    }
+    SkFAIL("Unexpected aa type!");
+    return {0, 0};
 }
 
-IndexRange InstanceProcessor::GetIndexRangeForOval(AntialiasMode aa, const SkRect& devBounds) {
-    if (AntialiasMode::kCoverage == aa && devBounds.height() * devBounds.width() >= 256 * 256) {
+IndexRange InstanceProcessor::GetIndexRangeForOval(GrAAType aaType, const SkRect& devBounds) {
+    if (GrAAType::kCoverage == aaType && devBounds.height() * devBounds.width() >= 256 * 256) {
         // This threshold was chosen quasi-scientifically on Tegra X1.
         return {kDisjoint16Gons_FirstIndex, 3 * kDisjoint16Gons_TriCount};
     }
 
-    static constexpr IndexRange kOvalRanges[kNumAntialiasModes] = {
-        {kOctagons_FirstIndex,          3 * kOctagons_TriCount},          // kNone
-        {kDisjointOctagons_FirstIndex,  3 * kDisjointOctagons_TriCount},  // kCoverage
-        {kOctagons_FirstIndex,          3 * kOctagons_TriCount},          // kMSAA
-        {kOctagonsFanned_FirstIndex,    3 * kOctagonsFanned_TriCount}     // kMixedSamples
-    };
-
-    SkASSERT(aa >= AntialiasMode::kNone && aa <= AntialiasMode::kMixedSamples);
-    return kOvalRanges[(int)aa];
-
-    GR_STATIC_ASSERT(0 == (int)AntialiasMode::kNone);
-    GR_STATIC_ASSERT(1 == (int)AntialiasMode::kCoverage);
-    GR_STATIC_ASSERT(2 == (int)AntialiasMode::kMSAA);
-    GR_STATIC_ASSERT(3 == (int)AntialiasMode::kMixedSamples);
+    switch (aaType) {
+        case GrAAType::kNone:
+        case GrAAType::kMSAA:
+            return {kOctagons_FirstIndex, 3 * kOctagons_TriCount};
+        case GrAAType::kCoverage:
+            return {kDisjointOctagons_FirstIndex, 3 * kDisjointOctagons_TriCount};
+        case GrAAType::kMixedSamples:
+            return {kOctagonsFanned_FirstIndex, 3 * kOctagonsFanned_TriCount};
+    }
+    SkFAIL("Unexpected aa type!");
+    return {0, 0};
 }
 
-IndexRange InstanceProcessor::GetIndexRangeForRRect(AntialiasMode aa) {
-    static constexpr IndexRange kRRectRanges[kNumAntialiasModes] = {
-        {kCorneredRect_FirstIndex,        3 * kCorneredRect_TriCount},        // kNone
-        {kCorneredFramedRect_FirstIndex,  3 * kCorneredFramedRect_TriCount},  // kCoverage
-        {kCorneredRect_FirstIndex,        3 * kCorneredRect_TriCount},        // kMSAA
-        {kCorneredRectFanned_FirstIndex,  3 * kCorneredRectFanned_TriCount}   // kMixedSamples
-    };
-
-    SkASSERT(aa >= AntialiasMode::kNone && aa <= AntialiasMode::kMixedSamples);
-    return kRRectRanges[(int)aa];
-
-    GR_STATIC_ASSERT(0 == (int)AntialiasMode::kNone);
-    GR_STATIC_ASSERT(1 == (int)AntialiasMode::kCoverage);
-    GR_STATIC_ASSERT(2 == (int)AntialiasMode::kMSAA);
-    GR_STATIC_ASSERT(3 == (int)AntialiasMode::kMixedSamples);
+IndexRange InstanceProcessor::GetIndexRangeForRRect(GrAAType aaType) {
+    switch (aaType) {
+        case GrAAType::kNone:
+        case GrAAType::kMSAA:
+            return {kCorneredRect_FirstIndex, 3 * kCorneredRect_TriCount};
+        case GrAAType::kCoverage:
+            return {kCorneredFramedRect_FirstIndex, 3 * kCorneredFramedRect_TriCount};
+        case GrAAType::kMixedSamples:
+            return {kCorneredRectFanned_FirstIndex, 3 * kCorneredRectFanned_TriCount};
+    }
+    SkFAIL("Unexpected aa type!");
+    return {0, 0};
 }
 
 const char* InstanceProcessor::GetNameOfIndexRange(IndexRange range) {

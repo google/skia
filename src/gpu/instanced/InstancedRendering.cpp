@@ -113,21 +113,20 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
         return nullptr;
     }
 
-    AntialiasMode antialiasMode;
-    if (!this->selectAntialiasMode(viewMatrix, aa, info, aaType, &antialiasMode)) {
+    if (!this->selectAntialiasMode(viewMatrix, aa, info, aaType)) {
         return nullptr;
     }
 
     std::unique_ptr<Op> op = this->makeOp();
-    op->fInfo.fAntialiasMode = antialiasMode;
+    op->fInfo.setAAType(*aaType);
     op->fInfo.fShapeTypes = GetShapeFlag(type);
     op->fInfo.fCannotDiscard = !info.fCanDiscard;
 
     Instance& instance = op->getSingleInstance();
     instance.fInfo = (int)type << kShapeType_InfoBit;
 
-    Op::HasAABloat aaBloat = (antialiasMode == AntialiasMode::kCoverage) ? Op::HasAABloat::kYes
-                                                                         : Op::HasAABloat::kNo;
+    Op::HasAABloat aaBloat =
+            (*aaType == GrAAType::kCoverage) ? Op::HasAABloat::kYes : Op::HasAABloat::kNo;
     Op::IsZeroArea zeroArea = (bounds.isEmpty()) ? Op::IsZeroArea::kYes : Op::IsZeroArea::kNo;
 
     // The instanced shape renderer draws rectangles of [-1, -1, +1, +1], so we find the matrix that
@@ -199,8 +198,7 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
 
 inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa,
                                                     const GrInstancedPipelineInfo& info,
-                                                    GrAAType* aaType,
-                                                    AntialiasMode* antialiasMode) {
+                                                    GrAAType* aaType) {
     SkASSERT(!info.fColorDisabled || info.fDrawingShapeToStencil);
     SkASSERT(!info.fIsMixedSampled || info.fIsMultisampled);
     SkASSERT(GrCaps::InstancedSupport::kNone != fGpu->caps()->instancedSupport());
@@ -211,13 +209,11 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
                 // We can't draw to the stencil buffer without discard (or sample mask if MSAA).
                 return false;
             }
-            *antialiasMode = AntialiasMode::kNone;
             *aaType = GrAAType::kNone;
             return true;
         }
 
         if (info.canUseCoverageAA() && viewMatrix.preservesRightAngles()) {
-            *antialiasMode = AntialiasMode::kCoverage;
             *aaType = GrAAType::kCoverage;
             return true;
         }
@@ -226,12 +222,10 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
     if (info.fIsMultisampled &&
         fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMultisampled) {
         if (!info.fIsMixedSampled || info.fColorDisabled) {
-            *antialiasMode = AntialiasMode::kMSAA;
             *aaType = GrAAType::kMSAA;
             return true;
         }
         if (fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMixedSampled) {
-            *antialiasMode = AntialiasMode::kMixedSamples;
             *aaType = GrAAType::kMixedSamples;
             return true;
         }
@@ -344,9 +338,8 @@ void InstancedRendering::Op::getFragmentProcessorAnalysisInputs(
         FragmentProcessorAnalysisInputs* input) const {
     input->colorInput()->setToConstant(this->getSingleInstance().fColor);
 
-    if (AntialiasMode::kCoverage == fInfo.fAntialiasMode ||
-        (AntialiasMode::kNone == fInfo.fAntialiasMode &&
-         !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
+    if (GrAAType::kCoverage == fInfo.aaType() ||
+        (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
         input->coverageInput()->setToUnknown();
     } else {
         input->coverageInput()->setToSolidCoverage();
@@ -361,12 +354,11 @@ void InstancedRendering::Op::applyPipelineOptimizations(
     SkASSERT(!fIsTracked);
 
     if (kRect_ShapeFlag == fInfo.fShapeTypes) {
-        draw.fGeometry = InstanceProcessor::GetIndexRangeForRect(fInfo.fAntialiasMode);
+        draw.fGeometry = InstanceProcessor::GetIndexRangeForRect(fInfo.aaType());
     } else if (kOval_ShapeFlag == fInfo.fShapeTypes) {
-        draw.fGeometry = InstanceProcessor::GetIndexRangeForOval(fInfo.fAntialiasMode,
-                                                                 this->bounds());
+        draw.fGeometry = InstanceProcessor::GetIndexRangeForOval(fInfo.aaType(), this->bounds());
     } else {
-        draw.fGeometry = InstanceProcessor::GetIndexRangeForRRect(fInfo.fAntialiasMode);
+        draw.fGeometry = InstanceProcessor::GetIndexRangeForRRect(fInfo.aaType());
     }
 
     if (!fParams.empty()) {
