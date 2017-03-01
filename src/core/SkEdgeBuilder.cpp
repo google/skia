@@ -12,10 +12,6 @@
 #include "SkLineClipper.h"
 #include "SkGeometry.h"
 
-template <typename T> static T* typedAllocThrow(SkChunkAlloc& alloc) {
-    return static_cast<T*>(alloc.allocThrow(sizeof(T)));
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkEdgeBuilder::SkEdgeBuilder() : fAlloc(16*1024) {
@@ -125,7 +121,7 @@ bool SkEdgeBuilder::vertical_line(const SkAnalyticEdge* edge) {
 
 void SkEdgeBuilder::addLine(const SkPoint pts[]) {
     if (fAnalyticAA) {
-        SkAnalyticEdge* edge = typedAllocThrow<SkAnalyticEdge>(fAlloc);
+        SkAnalyticEdge* edge = fAlloc.make<SkAnalyticEdge>();
         if (edge->setLine(pts[0], pts[1])) {
             if (vertical_line(edge) && fList.count()) {
                 Combine combine = CombineVertical(edge, (SkAnalyticEdge*)*(fList.end() - 1));
@@ -143,7 +139,7 @@ unallocate_analytic_edge:
             // TODO: unallocate edge from storage...
         }
     } else {
-        SkEdge* edge = typedAllocThrow<SkEdge>(fAlloc);
+        SkEdge* edge = fAlloc.make<SkEdge>();
         if (edge->setLine(pts[0], pts[1], fShiftUp)) {
             if (vertical_line(edge) && fList.count()) {
                 Combine combine = CombineVertical(edge, (SkEdge*)*(fList.end() - 1));
@@ -165,14 +161,14 @@ unallocate_edge:
 
 void SkEdgeBuilder::addQuad(const SkPoint pts[]) {
     if (fAnalyticAA) {
-        SkAnalyticQuadraticEdge* edge = typedAllocThrow<SkAnalyticQuadraticEdge>(fAlloc);
+        SkAnalyticQuadraticEdge* edge = fAlloc.make<SkAnalyticQuadraticEdge>();
         if (edge->setQuadratic(pts)) {
             fList.push(edge);
         } else {
             // TODO: unallocate edge from storage...
         }
     } else {
-        SkQuadraticEdge* edge = typedAllocThrow<SkQuadraticEdge>(fAlloc);
+        SkQuadraticEdge* edge = fAlloc.make<SkQuadraticEdge>();
         if (edge->setQuadratic(pts, fShiftUp)) {
             fList.push(edge);
         } else {
@@ -183,14 +179,14 @@ void SkEdgeBuilder::addQuad(const SkPoint pts[]) {
 
 void SkEdgeBuilder::addCubic(const SkPoint pts[]) {
     if (fAnalyticAA) {
-        SkAnalyticCubicEdge* edge = typedAllocThrow<SkAnalyticCubicEdge>(fAlloc);
+        SkAnalyticCubicEdge* edge = fAlloc.make<SkAnalyticCubicEdge>();
         if (edge->setCubic(pts)) {
             fList.push(edge);
         } else {
             // TODO: unallocate edge from storage...
         }
     } else {
-        SkCubicEdge* edge = typedAllocThrow<SkCubicEdge>(fAlloc);
+        SkCubicEdge* edge = fAlloc.make<SkCubicEdge>();
         if (edge->setCubic(pts, fShiftUp)) {
             fList.push(edge);
         } else {
@@ -254,15 +250,13 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
         // segments.
         maxEdgeCount *= SkLineClipper::kMaxClippedLineSegments;
     }
-    size_t edgeSize = fAnalyticAA ? sizeof(SkAnalyticEdge) : sizeof(SkEdge);
-    size_t maxEdgeSize = maxEdgeCount * edgeSize;
-    size_t maxEdgePtrSize = maxEdgeCount * sizeof(char*);
 
-    // lets store the edges and their pointers in the same block
-    char* storage = (char*)fAlloc.allocThrow(maxEdgeSize + maxEdgePtrSize);
-    char* edge = (char*)storage;
-    char** edgePtr = (char**)(storage + maxEdgeSize);
-    // Record the beginning of our pointers, so we can return them to the caller
+    size_t edgeSize = fAnalyticAA ? sizeof(SkAnalyticEdge) : sizeof(SkEdge);
+    char* edge = fAnalyticAA ? (char*)fAlloc.makeArrayDefault<SkAnalyticEdge>(maxEdgeCount)
+                             : (char*)fAlloc.makeArrayDefault<SkEdge>(maxEdgeCount);
+
+    SkDEBUGCODE(char* edgeStart = edge);
+    char** edgePtr = fAlloc.makeArrayDefault<char*>(maxEdgeCount);
     fEdgeList = (void**)edgePtr;
 
     if (iclip) {
@@ -334,7 +328,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
             }
         }
     }
-    SkASSERT((char*)edge <= (char*)fEdgeList);
+    SkASSERT((size_t)(edge - edgeStart) <= maxEdgeCount * edgeSize);
     SkASSERT(edgePtr - (char**)fEdgeList <= maxEdgeCount);
     return SkToInt(edgePtr - (char**)fEdgeList);
 }
