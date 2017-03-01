@@ -19,7 +19,7 @@ def dm_flags(bot):
 
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
-  configs = ['8888', 'srgb', 'gpu', 'gpudft', 'gpusrgb', 'pdf']
+  configs = ['8888', 'srgb', 'srgbnl', 'gpu', 'gpudft', 'gpusrgb', 'pdf']
   # Add in either msaa4 or msaa16 to the canonical set of configs to run
   if 'Android' in bot or 'iOS' in bot:
     configs.append('msaa4')
