@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1089707e_e84d7066",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T19:23:33Z",
+      "side": 1,
+      "message": "I should have asked this the first time... but I think isSimilarity() would work here and probably be cheaper for identity/translation matrices.",
+      "range": {
+        "startLine": 466,
+        "startChar": 8,
+        "endLine": 466,
+        "endChar": 86
+      },
+      "revId": "3f5ff0facce461573b286bc2004049f600b0b408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
