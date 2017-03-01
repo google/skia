@@ -434,16 +434,16 @@
         "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ]
     },
-    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android": {
+    "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android"
+        "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android": {
+    "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android"
+        "Upload-Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android"
       ]
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
@@ -1004,16 +1004,16 @@
         "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ]
     },
-    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android": {
+    "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android"
+        "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android"
       ]
     },
-    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android": {
+    "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android"
+        "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android"
       ]
     },
     "Test-Android-Clang-GalaxyTab3-GPU-Vivante-arm-Debug-Android": {
@@ -3816,7 +3816,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android": {
+    "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -3850,7 +3850,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android",
+        "buildername=Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -3866,7 +3866,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android": {
+    "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -3900,7 +3900,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android",
+        "buildername=Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -8511,7 +8511,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android": {
+    "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -8545,7 +8545,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android",
+        "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -8561,7 +8561,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android": {
+    "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -8595,7 +8595,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android",
+        "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -13540,9 +13540,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android": {
+    "Upload-Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
-        "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android"
+        "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -13555,7 +13555,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android",
+        "buildername=Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -14860,9 +14860,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android": {
+    "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
       "dependencies": [
-        "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android"
+        "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -14875,7 +14875,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android",
+        "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -14890,9 +14890,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android": {
+    "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
-        "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android"
+        "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -14905,7 +14905,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android",
+        "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
