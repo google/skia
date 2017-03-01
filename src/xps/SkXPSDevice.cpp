@@ -1404,8 +1404,7 @@ void SkXPSDevice::convertToPpm(const SkMaskFilter* filter,
     clipRect.roundOut(clipIRect);
 }
 
-HRESULT SkXPSDevice::applyMask(
-                               const SkMask& mask,
+HRESULT SkXPSDevice::applyMask(const SkMask& mask,
                                const SkVector& ppuScale,
                                IXpsOMPath* shadedPath) {
     //Get the geometry object.
@@ -1504,8 +1503,7 @@ HRESULT SkXPSDevice::shadePath(IXpsOMPath* shadedPath,
     return S_OK;
 }
 
-void SkXPSDevice::drawPath(
-                           const SkPath& platonicPath,
+void SkXPSDevice::drawPath(const SkPath& platonicPath,
                            const SkPaint& origPaint,
                            const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
@@ -2092,8 +2090,7 @@ private:
     GlyphRun* const fXpsGlyphs;
 };
 
-void SkXPSDevice::drawText(
-                           const void* text, size_t byteLen,
+void SkXPSDevice::drawText(const void* text, size_t byteLen,
                            SkScalar x, SkScalar y,
                            const SkPaint& paint) {
     if (byteLen < 1) return;
@@ -2150,8 +2147,7 @@ void SkXPSDevice::drawText(
                   paint));
 }
 
-void SkXPSDevice::drawPosText(
-                              const void* text, size_t byteLen,
+void SkXPSDevice::drawPosText(const void* text, size_t byteLen,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& paint) {
     if (byteLen < 1) return;
@@ -2215,14 +2211,8 @@ void SkXPSDevice::drawDevice( SkBaseDevice* dev,
     SkXPSDevice* that = static_cast<SkXPSDevice*>(dev);
 
     SkTScopedComPtr<IXpsOMMatrixTransform> xpsTransform;
-    XPS_MATRIX rawTransform = {
-        1.0f,
-        0.0f,
-        0.0f,
-        1.0f,
-        static_cast<FLOAT>(x),
-        static_cast<FLOAT>(y),
-    };
+    // TODO(halcanary): assert that current transform is identity rather than calling setter.
+    XPS_MATRIX rawTransform = {1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
     HRVM(this->fXpsFactory->CreateMatrixTransform(&rawTransform, &xpsTransform),
          "Could not create layer transform.");
     HRVM(that->fCurrentXpsCanvas->SetTransformLocal(xpsTransform.get()),
