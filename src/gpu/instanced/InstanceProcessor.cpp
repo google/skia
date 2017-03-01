@@ -243,8 +243,8 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        inputs.attr(Attrib::kInstanceInfo));
         v->codeAppend (    "shapeMatrix[2] = ");
         inputs.fetchNextParam(kVec3f_GrSLType);
-        v->codeAppend (    ";");
-        v->codeAppend ("}");
+        v->codeAppend (    ";"
+                       "}");
     }
 
     bool hasSingleShapeType = SkIsPow2(ip.opInfo().fShapeTypes);
@@ -567,12 +567,7 @@ void GLSLInstanceProcessor::Backend::emitCode(GrGLSLVertexBuilder* v, GrGLSLPPFr
 
 class GLSLInstanceProcessor::BackendNonAA : public Backend {
 public:
-    BackendNonAA(OpInfo opInfo, const VertexInputs& inputs) : INHERITED(opInfo, inputs) {
-        if (fOpInfo.fCannotDiscard && !fOpInfo.isSimpleRects()) {
-            fModifiesColor = !fOpInfo.fCannotTweakAlphaForCoverage;
-            fModifiesCoverage = !fModifiesColor;
-        }
-    }
+    BackendNonAA(OpInfo opInfo, const VertexInputs& inputs) : INHERITED(opInfo, inputs) {}
 
 private:
     void onInit(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*) override;
@@ -640,44 +635,35 @@ void GLSLInstanceProcessor::BackendNonAA::onEmitCode(GrGLSLVertexBuilder*,
                                                      GrGLSLPPFragmentBuilder* f,
                                                      const char* outCoverage,
                                                      const char* outColor) {
-    const char* dropFragment = nullptr;
-    if (!fOpInfo.fCannotDiscard) {
-        dropFragment = "discard";
-    } else if (fModifiesCoverage) {
-        f->codeAppend ("lowp float covered = 1.0;");
-        dropFragment = "covered = 0.0";
-    } else if (fModifiesColor) {
-        f->codeAppendf("lowp vec4 color = %s;", fColor.fsIn());
-        dropFragment = "color = vec4(0)";
-    }
     if (fTriangleIsArc.fsIn()) {
-        SkASSERT(dropFragment);
-        f->codeAppendf("if (%s != 0 && dot(%s, %s) > 1.0) %s;",
-                       fTriangleIsArc.fsIn(), fArcCoords.fsIn(), fArcCoords.fsIn(), dropFragment);
+        f->codeAppendf("if (%s != 0 && dot(%s, %s) > 1.0)  {"
+                           "discard;"
+                       "}", fTriangleIsArc.fsIn(), fArcCoords.fsIn(), fArcCoords.fsIn());
     }
     if (fOpInfo.fInnerShapeTypes) {
-        SkASSERT(dropFragment);
         f->codeAppendf("// Inner shape.\n");
         if (kRect_ShapeFlag == fOpInfo.fInnerShapeTypes) {
-            f->codeAppendf("if (all(lessThanEqual(abs(%s), vec2(1)))) %s;",
-                           fInnerShapeCoords.fsIn(), dropFragment);
+            f->codeAppendf("if (all(lessThanEqual(abs(%s), vec2(1)))) {"
+                               "discard;"
+                           "}",
+                           fInnerShapeCoords.fsIn());
         } else if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
-            f->codeAppendf("if ((dot(%s, %s) <= 1.0)) %s;",
-                           fInnerShapeCoords.fsIn(), fInnerShapeCoords.fsIn(), dropFragment);
+            f->codeAppendf("if ((dot(%s, %s) <= 1.0)) discard;",
+                           fInnerShapeCoords.fsIn(), fInnerShapeCoords.fsIn());
         } else {
             f->codeAppendf("if (all(lessThan(abs(%s), vec2(1)))) {", fInnerShapeCoords.fsIn());
             f->codeAppendf(    "vec2 distanceToArcEdge = abs(%s) - %s.xy;",
                                fInnerShapeCoords.fsIn(), fInnerRRect.fsIn());
-            f->codeAppend (    "if (any(lessThan(distanceToArcEdge, vec2(0)))) {");
-            f->codeAppendf(        "%s;", dropFragment);
-            f->codeAppend (    "} else {");
+            f->codeAppend (    "if (any(lessThan(distanceToArcEdge, vec2(0)))) {"
+                                   "discard;"
+                               "} else {");
             f->codeAppendf(        "vec2 rrectCoords = distanceToArcEdge * %s.zw;",
                                    fInnerRRect.fsIn());
-            f->codeAppend (        "if (dot(rrectCoords, rrectCoords) <= 1.0) {");
-            f->codeAppendf(            "%s;", dropFragment);
-            f->codeAppend (        "}");
-            f->codeAppend (    "}");
-            f->codeAppend ("}");
+            f->codeAppend (        "if (dot(rrectCoords, rrectCoords) <= 1.0) {"
+                                       "discard;"
+                                   "}"
+                               "}"
+                           "}");
         }
     }
     if (fModifiesCoverage) {
@@ -1613,26 +1599,16 @@ GLSLInstanceProcessor::BackendMultisample::acceptOrRejectWholeFragment(GrGLSLPPF
             // fall on a common pixel, and (2) since the entire fragment is inside the shape, each
             // sample's corresponding bit will be set in the incoming sample mask of exactly one
             // fragment.
-            f->codeAppend("if ((gl_SampleMaskIn[0] & SAMPLE_MASK_MSB) == 0) {");
+            f->codeAppend("if ((gl_SampleMaskIn[0] & SAMPLE_MASK_MSB) == 0) {"
             // Drop this fragment.
-            if (!fOpInfo.fCannotDiscard) {
-                f->codeAppend("discard;");
-            } else {
-                f->overrideSampleCoverage("0");
-            }
-            f->codeAppend("} else {");
+                              "discard;"
+                          "} else {");
             // Override the lone surviving fragment to full coverage.
             f->overrideSampleCoverage("-1");
             f->codeAppend("}");
         }
     } else { // Reject the entire fragment.
-        if (!fOpInfo.fCannotDiscard) {
-            f->codeAppend("discard;");
-        } else if (opts.fResolveMixedSamples) {
-            f->overrideSampleCoverage("0");
-        } else {
-            f->maskSampleCoverage("0");
-        }
+        f->codeAppend("discard;");
     }
 }
 
@@ -1651,11 +1627,7 @@ void GLSLInstanceProcessor::BackendMultisample::acceptCoverageMask(GrGLSLPPFragm
             SkASSERT(!opts.fInvertCoverage);
             f->codeAppendf("if ((gl_SampleMaskIn[0] & (1 << findMSB(%s))) == 0) {", shapeMask);
             // Drop this fragment.
-            if (!fOpInfo.fCannotDiscard) {
-                f->codeAppend ("discard;");
-            } else {
-                f->overrideSampleCoverage("0");
-            }
+            f->codeAppend (    "discard;");
             f->codeAppend ("} else {");
             // Override the coverage of the lone surviving fragment to "shapeMask".
             f->overrideSampleCoverage(shapeMask);

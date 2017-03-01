@@ -120,7 +120,6 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
     std::unique_ptr<Op> op = this->makeOp();
     op->fInfo.setAAType(*aaType);
     op->fInfo.fShapeTypes = GetShapeFlag(type);
-    op->fInfo.fCannotDiscard = !info.fCanDiscard;
 
     Instance& instance = op->getSingleInstance();
     instance.fInfo = (int)type << kShapeType_InfoBit;
@@ -199,16 +198,11 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
 inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa,
                                                     const GrInstancedPipelineInfo& info,
                                                     GrAAType* aaType) {
-    SkASSERT(!info.fColorDisabled || info.fDrawingShapeToStencil);
     SkASSERT(!info.fIsMixedSampled || info.fIsMultisampled);
     SkASSERT(GrCaps::InstancedSupport::kNone != fGpu->caps()->instancedSupport());
 
     if (!info.fIsMultisampled || fGpu->caps()->multisampleDisableSupport()) {
         if (GrAA::kNo == aa) {
-            if (info.fDrawingShapeToStencil && !info.fCanDiscard) {
-                // We can't draw to the stencil buffer without discard (or sample mask if MSAA).
-                return false;
-            }
             *aaType = GrAAType::kNone;
             return true;
         }
@@ -221,7 +215,7 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
 
     if (info.fIsMultisampled &&
         fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMultisampled) {
-        if (!info.fIsMixedSampled || info.fColorDisabled) {
+        if (!info.fIsMixedSampled) {
             *aaType = GrAAType::kMSAA;
             return true;
         }
@@ -338,8 +332,7 @@ void InstancedRendering::Op::getFragmentProcessorAnalysisInputs(
         FragmentProcessorAnalysisInputs* input) const {
     input->colorInput()->setToConstant(this->getSingleInstance().fColor);
 
-    if (GrAAType::kCoverage == fInfo.aaType() ||
-        (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
+    if (GrAAType::kCoverage == fInfo.aaType()) {
         input->coverageInput()->setToUnknown();
     } else {
         input->coverageInput()->setToSolidCoverage();
