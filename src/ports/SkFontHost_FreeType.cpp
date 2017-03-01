@@ -71,7 +71,6 @@
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
 //#define DUMP_STRIKE_CREATION
-//#define SK_FONTHOST_FREETYPE_USE_NORMAL_LCD_FILTER
 //#define SK_FONTHOST_FREETYPE_RUNTIME_VERSION
 //#define SK_GAMMA_APPLY_TO_A8
 
@@ -107,58 +106,51 @@ public:
         }
         FT_Add_Default_Modules(fLibrary);
 
+        // When using dlsym
+        // *(void**)(&procPtr) = dlsym(self, "proc");
+        // is non-standard, but safe for POSIX. Cannot write
+        // *reinterpret_cast<void**>(&procPtr) = dlsym(self, "proc");
+        // because clang has not implemented DR573. See http://clang.llvm.org/cxx_dr_status.html .
+
+        FT_Int major, minor, patch;
+        FT_Library_Version(fLibrary, &major, &minor, &patch);
+
 #if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02070100
         fGetVarDesignCoordinates = FT_Get_Var_Design_Coordinates;
 #elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
-        FT_Int major, minor, patch;
-        FT_Library_Version(fLibrary, &major, &minor, &patch);
-        if (major > 2 || ((major == 2 && minor > 7) || (major == 2 && minor == 7 && patch >= 1))) {
+        if (major > 2 || ((major == 2 && minor > 7) || (major == 2 && minor == 7 && patch >= 0))) {
             //The FreeType library is already loaded, so symbols are available in process.
             void* self = dlopen(nullptr, RTLD_LAZY);
             if (self) {
-                // The following cast is non-standard, but safe for POSIX.
-                // Cannot write this with reinterpret_cast, because clang has not implemented DR573.
-                // See http://clang.llvm.org/cxx_dr_status.html .
-                //*reinterpret_cast<void**>(&fGetVarDesignCoordinates) =
-                //        dlsym(self, "FT_Get_Var_Design_Coordinates");
                 *(void**)(&fGetVarDesignCoordinates) = dlsym(self, "FT_Get_Var_Design_Coordinates");
                 dlclose(self);
             }
         }
 #endif
 
-        // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
-        // Default { 0x10, 0x40, 0x70, 0x40, 0x10 } adds up to 0x110, simulating ink spread.
-        // SetLcdFilter must be called before SetLcdFilterWeights.
-        if (FT_Library_SetLcdFilter(fLibrary, FT_LCD_FILTER_DEFAULT) == 0) {
-            fIsLCDSupported = true;
-            fLCDExtra = 2; //Using a filter adds one full pixel to each side.
-
-#ifdef SK_FONTHOST_FREETYPE_USE_NORMAL_LCD_FILTER
-            // Adds to 0x110 simulating ink spread, but provides better results than default.
-            static unsigned char gGaussianLikeHeavyWeights[] = { 0x1A, 0x43, 0x56, 0x43, 0x1A, };
-
-#  if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02040000
-            FT_Library_SetLcdFilterWeights(fLibrary, gGaussianLikeHeavyWeights);
-#  elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
+#if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02070200
+        FT_Set_Default_Properties(fLibrary);
+#elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
+        if (major > 2 || ((major == 2 && minor > 7) || (major == 2 && minor == 7 && patch >= 1))) {
             //The FreeType library is already loaded, so symbols are available in process.
             void* self = dlopen(nullptr, RTLD_LAZY);
             if (self) {
-                FT_Library_SetLcdFilterWeightsProc setLcdFilterWeights;
-                // The following cast is non-standard, but safe for POSIX.
-                // Cannot write this with reinterpret_cast, because clang has not implemented DR573.
-                // See http://clang.llvm.org/cxx_dr_status.html .
-                //*reinterpret_cast<void**>(&setLcdFilterWeights) =
-                //        dlsym(self, "FT_Library_SetLcdFilterWeights");
-                *(void**)(&setLcdFilterWeights) = dlsym(self, "FT_Library_SetLcdFilterWeights");
+                FT_Set_Default_PropertiesProc setDefaultProperties;
+                *(void**)(&setDefaultProperties) = dlsym(self, "FT_Set_Default_Properties");
                 dlclose(self);
 
-                if (setLcdFilterWeights) {
-                    setLcdFilterWeights(fLibrary, gGaussianLikeHeavyWeights);
+                if (setDefaultProperties) {
+                    setDefaultProperties(fLibrary);
                 }
             }
-#  endif
+        }
 #endif
+
+        // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
+        // The default has changed over time, so this doesn't mean the same thing to all users.
+        if (FT_Library_SetLcdFilter(fLibrary, FT_LCD_FILTER_DEFAULT) == 0) {
+            fIsLCDSupported = true;
+            fLCDExtra = 2; //Using a filter adds one full pixel to each side.
         }
     }
     ~FreeTypeLibrary() {
@@ -192,6 +184,10 @@ private:
     // Android >= Gingerbread (good)
     // RHEL >= 7 (6 has 2.3.11, EOL Nov 2020, Phase 3 May 2017)
     using FT_Library_SetLcdFilterWeightsProc = FT_Error (*)(FT_Library, unsigned char*);
+
+    // FreeType added the ability to read global properties in 2.7.0. After 2.7.1 a means for users
+    // of FT_New_Library to request these global properties to be read was added.
+    using FT_Set_Default_PropertiesProc = void (*)(FT_Library);
 };
 
 struct SkFaceRec;
