@@ -22,6 +22,30 @@
       "revId": "252184e5482e7213c6f5d5bacde4be6d4607d124",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "830201e7_ccd4537a",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-01T16:03:11Z",
+      "side": 1,
+      "message": "It\u0027s related, but tricky to integrate. Instead, I\u0027m going to try and fix Window_win to behave like Window_unix (where it re-creates the OS window when asked to re-initialize with incompatible settings).",
+      "parentUuid": "448bcf5d_53546bd5",
+      "range": {
+        "startLine": 994,
+        "startChar": 0,
+        "endLine": 994,
+        "endChar": 1
+      },
+      "revId": "252184e5482e7213c6f5d5bacde4be6d4607d124",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
