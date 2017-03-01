@@ -9,7 +9,6 @@
 
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
-#include "GrTextureProvider.h"
 #include "SkBitmap.h"
 #include "SkGrPriv.h"
 #include "SkPixelRef.h"
