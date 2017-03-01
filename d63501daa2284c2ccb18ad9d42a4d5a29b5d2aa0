@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "53e7f738_036b4434",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-01T19:18:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d50c0cf6_71ad75da",
+      "revId": "d63501daa2284c2ccb18ad9d42a4d5a29b5d2aa0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "211308a6_e3cd9905",
         "filename": "src/utils/SkShadowUtils.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "d63501daa2284c2ccb18ad9d42a4d5a29b5d2aa0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4105c73f_b67167be",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-01T19:18:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "211308a6_e3cd9905",
+      "range": {
+        "startLine": 465,
+        "startChar": 20,
+        "endLine": 465,
+        "endChar": 35
+      },
+      "revId": "d63501daa2284c2ccb18ad9d42a4d5a29b5d2aa0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
