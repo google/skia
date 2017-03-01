@@ -11,6 +11,7 @@
 #include "GrFixedClip.h"
 #include "GrGLBuffer.h"
 #include "GrGLGpuCommandBuffer.h"
+#include "GrGLSemaphore.h"
 #include "GrGLStencilAttachment.h"
 #include "GrGLTextureRenderTarget.h"
 #include "GrGpuResourcePriv.h"
@@ -4726,20 +4727,43 @@ bool GrGLGpu::onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerPara
     return false;
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() const {
-    GrGLsync fence;
-    GL_CALL_RET(fence, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
-    return (GrFence)fence;
+GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() {
+    GrGLsync sync;
+    GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+    GR_STATIC_ASSERT(sizeof(GrFence) >= sizeof(GrGLsync));
+    return (GrFence)sync;
 }
 
-bool GrGLGpu::waitFence(GrFence fence, uint64_t timeout) const {
+bool GrGLGpu::waitFence(GrFence fence, uint64_t timeout) {
     GrGLenum result;
     GL_CALL_RET(result, ClientWaitSync((GrGLsync)fence, GR_GL_SYNC_FLUSH_COMMANDS_BIT, timeout));
     return (GR_GL_CONDITION_SATISFIED == result);
 }
 
 void GrGLGpu::deleteFence(GrFence fence) const {
-    GL_CALL(DeleteSync((GrGLsync)fence));
+    this->deleteSync((GrGLsync)fence);
+}
+
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrGLGpu::makeSemaphore() {
+    return GrGLSemaphore::Make(this);
+}
+
+void GrGLGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+    GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore.get());
+
+    GrGLsync sync;
+    GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+    glSem->setSync(sync);
+}
+
+void GrGLGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+    GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore.get());
+
+    GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
+}
+
+void GrGLGpu::deleteSync(GrGLsync sync) const {
+    GL_CALL(DeleteSync(sync));
 }
 
 void GrGLGpu::flush() {
