@@ -22,6 +22,30 @@
       "revId": "860143ee729ffd47aa51f2e67fea2756e408f857",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a7c23e8_0bbdb0fe",
+        "filename": "src/gpu/instanced/InstancedRenderingTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T18:14:41Z",
+      "side": 1,
+      "message": "Right but that forces the 8bit packing on all users of the enum. That seemed to me to be a choice that should be kept local to OpInfo.",
+      "parentUuid": "c5c95400_1ecb7b5b",
+      "range": {
+        "startLine": 128,
+        "startChar": 48,
+        "endLine": 128,
+        "endChar": 59
+      },
+      "revId": "860143ee729ffd47aa51f2e67fea2756e408f857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
