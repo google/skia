@@ -10,21 +10,9 @@
 #include "SkSLToken.h"
 
 #define register
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunneeded-internal-declaration"
-#pragma clang diagnostic ignored "-Wnull-conversion"
-#pragma clang diagnostic ignored "-Wsign-compare"
-#endif
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#endif
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4018)
-#endif
+#include "disable_flex_warnings.h"
 #include "lex.sksl.c"
+#undef register
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -34,8 +22,8 @@
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-#undef register
 
+#include "lex.layout.h"
 #include "ast/SkSLASTBinaryExpression.h"
 #include "ast/SkSLASTBlock.h"
 #include "ast/SkSLASTBoolLiteral.h"
@@ -106,6 +94,7 @@ Parser::Parser(SkString text, SymbolTable& types, ErrorReporter& errors)
 , fTypes(types)
 , fErrors(errors) {
     sksllex_init(&fScanner);
+    layoutlex_init(&fLayoutScanner);
     fBuffer = sksl_scan_string(text.c_str(), fScanner);
     skslset_lineno(1, fScanner);
 
@@ -113,32 +102,12 @@ Parser::Parser(SkString text, SymbolTable& types, ErrorReporter& errors)
         // avoid unused warning
         yyunput(0, nullptr, fScanner);
     }
-
-    fLayoutKeys[SkString("location")]                    = kLocation_LayoutKey;
-    fLayoutKeys[SkString("offset")]                      = kOffset_LayoutKey;
-    fLayoutKeys[SkString("binding")]                     = kBinding_LayoutKey;
-    fLayoutKeys[SkString("index")]                       = kIndex_LayoutKey;
-    fLayoutKeys[SkString("set")]                         = kSet_LayoutKey;
-    fLayoutKeys[SkString("builtin")]                     = kBuiltin_LayoutKey;
-    fLayoutKeys[SkString("input_attachment_index")]      = kInputAttachmentIndex_LayoutKey;
-    fLayoutKeys[SkString("origin_upper_left")]           = kOriginUpperLeft_LayoutKey;
-    fLayoutKeys[SkString("override_coverage")]           = kOverrideCoverage_LayoutKey;
-    fLayoutKeys[SkString("blend_support_all_equations")] = kBlendSupportAllEquations_LayoutKey;
-    fLayoutKeys[SkString("push_constant")]               = kPushConstant_LayoutKey;
-    fLayoutKeys[SkString("points")]                      = kPoints_LayoutKey;
-    fLayoutKeys[SkString("lines")]                       = kLines_LayoutKey;
-    fLayoutKeys[SkString("line_strip")]                  = kLineStrip_LayoutKey;
-    fLayoutKeys[SkString("lines_adjacency")]             = kLinesAdjacency_LayoutKey;
-    fLayoutKeys[SkString("triangles")]                   = kTriangles_LayoutKey;
-    fLayoutKeys[SkString("triangle_strip")]              = kTriangleStrip_LayoutKey;
-    fLayoutKeys[SkString("triangles_adjacency")]         = kTrianglesAdjacency_LayoutKey;
-    fLayoutKeys[SkString("max_vertices")]                = kMaxVertices_LayoutKey;
-    fLayoutKeys[SkString("invocations")]                 = kInvocations_LayoutKey;
 }
 
 Parser::~Parser() {
     sksl_delete_buffer(fBuffer, fScanner);
     sksllex_destroy(fScanner);
+    layoutlex_destroy(fLayoutScanner);
 }
 
 /* (precision | directive | declaration)* END_OF_FILE */
@@ -593,67 +562,70 @@ Layout Parser::layout() {
         }
         for (;;) {
             Token t = this->nextToken();
-            auto found = fLayoutKeys.find(t.fText);
-            if (found != fLayoutKeys.end()) {
-                switch (found->second) {
-                    case kLocation_LayoutKey:
+            YY_BUFFER_STATE buffer;
+            buffer = layout_scan_string(t.fText.c_str(), fLayoutScanner);
+            int token = layoutlex(fLayoutScanner);
+            layout_delete_buffer(buffer, fLayoutScanner);
+            if (token != Token::INVALID_TOKEN) {
+                switch (token) {
+                    case Token::LOCATION:
                         location = this->layoutInt();
                         break;
-                    case kOffset_LayoutKey:
+                    case Token::OFFSET:
                         offset = this->layoutInt();
                         break;
-                    case kBinding_LayoutKey:
+                    case Token::BINDING:
                         binding = this->layoutInt();
                         break;
-                    case kIndex_LayoutKey:
+                    case Token::INDEX:
                         index = this->layoutInt();
                         break;
-                    case kSet_LayoutKey:
+                    case Token::SET:
                         set = this->layoutInt();
                         break;
-                    case kBuiltin_LayoutKey:
+                    case Token::BUILTIN:
                         builtin = this->layoutInt();
                         break;
-                    case kInputAttachmentIndex_LayoutKey:
+                    case Token::INPUT_ATTACHMENT_INDEX:
                         inputAttachmentIndex = this->layoutInt();
                         break;
-                    case kOriginUpperLeft_LayoutKey:
+                    case Token::ORIGIN_UPPER_LEFT:
                         originUpperLeft = true;
                         break;
-                    case kOverrideCoverage_LayoutKey:
+                    case Token::OVERRIDE_COVERAGE:
                         overrideCoverage = true;
                         break;
-                    case kBlendSupportAllEquations_LayoutKey:
+                    case Token::BLEND_SUPPORT_ALL_EQUATIONS:
                         blendSupportAllEquations = true;
                         break;
-                    case kPushConstant_LayoutKey:
+                    case Token::PUSH_CONSTANT:
                         pushConstant = true;
                         break;
-                    case kPoints_LayoutKey:
+                    case Token::POINTS:
                         primitive = Layout::kPoints_Primitive;
                         break;
-                    case kLines_LayoutKey:
+                    case Token::LINES:
                         primitive = Layout::kLines_Primitive;
                         break;
-                    case kLineStrip_LayoutKey:
+                    case Token::LINE_STRIP:
                         primitive = Layout::kLineStrip_Primitive;
                         break;
-                    case kLinesAdjacency_LayoutKey:
+                    case Token::LINES_ADJACENCY:
                         primitive = Layout::kLinesAdjacency_Primitive;
                         break;
-                    case kTriangles_LayoutKey:
+                    case Token::TRIANGLES:
                         primitive = Layout::kTriangles_Primitive;
                         break;
-                    case kTriangleStrip_LayoutKey:
+                    case Token::TRIANGLE_STRIP:
                         primitive = Layout::kTriangleStrip_Primitive;
                         break;
-                    case kTrianglesAdjacency_LayoutKey:
+                    case Token::TRIANGLES_ADJACENCY:
                         primitive = Layout::kTrianglesAdjacency_Primitive;
                         break;
-                    case kMaxVertices_LayoutKey:
+                    case Token::MAX_VERTICES:
                         maxVertices = this->layoutInt();
                         break;
-                    case kInvocations_LayoutKey:
+                    case Token::INVOCATIONS:
                         invocations = this->layoutInt();
                         break;
                 }
