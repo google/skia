@@ -633,6 +633,7 @@ GrXferProcessor* PDLCDXferProcessor::Create(SkBlendMode xfermode,
     if (!analysis.hasKnownOutputColor(&blendConstant)) {
         return nullptr;
     }
+    blendConstant = GrUnpremulColor(blendConstant);
     uint8_t alpha = GrColorUnpackA(blendConstant);
     blendConstant |= (0xff << GrColor_SHIFT_A);
     return new PDLCDXferProcessor(blendConstant, alpha);
