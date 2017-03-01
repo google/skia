@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ed303ff_86437afb",
+        "filename": "src/gpu/instanced/InstanceProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-01T17:49:49Z",
+      "side": 0,
+      "message": "We still need these as well, we are just assuming \"cannot discard\" is always true now.\n\n(Sorry for the logic inversion from \"can discard\" -\u003e \"cannot discard\" :^)",
+      "range": {
+        "startLine": 571,
+        "startChar": 20,
+        "endLine": 571,
+        "endChar": 34
+      },
+      "revId": "860143ee729ffd47aa51f2e67fea2756e408f857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0bc36c4_611283d7",
+        "filename": "src/gpu/instanced/InstancedRendering.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-01T17:49:49Z",
+      "side": 0,
+      "message": "We still need  (GrAAType::kNone \u003d\u003d fInfo.aaType() \u0026\u0026 !fInfo.isSimpleRects()) here because then it will be outputting a coverage of 0 for the pixels not in the shape",
+      "range": {
+        "startLine": 342,
+        "startChar": 72,
+        "endLine": 342,
+        "endChar": 77
+      },
+      "revId": "860143ee729ffd47aa51f2e67fea2756e408f857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

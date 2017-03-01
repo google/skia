@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4e37e676_ecc12307",
+        "filename": "src/gpu/instanced/InstanceProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-01T17:49:49Z",
+      "side": 1,
+      "message": "Here we should have taken the path of setting coverage to 0 or 1, not discarding.",
+      "range": {
+        "startLine": 640,
+        "startChar": 28,
+        "endLine": 640,
+        "endChar": 35
+      },
+      "revId": "572a2f7d4a9e77550e06c88f96b885becb1fdff2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "095767a1_8687727c",
         "filename": "src/gpu/instanced/InstanceProcessor.cpp",
         "patchSetId": 4
@@ -13,6 +36,30 @@
       "writtenOn": "2017-03-01T16:37:17Z",
       "side": 1,
       "message": "I thought I was copying a pattern here by grouping together codeAppends but now I see wasn\u0027t. Happy to put this back if you like.",
+      "range": {
+        "startLine": 666,
+        "startChar": 26,
+        "endLine": 666,
+        "endChar": 30
+      },
+      "revId": "572a2f7d4a9e77550e06c88f96b885becb1fdff2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c49437b5_08682141",
+        "filename": "src/gpu/instanced/InstanceProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-01T17:49:49Z",
+      "side": 1,
+      "message": "Don\u0027t really care",
+      "parentUuid": "095767a1_8687727c",
       "range": {
         "startLine": 666,
         "startChar": 26,
