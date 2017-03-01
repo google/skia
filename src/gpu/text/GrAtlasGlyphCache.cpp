@@ -6,6 +6,7 @@
  */
 
 #include "GrAtlasGlyphCache.h"
+#include "GrAtlasUtils.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
@@ -26,7 +27,7 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] = fContext->resourceProvider()->makeAtlas(
+        fAtlases[index] = GrAtlasUtils::MakeAtlas(
                 fContext, config, width, height, numPlotsX, numPlotsY,
                 &GrAtlasGlyphCache::HandleEviction, (void*)this);
         if (!fAtlases[index]) {
