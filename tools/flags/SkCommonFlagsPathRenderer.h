@@ -43,7 +43,7 @@ inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const ch
     } else if (!strcmp(name, "sdf")) {
         return GpuPathRenderers::kDistanceField;
     } else if (!strcmp(name, "tess")) {
-        return GpuPathRenderers::kTesselating;
+        return GpuPathRenderers::kTessellating;
     } else if (!strcmp(name, "grdefault")) {
         return GpuPathRenderers::kDefault;
     }
