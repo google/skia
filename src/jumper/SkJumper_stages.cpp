@@ -246,6 +246,8 @@ static Dst bit_cast(const Src& src) {
     #endif
 #endif
 
+static const size_t kStride = sizeof(F) / sizeof(float);
+
 // We need to be a careful with casts.
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
@@ -281,10 +283,6 @@ static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
     };
 #endif
 
-// Stages tail call between each other by following program,
-// an interlaced sequence of Stage pointers and context pointers.
-using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
-
 static void* load_and_inc(void**& program) {
 #if defined(__GNUC__) && defined(__x86_64__)
     // Passing program as the second Stage argument makes it likely that it's in %rsi,
@@ -312,34 +310,74 @@ static void* load_and_inc(void**& program) {
 #endif
 }
 
-#define STAGE(name)                                                           \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
-                              F r, F g, F b, F a, F dr, F dg, F db, F da) {   \
-        auto ctx = load_and_inc(program);                                     \
-        name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
-        auto next = (Stage*)load_and_inc(program);                            \
-        next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
-    }                                                                         \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#if defined(JUMPER) && defined(__AVX__)
+    // There's a big cost to switch between SSE and AVX+, so we do a little
+    // extra work to handle even the jagged <kStride tail in AVX+ mode.
+    using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
 
-// Some glue stages that don't fit the normal pattern of stages.
-
-#if defined(JUMPER) && defined(WIN)
-__attribute__((ms_abi))
-#endif
-extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
-    F v{};
-    size_t stride = sizeof(F) / sizeof(float);
-    auto start = (Stage*)load_and_inc(program);
-    while (x + stride <= limit) {
-        start(x,program,k, v,v,v,v, v,v,v,v);
-        x += stride;
+    #if defined(JUMPER) && defined(WIN)
+    __attribute__((ms_abi))
+    #endif
+    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+        F v{};
+        auto start = (Stage*)load_and_inc(program);
+        while (x + kStride <= limit) {
+            start(x,program,k,0,    v,v,v,v, v,v,v,v);
+            x += kStride;
+        }
+        if (size_t tail = limit - x) {
+            start(x,program,k,tail, v,v,v,v, v,v,v,v);
+        }
+        return limit;
     }
-    return x;
-}
+
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            auto ctx = load_and_inc(program);                                     \
+            name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
+            auto next = (Stage*)load_and_inc(program);                            \
+            next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
+        }                                                                         \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+
+#else
+    // Other instruction sets (SSE, NEON, portable) can fall back on narrower
+    // pipelines cheaply, which frees us to always assume tail==0.
+
+    // Stages tail call between each other by following program,
+    // an interlaced sequence of Stage pointers and context pointers.
+    using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
+
+    #if defined(JUMPER) && defined(WIN)
+    __attribute__((ms_abi))
+    #endif
+    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+        F v{};
+        auto start = (Stage*)load_and_inc(program);
+        while (x + kStride <= limit) {
+            start(x,program,k, v,v,v,v, v,v,v,v);
+            x += kStride;
+        }
+        return x;
+    }
+
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            auto ctx = load_and_inc(program);                                     \
+            name##_k(x,ctx,k,0, r,g,b,a, dr,dg,db,da);                            \
+            auto next = (Stage*)load_and_inc(program);                            \
+            next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
+        }                                                                         \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#endif
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
 extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
