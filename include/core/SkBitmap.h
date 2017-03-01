@@ -32,6 +32,8 @@ class SkString;
     A const SkBitmap exposes getAddr(), which lets a caller write its pixels;
     the constness is considered to apply to the bitmap's configuration, not
     its contents.
+
+    SkBitmap is not thread safe.  Each thread must use its own (shallow) copy.
 */
 class SK_API SkBitmap {
 public:
