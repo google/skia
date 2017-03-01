@@ -549,19 +549,22 @@ SkTDArray<uint8_t> fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
                     ptr += SkUTF8_FromUnichar(buffer[j], ptr);
                 }
             }
+            break;
         case SkPaint::kUTF16_TextEncoding:
             {
                 size_t utf16len = 0;
                 for (int j = 0; j < length; ++j) {
                     utf16len += SkUTF16_FromUnichar(buffer[j]);
                 }
-                uint16_t* ptr = (uint16_t*)array.append(utf16len);
+                uint16_t* ptr = (uint16_t*)array.append(utf16len * sizeof(uint16_t));
                 for (int j = 0; j < length; ++j) {
                     ptr += SkUTF16_FromUnichar(buffer[j], ptr);
                 }
             }
+            break;
         case SkPaint::kUTF32_TextEncoding:
             memcpy(array.append(length * sizeof(SkUnichar)), buffer, length * sizeof(SkUnichar));
+            break;
         default:
            SkASSERT(false);
     }
