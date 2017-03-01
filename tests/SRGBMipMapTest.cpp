@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
+#include "GrTextureProvider.h"
 #include "gl/GrGLGpu.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
