@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "095767a1_8687727c",
+        "filename": "src/gpu/instanced/InstanceProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T16:37:17Z",
+      "side": 1,
+      "message": "I thought I was copying a pattern here by grouping together codeAppends but now I see wasn\u0027t. Happy to put this back if you like.",
+      "range": {
+        "startLine": 666,
+        "startChar": 26,
+        "endLine": 666,
+        "endChar": 30
+      },
+      "revId": "572a2f7d4a9e77550e06c88f96b885becb1fdff2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
