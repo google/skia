@@ -478,11 +478,9 @@ struct Poly {
 
         void* emit(const AAParams* aaParams, void* data) {
             Edge* e = fFirstEdge;
-            e->fTop->fPrev = e->fTop->fNext = nullptr;
             VertexList vertices;
             vertices.append(e->fTop);
             while (e != nullptr) {
-                e->fBottom->fPrev = e->fBottom->fNext = nullptr;
                 if (kRight_Side == fSide) {
                     vertices.append(e->fBottom);
                     e = e->fRightPolyNext;
@@ -1446,9 +1444,10 @@ void remove_non_boundary_edges(const VertexList& mesh, SkPath::FillType fillType
     }
 }
 
+// Note: this is the normal to the edge, but not necessarily unit length.
 void get_edge_normal(const Edge* e, SkVector* normal) {
-    normal->setNormalize(SkDoubleToScalar(e->fLine.fA) * e->fWinding,
-                         SkDoubleToScalar(e->fLine.fB) * e->fWinding);
+    normal->set(SkDoubleToScalar(e->fLine.fA) * e->fWinding,
+                SkDoubleToScalar(e->fLine.fB) * e->fWinding);
 }
 
 // Stage 5c: detect and remove "pointy" vertices whose edge normals point in opposite directions
@@ -1465,7 +1464,7 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkArenaAlloc& alloc) {
         double dist = e->dist(prev->fPoint);
         SkVector normal;
         get_edge_normal(e, &normal);
-        float denom = 0.0625f * static_cast<float>(e->fLine.magSq());
+        double denom = 0.0625f * e->fLine.magSq();
         if (prevNormal.dot(normal) < 0.0 && (dist * dist) <= denom) {
             Edge* join = new_edge(prev, next, Edge::Type::kInner, c, alloc);
             insert_edge(join, e, boundary);
@@ -1513,18 +1512,18 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
     Edge* prevEdge = boundary->fTail;
     float radius = 0.5f;
     double offset = radius * sqrt(prevEdge->fLine.magSq()) * prevEdge->fWinding;
-    Line prevInner(prevEdge->fTop, prevEdge->fBottom);
+    Line prevInner(prevEdge->fLine);
     prevInner.fC -= offset;
-    Line prevOuter(prevEdge->fTop, prevEdge->fBottom);
+    Line prevOuter(prevEdge->fLine);
     prevOuter.fC += offset;
     VertexList innerVertices;
     VertexList outerVertices;
     Edge* prevBisector = nullptr;
     for (Edge* e = boundary->fHead; e != nullptr; e = e->fRight) {
         double offset = radius * sqrt(e->fLine.magSq()) * e->fWinding;
-        Line inner(e->fTop, e->fBottom);
+        Line inner(e->fLine);
         inner.fC -= offset;
-        Line outer(e->fTop, e->fBottom);
+        Line outer(e->fLine);
         outer.fC += offset;
         SkPoint innerPoint, outerPoint;
         if (prevInner.intersect(inner, &innerPoint) &&
