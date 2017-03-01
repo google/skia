@@ -249,11 +249,11 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
     const size_t limit = x+n;
 
-    auto build_and_run = [&](size_t   stride,
+    auto build_and_run = [&](size_t   min_stride,
                              StageFn* (*lookup)(SkRasterPipeline::StockStage),
                              StageFn* just_return,
                              size_t   (*start_pipeline)(size_t, void**, K*, size_t)) {
-        if (x + stride <= limit) {
+        if (x + min_stride <= limit) {
             void** ip = program.get();
             for (auto&& st : fStages) {
                 auto fn = lookup(st.stage);
@@ -288,12 +288,12 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
 
 #elif defined(__x86_64__) || defined(_M_X64)
     if (1 && SkCpu::Supports(SkCpu::HSW)) {
-        if (!build_and_run(8, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
+        if (!build_and_run(1, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
             return false;
         }
     }
     if (1 && SkCpu::Supports(SkCpu::AVX)) {
-        if (!build_and_run(8, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
+        if (!build_and_run(1, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
             return false;
         }
     }
