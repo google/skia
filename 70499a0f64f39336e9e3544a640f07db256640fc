@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22fe9572_dfd20c86",
+        "filename": "src/gpu/GrContextPriv.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T15:21:40Z",
+      "side": 1,
+      "message": "Maye PreFlush rather than PerFlush? Should there be a way to remove these or for them to be able to be one-shot (e.g. an out param on the callback)?",
+      "range": {
+        "startLine": 67,
+        "startChar": 9,
+        "endLine": 67,
+        "endChar": 34
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9dc90c0_2bf14e9d",
+        "filename": "src/gpu/GrPerFlushResourceProvider.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T15:21:40Z",
+      "side": 1,
+      "message": "Does this need thread-safe ref counting? Wondering if it could derive from GrNonAtomicRef, or if it really needs ref counting at all. Could it just be uniquely owned by the drawing manager?",
+      "range": {
+        "startLine": 31,
+        "startChar": 40,
+        "endLine": 31,
+        "endChar": 48
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "140e3125_090568a9",
+        "filename": "src/gpu/GrPerFlushResourceProvider.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T15:21:40Z",
+      "side": 1,
+      "message": "Do you anticipate this having more entries? Just wondering whether it could be std::function\u003csk_sp\u003cGrRenderTargetOpList\u003e(GrPreFlushResourceProvider, const SkTDArray\u003cGrOpList*\u0026\u003e)",
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdf3a0dd_128fdb76",
+        "filename": "src/gpu/GrPerFlushResourceProvider.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T15:21:40Z",
+      "side": 1,
+      "message": "Is op list and not rtc the right level for this to operate at (wrt input and output)",
+      "range": {
+        "startLine": 41,
+        "startChar": 18,
+        "endLine": 41,
+        "endChar": 38
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
