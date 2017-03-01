@@ -138,7 +138,6 @@ struct OpInfo {
             bool            fNonSquare                    : 1;
             bool            fUsesLocalCoords              : 1;
             bool            fCannotTweakAlphaForCoverage  : 1;
-            bool            fCannotDiscard                : 1;
         };
         uint32_t fData;
     };
@@ -150,10 +149,6 @@ inline bool OpInfo::CanCombine(const OpInfo& a, const OpInfo& b) {
     }
     if (SkToBool(a.fInnerShapeTypes) != SkToBool(b.fInnerShapeTypes)) {
         // GrInstanceProcessor can't currently combine draws with and without inner shapes.
-        return false;
-    }
-    if (a.fCannotDiscard != b.fCannotDiscard) {
-        // For stencil draws, the use of discard can be a requirement.
         return false;
     }
     return true;
