@@ -413,11 +413,11 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, int32_t clip
 // MDB TODO (caching): this side-steps the issue of texture proxies cached by unique ID
 sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
-    GrResourceProvider* resourceProvider = context->resourceProvider();
+    GrTextureProvider* texProvider = context->textureProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTexture> texture(resourceProvider->findAndRefTextureByUniqueKey(key));
+    sk_sp<GrTexture> texture(texProvider->findAndRefTextureByUniqueKey(key));
     if (texture) {
         return GrSurfaceProxy::MakeWrapped(std::move(texture));
     }

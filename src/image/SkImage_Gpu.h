@@ -9,6 +9,7 @@
 #define SkImage_Gpu_DEFINED
 
 #include "SkAtomics.h"
+#include "GrContext.h"
 #include "GrTexture.h"
 #include "GrGpuResourcePriv.h"
 #include "SkBitmap.h"
@@ -23,7 +24,8 @@ public:
      *  An "image" can be a subset/window into a larger texture, so we explicit take the
      *  width and height.
      */
-    SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, sk_sp<GrTexture>, sk_sp<SkColorSpace>,
+    SkImage_Gpu(GrContext* context, int w, int h, uint32_t uniqueID, SkAlphaType,
+                sk_sp<GrTextureProxy>, sk_sp<SkColorSpace>,
                 SkBudgeted);
     ~SkImage_Gpu() override;
 
@@ -31,11 +33,13 @@ public:
     SkAlphaType onAlphaType() const override { return fAlphaType; }
 
     void applyBudgetDecision() const {
+#if 0
         if (SkBudgeted::kYes == fBudgeted) {
             fTexture->resourcePriv().makeBudgeted();
         } else {
             fTexture->resourcePriv().makeUnbudgeted();
         }
+#endif
     }
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
@@ -43,20 +47,25 @@ public:
                             sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
-    GrTexture* peekTexture() const override { return fTexture.get(); }
+    GrTexture* peekTexture1() const override { return fProxy->instantiate(fContext->textureProvider())->asTexture(); }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override;
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
+#if 0
         *uniqueID = this->uniqueID();
         return fTexture;
+#else
+        return nullptr;
+#endif
     }
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
 
-    GrContext* context() { return fTexture->getContext(); }
+    GrContext* context() { return fContext; }
     sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
 
 private:
-    sk_sp<GrTexture>       fTexture;
+    GrContext*             fContext;
+    sk_sp<GrTextureProxy>  fProxy;
     const SkAlphaType      fAlphaType;
     const SkBudgeted       fBudgeted;
     sk_sp<SkColorSpace>    fColorSpace;

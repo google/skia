@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrOpFlushState.h"
 #include "GrRectanizer.h"
+#include "GrTextureProxy.h"
 #include "GrTracing.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +161,7 @@ void GrDrawOpAtlas::processEviction(AtlasID id) {
     }
 }
 
-inline void GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plot* plot) {
+inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plot* plot) {
     this->makeMRU(plot);
 
     // If our most recent upload has already occurred then we have to insert a new
@@ -169,19 +170,23 @@ inline void GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
     if (target->hasDrawBeenFlushed(plot->lastUploadToken())) {
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
+
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
         GrTexture* texture = fProxy->instantiate(fContext->textureProvider());
-        if (texture) {
-            GrDrawOpUploadToken lastUploadToken = target->addAsapUpload(
-                [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
-                   plotsp->uploadToTexture(writePixels, texture);
-                }
-            );
-            plot->setLastUploadToken(lastUploadToken);
+        if (!texture) {
+            return false;
         }
+
+        GrDrawOpUploadToken lastUploadToken = target->addAsapUpload(
+            [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
+                plotsp->uploadToTexture(writePixels, texture);
+            }
+        );
+        plot->setLastUploadToken(lastUploadToken);
     }
     *id = plot->id();
+    return true;
 }
 
 bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
@@ -199,8 +204,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     while ((plot = plotIter.get())) {
         SkASSERT(GrBytesPerPixel(fProxy->desc().fConfig) == plot->bpp());
         if (plot->addSubImage(width, height, image, loc)) {
-            this->updatePlot(target, id, plot);
-            return true;
+            return this->updatePlot(target, id, plot);
         }
         plotIter.next();
     }
@@ -215,7 +219,9 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
         SkASSERT(GrBytesPerPixel(fProxy->desc().fConfig) == plot->bpp());
         SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
         SkASSERT(verify);
-        this->updatePlot(target, id, plot);
+        if (!this->updatePlot(target, id, plot)) {
+            return false;
+        }
         fAtlasGeneration++;
         return true;
     }
@@ -247,14 +253,14 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     // Once it is deferred more care must be taken upon instantiation failure.
     GrTexture* texture = fProxy->instantiate(fContext->textureProvider());
     if (texture) {
-        GrDrawOpUploadToken lastUploadToken = target->addInlineUpload(
-            [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
-                plotsp->uploadToTexture(writePixels, texture);
-            }
-        );
-        newPlot->setLastUploadToken(lastUploadToken);
+        return false;
     }
-
+    GrDrawOpUploadToken lastUploadToken = target->addInlineUpload(
+        [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
+            plotsp->uploadToTexture(writePixels, texture);
+        }
+    );
+    newPlot->setLastUploadToken(lastUploadToken);
     *id = newPlot->id();
 
     fAtlasGeneration++;
