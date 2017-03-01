@@ -773,45 +773,20 @@ static const void_fn make_threadsafe_fns[] = { TYPES(M) };
 static const void_fn dtor_fns[] = { TYPES(M) };
 #undef M
 
-void SkLiteDL::onDraw(SkCanvas* canvas) { this->map(draw_fns, canvas, canvas->getTotalMatrix()); }
-void SkLiteDL::makeThreadsafe()         { this->map(make_threadsafe_fns); }
+void SkLiteDL::makeThreadsafe() { this->map(make_threadsafe_fns); }
 
-SkRect SkLiteDL::onGetBounds() {
-    return fBounds;
+void SkLiteDL::draw(SkCanvas* canvas) {
+    SkAutoCanvasRestore acr(canvas, false);
+    this->map(draw_fns, canvas, canvas->getTotalMatrix());
 }
-
-SkLiteDL:: SkLiteDL(SkRect bounds) : fUsed(0), fReserved(0), fBounds(bounds) {}
 
 SkLiteDL::~SkLiteDL() {
-    this->reset(SkRect::MakeEmpty());
+    this->reset();
 }
 
-sk_sp<SkLiteDL> SkLiteDL::New(SkRect bounds) {
-    return sk_sp<SkLiteDL>(new SkLiteDL(bounds));
-}
-
-void SkLiteDL::reset(SkRect bounds) {
-    SkASSERT(this->unique());
+void SkLiteDL::reset() {
     this->map(dtor_fns);
 
     // Leave fBytes and fReserved alone.
     fUsed   = 0;
-    fBounds = bounds;
-}
-
-void SkLiteDL::drawAsLayer(SkCanvas* canvas, const SkMatrix* matrix, const SkPaint* paint) {
-    auto fallback_plan = [&] {
-        SkRect bounds = this->getBounds();
-        canvas->saveLayer(&bounds, paint);
-            this->draw(canvas, matrix);
-        canvas->restore();
-    };
-
-    // TODO: single-draw specializations
-
-    return fallback_plan();
-}
-
-void SkLiteDL::setBounds(const SkRect& bounds) {
-    fBounds = bounds;
 }

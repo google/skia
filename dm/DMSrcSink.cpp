@@ -1815,16 +1815,16 @@ Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
     auto size = src.size();
     SkRect bounds = {0,0, (SkScalar)size.width(), (SkScalar)size.height()};
     return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
-        sk_sp<SkLiteDL> dl = SkLiteDL::New(bounds);
+        SkLiteDL dl(bounds);
 
         SkLiteRecorder rec;
-        rec.reset(dl.get());
+        rec.reset(&dl);
 
         Error err = src.draw(&rec);
         if (!err.isEmpty()) {
             return err;
         }
-        dl->draw(canvas);
+        dl.draw(canvas);
         return check_against_reference(bitmap, src, fSink.get());
     });
 }
