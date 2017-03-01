@@ -270,7 +270,7 @@ static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ct
     return shader->asFragmentProcessor(args);
 }
 
-static void test_path(GrResourceProvider* rp,
+static void test_path(GrContext* ctx,
                       GrRenderTargetContext* renderTargetContext,
                       const SkPath& path,
                       const SkMatrix& matrix = SkMatrix::I(),
@@ -287,7 +287,7 @@ static void test_path(GrResourceProvider* rp,
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrShape shape(path, style);
-    GrPathRenderer::DrawPathArgs args{rp,
+    GrPathRenderer::DrawPathArgs args{ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
@@ -301,6 +301,7 @@ static void test_path(GrResourceProvider* rp,
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
+
     sk_sp<GrRenderTargetContext> rtc(ctx->makeRenderTargetContext(SkBackingFit::kApprox,
                                                                   800, 800,
                                                                   kRGBA_8888_GrPixelConfig,
@@ -311,28 +312,26 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
         return;
     }
 
-    GrResourceProvider* rp = ctx->resourceProvider();
-
     ctx->flush();
-    test_path(rp, rtc.get(), create_path_0());
-    test_path(rp, rtc.get(), create_path_1());
-    test_path(rp, rtc.get(), create_path_2());
-    test_path(rp, rtc.get(), create_path_3());
-    test_path(rp, rtc.get(), create_path_4());
-    test_path(rp, rtc.get(), create_path_5());
-    test_path(rp, rtc.get(), create_path_6());
-    test_path(rp, rtc.get(), create_path_7());
-    test_path(rp, rtc.get(), create_path_8());
-    test_path(rp, rtc.get(), create_path_9());
-    test_path(rp, rtc.get(), create_path_10());
-    test_path(rp, rtc.get(), create_path_11());
-    test_path(rp, rtc.get(), create_path_12());
-    test_path(rp, rtc.get(), create_path_13());
-    test_path(rp, rtc.get(), create_path_14());
-    test_path(rp, rtc.get(), create_path_15());
-    test_path(rp, rtc.get(), create_path_16());
+    test_path(ctx, rtc.get(), create_path_0());
+    test_path(ctx, rtc.get(), create_path_1());
+    test_path(ctx, rtc.get(), create_path_2());
+    test_path(ctx, rtc.get(), create_path_3());
+    test_path(ctx, rtc.get(), create_path_4());
+    test_path(ctx, rtc.get(), create_path_5());
+    test_path(ctx, rtc.get(), create_path_6());
+    test_path(ctx, rtc.get(), create_path_7());
+    test_path(ctx, rtc.get(), create_path_8());
+    test_path(ctx, rtc.get(), create_path_9());
+    test_path(ctx, rtc.get(), create_path_10());
+    test_path(ctx, rtc.get(), create_path_11());
+    test_path(ctx, rtc.get(), create_path_12());
+    test_path(ctx, rtc.get(), create_path_13());
+    test_path(ctx, rtc.get(), create_path_14());
+    test_path(ctx, rtc.get(), create_path_15());
+    test_path(ctx, rtc.get(), create_path_16());
     SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
     sk_sp<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
-    test_path(rp, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
+    test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
 }
 #endif

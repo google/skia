@@ -67,5 +67,5 @@ SkAlphaType GrBitmapTextureMaker::alphaType() const {
 
 sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
     // Color space doesn't depend on destination color space - it's just whatever is in the bitmap
-    return sk_ref_sp(fBitmap.colorSpace());
+    return fBitmap.refColorSpace();
 }

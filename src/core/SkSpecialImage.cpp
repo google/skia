@@ -196,7 +196,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
         GrContext* context = ((SkImage_Gpu*) as_IB(image))->context();
 
         return MakeDeferredFromGpu(context, subset, image->uniqueID(), std::move(proxy),
-                                   sk_ref_sp(as_IB(image)->onImageInfo().colorSpace()), props);
+                                   as_IB(image)->onImageInfo().refColorSpace(), props);
     } else
 #endif
     {
@@ -479,7 +479,7 @@ public:
         if (subset) {
             // TODO: if this becomes a bottle neck we could base this logic on what the size
             // will be when it is finally instantiated - but that is more fraught.
-            if (//fSurfaceProxy->priv().isExact() &&
+            if (fTextureProxy->priv().isExact() &&
                 0 == subset->fLeft && 0 == subset->fTop &&
                 fTextureProxy->width() == subset->width() &&
                 fTextureProxy->height() == subset->height()) {

@@ -55,7 +55,26 @@ public:
      */
     typedef void (*EvictionFunc)(GrDrawOpAtlas::AtlasID, void*);
 
-    GrDrawOpAtlas(GrContext*, sk_sp<GrTextureProxy>, int numPlotsX, int numPlotsY);
+    /**
+     * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
+     * should only be used inside of GrMeshDrawOp::onPrepareDraws.
+     *  @param GrPixelConfig    The pixel config which this atlas will store
+     *  @param width            width in pixels of the atlas
+     *  @param height           height in pixels of the atlas
+     *  @param numPlotsX        The number of plots the atlas should be broken up into in the X
+     *                          direction
+     *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
+     *                          direction
+     *  @param func             An eviction function which will be called whenever the atlas has to
+     *                          evict data
+     *  @param data             User supplied data which will be passed into func whenver an
+     *                          eviction occurs
+     *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
+     */
+    static std::unique_ptr<GrDrawOpAtlas> Make(GrContext*, GrPixelConfig,
+                                               int width, int height,
+                                               int numPlotsX, int numPlotsY,
+                                               GrDrawOpAtlas::EvictionFunc func, void* data);
 
     /**
      * Adds a width x height subimage to the atlas. Upon success it returns an ID and the subimage's
@@ -158,6 +177,8 @@ public:
     }
 
 private:
+    GrDrawOpAtlas(GrContext*, sk_sp<GrTextureProxy>, int numPlotsX, int numPlotsY);
+
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
      * keep track of subimage placement via their GrRectanizer. A Plot manages the lifetime of its
@@ -253,7 +274,7 @@ private:
         return (id >> 16) & 0xffffffffffff;
     }
 
-    inline void updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
+    inline bool updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
 
     inline void makeMRU(Plot* plot) {
         if (fPlotList.head() == plot) {

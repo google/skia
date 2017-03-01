@@ -781,7 +781,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                         GrPaint paint;
                         paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-                        GrPathRenderer::DrawPathArgs args{context->resourceProvider(),
+                        GrPathRenderer::DrawPathArgs args{context,
                                                           std::move(paint),
                                                           &kDrawToStencil,
                                                           renderTargetContext,
@@ -793,7 +793,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                         pr->drawPath(args);
                     } else {
                         GrPathRenderer::StencilPathArgs args;
-                        args.fResourceProvider = context->resourceProvider();
+                        args.fContext = context;
                         args.fRenderTargetContext = renderTargetContext;
                         args.fClip = &stencilClip.fixedClip();
                         args.fViewMatrix = &viewMatrix;
@@ -816,7 +816,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                     GrShape shape(clipPath, GrStyle::SimpleFill());
                     GrPaint paint;
                     paint.setXPFactory(GrDisableColorXPFactory::Get());
-                    GrPathRenderer::DrawPathArgs args{context->resourceProvider(),
+                    GrPathRenderer::DrawPathArgs args{context,
                                                       std::move(paint),
                                                       *pass,
                                                       renderTargetContext,
