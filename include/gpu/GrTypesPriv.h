@@ -12,7 +12,7 @@
 #include "SkRefCnt.h"
 
 /** This enum indicates the type of antialiasing to be performed. */
-enum class GrAAType {
+enum class GrAAType : unsigned {
     /** No antialiasing */
     kNone,
     /** Use fragment shader code to compute a fractional pixel coverage. */
