@@ -11,6 +11,7 @@
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
+#include "GrTextureProvider.h"
 #include "effects/GrSimpleTextureEffect.h"
 
 template <typename I>
