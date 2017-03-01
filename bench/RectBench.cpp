@@ -98,7 +98,7 @@ protected:
     }
 
     const char* onGetName() override {
-        fName.set(this->INHERITED::onGetName());
+        (void) this->INHERITED::onGetName();
         fName.prepend("srcmode_");
         return fName.c_str();
     }
@@ -121,7 +121,7 @@ protected:
     }
 
     const char* onGetName() override {
-        fName.set(this->INHERITED::onGetName());
+        (void) this->INHERITED::onGetName();
         fName.prepend("transparent_");
         return fName.c_str();
     }
