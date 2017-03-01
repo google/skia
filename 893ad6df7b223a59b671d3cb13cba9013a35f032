@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ad1525e_0e248bb7",
+        "filename": "src/gpu/GrSemaphore.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-01T20:46:39Z",
+      "side": 1,
+      "message": "nit: use -\u003e used",
+      "revId": "893ad6df7b223a59b671d3cb13cba9013a35f032",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beb4ee6d_c0b0c523",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-01T20:46:39Z",
+      "side": 1,
+      "message": "typo: \"end the end\" (at the end?)",
+      "revId": "893ad6df7b223a59b671d3cb13cba9013a35f032",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
