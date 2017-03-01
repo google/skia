@@ -15,6 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
+#include "GrSemaphore.h"
 
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
@@ -310,9 +311,13 @@ public:
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() const override { return 0; }
-    bool waitFence(GrFence, uint64_t) const override { return true; }
+    GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
+    bool waitFence(GrFence, uint64_t) override { return true; }
     void deleteFence(GrFence) const override {}
+
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override { return nullptr; }
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override {}
+    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
 
 private:
     void onResetContext(uint32_t resetBits) override {}

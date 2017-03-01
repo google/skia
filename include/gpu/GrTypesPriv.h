@@ -566,6 +566,6 @@ template <typename T> T * const * sk_sp_address_as_pointer_address(sk_sp<T> cons
 /*
  * Object for CPU-GPU synchronization
  */
-typedef intptr_t GrFence;
+typedef uint64_t GrFence;
 
 #endif
