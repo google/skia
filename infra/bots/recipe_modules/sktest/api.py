@@ -341,6 +341,9 @@ def dm_flags(bot):
     match.append('~CopySurface') # skia:5509
     match.append('~SRGBReadWritePixels') # skia:6097
 
+  if 'GalaxyJ5' in bot:
+    match.append('~SRGBReadWritePixels') # skia:6097
+
   if 'ANGLE' in bot and 'Debug' in bot:
     match.append('~GLPrograms') # skia:4717
 
