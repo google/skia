@@ -206,7 +206,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     sk_sp<GrTexture> texture;
     if (useCache) {
-        texture.reset(args.fResourceProvider->findAndRefTextureByUniqueKey(maskKey));
+        texture.reset(args.fContext->textureProvider()->findAndRefTextureByUniqueKey(maskKey));
     }
     if (!texture) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
