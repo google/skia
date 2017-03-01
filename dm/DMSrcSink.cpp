@@ -1813,18 +1813,17 @@ Error ViaSingletonPictures::draw(
 
 Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    SkRect bounds = {0,0, (SkScalar)size.width(), (SkScalar)size.height()};
+    SkIRect bounds = {0,0, size.width(), size.height()};
     return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
-        sk_sp<SkLiteDL> dl = SkLiteDL::New(bounds);
-
+        SkLiteDL dl;
         SkLiteRecorder rec;
-        rec.reset(dl.get());
+        rec.reset(&dl, bounds);
 
         Error err = src.draw(&rec);
         if (!err.isEmpty()) {
             return err;
         }
-        dl->draw(canvas);
+        dl.draw(canvas);
         return check_against_reference(bitmap, src, fSink.get());
     });
 }

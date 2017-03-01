@@ -15,24 +15,19 @@
 #include "SkRect.h"
 #include "SkTDArray.h"
 
-class SkLiteDL final : public SkDrawable {
+class SkLiteDL final {
 public:
-    static sk_sp<SkLiteDL> New(SkRect);
-    void reset(SkRect);
+    ~SkLiteDL();
 
+    void draw(SkCanvas* canvas);
+
+    void reset();
     void makeThreadsafe();
     bool empty() const { return fUsed == 0; }
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     void setDrawFilter(SkDrawFilter*);
 #endif
-
-    // Draws as if...
-    //   SkRect bounds = this->getBounds();
-    //   canvas->saveLayer(&bounds, paint);
-    //       this->draw(canvas, matrix);
-    //   canvas->restore();
-    void drawAsLayer(SkCanvas*, const SkMatrix*, const SkPaint*);
 
     void save();
     void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, SkCanvas::SaveLayerFlags);
@@ -85,15 +80,7 @@ public:
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
                    SkBlendMode, const SkRect*, const SkPaint*);
 
-    void setBounds(const SkRect& bounds);
-
 private:
-    SkLiteDL(SkRect);
-    ~SkLiteDL();
-
-    SkRect   onGetBounds() override;
-    void onDraw(SkCanvas*) override;
-
     template <typename T, typename... Args>
     void* push(size_t, Args&&...);
 
@@ -101,9 +88,8 @@ private:
     void map(const Fn[], Args...);
 
     SkAutoTMalloc<uint8_t> fBytes;
-    size_t                 fUsed;
-    size_t                 fReserved;
-    SkRect                 fBounds;
+    size_t                 fUsed = 0;
+    size_t                 fReserved = 0;
 };
 
 #endif//SkLiteDL_DEFINED

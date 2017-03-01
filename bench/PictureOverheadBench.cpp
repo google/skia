@@ -25,14 +25,15 @@ struct PictureOverheadBench : public Benchmark {
     void onDraw(int loops, SkCanvas*) override {
         SkLiteRecorder lite;
         SkPictureRecorder rec;
-        for (int i = 0; i < loops; i++) {
-            SkRect bounds{0,0, 2000,3000};
 
-            sk_sp<SkLiteDL> liteDL;
+        SkIRect iBounds = {0,0, 2000,3000};
+        SkRect bounds = SkRect::Make(iBounds);
+
+        for (int i = 0; i < loops; i++) {
+            SkLiteDL liteDL;
             SkCanvas* canvas;
             if (kLite) {
-                liteDL = SkLiteDL::New(bounds);
-                lite.reset(liteDL.get());
+                lite.reset(&liteDL, iBounds);
                 canvas = &lite;
             } else {
                 rec.beginRecording(bounds);

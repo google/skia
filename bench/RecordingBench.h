@@ -36,7 +36,7 @@ protected:
     void onDraw(int loops, SkCanvas*) override;
 
 private:
-    sk_sp<SkLiteDL> fDL;
+    std::unique_ptr<SkLiteDL> fDL;
     bool fUseBBH;
 
     typedef PictureCentricBench INHERITED;
