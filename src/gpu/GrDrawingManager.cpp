@@ -79,6 +79,34 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
 
+    GrPreFlushResourceProvider preFlushProvider(this);
+
+    for (int i = 0; i < fPreFlushCBObjects.count(); ++i) {
+        if (!fPreFlushCBObjects[i]) {
+            // If we wind up having a lot of one-shot or temporary callback objects we should
+            // compact when they are deleted.
+            continue;
+        }
+
+        bool done = false;
+        sk_sp<GrRenderTargetContext> rtc(fPreFlushCBObjects[i]->preFlush(&preFlushProvider,
+                                                                         fOpLists, &done));
+        if (done) {
+            fPreFlushCBObjects[i] = nullptr;
+        }
+
+        if (!rtc || !rtc->getOpList()) {
+            continue;       // This is fine. No atlases of this type are required for this flush
+        }
+
+        GrRenderTargetOpList* opList = rtc->getOpList();
+        SkDEBUGCODE(opList->validateForAtlas());
+        opList->prepareOps(&fFlushState);
+        if (!opList->executeOps(&fFlushState)) {
+            return;         // This is bad
+        }
+    }
+
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareOps(&fFlushState);
     }
@@ -143,6 +171,10 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
     if (fContext->getGpu() && rt) {
         fContext->getGpu()->resolveRenderTarget(rt);
     }
+}
+
+void GrDrawingManager::addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject> preFlushCBObject) {
+    fPreFlushCBObjects.push_back(preFlushCBObject);
 }
 
 GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
