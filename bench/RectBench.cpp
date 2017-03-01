@@ -30,17 +30,16 @@ public:
         , fStroke(stroke) {}
 
     const char* computeName(const char root[]) {
-        fName.printf("%s_%d", root, fShift);
+        fBaseName.printf("%s_%d", root, fShift);
         if (fStroke > 0) {
-            fName.appendf("_stroke_%d", fStroke);
+            fBaseName.appendf("_stroke_%d", fStroke);
         }
-        return fName.c_str();
+        return fBaseName.c_str();
     }
 
     bool isVisual() override { return true; }
 
 protected:
-    SkString fName;
 
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRect(r, p);
@@ -79,7 +78,9 @@ protected:
             this->drawThisRect(canvas, fRects[i % N], paint);
         }
     }
+
 private:
+    SkString fBaseName;
     typedef Benchmark INHERITED;
 };
 
@@ -105,6 +106,7 @@ protected:
 
 private:
     SkBlendMode fMode;
+    SkString fName;
 
     typedef RectBench INHERITED;
 };
@@ -127,6 +129,7 @@ protected:
     }
 
 private:
+    SkString fName;
     typedef RectBench INHERITED;
 };
 
@@ -186,6 +189,10 @@ protected:
         }
     }
     const char* onGetName() override { return fName.c_str(); }
+
+private:
+    SkString fName;
+
 };
 
 /*******************************************************************************
@@ -259,9 +266,11 @@ protected:
         }
     }
     const char* onGetName() override { return fName.c_str(); }
+
 private:
     typedef RectBench INHERITED;
     kMaskType _type;
+    SkString fName;
 };
 
 DEF_BENCH(return new RectBench(1);)
