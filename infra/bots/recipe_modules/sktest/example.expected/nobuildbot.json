@@ -261,6 +261,7 @@
       "--config",
       "8888",
       "srgb",
+      "srgbnl",
       "gpu",
       "gpudft",
       "gpusrgb",
