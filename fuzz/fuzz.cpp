@@ -10,12 +10,9 @@
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkDebugCanvas.h"
-#include "SkDocument.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
-#include "SkNullCanvas.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPath.h"
@@ -30,10 +27,8 @@
 
 #include <iostream>
 #include <signal.h>
-
 #include "sk_tool_utils.h"
 
-#include "FuzzCanvas.h"
 
 DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
         "contents will be used as the fuzz bytes. If a directory, all files "
@@ -59,10 +54,6 @@ static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
-static void fuzz_pdf_canvas(sk_sp<SkData>);
-static void fuzz_null_canvas(sk_sp<SkData>);
-static void fuzz_dump_canvas(sk_sp<SkData>);
-static void fuzz_raster_n32_canvas(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
@@ -131,23 +122,6 @@ static int fuzz_file(const char* path) {
             fuzz_skp(bytes);
             return 0;
         }
-        if (0 == strcmp("pdf_canvas", FLAGS_type[0])) {
-            fuzz_pdf_canvas(bytes);
-            return 0;
-        }
-        if (0 == strcmp("n32_canvas", FLAGS_type[0])) {
-            fuzz_raster_n32_canvas(bytes);
-            return 0;
-        }
-        // not a "real" thing to fuzz, used to debug errors found while fuzzing.
-        if (0 == strcmp("_dump_canvas", FLAGS_type[0])) {
-            fuzz_dump_canvas(bytes);
-            return 0;
-        }
-        if (0 == strcmp("null_canvas", FLAGS_type[0])) {
-            fuzz_null_canvas(bytes);
-            return 0;
-        }
 #if SK_SUPPORT_GPU
         if (0 == strcmp("sksl2glsl", FLAGS_type[0])) {
             fuzz_sksl2glsl(bytes);
@@ -179,7 +153,7 @@ static void fuzz_api(sk_sp<SkData> bytes) {
         auto fuzzable = r->factory();
         if (0 == strcmp(name, fuzzable.name)) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);
-            Fuzz fuzz(bytes);
+            Fuzz fuzz(std::move(bytes));
             fuzzable.fn(&fuzz);
             SkDebugf("[terminated] Success!\n");
             return;
@@ -467,39 +441,6 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     }
 
     dump_png(bitmap);
-}
-
-static void fuzz_null_canvas(sk_sp<SkData> bytes) {
-    Fuzz fuzz(std::move(bytes));
-    FuzzCanvas(&fuzz, SkMakeNullCanvas().get());
-}
-
-static void fuzz_raster_n32_canvas(sk_sp<SkData> bytes) {
-    Fuzz fuzz(std::move(bytes));
-    auto surface = SkSurface::MakeRasterN32Premul(612, 792);
-    SkASSERT(surface && surface->getCanvas());
-    FuzzCanvas(&fuzz, surface->getCanvas());
-}
-
-static void fuzz_pdf_canvas(sk_sp<SkData> bytes) {
-    Fuzz fuzz(std::move(bytes));
-    struct final : public SkWStream {
-        bool write(const void*, size_t n) override { fN += n; return true; }
-        size_t bytesWritten() const override { return fN; }
-        size_t fN = 0;
-    } stream;
-    auto doc = SkDocument::MakePDF(&stream);
-    FuzzCanvas(&fuzz, doc->beginPage(612.0f, 792.0f));
-}
-
-static void fuzz_dump_canvas(sk_sp<SkData> bytes) {
-    Fuzz fuzz(std::move(bytes));
-    SkDebugCanvas debugCanvas(612, 792);
-    FuzzCanvas(&fuzz, &debugCanvas);
-    std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
-    UrlDataManager dataManager(SkString("data"));
-    Json::Value json = debugCanvas.toJSON(dataManager, debugCanvas.getSize(), nullCanvas.get());
-    Json::StyledStreamWriter("  ").write(std::cout, json);
 }
 
 static void fuzz_skp(sk_sp<SkData> bytes) {
