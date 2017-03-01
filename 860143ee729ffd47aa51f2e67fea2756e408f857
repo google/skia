@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5c95400_1ecb7b5b",
+        "filename": "src/gpu/instanced/InstancedRenderingTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-01T18:08:51Z",
+      "side": 1,
+      "message": "Another option might be to define \"GrAAType : uint8_t\"? then  we wouldn\u0027t need to cast it to a uint8_t for storage, at least here.",
+      "range": {
+        "startLine": 128,
+        "startChar": 48,
+        "endLine": 128,
+        "endChar": 59
+      },
+      "revId": "860143ee729ffd47aa51f2e67fea2756e408f857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
