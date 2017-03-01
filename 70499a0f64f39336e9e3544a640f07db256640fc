@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "4779b8de_24506911",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-01T18:03:04Z",
+      "side": 1,
+      "message": "I think the needs of the per-flush callback object / atlas will be pretty specific. I\u0027m not sure what we gain from wrapping them into abstract ops for the framework to just turn around and execute directly in order? I might rather just make the draws calls I already know need to happen directly from inside the callback function.",
+      "range": {
+        "startLine": 86,
+        "startChar": 85,
+        "endLine": 86,
+        "endChar": 86
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e9dc90c0_2bf14e9d",
         "filename": "src/gpu/GrPerFlushResourceProvider.h",
         "patchSetId": 18
