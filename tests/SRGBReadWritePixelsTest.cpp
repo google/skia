@@ -9,7 +9,6 @@
 #if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrTextureProvider.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
