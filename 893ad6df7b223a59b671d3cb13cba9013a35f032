@@ -37,6 +37,29 @@
     },
     {
       "key": {
+        "uuid": "ff59f8b7_6a63071a",
+        "filename": "src/gpu/gl/GrGLDefines.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1058,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T21:00:13Z",
+      "side": 1,
+      "message": "this unsigned long long is ffffffull of ones.",
+      "range": {
+        "startLine": 1058,
+        "startChar": 60,
+        "endLine": 1058,
+        "endChar": 81
+      },
+      "revId": "893ad6df7b223a59b671d3cb13cba9013a35f032",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "beb4ee6d_c0b0c523",
         "filename": "src/gpu/vk/GrVkGpu.h",
         "patchSetId": 2
