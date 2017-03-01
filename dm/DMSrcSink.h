@@ -91,6 +91,11 @@ struct Sink {
     virtual const char* fileExtension() const  = 0;
 
     virtual SinkFlags flags() const = 0;
+
+    virtual std::unique_ptr<Sink> makeColorSpace(sk_sp<SkColorSpace>) const {
+        SkASSERT(false);
+        return nullptr;
+    }
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -311,6 +316,11 @@ public:
     bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
+    std::unique_ptr<Sink> makeColorSpace(sk_sp<SkColorSpace> space) const override {
+        return std::unique_ptr<Sink>(new GPUSink(fContextType, fContextOverrides, fSampleCount,
+                                                 fUseDIText, fColorType, std::move(space),
+                                                 fThreaded));
+    }
 private:
     sk_gpu_test::GrContextFactory::ContextType        fContextType;
     sk_gpu_test::GrContextFactory::ContextOverrides   fContextOverrides;
@@ -355,6 +365,9 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
+    std::unique_ptr<Sink> makeColorSpace(sk_sp<SkColorSpace> space) const override {
+        return std::unique_ptr<Sink>(new RasterSink(fColorType, std::move(space)));
+    }
 private:
     SkColorType         fColorType;
     sk_sp<SkColorSpace> fColorSpace;
@@ -484,6 +497,12 @@ public:
 class ViaLite : public Via {
 public:
     explicit ViaLite(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
+class ViaSRGBNonLinear : public Via {
+public:
+    ViaSRGBNonLinear(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 

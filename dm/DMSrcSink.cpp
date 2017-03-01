@@ -1829,4 +1829,59 @@ Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
     });
 }
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+Error check_almost_equal(const SkBitmap& bitmap0, const SkBitmap& bitmap1, int tolerance) {
+    SkASSERT(kN32_SkColorType == bitmap0.colorType());
+    SkASSERT(kN32_SkColorType == bitmap1.colorType());
+    SkASSERT(bitmap0.width() == bitmap1.width());
+    SkASSERT(bitmap0.height() == bitmap1.height());
+
+    for (int y = 0; y < bitmap0.height(); y++) {
+        for (int x = 0; x < bitmap0.width(); x++) {
+            SkPMColor c0 = *bitmap0.getAddr32(x, y);
+            SkPMColor c1 = *bitmap1.getAddr32(x, y);
+            int r0 = SkGetPackedR32(c0);
+            int g0 = SkGetPackedG32(c0);
+            int b0 = SkGetPackedB32(c0);
+            int a0 = SkGetPackedA32(c0);
+            int r1 = SkGetPackedR32(c1);
+            int g1 = SkGetPackedG32(c1);
+            int b1 = SkGetPackedB32(c1);
+            int a1 = SkGetPackedA32(c1);
+            if ((SkTAbs(r0 - r1) > tolerance) ||
+                (SkTAbs(g0 - g1) > tolerance) ||
+                (SkTAbs(b0 - g1) > tolerance) ||
+                (SkTAbs(a0 - a1) > tolerance))
+            {
+                return SkStringPrintf("Error at x=%d, y=%d, reference pixel is r=%d, g=%d, b=%d, "
+                       "a=%d, test pixel is r=%d, g=%d, b=%d a=%d\n", x, y, r0, g0, b0, a0, r1, g1,
+                       b1, a1);
+            }
+        }
+    }
+
+    return "";
+}
+
+Error ViaSRGBNonLinear::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream,
+                             SkString* log) const {
+    // Draw in reference mode (probably 8888 or gpu).
+    SkBitmap reference;
+    Error err = fSink->draw(src, &reference, stream, log);
+    if (err.isFatal()) {
+        return SkStringPrintf("Reference Failed: %s\n", err.c_str());
+    }
+
+    // Draw to sRGB with non-linear blending.
+    std::unique_ptr<Sink> srgbNonLinear = fSink->makeColorSpace(SkColorSpace_Base::MakeNamed(
+        SkColorSpace_Base::kSRGB_NonLinearBlending_Named));
+    err = srgbNonLinear->draw(src, bitmap, stream, log);
+    if (err.isFatal()) {
+        return SkStringPrintf("Non-Linear sRGB Failed: %s\n", err.c_str());
+    }
+
+    return check_almost_equal(reference, *bitmap, 1);
+}
+
 }  // namespace DM
