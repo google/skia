@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "79e04b69_a56ae9a9",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1026,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-01T17:34:59Z",
+      "side": 1,
+      "message": "I\u0027m not a huge fan of casting enums to ints.  Is this just for the RadioButton function?",
+      "range": {
+        "startLine": 1026,
+        "startChar": 29,
+        "endLine": 1026,
+        "endChar": 40
+      },
+      "revId": "b2461eb4cad55207c58bd4de7866e252339e3aed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97ec62c5_25e10752",
         "filename": "tools/viewer/Viewer.cpp",
         "patchSetId": 1
