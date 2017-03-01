@@ -9,6 +9,9 @@ import re
 import subprocess
 import sys
 
+#clang = ['clang++']
+clang = ['clang-3.9', '-x', 'c++']
+
 ndk = '/Users/mtklein/brew/opt/android-ndk/'
 objdump = 'gobjdump'
 
@@ -18,34 +21,34 @@ objdump = 'gobjdump'
 cflags = '-std=c++11 -Os -fomit-frame-pointer -DJUMPER'.split()
 
 sse2 = '-mno-red-zone -msse2 -mno-sse3 -mno-ssse3 -mno-sse4.1'.split()
-subprocess.check_call(['clang++'] + cflags + sse2 +
+subprocess.check_call(clang + cflags + sse2 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse2.o'])
-subprocess.check_call(['clang++'] + cflags + sse2 + ['-DWIN'] +
+subprocess.check_call(clang + cflags + sse2 + ['-DWIN'] +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_sse2.o'])
 
 sse41 = '-mno-red-zone -msse4.1'.split()
-subprocess.check_call(['clang++'] + cflags + sse41 +
+subprocess.check_call(clang + cflags + sse41 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse41.o'])
-subprocess.check_call(['clang++'] + cflags + sse41 + ['-DWIN'] +
+subprocess.check_call(clang + cflags + sse41 + ['-DWIN'] +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_sse41.o'])
 
 avx = '-mno-red-zone -mavx'.split()
-subprocess.check_call(['clang++'] + cflags + avx +
+subprocess.check_call(clang + cflags + avx +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'avx.o'])
-subprocess.check_call(['clang++'] + cflags + avx + ['-DWIN'] +
+subprocess.check_call(clang + cflags + avx + ['-DWIN'] +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_avx.o'])
 
 hsw = '-mno-red-zone -mavx2 -mfma -mf16c'.split()
-subprocess.check_call(['clang++'] + cflags + hsw +
+subprocess.check_call(clang + cflags + hsw +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'hsw.o'])
-subprocess.check_call(['clang++'] + cflags + hsw + ['-DWIN'] +
+subprocess.check_call(clang + cflags + hsw + ['-DWIN'] +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_hsw.o'])
 
@@ -53,7 +56,7 @@ aarch64 = [
     '--target=aarch64-linux-android',
     '--sysroot=' + ndk + 'platforms/android-21/arch-arm64',
 ]
-subprocess.check_call(['clang++'] + cflags + aarch64 +
+subprocess.check_call(clang + cflags + aarch64 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'aarch64.o'])
 
@@ -63,7 +66,7 @@ vfp4 = [
     '-mfpu=neon-vfpv4',
     '-mfloat-abi=hard',
 ]
-subprocess.check_call(['clang++'] + cflags + vfp4 +
+subprocess.check_call(clang + cflags + vfp4 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'vfp4.o'])
 
@@ -94,6 +97,12 @@ def parse_object_file(dot_o, directive, target=None):
       print '_' + m.group(1) + label
       continue
 
+    # ip-relative addressing usually means we're loading a constant,
+    # which we don't support.
+    if '%rip' in line:
+      print >>sys.stderr, line
+      assert '%rip' not in line
+
     columns = line.split('\t')
     code = columns[1]
     if len(columns) >= 4:
@@ -105,12 +114,7 @@ def parse_object_file(dot_o, directive, target=None):
         inst, args = columns[2].split(' ', 1)
     code, inst, args = code.strip(), inst.strip(), args.strip()
 
-    # We can't work with code that uses ip-relative addressing.
-    for arg in args:
-      assert 'rip' not in arg  # TODO: detect on aarch64 too
-
     hexed = ','.join(dehex(x) for x in code.split(' '))
-
     print '  ' + directive + '  ' + hexed + ' '*(36-len(hexed)) + \
           comment + inst  + (' '*(14-len(inst)) + args if args else '')
 
