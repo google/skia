@@ -9,6 +9,7 @@
 
 #include "GrContext.h"
 #include "GrGpu.h"
+#include "GrTextureProvider.h"
 
 GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
                                                SkColorSpace* dstColorSpace,

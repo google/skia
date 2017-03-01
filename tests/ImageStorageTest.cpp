@@ -12,6 +12,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
+#include "GrTextureProvider.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
