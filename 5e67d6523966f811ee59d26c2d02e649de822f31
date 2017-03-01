@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddd97555_15d691b2",
+        "filename": "tests/SkLiteDLTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-01T21:37:08Z",
+      "side": 1,
+      "message": "Might be clearer to swap the c-\u003erestore() and this comment.  You\u0027re really missing the restore() for the outer save(), not the inner one.",
+      "revId": "5e67d6523966f811ee59d26c2d02e649de822f31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
