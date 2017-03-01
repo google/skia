@@ -28,11 +28,10 @@ struct PictureOverheadBench : public Benchmark {
         for (int i = 0; i < loops; i++) {
             SkRect bounds{0,0, 2000,3000};
 
-            sk_sp<SkLiteDL> liteDL;
+            SkLiteDL liteDL(bounds);
             SkCanvas* canvas;
             if (kLite) {
-                liteDL = SkLiteDL::New(bounds);
-                lite.reset(liteDL.get());
+                lite.reset(&liteDL);
                 canvas = &lite;
             } else {
                 rec.beginRecording(bounds);

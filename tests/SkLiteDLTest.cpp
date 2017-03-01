@@ -10,21 +10,19 @@
 #include "SkLiteRecorder.h"
 
 DEF_TEST(SkLiteDL_basics, r) {
-    sk_sp<SkLiteDL> p { SkLiteDL::New({2,2,3,3}) };
-
-    p->save();
-        p->clipRect(SkRect{2,3,4,5}, kIntersect_SkClipOp, true);
-        p->drawRect(SkRect{0,0,9,9}, SkPaint{});
-    p->restore();
+    SkLiteDL p({2,2,3,3});
+    p.save();
+        p.clipRect(SkRect{2,3,4,5}, kIntersect_SkClipOp, true);
+        p.drawRect(SkRect{0,0,9,9}, SkPaint{});
+    p.restore();
 }
 
 DEF_TEST(SkLiteRecorder, r) {
-    sk_sp<SkLiteDL> p { SkLiteDL::New({2,2,3,3}) };
-
+    SkLiteDL p({2,2,3,3});
     SkLiteRecorder rec;
     SkCanvas* c = &rec;
 
-    rec.reset(p.get());
+    rec.reset(&p);
 
     c->save();
         c->clipRect(SkRect{2,3,4,5}, kIntersect_SkClipOp, true);

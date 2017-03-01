@@ -40,7 +40,7 @@ RecordingBench::RecordingBench(const char* name, const SkPicture* pic, bool useB
 {
     // If we're recording into an SkLiteDL, also record _from_ one.
     if (lite) {
-        fDL = SkLiteDL::New(fSrc->cullRect());
+        fDL.reset(new SkLiteDL(fSrc->cullRect()));
         SkLiteRecorder r;
         r.reset(fDL.get());
         fSrc->playback(&r);
@@ -51,10 +51,10 @@ void RecordingBench::onDraw(int loops, SkCanvas*) {
     if (fDL) {
         SkLiteRecorder rec;
         while (loops --> 0) {
-            sk_sp<SkLiteDL> dl = SkLiteDL::New(fSrc->cullRect());
-            rec.reset(dl.get());
+            SkLiteDL dl(fSrc->cullRect());
+            rec.reset(&dl);
             fDL->draw(&rec);
-            dl->makeThreadsafe();
+            dl.makeThreadsafe();
         }
 
     } else {
