@@ -22,10 +22,7 @@
 #include "SkUtils.h"
 
 #include <dwrite.h>
-
-#if SK_HAS_DWRITE_2_H
 #include <dwrite_2.h>
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -266,23 +263,19 @@ public:
     SkFontMgr_DirectWrite(IDWriteFactory* factory, IDWriteFontCollection* fontCollection,
                           IDWriteFontFallback* fallback, WCHAR* localeName, int localeNameLength)
         : fFactory(SkRefComPtr(factory))
-#if SK_HAS_DWRITE_2_H
         , fFontFallback(SkSafeRefComPtr(fallback))
-#endif
         , fFontCollection(SkRefComPtr(fontCollection))
         , fLocaleName(localeNameLength)
     {
-#if SK_HAS_DWRITE_2_H
         if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
             // IUnknown::QueryInterface states that if it fails, punk will be set to nullptr.
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
             SkASSERT_RELEASE(nullptr == fFactory2.get());
         }
         if (fFontFallback.get()) {
-            // factory must be provied if fallback is non-null, else the fallback will not be used.
+            // factory must be provided if fallback is non-null, else the fallback will not be used.
             SkASSERT(fFactory2.get());
         }
-#endif
         memcpy(fLocaleName.get(), localeName, localeNameLength * sizeof(WCHAR));
     }
 
@@ -313,10 +306,8 @@ private:
                                              IDWriteFontFamily* fontFamily) const;
 
     SkTScopedComPtr<IDWriteFactory> fFactory;
-#if SK_HAS_DWRITE_2_H
     SkTScopedComPtr<IDWriteFactory2> fFactory2;
     SkTScopedComPtr<IDWriteFontFallback> fFontFallback;
-#endif
     SkTScopedComPtr<IDWriteFontCollection> fFontCollection;
     SkSMallocWCHAR fLocaleName;
     mutable SkMutex fTFCacheMutex;
@@ -768,7 +759,6 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
         dwBcp47 = &dwBcp47Local;
     }
 
-#if SK_HAS_DWRITE_2_H
     if (fFactory2.get()) {
         SkTScopedComPtr<IDWriteFontFallback> systemFontFallback;
         IDWriteFontFallback* fontFallback = fFontFallback.get();
@@ -811,9 +801,6 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
         HRNM(font->GetFontFamily(&fontFamily), "Could not get family from font.");
         return this->createTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
     }
-#else
-#  pragma message("No dwrite_2.h is available, font fallback may be affected.")
-#endif
 
     SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
     HRNM(fFactory->CreateTextFormat(dwFamilyName ? dwFamilyName : L"",
