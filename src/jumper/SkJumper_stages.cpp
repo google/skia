@@ -246,6 +246,8 @@ static Dst bit_cast(const Src& src) {
     #endif
 #endif
 
+static const size_t kStride = sizeof(F) / sizeof(float);
+
 // We need to be a careful with casts.
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
@@ -258,6 +260,52 @@ static Dst bit_cast(const Src& src) {
     static U32 expand(U16 v) { return (U32)v; }
     static U32 expand(U8  v) { return (U32)v; }
 #endif
+
+template <typename V, typename T>
+static inline V load(const T* src, size_t tail) {
+#if defined(JUMPER)
+    if (__builtin_expect(tail, 0)) {
+        V v{};  // Any inactive lanes are zeroed.
+        #pragma nounroll
+        for (size_t i = 0; i < tail; i++) {
+            v[i] = src[i];
+        }
+        return v;
+    }
+#endif
+    return unaligned_load<V>(src);
+}
+
+#if 1 && defined(JUMPER) && defined(__AVX__)
+    template <>
+    inline U8 load(const uint8_t* src, size_t tail) {
+        if (__builtin_expect(tail, 0)) {
+            uint64_t v = 0;
+            size_t shift = 0;
+            #pragma nounroll
+            while (tail --> 0) {
+                v |= (uint64_t)*src++ << shift;
+                shift += 8;
+            }
+            return unaligned_load<U8>(&v);
+        }
+        return unaligned_load<U8>(src);
+    }
+#endif
+
+template <typename V, typename T>
+static inline void store(T* dst, V v, size_t tail) {
+#if defined(JUMPER)
+    if (__builtin_expect(tail, 0)) {
+        #pragma nounroll
+        for (size_t i = 0; i < tail; i++) {
+            dst[i] = v[i];
+        }
+        return;
+    }
+#endif
+    memcpy(dst, &v, sizeof(v));
+}
 
 
 static F lerp(F from, F to, F t) {
@@ -280,10 +328,6 @@ static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
         float operator[](int i) const { return vals[i]; }
     };
 #endif
-
-// Stages tail call between each other by following program,
-// an interlaced sequence of Stage pointers and context pointers.
-using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
 
 static void* load_and_inc(void**& program) {
 #if defined(__GNUC__) && defined(__x86_64__)
@@ -312,34 +356,74 @@ static void* load_and_inc(void**& program) {
 #endif
 }
 
-#define STAGE(name)                                                           \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
-                              F r, F g, F b, F a, F dr, F dg, F db, F da) {   \
-        auto ctx = load_and_inc(program);                                     \
-        name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
-        auto next = (Stage*)load_and_inc(program);                            \
-        next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
-    }                                                                         \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#if defined(JUMPER) && defined(__AVX__)
+    // There's a big cost to switch between SSE and AVX+, so we do a little
+    // extra work to handle even the jagged <kStride tail in AVX+ mode.
+    using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
 
-// Some glue stages that don't fit the normal pattern of stages.
-
-#if defined(JUMPER) && defined(WIN)
-__attribute__((ms_abi))
-#endif
-extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
-    F v{};
-    size_t stride = sizeof(F) / sizeof(float);
-    auto start = (Stage*)load_and_inc(program);
-    while (x + stride <= limit) {
-        start(x,program,k, v,v,v,v, v,v,v,v);
-        x += stride;
+    #if defined(JUMPER) && defined(WIN)
+    __attribute__((ms_abi))
+    #endif
+    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+        F v{};
+        auto start = (Stage*)load_and_inc(program);
+        while (x + kStride <= limit) {
+            start(x,program,k,0,    v,v,v,v, v,v,v,v);
+            x += kStride;
+        }
+        if (size_t tail = limit - x) {
+            start(x,program,k,tail, v,v,v,v, v,v,v,v);
+        }
+        return limit;
     }
-    return x;
-}
+
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            auto ctx = load_and_inc(program);                                     \
+            name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
+            auto next = (Stage*)load_and_inc(program);                            \
+            next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
+        }                                                                         \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+
+#else
+    // Other instruction sets (SSE, NEON, portable) can fall back on narrower
+    // pipelines cheaply, which frees us to always assume tail==0.
+
+    // Stages tail call between each other by following program,
+    // an interlaced sequence of Stage pointers and context pointers.
+    using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
+
+    #if defined(JUMPER) && defined(WIN)
+    __attribute__((ms_abi))
+    #endif
+    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+        F v{};
+        auto start = (Stage*)load_and_inc(program);
+        while (x + kStride <= limit) {
+            start(x,program,k, v,v,v,v, v,v,v,v);
+            x += kStride;
+        }
+        return x;
+    }
+
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            auto ctx = load_and_inc(program);                                     \
+            name##_k(x,ctx,k,0, r,g,b,a, dr,dg,db,da);                            \
+            auto next = (Stage*)load_and_inc(program);                            \
+            next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
+        }                                                                         \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#endif
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
 extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
@@ -512,7 +596,7 @@ STAGE(scale_1_float) {
 STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
-    auto scales = unaligned_load<U8>(ptr);
+    auto scales = load<U8>(ptr, tail);
     auto c = cast(expand(scales)) * k->_1_255;
 
     r = r * c;
@@ -532,7 +616,7 @@ STAGE(lerp_1_float) {
 STAGE(lerp_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
-    auto scales = unaligned_load<U8>(ptr);
+    auto scales = load<U8>(ptr, tail);
     auto c = cast(expand(scales)) * k->_1_255;
 
     r = lerp(dr, r, c);
@@ -544,7 +628,7 @@ STAGE(lerp_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
     F cr,cg,cb;
-    from_565(unaligned_load<U16>(ptr), &cr, &cg, &cb, k);
+    from_565(load<U16>(ptr, tail), &cr, &cg, &cb, k);
 
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
@@ -559,7 +643,7 @@ STAGE(load_tables) {
     };
     auto c = (const Ctx*)ctx;
 
-    auto px = unaligned_load<U32>(c->src + x);
+    auto px = load<U32>(c->src + x, tail);
     r = gather(c->r, (px      ) & k->_0x000000ff);
     g = gather(c->g, (px >>  8) & k->_0x000000ff);
     b = gather(c->b, (px >> 16) & k->_0x000000ff);
@@ -570,19 +654,19 @@ STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     r = g = b = 0.0f;
-    a = cast(expand(unaligned_load<U8>(ptr))) * k->_1_255;
+    a = cast(expand(load<U8>(ptr, tail))) * k->_1_255;
 }
 STAGE(store_a8) {
     auto ptr = *(uint8_t**)ctx + x;
 
     U8 packed = pack(pack(round(a, k->_255)));
-    memcpy(ptr, &packed, sizeof(packed));
+    store(ptr, packed, tail);
 }
 
 STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
-    from_565(unaligned_load<U16>(ptr), &r,&g,&b, k);
+    from_565(load<U16>(ptr, tail), &r,&g,&b, k);
     a = k->_1;
 }
 STAGE(store_565) {
@@ -591,13 +675,13 @@ STAGE(store_565) {
     U16 px = pack( round(r, k->_31) << 11
                  | round(g, k->_63) <<  5
                  | round(b, k->_31)      );
-    memcpy(ptr, &px, sizeof(px));
+    store(ptr, px, tail);
 }
 
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
 
-    auto px = unaligned_load<U32>(ptr);
+    auto px = load<U32>(ptr, tail);
     r = cast((px      ) & k->_0x000000ff) * k->_1_255;
     g = cast((px >>  8) & k->_0x000000ff) * k->_1_255;
     b = cast((px >> 16) & k->_0x000000ff) * k->_1_255;
@@ -611,7 +695,7 @@ STAGE(store_8888) {
            | round(g, k->_255) <<  8
            | round(b, k->_255) << 16
            | round(a, k->_255) << 24;
-    memcpy(ptr, &px, sizeof(px));
+    store(ptr, px, tail);
 }
 
 STAGE(load_f16) {
@@ -774,10 +858,26 @@ STAGE(store_f16) {
          ba0123 = _mm_unpacklo_epi16(B, A),
          ba4567 = _mm_unpackhi_epi16(B, A);
 
-    _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg0123, ba0123));
-    _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg0123, ba0123));
-    _mm_storeu_si128((__m128i*)ptr + 2, _mm_unpacklo_epi32(rg4567, ba4567));
-    _mm_storeu_si128((__m128i*)ptr + 3, _mm_unpackhi_epi32(rg4567, ba4567));
+    auto _01 = _mm_unpacklo_epi32(rg0123, ba0123),
+         _23 = _mm_unpackhi_epi32(rg0123, ba0123),
+         _45 = _mm_unpacklo_epi32(rg4567, ba4567),
+         _67 = _mm_unpackhi_epi32(rg4567, ba4567);
+
+    if (__builtin_expect(tail, 0)) {
+        auto dst = (double*)ptr;
+        if (tail > 0) { _mm_storel_pd(dst+0, _01); }
+        if (tail > 1) { _mm_storeh_pd(dst+1, _01); }
+        if (tail > 2) { _mm_storel_pd(dst+2, _23); }
+        if (tail > 3) { _mm_storeh_pd(dst+3, _23); }
+        if (tail > 4) { _mm_storel_pd(dst+4, _45); }
+        if (tail > 5) { _mm_storeh_pd(dst+5, _45); }
+        if (tail > 6) { _mm_storel_pd(dst+6, _67); }
+        return;
+    }
+    _mm_storeu_si128((__m128i*)ptr + 0, _01);
+    _mm_storeu_si128((__m128i*)ptr + 1, _23);
+    _mm_storeu_si128((__m128i*)ptr + 2, _45);
+    _mm_storeu_si128((__m128i*)ptr + 3, _67);
 #elif defined(__AVX__)
     auto float_to_half = [&](F f) {
         return bit_cast<U32>(f * bit_cast<F>(U32(k->_0x07800000)))  // Fix up the exponent,
@@ -799,10 +899,27 @@ STAGE(store_f16) {
          rg4567 = r4567 | _mm_slli_si128(g4567,2),
          ba0123 = b0123 | _mm_slli_si128(a0123,2),
          ba4567 = b4567 | _mm_slli_si128(a4567,2);
-    _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg0123, ba0123));
-    _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg0123, ba0123));
-    _mm_storeu_si128((__m128i*)ptr + 2, _mm_unpacklo_epi32(rg4567, ba4567));
-    _mm_storeu_si128((__m128i*)ptr + 3, _mm_unpackhi_epi32(rg4567, ba4567));
+
+    auto _01 = _mm_unpacklo_epi32(rg0123, ba0123),
+         _23 = _mm_unpackhi_epi32(rg0123, ba0123),
+         _45 = _mm_unpacklo_epi32(rg4567, ba4567),
+         _67 = _mm_unpackhi_epi32(rg4567, ba4567);
+
+    if (__builtin_expect(tail, 0)) {
+        auto dst = (double*)ptr;
+        if (tail > 0) { _mm_storel_pd(dst+0, _01); }
+        if (tail > 1) { _mm_storeh_pd(dst+1, _01); }
+        if (tail > 2) { _mm_storel_pd(dst+2, _23); }
+        if (tail > 3) { _mm_storeh_pd(dst+3, _23); }
+        if (tail > 4) { _mm_storel_pd(dst+4, _45); }
+        if (tail > 5) { _mm_storeh_pd(dst+5, _45); }
+        if (tail > 6) { _mm_storel_pd(dst+6, _67); }
+        return;
+    }
+    _mm_storeu_si128((__m128i*)ptr + 0, _01);
+    _mm_storeu_si128((__m128i*)ptr + 1, _23);
+    _mm_storeu_si128((__m128i*)ptr + 2, _45);
+    _mm_storeu_si128((__m128i*)ptr + 3, _67);
 #elif defined(__SSE2__)
     auto float_to_half = [&](F f) {
         return bit_cast<U32>(f * bit_cast<F>(U32(k->_0x07800000)))  // Fix up the exponent,
