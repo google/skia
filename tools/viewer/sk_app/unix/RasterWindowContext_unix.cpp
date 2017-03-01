@@ -38,6 +38,8 @@ RasterWindowContext_xlib::RasterWindowContext_xlib(Display* display, XWindow win
     fDisplayParams = params;
     fGC = XCreateGC(fDisplay, fWindow, 0, nullptr);
     this->resize(width, height);
+    fWidth = width;
+    fHeight = height;
 }
 
 void RasterWindowContext_xlib::setDisplayParams(const DisplayParams& params) {
