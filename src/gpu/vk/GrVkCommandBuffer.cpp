@@ -398,9 +398,12 @@ void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
     this->invalidateState();
 }
 
-void GrVkPrimaryCommandBuffer::submitToQueue(const GrVkGpu* gpu,
-                                             VkQueue queue,
-                                             GrVkGpu::SyncQueue sync) {
+void GrVkPrimaryCommandBuffer::submitToQueue(
+        const GrVkGpu* gpu,
+        VkQueue queue,
+        GrVkGpu::SyncQueue sync,
+        const GrVkSemaphore::Resource* signalSemaphore,
+        SkTArray<const GrVkSemaphore::Resource*>& waitSemaphores) {
     SkASSERT(!fIsActive);
 
     VkResult err;
@@ -415,17 +418,36 @@ void GrVkPrimaryCommandBuffer::submitToQueue(const GrVkGpu* gpu,
         GR_VK_CALL(gpu->vkInterface(), ResetFences(gpu->device(), 1, &fSubmitFence));
     }
 
+    if (signalSemaphore) {
+        this->addResource(signalSemaphore);
+    }
+
+    int waitCount = waitSemaphores.count();
+    SkTArray<VkSemaphore> vkWaitSems(waitCount);
+    SkTArray<VkPipelineStageFlags> vkWaitStages(waitCount);
+    if (waitCount) {
+        for (int i = 0; i < waitCount; ++i) {
+            this->addResource(waitSemaphores[i]);
+            vkWaitSems.push_back(waitSemaphores[i]->semaphore());
+            vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        }
+    }
+    SkTArray<VkSemaphore> vkSignalSem;
+    if (signalSemaphore) {
+        vkSignalSem.push_back(signalSemaphore->semaphore());
+    }
+
     VkSubmitInfo submitInfo;
     memset(&submitInfo, 0, sizeof(VkSubmitInfo));
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.pNext = nullptr;
-    submitInfo.waitSemaphoreCount = 0;
-    submitInfo.pWaitSemaphores = nullptr;
-    submitInfo.pWaitDstStageMask = 0;
+    submitInfo.waitSemaphoreCount = waitCount;
+    submitInfo.pWaitSemaphores = vkWaitSems.begin();
+    submitInfo.pWaitDstStageMask = vkWaitStages.begin();
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &fCmdBuffer;
-    submitInfo.signalSemaphoreCount = 0;
-    submitInfo.pSignalSemaphores = nullptr;
+    submitInfo.signalSemaphoreCount = vkSignalSem.count();
+    submitInfo.pSignalSemaphores = vkSignalSem.begin();
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), QueueSubmit(queue, 1, &submitInfo, fSubmitFence));
 
     if (GrVkGpu::kForce_SyncQueue == sync) {

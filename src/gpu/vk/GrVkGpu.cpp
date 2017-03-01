@@ -25,6 +25,7 @@
 #include "GrVkPipelineState.h"
 #include "GrVkRenderPass.h"
 #include "GrVkResourceProvider.h"
+#include "GrVkSemaphore.h"
 #include "GrVkTexture.h"
 #include "GrVkTextureRenderTarget.h"
 #include "GrVkTransferBuffer.h"
@@ -181,6 +182,11 @@ GrVkGpu::~GrVkGpu() {
     SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
 #endif
 
+    for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
+        fSemaphoresToWaitOn[i]->unref(this);
+    }
+    fSemaphoresToWaitOn.reset();
+
     fCopyManager.destroyResources(this);
 
     // must call this just before we destroy the command pool and VkDevice
@@ -206,11 +212,18 @@ GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
     return new GrVkGpuCommandBuffer(this, colorInfo, stencilInfo);
 }
 
-void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
+void GrVkGpu::submitCommandBuffer(SyncQueue sync,
+                                  const GrVkSemaphore::Resource* signalSemaphore) {
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->end(this);
 
-    fCurrentCmdBuffer->submitToQueue(this, fQueue, sync);
+    fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, signalSemaphore, fSemaphoresToWaitOn);
+
+    for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
+        fSemaphoresToWaitOn[i]->unref(this);
+    }
+    fSemaphoresToWaitOn.reset();
+
     fResourceProvider.checkCommandBuffers();
 
     // Release old command buffer and create a new one
@@ -1832,32 +1845,48 @@ void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
     this->didWriteToSurface(target, &bounds);
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() const {
+GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
     VkFenceCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(VkFenceCreateInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
     VkFence fence = VK_NULL_HANDLE;
-    VkResult result = GR_VK_CALL(this->vkInterface(), CreateFence(this->device(), &createInfo,
-                                                                  nullptr, &fence));
-    // TODO: verify that all QueueSubmits before this will finish before this fence signals
-    if (VK_SUCCESS == result) {
-        GR_VK_CALL(this->vkInterface(), QueueSubmit(this->queue(), 0, nullptr, fence));
-    }
+
+    VK_CALL_ERRCHECK(CreateFence(this->device(), &createInfo, nullptr, &fence));
+    VK_CALL(QueueSubmit(this->queue(), 0, nullptr, fence));
+
+    GR_STATIC_ASSERT(sizeof(GrFence) >= sizeof(VkFence));
     return (GrFence)fence;
 }
 
-bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout) const {
-    VkResult result = GR_VK_CALL(this->vkInterface(), WaitForFences(this->device(), 1,
-                                                                    (VkFence*)&fence,
-                                                                    VK_TRUE,
-                                                                    timeout));
+bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout) {
+    SkASSERT(VK_NULL_HANDLE != (VkFence)fence);
+
+    VkResult result = VK_CALL(WaitForFences(this->device(), 1, (VkFence*)&fence, VK_TRUE, timeout));
     return (VK_SUCCESS == result);
 }
 
 void GrVkGpu::deleteFence(GrFence fence) const {
-    GR_VK_CALL(this->vkInterface(), DestroyFence(this->device(), (VkFence)fence, nullptr));
+    VK_CALL(DestroyFence(this->device(), (VkFence)fence, nullptr));
+}
+
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore() {
+    return GrVkSemaphore::Make(this);
+}
+
+void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+    GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
+
+    this->submitCommandBuffer(kSkip_SyncQueue, vkSem->getResource());
+}
+
+void GrVkGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+    GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
+
+    const GrVkSemaphore::Resource* resource = vkSem->getResource();
+    resource->ref();
+    fSemaphoresToWaitOn.push_back(resource);
 }
 
 void GrVkGpu::flush() {

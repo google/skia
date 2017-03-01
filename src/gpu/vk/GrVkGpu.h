@@ -16,6 +16,7 @@
 #include "GrVkIndexBuffer.h"
 #include "GrVkMemory.h"
 #include "GrVkResourceProvider.h"
+#include "GrVkSemaphore.h"
 #include "GrVkVertexBuffer.h"
 #include "GrVkUtil.h"
 #include "vk/GrVkDefines.h"
@@ -129,9 +130,13 @@ public:
 
     void finishOpList() override;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(GrFence, uint64_t timeout) const override;
+    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
+
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override;
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
 
     void flush() override;
 
@@ -202,8 +207,12 @@ private:
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
-    // work in the queue to finish before returning.
-    void submitCommandBuffer(SyncQueue sync);
+    // work in the queue to finish before returning. If the signalSemaphore is not VK_NULL_HANDLE,
+    // we will signal the semaphore at the end of this command buffer. If this GrVkGpu object has
+    // any semaphores in fSemaphoresToWaitOn, we will add those wait semaphores to this command
+    // buffer when submitting.
+    void submitCommandBuffer(SyncQueue sync,
+                             const GrVkSemaphore::Resource* signalSemaphore = nullptr);
 
     void internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit);
 
@@ -247,18 +256,22 @@ private:
 
     // These Vulkan objects are provided by the client, and also stored in fBackendContext.
     // They're copied here for convenient access.
-    VkDevice                               fDevice;
-    VkQueue                                fQueue;    // Must be Graphics queue
+    VkDevice                                     fDevice;
+    VkQueue                                      fQueue;    // Must be Graphics queue
 
     // Created by GrVkGpu
-    GrVkResourceProvider                   fResourceProvider;
-    VkCommandPool                          fCmdPool;
-    GrVkPrimaryCommandBuffer*              fCurrentCmdBuffer;
-    VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
+    GrVkResourceProvider                         fResourceProvider;
+    VkCommandPool                                fCmdPool;
 
-    std::unique_ptr<GrVkHeap>              fHeaps[kHeapCount];
+    GrVkPrimaryCommandBuffer*                    fCurrentCmdBuffer;
 
-    GrVkCopyManager                        fCopyManager;
+    SkSTArray<1, const GrVkSemaphore::Resource*> fSemaphoresToWaitOn;
+
+    VkPhysicalDeviceMemoryProperties             fPhysDevMemProps;
+
+    std::unique_ptr<GrVkHeap>                    fHeaps[kHeapCount];
+
+    GrVkCopyManager                              fCopyManager;
 
 #ifdef SK_ENABLE_VK_LAYERS
     // For reporting validation layer errors
