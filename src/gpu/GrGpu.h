@@ -33,6 +33,7 @@ class GrPathRendering;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
+class GrSemaphore;
 class GrStencilAttachment;
 class GrStencilSettings;
 class GrSurface;
@@ -378,9 +379,13 @@ public:
     // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
     virtual void finishOpList() {}
 
-    virtual GrFence SK_WARN_UNUSED_RESULT insertFence() const = 0;
-    virtual bool waitFence(GrFence, uint64_t timeout = 1000) const = 0;
+    virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;
+    virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;
     virtual void deleteFence(GrFence) const = 0;
+
+    virtual sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() = 0;
+    virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
+    virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
 
     // Ensures that all queued up driver-level commands have been sent to the GPU. For example, on
     // OpenGL, this calls glFlush.

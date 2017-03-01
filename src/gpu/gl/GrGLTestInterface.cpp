@@ -314,6 +314,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fTextureBuffer = bind_to_member(this, &GrGLTestInterface::textureBuffer);
     fFunctions.fFenceSync = bind_to_member(this, &GrGLTestInterface::fenceSync);
     fFunctions.fClientWaitSync = bind_to_member(this, &GrGLTestInterface::clientWaitSync);
+    fFunctions.fWaitSync = bind_to_member(this, &GrGLTestInterface::waitSync);
     fFunctions.fDeleteSync = bind_to_member(this, &GrGLTestInterface::deleteSync);
     fFunctions.fDebugMessageControl = bind_to_member(this, &GrGLTestInterface::debugMessageControl);
     fFunctions.fDebugMessageInsert = bind_to_member(this, &GrGLTestInterface::debugMessageInsert);

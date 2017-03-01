@@ -146,9 +146,15 @@ public:
 
     void finishOpList() override;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(GrFence, uint64_t timeout) const override;
+    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
+
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override;
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
+
+    void deleteSync(GrGLsync) const;
 
     void flush() override;
 
