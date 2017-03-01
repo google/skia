@@ -6,17 +6,20 @@
  */
 
 #include "Fuzz.h"
-#include "FuzzCanvas.h"
 
 // CORE
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
+#include "SkDebugCanvas.h"
+#include "SkDocument.h"
 #include "SkFontMgr.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
+#include "SkNullCanvas.h"
 #include "SkPathEffect.h"
 #include "SkPictureRecorder.h"
 #include "SkRegion.h"
+#include "SkSurface.h"
 #include "SkTypeface.h"
 
 // EFFECTS
@@ -26,6 +29,10 @@
 
 // SRC
 #include "SkUtils.h"
+
+// MISC
+
+#include <iostream>
 
 // TODO:
 //   SkCanvas::drawTextBlob
@@ -1130,8 +1137,33 @@ static sk_sp<SkPicture> make_picture(Fuzz* fuzz, int depth) {
     return pictureRecorder.finishRecordingAsPicture();
 }
 
-void FuzzCanvas(Fuzz* fuzz, SkCanvas* canvas) {
-    fuzz_canvas(fuzz, canvas);
-    SkDebugf("[terminated] Finished Canvas Calls.\n");
+DEF_FUZZ(NullCanvas, fuzz) {
+    fuzz_canvas(fuzz, SkMakeNullCanvas().get());
 }
 
+DEF_FUZZ(RasterN32Canvas, fuzz) {
+    fuzz_canvas(fuzz, SkMakeNullCanvas().get());
+    auto surface = SkSurface::MakeRasterN32Premul(612, 792);
+    SkASSERT(surface && surface->getCanvas());
+    fuzz_canvas(fuzz, surface->getCanvas());
+}
+
+DEF_FUZZ(PDFCanvas, fuzz) {
+    struct final : public SkWStream {
+        bool write(const void*, size_t n) override { fN += n; return true; }
+        size_t bytesWritten() const override { return fN; }
+        size_t fN = 0;
+    } stream;
+    auto doc = SkDocument::MakePDF(&stream);
+    fuzz_canvas(fuzz, doc->beginPage(612.0f, 792.0f));
+}
+
+// not a "real" thing to fuzz, used to debug errors found while fuzzing.
+DEF_FUZZ(_DumpCanvas, fuzz) {
+    SkDebugCanvas debugCanvas(612, 792);
+    fuzz_canvas(fuzz, &debugCanvas);
+    std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
+    UrlDataManager dataManager(SkString("data"));
+    Json::Value json = debugCanvas.toJSON(dataManager, debugCanvas.getSize(), nullCanvas.get());
+    Json::StyledStreamWriter("  ").write(std::cout, json);
+}
