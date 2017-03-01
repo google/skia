@@ -23,6 +23,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
+#include "GrTextureProvider.h"
 #include "GrTextureProxy.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
