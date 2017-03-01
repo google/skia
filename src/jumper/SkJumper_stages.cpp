@@ -246,6 +246,8 @@ static Dst bit_cast(const Src& src) {
     #endif
 #endif
 
+static const size_t kStride = sizeof(F) / sizeof(float);
+
 // We need to be a careful with casts.
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
@@ -312,18 +314,36 @@ static void* load_and_inc(void**& program) {
 #endif
 }
 
-#define STAGE(name)                                                           \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
-                              F r, F g, F b, F a, F dr, F dg, F db, F da) {   \
-        auto ctx = load_and_inc(program);                                     \
-        name##_k(x,ctx,k, r,g,b,a, dr,dg,db,da);                              \
-        auto next = (Stage*)load_and_inc(program);                            \
-        next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
-    }                                                                         \
-    static void name##_k(size_t& x, void* ctx, K* k,                          \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#if defined(JUMPER) && defined(__AVX__)
+    // On AVX+, we handle both the body and the tail to avoid SSE transition penalties.
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        extern "C" void WRAP(name)(size_t x_tail, void** program, K* k,           \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            auto ctx = load_and_inc(program);                                     \
+            name##_k(x_tail/kStride,ctx,k,x_tail%kStride, r,g,b,a, dr,dg,db,da);  \
+            auto next = (Stage*)load_and_inc(program);                            \
+            next(x_tail,program,k, r,g,b,a, dr,dg,db,da);                         \
+        }                                                                         \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+
+#else
+    // On other platforms (SSE, NEON, portable), we leave the tail to the next smaller pipeline.
+    #define STAGE(name)                                                           \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            auto ctx = load_and_inc(program);                                     \
+            name##_k(x,ctx,k,0, r,g,b,a, dr,dg,db,da);                            \
+            auto next = (Stage*)load_and_inc(program);                            \
+            next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
+        }                                                                         \
+        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#endif
 
 // Some glue stages that don't fit the normal pattern of stages.
 
@@ -332,13 +352,23 @@ __attribute__((ms_abi))
 #endif
 extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
     F v{};
-    size_t stride = sizeof(F) / sizeof(float);
     auto start = (Stage*)load_and_inc(program);
-    while (x + stride <= limit) {
+#if defined(JUMPER) && defined(__AVX__)  // See notes around STAGE().
+    while (x + kStride <= limit) {
+        start(kStride*x+0   ,program,k, v,v,v,v, v,v,v,v);
+        x += kStride;
+    }
+    if (size_t tail = limit-x) {
+        start(kStride*x+tail,program,k, v,v,v,v, v,v,v,v);
+    }
+    return limit;
+#else
+    while (x + kStride <= limit) {
         start(x,program,k, v,v,v,v, v,v,v,v);
-        x += stride;
+        x += kStride;
     }
     return x;
+#endif
 }
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
