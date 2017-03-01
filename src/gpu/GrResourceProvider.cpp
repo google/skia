@@ -135,42 +135,6 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     return buffer;
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrContext* context,
-                                                             GrPixelConfig config, int width,
-                                                             int height, int numPlotsX,
-                                                             int numPlotsY,
-                                                             GrDrawOpAtlas::EvictionFunc func,
-                                                             void* data) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-
-    // We don't want to flush the context so we claim we're in the middle of flushing so as to
-    // guarantee we do not recieve a texture with pending IO
-    // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
-    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(this->createApproxTexture(desc, kFlags));
-    if (!texture) {
-        return nullptr;
-    }
-    // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
-    // possess the correct properties (e.g., no pendingIO) should fall out of the system but
-    // should receive special attention.
-    // Note: When switching over to the deferred proxy, use the kExact flag to create
-    // the atlas.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(context, std::move(proxy), numPlotsX, numPlotsY));
-    atlas->registerEvictionCallback(func, data);
-    return atlas;
-}
-
 GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
     SkASSERT(rt);
     if (rt->renderTargetPriv().getStencilAttachment()) {

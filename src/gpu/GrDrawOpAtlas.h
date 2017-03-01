@@ -253,7 +253,7 @@ private:
         return (id >> 16) & 0xffffffffffff;
     }
 
-    inline void updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
+    inline bool updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
 
     inline void makeMRU(Plot* plot) {
         if (fPlotList.head() == plot) {
