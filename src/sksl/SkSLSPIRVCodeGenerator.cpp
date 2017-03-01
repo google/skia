@@ -2540,6 +2540,9 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeInstruction(SpvOpVariable, ptrType, result, storageClass, fConstantBuffer);
     this->writeLayout(intf.fVariable.fModifiers.fLayout, result);
     fVariableMap[&intf.fVariable] = result;
+    if (fProgram.fInputs.fRTHeight) {
+        delete type;
+    }
     return result;
 }
 
