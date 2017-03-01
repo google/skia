@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f43c72f6_cdf32a0a",
+        "filename": "src/core/SkLiteDL.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-03-01T18:45:33Z",
+      "side": 1,
+      "message": "it does not seem that getBounds/setBounds are called by the framework and SkLiteDL is not using it for anything inside. can we delete fBounds?",
+      "range": {
+        "startLine": 98,
+        "startChar": 27,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "a490159847bedff4be042887744cf90a540f1578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
