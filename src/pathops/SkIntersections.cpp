@@ -82,8 +82,12 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
         fIsCoincident[1] += fIsCoincident[1] & clearMask;
     }
     fPt[index] = pt;
-    SkASSERT(one >= 0 && one <= 1);
-    SkASSERT(two >= 0 && two <= 1);
+    if (one < 0 || one > 1) {
+        return -1;
+    }
+    if (two < 0 || two > 1) {
+        return -1;
+    }
     fT[0][index] = one;
     fT[1][index] = two;
     ++fUsed;
