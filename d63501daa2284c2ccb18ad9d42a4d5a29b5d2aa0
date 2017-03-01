@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d50c0cf6_71ad75da",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T19:14:11Z",
+      "side": 1,
+      "message": "are the ..\u0027s required? Maybe we can just update a gn file?",
+      "revId": "d63501daa2284c2ccb18ad9d42a4d5a29b5d2aa0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "211308a6_e3cd9905",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-01T19:14:11Z",
+      "side": 1,
+      "message": "this can fail for perspective",
+      "range": {
+        "startLine": 465,
+        "startChar": 20,
+        "endLine": 465,
+        "endChar": 35
+      },
+      "revId": "d63501daa2284c2ccb18ad9d42a4d5a29b5d2aa0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
