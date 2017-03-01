@@ -15,6 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
+#include "GrTextureProxy.h"
 
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
@@ -129,15 +130,9 @@ sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
         return nullptr;
     }
 
-    GrTexture* tex = proxy->instantiate(this->textureProvider());
-    if (!tex) {
-        return nullptr;
-    }
-
-    // MDB TODO: add proxy-backed SkImage_Gpu's
-    sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
+    sk_sp<SkImage> image(new SkImage_Gpu(this, proxy->width(), proxy->height(),
                                          kNeedNewImageUniqueID, kPremul_SkAlphaType,
-                                         sk_ref_sp(tex), nullptr, SkBudgeted::kNo));
+                                         std::move(proxy), nullptr, SkBudgeted::kNo));
     return image;
 }
 

@@ -94,6 +94,8 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrSurfaceProxy.h"
 #include "GrTexture.h"
 
 GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
@@ -114,6 +116,14 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIm
     if (!image) {
         return nullptr;
     }
-    return SkSafeRef(as_IB(image)->peekTexture());
+    sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef();
+    SkASSERT(proxy);
+
+    GrSurface* surf = proxy->instantiate(ctx->textureProvider());
+    if (!surf) {
+        return nullptr;
+    }
+
+    return surf->asTexture();
 }
 #endif

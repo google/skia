@@ -9,6 +9,7 @@
 
 #include "GrBuffer.h"
 #include "GrCaps.h"
+#include "GrContext.h"
 #include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
@@ -16,6 +17,7 @@
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
 #include "GrStencilAttachment.h"
+#include "GrTextureProxy.h"
 #include "SkMathPriv.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
@@ -135,10 +137,9 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     return buffer;
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrContext* context,
-                                                             GrPixelConfig config, int width,
-                                                             int height, int numPlotsX,
-                                                             int numPlotsY,
+std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::MakeAtlas(GrContext* ctx, GrPixelConfig config,
+                                                             int width, int height,
+                                                             int numPlotsX, int numPlotsY,
                                                              GrDrawOpAtlas::EvictionFunc func,
                                                              void* data) {
     GrSurfaceDesc desc;
@@ -151,10 +152,11 @@ std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrContext* context,
     // guarantee we do not recieve a texture with pending IO
     // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(this->createApproxTexture(desc, kFlags));
+    sk_sp<GrTexture> texture(ctx->textureProvider()->createApproxTexture(desc, kFlags));
     if (!texture) {
         return nullptr;
     }
+
     // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
     // possess the correct properties (e.g., no pendingIO) should fall out of the system but
     // should receive special attention.
@@ -166,7 +168,7 @@ std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrContext* context,
     }
 
     std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(context, std::move(proxy), numPlotsX, numPlotsY));
+            new GrDrawOpAtlas(ctx, std::move(proxy), numPlotsX, numPlotsY));
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }

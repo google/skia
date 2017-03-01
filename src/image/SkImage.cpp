@@ -158,24 +158,33 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
 
 #if SK_SUPPORT_GPU
 
-GrTexture* SkImage::getTexture() const {
-    return as_IB(this)->peekTexture();
+GrSurfaceProxy* SkImage::getProxy() const {
+    return as_IB(this)->asTextureProxyRef().get();
 }
 
-bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekTexture()); }
+bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->asTextureProxyRef()); }
+
+#include "GrSurfaceProxy.h"
 
 GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
                                           GrSurfaceOrigin* origin) const {
-    GrTexture* texture = as_IB(this)->peekTexture();
-    if (texture) {
-        GrContext* context = texture->getContext();
-        if (context && flushPendingGrContextIO) {
-            context->prepareSurfaceForExternalIO(texture);
+    sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();
+    if (!proxy) {
+        return 0;
+    }
+
+    GrSurface* surface = proxy->instantiate(nullptr);
+    if (surface && surface->asTexture()) {
+        GrContext* context = surface->getContext();
+        if (context) {
+            if (flushPendingGrContextIO) {
+                context->prepareSurfaceForExternalIO(surface);
+            }
         }
         if (origin) {
-            *origin = texture->origin();
+            *origin = proxy->origin();
         }
-        return texture->getTextureHandle();
+        return surface->asTexture()->getTextureHandle();
     }
     return 0;
 }
@@ -218,8 +227,8 @@ bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint c
 bool SkImage::readYUV8Planes(const SkISize sizes[3], void* const planes[3],
                              const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
 #if SK_SUPPORT_GPU
-    if (GrTexture* texture = as_IB(this)->peekTexture()) {
-        if (GrTextureToYUVPlanes(texture, sizes, planes, rowBytes, colorSpace)) {
+    if (sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef()) {
+        if (GrTextureToYUVPlanes(nullptr, sizes, planes, rowBytes, colorSpace)) {
             return true;
         }
     }

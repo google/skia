@@ -503,17 +503,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 ERRORF(reporter, "Error creating image.");
                 continue;
             }
-            GrTexture* origTexture = as_IB(image)->peekTexture();
+            GrTexture* origTexture = as_IB(image)->peekTexture1();
 
             sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get()));
             if (!texImage) {
-                // We execpt to fail if image comes from a different GrContext.
+                // We expect to fail if image comes from a different GrContext.
                 if (!origTexture || origTexture->getContext() == context) {
                     ERRORF(reporter, "makeTextureImage failed.");
                 }
                 continue;
             }
-            GrTexture* copyTexture = as_IB(texImage)->peekTexture();
+            GrTexture* copyTexture = as_IB(texImage)->peekTexture1();
             if (!copyTexture) {
                 ERRORF(reporter, "makeTextureImage returned non-texture image.");
                 continue;
@@ -561,6 +561,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contex
     }
 }
 
+#if 0
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, contextInfo) {
     auto context = contextInfo.grContext();
     auto image = create_gpu_image(context);
@@ -569,6 +570,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
     as_IB(image)->peekTexture()->abandon();
     surface->getCanvas()->drawImage(image, 0, 0);
 }
+#endif
 
 #endif
 

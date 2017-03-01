@@ -19,6 +19,7 @@
 #include "GrSurfacePriv.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxy.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
@@ -746,12 +747,12 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = args.fResourceProvider->makeAtlas(args.fResourceProvider->context(),
-                                                   kAlpha_8_GrPixelConfig,
-                                                   ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                   NUM_PLOTS_X, NUM_PLOTS_Y,
-                                                   &GrAADistanceFieldPathRenderer::HandleEviction,
-                                                   (void*)this);
+        fAtlas = GrResourceProvider::MakeAtlas(args.fContext,
+                                               kAlpha_8_GrPixelConfig,
+                                               ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
+                                               NUM_PLOTS_X, NUM_PLOTS_Y,
+                                               &GrAADistanceFieldPathRenderer::HandleEviction,
+                                               (void*)this);
         if (!fAtlas) {
             return false;
         }
@@ -821,7 +822,7 @@ DRAW_OP_TEST_DEFINE(AADistanceFieldPathOp) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
         gTestStruct.fAtlas =
-                context->resourceProvider()->makeAtlas(context, kAlpha_8_GrPixelConfig,
+                         GrResourceProvider::MakeAtlas(context, kAlpha_8_GrPixelConfig,
                                                        ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                        NUM_PLOTS_X, NUM_PLOTS_Y,
                                                        &PathTestStruct::HandleEviction,
