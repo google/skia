@@ -256,7 +256,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
         gPathRendererNames[GpuPathRenderers::kPLS] = "Pixel local storage";
         gPathRendererNames[GpuPathRenderers::kDistanceField] = "Distance field (small paths only)";
-        gPathRendererNames[GpuPathRenderers::kTesselating] = "Tessellating";
+        gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
         gPathRendererNames[GpuPathRenderers::kDefault] = "Original Ganesh path renderer";
         gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
     });
@@ -978,6 +978,51 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                         this->setBackend(static_cast<sk_app::Window::BackendType>(newBackend));
                     });
                 }
+
+                if (ImGui::TreeNode("Path Renderers")) {
+                    const GrContext* ctx = fWindow->getGrContext();
+                    DisplayParams params = fWindow->getRequestedDisplayParams();
+                    GpuPathRenderers prevPr = params.fGrContextOptions.fGpuPathRenderers;
+                    GpuPathRenderers newPr = prevPr;
+                    auto prButton = [&](GpuPathRenderers x) {
+                        if (ImGui::RadioButton(gPathRendererNames[x].c_str(), prevPr == x)) {
+                            newPr = x;
+                        }
+                    };
+
+                    if (!ctx) {
+                        ImGui::RadioButton("Software", true);
+                    } else if (fWindow->sampleCount()) {
+                        prButton(GpuPathRenderers::kAll);
+                        if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
+                            prButton(GpuPathRenderers::kStencilAndCover);
+                        }
+                        if (ctx->caps()->sampleShadingSupport()) {
+                            prButton(GpuPathRenderers::kMSAA);
+                        }
+                        prButton(GpuPathRenderers::kTessellating);
+                        prButton(GpuPathRenderers::kDefault);
+                        prButton(GpuPathRenderers::kNone);
+                    } else {
+                        prButton(GpuPathRenderers::kAll);
+                        if (ctx->caps()->shaderCaps()->plsPathRenderingSupport()) {
+                            prButton(GpuPathRenderers::kPLS);
+                        }
+                        prButton(GpuPathRenderers::kDistanceField);
+                        prButton(GpuPathRenderers::kTessellating);
+                        prButton(GpuPathRenderers::kNone);
+                    }
+
+                    if (newPr != prevPr) {
+                        params.fGrContextOptions.fGpuPathRenderers = newPr;
+                        fDeferredActions.push_back([=]() {
+                            fWindow->setRequestedDisplayParams(params);
+                            fWindow->inval();
+                            this->updateTitle();
+                        });
+                    }
+                    ImGui::TreePop();
+                }
             }
 
             if (ImGui::CollapsingHeader("Slide")) {
@@ -1189,7 +1234,7 @@ void Viewer::updateUIState() {
         if (ctx->caps()->sampleShadingSupport()) {
             prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kMSAA]);
         }
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTesselating]);
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     } else {
@@ -1198,7 +1243,7 @@ void Viewer::updateUIState() {
             prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kPLS]);
         }
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDistanceField]);
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTesselating]);
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     }
 

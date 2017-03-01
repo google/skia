@@ -62,7 +62,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kDistanceField) {
         fChain.push_back(sk_make_sp<GrAADistanceFieldPathRenderer>());
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kTesselating) {
+    if (options.fGpuPathRenderers & GpuPathRenderers::kTessellating) {
         fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kDefault) {

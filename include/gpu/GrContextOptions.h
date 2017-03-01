@@ -100,7 +100,7 @@ struct GrContextOptions {
         kAALinearizing     = 1 << 5,
         kPLS               = 1 << 6,
         kDistanceField     = 1 << 7,
-        kTesselating       = 1 << 8,
+        kTessellating      = 1 << 8,
         kDefault           = 1 << 9,
 
         kAll               = kDefault | (kDefault - 1)
