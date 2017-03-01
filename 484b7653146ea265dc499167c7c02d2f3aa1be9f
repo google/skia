@@ -70,6 +70,30 @@
       "revId": "484b7653146ea265dc499167c7c02d2f3aa1be9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e056b2ff_867f8c66",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1856,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-01T19:12:00Z",
+      "side": 1,
+      "message": "IIUC anything that is sRGB gamut should draw the same?  And anything that is another gamut will not (we can blacklist these)?  Now that I think about it, there is probably more to it than that...\n\nI\u0027m not sure that this is a great way to test.  Though I think it might be better than adding yet another sink that needs to be triaged in Gold.  What do you think?\n\nThere were definitely some bugs when I tried to actually use this mode (not sure whether they were framework bugs or Skia bugs).  I think we need to have *something* in place that gives us confidence that this draws as we expect.",
+      "parentUuid": "32648449_4b423010",
+      "range": {
+        "startLine": 1852,
+        "startChar": 12,
+        "endLine": 1856,
+        "endChar": 13
+      },
+      "revId": "484b7653146ea265dc499167c7c02d2f3aa1be9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
