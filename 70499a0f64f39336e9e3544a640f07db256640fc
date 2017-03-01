@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5168776f_2033af17",
+        "filename": "src/gpu/GrContextPriv.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-01T18:52:46Z",
+      "side": 1,
+      "message": "I\u0027ve renamed everything to PerFlush.\n\nI\u0027ve also added a \u0027done\u0027 out param but I don\u0027t know how often it will be used.",
+      "parentUuid": "22fe9572_dfd20c86",
+      "range": {
+        "startLine": 67,
+        "startChar": 9,
+        "endLine": 67,
+        "endChar": 34
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4779b8de_24506911",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 18
@@ -88,6 +112,48 @@
     },
     {
       "key": {
+        "uuid": "da4b3288_09f506c7",
+        "filename": "src/gpu/GrPerFlushResourceProvider.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-01T18:52:46Z",
+      "side": 1,
+      "message": "I was imagining that the CCPR would have a pointer to (and ref on) one of these and be filling it up while the drawing manager was emptying it out.",
+      "parentUuid": "e9dc90c0_2bf14e9d",
+      "range": {
+        "startLine": 31,
+        "startChar": 40,
+        "endLine": 31,
+        "endChar": 48
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d59943b5_65b6a7d1",
+        "filename": "src/gpu/GrPerFlushResourceProvider.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-01T18:52:46Z",
+      "side": 1,
+      "message": "I was imagining this would be the stateful object the CCPR uses to store all its information.\n\nI have made it derive from GrNonAtomicRef. No one should be creating these in a different thread from the owning GrContext.",
+      "parentUuid": "140e3125_090568a9",
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bdf3a0dd_128fdb76",
         "filename": "src/gpu/GrPerFlushResourceProvider.h",
         "patchSetId": 18
@@ -99,6 +165,30 @@
       "writtenOn": "2017-03-01T15:21:40Z",
       "side": 1,
       "message": "Is op list and not rtc the right level for this to operate at (wrt input and output)",
+      "range": {
+        "startLine": 41,
+        "startChar": 18,
+        "endLine": 41,
+        "endChar": 38
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98583e9c_f5ade984",
+        "filename": "src/gpu/GrPerFlushResourceProvider.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-01T18:52:46Z",
+      "side": 1,
+      "message": "The DrawingManager has opLists so the input is probably stuck being opLists.\n\nThe return value doesn\u0027t matter as much since the DrawingManager can just get the opList from the renderTargetContext.\n\nI\u0027ve switched over to RTCs for now. Note that, in the future, it may need to return a list of RTCs if multiple atlases are required.",
+      "parentUuid": "bdf3a0dd_128fdb76",
       "range": {
         "startLine": 41,
         "startChar": 18,
