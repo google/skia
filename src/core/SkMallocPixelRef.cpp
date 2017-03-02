@@ -107,6 +107,9 @@ SkMallocPixelRef* SkMallocPixelRef::NewWithProc(const SkImageInfo& info,
                                                 SkMallocPixelRef::ReleaseProc proc,
                                                 void* context) {
     if (!is_valid(info, ctable)) {
+        if (proc) {
+            proc(addr, context);
+        }
         return nullptr;
     }
     return new SkMallocPixelRef(info, addr, rowBytes, ctable, proc, context);
