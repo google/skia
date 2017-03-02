@@ -949,7 +949,17 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     int colorCount = 256;
 
     if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, colorPtr, &colorCount)) {
-        return SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
+        SkString err =
+                SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
+
+#if defined(SK_BUILD_FOR_WIN)
+        if (kPlatform_Mode == fMode) {
+            // Do not issue a fatal error for WIC flakiness.
+            return Error::Nonfatal(err);
+        }
+#endif
+
+        return err;
     }
 
     draw_to_canvas(canvas, decodeInfo, pixels.get(), rowBytes, colorPtr, colorCount,
