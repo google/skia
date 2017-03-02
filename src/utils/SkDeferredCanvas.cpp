@@ -46,7 +46,7 @@ void SkDeferredCanvas::Rec::setConcat(const SkMatrix& m) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkDeferredCanvas::SkDeferredCanvas(SkCanvas* canvas)
-    : INHERITED(1, 1) {
+    : INHERITED(canvas->getBaseLayerSize().width(), canvas->getBaseLayerSize().height()) {
     this->reset(canvas);
 }
 
