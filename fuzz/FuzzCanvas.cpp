@@ -1097,7 +1097,6 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 SkPoint vertices[kMaxCount];
                 SkPoint texs[kMaxCount];
                 SkColor colors[kMaxCount];
-                uint16_t indices[kMaxCount];
                 fuzz->nextRange(&vertexCount, 3, kMaxCount);
                 fuzz->nextN(vertices, vertexCount);
                 bool useTexs, useColors;
@@ -1109,8 +1108,12 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                     fuzz->nextN(colors, vertexCount);
                 }
                 int indexCount = 0;
+                uint16_t indices[kMaxCount * 2];
                 if (make_bool(fuzz)) {
-                    fuzz->nextRange(&indexCount, 3, kMaxCount);
+                    fuzz->nextRange(&indexCount, vertexCount, vertexCount + kMaxCount);
+                    for (int i = 0; i < indexCount; ++i) {
+                        fuzz->nextRange(&indices[i], 0, vertexCount - 1);
+                    }
                 }
                 canvas->drawVertices(vertexMode, vertexCount, vertices,
                                      useTexs ? texs : nullptr,
