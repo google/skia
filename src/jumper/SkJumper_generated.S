@@ -726,8 +726,7 @@ _sk_repeat_x_aarch64:
   .long  0x4eb18651                          // add           v17.4s, v18.4s, v17.4s
   .long  0x6e32fc12                          // fdiv          v18.4s, v0.4s, v18.4s
   .long  0x4e219a52                          // frintm        v18.4s, v18.4s
-  .long  0x4f909250                          // fmul          v16.4s, v18.4s, v16.s[0]
-  .long  0x4eb0d400                          // fsub          v0.4s, v0.4s, v16.4s
+  .long  0x4f905240                          // fmls          v0.4s, v18.4s, v16.s[0]
   .long  0x4eb1f400                          // fmin          v0.4s, v0.4s, v17.4s
   .long  0xd61f0060                          // br            x3
 
@@ -740,8 +739,7 @@ _sk_repeat_y_aarch64:
   .long  0x4eb18651                          // add           v17.4s, v18.4s, v17.4s
   .long  0x6e32fc32                          // fdiv          v18.4s, v1.4s, v18.4s
   .long  0x4e219a52                          // frintm        v18.4s, v18.4s
-  .long  0x4f909250                          // fmul          v16.4s, v18.4s, v16.s[0]
-  .long  0x4eb0d421                          // fsub          v1.4s, v1.4s, v16.4s
+  .long  0x4f905241                          // fmls          v1.4s, v18.4s, v16.s[0]
   .long  0x4eb1f421                          // fmin          v1.4s, v1.4s, v17.4s
   .long  0xd61f0060                          // br            x3
 
@@ -755,13 +753,12 @@ _sk_mirror_x_aarch64:
   .long  0x4e040612                          // dup           v18.4s, v16.s[0]
   .long  0x6e32fc12                          // fdiv          v18.4s, v0.4s, v18.4s
   .long  0x4e219a52                          // frintm        v18.4s, v18.4s
-  .long  0x4f909250                          // fmul          v16.4s, v18.4s, v16.s[0]
-  .long  0x4eb0d400                          // fsub          v0.4s, v0.4s, v16.4s
-  .long  0x6f07e7f2                          // movi          v18.2d, #0xffffffffffffffff
+  .long  0x4f905240                          // fmls          v0.4s, v18.4s, v16.s[0]
+  .long  0x6f07e7f0                          // movi          v16.2d, #0xffffffffffffffff
   .long  0x4eb1d400                          // fsub          v0.4s, v0.4s, v17.4s
-  .long  0x4eb28632                          // add           v18.4s, v17.4s, v18.4s
+  .long  0x4eb08630                          // add           v16.4s, v17.4s, v16.4s
   .long  0x4ea0f800                          // fabs          v0.4s, v0.4s
-  .long  0x4eb2f400                          // fmin          v0.4s, v0.4s, v18.4s
+  .long  0x4eb0f400                          // fmin          v0.4s, v0.4s, v16.4s
   .long  0xd61f0060                          // br            x3
 
 .globl _sk_mirror_y_aarch64
@@ -774,13 +771,12 @@ _sk_mirror_y_aarch64:
   .long  0x4e040612                          // dup           v18.4s, v16.s[0]
   .long  0x6e32fc32                          // fdiv          v18.4s, v1.4s, v18.4s
   .long  0x4e219a52                          // frintm        v18.4s, v18.4s
-  .long  0x4f909250                          // fmul          v16.4s, v18.4s, v16.s[0]
-  .long  0x4eb0d421                          // fsub          v1.4s, v1.4s, v16.4s
-  .long  0x6f07e7f2                          // movi          v18.2d, #0xffffffffffffffff
+  .long  0x4f905241                          // fmls          v1.4s, v18.4s, v16.s[0]
+  .long  0x6f07e7f0                          // movi          v16.2d, #0xffffffffffffffff
   .long  0x4eb1d421                          // fsub          v1.4s, v1.4s, v17.4s
-  .long  0x4eb28632                          // add           v18.4s, v17.4s, v18.4s
+  .long  0x4eb08630                          // add           v16.4s, v17.4s, v16.4s
   .long  0x4ea0f821                          // fabs          v1.4s, v1.4s
-  .long  0x4eb2f421                          // fmin          v1.4s, v1.4s, v18.4s
+  .long  0x4eb0f421                          // fmin          v1.4s, v1.4s, v16.4s
   .long  0xd61f0060                          // br            x3
 
 .globl _sk_matrix_2x3_aarch64
@@ -2479,11 +2475,10 @@ _sk_repeat_x_hsw:
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
   .byte  196,65,124,94,200                   // vdivps        %ymm8,%ymm0,%ymm9
   .byte  196,67,125,8,201,1                  // vroundps      $0x1,%ymm9,%ymm9
-  .byte  196,65,52,89,200                    // vmulps        %ymm8,%ymm9,%ymm9
-  .byte  196,193,124,92,193                  // vsubps        %ymm9,%ymm0,%ymm0
-  .byte  196,65,53,118,201                   // vpcmpeqd      %ymm9,%ymm9,%ymm9
-  .byte  196,65,61,254,193                   // vpaddd        %ymm9,%ymm8,%ymm8
-  .byte  196,193,124,93,192                  // vminps        %ymm8,%ymm0,%ymm0
+  .byte  196,98,61,172,200                   // vfnmadd213ps  %ymm0,%ymm8,%ymm9
+  .byte  197,253,118,192                     // vpcmpeqd      %ymm0,%ymm0,%ymm0
+  .byte  197,189,254,192                     // vpaddd        %ymm0,%ymm8,%ymm0
+  .byte  197,180,93,192                      // vminps        %ymm0,%ymm9,%ymm0
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -2493,11 +2488,10 @@ _sk_repeat_y_hsw:
   .byte  196,98,125,24,0                     // vbroadcastss  (%rax),%ymm8
   .byte  196,65,116,94,200                   // vdivps        %ymm8,%ymm1,%ymm9
   .byte  196,67,125,8,201,1                  // vroundps      $0x1,%ymm9,%ymm9
-  .byte  196,65,52,89,200                    // vmulps        %ymm8,%ymm9,%ymm9
-  .byte  196,193,116,92,201                  // vsubps        %ymm9,%ymm1,%ymm1
-  .byte  196,65,53,118,201                   // vpcmpeqd      %ymm9,%ymm9,%ymm9
-  .byte  196,65,61,254,193                   // vpaddd        %ymm9,%ymm8,%ymm8
-  .byte  196,193,116,93,200                  // vminps        %ymm8,%ymm1,%ymm1
+  .byte  196,98,61,172,201                   // vfnmadd213ps  %ymm1,%ymm8,%ymm9
+  .byte  197,245,118,201                     // vpcmpeqd      %ymm1,%ymm1,%ymm1
+  .byte  197,189,254,201                     // vpaddd        %ymm1,%ymm8,%ymm1
+  .byte  197,180,93,201                      // vminps        %ymm1,%ymm9,%ymm1
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -2511,9 +2505,8 @@ _sk_mirror_x_hsw:
   .byte  196,226,125,24,192                  // vbroadcastss  %xmm0,%ymm0
   .byte  197,44,94,192                       // vdivps        %ymm0,%ymm10,%ymm8
   .byte  196,67,125,8,192,1                  // vroundps      $0x1,%ymm8,%ymm8
-  .byte  197,188,89,192                      // vmulps        %ymm0,%ymm8,%ymm0
-  .byte  197,172,92,192                      // vsubps        %ymm0,%ymm10,%ymm0
-  .byte  196,193,124,92,193                  // vsubps        %ymm9,%ymm0,%ymm0
+  .byte  196,66,125,172,194                  // vfnmadd213ps  %ymm10,%ymm0,%ymm8
+  .byte  196,193,60,92,193                   // vsubps        %ymm9,%ymm8,%ymm0
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  197,60,92,192                       // vsubps        %ymm0,%ymm8,%ymm8
   .byte  197,188,84,192                      // vandps        %ymm0,%ymm8,%ymm0
@@ -2533,9 +2526,8 @@ _sk_mirror_y_hsw:
   .byte  196,226,125,24,201                  // vbroadcastss  %xmm1,%ymm1
   .byte  197,44,94,193                       // vdivps        %ymm1,%ymm10,%ymm8
   .byte  196,67,125,8,192,1                  // vroundps      $0x1,%ymm8,%ymm8
-  .byte  197,188,89,201                      // vmulps        %ymm1,%ymm8,%ymm1
-  .byte  197,172,92,201                      // vsubps        %ymm1,%ymm10,%ymm1
-  .byte  196,193,116,92,201                  // vsubps        %ymm9,%ymm1,%ymm1
+  .byte  196,66,117,172,194                  // vfnmadd213ps  %ymm10,%ymm1,%ymm8
+  .byte  196,193,60,92,201                   // vsubps        %ymm9,%ymm8,%ymm1
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
   .byte  197,60,92,193                       // vsubps        %ymm1,%ymm8,%ymm8
   .byte  197,188,84,201                      // vandps        %ymm1,%ymm8,%ymm1
