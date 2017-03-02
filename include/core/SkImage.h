@@ -181,6 +181,15 @@ public:
     SkAlphaType alphaType() const;
 
     /**
+     *  Returns the color space of the SkImage.
+     *
+     *  This may be the color space that was supplied on creation of the SkImage or a color
+     *  space that was parsed from encoded data.  This color space is not guaranteed to be
+     *  renderable.
+     */
+    SkColorSpace* colorSpace() const;
+
+    /**
      *  Returns true fi the image will be drawn as a mask, with no intrinsic color of its own.
      */
     bool isAlphaOnly() const;
