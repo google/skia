@@ -577,6 +577,9 @@ sk_sp<SkPDFObject> SkPDFShader::GetPDFShader(SkPDFDocument* doc,
                                              const SkMatrix& matrix,
                                              const SkIRect& surfaceBBox,
                                              SkScalar rasterScale) {
+    if (surfaceBBox.isEmpty()) {
+        return nullptr;
+    }
     SkBitmap image;
     State state(shader, matrix, surfaceBBox, rasterScale, &image);
     return get_pdf_shader_by_state(
