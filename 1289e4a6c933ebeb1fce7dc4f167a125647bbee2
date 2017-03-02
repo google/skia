@@ -16,6 +16,24 @@
       "revId": "1289e4a6c933ebeb1fce7dc4f167a125647bbee2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c93f00f_cd23f4cb",
+        "filename": "src/core/SkEdgeBuilder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-03-02T19:28:17Z",
+      "side": 1,
+      "message": "Inline storage is much faster. It does not require a malloc. My thinking is that 95% of the time the edge build needs less than 8K, and that will happen inline. The other 4% of the time we will allocate one more 8K block and then 1% we will allocate more.",
+      "parentUuid": "879dc407_d520f89f",
+      "revId": "1289e4a6c933ebeb1fce7dc4f167a125647bbee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
