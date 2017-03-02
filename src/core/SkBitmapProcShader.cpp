@@ -105,8 +105,8 @@ private:
 class LinearPipelineContext : public BitmapProcInfoContext {
 public:
     LinearPipelineContext(const SkShader& shader, const SkShader::ContextRec& rec,
-                          SkBitmapProcInfo* info)
-        : INHERITED(shader, rec, info)
+                          SkBitmapProcInfo* info, SkArenaAlloc* alloc)
+        : INHERITED(shader, rec, info), fAllocator{alloc}
     {
         // Save things off in case we need to build a blitter pipeline.
         fSrcPixmap = info->fPixmap;
@@ -114,12 +114,12 @@ public:
         fFilterQuality = info->fFilterQuality;
         fMatrixTypeMask = info->fRealInvMatrix.getType();
 
-        fShaderPipeline = fAllocator.make<SkLinearBitmapPipeline>(
+        fShaderPipeline = alloc->make<SkLinearBitmapPipeline>(
             info->fRealInvMatrix, info->fFilterQuality,
             info->fTileModeX, info->fTileModeY,
             info->fPaintColor,
             info->fPixmap,
-            &fAllocator);
+            fAllocator);
 
         // To implement the old shadeSpan entry-point, we need to efficiently convert our native
         // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
@@ -150,7 +150,7 @@ public:
             *fShaderPipeline,
             fMatrixTypeMask,
             fFilterQuality, fSrcPixmap,
-            fAlpha, state->fMode, dstInfo, &fAllocator)))
+            fAlpha, state->fMode, dstInfo, fAllocator)))
         {
             state->fStorage[0] = fBlitterPipeline;
             state->fBlitBW = &LinearPipelineContext::ForwardToPipeline;
@@ -168,8 +168,8 @@ public:
     }
 
 private:
-    char                    fStorage[512 + 96];
-    SkArenaAlloc            fAllocator {fStorage, sizeof(fStorage)};
+    // Store the allocator from the context creation incase we are asked to build a blitter.
+    SkArenaAlloc*           fAllocator;
     SkLinearBitmapPipeline* fShaderPipeline;
     SkLinearBitmapPipeline* fBlitterPipeline;
     SkXfermode::D32Proc     fSrcModeProc;
@@ -218,7 +218,7 @@ SkShader::Context* SkBitmapProcLegacyShader::MakeContext(
             return nullptr;
         }
 
-        return alloc->make<LinearPipelineContext>(shader, rec, info);
+        return alloc->make<LinearPipelineContext>(shader, rec, info, alloc);
     } else {
         SkBitmapProcState* state = alloc->make<SkBitmapProcState>(provider, tmx, tmy);
         if (!state->setup(totalInverse, *rec.fPaint)) {
