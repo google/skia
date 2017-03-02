@@ -1581,7 +1581,7 @@ int SkTypeface_FreeType::onGetVariationDesignPosition(
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
 
-    if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+    if (!face || !(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
         return 0;
     }
 
