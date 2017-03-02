@@ -196,19 +196,19 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(GrTextureProvider* texProvide
     copyDesc.fSampleCnt = SkTMin(desc.fSampleCnt, caps.maxSampleCount());
 
 #ifdef SK_DISABLE_DEFERRED_PROXIES
-    sk_sp<GrSurface> surf;
+    sk_sp<GrTexture> tex;
 
     if (SkBackingFit::kApprox == fit) {
-        surf.reset(texProvider->createApproxTexture(copyDesc));
+        tex.reset(texProvider->createApproxTexture(copyDesc));
     } else {
-        surf.reset(texProvider->createTexture(copyDesc, budgeted));
+        tex.reset(texProvider->createTexture(copyDesc, budgeted));
     }
 
-    if (!surf) {
+    if (!tex) {
         return nullptr;
     }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(surf));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
 #else
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
