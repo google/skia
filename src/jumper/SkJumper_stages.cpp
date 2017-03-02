@@ -114,7 +114,7 @@ static Dst bit_cast(const Src& src) {
 
     #define WRAP(name) sk_##name##_vfp4
 
-#elif defined(__AVX2__) && defined(__FMA__) && defined(__F16C__)
+#elif defined(__AVX__)
     #include <immintrin.h>
 
     // These are __m256 and __m256i, but friendlier and strongly-typed.
@@ -124,7 +124,14 @@ static Dst bit_cast(const Src& src) {
     using U16 = uint16_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
-    static F   mad(F f, F m, F a)  { return _mm256_fmadd_ps(f,m,a);}
+    static F mad(F f, F m, F a)  {
+    #if defined(__FMA__)
+        return _mm256_fmadd_ps(f,m,a);
+    #else
+        return f*m+a;
+    #endif
+    }
+
     static F   min(F a, F b)       { return _mm256_min_ps(a,b);    }
     static F   max(F a, F b)       { return _mm256_max_ps(a,b);    }
     static F   abs_(F v)           { return _mm256_and_ps(v, 0-v); }
@@ -134,57 +141,30 @@ static Dst bit_cast(const Src& src) {
     static U32 round(F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
 
     static U16 pack(U32 v) {
-        __m128i lo = _mm256_extractf128_si256(v, 0),
-                hi = _mm256_extractf128_si256(v, 1);
-        return _mm_packus_epi32(lo, hi);
+        return _mm_packus_epi32(_mm256_extractf128_si256(v, 0),
+                                _mm256_extractf128_si256(v, 1));
     }
     static U8 pack(U16 v) {
-        __m128i r = _mm_packus_epi16(v,v);
-        return unaligned_load<U8>(&r);
-    }
-
-    static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
-
-    static F gather(const float* p, U32 ix) { return _mm256_i32gather_ps(p, ix, 4); }
-
-    #define WRAP(name) sk_##name##_hsw
-
-#elif defined(__AVX__)
-    #include <immintrin.h>
-
-    using F   = float    __attribute__((ext_vector_type(8)));
-    using I32 =  int32_t __attribute__((ext_vector_type(8)));
-    using U32 = uint32_t __attribute__((ext_vector_type(8)));
-    using U16 = uint16_t __attribute__((ext_vector_type(8)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(8)));
-
-    static F   mad(F f, F m, F a)  { return f*m+a;                 }
-    static F   min(F a, F b)       { return _mm256_min_ps(a,b);    }
-    static F   max(F a, F b)       { return _mm256_max_ps(a,b);    }
-    static F   abs_(F v)           { return _mm256_and_ps(v, 0-v); }
-    static F   floor(F v, K*)      { return _mm256_floor_ps(v);    }
-    static F   rcp  (F v)          { return _mm256_rcp_ps  (v);    }
-    static F   rsqrt(F v)          { return _mm256_rsqrt_ps(v);    }
-    static U32 round(F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
-
-    static U16 pack(U32 v) {
-        __m128i lo = _mm256_extractf128_si256(v, 0),
-                hi = _mm256_extractf128_si256(v, 1);
-        return _mm_packus_epi32(lo, hi);
-    }
-    static U8 pack(U16 v) {
-        __m128i r = _mm_packus_epi16(v,v);
+        auto r = _mm_packus_epi16(v,v);
         return unaligned_load<U8>(&r);
     }
 
     static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
 
     static F gather(const float* p, U32 ix) {
+    #if defined(__AVX2__)
+        return _mm256_i32gather_ps(p, ix, 4);
+    #else
         return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
                  p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
+    #endif
     }
 
-    #define WRAP(name) sk_##name##_avx
+    #if defined(__AVX2__) && defined(__F16C__) && defined(__FMA__)
+        #define WRAP(name) sk_##name##_hsw
+    #else
+        #define WRAP(name) sk_##name##_avx
+    #endif
 
 #elif defined(__SSE2__)
     #include <immintrin.h>
@@ -221,11 +201,7 @@ static Dst bit_cast(const Src& src) {
     }
 
     static F if_then_else(I32 c, F t, F e) {
-    #if defined(__SSE4_1__)
-        return _mm_blendv_ps(e,t,c);
-    #else
         return _mm_or_ps(_mm_and_ps(c, t), _mm_andnot_ps(c, e));
-    #endif
     }
 
     static F floor(F v, K* k) {
