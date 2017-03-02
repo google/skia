@@ -317,3 +317,19 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM(return new ClipCubicGM;)
+
+DEF_SIMPLE_GM(clip_speed, canvas, 500, 500) {
+    SkRect bounds = { 5, 5, 100, 100 };
+   if (false) canvas->saveLayer(&bounds, nullptr);
+    SkPaint paint;
+    const SkRect clip = { 10, 10, 50, 60 };
+    const SkRect r = { 20, 20, 21, 21 };
+    for (int i = 0; i < 10000; ++i) {
+        canvas->save();
+        canvas->translate(10, 10);
+        canvas->clipRect(clip);
+        canvas->drawRect(r, paint);
+        canvas->restore();
+    }
+    canvas->restore();
+}
