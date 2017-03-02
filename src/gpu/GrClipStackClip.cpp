@@ -446,7 +446,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
         return nullptr;
     }
 
-    tex->resourcePriv().setUniqueKey(key);
+    context->textureProvider()->assignUniqueKeyToTexture(key, tex);
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
 
     return result;
@@ -522,7 +522,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         return nullptr;
     }
 
-    tex->resourcePriv().setUniqueKey(key);
+    context->textureProvider()->assignUniqueKeyToTexture(key, tex);
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
     return result;
 }

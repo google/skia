@@ -474,9 +474,10 @@ public:
     }
 };
 
-static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
+static GrTexture* set_key_and_return(GrTextureProvider* texProvider,
+                                     GrTexture* tex, const GrUniqueKey& key) {
     if (key.isValid()) {
-        tex->resourcePriv().setUniqueKey(key);
+        texProvider->assignUniqueKeyToTexture(key, tex);
     }
     return tex;
 }
@@ -543,7 +544,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
         if (GrTexture* tex = generator->generateTexture(ctx, cacheInfo, fOrigin)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
-            return set_key_and_return(tex, key);
+            return set_key_and_return(ctx->textureProvider(), tex, key);
         }
     }
 
@@ -570,7 +571,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
         if (tex) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
-            return set_key_and_return(tex.release(), key);
+            return set_key_and_return(ctx->textureProvider(), tex.release(), key);
         }
     }
 
@@ -587,7 +588,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
         if (tex) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);
-            return set_key_and_return(tex, key);
+            return set_key_and_return(ctx->textureProvider(), tex, key);
         }
     }
     SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath,
