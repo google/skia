@@ -80,7 +80,7 @@ protected:
         desc.fHeight = kTexHeight;
 
         sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                   context->textureProvider(),
+                                                                   context->resourceProvider(),
                                                                    desc, SkBudgeted::kYes,
                                                                    fETC1Data.get(), 0);
         if (!proxy || !proxy->asTextureProxy()) {

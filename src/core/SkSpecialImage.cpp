@@ -349,7 +349,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
 static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, GrTextureProxy* proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     // TODO: add GrTextureProxy-backed SkImage_Gpus
-    GrTexture* tex = proxy->instantiate(context->textureProvider());
+    GrTexture* tex = proxy->instantiate(context->resourceProvider());
     if (!tex) {
         return nullptr;
     }
@@ -390,7 +390,7 @@ public:
                                       this->subset().width(), this->subset().height());
 
         // TODO: add GrTextureProxy-backed SkImage_Gpus
-        GrTexture* tex = fTextureProxy->instantiate(fContext->textureProvider());
+        GrTexture* tex = fTextureProxy->instantiate(fContext->resourceProvider());
         if (!tex) {
             return;
         }
@@ -432,7 +432,7 @@ public:
         }
 
         // Reading back to an SkBitmap ends deferral
-        GrTexture* texture = fTextureProxy->instantiate(fContext->textureProvider());
+        GrTexture* texture = fTextureProxy->instantiate(fContext->resourceProvider());
         if (!texture) {
             return false;
         }

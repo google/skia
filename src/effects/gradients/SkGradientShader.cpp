@@ -1702,7 +1702,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                 fCoordTransform.reset(args.fContext, *args.fMatrix,
                                       fAtlas->asTextureProxyRef().get(),
                                       params.filterMode(), false);
-                fTextureSampler.reset(args.fContext->textureProvider(),
+                fTextureSampler.reset(args.fContext->resourceProvider(),
                                       fAtlas->asTextureProxyRef(), params);
             } else {
                 // In this instance we know the params are:
@@ -1719,7 +1719,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                 // This is 2/2 places where auto-normalization is disabled
                 fCoordTransform.reset(args.fContext, *args.fMatrix,
                                       proxy.get(), params.filterMode(), false);
-                fTextureSampler.reset(args.fContext->textureProvider(),
+                fTextureSampler.reset(args.fContext->resourceProvider(),
                                       std::move(proxy), params);
                 fYCoord = SK_ScalarHalf;
             }
