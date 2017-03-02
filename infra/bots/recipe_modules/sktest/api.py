@@ -50,6 +50,7 @@ def dm_flags(bot):
     configs.extend(['f16'])
     configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
     configs.extend(['lite-8888'])                # Experimental display list.
+    configs.extend(['srgbnl'])
 
   if '-TSAN' not in bot:
     if ('TegraK1'  in bot or
