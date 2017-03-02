@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bd7a498_b29766e2",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-02T13:18:30Z",
+      "side": 1,
+      "message": "Is this just a short cut or is it how clients would actually set this up?  I\u0027d have imagined something with fewer _Base in it...",
+      "range": {
+        "startLine": 870,
+        "startChar": 16,
+        "endLine": 870,
+        "endChar": 95
+      },
+      "revId": "3a9b5a02d953ac833a6e8447dc9b2ef64af62eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac08a789_70952b60",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-02T13:18:30Z",
+      "side": 1,
+      "message": "Might ease us in to triaging these if we start on just the Linux GCE machines?",
+      "revId": "3a9b5a02d953ac833a6e8447dc9b2ef64af62eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
