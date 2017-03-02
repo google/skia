@@ -153,13 +153,6 @@ protected:
 class GrTextureDomainEffect : public GrSingleTextureEffect {
 
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture*,
-                                           sk_sp<GrColorSpaceXform>,
-                                           const SkMatrix&,
-                                           const SkRect& domain,
-                                           GrTextureDomain::Mode,
-                                           GrSamplerParams::FilterMode filterMode);
-
     static sk_sp<GrFragmentProcessor> Make(GrContext*,
                                            sk_sp<GrTextureProxy>,
                                            sk_sp<GrColorSpaceXform>,
@@ -181,13 +174,6 @@ public:
 
 private:
     GrTextureDomain fTextureDomain;
-
-    GrTextureDomainEffect(GrTexture*,
-                          sk_sp<GrColorSpaceXform>,
-                          const SkMatrix&,
-                          const SkRect& domain,
-                          GrTextureDomain::Mode,
-                          GrSamplerParams::FilterMode);
 
     GrTextureDomainEffect(GrContext*,
                           sk_sp<GrTextureProxy>,
@@ -212,9 +198,6 @@ private:
 
 class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture*, const SkIRect& subset,
-                                           const SkIPoint& deviceSpaceOffset);
-
     static sk_sp<GrFragmentProcessor> Make(GrContext*, sk_sp<GrTextureProxy>, const SkIRect& subset,
                                            const SkIPoint& deviceSpaceOffset);
 
@@ -234,8 +217,6 @@ private:
     TextureSampler fTextureSampler;
     GrTextureDomain fTextureDomain;
     SkIPoint fDeviceSpaceOffset;
-
-    GrDeviceSpaceTextureDecalFragmentProcessor(GrTexture*, const SkIRect&, const SkIPoint&);
 
     GrDeviceSpaceTextureDecalFragmentProcessor(GrContext*, sk_sp<GrTextureProxy>,
                                                const SkIRect&, const SkIPoint&);

@@ -207,7 +207,8 @@ bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
     return true;
 }
 
-bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
+bool SkImageCacherator::lockAsBitmap(GrContext* context,
+                                     SkBitmap* bitmap, const SkImage* client,
                                      SkColorSpace* dstColorSpace,
                                      SkImage::CachingHint chint) {
     CachedFormat format = this->chooseCacheFormat(dstColorSpace);
@@ -223,13 +224,13 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 
 #if SK_SUPPORT_GPU
     // Try to get a texture and read it back to raster (and then cache that with our ID)
-    sk_sp<GrTexture> tex;
+    sk_sp<GrTextureProxy> proxy;
 
     {
         ScopedGenerator generator(fSharedGenerator);
-        tex.reset(generator->generateTexture(nullptr, cacheInfo, fOrigin));
+        proxy = generator->generateTexture(context, cacheInfo, fOrigin);
     }
-    if (!tex) {
+    if (!proxy) {
         bitmap->reset();
         return false;
     }
@@ -238,10 +239,16 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         bitmap->reset();
         return false;
     }
+    
+    sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
+                                                                proxy,
+                                                                sk_ref_sp(cacheInfo.colorSpace())));
+    if (!sContext) {
+        bitmap->reset();
+        return false;
+    }
 
-    if (!tex->readPixels(fInfo.colorSpace(), 0, 0, bitmap->width(), bitmap->height(),
-                         SkImageInfo2GrPixelConfig(cacheInfo, *tex->getContext()->caps()),
-                         cacheInfo.colorSpace(), bitmap->getPixels(), bitmap->rowBytes())) {
+    if (!sContext->readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(), 0, 0)) {
         bitmap->reset();
         return false;
     }
@@ -474,11 +481,11 @@ public:
     }
 };
 
-static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
+static void set_key_on_proxy(GrTextureProvider* texProvider,
+                             GrTextureProxy* proxy, const GrUniqueKey& key) {
     if (key.isValid()) {
-        tex->resourcePriv().setUniqueKey(key);
+        texProvider->assignUniqueKeyToProxy(key, proxy);
     }
-    return tex;
 }
 
 sk_sp<SkColorSpace> SkImageCacherator::getColorSpace(GrContext* ctx, SkColorSpace* dstColorSpace) {
@@ -499,9 +506,11 @@ sk_sp<SkColorSpace> SkImageCacherator::getColorSpace(GrContext* ctx, SkColorSpac
  *  4. Ask the generator to return YUV planes, which the GPU can convert
  *  5. Ask the generator to return RGB(A) data, which the GPU can convert
  */
-GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& origKey,
-                                          const SkImage* client, SkImage::CachingHint chint,
-                                          bool willBeMipped, SkColorSpace* dstColorSpace) {
+sk_sp<GrTextureProxy> SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& origKey,
+                                                     const SkImage* client,
+                                                     SkImage::CachingHint chint,
+                                                     bool willBeMipped,
+                                                     SkColorSpace* dstColorSpace) {
     // Values representing the various texture lock paths we can take. Used for logging the path
     // taken to a histogram.
     enum LockTexturePath {
@@ -525,10 +534,10 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
 
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
-        if (GrTexture* tex = ctx->textureProvider()->findAndRefTextureByUniqueKey(key)) {
+        if (sk_sp<GrTextureProxy> proxy = ctx->textureProvider()->findProxyByUniqueKey(key)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
                                      kLockTexturePathCount);
-            return tex;
+            return proxy;
         }
     }
 
@@ -540,10 +549,11 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
     // 2. Ask the generator to natively create one
     {
         ScopedGenerator generator(fSharedGenerator);
-        if (GrTexture* tex = generator->generateTexture(ctx, cacheInfo, fOrigin)) {
+        if (sk_sp<GrTextureProxy> proxy = generator->generateTexture(ctx, cacheInfo, fOrigin)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
-            return set_key_and_return(tex, key);
+            set_key_on_proxy(ctx->textureProvider(), proxy.get(), key);
+            return proxy;
         }
     }
 
@@ -566,28 +576,30 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
     if (!ctx->contextPriv().disableGpuYUVConversion()) {
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
-        sk_sp<GrTexture> tex = provider.refAsTexture(ctx, desc, true);
-        if (tex) {
+        sk_sp<GrTextureProxy> proxy = provider.refAsTexture(ctx, desc, true);
+        if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
-            return set_key_and_return(tex.release(), key);
+            set_key_on_proxy(ctx->textureProvider(), proxy.get(), key);
+            return proxy;
         }
     }
 
     // 5. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
     if (this->tryLockAsBitmap(&bitmap, client, chint, format, cacheInfo)) {
-        GrTexture* tex = nullptr;
+        sk_sp<GrTextureProxy> proxy;
         if (willBeMipped) {
-            tex = GrGenerateMipMapsAndUploadToTexture(ctx, bitmap, dstColorSpace);
+            proxy = GrGenerateMipMapsAndUploadToTexture(ctx, bitmap, dstColorSpace);
         }
-        if (!tex) {
-            tex = GrUploadBitmapToTexture(ctx, bitmap);
+        if (!proxy) {
+            proxy = GrUploadBitmapToTexture(ctx, bitmap);
         }
-        if (tex) {
+        if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);
-            return set_key_and_return(tex, key);
+            set_key_on_proxy(ctx->textureProvider(), proxy.get(), key);
+            return proxy;
         }
     }
     SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath,
@@ -597,12 +609,13 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams& params,
-                                            SkColorSpace* dstColorSpace,
-                                            sk_sp<SkColorSpace>* texColorSpace,
-                                            const SkImage* client,
-                                            SkScalar scaleAdjust[2],
-                                            SkImage::CachingHint chint) {
+sk_sp<GrTextureProxy> SkImageCacherator::lockAsTexture(GrContext* ctx,
+                                                       const GrSamplerParams& params,
+                                                       SkColorSpace* dstColorSpace,
+                                                       sk_sp<SkColorSpace>* texColorSpace,
+                                                       const SkImage* client,
+                                                       SkScalar scaleAdjust[2],
+                                                       SkImage::CachingHint chint) {
     if (!ctx) {
         return nullptr;
     }
@@ -614,11 +627,12 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParam
 
 #else
 
-GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams&,
-                                            SkColorSpace* dstColorSpace,
-                                            sk_sp<SkColorSpace>* texColorSpace,
-                                            const SkImage* client,
-                                            SkScalar scaleAdjust[2], SkImage::CachingHint) {
+sk_sp<GrTextureProxy> SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams&,
+                                                       SkColorSpace* dstColorSpace,
+                                                       sk_sp<SkColorSpace>* texColorSpace,
+                                                       const SkImage* client,
+                                                       SkScalar scaleAdjust[2],
+                                                       SkImage::CachingHint) {
     return nullptr;
 }
 

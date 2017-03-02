@@ -199,5 +199,17 @@ GrTexture* GrTextureProvider::findAndRefTextureByUniqueKey(const GrUniqueKey& ke
         SkASSERT(texture);
         return texture;
     }
-    return NULL;
+    return nullptr;
 }
+
+sk_sp<GrTextureProxy> GrTextureProvider::findProxyByUniqueKey(const GrUniqueKey& key) {
+    ASSERT_SINGLE_OWNER
+
+    return nullptr;
+}
+
+void GrTextureProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrSurfaceProxy*) {
+//        tex->resourcePriv().setUniqueKey(key);
+
+}
+

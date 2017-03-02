@@ -14,9 +14,11 @@
 #include "SkImageInfo.h"
 #include "SkYUVSizeInfo.h"
 
+#include "GrTextureProxy.h"  // Oh yeah!
+
 class GrContext;
 class GrContextThreadSafeProxy;
-class GrTexture;
+class GrTextureProxy;
 class GrSamplerParams;
 class SkBitmap;
 class SkData;
@@ -139,7 +141,8 @@ public:
      *  - its internal context is the same
      *  - it can somehow convert its texture into one that is valid for the provided context.
      */
-    GrTexture* generateTexture(GrContext*, const SkImageInfo& info, const SkIPoint& origin);
+    sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
+                                          const SkIPoint& origin);
 
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
@@ -179,7 +182,8 @@ protected:
         return false;
     }
 
-    virtual GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) {
+    virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
+                                                    const SkIPoint&) {
         return nullptr;
     }
 
