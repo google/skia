@@ -18,6 +18,8 @@
 #include "GrShape.h"
 #include "effects/GrBlurredEdgeFragmentProcessor.h"
 #endif
+#include "../../src/effects/shadows/SkAmbientShadowMaskFilter.h"
+#include "../../src/effects/shadows/SkSpotShadowMaskFilter.h"
 
 /**
 *  Gaussian color filter -- produces a Gaussian ramp based on the color's B value,
@@ -457,6 +459,26 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
                                uint32_t flags, SkResourceCache* cache) {
     SkAutoCanvasRestore acr(canvas, true);
     SkMatrix viewMatrix = canvas->getTotalMatrix();
+
+    // try circular fast path
+    SkRect rect;
+    if (viewMatrix.isSimilarity() &&
+        path.isOval(&rect) && rect.width() == rect.height()) {
+        SkPaint newPaint;
+        newPaint.setColor(color);
+        if (ambientAlpha > 0) {
+            newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderHeight, ambientAlpha,
+                                                                   flags));
+            canvas->drawPath(path, newPaint);
+        }
+        if (spotAlpha > 0) {
+            newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderHeight, devLightPos,
+                                                                lightRadius, spotAlpha, flags));
+            canvas->drawPath(path, newPaint);
+        }
+        return;
+    }
+
     canvas->resetMatrix();
 
     ShadowedPath shadowedPath(&path, &viewMatrix);

@@ -101,13 +101,6 @@ public:
             }
         }
 
-        // TODO: still needed?
-        // The radii are outset for two reasons. First, it allows the shader to simply perform
-        // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
-        // Second, the outer radius is used to compute the verts of the bounding box that is
-        // rendered and the outset ensures the box will cover all partially covered by the circle.
-        outerRadius += SK_ScalarHalf;
-        innerRadius -= SK_ScalarHalf;
         bool stroked = isStrokeOnly && innerRadius > 0.0f;
         std::unique_ptr<ShadowCircleOp> op(new ShadowCircleOp());
         op->fViewMatrixIfUsingLocalCoords = viewMatrix;
@@ -533,8 +526,6 @@ public:
             }
 
             if (strokeOnly) {
-                // Outset stroke by 1/4 pixel
-                devStrokeWidth += 0.25f;
                 // If stroke is greater than width or height, this is still a fill
                 // Otherwise we compute stroke params
                 if (devStrokeWidth <= devRect.width() && devStrokeWidth <= devRect.height()) {
@@ -546,19 +537,7 @@ public:
             bounds.outset(halfWidth, halfWidth);
         }
 
-        // TODO: still needed?
-        // The radii are outset for two reasons. First, it allows the shader to simply perform
-        // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
-        // Second, the outer radius is used to compute the verts of the bounding box that is
-        // rendered and the outset ensures the box will cover all partially covered by the rrect
-        // corners.
-        outerRadius += SK_ScalarHalf;
-        innerRadius -= SK_ScalarHalf;
-
-        this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
-
-        // Expand the rect for aa to generate correct vertices.
-        bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
+        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 
         fGeoData.emplace_back(Geometry{color, outerRadius, innerRadius, blurRadius, bounds, type});
         fVertCount = rrect_type_to_vert_count(type);

@@ -469,7 +469,7 @@ protected:
         canvas->translate(-250, 110);
         lightPos.fX -= 250;
         lightPos.fY += 110;
-        this->drawShadowedPath(canvas, fCirclePath, SkTMax(1.0f, 8+fZDelta), paint, 0,
+        this->drawShadowedPath(canvas, fCirclePath, SkTMax(1.0f, 8+fZDelta), paint, kAmbientAlpha,
                                lightPos, kLightWidth, 0.5f);
 
         paint.setColor(SK_ColorGREEN);
