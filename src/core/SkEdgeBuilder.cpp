@@ -14,9 +14,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkEdgeBuilder::SkEdgeBuilder() : fAlloc(16*1024) {
-    fEdgeList = nullptr;
-}
+SkEdgeBuilder::SkEdgeBuilder() : fEdgeList{nullptr} {}
 
 SkEdgeBuilder::Combine SkEdgeBuilder::CombineVertical(const SkEdge* edge, SkEdge* last) {
     if (last->fCurveCount || last->fDX || edge->fX != last->fX) {
