@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3c46091_8b451a0b",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-02T20:48:25Z",
+      "side": 1,
+      "message": "not /msan ?  That\u0027s where the MSAN-built libc++ lives.",
+      "range": {
+        "startLine": 20,
+        "startChar": 57,
+        "endLine": 20,
+        "endChar": 60
+      },
+      "revId": "0a89be27be1ad909ab6850d11b77315432c890d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "518deeef_26f916a5",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-02T20:48:25Z",
+      "side": 1,
+      "message": "FWIW, this is not strictly necessary.  We just do it on the bots to save time.",
+      "revId": "0a89be27be1ad909ab6850d11b77315432c890d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05b54e78_49d88868",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-02T20:48:25Z",
+      "side": 1,
+      "message": "You probably want is_debug \u003d false for TSAN builds.  We have a good number of non-thread-safe asserts.",
+      "revId": "0a89be27be1ad909ab6850d11b77315432c890d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
