@@ -30,9 +30,9 @@ public:
     FakeDevice() : INHERITED(make_bm(100, 100), SkSurfaceProps(0, kUnknown_SkPixelGeometry)) {
     }
 
-    void drawRect(const SkRect& r, const SkPaint& paint) override {
-        fLastMatrix = this->ctm();
-        this->INHERITED::drawRect(r, paint);
+    void drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) override {
+        fLastMatrix = *draw.fMatrix;
+        this->INHERITED::drawRect(draw, r, paint);
     }
 
     SkMatrix fLastMatrix;

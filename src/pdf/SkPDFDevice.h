@@ -79,44 +79,46 @@ public:
      and are handling any looping from the paint, and any effects from the
      DrawFilter.
      */
-    void drawPaint(const SkPaint& paint) override;
-    void drawPoints(SkCanvas::PointMode mode,
+    void drawPaint(const SkDraw&, const SkPaint& paint) override;
+    void drawPoints(const SkDraw&, SkCanvas::PointMode mode,
                     size_t count, const SkPoint[],
                     const SkPaint& paint) override;
-    void drawRect(const SkRect& r, const SkPaint& paint) override;
-    void drawOval(const SkRect& oval, const SkPaint& paint) override;
-    void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
-    void drawPath(const SkPath& origpath,
+    void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint) override;
+    void drawOval(const SkDraw&, const SkRect& oval, const SkPaint& paint) override;
+    void drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& paint) override;
+    void drawPath(const SkDraw&, const SkPath& origpath,
                   const SkPaint& paint, const SkMatrix* prePathMatrix,
                   bool pathIsMutable) override;
-    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
+    void drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap, const SkRect* src,
                         const SkRect& dst, const SkPaint&, SkCanvas::SrcRectConstraint) override;
-    void drawBitmap(const SkBitmap& bitmap,
+    void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                     const SkMatrix& matrix, const SkPaint&) override;
-    void drawSprite(const SkBitmap& bitmap, int x, int y,
+    void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,
                     const SkPaint& paint) override;
-    void drawImage(const SkImage*,
+    void drawImage(const SkDraw&,
+                   const SkImage*,
                    SkScalar x,
                    SkScalar y,
                    const SkPaint&) override;
-    void drawImageRect(const SkImage*,
+    void drawImageRect(const SkDraw&,
+                       const SkImage*,
                        const SkRect* src,
                        const SkRect& dst,
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
-    void drawText(const void* text, size_t len,
+    void drawText(const SkDraw&, const void* text, size_t len,
                   SkScalar x, SkScalar y, const SkPaint&) override;
-    void drawPosText(const void* text, size_t len,
+    void drawPosText(const SkDraw&, const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint&) override;
-    void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
+    void drawTextBlob(const SkDraw&, const SkTextBlob*, SkScalar x, SkScalar y,
                       const SkPaint &, SkDrawFilter*) override;
-    void drawVertices(SkCanvas::VertexMode,
+    void drawVertices(const SkDraw&, SkCanvas::VertexMode,
                       int vertexCount, const SkPoint verts[],
                       const SkPoint texs[], const SkColor colors[],
                       SkBlendMode, const uint16_t indices[],
                       int indexCount, const SkPaint& paint) override;
-    void drawDevice(SkBaseDevice*, int x, int y,
+    void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 
     // PDF specific methods.
@@ -172,9 +174,9 @@ public:
 protected:
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
-    void drawAnnotation(const SkRect&, const char key[], SkData* value) override;
+    void drawAnnotation(const SkDraw&, const SkRect&, const char key[], SkData* value) override;
 
-    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) override;
+    void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial() override;
@@ -240,7 +242,7 @@ private:
 
     void drawFormXObjectWithMask(int xObjectIndex,
                                  sk_sp<SkPDFObject> mask,
-                                 const SkClipStack& clipStack,
+                                 const SkClipStack* clipStack,
                                  SkBlendMode,
                                  bool invertClip);
 
@@ -248,7 +250,7 @@ private:
     // returns nullptr and does not create a content entry.
     // setUpContentEntry and finishContentEntry can be used directly, but
     // the preferred method is to use the ScopedContentEntry helper class.
-    ContentEntry* setUpContentEntry(const SkClipStack& clipStack,
+    ContentEntry* setUpContentEntry(const SkClipStack* clipStack,
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText,
@@ -267,27 +269,22 @@ private:
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
 
-    void internalDrawText( const void*, size_t, const SkScalar pos[],
+    void internalDrawText(const SkDraw&, const void*, size_t, const SkScalar pos[],
                           SkTextBlob::GlyphPositioning, SkPoint, const SkPaint&,
                           const uint32_t*, uint32_t, const char*);
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
 
     void internalDrawImage(const SkMatrix& origMatrix,
-                           const SkClipStack& clipStack,
+                           const SkClipStack* clipStack,
                            SkImageSubset imageSubset,
                            const SkPaint& paint);
 
-    void internalDrawPath(const SkClipStack&,
-                          const SkMatrix&,
-                          const SkPath&,
-                          const SkPaint&,
-                          const SkMatrix* prePathMatrix,
-                          bool pathIsMutable);
-
-    bool handleInversePath(const SkPath& origPath,
+    bool handleInversePath(const SkDraw& d, const SkPath& origPath,
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = nullptr);
+    void handlePointAnnotation(const SkPoint&, const SkMatrix&, const char key[], SkData* value);
+    void handleRectAnnotation(const SkRect&, const SkDraw& d, const char key[], SkData* value);
 
     typedef SkClipStackDevice INHERITED;
 
