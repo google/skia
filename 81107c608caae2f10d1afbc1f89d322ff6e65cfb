@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5cc48d53_b44477cd",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-02T16:24:33Z",
+      "side": 1,
+      "message": "Should we special case for the Win2k8 bots, rather than making this non-fatal everywhere?\n\nAny idea what might be causing this? In the past, we\u0027ve seen flaky errors when decoding RAW images, but these appear to be small PNGs. (And I think we don\u0027t test RAW on Windows, because of the high memory use.)",
+      "range": {
+        "startLine": 956,
+        "startChar": 19,
+        "endLine": 956,
+        "endChar": 34
+      },
+      "revId": "81107c608caae2f10d1afbc1f89d322ff6e65cfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
