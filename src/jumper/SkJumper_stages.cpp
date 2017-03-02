@@ -258,23 +258,6 @@ static inline V load(const T* src, size_t tail) {
     return unaligned_load<V>(src);
 }
 
-#if 1 && defined(JUMPER) && defined(__AVX__)
-    template <>
-    inline U8 load(const uint8_t* src, size_t tail) {
-        if (__builtin_expect(tail, 0)) {
-            uint64_t v = 0;
-            size_t shift = 0;
-            #pragma nounroll
-            while (tail --> 0) {
-                v |= (uint64_t)*src++ << shift;
-                shift += 8;
-            }
-            return unaligned_load<U8>(&v);
-        }
-        return unaligned_load<U8>(src);
-    }
-#endif
-
 template <typename V, typename T>
 static inline void store(T* dst, V v, size_t tail) {
 #if defined(JUMPER)
@@ -294,6 +277,52 @@ static inline void store(T* dst, V v, size_t tail) {
 #endif
     memcpy(dst, &v, sizeof(v));
 }
+
+#if 1 && defined(JUMPER) && defined(__AVX__)
+    template <>
+    inline U8 load(const uint8_t* src, size_t tail) {
+        if (__builtin_expect(tail, 0)) {
+            uint64_t v = 0;
+            size_t shift = 0;
+            #pragma nounroll
+            while (tail --> 0) {
+                v |= (uint64_t)*src++ << shift;
+                shift += 8;
+            }
+            return unaligned_load<U8>(&v);
+        }
+        return unaligned_load<U8>(src);
+    }
+#endif
+
+#if 1 && defined(JUMPER) && defined(__AVX2__)
+    static inline U32 mask(size_t tail) {
+        // It's easiest to build the mask as 8 8-bit values, either 0x00 or 0xff.
+        // Start fully on, then shift away lanes from the top until we've got our mask.
+        uint64_t mask = 0xffffffffffffffff >> 8*(kStride-tail);
+
+        // Sign-extend each mask lane to its full width, 0x00000000 or 0xffffffff.
+        return _mm256_cvtepi8_epi32(_mm_cvtsi64_si128((int64_t)mask));
+    }
+
+    template <>
+    inline U32 load(const uint32_t* src, size_t tail) {
+        __builtin_assume(tail < kStride);
+        if (__builtin_expect(tail, 0)) {
+            return _mm256_maskload_epi32((const int*)src, mask(tail));
+        }
+        return unaligned_load<U32>(src);
+    }
+
+    template <>
+    inline void store(uint32_t* dst, U32 v, size_t tail) {
+        __builtin_assume(tail < kStride);
+        if (__builtin_expect(tail, 0)) {
+            return _mm256_maskstore_epi32((int*)dst, mask(tail), v);
+        }
+        memcpy(dst, &v, sizeof(v));
+    }
+#endif
 
 
 static F lerp(F from, F to, F t) {
