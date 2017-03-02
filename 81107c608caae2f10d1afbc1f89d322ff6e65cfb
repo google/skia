@@ -22,6 +22,30 @@
       "revId": "81107c608caae2f10d1afbc1f89d322ff6e65cfb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3515c33_27e771ce",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-02T16:38:53Z",
+      "side": 1,
+      "message": "\"Should we special case for the Win2k8 bots, rather than making this non-fatal everywhere?\"\n\nPotentially, I don\u0027t know a good way to do this.  We could at least make it Win only.  What do you think?\n\n\"Any idea what might be causing this? In the past, we\u0027ve seen flaky errors when decoding RAW images, but these appear to be small PNGs. (And I think we don\u0027t test RAW on Windows, because of the high memory use.)\"\n\nNot sure.  We\u0027ve seen small pngs flake before (Nexus 5), but I don\u0027t think we ever understood the cause.  I\u0027m guessing this is a different cause.  FWIW, any general flakiness is more likely to show up on small pngs because there are a lot of them.  Given that this is likely a WIC problem, I think keeping the bot green makes sense.",
+      "parentUuid": "5cc48d53_b44477cd",
+      "range": {
+        "startLine": 956,
+        "startChar": 19,
+        "endLine": 956,
+        "endChar": 34
+      },
+      "revId": "81107c608caae2f10d1afbc1f89d322ff6e65cfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
