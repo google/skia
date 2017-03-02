@@ -22,6 +22,30 @@
       "revId": "e28def7fdf21fe9aca5fbb7ca11b48a54cd5f8ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "949ed811_e2ea3b40",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-02T15:56:33Z",
+      "side": 1,
+      "message": "The base class forward declares it.",
+      "parentUuid": "509ab0ef_f9d746b8",
+      "range": {
+        "startLine": 118,
+        "startChar": 63,
+        "endLine": 118,
+        "endChar": 74
+      },
+      "revId": "e28def7fdf21fe9aca5fbb7ca11b48a54cd5f8ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
