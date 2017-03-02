@@ -243,7 +243,7 @@ protected:
 
         if (origin.fX == 0 && origin.fY == 0 &&
             info.width() == fProxy->width() && info.height() == fProxy->height()) {
-            return SkSafeRef(fProxy->instantiate(fCtx->textureProvider())->asTexture());
+            return SkSafeRef(fProxy->instantiate(fCtx->resourceProvider())->asTexture());
         }
 
         // need to copy the subset into a new texture
@@ -266,7 +266,7 @@ protected:
             return nullptr;
         }
 
-        GrSurface* dstSurf = dstContext->asSurfaceProxy()->instantiate(fCtx->textureProvider());
+        GrSurface* dstSurf = dstContext->asSurfaceProxy()->instantiate(fCtx->resourceProvider());
         if (!dstSurf) {
             return nullptr;
         }

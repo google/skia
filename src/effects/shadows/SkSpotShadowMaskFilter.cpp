@@ -35,7 +35,7 @@ public:
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
                           SkRect* maskRect) const override;
-    bool directFilterMaskGPU(GrTextureProvider* texProvider,
+    bool directFilterMaskGPU(GrResourceProvider* resourceProvider,
                              GrRenderTargetContext* drawContext,
                              GrPaint&&,
                              const GrClip&,
@@ -156,7 +156,7 @@ bool SkSpotShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
     return true;
 }
 
-bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
+bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrResourceProvider* resourceProvider,
                                                      GrRenderTargetContext* rtContext,
                                                      GrPaint&& paint,
                                                      const GrClip& clip,
