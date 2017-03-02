@@ -14,7 +14,6 @@
 #include "SkSurfaceProps.h"
 
 class SkBitmap;
-class SkDraw;
 class SkDrawFilter;
 class SkImageFilterCache;
 struct SkIRect;
@@ -150,29 +149,31 @@ protected:
     virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
     virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
+    virtual bool onClipIsAA() const = 0;
+    virtual void onAsRgnClip(SkRegion*) const = 0;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
      DrawFilter.
      */
-    virtual void drawPaint(const SkDraw&, const SkPaint& paint) = 0;
-    virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
+    virtual void drawPaint(const SkPaint& paint) = 0;
+    virtual void drawPoints(SkCanvas::PointMode mode, size_t count,
                             const SkPoint[], const SkPaint& paint) = 0;
-    virtual void drawRect(const SkDraw&, const SkRect& r,
+    virtual void drawRect(const SkRect& r,
                           const SkPaint& paint) = 0;
-    virtual void drawRegion(const SkDraw&, const SkRegion& r,
+    virtual void drawRegion(const SkRegion& r,
                             const SkPaint& paint);
-    virtual void drawOval(const SkDraw&, const SkRect& oval,
+    virtual void drawOval(const SkRect& oval,
                           const SkPaint& paint) = 0;
     /** By the time this is called we know that abs(sweepAngle) is in the range [0, 360). */
-    virtual void drawArc(const SkDraw&, const SkRect& oval, SkScalar startAngle,
+    virtual void drawArc(const SkRect& oval, SkScalar startAngle,
                          SkScalar sweepAngle, bool useCenter, const SkPaint& paint);
-    virtual void drawRRect(const SkDraw&, const SkRRect& rr,
+    virtual void drawRRect(const SkRRect& rr,
                            const SkPaint& paint) = 0;
 
     // Default impl calls drawPath()
-    virtual void drawDRRect(const SkDraw&, const SkRRect& outer,
+    virtual void drawDRRect(const SkRRect& outer,
                             const SkRRect& inner, const SkPaint&);
 
     /**
@@ -186,77 +187,77 @@ protected:
      *  affect the geometry/rasterization, then the pre matrix can just be
      *  pre-concated with the current matrix.
      */
-    virtual void drawPath(const SkDraw&, const SkPath& path,
+    virtual void drawPath(const SkPath& path,
                           const SkPaint& paint,
                           const SkMatrix* prePathMatrix = NULL,
                           bool pathIsMutable = false) = 0;
-    virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
+    virtual void drawBitmap(const SkBitmap& bitmap,
                             const SkMatrix& matrix, const SkPaint& paint) = 0;
-    virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
+    virtual void drawSprite(const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint) = 0;
 
     /**
      *  The default impl. will create a bitmap-shader from the bitmap,
      *  and call drawRect with it.
      */
-    virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
+    virtual void drawBitmapRect(const SkBitmap&,
                                 const SkRect* srcOrNull, const SkRect& dst,
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint) = 0;
-    virtual void drawBitmapNine(const SkDraw&, const SkBitmap&, const SkIRect& center,
+    virtual void drawBitmapNine(const SkBitmap&, const SkIRect& center,
                                 const SkRect& dst, const SkPaint&);
-    virtual void drawBitmapLattice(const SkDraw&, const SkBitmap&, const SkCanvas::Lattice&,
+    virtual void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&,
                                    const SkRect& dst, const SkPaint&);
 
-    virtual void drawImage(const SkDraw&, const SkImage*, SkScalar x, SkScalar y, const SkPaint&);
-    virtual void drawImageRect(const SkDraw&, const SkImage*, const SkRect* src, const SkRect& dst,
+    virtual void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkPaint&);
+    virtual void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                                const SkPaint&, SkCanvas::SrcRectConstraint);
-    virtual void drawImageNine(const SkDraw&, const SkImage*, const SkIRect& center,
+    virtual void drawImageNine(const SkImage*, const SkIRect& center,
                                const SkRect& dst, const SkPaint&);
-    virtual void drawImageLattice(const SkDraw&, const SkImage*, const SkCanvas::Lattice&,
+    virtual void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                                   const SkRect& dst, const SkPaint&);
 
     /**
      *  Does not handle text decoration.
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.
      */
-    virtual void drawText(const SkDraw&, const void* text, size_t len,
+    virtual void drawText(const void* text, size_t len,
                           SkScalar x, SkScalar y, const SkPaint& paint) = 0;
-    virtual void drawPosText(const SkDraw&, const void* text, size_t len,
+    virtual void drawPosText(const void* text, size_t len,
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;
-    virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
+    virtual void drawVertices(SkCanvas::VertexMode, int vertexCount,
                               const SkPoint verts[], const SkPoint texs[],
                               const SkColor colors[], SkBlendMode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) = 0;
-    virtual void drawVerticesObject(const SkDraw&, sk_sp<SkVertices>, SkBlendMode, const SkPaint&,
+    virtual void drawVerticesObject(sk_sp<SkVertices>, SkBlendMode, const SkPaint&,
                                     uint32_t flags);
     // default implementation unrolls the blob runs.
-    virtual void drawTextBlob(const SkDraw&, const SkTextBlob*, SkScalar x, SkScalar y,
+    virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                               const SkPaint& paint, SkDrawFilter* drawFilter);
     // default implementation calls drawVertices
-    virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
+    virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
 
     // default implementation calls drawPath
-    virtual void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
+    virtual void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
                            const SkColor[], int count, SkBlendMode, const SkPaint&);
 
-    virtual void drawAnnotation(const SkDraw&, const SkRect&, const char[], SkData*) {}
+    virtual void drawAnnotation(const SkRect&, const char[], SkData*) {}
 
     /** The SkDevice passed will be an SkDevice which was returned by a call to
         onCreateDevice on this device with kNeverTile_TileExpectation.
      */
-    virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
+    virtual void drawDevice(SkBaseDevice*, int x, int y,
                             const SkPaint&) = 0;
 
-    virtual void drawTextOnPath(const SkDraw&, const void* text, size_t len, const SkPath&,
+    virtual void drawTextOnPath(const void* text, size_t len, const SkPath&,
                                 const SkMatrix*, const SkPaint&);
-    virtual void drawTextRSXform(const SkDraw&, const void* text, size_t len, const SkRSXform[],
+    virtual void drawTextRSXform(const void* text, size_t len, const SkRSXform[],
                                  const SkPaint&);
 
-    virtual void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&);
+    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     virtual sk_sp<SkSpecialImage> snapSpecial();

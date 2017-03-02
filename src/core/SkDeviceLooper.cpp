@@ -11,7 +11,6 @@ SkDeviceLooper::SkDeviceLooper(const SkPixmap& base, const SkRasterClip& rc, con
                                bool aa)
     : fBaseDst(base)
     , fBaseRC(rc)
-    , fSubsetRC(rc.isForceConservativeRects())
     , fDelta(aa ? kAA_Delta : kBW_Delta)
 {
     // sentinels that next() has not yet been called, and so our mapper functions

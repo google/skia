@@ -307,7 +307,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     }
     if (pathOpsMode) {
         this->resetClipStackData();
-        const SkClipStack* clipStack = filterCanvas.getClipStack();
+        const SkClipStack* clipStack = nullptr;//HACK filterCanvas.getClipStack();
         SkClipStack::Iter iter(*clipStack, SkClipStack::Iter::kBottom_IterStart);
         const SkClipStack::Element* element;
         SkPath devPath;
