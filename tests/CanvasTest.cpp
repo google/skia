@@ -813,3 +813,32 @@ DEF_TEST(CanvasStack, r) {
     REPORTER_ASSERT(r, !life[0]);
     REPORTER_ASSERT(r, !life[1]);
 }
+
+DEF_TEST(CanvasClipType, r) {
+    sk_sp<SkSurface> surf = SkSurface::MakeRasterN32Premul(10, 10);
+    SkCanvas* canvas = surf->getCanvas();
+
+    REPORTER_ASSERT(r, !canvas->isClipEmpty());
+    REPORTER_ASSERT(r, canvas->isClipRect());
+
+    canvas->save();
+    canvas->clipRect({0, 0, 0, 0});
+    REPORTER_ASSERT(r, canvas->isClipEmpty());
+    REPORTER_ASSERT(r, !canvas->isClipRect());
+    canvas->restore();
+
+    canvas->save();
+    canvas->clipRect({2, 2, 6, 6});
+    REPORTER_ASSERT(r, !canvas->isClipEmpty());
+    REPORTER_ASSERT(r, canvas->isClipRect());
+    canvas->restore();
+
+    canvas->save();
+    canvas->clipRect({2, 2, 6, 6}, SkClipOp::kDifference);  // punch a hole in the clip
+    REPORTER_ASSERT(r, !canvas->isClipEmpty());
+    REPORTER_ASSERT(r, !canvas->isClipRect());
+    canvas->restore();
+
+    REPORTER_ASSERT(r, !canvas->isClipEmpty());
+    REPORTER_ASSERT(r, canvas->isClipRect());
+}
