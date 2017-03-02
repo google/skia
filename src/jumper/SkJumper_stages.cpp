@@ -344,6 +344,27 @@ static void* load_and_inc(void**& program) {
 #endif
 }
 
+// Doesn't do anything unless you resolve it, either by casting to a pointer or calling load().
+// This makes it free in stages that have no context pointer to load (i.e. built with nullptr).
+struct LazyCtx {
+    void*   ptr;
+    void**& program;
+
+    explicit LazyCtx(void**& p) : ptr(nullptr), program(p) {}
+
+    template <typename T>
+    operator T*() {
+        if (!ptr) { ptr = load_and_inc(program); }
+        return (T*)ptr;
+    }
+
+    template <typename T>
+    T load() {
+        if (!ptr) { ptr = load_and_inc(program); }
+        return unaligned_load<T>(ptr);
+    }
+};
+
 #if defined(JUMPER) && defined(__AVX__)
     // There's a big cost to switch between SSE and AVX+, so we do a little
     // extra work to handle even the jagged <kStride tail in AVX+ mode.
@@ -366,16 +387,16 @@ static void* load_and_inc(void**& program) {
     }
 
     #define STAGE(name)                                                           \
-        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+        static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
                              F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
         extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
                                    F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
-            auto ctx = load_and_inc(program);                                     \
+            LazyCtx ctx(program);                                                 \
             name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
             auto next = (Stage*)load_and_inc(program);                            \
             next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
         }                                                                         \
-        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+        static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
                              F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 #else
@@ -400,16 +421,16 @@ static void* load_and_inc(void**& program) {
     }
 
     #define STAGE(name)                                                           \
-        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+        static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
                              F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
         extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
                                    F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
-            auto ctx = load_and_inc(program);                                     \
+            LazyCtx ctx(program);                                                 \
             name##_k(x,ctx,k,0, r,g,b,a, dr,dg,db,da);                            \
             auto next = (Stage*)load_and_inc(program);                            \
             next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
         }                                                                         \
-        static void name##_k(size_t x, void* ctx, K* k, size_t tail,              \
+        static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
                              F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #endif
 
@@ -446,7 +467,7 @@ STAGE(seed_shader) {
 }
 
 STAGE(constant_color) {
-    auto rgba = unaligned_load<F4>(ctx);
+    auto rgba = ctx.load<F4>();
     r = rgba[0];
     g = rgba[1];
     b = rgba[2];
@@ -1003,7 +1024,7 @@ STAGE(matrix_perspective) {
 
 STAGE(linear_gradient_2stops) {
     struct Ctx { F4 c0, dc; };
-    auto c = unaligned_load<Ctx>(ctx);
+    auto c = ctx.load<Ctx>();
 
     auto t = r;
     r = mad(t, c.dc[0], c.c0[0]);
