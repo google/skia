@@ -35,6 +35,9 @@
 
 #include <string.h>
 
+// enable to test new device-base clipping
+//#define SK_USE_DEVICE_CLIPPING
+
 /**
  *  sk_careful_memcpy() is just like memcpy(), but guards against undefined behavior.
  *

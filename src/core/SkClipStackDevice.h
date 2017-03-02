@@ -19,7 +19,7 @@ public:
 
     const SkClipStack& cs() const { return fClipStack; }
 
-    SkIRect devClipBounds() const;
+    SkIRect devClipBounds(const SkDraw&) const;
 
 protected:
     void onSave() override;
@@ -29,8 +29,6 @@ protected:
     void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
-    bool onClipIsAA() const override;
-    void onAsRgnClip(SkRegion*) const override;
 
 private:
     SkClipStack fClipStack;

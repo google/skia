@@ -130,6 +130,28 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class ClipValidator : public SkCanvas::ClipVisitor {
+public:
+    ClipValidator() : fFailed(false) {}
+    bool failed() { return fFailed; }
+
+    // ClipVisitor
+    void clipRect(const SkRect& rect, SkClipOp op, bool antialias) override {
+        fFailed |= antialias;
+    }
+
+    void clipRRect(const SkRRect& rrect, SkClipOp op, bool antialias) override {
+        fFailed |= antialias;
+    }
+
+    void clipPath(const SkPath&, SkClipOp, bool antialias) override {
+        fFailed |= antialias;
+    }
+
+private:
+    bool fFailed;
+};
+
 static void setup_MC_state(SkMCState* state, const SkMatrix& matrix, const SkRegion& clip) {
     // initialize the struct
     state->clipRectCount = 0;
@@ -171,7 +193,9 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     SkASSERT(canvas);
 
     // Check the clip can be decomposed into rectangles (i.e. no soft clips).
-    if (canvas->androidFramework_isClipAA()) {
+    ClipValidator validator;
+    canvas->replayClips(&validator);
+    if (validator.failed()) {
         return nullptr;
     }
 
@@ -222,9 +246,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         layerState->raster.rowBytes = pmap.rowBytes();
         layerState->raster.pixels = pmap.writable_addr();
 
-        SkRegion rgn;
-        layer.clip(&rgn);
-        setup_MC_state(&layerState->mcState, layer.matrix(), rgn);
+        setup_MC_state(&layerState->mcState, layer.matrix(), layer.clip().bwRgn());
         layerCount++;
     }
 

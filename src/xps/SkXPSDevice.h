@@ -16,10 +16,9 @@
 #include <XpsObjectModel.h>
 
 #include "SkAutoCoInitialize.h"
-#include "SkBitSet.h"
 #include "SkBitmapDevice.h"
+#include "SkBitSet.h"
 #include "SkCanvas.h"
-#include "SkClipStackDevice.h"
 #include "SkColor.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -36,7 +35,7 @@
 
     The drawing context for the XPS backend.
 */
-class SkXPSDevice : public SkClipStackDevice {
+class SkXPSDevice : public SkBaseDevice {
 public:
     SK_API SkXPSDevice(SkISize);
     SK_API virtual ~SkXPSDevice();
@@ -74,39 +73,79 @@ public:
     bool endPortfolio();
 
 protected:
-    void drawPaint(const SkPaint& paint) override;
-    void drawPoints(SkCanvas::PointMode mode, size_t count,
-                    const SkPoint[], const SkPaint& paint) override;
-    void drawRect(const SkRect& r,
-                  const SkPaint& paint) override;
-    void drawOval(const SkRect& oval,
-                  const SkPaint& paint) override;
-    void drawRRect(const SkRRect& rr,
-                   const SkPaint& paint) override;
-    void drawPath(const SkPath& path,
-                  const SkPaint& paint,
-                  const SkMatrix* prePathMatrix = NULL,
-                  bool pathIsMutable = false) override;
-    void drawBitmap(const SkBitmap& bitmap,
-                    const SkMatrix& matrix, const SkPaint& paint) override;
-    void drawSprite(const SkBitmap& bitmap,
-                    int x, int y, const SkPaint& paint) override;
-    void drawBitmapRect(const SkBitmap&,
-                        const SkRect* srcOrNull, const SkRect& dst,
-                        const SkPaint& paint,
+    void drawPaint(const SkDraw&, const SkPaint& paint) override;
+
+    void drawPoints(
+        const SkDraw&,
+        SkCanvas::PointMode mode,
+        size_t count, const SkPoint[],
+        const SkPaint& paint) override;
+
+    void drawRect(
+        const SkDraw&,
+        const SkRect& r,
+        const SkPaint& paint) override;
+
+    void drawRRect(
+        const SkDraw&,
+        const SkRRect&,
+        const SkPaint& paint) override;
+
+    void drawPath(
+        const SkDraw&,
+        const SkPath& platonicPath,
+        const SkPaint& paint,
+        const SkMatrix* prePathMatrix,
+        bool pathIsMutable) override;
+
+    void drawBitmap(
+        const SkDraw&,
+        const SkBitmap& bitmap,
+        const SkMatrix& matrix,
+        const SkPaint& paint) override;
+
+    void drawSprite(
+        const SkDraw&,
+        const SkBitmap& bitmap,
+        int x, int y,
+        const SkPaint& paint) override;
+
+    void drawText(
+        const SkDraw&,
+        const void* text, size_t len,
+        SkScalar x, SkScalar y,
+        const SkPaint& paint) override;
+
+    void drawPosText(
+        const SkDraw&,
+        const void* text, size_t len,
+        const SkScalar pos[], int scalarsPerPos,
+        const SkPoint& offset, const SkPaint& paint) override;
+
+    void drawVertices(
+        const SkDraw&,
+        SkCanvas::VertexMode,
+        int vertexCount, const SkPoint verts[],
+        const SkPoint texs[], const SkColor colors[],
+        SkBlendMode,
+        const uint16_t indices[], int indexCount,
+        const SkPaint& paint) override;
+
+    void drawDevice(
+        const SkDraw&,
+        SkBaseDevice* device,
+        int x, int y,
+        const SkPaint& paint) override;
+
+    void drawOval(const SkDraw&, const SkRect&, const SkPaint&) override;
+
+    void drawBitmapRect(const SkDraw&,
+                        const SkBitmap&,
+                        const SkRect*,
+                        const SkRect&,
+                        const SkPaint&,
                         SkCanvas::SrcRectConstraint) override;
-    void drawText(const void* text, size_t len,
-                  SkScalar x, SkScalar y, const SkPaint& paint) override;
-    void drawPosText(const void* text, size_t len,
-                     const SkScalar pos[], int scalarsPerPos,
-                     const SkPoint& offset, const SkPaint& paint) override;
-    void drawVertices(SkCanvas::VertexMode, int vertexCount,
-                      const SkPoint verts[], const SkPoint texs[],
-                      const SkColor colors[], SkBlendMode,
-                      const uint16_t indices[], int indexCount,
-                      const SkPaint& paint) override;
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
+
 
 private:
     class TypefaceUse : ::SkNoncopyable {
@@ -159,6 +198,7 @@ private:
         IXpsOMImageResource** image);
 
     void internalDrawRect(
+        const SkDraw&,
         const SkRect& r,
         bool transformRect,
         const SkPaint& paint);
@@ -217,6 +257,7 @@ private:
         TypefaceUse** fontResource);
 
     HRESULT AddGlyphs(
+        const SkDraw& d,
         IXpsOMObjectFactory* xpsFactory,
         IXpsOMCanvas* canvas,
         TypefaceUse* font,
@@ -248,14 +289,16 @@ private:
         const SkColor color,
         IXpsOMVisualCollection* visuals);
 
-    HRESULT clip(IXpsOMVisual* xpsVisual);
-
+    HRESULT clip(
+        IXpsOMVisual* xpsVisual,
+        const SkDraw& d);
     HRESULT clipToPath(
         IXpsOMVisual* xpsVisual,
         const SkPath& clipPath,
         XPS_FILL_RULE fillRule);
 
     HRESULT drawInverseWindingPath(
+        const SkDraw& d,
         const SkPath& devicePath,
         IXpsOMPath* xpsPath);
 
@@ -272,6 +315,7 @@ private:
         const SkIRect& clip, SkIRect* clipIRect);
 
     HRESULT applyMask(
+        const SkDraw& d,
         const SkMask& mask,
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
@@ -282,7 +326,7 @@ private:
     SkXPSDevice(const SkXPSDevice&);
     void operator=(const SkXPSDevice&);
 
-    typedef SkClipStackDevice INHERITED;
+    typedef SkBaseDevice INHERITED;
 };
 
 #endif  // SK_BUILD_FOR_WIN
