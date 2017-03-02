@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "879dc407_d520f89f",
+        "filename": "src/core/SkEdgeBuilder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-02T19:03:45Z",
+      "side": 1,
+      "message": "Just curious: why do you reduce the storage from 16 * 1024 to 8 * 1024? How much faster is the inline storage?",
+      "revId": "1289e4a6c933ebeb1fce7dc4f167a125647bbee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
