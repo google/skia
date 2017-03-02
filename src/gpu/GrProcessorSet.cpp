@@ -51,18 +51,22 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalReset(const GrPipelineIn
     fps += processors.fColorFragmentProcessorCnt;
     int n = processors.numCoverageFragmentProcessors();
     bool hasCoverageFP = n > 0;
-    for (int i = 0; i < n && fCompatibleWithCoverageAsAlpha; ++i) {
+    fUsesLocalCoords = colorInfo.usesLocalCoords();
+    for (int i = 0; i < n; ++i) {
         if (!fps[i]->compatibleWithCoverageAsAlpha()) {
             fCompatibleWithCoverageAsAlpha = false;
             // Other than tests that exercise atypical behavior we expect all coverage FPs to be
             // compatible with the coverage-as-alpha optimization.
             GrCapsDebugf(&caps, "Coverage FP is not compatible with coverage as alpha.\n");
-            break;
+        }
+        if (fps[i]->usesLocalCoords()) {
+            fUsesLocalCoords = true;
         }
     }
 
     if (clipFP) {
         fCompatibleWithCoverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
+        fUsesLocalCoords |= clipFP->usesLocalCoords();
         hasCoverageFP = true;
     }
     fInitialColorProcessorsToEliminate =

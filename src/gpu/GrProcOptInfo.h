@@ -43,9 +43,21 @@ public:
     void analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt);
 
     bool isOpaque() const { return fIsOpaque; }
+
+    /**
+     * Are all the fragment processors compatible with conflating coverage with color prior to the
+     * the first fragment processor. This result of this is dependent upon the caller eliminating
+     * any processors as indicated by initialProcessorsToEliminate().
+     */
     bool allProcessorsCompatibleWithCoverageAsAlpha() const {
         return fAllProcessorsCompatibleWithCoverageAsAlpha;
     }
+
+    /**
+     * Do any of the fragment processors require local coords. This result of this is dependent upon
+     * the caller eliminating any processors as indicated * by initialProcessorsToEliminate().
+     */
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     /**
      * If we detected that the result after the first N processors is a known color then we
@@ -84,6 +96,7 @@ private:
     int fProcessorsVisitedWithKnownOutput = -1;
     bool fIsOpaque = false;
     bool fAllProcessorsCompatibleWithCoverageAsAlpha = true;
+    bool fUsesLocalCoords = false;
     GrColor4f fLastKnownOutputColor;
 };
 
