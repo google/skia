@@ -288,7 +288,7 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap
     if (!tex) {
         tex.reset(GrUploadBitmapToTexture(context, bitmap));
         if (tex && originalKey.isValid()) {
-            tex->resourcePriv().setUniqueKey(originalKey);
+            context->textureProvider()->assignUniqueKeyToTexture(originalKey, tex.get());
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
         }
     }

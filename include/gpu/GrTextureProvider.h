@@ -51,6 +51,7 @@ public:
     /** Assigns a unique key to the texture. The texture will be findable via this key using
         findTextureByUniqueKey(). If an existing texture has this key, it's key will be removed. */
     void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
+        SkASSERT(key.isValid());
         this->assignUniqueKeyToResource(key, texture);
     }
 
