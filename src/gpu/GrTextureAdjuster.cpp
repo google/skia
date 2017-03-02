@@ -11,6 +11,7 @@
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrTexture.h"
+#include "GrTextureProvider.h"
 #include "SkGrPriv.h"
 
 GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
