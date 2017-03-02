@@ -22,6 +22,30 @@
       "revId": "d28895c6e20cf115ad393a89da3cda97e9018fbe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc278648_07d808b8",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-02T17:15:06Z",
+      "side": 1,
+      "message": "Hm, maybe. Do you think we\u0027d always want a semaphore when we create a GrGLExternalTextureData?",
+      "parentUuid": "4ac5fd7e_7a5ec054",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 77
+      },
+      "revId": "d28895c6e20cf115ad393a89da3cda97e9018fbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
