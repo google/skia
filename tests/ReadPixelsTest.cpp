@@ -16,7 +16,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTextureProvider.h"
 #include "SkGr.h"
 #endif
 
