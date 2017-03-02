@@ -18,7 +18,8 @@ objdump = 'gobjdump'
 #ndk = '/home/mtklein/ndk/'
 #objdump = '/home/mtklein/binutils-2.27/binutils/objdump'
 
-cflags = '-std=c++11 -Os -fomit-frame-pointer -DJUMPER'.split()
+cflags = ['-std=c++11', '-Os', '-DJUMPER',
+          '-fomit-frame-pointer', '-ffp-contract=fast' ]
 
 sse2 = '-mno-red-zone -msse2 -mno-sse3 -mno-ssse3 -mno-sse4.1'.split()
 subprocess.check_call(clang + cflags + sse2 +
