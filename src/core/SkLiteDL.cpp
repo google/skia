@@ -43,12 +43,6 @@ static D* pod(T* op, size_t offset = 0) {
     return SkTAddOffset<D>(op+1, offset);
 }
 
-// Pre-cache lazy non-threadsafe fields on SkPath and/or SkMatrix.
-static void make_threadsafe(SkPath* path, SkMatrix* matrix) {
-    if (path)   { path->updateBoundsCache(); }
-    if (matrix) { (void)matrix->getType(); }
-}
-
 namespace {
 #define TYPES(M)                                                                \
     M(SetDrawFilter) M(Save) M(Restore) M(SaveLayer)                            \
@@ -67,8 +61,6 @@ namespace {
 #undef M
 
     struct Op {
-        void makeThreadsafe() {}
-
         uint32_t type :  8;
         uint32_t skip : 24;
     };
@@ -118,7 +110,6 @@ namespace {
         Concat(const SkMatrix& matrix) : matrix(matrix) {}
         SkMatrix matrix;
         void draw(SkCanvas* c, const SkMatrix&) { c->concat(matrix); }
-        void makeThreadsafe() { make_threadsafe(nullptr, &matrix); }
     };
     struct SetMatrix final : Op {
         static const auto kType = Type::SetMatrix;
@@ -127,7 +118,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix& original) {
             c->setMatrix(SkMatrix::Concat(original, matrix));
         }
-        void makeThreadsafe() { make_threadsafe(nullptr, &matrix); }
     };
     struct Translate final : Op {
         static const auto kType = Type::Translate;
@@ -155,7 +145,6 @@ namespace {
         SkClipOp op;
         bool     aa;
         void draw(SkCanvas* c, const SkMatrix&) { c->clipPath(path, op, aa); }
-        void makeThreadsafe() { make_threadsafe(&path, nullptr); }
     };
     struct ClipRect final : Op {
         static const auto kType = Type::ClipRect;
@@ -193,7 +182,6 @@ namespace {
         SkPath  path;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) { c->drawPath(path, paint); }
-        void makeThreadsafe() { make_threadsafe(&path, nullptr); }
     };
     struct DrawRect final : Op {
         static const auto kType = Type::DrawRect;
@@ -260,16 +248,10 @@ namespace {
         DrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) : drawable(sk_ref_sp(drawable)) {
             if (matrix) { this->matrix = *matrix; }
         }
-        sk_sp<SkDrawable>      drawable;
-        sk_sp<const SkPicture> snapped;
-        SkMatrix               matrix = SkMatrix::I();
+        sk_sp<SkDrawable> drawable;
+        SkMatrix          matrix = SkMatrix::I();
         void draw(SkCanvas* c, const SkMatrix&) {
-            snapped ? c->drawPicture(snapped.get(), &matrix, nullptr)
-                    : c->drawDrawable(drawable.get(), &matrix);
-        }
-        void makeThreadsafe() {
-            snapped.reset(drawable->newPictureSnapshot());
-            make_threadsafe(nullptr, &matrix);
+            c->drawDrawable(drawable.get(), &matrix);
         }
     };
     struct DrawPicture final : Op {
@@ -286,7 +268,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawPicture(picture.get(), &matrix, has_paint ? &paint : nullptr);
         }
-        void makeThreadsafe() { make_threadsafe(nullptr, &matrix); }
     };
     struct DrawShadowedPicture final : Op {
         static const auto kType = Type::DrawShadowedPicture;
@@ -306,7 +287,6 @@ namespace {
             c->drawShadowedPicture(picture.get(), &matrix, &paint, params);
         #endif
         }
-        void makeThreadsafe() { make_threadsafe(nullptr, &matrix); }
     };
 
     struct DrawImage final : Op {
@@ -424,7 +404,6 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawTextOnPath(pod<void>(this), bytes, path, &matrix, paint);
         }
-        void makeThreadsafe() { make_threadsafe(&path, &matrix); }
     };
     struct DrawTextRSXform final : Op {
         static const auto kType = Type::DrawTextRSXform;
@@ -757,10 +736,6 @@ typedef void(*void_fn)(void*);
 static const draw_fn draw_fns[] = { TYPES(M) };
 #undef M
 
-#define M(T) [](void* op) { ((T*)op)->makeThreadsafe(); },
-static const void_fn make_threadsafe_fns[] = { TYPES(M) };
-#undef M
-
 // Older libstdc++ has pre-standard std::has_trivial_destructor.
 #if defined(__GLIBCXX__) && (__GLIBCXX__ < 20130000)
     template <typename T> using can_skip_destructor = std::has_trivial_destructor<T>;
@@ -772,8 +747,6 @@ static const void_fn make_threadsafe_fns[] = { TYPES(M) };
 #define M(T) !can_skip_destructor<T>::value ? [](void* op) { ((T*)op)->~T(); } : (void_fn)nullptr,
 static const void_fn dtor_fns[] = { TYPES(M) };
 #undef M
-
-void SkLiteDL::makeThreadsafe() { this->map(make_threadsafe_fns); }
 
 void SkLiteDL::draw(SkCanvas* canvas) {
     SkAutoCanvasRestore acr(canvas, false);
