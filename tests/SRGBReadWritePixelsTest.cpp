@@ -9,7 +9,7 @@
 #if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrTextureProvider.h"
+#include "GrResourceProvider.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
@@ -163,7 +163,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     desc.fConfig = kSRGBA_8888_GrPixelConfig;
     if (context->caps()->isConfigRenderable(desc.fConfig, false) &&
         context->caps()->isConfigTexturable(desc.fConfig)) {
-        sk_sp<GrTexture> tex(context->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+        sk_sp<GrTexture> tex(context->resourceProvider()->createTexture(desc, SkBudgeted::kNo));
         if (!tex) {
             ERRORF(reporter, "Could not create SRGBA texture.");
             return;
@@ -202,7 +202,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         }
 
         desc.fConfig = kRGBA_8888_GrPixelConfig;
-        tex.reset(context->textureProvider()->createTexture(desc, SkBudgeted::kNo));
+        tex.reset(context->resourceProvider()->createTexture(desc, SkBudgeted::kNo));
         if (!tex) {
             ERRORF(reporter, "Could not create RGBA texture.");
             return;

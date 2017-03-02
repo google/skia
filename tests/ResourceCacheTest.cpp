@@ -100,15 +100,14 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     smallDesc.fHeight = 4;
     smallDesc.fSampleCnt = 0;
 
-    GrTextureProvider* cache = context->textureProvider();
     GrResourceProvider* resourceProvider = context->resourceProvider();
     // Test that two budgeted RTs with the same desc share a stencil buffer.
-    sk_sp<GrTexture> smallRT0(cache->createTexture(smallDesc, SkBudgeted::kYes));
+    sk_sp<GrTexture> smallRT0(resourceProvider->createTexture(smallDesc, SkBudgeted::kYes));
     if (smallRT0 && smallRT0->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget());
     }
 
-    sk_sp<GrTexture> smallRT1(cache->createTexture(smallDesc, SkBudgeted::kYes));
+    sk_sp<GrTexture> smallRT1(resourceProvider->createTexture(smallDesc, SkBudgeted::kYes));
     if (smallRT1 && smallRT1->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget());
     }
@@ -120,7 +119,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
                     resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget()));
 
     // An unbudgeted RT with the same desc should also share.
-    sk_sp<GrTexture> smallRT2(cache->createTexture(smallDesc, SkBudgeted::kNo));
+    sk_sp<GrTexture> smallRT2(resourceProvider->createTexture(smallDesc, SkBudgeted::kNo));
     if (smallRT2 && smallRT2->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT2->asRenderTarget());
     }
@@ -137,7 +136,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
     bigDesc.fSampleCnt = 0;
-    sk_sp<GrTexture> bigRT(cache->createTexture(bigDesc, SkBudgeted::kNo));
+    sk_sp<GrTexture> bigRT(resourceProvider->createTexture(bigDesc, SkBudgeted::kNo));
     if (bigRT && bigRT->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(bigRT->asRenderTarget());
     }
@@ -151,7 +150,8 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         // An RT with a different sample count should not share.
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = 4;
-        sk_sp<GrTexture> smallMSAART0(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
+        sk_sp<GrTexture> smallMSAART0(resourceProvider->createTexture(smallMSAADesc,
+                                                                      SkBudgeted::kNo));
         if (smallMSAART0 && smallMSAART0->asRenderTarget()) {
             resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget());
         }
@@ -167,7 +167,8 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
                         resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget()) !=
                         resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget()));
         // A second MSAA RT should share with the first MSAA RT.
-        sk_sp<GrTexture> smallMSAART1(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
+        sk_sp<GrTexture> smallMSAART1(resourceProvider->createTexture(smallMSAADesc,
+                                                                      SkBudgeted::kNo));
         if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
             resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
         }
@@ -183,9 +184,9 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
             smallMSAART0 && smallMSAART0->asRenderTarget() &&
             smallMSAART0->asRenderTarget()->numColorSamples() < 8) {
             smallMSAADesc.fSampleCnt = 8;
-            smallMSAART1.reset(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
+            smallMSAART1.reset(resourceProvider->createTexture(smallMSAADesc, SkBudgeted::kNo));
             sk_sp<GrTexture> smallMSAART1(
-                    cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
+                resourceProvider->createTexture(smallMSAADesc, SkBudgeted::kNo));
             if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
                 resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
             }
@@ -222,11 +223,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     desc.fHeight = kH;
 
     desc.fTextureHandle = texHandles[0];
-    sk_sp<GrTexture> borrowed(context->textureProvider()->wrapBackendTexture(
+    sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
                               desc, kBorrow_GrWrapOwnership));
 
     desc.fTextureHandle = texHandles[1];
-    sk_sp<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
+    sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
                              desc, kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
@@ -1383,7 +1384,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static sk_sp<GrTexture> make_normal_texture(GrTextureProvider* provider,
+static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             GrSurfaceFlags flags,
                                             int width, int height,
                                             int sampleCnt) {
@@ -1397,7 +1398,7 @@ static sk_sp<GrTexture> make_normal_texture(GrTextureProvider* provider,
     return sk_sp<GrTexture>(provider->createTexture(desc, SkBudgeted::kYes));
 }
 
-static sk_sp<GrTexture> make_mipmap_texture(GrTextureProvider* provider,
+static sk_sp<GrTexture> make_mipmap_texture(GrResourceProvider* provider,
                                             GrSurfaceFlags flags,
                                             int width, int height,
                                             int sampleCnt) {
@@ -1440,7 +1441,7 @@ static sk_sp<GrTexture> make_mipmap_texture(GrTextureProvider* provider,
 // Texture-only, both-RT-and-Texture and MIPmapped
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrTextureProvider* provider = context->textureProvider();
+    GrResourceProvider* provider = context->resourceProvider();
 
     static const int kSize = 64;
 

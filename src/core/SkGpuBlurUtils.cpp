@@ -199,7 +199,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         // Chrome is crashing with proxies when they need to be instantiated.
         // Force an instantiation here (where, in olden days, we used to require a GrTexture)
         // to see if the input is already un-instantiable.
-        GrTexture* temp = srcProxy->instantiate(context->textureProvider());
+        GrTexture* temp = srcProxy->instantiate(context->resourceProvider());
         if (!temp) {
             return nullptr;
         }

@@ -127,7 +127,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrContext* context, GrColor color,
     : fColor(color)
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
-    , fTextureSampler(context->textureProvider(), std::move(proxy), params)
+    , fTextureSampler(context->resourceProvider(), std::move(proxy), params)
     , fInColor(nullptr)
     , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();

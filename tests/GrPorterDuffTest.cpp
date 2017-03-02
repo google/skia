@@ -1018,7 +1018,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     fakeDesc.fTextureHandle = backendTex;
     GrXferProcessor::DstTexture fakeDstTexture;
     fakeDstTexture.setTexture(
-        ctx->textureProvider()->wrapBackendTexture(fakeDesc, kBorrow_GrWrapOwnership));
+        ctx->resourceProvider()->wrapBackendTexture(fakeDesc, kBorrow_GrWrapOwnership));
 
     static const GrPipelineInput colorInputs[] = {GrPipelineInput(),
                                                   GrPipelineInput(GrPipelineInput::Opaque::kYes),

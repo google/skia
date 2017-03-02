@@ -11,8 +11,8 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceProvider.h"
 #include "GrTexture.h"
-#include "GrTextureProvider.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
@@ -126,8 +126,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                     continue;
                 }
                 desc.fConfig = test.fConfig;
-                sk_sp<GrTexture> imageStorageTexture(context->textureProvider()->createTexture(desc,
-                    SkBudgeted::kYes, test.fData.get(), 0));
+                sk_sp<GrTexture> imageStorageTexture(context->resourceProvider()->createTexture(
+                        desc, SkBudgeted::kYes, test.fData.get(), 0));
 
                 sk_sp<GrRenderTargetContext> rtContext =
                     context->makeRenderTargetContext(SkBackingFit::kExact, kS, kS,

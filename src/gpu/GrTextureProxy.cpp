@@ -7,7 +7,7 @@
 
 #include "GrTextureProxy.h"
 
-#include "GrTextureProvider.h"
+#include "GrResourceProvider.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
@@ -19,8 +19,8 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf)
     : INHERITED(std::move(surf), SkBackingFit::kExact) {
 }
 
-GrTexture* GrTextureProxy::instantiate(GrTextureProvider* texProvider) {
-    GrSurface* surf = this->INHERITED::instantiate(texProvider);
+GrTexture* GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
+    GrSurface* surf = this->INHERITED::instantiate(resourceProvider);
     if (!surf) {
         return nullptr;
     }
