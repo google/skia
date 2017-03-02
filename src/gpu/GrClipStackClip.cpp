@@ -413,11 +413,11 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, int32_t clip
 // MDB TODO (caching): this side-steps the issue of texture proxies cached by unique ID
 sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
-    GrTextureProvider* texProvider = context->textureProvider();
+    GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTexture> texture(texProvider->findAndRefTextureByUniqueKey(key));
+    sk_sp<GrTexture> texture(resourceProvider->findAndRefTextureByUniqueKey(key));
     if (texture) {
         return GrSurfaceProxy::MakeWrapped(std::move(texture));
     }
@@ -441,12 +441,12 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
         return nullptr;
     }
 
-    GrTexture* tex = result->instantiate(context->textureProvider());
+    GrTexture* tex = result->instantiate(context->resourceProvider());
     if (!tex) {
         return nullptr;
     }
 
-    context->textureProvider()->assignUniqueKeyToTexture(key, tex);
+    context->resourceProvider()->assignUniqueKeyToTexture(key, tex);
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
 
     return result;
@@ -459,7 +459,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTexture> texture(context->textureProvider()->findAndRefTextureByUniqueKey(key));
+    sk_sp<GrTexture> texture(context->resourceProvider()->findAndRefTextureByUniqueKey(key));
     if (texture) {
         return GrSurfaceProxy::MakeWrapped(std::move(texture));
     }
@@ -517,12 +517,12 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
 
     sk_sp<GrTextureProxy> result(helper.toTexture(context, SkBackingFit::kApprox));
 
-    GrTexture* tex = result->instantiate(context->textureProvider());
+    GrTexture* tex = result->instantiate(context->resourceProvider());
     if (!tex) {
         return nullptr;
     }
 
-    context->textureProvider()->assignUniqueKeyToTexture(key, tex);
+    context->resourceProvider()->assignUniqueKeyToTexture(key, tex);
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
     return result;
 }

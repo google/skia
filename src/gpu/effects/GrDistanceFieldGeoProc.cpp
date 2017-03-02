@@ -234,7 +234,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrContext* context,
                                                            bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureSampler(context->textureProvider(), std::move(proxy), params)
+    , fTextureSampler(context->resourceProvider(), std::move(proxy), params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fDistanceAdjust(distanceAdjust)
 #endif
@@ -481,7 +481,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureSampler(context->textureProvider(), std::move(proxy), params)
+    , fTextureSampler(context->resourceProvider(), std::move(proxy), params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(nullptr)
     , fUsesLocalCoords(usesLocalCoords) {
@@ -785,7 +785,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   uint32_t flags, bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureSampler(context->textureProvider(), std::move(proxy), params)
+    , fTextureSampler(context->resourceProvider(), std::move(proxy), params)
     , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask)
     , fUsesLocalCoords(usesLocalCoords) {
