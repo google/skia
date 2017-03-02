@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edcb396d_502a3144",
+        "filename": "infra/bots/recipe_modules/flavor/flutter_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-03-02T14:51:57Z",
+      "side": 1,
+      "message": "Sadface",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 55
+      },
+      "revId": "31141c8cda691c6f9290e28c4890678c34d7f1c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
