@@ -13,7 +13,6 @@
 #include "GrColor.h"
 #include "GrPaint.h"
 #include "GrRenderTarget.h"
-#include "GrTextureProvider.h"
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
@@ -38,6 +37,7 @@ class GrResourceCache;
 class GrResourceProvider;
 class GrTextBlobCache;
 class GrTextContext;
+class GrTextureProvider;
 class GrSamplerParams;
 class GrVertexBuffer;
 class GrSwizzle;
