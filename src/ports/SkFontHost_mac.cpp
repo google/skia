@@ -1488,6 +1488,18 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
         }
     }
 
+    // In 10.10 and earlier, CTFontCopyVariationAxes and CTFontCopyVariation do not work when
+    // applied to fonts which started life with CGFontCreateWithDataProvider (they simply always
+    // return nullptr). As a result, we are limited to CGFontCopyVariationAxes and
+    // CGFontCopyVariations here until support for 10.10 and earlier is removed.
+    UniqueCFRef<CGFontRef> cgFont(CTFontCopyGraphicsFont(ctFont.get(), nullptr));
+    if (cgFont) {
+        UniqueCFRef<CFArrayRef> cgAxes(CGFontCopyVariationAxes(cgFont.get()));
+        if (cgAxes && CFArrayGetCount(cgAxes.get()) > 0) {
+            info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
+        }
+    }
+
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont.get());
     info->fLastGlyphID = SkToU16(glyphCount - 1);
     info->fEmSize = CTFontGetUnitsPerEm(ctFont.get());
