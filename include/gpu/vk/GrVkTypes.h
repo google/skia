@@ -62,14 +62,15 @@ struct GrVkImageInfo {
 
 class GrVkExternalTextureData : public GrExternalTextureData {
 public:
-    GrVkExternalTextureData(const GrVkImageInfo& info, GrFence fence)
-            : INHERITED(fence)
-            , fInfo(info) {}
+    GrVkExternalTextureData(const GrVkImageInfo& info) : fInfo(info) {}
     GrBackend getBackend() const override { return kVulkan_GrBackend; }
 
 protected:
     GrBackendObject getBackendObject() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
+    }
+    void attachToContext(GrContext*) override {
+        // TODO: Implement this
     }
 
     GrVkImageInfo fInfo;
