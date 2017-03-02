@@ -22,7 +22,6 @@ public:
     void draw(SkCanvas* canvas);
 
     void reset();
-    void makeThreadsafe();
     bool empty() const { return fUsed == 0; }
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER

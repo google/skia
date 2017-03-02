@@ -54,7 +54,6 @@ void RecordingBench::onDraw(int loops, SkCanvas*) {
             SkLiteDL dl;
             rec.reset(&dl, fSrc->cullRect().roundOut());
             fDL->draw(&rec);
-            dl.makeThreadsafe();
         }
 
     } else {
