@@ -287,6 +287,7 @@ struct Line {
         double scale = 1.0f / denom;
         point->fX = SkDoubleToScalar((fB * other.fC - other.fB * fC) * scale);
         point->fY = SkDoubleToScalar((other.fA * fC - fA * other.fC) * scale);
+        round(point);
         return true;
     }
     double fA, fB, fC;
