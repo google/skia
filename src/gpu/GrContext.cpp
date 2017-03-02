@@ -546,13 +546,6 @@ void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     fDrawingManager->prepareSurfaceForExternalIO(surface);
 }
 
-GrFence GrContext::prepareSurfaceForExternalIOAndFlush(GrSurface* surface) {
-    this->prepareSurfaceForExternalIO(surface);
-    GrFence fence = fGpu->insertFence();
-    fGpu->flush();
-    return fence;
-}
-
 void GrContext::flushSurfaceWrites(GrSurface* surface) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED

@@ -10,21 +10,19 @@
 #define GrExternalTextureData_DEFINED
 
 #include "GrTypes.h"
-#include "GrTypesPriv.h"
+
+class GrContext;
 
 class SK_API GrExternalTextureData : SkNoncopyable {
 public:
-    GrExternalTextureData(GrFence fence) : fFence(fence) {}
     virtual ~GrExternalTextureData() {}
     virtual GrBackend getBackend() const = 0;
-    GrFence getFence() const { return fFence; }
-
 protected:
     virtual GrBackendObject getBackendObject() const = 0;
-
-    GrFence fFence;
+    virtual void attachToContext(GrContext*) = 0;
 
     friend class SkCrossContextImageData;
+    friend class SkImage;
 };
 
 #endif

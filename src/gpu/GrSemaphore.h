@@ -13,7 +13,7 @@
 class GrGpu;
 
 class GrSemaphore : public SkRefCnt {
-public:
+private:
     // This function should only be used in the case of exporting and importing a GrSemaphore object
     // from one GrContext to another. When exporting, the GrSemaphore should be set to a null GrGpu,
     // and when importing it should be set to the GrGpu of the current context. Once exported, a
@@ -22,6 +22,8 @@ public:
 
 protected:
     explicit GrSemaphore(const GrGpu* gpu) : fGpu(gpu) {}
+
+    friend class GrGLExternalTextureData; // resetGpu
 
     const GrGpu* fGpu;
 };

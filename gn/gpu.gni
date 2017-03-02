@@ -385,6 +385,7 @@ skia_gpu_sources = [
   "$_src/gpu/gl/GrGLGpuCommandBuffer.h",
   "$_src/gpu/gl/GrGLGpuProgramCache.cpp",
   "$_src/gpu/gl/GrGLExtensions.cpp",
+  "$_src/gpu/gl/GrGLExternalTextureData.cpp",
   "$_src/gpu/gl/GrGLInterface.cpp",
   "$_src/gpu/gl/GrGLIRect.h",
   "$_src/gpu/gl/GrGLPath.cpp",
