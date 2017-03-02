@@ -86,6 +86,17 @@ DEF_TEST(MallocPixelRef, reporter) {
         REPORTER_ASSERT(reporter, 1 == x);
     }
     {
+        int x = 0;
+        SkAutoMalloc memory(size);
+        sk_sp<SkMallocPixelRef> pr(
+            SkMallocPixelRef::NewWithProc(SkImageInfo::MakeN32Premul(-1, -1), rowBytes, nullptr,
+                                          memory.get(), set_to_one_proc,
+                                          static_cast<void*>(&x)));
+        REPORTER_ASSERT(reporter, pr.get() == nullptr);
+        // make sure that set_to_one_proc was called.
+        REPORTER_ASSERT(reporter, 1 == x);
+    }
+    {
         void* addr = static_cast<void*>(new uint8_t[size]);
         REPORTER_ASSERT(reporter, addr != nullptr);
         sk_sp<SkMallocPixelRef> pr(
