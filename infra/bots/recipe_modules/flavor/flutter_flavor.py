@@ -36,6 +36,12 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
       gn_args.append('--android')
       out_dir = 'android_' + out_dir
 
+    # Delete out_dir so that we start from a clean slate. See skbug/6310.
+    self.m.file.rmtree(
+        out_dir,
+        flutter_dir.join('out', out_dir),
+        infra_step=True)
+
     # Run GN.
     self.m.run(
         self.m.step,
