@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08b0fe15_55093d08",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-02T21:33:04Z",
+      "side": 1,
+      "message": "Looks like there are no callers of this in our code or Chrome\u0027s.",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 5
+      },
+      "revId": "6681876665ed7fddb0a32d7186c3402904b0a74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1493902_4cb85c1c",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-02T21:33:04Z",
+      "side": 1,
+      "message": "We should explore making this saner after this lands.",
+      "range": {
+        "startLine": 189,
+        "startChar": 4,
+        "endLine": 210,
+        "endChar": 6
+      },
+      "revId": "6681876665ed7fddb0a32d7186c3402904b0a74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
