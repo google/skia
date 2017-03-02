@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf0e6198_b8903f60",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-02T17:06:07Z",
+      "side": 1,
+      "message": "\"may be\" ?",
+      "range": {
+        "startLine": 186,
+        "startChar": 13,
+        "endLine": 186,
+        "endChar": 16
+      },
+      "revId": "7384149979fe5e9d2e2f8e585e304a0ed95c86b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2a3f700_7df6a4ad",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-02T17:06:07Z",
+      "side": 1,
+      "message": "do we also want\n\nsk_sp\u003c\u003e refColorSpace()",
+      "range": {
+        "startLine": 190,
+        "startChar": 18,
+        "endLine": 190,
+        "endChar": 28
+      },
+      "revId": "7384149979fe5e9d2e2f8e585e304a0ed95c86b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
