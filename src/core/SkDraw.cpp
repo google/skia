@@ -73,7 +73,8 @@ private:
     // Owned by fAlloc, which will handle the delete.
     SkBlitter*          fBlitter;
 
-    SkArenaAlloc fAlloc{kSkBlitterContextSize};
+    char fStorage[kSkBlitterContextSize];
+    SkArenaAlloc fAlloc{fStorage};
 };
 #define SkAutoBlitterChoose(...) SK_REQUIRE_LOCAL_VAR(SkAutoBlitterChoose)
 
