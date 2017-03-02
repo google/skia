@@ -146,7 +146,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
 
 #include "GrResourceProvider.h"
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(GrTextureProvider* texProvider,
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrTextureProvider* texProvider,
                                                    const GrCaps& caps,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
@@ -196,32 +196,32 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(GrTextureProvider* texProvide
     copyDesc.fSampleCnt = SkTMin(desc.fSampleCnt, caps.maxSampleCount());
 
 #ifdef SK_DISABLE_DEFERRED_PROXIES
-    sk_sp<GrSurface> surf;
+    sk_sp<GrTexture> tex;
 
     if (SkBackingFit::kApprox == fit) {
-        surf.reset(texProvider->createApproxTexture(copyDesc));
+        tex.reset(texProvider->createApproxTexture(copyDesc));
     } else {
-        surf.reset(texProvider->createTexture(copyDesc, budgeted));
+        tex.reset(texProvider->createTexture(copyDesc, budgeted));
     }
 
-    if (!surf) {
+    if (!tex) {
         return nullptr;
     }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(surf));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
 #else
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(caps, copyDesc, fit,
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(caps, copyDesc, fit,
                                                                     budgeted, flags));
     }
 
-    return sk_sp<GrSurfaceProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
+    return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
 #endif
 }
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    GrTextureProvider* texProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,

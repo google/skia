@@ -91,7 +91,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         desc.fHeight    = 2 * S;
         desc.fConfig    = SkImageInfo2GrPixelConfig(ii, *context->caps());
 
-        sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                                    context->textureProvider(),
                                                                    desc, SkBudgeted::kNo,
                                                                    gTextureData.get(), 0);

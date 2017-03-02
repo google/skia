@@ -294,46 +294,43 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
         this->flush();
     }
 
-    sk_sp<GrTextureProxy> tempTextureProxy;
+    sk_sp<GrTextureProxy> tempProxy;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        sk_sp<GrSurfaceProxy> temp = GrSurfaceProxy::MakeDeferred(this->textureProvider(),
-                                                                  *this->caps(),
-                                                                  tempDrawInfo.fTempSurfaceDesc,
-                                                                  SkBackingFit::kApprox,
-                                                                  SkBudgeted::kYes);
-        if (temp) {
-            tempTextureProxy = sk_ref_sp(temp->asTextureProxy());
-        }
-        if (!tempTextureProxy && GrGpu::kRequireDraw_DrawPreference == drawPreference) {
+        tempProxy = GrSurfaceProxy::MakeDeferred(this->textureProvider(),
+                                                 *this->caps(),
+                                                 tempDrawInfo.fTempSurfaceDesc,
+                                                 SkBackingFit::kApprox,
+                                                 SkBudgeted::kYes);
+        if (!tempProxy && GrGpu::kRequireDraw_DrawPreference == drawPreference) {
             return false;
         }
     }
 
     // temp buffer for doing sw premul conversion, if needed.
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
-    if (tempTextureProxy) {
+    if (tempProxy) {
         sk_sp<GrFragmentProcessor> fp;
         if (applyPremulToSrc) {
-            fp = this->createUPMToPMEffect(tempTextureProxy, tempDrawInfo.fSwizzle, SkMatrix::I());
+            fp = this->createUPMToPMEffect(tempProxy, tempDrawInfo.fSwizzle, SkMatrix::I());
             // If premultiplying was the only reason for the draw, fall back to a straight write.
             if (!fp) {
                 if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
-                    tempTextureProxy.reset(nullptr);
+                    tempProxy.reset(nullptr);
                 }
             } else {
                 applyPremulToSrc = false;
             }
         }
-        if (tempTextureProxy) {
+        if (tempProxy) {
             if (!fp) {
-                fp = GrConfigConversionEffect::Make(this, tempTextureProxy, tempDrawInfo.fSwizzle,
+                fp = GrConfigConversionEffect::Make(this, tempProxy, tempDrawInfo.fSwizzle,
                                                     GrConfigConversionEffect::kNone_PMConversion,
                                                     SkMatrix::I());
                 if (!fp) {
                     return false;
                 }
             }
-            GrTexture* texture = tempTextureProxy->instantiate(this->textureProvider());
+            GrTexture* texture = tempProxy->instantiate(this->textureProvider());
             if (!texture) {
                 return false;
             }
@@ -382,7 +379,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
             }
         }
     }
-    if (!tempTextureProxy) {
+    if (!tempProxy) {
         if (applyPremulToSrc) {
             size_t tmpRowBytes = 4 * width;
             tmpPixels.reset(width * height);
@@ -625,7 +622,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
                                                                   SkBackingFit fit,
                                                                   SkBudgeted isDstBudgeted) {
 
-    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(fContext->textureProvider(),
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(fContext->textureProvider(),
                                                                *fContext->caps(), dstDesc,
                                                                fit, isDstBudgeted);
     if (!proxy) {
@@ -825,7 +822,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     desc.fConfig = config;
     desc.fSampleCnt = sampleCnt;
 
-    sk_sp<GrSurfaceProxy> rtp = GrSurfaceProxy::MakeDeferred(this->textureProvider(),
+    sk_sp<GrTextureProxy> rtp = GrSurfaceProxy::MakeDeferred(this->textureProvider(),
                                                              *this->caps(), desc, fit, budgeted);
     if (!rtp) {
         return nullptr;

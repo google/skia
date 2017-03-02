@@ -202,12 +202,11 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* context) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                               context->textureProvider(),
-                                                               desc, SkBudgeted::kYes,
-                                                               srcBM.getPixels(),
-                                                               srcBM.rowBytes());
-    return sk_ref_sp(proxy->asTextureProxy());
+    return GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                        context->textureProvider(),
+                                        desc, SkBudgeted::kYes,
+                                        srcBM.getPixels(),
+                                        srcBM.rowBytes());
 }
 
 
