@@ -220,12 +220,12 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     if (fAmbientAlpha > 0.0f) {
         SkScalar srcSpaceAmbientRadius = fOccluderHeight * kHeightFactor * kGeomFactor;
         const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
-        const SkScalar ambientOffset = srcSpaceAmbientRadius / umbraAlpha;
+        const SkScalar strokeWidth = srcSpaceAmbientRadius * umbraAlpha;
 
-        // For the ambient rrect, we inset the offset rect by half the srcSpaceAmbientRadius
-        // to get our stroke shape.
-        SkScalar ambientPathOutset = SkTMax(ambientOffset - srcSpaceAmbientRadius * 0.5f,
-                                              minRadius);
+        // For the ambient rrect, we outset the offset rect by srcSpaceAmbientRadius
+        // minus half the strokeWidth to get our stroke shape.
+        SkScalar ambientPathOutset = SkTMax(srcSpaceAmbientRadius - strokeWidth * 0.5f,
+                                            minRadius);
 
         SkRRect ambientRRect;
         if (isRect) {
@@ -235,14 +235,14 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
              rrect.outset(ambientPathOutset, ambientPathOutset, &ambientRRect);
         }
 
-        const SkScalar devSpaceAmbientRadius = srcSpaceAmbientRadius * scaleFactor;
+        const SkScalar devSpaceAmbientRadius = strokeWidth * scaleFactor;
 
         GrPaint newPaint(paint);
         GrColor4f color = newPaint.getColor4f();
         color.fRGBA[3] *= fAmbientAlpha;
         newPaint.setColor4f(color);
         SkStrokeRec ambientStrokeRec(SkStrokeRec::kHairline_InitStyle);
-        ambientStrokeRec.setStrokeStyle(srcSpaceAmbientRadius, false);
+        ambientStrokeRec.setStrokeStyle(strokeWidth, false);
 
         rtContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, ambientRRect,
                                    devSpaceAmbientRadius,
