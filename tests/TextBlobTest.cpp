@@ -105,7 +105,7 @@ public:
         // Explicit bounds.
         {
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
+            REPORTER_ASSERT(reporter, !blob);
         }
 
         {
@@ -143,9 +143,8 @@ public:
         }
 
         {
-            // Verify empty blob bounds after building some non-empty blobs.
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
+            REPORTER_ASSERT(reporter, !blob);
         }
 
         // Implicit bounds
@@ -273,6 +272,10 @@ private:
         }
 
         sk_sp<SkTextBlob> blob(builder.make());
+        REPORTER_ASSERT(reporter, (inCount > 0) == SkToBool(blob));
+        if (!blob) {
+            return;
+        }
 
         SkTextBlobRunIterator it(blob.get());
         for (unsigned i = 0; i < outCount; ++i) {
