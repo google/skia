@@ -20,6 +20,12 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
     out_dir = configuration
 
+    # Delete out_dir so that we start from a clean slate. See skbug/6310.
+    self.m.file.rmtree(
+        out_dir,
+        'out/' + out_dir,
+        infra_step=True)
+
     # Runhook to generate the gn binary in buildtools.
     self.m.run(
         self.m.step,
