@@ -302,7 +302,11 @@ void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
     } else {
         fMat[kMTransX] += sdot(fMat[kMScaleX], dx, fMat[kMSkewX], dy);
         fMat[kMTransY] += sdot(fMat[kMSkewY], dx, fMat[kMScaleY], dy);
-        this->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+        if (fMat[kMTransX] || fMat[kMTransY]) {
+            fTypeMask |= kTranslate_Mask;
+        } else {
+            fTypeMask &= ~kTranslate_Mask;
+        }
     }
 }
 
@@ -318,7 +322,11 @@ void SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
     } else {
         fMat[kMTransX] += dx;
         fMat[kMTransY] += dy;
-        this->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+        if (fMat[kMTransX] || fMat[kMTransY]) {
+            fTypeMask |= kTranslate_Mask;
+        } else {
+            fTypeMask &= ~kTranslate_Mask;
+        }
     }
 }
 
