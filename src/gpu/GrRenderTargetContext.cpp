@@ -112,7 +112,7 @@ GrRenderTargetContext::~GrRenderTargetContext() {
 }
 
 GrRenderTarget* GrRenderTargetContext::instantiate() {
-    return fRenderTargetProxy->instantiate(fContext->textureProvider());
+    return fRenderTargetProxy->instantiate(fContext->resourceProvider());
 }
 
 GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
@@ -144,14 +144,14 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::copy");
 
     // TODO: defer instantiation until flush time
-    sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->textureProvider())));
+    sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->resourceProvider())));
     if (!src) {
         return false;
     }
 
     // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
     sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
     if (!rt) {
         return false;
     }
@@ -175,7 +175,7 @@ bool GrRenderTargetContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBu
 
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
     if (!rt) {
         return false;
     }
@@ -198,7 +198,7 @@ bool GrRenderTargetContext::onWritePixels(const SkImageInfo& srcInfo, const void
 
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
     if (!rt) {
         return false;
     }
@@ -261,7 +261,7 @@ void GrRenderTargetContext::discard() {
 
     // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
     sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
     if (!rt) {
         return;
     }
@@ -1313,7 +1313,7 @@ void GrRenderTargetContext::prepareForExternalIO() {
 
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
     if (!rt) {
         return;
     }
