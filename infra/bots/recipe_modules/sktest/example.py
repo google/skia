@@ -118,7 +118,7 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
-    api.step_data('dm', retcode=1)
+    api.step_data('symbolized dm', retcode=1)
   )
 
   builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android'

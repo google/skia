@@ -61,6 +61,10 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/skia/infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
       "[START_DIR]/out/Release/dm",
       "--undefok",
       "--resourcePath",
@@ -408,7 +412,7 @@
       "PATH": "%(PATH)s:[START_DIR]/clang_linux/bin",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "dm"
+    "name": "symbolized dm"
   },
   {
     "name": "$result",
