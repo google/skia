@@ -70,3 +70,27 @@ bool sk_bitmapscaler_resize(const sk_pixmap_t* cdst, const sk_pixmap_t* csrc, sk
     const SkPixmap& src = AsPixmap(*csrc);
     return SkBitmapScaler::Resize(dst, src, (SkBitmapScaler::ResizeMethod)method);
 }
+
+sk_color_t sk_color_unpremultiply(const sk_pmcolor_t pmcolor)
+{
+    return SkUnPreMultiply::PMColorToColor(pmcolor);
+}
+
+sk_pmcolor_t sk_color_premultiply(const sk_color_t color)
+{
+    return SkPreMultiplyColor(color);
+}
+
+void sk_color_unpremultiply_array(const sk_pmcolor_t* pmcolors, int size, sk_color_t* colors)
+{
+    for (int i = 0; i < size; ++i) {
+        colors[i] = SkUnPreMultiply::PMColorToColor(pmcolors[i]);
+    }
+}
+
+void sk_color_premultiply_array(const sk_color_t* colors, int size, sk_pmcolor_t* pmcolors)
+{
+    for (int i = 0; i < size; ++i) {
+        pmcolors[i] = SkPreMultiplyColor(colors[i]);
+    }
+}

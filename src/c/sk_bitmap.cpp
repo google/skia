@@ -199,7 +199,7 @@ sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y)
     return AsBitmap(cbitmap)->getColor(x, y);
 }
 
-sk_color_t sk_bitmap_get_index8_color(sk_bitmap_t* cbitmap, int x, int y)
+sk_pmcolor_t sk_bitmap_get_index8_color(sk_bitmap_t* cbitmap, int x, int y)
 {
     return AsBitmap(cbitmap)->getIndex8Color(x, y);
 }

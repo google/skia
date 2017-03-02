@@ -61,7 +61,7 @@ sk_encoded_format_t sk_codec_get_encoded_format(sk_codec_t* codec)
     return (sk_encoded_format_t)AsCodec(codec)->getEncodedFormat();
 }
 
-sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_codec_options_t* coptions, sk_color_t ctable[], int* ctableCount)
+sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_codec_options_t* coptions, sk_pmcolor_t ctable[], int* ctableCount)
 {
     SkImageInfo info;
     from_c(*cinfo, &info);
@@ -75,7 +75,7 @@ sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk
     return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes);
 }
 
-sk_codec_result_t sk_codec_start_incremental_decode(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_codec_options_t* coptions, sk_color_t ctable[], int* ctableCount)
+sk_codec_result_t sk_codec_start_incremental_decode(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_codec_options_t* coptions, sk_pmcolor_t ctable[], int* ctableCount)
 {
     SkImageInfo info;
     from_c(*cinfo, &info);
@@ -87,7 +87,7 @@ sk_codec_result_t sk_codec_incremental_decode(sk_codec_t* codec, int* rowsDecode
     return (sk_codec_result_t)AsCodec(codec)->incrementalDecode(rowsDecoded);
 }
 
-sk_codec_result_t sk_codec_start_scanline_decode(sk_codec_t* codec, const sk_imageinfo_t* cinfo, const sk_codec_options_t* coptions, sk_color_t ctable[], int* ctableCount)
+sk_codec_result_t sk_codec_start_scanline_decode(sk_codec_t* codec, const sk_imageinfo_t* cinfo, const sk_codec_options_t* coptions, sk_pmcolor_t ctable[], int* ctableCount)
 {
     SkImageInfo info;
     from_c(*cinfo, &info);

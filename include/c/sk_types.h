@@ -44,6 +44,7 @@
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 typedef uint32_t sk_color_t;
+typedef uint32_t sk_pmcolor_t;
 
 /* This macro assumes all arguments are >=0 and <=255. */
 #define sk_color_set_argb(a, r, g, b)   (((a) << 24) | ((r) << 16) | ((g) << 8) | (b))

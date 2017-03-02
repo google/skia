@@ -27,6 +27,11 @@ SK_C_API sk_colortable_t* sk_pixmap_get_colortable(sk_pixmap_t* cpixmap);
 
 SK_C_API bool sk_bitmapscaler_resize(const sk_pixmap_t* dst, const sk_pixmap_t* src, sk_bitmapscaler_resizemethod_t method);
 
+SK_C_API sk_color_t sk_color_unpremultiply(const sk_pmcolor_t pmcolor);
+SK_C_API sk_pmcolor_t sk_color_premultiply(const sk_color_t color);
+SK_C_API void sk_color_unpremultiply_array(const sk_pmcolor_t* pmcolors, int size, sk_color_t* colors);
+SK_C_API void sk_color_premultiply_array(const sk_color_t* colors, int size, sk_pmcolor_t* pmcolors);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
