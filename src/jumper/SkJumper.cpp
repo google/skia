@@ -261,7 +261,9 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
                     return false;
                 }
                 *ip++ = (void*)fn;
-                *ip++ = st.ctx;
+                if (st.ctx) {
+                    *ip++ = st.ctx;
+                }
             }
             *ip = (void*)just_return;
 
