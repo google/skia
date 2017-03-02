@@ -17,6 +17,7 @@
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContext.h"
+#include "GrSemaphore.h"
 #include "GrTextureAdjuster.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
@@ -428,9 +429,9 @@ sk_sp<SkImage> SkImage::MakeFromCrossContextImageData(
     }
 
     if (ccid->fTextureData) {
-        GrFence fence = ccid->fTextureData->getFence();
-        context->getGpu()->waitFence(fence);
-        context->getGpu()->deleteFence(fence);
+        sk_sp<GrSemaphore> semaphore = ccid->fTextureData->getSemaphoreRef();
+        semaphore->resetGpu(context->getGpu());
+        context->getGpu()->waitSemaphore(std::move(semaphore));
     }
 
     return MakeFromAdoptedTexture(context, ccid->fDesc, ccid->fAlphaType,
