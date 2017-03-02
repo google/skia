@@ -14,7 +14,6 @@
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexturePriv.h"
-#include "GrTextureProvider.h"
 #include "GrTextureProxy.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"

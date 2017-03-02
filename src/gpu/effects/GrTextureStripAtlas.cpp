@@ -10,7 +10,6 @@
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
-#include "GrTextureProvider.h"
 #include "SkGr.h"
 #include "SkPixelRef.h"
 #include "SkTSearch.h"

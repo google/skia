@@ -16,7 +16,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "GrTextureProvider.h"
 
 static const int DEV_W = 10, DEV_H = 10;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);

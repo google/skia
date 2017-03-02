@@ -179,7 +179,6 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTextureProvider.h"
 
 static GrTexture* create_texture(GrContext* context) {
     SkBitmap srcBM = create_bm();
