@@ -119,7 +119,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     desc.fHeight = texS;
 
     GrTextureProvider* texProvider = context->textureProvider();
-    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(), texProvider,
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(), texProvider,
                                                                desc, SkBudgeted::kNo,
                                                                texData, 0);
 
@@ -135,7 +135,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     GrSamplerParams mipMapParams(SkShader::kRepeat_TileMode, GrSamplerParams::kMipMap_FilterMode);
-    paint.addColorTextureProcessor(context, sk_ref_sp(proxy->asTextureProxy()),
+    paint.addColorTextureProcessor(context, std::move(proxy),
                                    nullptr, SkMatrix::MakeScale(rtS), mipMapParams);
 
     // 1) Draw texture to S32 surface (should generate/use sRGB mips)

@@ -118,7 +118,7 @@ inline void testingOnly_getIORefCnts(const T* resource, int* refCnt, int* readCn
     *writeCnt = resource->fPendingWrites;
 }
 
-void testingOnly_getIORefCnts(GrSurfaceProxy* proxy, int* refCnt, int* readCnt, int* writeCnt) {
+void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, int* writeCnt) {
     *refCnt = proxy->getBackingRefCnt_TestOnly();
     *readCnt = proxy->getPendingReadCnt_TestOnly();
     *writeCnt = proxy->getPendingWriteCnt_TestOnly();
@@ -138,7 +138,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
         {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
             bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
-            sk_sp<GrSurfaceProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->textureProvider(),
+            sk_sp<GrTextureProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->textureProvider(),
                                                                       *context->caps(), desc,
                                                                       SkBackingFit::kExact,
                                                                       SkBudgeted::kYes));
@@ -157,7 +157,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 SkTArray<sk_sp<GrTextureProxy>> proxies;
                 SkTArray<sk_sp<GrBuffer>> buffers;
                 SkTArray<TestFP::Image> images;
-                proxies.push_back(sk_ref_sp(proxy1->asTextureProxy()));
+                proxies.push_back(proxy1);
                 if (texelBufferSupport) {
                     buffers.push_back(buffer);
                 }
@@ -312,7 +312,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     }
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    sk_sp<GrSurfaceProxy> dataProxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
+    sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                                    context->textureProvider(),
                                                                    desc, SkBudgeted::kYes,
                                                                    rgbaData.get(),
@@ -335,7 +335,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 !fp->compatibleWithCoverageAsAlpha()) {
                 continue;
             }
-            test_draw_op(context, rtc.get(), fp, sk_ref_sp(dataProxy->asTextureProxy()));
+            test_draw_op(context, rtc.get(), fp, dataProxy);
             memset(rgbaData.get(), 0x0, sizeof(GrColor) * 256 * 256);
             rtc->readPixels(
                     SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType),

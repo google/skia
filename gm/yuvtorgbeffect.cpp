@@ -81,7 +81,7 @@ protected:
             return;
         }
 
-        sk_sp<GrSurfaceProxy> proxy[3];
+        sk_sp<GrTextureProxy> proxy[3];
 
         {
             GrSurfaceDesc desc;
@@ -121,9 +121,9 @@ protected:
             for (int i = 0; i < 6; ++i) {
                 sk_sp<GrFragmentProcessor> fp(
                         GrYUVEffect::MakeYUVToRGB(context,
-                                                  sk_ref_sp(proxy[indices[i][0]]->asTextureProxy()),
-                                                  sk_ref_sp(proxy[indices[i][1]]->asTextureProxy()),
-                                                  sk_ref_sp(proxy[indices[i][2]]->asTextureProxy()),
+                                                  proxy[indices[i][0]],
+                                                  proxy[indices[i][1]],
+                                                  proxy[indices[i][2]],
                                                   sizes,
                                                   static_cast<SkYUVColorSpace>(space),
                                                   false));
@@ -212,7 +212,7 @@ protected:
             return;
         }
 
-        sk_sp<GrSurfaceProxy> proxy[3];
+        sk_sp<GrTextureProxy> proxy[3];
 
         {
             GrSurfaceDesc desc;
@@ -252,10 +252,7 @@ protected:
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
             sk_sp<GrFragmentProcessor> fp(
-                GrYUVEffect::MakeYUVToRGB(context,
-                                          sk_ref_sp(proxy[0]->asTextureProxy()),
-                                          sk_ref_sp(proxy[1]->asTextureProxy()),
-                                          sk_ref_sp(proxy[2]->asTextureProxy()),
+                GrYUVEffect::MakeYUVToRGB(context, proxy[0], proxy[1], proxy[2],
                                           sizes, static_cast<SkYUVColorSpace>(space), true));
             if (fp) {
                 SkMatrix viewMatrix;

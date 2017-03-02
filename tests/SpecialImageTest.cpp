@@ -233,21 +233,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
         // gpu
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
-        sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                                  context->textureProvider(),
                                                                  desc, SkBudgeted::kNo,
                                                                  bm.getPixels(), bm.rowBytes()));
-        if (!proxy || !proxy->asTextureProxy()) {
+        if (!proxy) {
             return;
         }
 
         sk_sp<SkSpecialImage> gpuImage(SkSpecialImage::MakeDeferredFromGpu(
-                                                                context,
-                                                                SkIRect::MakeWH(kFullSize,
-                                                                                kFullSize),
-                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                                sk_ref_sp(proxy->asTextureProxy()),
-                                                                nullptr));
+                                                            context,
+                                                            SkIRect::MakeWH(kFullSize, kFullSize),
+                                                            kNeedNewImageUniqueID_SpecialImage,
+                                                            std::move(proxy), nullptr));
 
         {
             sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
@@ -269,11 +267,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
 
     const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
+    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                              context->textureProvider(),
                                                              desc, SkBudgeted::kNo,
                                                              bm.getPixels(), bm.rowBytes()));
-    if (!proxy || !proxy->asTextureProxy()) {
+    if (!proxy) {
         return;
     }
 
@@ -281,18 +279,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            sk_ref_sp(proxy->asTextureProxy()),
-                                                            nullptr));
+                                                            proxy, nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeDeferredFromGpu(
-                                                               context,
-                                                               subset,
+                                                               context, subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                               sk_ref_sp(proxy->asTextureProxy()),
-                                                               nullptr));
+                                                               std::move(proxy), nullptr));
         test_image(subSImg1, reporter, context, true, kPad, kFullSize);
     }
 
@@ -312,7 +307,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
+    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                              context->textureProvider(),
                                                              desc, SkBudgeted::kNo,
                                                              bm.getPixels(), 0));
@@ -324,18 +319,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            sk_ref_sp(proxy->asTextureProxy()),
-                                                            nullptr));
+                                                            proxy, nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeDeferredFromGpu(
-                                                               context,
-                                                               subset,
+                                                               context, subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                               sk_ref_sp(proxy->asTextureProxy()),
-                                                               nullptr));
+                                                               std::move(proxy), nullptr));
         test_image(subSImg1, reporter, context, true, kPad, kFullSize);
     }
 

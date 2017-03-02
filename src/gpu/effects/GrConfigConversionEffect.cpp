@@ -218,10 +218,10 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     desc.fHeight = kSize;
     desc.fConfig = kConfig;
 
-    sk_sp<GrSurfaceProxy> dataProxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
+    sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                                    context->textureProvider(),
                                                                    desc, SkBudgeted::kYes, data, 0);
-    if (!dataProxy || !dataProxy->asTextureProxy()) {
+    if (!dataProxy) {
         return;
     }
 
@@ -249,7 +249,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         GrPaint paint2;
         GrPaint paint3;
         sk_sp<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
-                context, sk_ref_sp(dataProxy->asTextureProxy()), GrSwizzle::RGBA(),
+                context, dataProxy, GrSwizzle::RGBA(),
                 *pmToUPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
                 context, readRTC->asTextureProxyRef(), GrSwizzle::RGBA(),
