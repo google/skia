@@ -70,6 +70,30 @@
       "revId": "81107c608caae2f10d1afbc1f89d322ff6e65cfb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a250db79_765c5ee0",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-02T17:10:21Z",
+      "side": 1,
+      "message": "I\u0027d rather not blacklist - I don\u0027t think occasional flakiness is a reason to disable all of our WIC decoding tests on 2k8.  And it is good that can still look at the output of successful decodes in Gold.\n\nAgreed that we should only disable WIC, since there are no known CG issues.  See the latest patch set.",
+      "parentUuid": "a86178b8_05897255",
+      "range": {
+        "startLine": 956,
+        "startChar": 19,
+        "endLine": 956,
+        "endChar": 34
+      },
+      "revId": "81107c608caae2f10d1afbc1f89d322ff6e65cfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
