@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 #clang = ['clang++']
-clang = ['clang-3.9', '-x', 'c++']
+clang = ['ccache', 'clang-3.9', '-x', 'c++']
 
 ndk = '/Users/mtklein/brew/opt/android-ndk/'
 objdump = 'gobjdump'
