@@ -43,7 +43,7 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
         tex = GrUploadBitmapToTexture(this->context(), fBitmap);
     }
     if (tex && fOriginalKey.isValid()) {
-        tex->resourcePriv().setUniqueKey(fOriginalKey);
+        this->context()->textureProvider()->assignUniqueKeyToTexture(fOriginalKey, tex);
         GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
     }
     return tex;

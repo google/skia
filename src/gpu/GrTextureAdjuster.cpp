@@ -56,7 +56,7 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
     GrTexture* copy = CopyOnGpu(texture, contentArea, copyParams);
     if (copy) {
         if (key.isValid()) {
-            copy->resourcePriv().setUniqueKey(key);
+            context->textureProvider()->assignUniqueKeyToTexture(key, copy);
             this->didCacheCopy(key);
         }
     }

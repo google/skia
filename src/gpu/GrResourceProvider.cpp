@@ -161,7 +161,7 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
             // Need to try and create a new stencil
             stencil = this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height);
             if (stencil) {
-                stencil->resourcePriv().setUniqueKey(sbKey);
+                this->assignUniqueKeyToResource(sbKey, stencil);
                 newStencil = true;
             }
         }
