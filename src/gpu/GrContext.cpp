@@ -13,6 +13,7 @@
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrRenderTargetProxy.h"
+#include "GrSemaphore.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfacePriv.h"
@@ -546,11 +547,12 @@ void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     fDrawingManager->prepareSurfaceForExternalIO(surface);
 }
 
-GrFence GrContext::prepareSurfaceForExternalIOAndFlush(GrSurface* surface) {
+sk_sp<GrSemaphore> GrContext::prepareSurfaceForExternalIOAndFlush(GrSurface* surface) {
     this->prepareSurfaceForExternalIO(surface);
-    GrFence fence = fGpu->insertFence();
-    fGpu->flush();
-    return fence;
+    sk_sp<GrSemaphore> semaphore = fGpu->makeSemaphore();
+    fGpu->insertSemaphore(semaphore);
+    semaphore->resetGpu(nullptr);
+    return std::move(semaphore);
 }
 
 void GrContext::flushSurfaceWrites(GrSurface* surface) {

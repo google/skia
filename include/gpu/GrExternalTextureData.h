@@ -12,17 +12,19 @@
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
 
+class GrSemaphore;
+
 class SK_API GrExternalTextureData : SkNoncopyable {
 public:
-    GrExternalTextureData(GrFence fence) : fFence(fence) {}
-    virtual ~GrExternalTextureData() {}
+    GrExternalTextureData(sk_sp<GrSemaphore>);
+    virtual ~GrExternalTextureData();
     virtual GrBackend getBackend() const = 0;
-    GrFence getFence() const { return fFence; }
+    sk_sp<GrSemaphore> getSemaphoreRef() const;
 
 protected:
     virtual GrBackendObject getBackendObject() const = 0;
 
-    GrFence fFence;
+    sk_sp<GrSemaphore> fSemaphore;
 
     friend class SkCrossContextImageData;
 };

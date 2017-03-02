@@ -39,6 +39,7 @@ class GrResourceProvider;
 class GrTextBlobCache;
 class GrTextContext;
 class GrSamplerParams;
+class GrSemaphore;
 class GrVertexBuffer;
 class GrSwizzle;
 class SkTraceMemoryDump;
@@ -328,7 +329,7 @@ public:
      * As above, but additionally flushes the backend API (eg calls glFlush), and returns a fence
      * that can be used to determine if the surface is safe to use on another context or thread.
      */
-    GrFence SK_WARN_UNUSED_RESULT prepareSurfaceForExternalIOAndFlush(GrSurface*);
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT prepareSurfaceForExternalIOAndFlush(GrSurface*);
 
     /**
      * An ID associated with this context, guaranteed to be unique.

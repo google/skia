@@ -115,9 +115,7 @@ struct GrGLTextureInfo {
 
 class GrGLExternalTextureData : public GrExternalTextureData {
 public:
-    GrGLExternalTextureData(const GrGLTextureInfo& info, GrFence fence)
-            : INHERITED(fence)
-            , fInfo(info) {}
+    GrGLExternalTextureData(const GrGLTextureInfo& info, sk_sp<GrSemaphore> semaphore);
     GrBackend getBackend() const override { return kOpenGL_GrBackend; }
 
 protected:
