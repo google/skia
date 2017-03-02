@@ -67,3 +67,26 @@ DEF_SIMPLE_GM(fatpathfill, canvas,
             canvas->translate(0, SMALL_H);
         }
 }
+
+DEF_SIMPLE_GM(precision_circles, canvas, 256, 256) {
+    SkPaint strokePaint;
+    strokePaint.setAntiAlias(true);
+    strokePaint.setStyle(SkPaint::kStroke_Style);
+    strokePaint.setStrokeWidth(.1f);
+    SkPath strokePath;
+    strokePath.moveTo(.08f, .08f);
+    strokePath.quadTo(.09f, .08f, .17f, .17f);
+    SkPath fillPath;
+    SkPaint outlinePaint(strokePaint);
+    outlinePaint.setStrokeWidth(2);
+    SkMatrix scale = SkMatrix::MakeScale(300, 300);
+    for (SkScalar precision : { 0.001f, 0.01f, .1f, 1.f, 10.f, 100.f } ) {
+        strokePaint.getFillPath(strokePath, &fillPath, nullptr, precision);
+        fillPath.dump();
+        SkDebugf("\n");
+        fillPath.transform(scale);
+        canvas->drawPath(fillPath, outlinePaint);
+        canvas->translate(60, 0);
+        if (1.f == precision) canvas->translate(-180, 100);
+    }
+}
