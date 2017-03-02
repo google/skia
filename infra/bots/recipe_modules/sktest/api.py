@@ -63,7 +63,8 @@ def dm_flags(bot):
         configs.append('nvprdit16')
 
   # We want to test the OpenGL config not the GLES config on the Shield
-  if 'NVIDIA_Shield' in bot:
+  # GalaxyJ5 only supports GL.
+  if 'NVIDIA_Shield' in bot or 'GalaxyJ5' in bot:
     configs = [x.replace('gpu', 'gl') for x in configs]
     configs = [x.replace('msaa', 'glmsaa') for x in configs]
     configs = [x.replace('nvpr', 'glnvpr') for x in configs]

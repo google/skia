@@ -37,7 +37,8 @@ def nanobench_flags(bot):
     if 'Android' in bot:
       # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
       # instead of ES.
-      if 'NVIDIA_Shield' in bot:
+      # GalaxyJ5 only supports OpenGL.
+      if 'NVIDIA_Shield' in bot or 'GalaxyJ5' in bot:
         config.remove('gpu')
         config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
       else:
