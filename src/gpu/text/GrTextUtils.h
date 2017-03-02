@@ -13,6 +13,7 @@
 #include "SkGr.h"
 #include "SkPaint.h"
 #include "SkScalar.h"
+#include "SkTextBlob.h"
 #include "SkTLazy.h"
 
 class GrAtlasGlyphCache;
@@ -29,7 +30,6 @@ class SkMatrix;
 struct SkIRect;
 struct SkPoint;
 class SkGlyphCache;
-class SkTextBlobRunIterator;
 class SkSurfaceProps;
 
 /**
@@ -90,7 +90,7 @@ public:
             fFilteredGrColor = fOriginalPaint->filteredPremulGrColor();
         }
 
-        bool modifyForRun(const SkTextBlobRunIterator&);
+        bool modifyForRun(const SkTextBlob::RunIterator&);
 
     private:
         SkTLazy<SkPaint> fModifiedPaint;

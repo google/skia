@@ -23,7 +23,7 @@
 #include "SkShader.h"
 #include "SkSpecialImage.h"
 #include "SkTLazy.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlob.h"
 #include "SkTextToPathIter.h"
 #include "SkVertices.h"
 
@@ -132,8 +132,7 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
 
     SkPaint runPaint = paint;
 
-    SkTextBlobRunIterator it(blob);
-    for (;!it.done(); it.next()) {
+    for (auto it : *blob) {
         size_t textLen = it.glyphCount() * sizeof(uint16_t);
         const SkPoint& offset = it.offset();
         // applyFontToPaint() always overwrites the exact same attributes,

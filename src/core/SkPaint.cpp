@@ -31,7 +31,6 @@
 #include "SkStrokeRec.h"
 #include "SkSurfacePriv.h"
 #include "SkTextBlob.h"
-#include "SkTextBlobRunIterator.h"
 #include "SkTextFormatParams.h"
 #include "SkTextToPathIter.h"
 #include "SkTLazy.h"
@@ -1172,8 +1171,7 @@ int SkPaint::getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds
     int count = 0;
     SkPaint runPaint(*this);
 
-    SkTextBlobRunIterator it(blob);
-    while (!it.done()) {
+    for (auto it : *blob) {
         it.applyFontToPaint(&runPaint);
         const size_t runByteCount = it.glyphCount() * sizeof(SkGlyphID);
         SkScalar* runIntervals = intervals ? intervals + count : nullptr;
@@ -1193,8 +1191,6 @@ int SkPaint::getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds
                                                    bounds, runIntervals);
             break;
         }
-
-        it.next();
     }
 
     return count;

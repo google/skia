@@ -21,7 +21,6 @@
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkTextBlob.h"
-#include "SkTextBlobRunIterator.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkValidatingReadBuffer.h"
@@ -2896,8 +2895,7 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x,
 
     unsigned runs = 0;
     SkPaint runPaint(paint);
-    SkTextBlobRunIterator iter(fBlob.get());
-    while (!iter.done()) {
+    for (auto iter : *fBlob) {
         std::unique_ptr<SkString> tmpStr(new SkString);
         tmpStr->printf("==== Run [%d] ====", runs++);
         fInfo.push(tmpStr.release());
@@ -2909,8 +2907,6 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x,
 
         iter.applyFontToPaint(&runPaint);
         fInfo.push(SkObjectParser::PaintToString(runPaint));
-
-        iter.next();
     }
 
     runsStr->printf("Runs: %d", runs);
@@ -2939,8 +2935,7 @@ bool SkDrawTextBlobCommand::render(SkCanvas* canvas) const {
 Json::Value SkDrawTextBlobCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result = INHERITED::toJSON(urlDataManager);
     Json::Value runs(Json::arrayValue);
-    SkTextBlobRunIterator iter(fBlob.get());
-    while (!iter.done()) {
+    for (auto iter : *fBlob) {
         Json::Value run(Json::objectValue);
         Json::Value jsonPositions(Json::arrayValue);
         Json::Value jsonGlyphs(Json::arrayValue);
@@ -2969,7 +2964,6 @@ Json::Value SkDrawTextBlobCommand::toJSON(UrlDataManager& urlDataManager) const 
         run[SKDEBUGCANVAS_ATTRIBUTE_FONT] = MakeJsonPaint(fontPaint, urlDataManager);
         run[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonPoint(iter.offset());
         runs.append(run);
-        iter.next();
     }
     SkRect bounds = fBlob->bounds();
     result[SKDEBUGCANVAS_ATTRIBUTE_RUNS] = runs;

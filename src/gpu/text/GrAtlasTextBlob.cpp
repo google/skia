@@ -14,7 +14,6 @@
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
-#include "SkTextBlobRunIterator.h"
 #include "ops/GrAtlasTextOp.h"
 
 GrAtlasTextBlob* GrAtlasTextBlob::Create(GrMemoryPool* pool, int glyphCount, int runCount) {
@@ -355,7 +354,8 @@ void GrAtlasTextBlob::flushBigGlyphs(GrContext* context, GrRenderTargetContext* 
 }
 
 void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrRenderTargetContext* rtc,
-                                      const SkSurfaceProps& props, const SkTextBlobRunIterator& it,
+                                      const SkSurfaceProps& props,
+                                      const SkTextBlob::RunIterator& it,
                                       const GrClip& clip, const GrTextUtils::Paint& paint,
                                       SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
                                       const SkIRect& clipBounds, SkScalar x, SkScalar y) {
@@ -394,8 +394,9 @@ void GrAtlasTextBlob::flushCached(GrContext* context, GrRenderTargetContext* rtc
                                   const SkIRect& clipBounds, SkScalar x, SkScalar y) {
     // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
     // it as paths
-    SkTextBlobRunIterator it(blob);
-    for (int run = 0; !it.done(); it.next(), run++) {
+    int run = -1; // so we can hoist the inc at the top of the loop below.
+    for (auto it : *blob) {
+        run++;
         if (fRuns[run].fDrawAsPaths) {
             this->flushRunAsPaths(context, rtc, props, it, clip, paint, drawFilter, viewMatrix,
                                   clipBounds, x, y);

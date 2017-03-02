@@ -7,7 +7,7 @@
 
 #include "SkPaint.h"
 #include "SkPoint.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
 
 #include "Test.h"
@@ -105,7 +105,7 @@ public:
         // Explicit bounds.
         {
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
+            REPORTER_ASSERT(reporter, !blob);
         }
 
         {
@@ -143,9 +143,8 @@ public:
         }
 
         {
-            // Verify empty blob bounds after building some non-empty blobs.
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
+            REPORTER_ASSERT(reporter, !blob);
         }
 
         // Implicit bounds
@@ -222,8 +221,7 @@ public:
         AddRun(font, 1, SkTextBlob::kFull_Positioning, SkPoint::Make(0, 0), builder);
         sk_sp<SkTextBlob> blob(builder.make());
 
-        SkTextBlobRunIterator it(blob.get());
-        while (!it.done()) {
+        for (auto it : *blob) {
             SkPaint paint;
             it.applyFontToPaint(&paint);
 
@@ -244,8 +242,6 @@ public:
             REPORTER_ASSERT(reporter, paint.isVerticalText() == font.isVerticalText());
             REPORTER_ASSERT(reporter, (paint.getFlags() & SkPaint::kGenA8FromLCD_Flag) ==
                                       (font.getFlags() & SkPaint::kGenA8FromLCD_Flag));
-
-            it.next();
         }
 
     }
@@ -273,10 +269,14 @@ private:
         }
 
         sk_sp<SkTextBlob> blob(builder.make());
+        REPORTER_ASSERT(reporter, (inCount > 0) == SkToBool(blob));
+        if (!blob) {
+            return;
+        }
 
-        SkTextBlobRunIterator it(blob.get());
+        auto it = blob->begin();
         for (unsigned i = 0; i < outCount; ++i) {
-            REPORTER_ASSERT(reporter, !it.done());
+            REPORTER_ASSERT(reporter, it != blob->end());
             REPORTER_ASSERT(reporter, out[i].pos == it.positioning());
             REPORTER_ASSERT(reporter, out[i].count == it.glyphCount());
             if (SkTextBlob::kDefault_Positioning == out[i].pos) {
@@ -296,10 +296,10 @@ private:
                 }
             }
 
-            it.next();
+            ++it;
         }
 
-        REPORTER_ASSERT(reporter, it.done());
+        REPORTER_ASSERT(reporter, it == blob->end());
     }
 
     static void AddRun(const SkPaint& font, int count, SkTextBlob::GlyphPositioning pos,
@@ -365,7 +365,7 @@ DEF_TEST(TextBlob_extended, reporter) {
     sk_sp<SkTextBlob> blob(textBlobBuilder.make());
     REPORTER_ASSERT(reporter, blob);
 
-    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+    for (auto it : *blob) {
         REPORTER_ASSERT(reporter, it.glyphCount() == (uint32_t)glyphCount);
         for (uint32_t i = 0; i < it.glyphCount(); ++i) {
             REPORTER_ASSERT(reporter, it.glyphs()[i] == glyphs[i]);

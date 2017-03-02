@@ -16,7 +16,6 @@
 #include "SkRRect.h"
 #include "SkRSXform.h"
 #include "SkTextBlob.h"
-#include "SkTextBlobRunIterator.h"
 
 namespace {
 class ProcessOneGlyphBounds {
@@ -144,8 +143,7 @@ void SkOverdrawCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
 void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                       const SkPaint& paint) {
     SkPaint runPaint = paint;
-    SkTextBlobRunIterator it(blob);
-    for (;!it.done(); it.next()) {
+    for (auto it : *blob) {
         size_t textLen = it.glyphCount() * sizeof(uint16_t);
         const SkPoint& offset = it.offset();
         it.applyFontToPaint(&runPaint);

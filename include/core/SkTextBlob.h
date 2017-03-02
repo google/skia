@@ -57,10 +57,61 @@ public:
     };
 
 private:
-    friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
 
-    SkTextBlob(int runCount, const SkRect& bounds);
+public:
+    /** Supports iteration over blob runs:
+     *
+     *   for (auto runIt : blob) { ... }
+     *
+     */
+    class RunIterator {
+    public:
+        RunIterator(const RunIterator& other)      = default;
+        RunIterator& operator=(const RunIterator&) = default;
+
+        bool operator ==(const RunIterator& other) const { return fRun == other.fRun; }
+        bool operator !=(const RunIterator& other) const { return !(*this == other); }
+
+        RunIterator& operator++();
+        RunIterator operator++(int) {
+            RunIterator result(*this);
+            ++(*this);
+            return result;
+        }
+
+        const RunIterator& operator*() const { return *this; }
+
+        uint32_t glyphCount() const;
+        const uint16_t* glyphs() const;
+        const SkScalar* pos() const;
+        const SkPoint& offset() const;
+        void applyFontToPaint(SkPaint*) const;
+        SkTextBlob::GlyphPositioning positioning() const;
+        uint32_t* clusters() const;
+        uint32_t textSize() const;
+        char* text() const;
+
+        bool isLCD() const;
+
+    private:
+        friend class SkTextBlob;
+
+        RunIterator(const RunRecord* run SkDEBUGCODE(, const SkTextBlob* blob))
+            : fRun(run) { SkDEBUGCODE(fStorageTop = (uint8_t*)blob + blob->fStorageSize;) }
+
+        const RunRecord* fRun;
+
+        SkDEBUGCODE(uint8_t* fStorageTop;)
+    };
+
+    RunIterator begin() const;
+    RunIterator end() const;
+
+private:
+    friend class SkNVRefCnt<SkTextBlob>;
+
+    explicit SkTextBlob(const SkRect& bounds);
 
     ~SkTextBlob();
 
@@ -78,8 +129,7 @@ private:
     friend class SkTextBlobBuilder;
     friend class SkTextBlobRunIterator;
 
-    const int        fRunCount;
-    const SkRect     fBounds;
+    const SkRect   fBounds;
     const uint32_t fUniqueID;
 
     SkDEBUGCODE(size_t fStorageSize;)
@@ -101,8 +151,10 @@ public:
     ~SkTextBlobBuilder();
 
     /**
-     *  Returns an immutable SkTextBlob for the current runs/glyphs. The builder is reset and
-     *  can be reused.
+     *  Returns an immutable SkTextBlob for the current runs/glyphs,
+     *  or nullptr if no runs were allocated.
+     *
+     *  The builder is reset and can be reused.
      */
     sk_sp<SkTextBlob> make();
 

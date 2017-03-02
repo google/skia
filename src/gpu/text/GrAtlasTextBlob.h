@@ -19,6 +19,7 @@
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkSurfaceProps.h"
+#include "SkTextBlob.h"
 #include "SkTInternalLList.h"
 
 class GrBlobRegenHelper;
@@ -26,7 +27,6 @@ struct GrDistanceFieldAdjustTable;
 class GrMemoryPool;
 class SkDrawFilter;
 class SkTextBlob;
-class SkTextBlobRunIterator;
 
 // With this flag enabled, the GrAtlasTextContext will, as a sanity check, regenerate every blob
 // that comes in to verify the integrity of its cache
@@ -296,7 +296,7 @@ private:
                         const SkIRect& clipBounds);
 
     void flushRunAsPaths(GrContext* context, GrRenderTargetContext* rtc,
-                         const SkSurfaceProps& props, const SkTextBlobRunIterator& it,
+                         const SkSurfaceProps& props, const SkTextBlob::RunIterator& it,
                          const GrClip& clip, const GrTextUtils::Paint& paint,
                          SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
                          const SkIRect& clipBounds, SkScalar x, SkScalar y);

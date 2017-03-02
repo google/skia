@@ -22,7 +22,7 @@
 #include "SkGlyphCache.h"
 #include "SkGrPriv.h"
 #include "SkPath.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
 #include "SkTextMapStateProc.h"
 
@@ -137,8 +137,7 @@ void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
                                                         const SkIRect& clipBounds) {
     GrTextUtils::Paint paint(&skPaint);
     GrTextUtils::RunPaint runPaint(&paint, drawFilter, props);
-    SkTextBlobRunIterator it(blob);
-    for (;!it.done(); it.next()) {
+    for (auto it : *blob) {
         if (!runPaint.modifyForRun(it)) {
             continue;
         }
@@ -273,7 +272,7 @@ void GrStencilAndCoverTextContext::TextBlob::init(const SkTextBlob* skBlob,
                                                   const SkPaint& skPaint) {
     fCpuMemorySize = sizeof(TextBlob);
     SkPaint runPaint(skPaint);
-    for (SkTextBlobRunIterator iter(skBlob); !iter.done(); iter.next()) {
+    for (auto iter : *skBlob) {
         iter.applyFontToPaint(&runPaint); // No need to re-seed the paint.
         if (runPaint.getTextSize() <= 0) {
             continue;

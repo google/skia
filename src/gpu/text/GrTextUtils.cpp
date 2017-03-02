@@ -21,7 +21,6 @@
 #include "SkGrPriv.h"
 #include "SkPaint.h"
 #include "SkRect.h"
-#include "SkTextBlobRunIterator.h"
 #include "SkTextMapStateProc.h"
 #include "SkTextToPathIter.h"
 
@@ -49,7 +48,7 @@ bool GrTextUtils::Paint::toGrPaint(GrMaskFormat maskFormat, GrRenderTargetContex
     }
 }
 
-bool GrTextUtils::RunPaint::modifyForRun(const SkTextBlobRunIterator& run) {
+bool GrTextUtils::RunPaint::modifyForRun(const SkTextBlob::RunIterator& run) {
     if (!fModifiedPaint.isValid()) {
         fModifiedPaint.init(fOriginalPaint->skPaint());
         fPaint = fModifiedPaint.get();

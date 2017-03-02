@@ -10,7 +10,7 @@
 
 #include "GrAtlasTextContext.h"
 #include "SkTDynamicHash.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlob.h"
 
 class GrTextBlobCache {
 public:
@@ -84,8 +84,8 @@ public:
 
     // TODO move to SkTextBlob
     static void BlobGlyphCount(int* glyphCount, int* runCount, const SkTextBlob* blob) {
-        SkTextBlobRunIterator itCounter(blob);
-        for (; !itCounter.done(); itCounter.next(), (*runCount)++) {
+        for (auto itCounter : *blob) {
+            (*runCount)++;
             *glyphCount += itCounter.glyphCount();
         }
     }

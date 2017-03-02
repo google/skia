@@ -64,8 +64,7 @@ uint32_t GrAtlasTextContext::ComputeScalerContextFlags(GrRenderTargetContext* rt
 // textblob is being built and cache it.  However, for the time being textblobs mostly only have 1
 // run so this is not a big deal to compute here.
 bool GrAtlasTextContext::HasLCD(const SkTextBlob* blob) {
-    SkTextBlobRunIterator it(blob);
-    for (; !it.done(); it.next()) {
+    for (auto it : *blob) {
         if (it.isLCD()) {
             return true;
         }
@@ -169,9 +168,10 @@ void GrAtlasTextContext::RegenerateTextBlob(GrAtlasTextBlob* cacheBlob,
     cacheBlob->initReusableBlob(paint.filteredSkColor(), viewMatrix, x, y);
 
     // Regenerate textblob
-    SkTextBlobRunIterator it(blob);
     GrTextUtils::RunPaint runPaint(&paint, drawFilter, props);
-    for (int run = 0; !it.done(); it.next(), run++) {
+    int run = -1; // so we can hoist the inc at the top of the loop below
+    for (auto it : *blob) {
+        run++;
         int glyphCount = it.glyphCount();
         size_t textLen = glyphCount * sizeof(uint16_t);
         const SkPoint& offset = it.offset();

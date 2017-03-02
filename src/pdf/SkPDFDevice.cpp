@@ -38,7 +38,7 @@
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
 #include "SkUtils.h"
 #include "SkXfermodeInterpretation.h"
@@ -1411,7 +1411,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
 
 void SkPDFDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkScalar x, SkScalar y,
                                const SkPaint &paint, SkDrawFilter* drawFilter) {
-    for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
+    for (auto it : *blob) {
         SkPaint runPaint(paint);
         it.applyFontToPaint(&runPaint);
         if (drawFilter && !drawFilter->filter(&runPaint, SkDrawFilter::kText_Type)) {
