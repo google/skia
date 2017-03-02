@@ -18,6 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
+#include "GrTextureProvider.h"
 #include "SkHalf.h"
 
 static const int DEV_W = 100, DEV_H = 100;

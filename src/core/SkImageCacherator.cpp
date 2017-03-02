@@ -22,6 +22,7 @@
 #include "GrImageTextureMaker.h"
 #include "GrResourceKey.h"
 #include "GrSamplerParams.h"
+#include "GrTextureProvider.h"
 #include "GrYUVProvider.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
