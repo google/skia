@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b15a5779_48a22da5",
+        "filename": "src/gpu/gl/GrGLExternalTextureData.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-02T19:27:58Z",
+      "side": 1,
+      "message": "Assert semaphore is unique here",
+      "range": {
+        "startLine": 17,
+        "startChar": 4,
+        "endLine": 17,
+        "endChar": 34
+      },
+      "revId": "d28895c6e20cf115ad393a89da3cda97e9018fbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4ac5fd7e_7a5ec054",
         "filename": "src/gpu/gl/GrGLTexture.cpp",
         "patchSetId": 5

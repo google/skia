@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8707c21a_b58c5802",
+        "filename": "src/gpu/GrSemaphore.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-02T19:27:58Z",
+      "side": 1,
+      "message": "can this go in private? Don\u0027t really want subclasses touching it either.",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 51
+      },
+      "revId": "5151adaee202a3b83588c3a5c4701006cc8e392a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7026104d_6bc4cc76",
+        "filename": "src/gpu/vk/GrVkExternalTextureData.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-02T19:27:58Z",
+      "side": 1,
+      "message": "do we need this cpp file now?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 24
+      },
+      "revId": "5151adaee202a3b83588c3a5c4701006cc8e392a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
