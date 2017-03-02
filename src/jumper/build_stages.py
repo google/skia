@@ -80,10 +80,19 @@ def parse_object_file(dot_o, directive, target=None):
   if directive != '.long':
     dehex = lambda h: str(int(h, 16))
 
-  cmd = [ objdump, '-d', '--insn-width=9', dot_o]
+  binary = [objdump]
   if target:
-    cmd += ['--target', target]
+    binary += ['--target', target]
 
+  # Look for sections we know we can't handle.
+  section_headers = subprocess.check_output(binary + ['-h', dot_o])
+  for section in ['.literal4', '.literal8', '.literal16', '.const']:
+    if section in section_headers:
+      print >>sys.stderr, 'Found %s section, which we cannot handle.' % section
+      assert section not in section_headers
+
+  # Ok.  Let's disassemble.
+  cmd = binary + ['-d', '--insn-width=9', dot_o]
   for line in subprocess.check_output(cmd).split('\n'):
     line = line.strip()
 
@@ -97,12 +106,6 @@ def parse_object_file(dot_o, directive, target=None):
       print globl + ' _' + m.group(1)
       print '_' + m.group(1) + label
       continue
-
-    # ip-relative addressing usually means we're loading a constant,
-    # which we don't support.
-    if '%rip' in line:
-      print >>sys.stderr, line
-      assert '%rip' not in line
 
     columns = line.split('\t')
     code = columns[1]
