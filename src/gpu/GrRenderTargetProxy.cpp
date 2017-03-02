@@ -11,7 +11,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
-#include "GrTextureProvider.h"
+#include "GrResourceProvider.h"
 #include "GrTextureRenderTargetProxy.h"
 
 // Deferred version
@@ -43,10 +43,10 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
                    : 0;
 }
 
-GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
+GrRenderTarget* GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     SkASSERT(fDesc.fFlags & GrSurfaceFlags::kRenderTarget_GrSurfaceFlag);
 
-    GrSurface* surf = INHERITED::instantiate(texProvider);
+    GrSurface* surf = INHERITED::instantiate(resourceProvider);
     if (!surf || !surf->asRenderTarget()) {
         return nullptr;
     }

@@ -10,7 +10,7 @@
 
 #include "GrPathRenderer.h"
 
-class GrTextureProvider;
+class GrResourceProvider;
 
 /**
  * This class uses the software side to render a path to an SkBitmap and
@@ -18,8 +18,8 @@ class GrTextureProvider;
  */
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
-    GrSoftwarePathRenderer(GrTextureProvider* texProvider, bool allowCaching)
-            : fTexProvider(texProvider)
+    GrSoftwarePathRenderer(GrResourceProvider* resourceProvider, bool allowCaching)
+            : fResourceProvider(resourceProvider)
             , fAllowCaching(allowCaching) {}
 private:
     static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,
@@ -46,7 +46,7 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
 private:
-    GrTextureProvider*     fTexProvider;
+    GrResourceProvider*    fResourceProvider;
     bool                   fAllowCaching;
 
     typedef GrPathRenderer INHERITED;
