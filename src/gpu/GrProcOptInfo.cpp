@@ -12,7 +12,8 @@
 void GrProcOptInfo::analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt) {
     for (int i = 0; i < cnt; ++i) {
         bool knowCurrentOutput = fProcessorsVisitedWithKnownOutput == fTotalProcessorsVisited;
-        if (!knowCurrentOutput && !fAllProcessorsCompatibleWithCoverageAsAlpha && !fIsOpaque) {
+        if (fUsesLocalCoords && !knowCurrentOutput &&
+            !fAllProcessorsCompatibleWithCoverageAsAlpha && !fIsOpaque) {
             fTotalProcessorsVisited += cnt - i;
             return;
         }
@@ -21,11 +22,18 @@ void GrProcOptInfo::analyzeProcessors(const GrFragmentProcessor* const* processo
                                                                       &fLastKnownOutputColor)) {
             ++fProcessorsVisitedWithKnownOutput;
             fIsOpaque = fLastKnownOutputColor.isOpaque();
+            // We reset these since the caller is expected to not use the earlier fragment
+            // processors.
+            fAllProcessorsCompatibleWithCoverageAsAlpha = true;
+            fUsesLocalCoords = false;
         } else if (fIsOpaque && !fp->preservesOpaqueInput()) {
             fIsOpaque = false;
         }
         if (fAllProcessorsCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
             fAllProcessorsCompatibleWithCoverageAsAlpha = false;
+        }
+        if (fp->usesLocalCoords()) {
+            fUsesLocalCoords = true;
         }
         ++fTotalProcessorsVisited;
     }

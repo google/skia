@@ -84,8 +84,6 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
         colorFPsToEliminate = args.fProcessors->numColorFragmentProcessors();
     }
 
-    bool usesLocalCoords = false;
-
     // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline, possibly removing some of the
     // color fragment processors.
     fNumColorProcessors = args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
@@ -100,17 +98,14 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
          ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
-        usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
 
     for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
-        usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
     if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
         fFragmentProcessors[currFPIdx].reset(fp);
-        usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
@@ -120,7 +115,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
         optimizations.fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
         optimizations.fOverrideColor = overrideColor;
     }
-    if (usesLocalCoords) {
+    if (args.fAnalysis->usesLocalCoords()) {
         optimizations.fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
     }
     if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {

@@ -71,6 +71,7 @@ public:
         }
 
         bool usesPLSDstRead() const { return fUsesPLSDstRead; }
+        bool usesLocalCoords() const { return fUsesLocalCoords; }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
         bool isOutputColorOpaque() const {
             return ColorType::kOpaque == fColorType || ColorType::kOpaqueConstant == fColorType;
@@ -96,6 +97,7 @@ public:
 
         bool fUsesPLSDstRead = false;
         bool fCompatibleWithCoverageAsAlpha = true;
+        bool fUsesLocalCoords = false;
         CoverageType fCoverageType = CoverageType::kNone;
         ColorType fColorType = ColorType::kUnknown;
         int fInitialColorProcessorsToEliminate = 0;
