@@ -240,11 +240,17 @@ static const size_t kStride = sizeof(F) / sizeof(float);
 template <typename V, typename T>
 static inline V load(const T* src, size_t tail) {
 #if defined(JUMPER)
+    __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
-        #pragma nounroll
-        for (size_t i = 0; i < tail; i++) {
-            v[i] = src[i];
+        switch (tail-1) {
+            case 6: v[6] = src[6];
+            case 5: v[5] = src[5];
+            case 4: v[4] = src[4];
+            case 3: v[3] = src[3];
+            case 2: v[2] = src[2];
+            case 1: v[1] = src[1];
+            case 0: v[0] = src[0];
         }
         return v;
     }
@@ -272,10 +278,16 @@ static inline V load(const T* src, size_t tail) {
 template <typename V, typename T>
 static inline void store(T* dst, V v, size_t tail) {
 #if defined(JUMPER)
+    __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
-        #pragma nounroll
-        for (size_t i = 0; i < tail; i++) {
-            dst[i] = v[i];
+        switch (tail-1) {
+            case 6: dst[6] = v[6];
+            case 5: dst[5] = v[5];
+            case 4: dst[4] = v[4];
+            case 3: dst[3] = v[3];
+            case 2: dst[2] = v[2];
+            case 1: dst[1] = v[1];
+            case 0: dst[0] = v[0];
         }
         return;
     }
