@@ -6,8 +6,6 @@
  */
 
 #include "GrRenderTargetOpList.h"
-
-#include "GrAppliedClip.h"
 #include "GrAuditTrail.h"
 #include "GrCaps.h"
 #include "GrRenderTargetContext.h"
@@ -24,18 +22,14 @@
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
 #include "gl/GrGLRenderTarget.h"
-
 #include "SkStrokeRec.h"
-
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
 #include "ops/GrCopySurfaceOp.h"
 #include "ops/GrDiscardOp.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrDrawPathOp.h"
 #include "ops/GrRectOpFactory.h"
 #include "ops/GrStencilPathOp.h"
-
 #include "instanced/InstancedRendering.h"
 
 using gr_instanced::InstancedRendering;
@@ -200,7 +194,8 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             }
             flushState->setCommandBuffer(commandBuffer.get());
         }
-        fRecordedOps[i].fOp->execute(flushState, fRecordedOps[i].fClippedBounds);
+        const GrAppliedClip* clip = fRecordedOps[i].fClipIdx >= 0 ? &fAppliedClips[fRecordedOps[i].fClipIdx] : nullptr;
+        fRecordedOps[i].fOp->execute(flushState, fRecordedOps[i].fClippedBounds, clip, fRecordedOps[i].fRenderTarget.get());
     }
     if (commandBuffer) {
         commandBuffer->end();
@@ -261,10 +256,10 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
-                                     GrRenderTargetContext* renderTargetContext,
-                                     const GrClip& clip,
-                                     std::unique_ptr<GrDrawOp> op) {
+void GrRenderTargetOpList::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
+                                         GrRenderTargetContext* renderTargetContext,
+                                         const GrClip& clip,
+                                         std::unique_ptr<GrMeshDrawOp> op) {
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
@@ -338,6 +333,65 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     op->pipeline()->addDependenciesTo(fSurface);
 #endif
     this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
+}
+
+void GrRenderTargetOpList::addDrawOp(GrRenderTargetContext* renderTargetContext,
+                                     const GrClip& clip,
+                                     std::unique_ptr<GrDrawOp> op) {
+    // Setup clip
+    SkRect bounds;
+    op_bounds(&bounds, op.get());
+    int clipIdx = fAppliedClips.count();
+    GrAppliedClip& appliedClip = fAppliedClips.emplace_back(bounds);
+    GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
+    if (!clip.apply(fContext, renderTargetContext,
+                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
+                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil,
+                    &appliedClip)) {
+        return;
+    }
+
+    if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
+        appliedClip.hasStencilClip()) {
+        if (!renderTargetContext->accessRenderTarget()) {
+            return;
+        }
+
+        if (!fResourceProvider->attachStencilAttachment(
+                renderTargetContext->accessRenderTarget())) {
+            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
+            return;
+        }
+    }
+
+
+    GrXferProcessor::DstTexture dstTexture;
+    bool requiresDstTexture;
+    op->finalize(*this->caps(), &appliedClip, &requiresDstTexture);
+    if (requiresDstTexture) {
+        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
+                              &dstTexture);
+        if (!dstTexture.texture()) {
+            return;
+        }
+    }
+
+#ifdef ENABLE_MDB
+    // ???
+    SkASSERT(fSurface);
+    op->pipeline()->addDependenciesTo(fSurface);
+#endif
+    if (!appliedClip.doesClip()) {
+        clipIdx = -1;
+    }
+    auto opID = op->uniqueID();
+    auto recordedID = this->recordOp(std::move(op), renderTargetContext,
+                                     appliedClip.clippedDrawBounds(), clipIdx)->uniqueID();
+    // We only need to retain the clip after it actually clips something and the op wasn't merged
+    // into another op.
+    if (clipIdx < 0 || opID != recordedID) {
+        fAppliedClips.pop_back();
+    }
 }
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
@@ -453,7 +507,7 @@ static void join(SkRect* out, const SkRect& a, const SkRect& b) {
 
 GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                                      GrRenderTargetContext* renderTargetContext,
-                                     const SkRect& clippedBounds) {
+                                     const SkRect& clippedBounds, int clipIdx) {
     GrRenderTarget* renderTarget =
             renderTargetContext ? renderTargetContext->accessRenderTarget()
                                 : nullptr;
@@ -479,7 +533,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
     // If we don't have a valid destination render target then we cannot reorder.
-    if (maxCandidates && renderTarget) {
+    if (maxCandidates && renderTarget && clipIdx < 0) {
         int i = 0;
         while (true) {
             const RecordedOp& candidate = fRecordedOps.fromBack(i);
@@ -489,7 +543,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                           candidate.fOp->uniqueID());
                 break;
             }
-            if (candidate.fOp->combineIfPossible(op.get(), *this->caps())) {
+            if (this->combineIfPossible(candidate, op.get(), clipIdx)) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GrOP_INFO("\t\t\tCombined op info:\n");
@@ -516,7 +570,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         GrOP_INFO("\t\tFirstOp\n");
     }
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
-    fRecordedOps.emplace_back(std::move(op), clippedBounds, renderTarget);
+    fRecordedOps.emplace_back(std::move(op), clippedBounds, renderTarget, clipIdx);
     fLastFullClearOp = nullptr;
     fLastFullClearRenderTargetID.makeInvalid();
     return fRecordedOps.back().fOp.get();
@@ -530,7 +584,7 @@ void GrRenderTargetOpList::forwardCombine() {
         GrOp* op = fRecordedOps[i].fOp.get();
         GrRenderTarget* renderTarget = fRecordedOps[i].fRenderTarget.get();
         // If we don't have a valid destination render target ID then we cannot reorder.
-        if (!renderTarget) {
+        if (!renderTarget || fRecordedOps[i].fClipIdx >= 0) {
             continue;
         }
         const SkRect& opBounds = fRecordedOps[i].fClippedBounds;
@@ -551,7 +605,7 @@ void GrRenderTargetOpList::forwardCombine() {
                 // not sure why this fires with device-clipping in gm/complexclip4.cpp
                 SkASSERT(!op->combineIfPossible(candidate.fOp.get(), *this->caps()));
 #endif
-            } else if (op->combineIfPossible(candidate.fOp.get(), *this->caps())) {
+            } else if (this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(), candidate.fClipIdx)) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());

@@ -46,33 +46,33 @@ public:
      * draws between beginFlush() and endFlush().
      */
     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
-                                                               GrColor, GrAA,
+                                                               GrPaint&&, GrAA,
                                                                const GrInstancedPipelineInfo&,
                                                                GrAAType*);
 
     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
-                                                               GrColor, const SkRect& localRect,
+                                                               GrPaint&&, const SkRect& localRect,
                                                                GrAA, const GrInstancedPipelineInfo&,
                                                                GrAAType*);
 
     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
-                                                               GrColor, const SkMatrix& localMatrix,
+                                                               GrPaint&&, const SkMatrix& localMatrix,
                                                                GrAA, const GrInstancedPipelineInfo&,
                                                                GrAAType*);
 
     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordOval(const SkRect&, const SkMatrix&,
-                                                               GrColor, GrAA,
+                                                               GrPaint&&, GrAA,
                                                                const GrInstancedPipelineInfo&,
                                                                GrAAType*);
 
     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRRect(const SkRRect&, const SkMatrix&,
-                                                                GrColor, GrAA,
+                                                                GrPaint&&, GrAA,
                                                                 const GrInstancedPipelineInfo&,
                                                                 GrAAType*);
 
     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordDRRect(const SkRRect& outer,
                                                                  const SkRRect& inner,
-                                                                 const SkMatrix&, GrColor, GrAA,
+                                                                 const SkMatrix&, GrPaint&&, GrAA,
                                                                  const GrInstancedPipelineInfo&,
                                                                  GrAAType*);
 
@@ -122,7 +122,6 @@ protected:
                     fIsTracked,
                     fNumDraws,
                     fNumChangesInGeometry);
-            string.append(DumpPipelineInfo(*this->pipeline()));
             string.append(INHERITED::dumpInfo());
             return string;
         }
@@ -140,13 +139,18 @@ protected:
         void appendParamsTexel(const SkScalar* vals, int count);
         void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w);
         void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z);
+        FixedFunctionFlags fixedFunctionFlags() const override {
+            return GrAATypeIsHW(fInfo.aaType()) ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
+        }
+        void finalize(const GrCaps&, const GrAppliedClip*, bool* xpRequiresDstTexture) override;
 
     protected:
-        Op(uint32_t classID, InstancedRendering* ir);
+        Op(uint32_t classID, GrPaint&&, InstancedRendering*);
 
         InstancedRendering* const fInstancedRendering;
         OpInfo fInfo;
         SkScalar fPixelLoad;
+        GrProcessorSet fProcessors;
         SkSTArray<5, ParamsTexel, true> fParams;
         bool fIsTracked;
         int fNumDraws;
@@ -155,12 +159,10 @@ protected:
         Draw* fTailDraw;
 
     private:
-        void getFragmentProcessorAnalysisInputs(
-                FragmentProcessorAnalysisInputs* input) const override;
-        void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
-        bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
+        bool onCombineIfPossible(GrOp* other, const GrCaps& caps, const GrAppliedClip*) override;
         void onPrepare(GrOpFlushState*) override {}
-        void onExecute(GrOpFlushState*, const SkRect& bounds) override;
+        void onExecute(GrOpFlushState*, const SkRect& bounds, const GrAppliedClip*,
+                       GrRenderTarget*) override;
 
         typedef GrDrawOp INHERITED;
 
@@ -187,7 +189,7 @@ private:
     };
 
     std::unique_ptr<Op> SK_WARN_UNUSED_RESULT recordShape(ShapeType, const SkRect& bounds,
-                                                          const SkMatrix& viewMatrix, GrColor,
+                                                          const SkMatrix& viewMatrix, GrPaint&&,
                                                           const SkRect& localRect, GrAA aa,
                                                           const GrInstancedPipelineInfo&,
                                                           GrAAType*);
@@ -195,7 +197,7 @@ private:
     bool selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa, const GrInstancedPipelineInfo&,
                              GrAAType*);
 
-    virtual std::unique_ptr<Op> makeOp() = 0;
+    virtual std::unique_ptr<Op> makeOp(GrPaint&&) = 0;
 
     const sk_sp<GrGpu> fGpu;
     State fState;

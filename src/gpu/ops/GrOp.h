@@ -17,9 +17,11 @@
 
 #include <new>
 
+class GrAppliedClip;
 class GrCaps;
 class GrGpuCommandBuffer;
 class GrOpFlushState;
+class GrRenderTarget;
 
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
@@ -63,12 +65,12 @@ public:
 
     virtual const char* name() const = 0;
 
-    bool combineIfPossible(GrOp* that, const GrCaps& caps) {
+    bool combineIfPossible(GrOp* that, const GrCaps& caps, const GrAppliedClip* clip) {
         if (this->classID() != that->classID()) {
             return false;
         }
 
-        return this->onCombineIfPossible(that, caps);
+        return this->onCombineIfPossible(that, caps, clip);
     }
 
     const SkRect& bounds() const {
@@ -126,8 +128,12 @@ public:
      */
     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
 
-    /** Issues the op's commands to GrGpu. */
-    void execute(GrOpFlushState* state, const SkRect& bounds) { this->onExecute(state, bounds); }
+    /**
+     * Issues the op's commands to GrGpu. The clip is null if this is not a GrDrawOp. The clip and
+     * dst will be null for ops not derived from GrDrawOp.
+     */
+    void execute(GrOpFlushState* state, const SkRect& bounds, const GrAppliedClip* clip,
+                 GrRenderTarget* dst) { this->onExecute(state, bounds, clip, dst); }
 
     /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {
@@ -183,10 +189,11 @@ protected:
     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
 
 private:
-    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps) = 0;
+    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps, const GrAppliedClip*) = 0;
 
     virtual void onPrepare(GrOpFlushState*) = 0;
-    virtual void onExecute(GrOpFlushState*, const SkRect& bounds) = 0;
+    virtual void onExecute(GrOpFlushState*, const SkRect& bounds, const GrAppliedClip*,
+                           GrRenderTarget*) = 0;
 
     static uint32_t GenID(int32_t* idCounter) {
         // The atomic inc returns the old value not the incremented value. So we add

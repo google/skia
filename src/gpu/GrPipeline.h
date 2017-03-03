@@ -16,6 +16,7 @@
 #include "GrProcOptInfo.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
+#include "GrProcessorSet.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"

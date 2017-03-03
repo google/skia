@@ -151,7 +151,7 @@ GrDrawAtlasOp::GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spri
     this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) {
     GrDrawAtlasOp* that = t->cast<GrDrawAtlasOp>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),

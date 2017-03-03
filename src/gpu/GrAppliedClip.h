@@ -56,6 +56,13 @@ public:
         fHasStencilClip = true;
     }
 
+    bool doesClip() const {
+        return fScissorState.enabled() || fClipCoverageFP || !fHasStencilClip ||
+                fWindowRectsState.enabled();
+    }
+
+    bool isCompatibleWith(const GrAppliedClip&) const { return false; }
+
     /**
      * Returns the device bounds of the draw after clip has been applied. TODO: Ideally this would
      * consider the combined effect of all clipping techniques in play (scissor, stencil, fp, etc.).
