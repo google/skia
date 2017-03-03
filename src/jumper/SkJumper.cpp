@@ -79,6 +79,7 @@ static K kConstants = {
     M(store_8888)         \
     M(load_f16)           \
     M(store_f16)          \
+    M(store_f32)          \
     M(matrix_2x3)         \
     M(matrix_3x4)         \
     M(matrix_perspective) \
