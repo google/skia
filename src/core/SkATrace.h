@@ -50,5 +50,35 @@ private:
     bool (*fIsEnabled)(void);
 };
 
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+  #include <utils/Trace.h>
+  #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) SkAndroidTraceUtil __trace = \
+          (SkAndroidTraceUtil::atraceFormatBegin(fmt, ##__VA_ARGS__), SkAndroidTraceUtil())
+
+  class SkAndroidTraceUtil {
+  public:
+      ~SkAndroidTraceUtil() { ATRACE_END(); }
+
+      static void atraceFormatBegin(const char* fmt, ...) {
+          if (CC_LIKELY(!ATRACE_ENABLED())) return;
+
+          const int BUFFER_SIZE = 256;
+          va_list ap;
+          char buf[BUFFER_SIZE];
+
+          va_start(ap, fmt);
+          vsnprintf(buf, BUFFER_SIZE, fmt, ap);
+          va_end(ap);
+
+          ATRACE_BEGIN(buf);
+      }
+  };
+
+#else
+  #define ATRACE_ANDROID_FRAMEWORK(fmt, ...)
+#endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
+
 #endif
 
