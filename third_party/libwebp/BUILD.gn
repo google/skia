@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 declare_args() {
-  skia_use_system_libwebp = false
+  skia_use_system_libwebp = is_official_build
 }
 
 import("../third_party.gni")

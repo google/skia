@@ -7,6 +7,32 @@ Skia](./download).
 Skia uses [GN](https://chromium.googlesource.com/chromium/src/tools/gn/) to
 configure its builds.
 
+`is_official_build` and Third-party Dependencies
+------------------------------------------------
+
+Most users of Skia should set `is_official_build=true`, and most developers
+should leave it to its `false` default.
+
+This mode configures Skia in a way that's suitable to ship: an optimized build
+with no debug symbols, dynamically linked against its third-party dependencies
+using the ordinary library search path.
+
+In contrast, the developer-oriented default is an unoptimized build with full
+debug symbols and all third-party dependencies built from source and embedded
+into libskia.  This is how do all our manual and automated testing.
+
+Skia offers several features that make use of third-party libraries, like
+libpng, libwebp, or libjpeg-turbo to decode images, or ICU and sftnly to subset
+fonts.  All these third-party dependencies are optional and can be controlled
+by a GN argument that looks something like `skia_use_foo` for appropriate
+`foo`.
+
+If `skia_use_foo` is enabled, enabling `skia_use_system_foo` will build and
+link Skia against the headers and libaries found on the system paths.
+`is_official_build=true` enables all `skia_use_system_foo` by default.  You can
+use `extra_cflags` and `extra_ldflags` to add include or library paths if
+needed.
+
 Quickstart
 ----------
 
@@ -142,23 +168,3 @@ We have added a GN-to-CMake translator mainly for use with IDEs that like CMake
 project descriptions.  This is not meant for any purpose beyond development.
 
     bin/gn gen out/config --ide=json --json-ide-script=../../gn/gn_to_cmake.py
-
-Third-party Dependencies
-------------------------
-
-Skia offers several features that make use of third-party libraries, like
-libpng, libwebp, or libjpeg-turbo to decode images, or ICU and sftnly to subset
-fonts.  All these third-party dependencies are optional, and can be controlled
-by a GN argument that looks something like `skia_use_foo` for appropriate
-`foo`.
-
-Most of these third-party dependencies can also be satisfied by pre-built
-system libraries.  If `skia_use_foo` is enabled, turn on `skia_use_system_foo`
-to build and link Skia against the headers and libaries found on the system
-paths.  You can use `extra_cflags` and `extra_ldflags` to add include or
-library paths if needed.
-
-By default Skia will build and embed its own copies of these third-party
-libraries.  This configuration is for development only.  We do not recommend
-shipping Skia this way.  However, this is the only configuration of Skia that
-receives significant testing.
