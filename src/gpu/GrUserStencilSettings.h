@@ -188,9 +188,6 @@ struct GrUserStencilSettings {
     bool isDisabled(bool hasStencilClip) const {
         return this->flags(hasStencilClip) & kDisabled_StencilFlag;
     }
-    bool doesWrite(bool hasStencilClip) const {
-        return !(this->flags(hasStencilClip) & kNoModifyStencil_StencilFlag);
-    }
     bool isTwoSided(bool hasStencilClip) const {
         return !(this->flags(hasStencilClip) & kSingleSided_StencilFlag);
     }
