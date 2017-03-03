@@ -21,7 +21,8 @@ protected:
                      int* ctableCount) override;
 
 #if SK_SUPPORT_GPU
-    GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) override;
+    sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
+                                            const SkIPoint&) override;
 #endif
 
 private:

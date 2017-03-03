@@ -231,8 +231,8 @@ public:
         }
     }
 protected:
-    GrTexture* onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
-                                 const SkIPoint& origin) override {
+    sk_sp<GrTextureProxy> onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
+                                            const SkIPoint& origin) override {
         if (ctx) {
             SkASSERT(ctx == fCtx.get());
         }
@@ -243,7 +243,7 @@ protected:
 
         if (origin.fX == 0 && origin.fY == 0 &&
             info.width() == fProxy->width() && info.height() == fProxy->height()) {
-            return SkSafeRef(fProxy->instantiate(fCtx->textureProvider())->asTexture());
+            return fProxy;
         }
 
         // need to copy the subset into a new texture
@@ -266,17 +266,14 @@ protected:
             return nullptr;
         }
 
-        GrSurface* dstSurf = dstContext->asSurfaceProxy()->instantiate(fCtx->textureProvider());
-        if (!dstSurf) {
-            return nullptr;
-        }
-
-        return SkRef(dstSurf->asTexture());
+        return dstContext->asTextureProxyRef();
     }
+
 private:
     sk_sp<GrContext>      fCtx;
-    sk_sp<GrSurfaceProxy> fProxy;
+    sk_sp<GrTextureProxy> fProxy;
 };
+
 static std::unique_ptr<SkImageGenerator> make_tex_generator(GrContext* ctx, sk_sp<SkPicture> pic) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
@@ -340,7 +337,8 @@ protected:
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
         SkBitmap bitmap;
-        cache->lockAsBitmap(&bitmap, nullptr, canvas->imageInfo().colorSpace());
+        cache->lockAsBitmap(canvas->getGrContext(), &bitmap, nullptr,
+                            canvas->imageInfo().colorSpace());
         canvas->drawBitmap(bitmap, x, y);
     }
 
