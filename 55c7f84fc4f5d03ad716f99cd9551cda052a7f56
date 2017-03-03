@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fc789cd_648378d0",
+        "filename": "src/core/SkArenaAlloc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-03T21:06:38Z",
+      "side": 1,
+      "message": "fLogGrowth++ ?",
+      "range": {
+        "startLine": 103,
+        "startChar": 73,
+        "endLine": 103,
+        "endChar": 83
+      },
+      "revId": "55c7f84fc4f5d03ad716f99cd9551cda052a7f56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "908a811e_91bf37ae",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-03T21:06:38Z",
+      "side": 1,
+      "message": "you\u0027re just wasting bytes...",
+      "range": {
+        "startLine": 201,
+        "startChar": 3,
+        "endLine": 201,
+        "endChar": 11
+      },
+      "revId": "55c7f84fc4f5d03ad716f99cd9551cda052a7f56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
