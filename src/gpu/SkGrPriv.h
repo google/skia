@@ -164,24 +164,24 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
  * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
  * compressed textures and yuv planes.
  */
-GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
+sk_sp<GrTextureProxy> GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
-GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&,
-                                               SkColorSpace* dstColorSpace);
+sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&,
+                                                          SkColorSpace* dstColorSpace);
 
 /**
  * Creates a new texture for the pixmap.
  */
-GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
+sk_sp<GrTextureProxy> GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
 
 /**
  * Creates a new texture populated with the mipmap levels.
  */
-GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
-                                   int mipLevelCount);
+sk_sp<GrTextureProxy> GrUploadMipMapToTexture(GrContext*, const SkImageInfo&,
+                                              const GrMipLevel* texels, int mipLevelCount);
 
-sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
-                                           const GrSamplerParams&, SkScalar scaleAdjust[2]);
+sk_sp<GrTextureProxy> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
+                                                const GrSamplerParams&, SkScalar scaleAdjust[2]);
 
 // This is intended to replace:
 //    SkAutoLockPixels alp(bitmap, true);
@@ -194,7 +194,7 @@ sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
 //    if (!texture) {
 //        return nullptr;
 //    }
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap);
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext*, const SkBitmap&);
 
 //////////////////////////////////////////////////////////////////////////////
 

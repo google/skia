@@ -12,6 +12,8 @@
 #include "GrTypes.h"
 
 class GrSingleOwner;
+class GrSurfaceProxy;
+class GrTextureProxy;
 
 class SK_API GrTextureProvider {
 public:
@@ -57,6 +59,10 @@ public:
 
     /** Finds a texture by unique key. If the texture is found it is ref'ed and returned. */
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
+
+    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey& key);
+
+    void assignUniqueKeyToProxy(const GrUniqueKey& key, GrSurfaceProxy*);
 
     /**
      * Determines whether a texture is associated with the unique key. If the texture is found it
