@@ -294,3 +294,54 @@ DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfb, canvas, 640, 680, SK_ColorWHITE,
 }
 
 #endif
+
+DEF_SIMPLE_GM(embeddedbitmap, canvas, 256, 256) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(30, 15);
+    bitmap.eraseColor(0);
+    SkCanvas offscreen(bitmap);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(13);
+    paint.setTypeface(MakeResourceAsTypeface("/fonts/hintgasp.ttf"));
+    for (bool embedded : { false, true}) {
+        paint.setEmbeddedBitmapText(embedded);
+        offscreen.drawText("A", 1, embedded ? 5 : 15, 15, paint);
+    }
+    canvas->clear(SK_ColorWHITE);
+    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->scale(10, 10);
+    canvas->drawBitmap(bitmap, -2, 1);
+}
+
+DEF_SIMPLE_GM(topictypeface, canvas, 256, 256) {
+    SkPaint p;
+    p.setTypeface(SkTypeface::MakeFromName("Times New Roman", 
+        SkFontStyle(SkFontStyle::kBold_Weight, SkFontStyle::kNormal_Width,
+SkFontStyle::kItalic_Slant)));
+    p.setAntiAlias(true);
+    p.setTextSize(36);
+    const char aBigHello[] = "A Big Hello!";
+    canvas->drawText(aBigHello, sizeof(aBigHello) - 1, 20, 100, p);
+}
+
+DEF_SIMPLE_GM(reftypeface, canvas, 256, 256) {
+           SkPaint paint1, paint2;
+           paint1.setTypeface(SkTypeface::MakeFromName("Times New Roman", 
+                    SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
+                    SkFontStyle::kItalic_Slant)));
+           SkDebugf("typeface1 %c= typeface2\n", paint1.getTypeface() == paint2.getTypeface()
+                ? '=' : '!');
+           paint2.setTypeface(paint1.refTypeface());
+           SkDebugf("typeface1 %c= typeface2\n", paint1.getTypeface() == paint2.getTypeface()
+                ? '=' : '!');
+}
+
+DEF_SIMPLE_GM(settypeface, canvas, 256, 256) {
+            SkPaint paint;
+            const char courierNew[] = "Courier New";
+            paint.setTypeface(SkTypeface::MakeFromName(courierNew, SkFontStyle()));
+            canvas->drawText(courierNew, sizeof(courierNew) - 1, 10, 30, paint);
+            paint.setTypeface(nullptr);
+            canvas->drawText("default", 7, 10, 50, paint);
+}
