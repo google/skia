@@ -162,3 +162,24 @@ DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
         canvas->translate(0, 80);
     }
 }
+
+DEF_SIMPLE_GM(lcd_subpixel, canvas, 256, 256) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(20, 33);
+    SkCanvas offscreen(bitmap);
+    offscreen.clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(20);
+    for (bool lcd : { false, true }) {
+        for (bool sub : { false, true }) {
+            paint.setLCDRenderText(lcd);
+            paint.setSubpixelText(sub);
+            offscreen.drawText(",,,,", 4, 0, 4, paint);
+            offscreen.translate(0, 7);
+        }
+    }
+    canvas->drawBitmap(bitmap, 12, 12);
+    canvas->scale(9, 9);
+    canvas->drawBitmap(bitmap, 6, -1);
+}
