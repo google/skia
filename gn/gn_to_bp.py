@@ -188,14 +188,12 @@ cc_test {
 
 # We'll run GN to get the main source lists and include directories for Skia.
 gn_args = {
-  'skia_enable_vulkan_debug_layers': 'false',
-  'skia_use_system_expat':           'true',
-  'skia_use_system_jsoncpp':         'true',
-  'skia_use_system_libpng':          'true',
-  'skia_use_system_zlib':            'true',
-  'skia_use_vulkan':                 'true',
-  'target_cpu':                      '"none"',
-  'target_os':                       '"android"',
+  'is_official_build':  'true',
+  'skia_enable_jumper': 'true',
+  'skia_enable_tools':  'true',
+  'skia_use_vulkan':    'true',
+  'target_cpu':         '"none"',
+  'target_os':          '"android"',
 }
 gn_args = ' '.join(sorted('%s=%s' % (k,v) for (k,v) in gn_args.iteritems()))
 
@@ -243,6 +241,7 @@ nanobench_srcs  = {s for s in nanobench_srcs if not s.endswith('.h')}
 # Most defines go into SkUserConfig.h, where they're seen by Skia and its users.
 # Start with the defines :skia uses, minus a couple.  We'll add more in a bit.
 defines = [str(d) for d in js['targets']['//:skia']['defines']]
+defines.remove('NDEBUG')                 # Let the Android build control this.
 defines.remove('SKIA_IMPLEMENTATION=1')  # Only libskia should have this define.
 
 # For architecture specific files, it's easier to just read the same source
