@@ -192,7 +192,7 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
     const float* rectAsFloats = localRect.asScalars(); // Ensure SkScalar == float.
     memcpy(&instance.fLocalRect, rectAsFloats, 4 * sizeof(float));
 
-    op->fPixelLoad = op->bounds().height() * op->bounds().width();
+    op->fPixelLoad = op->boundsX().height() * op->boundsX().width();
     return op;
 }
 
@@ -351,7 +351,7 @@ void InstancedRendering::Op::applyPipelineOptimizations(
     if (kRect_ShapeFlag == fInfo.fShapeTypes) {
         draw.fGeometry = InstanceProcessor::GetIndexRangeForRect(fInfo.aaType());
     } else if (kOval_ShapeFlag == fInfo.fShapeTypes) {
-        draw.fGeometry = InstanceProcessor::GetIndexRangeForOval(fInfo.aaType(), this->bounds());
+        draw.fGeometry = InstanceProcessor::GetIndexRangeForOval(fInfo.aaType(), this->boundsX());
     } else {
         draw.fGeometry = InstanceProcessor::GetIndexRangeForRRect(fInfo.aaType());
     }
@@ -381,8 +381,8 @@ bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps
     SkASSERT(that->fTailDraw);
 
     if (!OpInfo::CanCombine(fInfo, that->fInfo) ||
-        !GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+        !GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                that->boundsX(), caps)) {
         return false;
     }
 
@@ -454,7 +454,7 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     this->onBeginFlush(rp);
 }
 
-void InstancedRendering::Op::onExecute(GrOpFlushState* state, const SkRect& bounds) {
+void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
     SkASSERT(State::kFlushing == fInstancedRendering->fState);
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 

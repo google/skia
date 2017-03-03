@@ -56,6 +56,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kPLS) {
         if (caps.shaderCaps()->plsPathRenderingSupport()) {
+            SkDebugf("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ PLS /////////////////\n")
             fChain.push_back(sk_make_sp<GrPLSPathRenderer>());
         }
     }
