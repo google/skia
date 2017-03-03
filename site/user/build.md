@@ -83,6 +83,16 @@ Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode pr
 iOS
 ---
 
+Run GN to generate your build files.
+
+    bin/gn gen out/ios32 --args='target_os="ios" is_official_build=true target_cpu="arm"'
+    ninja -C out/ios32
+
+Use this command for an AArch64 build:
+
+    bin/gn gen out/ios64 --args='target_os="ios" is_official_build=true target_cpu="arm64"'
+    ninja -C out/ios64
+
 Googlers who want to sign and run iOS test binaries can do so by running something like
 
     python gn/package_ios.py out/Debug/dm
