@@ -57,29 +57,6 @@ def RunSteps(api):
     cwd=cwd,
     abort_on_failure=False)
 
-  env = {}
-  env['GOPATH'] = api.vars.tmp_dir.join('golib')
-  extractexe = env['GOPATH'].join('bin', 'extract_comments')
-  goexe = api.vars.slave_dir.join('go', 'go', 'bin', 'go')
-
-  # Compile extract_comments.
-  api.run(
-    api.step,
-    'compile extract_comments',
-    cmd=[goexe, 'get', 'go.skia.org/infra/comments/go/extract_comments'],
-    cwd=cwd,
-    env=env,
-    abort_on_failure=True)
-
-  # Run extract_comments on the gm directory.
-  api.run(
-    api.step,
-    'run extract_comments',
-    cmd=[extractexe, '--dir', 'gm', '--dest', 'gs://skia-doc/gm/comments.json'],
-    cwd=cwd,
-    env=env,
-    abort_on_failure=True)
-
 
 def GenTests(api):
   yield (
