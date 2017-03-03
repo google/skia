@@ -83,6 +83,13 @@ Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode pr
 iOS
 ---
 
+Build as usual on a Mac with the additional gn arg `target_os="ios"`. This will default `target_cpu` to `arm64`.
+
+This example sets up an out directory for a 64bit static libray for iOS:
+
+    bin/gn gen out/Static --args='is_official_build=true target_os="ios"'
+
+
 Googlers who want to sign and run iOS test binaries can do so by running something like
 
     python gn/package_ios.py out/Debug/dm
