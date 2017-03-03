@@ -1000,6 +1000,57 @@ STAGE(store_f16) {
 #endif
 }
 
+STAGE(store_f32) {
+    auto ptr = *(float**)ctx + 4*x;
+
+#if !defined(JUMPER)
+    ptr[0] = r;
+    ptr[1] = g;
+    ptr[2] = b;
+    ptr[3] = a;
+#elif defined(__aarch64__)
+    vst4q_f32(ptr, (float32x4x4_t{{r,g,b,a}}));
+#elif defined(__arm__)
+    vst4_f32(ptr, (float32x2x4_t{{r,g,b,a}}));
+#elif defined(__AVX__)
+    F rg0145 = _mm256_unpacklo_ps(r, g),  // r0 g0 r1 g1 | r4 g4 r5 g5
+      rg2367 = _mm256_unpackhi_ps(r, g),  // r2 ...      | r6 ...
+      ba0145 = _mm256_unpacklo_ps(b, a),  // b0 a0 b1 a1 | b4 a4 b5 a5
+      ba2367 = _mm256_unpackhi_ps(b, a);  // b2 ...      | b6 ...
+
+    F _04 = _mm256_unpacklo_pd(rg0145, ba0145),  // r0 g0 b0 a0 | r4 g4 b4 a4
+      _15 = _mm256_unpackhi_pd(rg0145, ba0145),  // r1 ...      | r5 ...
+      _26 = _mm256_unpacklo_pd(rg2367, ba2367),  // r2 ...      | r6 ...
+      _37 = _mm256_unpackhi_pd(rg2367, ba2367);  // r3 ...      | r7 ...
+
+    if (__builtin_expect(tail, 0)) {
+        if (tail > 0) { _mm_storeu_ps(ptr+ 0, _mm256_extractf128_ps(_04, 0)); }
+        if (tail > 1) { _mm_storeu_ps(ptr+ 4, _mm256_extractf128_ps(_15, 0)); }
+        if (tail > 2) { _mm_storeu_ps(ptr+ 8, _mm256_extractf128_ps(_26, 0)); }
+        if (tail > 3) { _mm_storeu_ps(ptr+12, _mm256_extractf128_ps(_37, 0)); }
+        if (tail > 4) { _mm_storeu_ps(ptr+16, _mm256_extractf128_ps(_04, 1)); }
+        if (tail > 5) { _mm_storeu_ps(ptr+20, _mm256_extractf128_ps(_15, 1)); }
+        if (tail > 6) { _mm_storeu_ps(ptr+24, _mm256_extractf128_ps(_26, 1)); }
+    } else {
+        F _01 = _mm256_permute2f128_ps(_04, _15, 32),  // 32 == 0010 0000 == lo, lo
+          _23 = _mm256_permute2f128_ps(_26, _37, 32),
+          _45 = _mm256_permute2f128_ps(_04, _15, 49),  // 49 == 0011 0001 == hi, hi
+          _67 = _mm256_permute2f128_ps(_26, _37, 49);
+        _mm256_storeu_ps(ptr+ 0, _01);
+        _mm256_storeu_ps(ptr+ 8, _23);
+        _mm256_storeu_ps(ptr+16, _45);
+        _mm256_storeu_ps(ptr+24, _67);
+    }
+#elif defined(__SSE2__)
+    auto v0 = r, v1 = g, v2 = b, v3 = a;
+    _MM_TRANSPOSE4_PS(v0, v1, v2, v3);
+    memcpy(ptr+ 0, &v0, sizeof(v0));
+    memcpy(ptr+ 4, &v1, sizeof(v1));
+    memcpy(ptr+ 8, &v2, sizeof(v2));
+    memcpy(ptr+12, &v3, sizeof(v3));
+#endif
+}
+
 static F ulp_before(F v) {
     return bit_cast<F>(bit_cast<U32>(v) + U32(0xffffffff));
 }
