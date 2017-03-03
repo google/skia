@@ -473,7 +473,7 @@ private:
                        size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
     // This entry point allows the GrTextContext-derived classes to add their ops to the GrOpList.
-    void addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
+    uint32_t addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
 
     GrRenderTargetOpList* getOpList();
 

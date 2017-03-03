@@ -11,8 +11,19 @@
 #include "GrSurface.h"
 #include "GrSurfaceProxy.h"
 
-GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail) 
-    : fFlags(0)
+uint32_t GrOpList::CreateUniqueID() {
+    static int32_t gUniqueID = SK_InvalidUniqueID;
+    uint32_t id;
+    // Loop in case our global wraps around, as we never want to return a 0.
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
+GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
+    : fUniqueID(CreateUniqueID())
+    , fFlags(0)
     , fTarget(surfaceProxy)
     , fAuditTrail(auditTrail) {
 

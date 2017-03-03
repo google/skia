@@ -1605,12 +1605,20 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     pr->drawPath(args);
 }
 
-void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
-                                      std::unique_ptr<GrDrawOp> op) {
+uint32_t GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
+                                          const GrClip& clip,
+                                          std::unique_ptr<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
+    if (this->drawingManager()->wasAbandoned()) {
+        return SK_InvalidUniqueID;
+    }
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
 
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+    uint32_t id = this->getOpList()->uniqueID();
+    if (this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op))) {
+        return id;
+    }
+
+    return SK_InvalidUniqueID;
 }
