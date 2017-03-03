@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97e70723_7cf7baae",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-03T19:17:23Z",
+      "side": 1,
+      "message": "extra p here?",
+      "range": {
+        "startLine": 612,
+        "startChar": 39,
+        "endLine": 612,
+        "endChar": 40
+      },
+      "revId": "6ce78cff1c232eeb453d2c90654bc374c8e7e2dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db380ec9_e715ecfe",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-03T19:17:23Z",
+      "side": 1,
+      "message": "any reason this isn\u0027t stored divided already in the XP iteself?",
+      "range": {
+        "startLine": 615,
+        "startChar": 37,
+        "endLine": 615,
+        "endChar": 50
+      },
+      "revId": "6ce78cff1c232eeb453d2c90654bc374c8e7e2dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
