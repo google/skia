@@ -111,13 +111,9 @@ public:
          */
         kIgnoreColor_OptFlag = 0x1,
         /**
-         * Clear color stages and override input color to that returned by getOptimizations
+         * Can tweak alpha for coverage.
          */
-        kOverrideColor_OptFlag = 0x2,
-        /**
-         * Can tweak alpha for coverage. Currently this flag should only be used by a GrDrawOp.
-         */
-        kCanTweakAlphaForCoverage_OptFlag = 0x4,
+        kCanTweakAlphaForCoverage_OptFlag = 0x2,
     };
 
     static const OptFlags kNone_OptFlags = (OptFlags)0;
@@ -127,16 +123,10 @@ public:
     /**
      * Determines which optimizations (as described by the ptFlags above) can be performed by
      * the draw with this xfer processor. If this function is called, the xfer processor may change
-     * its state to reflected the given blend optimizations. If the XP needs to see a specific input
-     * color to blend correctly, it will set the OverrideColor flag and the output parameter
-     * overrideColor will be the required value that should be passed into the XP.
-     * A caller who calls this function on a XP is required to honor the returned OptFlags
-     * and color values for its draw.
+     * its state to reflected the given blend optimizations. Callers are required to honor the
+     * returned OptFlags.
      */
-    OptFlags getOptimizations(const FragmentProcessorAnalysis&,
-                              bool doesStencilWrite,
-                              GrColor* overrideColor,
-                              const GrCaps& caps) const;
+    OptFlags getOptimizations(const FragmentProcessorAnalysis&) const;
 
     /**
      * Returns whether this XP will require an Xfer barrier on the given rt. If true, outBarrierType
@@ -229,10 +219,7 @@ protected:
 private:
     void notifyRefCntIsZero() const final {}
 
-    virtual OptFlags onGetOptimizations(const FragmentProcessorAnalysis&,
-                                        bool doesStencilWrite,
-                                        GrColor* overrideColor,
-                                        const GrCaps& caps) const = 0;
+    virtual OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const = 0;
 
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
