@@ -138,44 +138,6 @@
     "name": "generate and upload binary size data"
   },
   {
-    "cmd": [
-      "[START_DIR]/go/go/bin/go",
-      "get",
-      "go.skia.org/infra/comments/go/extract_comments"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "GOPATH": "[START_DIR]/tmp/golib",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "compile extract_comments"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/tmp/golib/bin/extract_comments",
-      "--dir",
-      "gm",
-      "--dest",
-      "gs://skia-doc/gm/comments.json"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "GOPATH": "[START_DIR]/tmp/golib",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "run extract_comments"
-  },
-  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0
