@@ -480,6 +480,7 @@ struct Poly {
             Edge* e = fFirstEdge;
             VertexList vertices;
             vertices.append(e->fTop);
+            int count = 1;
             while (e != nullptr) {
                 if (kRight_Side == fSide) {
                     vertices.append(e->fBottom);
@@ -488,6 +489,7 @@ struct Poly {
                     vertices.prepend(e->fBottom);
                     e = e->fLeftPolyNext;
                 }
+                count++;
             }
             Vertex* first = vertices.fHead;
             Vertex* v = first->fNext;
@@ -496,6 +498,9 @@ struct Poly {
                 Vertex* prev = v->fPrev;
                 Vertex* curr = v;
                 Vertex* next = v->fNext;
+                if (count == 3) {
+                    return emit_triangle(prev, curr, next, aaParams, data);
+                }
                 double ax = static_cast<double>(curr->fPoint.fX) - prev->fPoint.fX;
                 double ay = static_cast<double>(curr->fPoint.fY) - prev->fPoint.fY;
                 double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
@@ -504,6 +509,7 @@ struct Poly {
                     data = emit_triangle(prev, curr, next, aaParams, data);
                     v->fPrev->fNext = v->fNext;
                     v->fNext->fPrev = v->fPrev;
+                    count--;
                     if (v->fPrev == first) {
                         v = v->fNext;
                     } else {

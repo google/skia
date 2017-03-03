@@ -14,10 +14,9 @@ namespace {
 void test_concave(SkCanvas* canvas, const SkPaint& paint) {
     SkPath path;
     canvas->translate(0, 0);
-    path.moveTo(SkIntToScalar(20), SkIntToScalar(20));
-    path.lineTo(SkIntToScalar(80), SkIntToScalar(20));
-    path.lineTo(SkIntToScalar(30), SkIntToScalar(30));
-    path.lineTo(SkIntToScalar(20), SkIntToScalar(80));
+    path.arcTo(SkRect::MakeXYWH(80, 80, 40, 40), 0, 180, false);
+    path.arcTo(SkRect::MakeXYWH(80, 80, 40, 40), 180, 180, false);
+    path.setIsVolatile(true);
     canvas->drawPath(path, paint);
 }
 
@@ -398,9 +397,13 @@ DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     SkPaint paint;
 
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kFill_Style);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(1.01f);
 
-    test_concave(canvas, paint);
+    for (int i = 0; i < 1000; i++) {
+        test_concave(canvas, paint);
+    }
+if (false) {
     test_reverse_concave(canvas, paint);
     test_bowtie(canvas, paint);
     test_fake_bowtie(canvas, paint);
@@ -426,4 +429,5 @@ DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     test_coincident_edges_2(canvas, paint);
     test_coincident_edges_3(canvas, paint);
     test_coincident_edges_4(canvas, paint);
+}
 }
