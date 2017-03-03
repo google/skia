@@ -48,7 +48,7 @@ public:
      *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
      *  added to the cache on its behalf.
      */
-    bool lockAsBitmap(SkBitmap*, const SkImage* client, SkColorSpace* dstColorSpace,
+    bool lockAsBitmap(GrContext*, SkBitmap*, const SkImage* client, SkColorSpace* dstColorSpace,
                       SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
     /**
