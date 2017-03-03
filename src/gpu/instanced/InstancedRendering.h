@@ -160,7 +160,7 @@ protected:
         void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
         void onPrepare(GrOpFlushState*) override {}
-        void onExecute(GrOpFlushState*, const SkRect& bounds) override;
+        void onExecute(GrOpFlushState*) override;
 
         typedef GrDrawOp INHERITED;
 

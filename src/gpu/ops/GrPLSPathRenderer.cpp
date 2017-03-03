@@ -809,7 +809,8 @@ private:
 
         GrResourceProvider* rp = target->resourceProvider();
         SkRect bounds;
-        this->bounds().roundOut(&bounds);
+        // Is this safe if the bounds are clipped?
+        this->boundsX().roundOut(&bounds);
         triangleProcessor->setBounds(bounds);
         quadProcessor->setBounds(bounds);
 

@@ -62,7 +62,7 @@ private:
         if (!verts) {
             return;
         }
-        const SkRect& bounds = this->bounds();
+        const SkRect& bounds = this->boundsX();
         verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom,
                                       sizeof(Vertex));
         for (int v = 0; v < 4; ++v) {
@@ -419,7 +419,7 @@ private:
         if (!verts) {
             return;
         }
-        const SkRect& bounds = this->bounds();
+        const SkRect& bounds = this->boundsX();
         verts[0].fPosition.setRectFan(bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom,
                                       sizeof(Vertex));
         fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
