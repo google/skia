@@ -71,8 +71,7 @@ public:
             fReadsDst = GrXPFactory::WillReadDst(xpf, analysis);
             sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(analysis, false, nullptr, caps));
             TEST_ASSERT(!GrXPFactory::WillNeedDstTexture(xpf, caps, analysis));
-            GrColor ignoredOverrideColor;
-            fOptFlags = xp->getOptimizations(analysis, false, &ignoredOverrideColor, caps);
+            fOptFlags = xp->getOptimizations(analysis);
             GetXPOutputTypes(xp.get(), &fPrimaryOutputType, &fSecondaryOutputType);
             xp->getBlendInfo(&fBlendInfo);
             TEST_ASSERT(!xp->willReadDstColor());
@@ -986,8 +985,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
 
     TEST_ASSERT(GrXPFactory::WillReadDst(xpf, analysis));
 
-    GrColor overrideColor;
-    xp->getOptimizations(analysis, false, &overrideColor, caps);
+    xp->getOptimizations(analysis);
 
     GrXferProcessor::BlendInfo blendInfo;
     xp->getBlendInfo(&blendInfo);
@@ -1047,8 +1045,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                     return;
                 }
                 TEST_ASSERT(!xp->hasSecondaryOutput());
-                GrColor ignoredOverrideColor;
-                xp->getOptimizations(analysis, false, &ignoredOverrideColor, caps);
+                xp->getOptimizations(analysis);
                 TEST_ASSERT(!xp->hasSecondaryOutput());
             }
         }

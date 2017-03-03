@@ -68,9 +68,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
 
     const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
                                                        &GrPorterDuffXPFactory::SimpleSrcOverXP();
-    optFlags = xpForOpts->getOptimizations(
-            *args.fAnalysis, args.fUserStencil->doesWrite(args.fAppliedClip->hasStencilClip()),
-            &overrideColor, *args.fCaps);
+    optFlags = xpForOpts->getOptimizations(*args.fAnalysis);
 
     // No need to have an override color if it isn't even going to be used.
     if (SkToBool(GrXferProcessor::kIgnoreColor_OptFlag & optFlags)) {
@@ -79,8 +77,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
 
     fXferProcessor.reset(xferProcessor.get());
 
-    if ((optFlags & GrXferProcessor::kIgnoreColor_OptFlag) ||
-        (optFlags & GrXferProcessor::kOverrideColor_OptFlag)) {
+    if ((optFlags & GrXferProcessor::kIgnoreColor_OptFlag)) {
         colorFPsToEliminate = args.fProcessors->numColorFragmentProcessors();
     }
 
