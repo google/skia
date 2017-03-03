@@ -201,7 +201,7 @@
   },
   {
     "cmd": [
-      "go",
+      "[START_DIR]/go/go/bin/go",
       "get",
       "-u",
       "-t",

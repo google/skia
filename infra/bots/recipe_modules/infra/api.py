@@ -12,12 +12,16 @@ UPDATE_GO_ATTEMPTS = 5
 
 class InfraApi(recipe_api.RecipeApi):
   @property
+  def go_exe(self):
+    return self.m.vars.slave_dir.join('go', 'go', 'bin', 'go')
+
+  @property
   def go_env(self):
     return {'GOPATH': self.gopath}
 
   @property
   def gopath(self):
-    return self.m.vars.checkout_root.join('gopath')
+    return self.m.vars.checkout_root.join('gopath2')
 
   def update_go_deps(self):
     """Attempt to update go dependencies.
@@ -28,5 +32,5 @@ class InfraApi(recipe_api.RecipeApi):
         self.m.step,
         'update go pkgs',
         UPDATE_GO_ATTEMPTS,
-        cmd=['go', 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG],
+        cmd=[self.go_exe, 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG],
         env=self.go_env)
