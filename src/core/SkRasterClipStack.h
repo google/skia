@@ -73,8 +73,12 @@ public:
     }
 
     void setNewSize(int w, int h) {
-        SkASSERT(fStack.count() == 1);
         fRootBounds.setXYWH(0, 0, w, h);
+
+        SkASSERT(fStack.count() == 1);
+        Rec& rec = fStack.top();
+        SkASSERT(rec.fDeferredCount == 0);
+        rec.fRC.setRect(fRootBounds);
     }
 
     const SkRasterClip& rc() const { return fStack.top().fRC; }

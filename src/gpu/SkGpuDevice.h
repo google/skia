@@ -65,55 +65,55 @@ public:
 
     GrRenderTargetContext* accessRenderTargetContext() override;
 
-    void drawPaint(const SkDraw&, const SkPaint& paint) override;
-    void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count, const SkPoint[],
+    void drawPaint(const SkPaint& paint) override;
+    void drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint[],
                     const SkPaint& paint) override;
-    void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint) override;
-    void drawRRect(const SkDraw&, const SkRRect& r, const SkPaint& paint) override;
-    void drawDRRect(const SkDraw& draw, const SkRRect& outer, const SkRRect& inner,
+    void drawRect(const SkRect& r, const SkPaint& paint) override;
+    void drawRRect(const SkRRect& r, const SkPaint& paint) override;
+    void drawDRRect(const SkRRect& outer, const SkRRect& inner,
                     const SkPaint& paint) override;
-    void drawRegion(const SkDraw&, const SkRegion& r, const SkPaint& paint) override;
-    void drawOval(const SkDraw&, const SkRect& oval, const SkPaint& paint) override;
-    void drawArc(const SkDraw&, const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+    void drawRegion(const SkRegion& r, const SkPaint& paint) override;
+    void drawOval(const SkRect& oval, const SkPaint& paint) override;
+    void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                  bool useCenter, const SkPaint& paint) override;
-    void drawPath(const SkDraw&, const SkPath& path, const SkPaint& paint,
+    void drawPath(const SkPath& path, const SkPaint& paint,
                   const SkMatrix* prePathMatrix, bool pathIsMutable) override;
-    void drawBitmap(const SkDraw&, const SkBitmap& bitmap, const SkMatrix&,
+    void drawBitmap(const SkBitmap& bitmap, const SkMatrix&,
                     const SkPaint&) override;
-    void drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect* srcOrNull, const SkRect& dst,
+    void drawBitmapRect(const SkBitmap&, const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint, SkCanvas::SrcRectConstraint) override;
-    void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,
+    void drawSprite(const SkBitmap& bitmap, int x, int y,
                     const SkPaint& paint) override;
-    void drawText(const SkDraw&, const void* text, size_t len, SkScalar x, SkScalar y,
+    void drawText(const void* text, size_t len, SkScalar x, SkScalar y,
                   const SkPaint&) override;
-    void drawPosText(const SkDraw&, const void* text, size_t len, const SkScalar pos[],
+    void drawPosText(const void* text, size_t len, const SkScalar pos[],
                      int scalarsPerPos, const SkPoint& offset, const SkPaint&) override;
-    void drawTextBlob(const SkDraw&, const SkTextBlob*, SkScalar x, SkScalar y,
+    void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                       const SkPaint& paint, SkDrawFilter* drawFilter) override;
-    void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
+    void drawVertices(SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
                       const SkPoint texs[], const SkColor colors[], SkBlendMode,
                       const uint16_t indices[], int indexCount, const SkPaint&) override;
-    void drawVerticesObject(const SkDraw&, sk_sp<SkVertices>, SkBlendMode, const SkPaint&,
+    void drawVerticesObject(sk_sp<SkVertices>, SkBlendMode, const SkPaint&,
                             uint32_t flags) override;
-    void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
+    void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
                    const SkColor[], int count, SkBlendMode, const SkPaint&) override;
-    void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y, const SkPaint&) override;
+    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
-    void drawImage(const SkDraw&, const SkImage*, SkScalar x, SkScalar y, const SkPaint&) override;
-    void drawImageRect(const SkDraw&, const SkImage*, const SkRect* src, const SkRect& dst,
+    void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkPaint&) override;
+    void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
-    void drawImageNine(const SkDraw& draw, const SkImage* image, const SkIRect& center,
+    void drawImageNine(const SkImage* image, const SkIRect& center,
                        const SkRect& dst, const SkPaint& paint) override;
-    void drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, const SkIRect& center,
+    void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                         const SkRect& dst, const SkPaint& paint) override;
 
-    void drawImageLattice(const SkDraw&, const SkImage*, const SkCanvas::Lattice&,
+    void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, const SkPaint&) override;
-    void drawBitmapLattice(const SkDraw&, const SkBitmap&, const SkCanvas::Lattice&,
+    void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&,
                            const SkRect& dst, const SkPaint&) override;
 
-    void drawSpecial(const SkDraw&, SkSpecialImage*,
+    void drawSpecial(SkSpecialImage*,
                      int left, int top, const SkPaint& paint) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
@@ -157,7 +157,7 @@ private:
     bool forceConservativeRasterClip() const override { return true; }
 
     // sets the render target and clip on context
-    void prepareDraw(const SkDraw&);
+    void prepareDraw();
 
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
@@ -179,8 +179,7 @@ private:
                          SkCanvas::SrcRectConstraint constraint, SkFilterQuality quality,
                          const SkMatrix& viewMatrix, const SkMatrix& srcToDstRect) const;
 
-    sk_sp<SkSpecialImage> filterTexture(const SkDraw&,
-                                        SkSpecialImage*,
+    sk_sp<SkSpecialImage> filterTexture(SkSpecialImage*,
                                         int left, int top,
                                         SkIPoint* offset,
                                         const SkImageFilter* filter);
@@ -228,14 +227,14 @@ private:
     bool drawFilledDRRect(const SkMatrix& viewMatrix, const SkRRect& outer,
                           const SkRRect& inner, const SkPaint& paint);
 
-    void drawProducerNine(const SkDraw&, GrTextureProducer*, const SkIRect& center,
+    void drawProducerNine(GrTextureProducer*, const SkIRect& center,
                           const SkRect& dst, const SkPaint&);
 
-    void drawProducerLattice(const SkDraw&, GrTextureProducer*, const SkCanvas::Lattice& lattice,
+    void drawProducerLattice(GrTextureProducer*, const SkCanvas::Lattice& lattice,
                              const SkRect& dst, const SkPaint&);
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
-    void drawStrokedLine(const SkPoint pts[2], const SkDraw&, const SkPaint&);
+    void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
     static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
                                                                 SkBudgeted,
