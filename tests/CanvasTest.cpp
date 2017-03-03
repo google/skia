@@ -814,10 +814,7 @@ DEF_TEST(CanvasStack, r) {
     REPORTER_ASSERT(r, !life[1]);
 }
 
-DEF_TEST(CanvasClipType, r) {
-    sk_sp<SkSurface> surf = SkSurface::MakeRasterN32Premul(10, 10);
-    SkCanvas* canvas = surf->getCanvas();
-
+static void test_cliptype(SkCanvas* canvas, skiatest::Reporter* r) {
     REPORTER_ASSERT(r, !canvas->isClipEmpty());
     REPORTER_ASSERT(r, canvas->isClipRect());
 
@@ -841,4 +838,13 @@ DEF_TEST(CanvasClipType, r) {
 
     REPORTER_ASSERT(r, !canvas->isClipEmpty());
     REPORTER_ASSERT(r, canvas->isClipRect());
+}
+
+DEF_TEST(CanvasClipType, r) {
+    // test rasterclip backend
+    test_cliptype(SkSurface::MakeRasterN32Premul(10, 10)->getCanvas(), r);
+
+    // test clipstack backend
+    SkDynamicMemoryWStream stream;
+    test_cliptype(SkDocument::MakePDF(&stream)->beginPage(100, 100), r);
 }
