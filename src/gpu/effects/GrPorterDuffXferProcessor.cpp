@@ -350,10 +350,7 @@ public:
     BlendFormula getBlendFormula() const { return fBlendFormula; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&,
-                                                 bool doesStencilWrite,
-                                                 GrColor* overrideColor,
-                                                 const GrCaps&) const override;
+    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -450,10 +447,7 @@ GrGLSLXferProcessor* PorterDuffXferProcessor::createGLSLInstance() const {
 }
 
 GrXferProcessor::OptFlags PorterDuffXferProcessor::onGetOptimizations(
-        const FragmentProcessorAnalysis& analysis,
-        bool doesStencilWrite,
-        GrColor* overrideColor,
-        const GrCaps& caps) const {
+        const FragmentProcessorAnalysis& analysis) const {
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
     if (!fBlendFormula.modifiesDst()) {
         optFlags |= (GrXferProcessor::kIgnoreColor_OptFlag |
@@ -489,8 +483,7 @@ public:
     SkBlendMode getXfermode() const { return fXfermode; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&, bool, GrColor*,
-                                                 const GrCaps&) const override {
+    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const override {
         return kNone_OptFlags;
     }
 
@@ -561,13 +554,12 @@ public:
 
     GrGLSLXferProcessor* createGLSLInstance() const override;
 
+    uint8_t alpha() const { return fAlpha; }
+
 private:
     PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha);
 
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&,
-                                                 bool doesStencilWrite,
-                                                 GrColor* overrideColor,
-                                                 const GrCaps&) const override;
+    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -579,15 +571,14 @@ private:
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const PDLCDXferProcessor& xp = xpBase.cast<PDLCDXferProcessor>();
-        if (fBlendConstant != xp.fBlendConstant ||
-            fAlpha != xp.fAlpha) {
+        if (fBlendConstant != xp.fBlendConstant || fAlpha != xp.fAlpha) {
             return false;
         }
         return true;
     }
 
-    GrColor      fBlendConstant;
-    uint8_t      fAlpha;
+    GrColor fBlendConstant;
+    uint8_t fAlpha;
 
     typedef GrXferProcessor INHERITED;
 };
@@ -596,7 +587,7 @@ private:
 
 class GLPDLCDXferProcessor : public GrGLSLXferProcessor {
 public:
-    GLPDLCDXferProcessor(const GrProcessor&) {}
+    GLPDLCDXferProcessor(const GrProcessor&) : fLastAlpha(SK_MaxU32) {}
 
     virtual ~GLPDLCDXferProcessor() {}
 
@@ -605,14 +596,28 @@ public:
 
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
+        const char* alpha;
+        fAlphaUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
+                                                         kDefault_GrSLPrecision, "alpha", &alpha);
         GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+        // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
+        // value of the src color. We know that there are no color stages (or we wouldn't have
+        // created this xp) and the r,g, and b channels of the op's input color are baked into the
+        // blend constant.
         SkASSERT(args.fInputCoverage);
-        fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputColor,
-                                 args.fInputCoverage);
+        fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, alpha, args.fInputCoverage);
     }
 
-    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
+    void onSetData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) override {
+        uint32_t alpha = SkToU32(xp.cast<PDLCDXferProcessor>().alpha());
+        if (fLastAlpha != alpha) {
+            pdm.set1f(fAlphaUniform, alpha / 255.f);
+            fLastAlpha = alpha;
+        }
+    }
 
+    GrGLSLUniformHandler::UniformHandle fAlphaUniform;
+    uint32_t fLastAlpha;
     typedef GrGLSLXferProcessor INHERITED;
 };
 
@@ -651,16 +656,9 @@ GrGLSLXferProcessor* PDLCDXferProcessor::createGLSLInstance() const {
     return new GLPDLCDXferProcessor(*this);
 }
 
-GrXferProcessor::OptFlags PDLCDXferProcessor::onGetOptimizations(const FragmentProcessorAnalysis&,
-                                                                 bool doesStencilWrite,
-                                                                 GrColor* overrideColor,
-                                                                 const GrCaps& caps) const {
-    // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
-    // value of the blend the constant. We should already have valid blend coeff's if we are at
-    // a point where we have RGB coverage. We don't need any color stages since the known color
-    // output is already baked into the blendConstant.
-    *overrideColor = GrColorPackRGBA(fAlpha, fAlpha, fAlpha, fAlpha);
-    return GrXferProcessor::kOverrideColor_OptFlag;
+GrXferProcessor::OptFlags PDLCDXferProcessor::onGetOptimizations(
+        const FragmentProcessorAnalysis&) const {
+    return GrXferProcessor::kIgnoreColor_OptFlag;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

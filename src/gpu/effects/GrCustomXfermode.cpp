@@ -103,10 +103,7 @@ public:
     }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&,
-                                                 bool doesStencilWrite,
-                                                 GrColor* overrideColor,
-                                                 const GrCaps& caps) const override;
+    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -197,10 +194,8 @@ bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
     return fMode == s.fMode && fHWBlendEquation == s.fHWBlendEquation;
 }
 
-GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const FragmentProcessorAnalysis& analysis,
-                                                       bool doesStencilWrite,
-                                                       GrColor* overrideColor,
-                                                       const GrCaps& caps) const {
+GrXferProcessor::OptFlags CustomXP::onGetOptimizations(
+        const FragmentProcessorAnalysis& analysis) const {
     /*
       Most the optimizations we do here are based on tweaking alpha for coverage.
 

@@ -29,10 +29,7 @@ public:
 private:
     DisableColorXP();
 
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&,
-                                                 bool doesStencilWrite,
-                                                 GrColor* color,
-                                                 const GrCaps& caps) const override {
+    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const override {
         return GrXferProcessor::kIgnoreColor_OptFlag;
     }
 

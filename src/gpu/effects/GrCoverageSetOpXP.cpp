@@ -34,10 +34,7 @@ public:
 private:
     CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis& analysis,
-                                                 bool doesStencilWrite,
-                                                 GrColor* color,
-                                                 const GrCaps& caps) const override;
+    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -108,10 +105,7 @@ GrGLSLXferProcessor* CoverageSetOpXP::createGLSLInstance() const {
 }
 
 GrXferProcessor::OptFlags CoverageSetOpXP::onGetOptimizations(
-        const FragmentProcessorAnalysis& analysis,
-        bool doesStencilWrite,
-        GrColor* color,
-        const GrCaps& caps) const {
+        const FragmentProcessorAnalysis&) const {
     // We never look at the color input
     return GrXferProcessor::kIgnoreColor_OptFlag;
 }
@@ -168,8 +162,7 @@ public:
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&, bool, GrColor*,
-                                                 const GrCaps&) const override {
+    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const override {
         // We never look at the color input
         return GrXferProcessor::kIgnoreColor_OptFlag;
     }

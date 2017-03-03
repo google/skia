@@ -31,13 +31,8 @@ GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture,
 }
 
 GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(
-        const FragmentProcessorAnalysis& analysis,
-        bool doesStencilWrite,
-        GrColor* overrideColor,
-        const GrCaps& caps) const {
-    GrXferProcessor::OptFlags flags =
-            this->onGetOptimizations(analysis, doesStencilWrite, overrideColor, caps);
-    return flags;
+        const FragmentProcessorAnalysis& analysis) const {
+    return this->onGetOptimizations(analysis);
 }
 
 bool GrXferProcessor::hasSecondaryOutput() const {
