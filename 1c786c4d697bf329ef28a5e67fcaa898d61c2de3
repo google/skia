@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d4ccb28_131e7da5",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-03T13:36:54Z",
+      "side": 1,
+      "message": "maybe make this \"resources\", since we use these flags for buffers as well.",
+      "range": {
+        "startLine": 165,
+        "startChar": 41,
+        "endLine": 165,
+        "endChar": 49
+      },
+      "revId": "1c786c4d697bf329ef28a5e67fcaa898d61c2de3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
