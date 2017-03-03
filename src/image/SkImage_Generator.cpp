@@ -74,7 +74,7 @@ SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
 
 bool SkImage_Generator::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
                                     CachingHint chint) const {
-    return fCache.lockAsBitmap(bitmap, this, dstColorSpace, chint);
+    return fCache.lockAsBitmap(nullptr, bitmap, this, dstColorSpace, chint);
 }
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
