@@ -1,0 +1,7373 @@
+{
+   "max_rss_MB" : 295,
+   "results" : [
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "yuv_nv12_to_rgb_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "bc2432b0c085142ad707ed2ef20d3d0f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "yuv_to_rgb_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "c2bf12b3b899ae4a9d3e8e897fb1006e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "xfermodes3",
+            "source_type" : "gm"
+         },
+         "md5" : "f9e3a0e611ba2dd05bd37a2b1dee026f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "xfermodes2",
+            "source_type" : "gm"
+         },
+         "md5" : "e211c89acdb59bcd6b887f315e81cad7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "xfermodes",
+            "source_type" : "gm"
+         },
+         "md5" : "4ae28c8479928d1f6936ffa65312bdca",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "xfermodeimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "cfc351542570a39c1fa68cc57496816b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "windowrectangles_mask",
+            "source_type" : "gm"
+         },
+         "md5" : "803a5b74ca684def0737fe9d96f6f66e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "windowrectangles",
+            "source_type" : "gm"
+         },
+         "md5" : "803a5b74ca684def0737fe9d96f6f66e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "verylarge_picture_image",
+            "source_type" : "gm"
+         },
+         "md5" : "30ddbd4d13669f311505632d824307fd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "verylargebitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "30ddbd4d13669f311505632d824307fd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "verttext2",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "verttext",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "vertices_batching",
+            "source_type" : "gm"
+         },
+         "md5" : "4a1e4325031b13f933ac4f1db9ecb63f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "vertices_scaled_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "78a852ae5ccce78a45ecd9f7d330cd11",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "vertices",
+            "source_type" : "gm"
+         },
+         "md5" : "78a852ae5ccce78a45ecd9f7d330cd11",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "vertices_object",
+            "source_type" : "gm"
+         },
+         "md5" : "78a852ae5ccce78a45ecd9f7d330cd11",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "varied_text_clipped_lcd",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "varied_text_ignorable_clip_lcd",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "varied_text_clipped_no_lcd",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "varied_text_ignorable_clip_no_lcd",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "typefacerendering_pfb",
+            "source_type" : "gm"
+         },
+         "md5" : "597023fda2763f813be8352d728a194a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "typefacerendering_pfa",
+            "source_type" : "gm"
+         },
+         "md5" : "597023fda2763f813be8352d728a194a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "typefacerendering",
+            "source_type" : "gm"
+         },
+         "md5" : "597023fda2763f813be8352d728a194a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "typefacestyles_kerning",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "typefacestyles",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "transparency_check",
+            "source_type" : "gm"
+         },
+         "md5" : "ebe8d32a677e4d9ce8b497f840d346cb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tinybitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "4e0a293a5b638f0aba2c4fe2c3418d0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "scaled_tilemode_gradient",
+            "source_type" : "gm"
+         },
+         "md5" : "939861854b6fc2472ab2b071c901fd0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "scaled_tilemode_bitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "939861854b6fc2472ab2b071c901fd0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "scaled_tilemodes_npot",
+            "source_type" : "gm"
+         },
+         "md5" : "410f9e270d6cc2eb278c9c5ae8669c51",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "scaled_tilemodes",
+            "source_type" : "gm"
+         },
+         "md5" : "410f9e270d6cc2eb278c9c5ae8669c51",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tilemode_gradient",
+            "source_type" : "gm"
+         },
+         "md5" : "939861854b6fc2472ab2b071c901fd0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tilemode_bitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "939861854b6fc2472ab2b071c901fd0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tilemodes_npot",
+            "source_type" : "gm"
+         },
+         "md5" : "328c8ab8780602f25959f4ece987c7a5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tilemodes",
+            "source_type" : "gm"
+         },
+         "md5" : "328c8ab8780602f25959f4ece987c7a5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tileimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "e291ac3471883e055ad057db9c840739",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tiledscaledbitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "4265bc68c41d02a2a009d069b02b5cb4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "thinstrokedrects",
+            "source_type" : "gm"
+         },
+         "md5" : "90aeded9922cf8946ea7858635493724",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "thinrects",
+            "source_type" : "gm"
+         },
+         "md5" : "90aeded9922cf8946ea7858635493724",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "thinconcavepaths",
+            "source_type" : "gm"
+         },
+         "md5" : "a0d6a6d0a649655b8d5c686c15e95f7f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "texture_domain_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "939f757bb1e73e8a52d675be716297b3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fancyunderlinebars",
+            "source_type" : "gm"
+         },
+         "md5" : "3f36614e9e6d20a85d1b0e92b1fb1b1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fancyblobunderline",
+            "source_type" : "gm"
+         },
+         "md5" : "9f74e74e39dc73e74f52777df422766c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fancyposunderline",
+            "source_type" : "gm"
+         },
+         "md5" : "5ad382a3be3bbbccd0f557d79b3060cd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fancyunderline",
+            "source_type" : "gm"
+         },
+         "md5" : "5ad382a3be3bbbccd0f557d79b3060cd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "texteffects",
+            "source_type" : "gm"
+         },
+         "md5" : "ef4ea19becced20ae16199c7e45a8a05",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobuseaftergpufree",
+            "source_type" : "gm"
+         },
+         "md5" : "17654ea2aacd9e472094439442bd07a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobtransforms",
+            "source_type" : "gm"
+         },
+         "md5" : "fc54a68349d29eeec8f373aea9819667",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobshader",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobrandomfont",
+            "source_type" : "gm"
+         },
+         "md5" : "4525e696f97a57d4899c06fbec913ba8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobmixedsizes_df",
+            "source_type" : "gm"
+         },
+         "md5" : "6629c5398fbb8f01eaadb889f15f3c1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobmixedsizes",
+            "source_type" : "gm"
+         },
+         "md5" : "6629c5398fbb8f01eaadb889f15f3c1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textbloblooper",
+            "source_type" : "gm"
+         },
+         "md5" : "6ca219e67db05247d204fa43e0daaf85",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobgeometrychange",
+            "source_type" : "gm"
+         },
+         "md5" : "17654ea2aacd9e472094439442bd07a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobcolortrans",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblobblockreordering",
+            "source_type" : "gm"
+         },
+         "md5" : "f22c4436ea468db6308b36b8a3d6f809",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textblob",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "texdata",
+            "source_type" : "gm"
+         },
+         "md5" : "495776d9b24b9851566c5e5c057ba984",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "testgradient",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tall_stretched_bitmaps",
+            "source_type" : "gm"
+         },
+         "md5" : "ab62a90d21e672203b7897c698acbc2e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorcomposefilter_alpha",
+            "source_type" : "gm"
+         },
+         "md5" : "9cee5cc4a8bfd78a92cb6953b6f83a44",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorcomposefilter_wacky",
+            "source_type" : "gm"
+         },
+         "md5" : "9cee5cc4a8bfd78a92cb6953b6f83a44",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tablecolorfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "aecc7fe918823b9d913d9f568e316acd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "surfacenew",
+            "source_type" : "gm"
+         },
+         "md5" : "101745f76351fd5d916bf3817b71563c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "surfaceprops",
+            "source_type" : "gm"
+         },
+         "md5" : "d948f712fa329203f590e91cf6dd3e3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmap_subset_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "stroketext",
+            "source_type" : "gm"
+         },
+         "md5" : "eb0145f2ea18e860146c84b97e9f25dd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "teenyStrokes",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "zeroPath",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "zero_control_stroke",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokes_zoomed",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokes3",
+            "source_type" : "gm"
+         },
+         "md5" : "1dfe5e6e4defff78eb0b5217313a6940",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokes_poly",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokes_round",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "quadcap",
+            "source_type" : "gm"
+         },
+         "md5" : "17654ea2aacd9e472094439442bd07a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "zerolinestroke",
+            "source_type" : "gm"
+         },
+         "md5" : "8695d74c75470ab6f4b706a97c90f172",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "CubicStroke",
+            "source_type" : "gm"
+         },
+         "md5" : "79fcad4e94ed64b1d285c7da6bbac73c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokerects",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokerect_anisotropic_5408",
+            "source_type" : "gm"
+         },
+         "md5" : "4e0a293a5b638f0aba2c4fe2c3418d0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokerect",
+            "source_type" : "gm"
+         },
+         "md5" : "02a73794d1dbd53e2b9351f2d0f04678",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug339297",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "stroke-fill",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokedlines",
+            "source_type" : "gm"
+         },
+         "md5" : "591aa7b8cfbb7f2a0df4e39aed363818",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "stroke_rect_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "9a54765a15cbee5b51d65b1aa502ad6a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "stringart",
+            "source_type" : "gm"
+         },
+         "md5" : "217e1864829024e0b924ff0ceb0d67f4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "stlouisarch",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "srcmode",
+            "source_type" : "gm"
+         },
+         "md5" : "961b8b5c2cb8da16c4f0f3b8d05c1ae8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "spritebitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "smallpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "small_image",
+            "source_type" : "gm"
+         },
+         "md5" : "dd588af1376f9464f4093d8c4473e14e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "smallarc",
+            "source_type" : "gm"
+         },
+         "md5" : "d2a402750dbc4baf0fbc297080a1da78",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "linear_pipeline",
+            "source_type" : "gm"
+         },
+         "md5" : "180e11d076404b5dacbdb2f6c6d3aad1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "skbug1719",
+            "source_type" : "gm"
+         },
+         "md5" : "69eb943fa4b1467ac6c1b079c4028567",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "skbug_5321",
+            "source_type" : "gm"
+         },
+         "md5" : "fcd6bcb56c1689fcef28b57c22475bad",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "skbug_4868",
+            "source_type" : "gm"
+         },
+         "md5" : "620f0b67a91f7f74151bc5be745b7110",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "skbug_257",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simplerect",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simple-magnification",
+            "source_type" : "gm"
+         },
+         "md5" : "135bda876927d92beb4543ca84251df1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simpleaaclip_aaclip",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simpleaaclip_path",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simpleaaclip_rect",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "showmiplevels2_256x256",
+            "source_type" : "gm"
+         },
+         "md5" : "dd6d00f64f4916746e4fc4a06fb0ed4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "showmiplevels2_255x256",
+            "source_type" : "gm"
+         },
+         "md5" : "dd6d00f64f4916746e4fc4a06fb0ed4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "showmiplevels2_256x255",
+            "source_type" : "gm"
+         },
+         "md5" : "dd6d00f64f4916746e4fc4a06fb0ed4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "showmiplevels2_255x255",
+            "source_type" : "gm"
+         },
+         "md5" : "dd6d00f64f4916746e4fc4a06fb0ed4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "showmiplevels_256",
+            "source_type" : "gm"
+         },
+         "md5" : "dd6d00f64f4916746e4fc4a06fb0ed4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "showmiplevels_255",
+            "source_type" : "gm"
+         },
+         "md5" : "dd6d00f64f4916746e4fc4a06fb0ed4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "innershapes_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "innershapes",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simpleshapes_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simpleshapes",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shallow_gradient_sweep_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shallow_gradient_conical_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shallow_gradient_radial_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shallow_gradient_linear_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shallow_gradient_sweep",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shallow_gradient_conical",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shallow_gradient_radial",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shallow_gradient_linear",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shadow_utils",
+            "source_type" : "gm"
+         },
+         "md5" : "423e8d7e84a48f029a1fa9ac6a56db9c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shadows",
+            "source_type" : "gm"
+         },
+         "md5" : "17654ea2aacd9e472094439442bd07a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shadertext3",
+            "source_type" : "gm"
+         },
+         "md5" : "863605e54e12ee1e0c54f92333835607",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shadertext2",
+            "source_type" : "gm"
+         },
+         "md5" : "c597bbbdf39e90374db546eefcd2e615",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shadertext",
+            "source_type" : "gm"
+         },
+         "md5" : "6a35773b8a19418459ab893c7f1ef6aa",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "shaderbounds_linear",
+            "source_type" : "gm"
+         },
+         "md5" : "90aeded9922cf8946ea7858635493724",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "scaledstrokes",
+            "source_type" : "gm"
+         },
+         "md5" : "85574aebeef03eb355bf8541955d06ea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "savelayer_clipped",
+            "source_type" : "gm"
+         },
+         "md5" : "85574aebeef03eb355bf8541955d06ea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "savelayer_unclipped",
+            "source_type" : "gm"
+         },
+         "md5" : "85574aebeef03eb355bf8541955d06ea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "picture_savelayer",
+            "source_type" : "gm"
+         },
+         "md5" : "85574aebeef03eb355bf8541955d06ea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gpusamplerstress",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rrect_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rrect_clip_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rrect_clip_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rrect_draw_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rrect_draw_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rrect_clip_draw_paint",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rrect",
+            "source_type" : "gm"
+         },
+         "md5" : "5d480acbd11a3d340b4fbda99bdf318e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "roundrects",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "reveal",
+            "source_type" : "gm"
+         },
+         "md5" : "157e39521e47ad1c923a94edd69ad59c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "resizeimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "ab54cb9bc71f6db0732bfeb5569c0330",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "repeated_bitmap_jpg",
+            "source_type" : "gm"
+         },
+         "md5" : "6941422c1b5ffd9395d7e8f6de058ba5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "repeated_bitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "6941422c1b5ffd9395d7e8f6de058ba5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rects",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rectangle_texture",
+            "source_type" : "gm"
+         },
+         "md5" : "e7477ef7e4c50be303ef04ee4b5a623b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "recordopts",
+            "source_type" : "gm"
+         },
+         "md5" : "f0e754228f80bff593f1e03ef7af4f4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "readpixelspicture",
+            "source_type" : "gm"
+         },
+         "md5" : "79fcad4e94ed64b1d285c7da6bbac73c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "readpixelscodec",
+            "source_type" : "gm"
+         },
+         "md5" : "833c57ffe751f395825305ad7b2ba442",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "readpixels",
+            "source_type" : "gm"
+         },
+         "md5" : "de2bc82f4edce55525e2132d1516e591",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "quadclosepath",
+            "source_type" : "gm"
+         },
+         "md5" : "149c30f4e3b4d4262ede0708363ed991",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "quadpath",
+            "source_type" : "gm"
+         },
+         "md5" : "149c30f4e3b4d4262ede0708363ed991",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "polygons",
+            "source_type" : "gm"
+         },
+         "md5" : "048f0f709f7090dcdc4e26872f030af3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "poly2poly",
+            "source_type" : "gm"
+         },
+         "md5" : "46e081dfc68c59b9a2ed30c5708f12ac",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "points",
+            "source_type" : "gm"
+         },
+         "md5" : "91e41bacd13d7ca609da342b3ae6bc51",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "PlusMergesAA",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pixel_snap_combo",
+            "source_type" : "gm"
+         },
+         "md5" : "b91ca92f20678f57a1b0fae46f923d91",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pixel_snap_rect",
+            "source_type" : "gm"
+         },
+         "md5" : "b91ca92f20678f57a1b0fae46f923d91",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pixel_snap_line",
+            "source_type" : "gm"
+         },
+         "md5" : "b91ca92f20678f57a1b0fae46f923d91",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pixel_snap_point",
+            "source_type" : "gm"
+         },
+         "md5" : "b91ca92f20678f57a1b0fae46f923d91",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pictureshadertile",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tiled_picture_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "495776d9b24b9851566c5e5c057ba984",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pictureshader",
+            "source_type" : "gm"
+         },
+         "md5" : "dfb62f01de396dfa5332d1b0ce76a663",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pictureimagegenerator",
+            "source_type" : "gm"
+         },
+         "md5" : "4ddd449c15cf31b34c74c8d16f66aaab",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pictureimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "c99f970a9d62f517b3d1a641ee9bc099",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pictures",
+            "source_type" : "gm"
+         },
+         "md5" : "06bda112babfec07074c456169b3881a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "persp_shaders_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "daa2077f82c251473de7655b2f1d5aa4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "persp_shaders_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "daa2077f82c251473de7655b2f1d5aa4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "perlinnoise_localmatrix",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "perlinnoise",
+            "source_type" : "gm"
+         },
+         "md5" : "d948f712fa329203f590e91cf6dd3e3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pdf_never_embed",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "path-reverse",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pathopsskpclip",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pathopsinverse",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "path_mask_cache",
+            "source_type" : "gm"
+         },
+         "md5" : "5289623aab3a6b301f463b5ad6f87085",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pathinterior",
+            "source_type" : "gm"
+         },
+         "md5" : "26eacd3d1a8074f2e255200f4f2a775a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pathinvfill",
+            "source_type" : "gm"
+         },
+         "md5" : "529d29ecac38ba43e0cb1bafe2ebd40d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "pathfill",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rotatedcubicpath",
+            "source_type" : "gm"
+         },
+         "md5" : "17654ea2aacd9e472094439442bd07a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "patheffect",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "contour_start",
+            "source_type" : "gm"
+         },
+         "md5" : "ffa6a2f60b7dfab167e022467f864978",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "path_stroke_with_zero_length",
+            "source_type" : "gm"
+         },
+         "md5" : "f5fdaef255cb4c1cc746e7c155e2d417",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "patch_grid",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "patch_primitive",
+            "source_type" : "gm"
+         },
+         "md5" : "edeac4166414968c43c803ae2e7d5b88",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "OverStroke",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "overdrawcolorfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "e291ac3471883e055ad057db9c840739",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "ovals",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simple-offsetimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "816df6f64deba63b029ca19d880ee10a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "offsetimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "daa2077f82c251473de7655b2f1d5aa4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "occludedrrectblur",
+            "source_type" : "gm"
+         },
+         "md5" : "217e1864829024e0b924ff0ceb0d67f4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "nonclosedpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "5abb3fc2dae7ec88414bd790e7d8f737",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "ninepatch-stretch",
+            "source_type" : "gm"
+         },
+         "md5" : "ddd9fef126fb2490ce8964f120deca8b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "nested_flipY_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "db481d48259092c4e72142c9cd713146",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "nested_flipY_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "db481d48259092c4e72142c9cd713146",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "nested_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "db481d48259092c4e72142c9cd713146",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "nested_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "db481d48259092c4e72142c9cd713146",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_biglayer_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_sierpinski_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_invpathclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_pathclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_rrectclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_rectclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_noclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_biglayer_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_sierpinski_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_invpathclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_pathclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_rrectclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_rectclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "multipicturedraw_noclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "5b33f31e811eb15dcbbaf266d68e960a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "morphology",
+            "source_type" : "gm"
+         },
+         "md5" : "b6a57747f539589ea9f3622e15020852",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "modecolorfilters",
+            "source_type" : "gm"
+         },
+         "md5" : "b2d1236c286a3c0704224fe4105eca49",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "mixedtextblobs",
+            "source_type" : "gm"
+         },
+         "md5" : "6ca219e67db05247d204fa43e0daaf85",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "mipmap_gray8_srgb",
+            "source_type" : "gm"
+         },
+         "md5" : "2d8cac54b073c8aa43c278c57721cad1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "mipmap_srgb",
+            "source_type" : "gm"
+         },
+         "md5" : "2d8cac54b073c8aa43c278c57721cad1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "mipmap",
+            "source_type" : "gm"
+         },
+         "md5" : "e291ac3471883e055ad057db9c840739",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "megalooper_1x4",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "megalooper_4x1",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "megalooper_0x0",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "matriximagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "101745f76351fd5d916bf3817b71563c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "matrixconvolution_color",
+            "source_type" : "gm"
+         },
+         "md5" : "d70a839b87633a3e431d5df5c4a027d7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "matrixconvolution",
+            "source_type" : "gm"
+         },
+         "md5" : "d70a839b87633a3e431d5df5c4a027d7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "manyrrects",
+            "source_type" : "gm"
+         },
+         "md5" : "abaab7c07fc5dfd93e520384dfc05e9a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "manycircles",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lumafilter",
+            "source_type" : "gm"
+         },
+         "md5" : "e322bec6c4e9aa058092dfce6ab2d526",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "localmatriximagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "a481bd5a8281dad089edbef390c136ed",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lineclosepath",
+            "source_type" : "gm"
+         },
+         "md5" : "149c30f4e3b4d4262ede0708363ed991",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "linepath",
+            "source_type" : "gm"
+         },
+         "md5" : "149c30f4e3b4d4262ede0708363ed991",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lightingshaderbevel",
+            "source_type" : "gm"
+         },
+         "md5" : "8073eb79175f493209bedc185666f763",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lightingshader2",
+            "source_type" : "gm"
+         },
+         "md5" : "dfee05ea665856f64dbea466e20586a8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lightingshader",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lighting",
+            "source_type" : "gm"
+         },
+         "md5" : "88da5d7fc1716d85a1b0e3789d79eefb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "savelayer_lcdtext",
+            "source_type" : "gm"
+         },
+         "md5" : "e3c09f2b5751dd9a1fdafd3b9a01b100",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lcdtextsize",
+            "source_type" : "gm"
+         },
+         "md5" : "06ae8a01d80da962c7987c264af64cec",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lcdtext",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lcdoverlap",
+            "source_type" : "gm"
+         },
+         "md5" : "1133f8e008594cd4c1ccbd1482ad47db",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lcdblendmodes",
+            "source_type" : "gm"
+         },
+         "md5" : "a49a0a6bc4bd5d4f6cabe2087eff0d55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lattice",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "largeglyphblur",
+            "source_type" : "gm"
+         },
+         "md5" : "c0b74f14a45b3735c672b9176e79bc42",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "inverse_paths",
+            "source_type" : "gm"
+         },
+         "md5" : "5a83812905eacd70e08842f5bacb15ea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "internal_links",
+            "source_type" : "gm"
+         },
+         "md5" : "786b5d8f93786e5374dbe6015e5c6138",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image_to_yuv_planes",
+            "source_type" : "gm"
+         },
+         "md5" : "43471e0ba0fb38777376644ddd67701e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagesrc2_high",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagesrc2_med",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagesrc2_low",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagesrc2_none",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagesource",
+            "source_type" : "gm"
+         },
+         "md5" : "4a21de7a58fb8ecb9a1b1f08a3068269",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image_scale_aligned",
+            "source_type" : "gm"
+         },
+         "md5" : "69a4ff49d18885f4ed60de1e35618cb9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imageresizetiled",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagemasksubset",
+            "source_type" : "gm"
+         },
+         "md5" : "13673718fb38f2049ffa8e23cb5b9d82",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagemakewithfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "e51c364c59f5a7c5b5005b74d469c37b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagemagnifier_cropped",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagemagnifier",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image_from_yuv_textures",
+            "source_type" : "gm"
+         },
+         "md5" : "f6377a3b2e7ddbb7a1eef713cf8142e3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "rotate_imagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefilterstransformed",
+            "source_type" : "gm"
+         },
+         "md5" : "2d4f63caf80c668bbd410b5eccd99ee5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefiltersstroked",
+            "source_type" : "gm"
+         },
+         "md5" : "ef7ed77714e4a5984ebd92dc89c45e85",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefiltersscaled",
+            "source_type" : "gm"
+         },
+         "md5" : "c2eb43867f1606bbc4002e8d7e0017f6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefiltersgraph",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefilterscropped",
+            "source_type" : "gm"
+         },
+         "md5" : "6eb8c366315498feabd796786a621bcb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefilterscropexpand",
+            "source_type" : "gm"
+         },
+         "md5" : "b998e814734825f4289ad5db8aad944d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefiltersclipped",
+            "source_type" : "gm"
+         },
+         "md5" : "ef7ed77714e4a5984ebd92dc89c45e85",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textfilter_color",
+            "source_type" : "gm"
+         },
+         "md5" : "2f1f27449080d25c72a9208580251138",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "textfilter_image",
+            "source_type" : "gm"
+         },
+         "md5" : "2f1f27449080d25c72a9208580251138",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefiltersbase",
+            "source_type" : "gm"
+         },
+         "md5" : "786b5d8f93786e5374dbe6015e5c6138",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "savelayer_with_backdrop",
+            "source_type" : "gm"
+         },
+         "md5" : "c6594273b28b95dba0f4f453d6c169f5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fast_slow_blurimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "e3c09f2b5751dd9a1fdafd3b9a01b100",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagefilters_xfermodes",
+            "source_type" : "gm"
+         },
+         "md5" : "13673718fb38f2049ffa8e23cb5b9d82",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imageblurtiled",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imageblur2",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imageblur_large",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imageblur",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagealphathreshold_surface",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagealphathreshold",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "imagealphathreshold_crop",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image-shader",
+            "source_type" : "gm"
+         },
+         "md5" : "94cfb891e4e090663e601d4fae9dd7fc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image-cacherator-from-texture",
+            "source_type" : "gm"
+         },
+         "md5" : "3c9ccf002240c0095aa9c4865ed299cc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image-cacherator-from-ctable",
+            "source_type" : "gm"
+         },
+         "md5" : "3c9ccf002240c0095aa9c4865ed299cc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image-cacherator-from-raster",
+            "source_type" : "gm"
+         },
+         "md5" : "3c9ccf002240c0095aa9c4865ed299cc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image-cacherator-from-picture",
+            "source_type" : "gm"
+         },
+         "md5" : "3c9ccf002240c0095aa9c4865ed299cc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image-picture",
+            "source_type" : "gm"
+         },
+         "md5" : "94cfb891e4e090663e601d4fae9dd7fc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "new_texture_image",
+            "source_type" : "gm"
+         },
+         "md5" : "d1758809104f766aca66731345ab8a9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "scale-pixels",
+            "source_type" : "gm"
+         },
+         "md5" : "c0b74f14a45b3735c672b9176e79bc42",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "image-surface",
+            "source_type" : "gm"
+         },
+         "md5" : "c0b74f14a45b3735c672b9176e79bc42",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "hittestpath",
+            "source_type" : "gm"
+         },
+         "md5" : "96c65e051902e6944ce4f5e23118f69c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "highcontrastfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "e322bec6c4e9aa058092dfce6ab2d526",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "hardstop_gradients",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "hairmodes",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "hairlines",
+            "source_type" : "gm"
+         },
+         "md5" : "0e561c289ce725e273e85b10e37dfd51",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "squarehair",
+            "source_type" : "gm"
+         },
+         "md5" : "100216f54d3f19757f725b5c9452294b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "grayscalejpg",
+            "source_type" : "gm"
+         },
+         "md5" : "fcd6bcb56c1689fcef28b57c22475bad",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "chrome_gradtext2",
+            "source_type" : "gm"
+         },
+         "md5" : "abaab7c07fc5dfd93e520384dfc05e9a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "chrome_gradtext1",
+            "source_type" : "gm"
+         },
+         "md5" : "abaab7c07fc5dfd93e520384dfc05e9a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradtext",
+            "source_type" : "gm"
+         },
+         "md5" : "abaab7c07fc5dfd93e520384dfc05e9a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_many_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "294114f1f41ea18cbb9a0b2b34f4de6c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_many",
+            "source_type" : "gm"
+         },
+         "md5" : "294114f1f41ea18cbb9a0b2b34f4de6c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_no_texture_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "4d7269dcaea21f99edf5cc270841e1d8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_no_texture",
+            "source_type" : "gm"
+         },
+         "md5" : "4d7269dcaea21f99edf5cc270841e1d8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_2pt_conical_edge_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_2pt_conical_outside_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_2pt_conical_inside_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_2pt_conical_edge",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_2pt_conical_outside",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_2pt_conical_inside",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradient_subpixel_4f",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradient_subpixel",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradient_many_stops_4f",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradient_many_stops",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_dup_color_stops",
+            "source_type" : "gm"
+         },
+         "md5" : "1b1a32615f133402b58e518601186826",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "linear_gradient_tiny_4f",
+            "source_type" : "gm"
+         },
+         "md5" : "30ddbd4d13669f311505632d824307fd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "linear_gradient_tiny",
+            "source_type" : "gm"
+         },
+         "md5" : "30ddbd4d13669f311505632d824307fd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "linear_gradient_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "linear_gradient",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "radial_gradient4_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "radial_gradient4",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "radial_gradient3_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "radial_gradient3",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "radial_gradient2_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "radial_gradient2",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "radial_gradient",
+            "source_type" : "gm"
+         },
+         "md5" : "35bf22f857bb41c66abdeaac81592f08",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clamped_gradients_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "cf8003e38b0da51186eb43a7756bf1d1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clamped_gradients",
+            "source_type" : "gm"
+         },
+         "md5" : "cf8003e38b0da51186eb43a7756bf1d1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "small_color_stop",
+            "source_type" : "gm"
+         },
+         "md5" : "570efab26d04bcd806d1b53fb0ef2521",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_degenerate_2pt_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "a5dc382d75ec46434b313e289c281d8c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_degenerate_2pt",
+            "source_type" : "gm"
+         },
+         "md5" : "a5dc382d75ec46434b313e289c281d8c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_view_perspective_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "cfc351542570a39c1fa68cc57496816b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_view_perspective",
+            "source_type" : "gm"
+         },
+         "md5" : "cfc351542570a39c1fa68cc57496816b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_local_perspective_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_local_perspective",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients4f_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients4f",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradients",
+            "source_type" : "gm"
+         },
+         "md5" : "aa2c54686a156e669c6fd1a8046ef44b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradient_dirty_laundry",
+            "source_type" : "gm"
+         },
+         "md5" : "4d7269dcaea21f99edf5cc270841e1d8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gradient_matrix",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "glyph_pos_align",
+            "source_type" : "gm"
+         },
+         "md5" : "54ab45ed329c9f0bfdefff6e74753459",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "glyph_pos_n_f",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "glyph_pos_h_f",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "glyph_pos_n_s",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "glyph_pos_h_s",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "glyph_pos_n_b",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "glyph_pos_h_b",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_mirror_bilerp_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_repeat_bilerp_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_clamp_bilerp_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_mirror_point_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_repeat_point_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_clamp_point_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_mirror_bilerp_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_repeat_bilerp_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_clamp_bilerp_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_mirror_point_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_repeat_point_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "giantbitmap_clamp_point_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "getpostextpath",
+            "source_type" : "gm"
+         },
+         "md5" : "9e3e48a2677e5d17d040f0e1e253d7d1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gaussianedge",
+            "source_type" : "gm"
+         },
+         "md5" : "a6762fcd85e0abe789979d6db3a4b981",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gamut",
+            "source_type" : "gm"
+         },
+         "md5" : "71af996ccf84e4726eef5e29dfa14090",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gammagradienttext",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gammatext",
+            "source_type" : "gm"
+         },
+         "md5" : "2a99e051c8a0126f2283e6b9bbb2fb40",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "gamma",
+            "source_type" : "gm"
+         },
+         "md5" : "70856f6c9b1eb3f0b3737d4605c96fc2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fontscalerdistortable",
+            "source_type" : "gm"
+         },
+         "md5" : "e2ff9ff702094c906d40d6c0e9c17ab6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fontscaler",
+            "source_type" : "gm"
+         },
+         "md5" : "ad129628d9675979f82fb001b775dfd4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fontmgr_bounds_1_-0.25",
+            "source_type" : "gm"
+         },
+         "md5" : "aee4b90b11d2da078634d85ff78a8231",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fontmgr_bounds_0.75_0",
+            "source_type" : "gm"
+         },
+         "md5" : "aee4b90b11d2da078634d85ff78a8231",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fontmgr_bounds",
+            "source_type" : "gm"
+         },
+         "md5" : "aee4b90b11d2da078634d85ff78a8231",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fontmgr_match",
+            "source_type" : "gm"
+         },
+         "md5" : "8354dcaa18a1ecb52d0895bf00888c44",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fontmgr_iter",
+            "source_type" : "gm"
+         },
+         "md5" : "65ddd328ae389ed8dc804326283604f2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fontcache",
+            "source_type" : "gm"
+         },
+         "md5" : "5d6e1aec686b28bd3839dbcd5caaa8b2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterindiabox",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterfastbounds",
+            "source_type" : "gm"
+         },
+         "md5" : "289fd705a3a7c8f6cb2d485e235e9b7b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbug",
+            "source_type" : "gm"
+         },
+         "md5" : "1e6e2131b545c97d3791e542561874e1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_image_color_wheel.png",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_image_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_image_mandrill_256.png",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_image_mandrill_128.png",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_image_mandrill_64.png_g8",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_image_mandrill_64.png",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_image_mandrill_32.png",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_image_mandrill_16.png",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_checkerboard_192_192",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_checkerboard_32_2",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_checkerboard_32_8",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_checkerboard_32_32_g8",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_checkerboard_32_32",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_checkerboard_4_4",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_text_10.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_text_7.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filterbitmap_text_3.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filltypespersp",
+            "source_type" : "gm"
+         },
+         "md5" : "46e081dfc68c59b9a2ed30c5708f12ac",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "filltypes",
+            "source_type" : "gm"
+         },
+         "md5" : "46e081dfc68c59b9a2ed30c5708f12ac",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fatpathfill",
+            "source_type" : "gm"
+         },
+         "md5" : "b07500770cf6e855a4be94dd0177051e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fadefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "extractbitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "803a5b74ca684def0737fe9d96f6f66e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "etc1",
+            "source_type" : "gm"
+         },
+         "md5" : "b1e27aa018409de6bfd73f8afb883a65",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "encode-srgb-jpg",
+            "source_type" : "gm"
+         },
+         "md5" : "2a99e051c8a0126f2283e6b9bbb2fb40",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "encode-srgb-webp",
+            "source_type" : "gm"
+         },
+         "md5" : "2a99e051c8a0126f2283e6b9bbb2fb40",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "encode-srgb-png",
+            "source_type" : "gm"
+         },
+         "md5" : "2a99e051c8a0126f2283e6b9bbb2fb40",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "encode-platform",
+            "source_type" : "gm"
+         },
+         "md5" : "b877648ed0ef9a7458ad4931f4dbfd11",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "encode",
+            "source_type" : "gm"
+         },
+         "md5" : "fa459553a22acb12718b839e7ef3386c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "emptystroke",
+            "source_type" : "gm"
+         },
+         "md5" : "fe384f668da282694c29a84ebd33481d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "emptypath",
+            "source_type" : "gm"
+         },
+         "md5" : "31793c210e51fb71bf2578d8749fc511",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dstreadshuffle",
+            "source_type" : "gm"
+         },
+         "md5" : "803a5b74ca684def0737fe9d96f6f66e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drrect",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dropshadowimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "3d283316360c56857e7c212cfecbbd83",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawregionmodes",
+            "source_type" : "gm"
+         },
+         "md5" : "3b0db3c5eb3a0bdcf5d9f5cc3538f4a9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawregion",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawminibitmaprect",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawminibitmaprect_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawlooper",
+            "source_type" : "gm"
+         },
+         "md5" : "46da209dbc94a5e986405be4679ce052",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "90aeded9922cf8946ea7858635493724",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawbitmaprect-imagerect-subset",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawbitmaprect-imagerect",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawbitmaprect-subset",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawbitmaprect",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "draw-atlas-colors",
+            "source_type" : "gm"
+         },
+         "md5" : "9bf607f55286e073aeef2fe9588b7315",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawTextRSXform",
+            "source_type" : "gm"
+         },
+         "md5" : "2959e0739c488292d490eb4b6f64803e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "draw-atlas",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "drawable",
+            "source_type" : "gm"
+         },
+         "md5" : "04afd7fb5842d999ccdabc51c95464a3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "draw_bitmap_rect_skbug4734",
+            "source_type" : "gm"
+         },
+         "md5" : "ce338fe6899778aacfc28414f2d9498b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_image_none_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_checkerboard_none_512_256",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_text_none_72.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "2cc88531fa021533b8c7ce8f0dd068a2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_image_low_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_checkerboard_low_512_256",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_text_low_72.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "2cc88531fa021533b8c7ce8f0dd068a2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_image_medium_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_checkerboard_medium_512_256",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_text_medium_72.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "2cc88531fa021533b8c7ce8f0dd068a2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_image_high_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_checkerboard_high_512_256",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "downsamplebitmap_text_high_72.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "2cc88531fa021533b8c7ce8f0dd068a2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "distantclip",
+            "source_type" : "gm"
+         },
+         "md5" : "4e0a293a5b638f0aba2c4fe2c3418d0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "displacement",
+            "source_type" : "gm"
+         },
+         "md5" : "30ddbd4d13669f311505632d824307fd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "discard",
+            "source_type" : "gm"
+         },
+         "md5" : "4e0a293a5b638f0aba2c4fe2c3418d0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dftext",
+            "source_type" : "gm"
+         },
+         "md5" : "d1dd210d6b1312cb342b56d02bd5e651",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "degeneratesegments",
+            "source_type" : "gm"
+         },
+         "md5" : "92fc96f4e58e67e8efef912a1a5e6753",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "deferred_texture_image_medium_decoded_indexed",
+            "source_type" : "gm"
+         },
+         "md5" : "e5ab83f4bd354877f82945564ab591c4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "deferred_texture_image_medium_encoded_indexed",
+            "source_type" : "gm"
+         },
+         "md5" : "e5ab83f4bd354877f82945564ab591c4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "deferred_texture_image_high",
+            "source_type" : "gm"
+         },
+         "md5" : "70f4e1539dccdd447af166f3e276211b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "deferred_texture_image_medium_decoded",
+            "source_type" : "gm"
+         },
+         "md5" : "e022dc6f75c501db24c55a4cdf2a0dbf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "deferred_texture_image_medium_encoded",
+            "source_type" : "gm"
+         },
+         "md5" : "e022dc6f75c501db24c55a4cdf2a0dbf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "deferred_texture_image_low",
+            "source_type" : "gm"
+         },
+         "md5" : "70f4e1539dccdd447af166f3e276211b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "deferred_texture_image_none",
+            "source_type" : "gm"
+         },
+         "md5" : "70f4e1539dccdd447af166f3e276211b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashing5_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "e291ac3471883e055ad057db9c840739",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashing5_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "e291ac3471883e055ad057db9c840739",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashing4",
+            "source_type" : "gm"
+         },
+         "md5" : "ddd9fef126fb2490ce8964f120deca8b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashing3",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashing2",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashing",
+            "source_type" : "gm"
+         },
+         "md5" : "cd4f71b5882a87c39e771dd1f827032a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashtextcaps",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "longwavyline",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "longlinedash",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "longpathdash",
+            "source_type" : "gm"
+         },
+         "md5" : "43d05b71c74f2828f6e035447fcd3ef6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashcubics",
+            "source_type" : "gm"
+         },
+         "md5" : "c8398b69d225b4571da51c5d3b4b0cff",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dashcircle",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clippedcubic2",
+            "source_type" : "gm"
+         },
+         "md5" : "149c30f4e3b4d4262ede0708363ed991",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clippedcubic",
+            "source_type" : "gm"
+         },
+         "md5" : "149c30f4e3b4d4262ede0708363ed991",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "cubicclosepath",
+            "source_type" : "gm"
+         },
+         "md5" : "149c30f4e3b4d4262ede0708363ed991",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "cubicpath",
+            "source_type" : "gm"
+         },
+         "md5" : "149c30f4e3b4d4262ede0708363ed991",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug6083",
+            "source_type" : "gm"
+         },
+         "md5" : "b2fe457348de243a579a1591d3815170",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug5099",
+            "source_type" : "gm"
+         },
+         "md5" : "b85d6fb9ef4260dcf1ce0a1b0bff80d3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "croppedrects",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "crbug_691386",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "copyTo4444",
+            "source_type" : "gm"
+         },
+         "md5" : "b2d1236c286a3c0704224fe4105eca49",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "convex_poly_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "eb0145f2ea18e860146c84b97e9f25dd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "convex_poly_clip",
+            "source_type" : "gm"
+         },
+         "md5" : "7bccac62dbfc262a85493fdd07ed8b8d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "convexpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "17a7275fbbb25b4409b44e04b045dccf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "convex-lineonly-paths-stroke-and-fill",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "convex-lineonly-paths",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "const_color_processor",
+            "source_type" : "gm"
+         },
+         "md5" : "2eec431b46460931898844d6bd838351",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "crbug_640176",
+            "source_type" : "gm"
+         },
+         "md5" : "9fb0528658dee095fd2c90937c8a94de",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "largecircle",
+            "source_type" : "gm"
+         },
+         "md5" : "9fb0528658dee095fd2c90937c8a94de",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "arccirclegap",
+            "source_type" : "gm"
+         },
+         "md5" : "9fb0528658dee095fd2c90937c8a94de",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "conicpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "e9002cfc4de7eaaef01a84d10ca9ce91",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "concavepaths",
+            "source_type" : "gm"
+         },
+         "md5" : "30ddbd4d13669f311505632d824307fd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "composeshader_bitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "f6377a3b2e7ddbb7a1eef713cf8142e3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "composeshader_alpha",
+            "source_type" : "gm"
+         },
+         "md5" : "10b97f696064006c58b5b8689fcbd19a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "composeshader",
+            "source_type" : "gm"
+         },
+         "md5" : "250aa2fcb9e47f0104dbdcfce0a886fc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "composeshader_bitmap2",
+            "source_type" : "gm"
+         },
+         "md5" : "17654ea2aacd9e472094439442bd07a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip4_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip4_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip3_complex",
+            "source_type" : "gm"
+         },
+         "md5" : "3e55a93ac3904ea5f2d1a9864f40e59f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip3_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "3e55a93ac3904ea5f2d1a9864f40e59f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip2_path_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "a8e162add767bf8810e5661132b62a30",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip2_rrect_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "a8e162add767bf8810e5661132b62a30",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip2_rect_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "a8e162add767bf8810e5661132b62a30",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip2_path_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "a8e162add767bf8810e5661132b62a30",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip2_rrect_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "a8e162add767bf8810e5661132b62a30",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip2",
+            "source_type" : "gm"
+         },
+         "md5" : "a8e162add767bf8810e5661132b62a30",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_blur_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_aa_layer_invert",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_aa_layer",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_aa_invert",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_bw_layer_invert",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_bw_layer",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_bw_invert",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "complexclip_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "f74922470b373b3883043babae4aba9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorwheelnative",
+            "source_type" : "gm"
+         },
+         "md5" : "8106083f5f8e7e6b39ff7928ba637a0d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorwheel",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colortype_xfermodes",
+            "source_type" : "gm"
+         },
+         "md5" : "80ec129d645c70cf0de45b1a5a682235",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colortype",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorspacexform",
+            "source_type" : "gm"
+         },
+         "md5" : "d948f712fa329203f590e91cf6dd3e3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colormatrix",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "lightingcolorfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "3471022998867659ec82c1d3d3b196a6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorfiltershader",
+            "source_type" : "gm"
+         },
+         "md5" : "dbb5a92db3d5fb2250da8a4dc4db0ea9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorfilterimagefilter_layer",
+            "source_type" : "gm"
+         },
+         "md5" : "620f0b67a91f7f74151bc5be745b7110",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorfilterimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "17654ea2aacd9e472094439442bd07a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "colorfilteralpha8",
+            "source_type" : "gm"
+         },
+         "md5" : "495776d9b24b9851566c5e5c057ba984",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "coloremoji",
+            "source_type" : "gm"
+         },
+         "md5" : "bf7823a9d1ee2b60fe2f8b853afe25b8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "color4shader",
+            "source_type" : "gm"
+         },
+         "md5" : "b94a50342ad1ea4b9819d3fd3894db2f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "color4f",
+            "source_type" : "gm"
+         },
+         "md5" : "b83492b0bc20dd094e71e7f070ce2ee0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clipped-bitmap-shaders-clamp-hq",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clipped-bitmap-shaders-mirror-hq",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clipped-bitmap-shaders-tile-hq",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clipped-bitmap-shaders-clamp",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clipped-bitmap-shaders-mirror",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clipped-bitmap-shaders-tile",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clip_region",
+            "source_type" : "gm"
+         },
+         "md5" : "ec87a838931d4d5d2e94a04644788a55",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clipdrawdraw",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clip_strokerect",
+            "source_type" : "gm"
+         },
+         "md5" : "e291ac3471883e055ad057db9c840739",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "cliperror",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular-clips",
+            "source_type" : "gm"
+         },
+         "md5" : "d051cff927d4ce28ab72215e43a2fb2b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "onebadarc",
+            "source_type" : "gm"
+         },
+         "md5" : "4e0a293a5b638f0aba2c4fe2c3418d0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_weird",
+            "source_type" : "gm"
+         },
+         "md5" : "da4d373fceba0add41fdc6da01579cae",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_stroke_and_fill_round",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_stroke_and_fill_square",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_stroke_and_fill_butt",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_stroke_round",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_stroke_square",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_stroke_butt",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_hairline",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circular_arcs_fill",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "circles",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "c_gms",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug615686",
+            "source_type" : "gm"
+         },
+         "md5" : "9fb0528658dee095fd2c90937c8a94de",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug591993",
+            "source_type" : "gm"
+         },
+         "md5" : "57d9e53dd55158b3c4b700e01a3764a1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug530095",
+            "source_type" : "gm"
+         },
+         "md5" : "c90f2d5e23184a05212c7cf0071f7e1f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug5252",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bmp_filter_quality_repeat",
+            "source_type" : "gm"
+         },
+         "md5" : "da4d373fceba0add41fdc6da01579cae",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blur2rectsnonninepatch",
+            "source_type" : "gm"
+         },
+         "md5" : "786b5d8f93786e5374dbe6015e5c6138",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blur2rects",
+            "source_type" : "gm"
+         },
+         "md5" : "786b5d8f93786e5374dbe6015e5c6138",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blurs",
+            "source_type" : "gm"
+         },
+         "md5" : "786b5d8f93786e5374dbe6015e5c6138",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "simpleblurroundrect",
+            "source_type" : "gm"
+         },
+         "md5" : "6bde2aa6394fde37e21748bc0578113b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blurroundrect-WH-100x100-unevenCorners",
+            "source_type" : "gm"
+         },
+         "md5" : "4e0a293a5b638f0aba2c4fe2c3418d0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blurredclippedcircle",
+            "source_type" : "gm"
+         },
+         "md5" : "48af98120bccf346caead7937cb219f5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blurrects",
+            "source_type" : "gm"
+         },
+         "md5" : "15a16c0f0e08ef8daa100dabf133e5b1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blurrect_gallery",
+            "source_type" : "gm"
+         },
+         "md5" : "0fef1a92df3240df2eed4758d46e4ddf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blurquickreject",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blurcircles2",
+            "source_type" : "gm"
+         },
+         "md5" : "5adfc737b10c8a2958e70a0a8d922fe2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blurcircles",
+            "source_type" : "gm"
+         },
+         "md5" : "b76033d0667b21a898c168145e84f646",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "blend",
+            "source_type" : "gm"
+         },
+         "md5" : "69eb943fa4b1467ac6c1b079c4028567",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bleed_downscale",
+            "source_type" : "gm"
+         },
+         "md5" : "100216f54d3f19757f725b5c9452294b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bleed_alpha_image_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "dd4124daee64b2e9ec6bf540d75aeb3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bleed_alpha_bmp_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "dd4124daee64b2e9ec6bf540d75aeb3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bleed_alpha_image",
+            "source_type" : "gm"
+         },
+         "md5" : "dd4124daee64b2e9ec6bf540d75aeb3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bleed_alpha_bmp",
+            "source_type" : "gm"
+         },
+         "md5" : "dd4124daee64b2e9ec6bf540d75aeb3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bleed_image",
+            "source_type" : "gm"
+         },
+         "md5" : "dd4124daee64b2e9ec6bf540d75aeb3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bleed",
+            "source_type" : "gm"
+         },
+         "md5" : "dd4124daee64b2e9ec6bf540d75aeb3e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmaptiled_fractional_vertical",
+            "source_type" : "gm"
+         },
+         "md5" : "f744a1bc662c9743837724f53fbe4592",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmaptiled_fractional_horizontal",
+            "source_type" : "gm"
+         },
+         "md5" : "f744a1bc662c9743837724f53fbe4592",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmapshaders",
+            "source_type" : "gm"
+         },
+         "md5" : "570efab26d04bcd806d1b53fb0ef2521",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmaprecttest",
+            "source_type" : "gm"
+         },
+         "md5" : "90aeded9922cf8946ea7858635493724",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bigbitmaprect_i",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bigbitmaprect_s",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "3x3bitmaprect",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmaprect_i",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmaprect_s",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmaprect_rounding",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmap_premul",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmap-image-srgb-legacy",
+            "source_type" : "gm"
+         },
+         "md5" : "b5cfa9d6c8febd618f91ac2843d50a1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "extractalpha",
+            "source_type" : "gm"
+         },
+         "md5" : "acfb77fd76ef8cb12ce472d56a3150b5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmapfilters",
+            "source_type" : "gm"
+         },
+         "md5" : "acfb77fd76ef8cb12ce472d56a3150b5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bitmapcopy",
+            "source_type" : "gm"
+         },
+         "md5" : "acfb77fd76ef8cb12ce472d56a3150b5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bigtileimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bigtext",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "big_rrect_elliptical_corner_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "00cd071479a9f7257df9891a0dabf79a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "big_rrect_circular_corner_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "00cd071479a9f7257df9891a0dabf79a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "big_rrect_ellipse_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "00cd071479a9f7257df9891a0dabf79a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "big_rrect_circle_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "33dc1212c0295901227b891cdccd230b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "big_rrect_rect_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "33dc1212c0295901227b891cdccd230b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bigmatrix",
+            "source_type" : "gm"
+         },
+         "md5" : "b85d6fb9ef4260dcf1ce0a1b0bff80d3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bigblurs",
+            "source_type" : "gm"
+         },
+         "md5" : "157e39521e47ad1c923a94edd69ad59c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "beziers",
+            "source_type" : "gm"
+         },
+         "md5" : "fccdc26d107ea79045bec7688843e2b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bezier_quad_effects",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bezier_conic_effects",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bezier_cubic_effects",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "badpaint",
+            "source_type" : "gm"
+         },
+         "md5" : "4e0a293a5b638f0aba2c4fe2c3418d0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "arithmode",
+            "source_type" : "gm"
+         },
+         "md5" : "fde67deb0554dc5ab97c43fd973ae42a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug583299",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "bug593049",
+            "source_type" : "gm"
+         },
+         "md5" : "e3ce6c3dbab770526346bb2d01b9b423",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "parsedpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "879f4bba57ed37c9ec5e5aedf9864698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "arcto",
+            "source_type" : "gm"
+         },
+         "md5" : "30ddbd4d13669f311505632d824307fd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "arcofzorro",
+            "source_type" : "gm"
+         },
+         "md5" : "90b741f98410e3bb408d92fa49f9c436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "annotated_text",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "anisotropic_hq",
+            "source_type" : "gm"
+         },
+         "md5" : "fdcd3008e5edfa8cef2a57a8d449f9ae",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "animated-image-blurs",
+            "source_type" : "gm"
+         },
+         "md5" : "b6d81b360a5672d80c27430f39153e2c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "animatedGif",
+            "source_type" : "gm"
+         },
+         "md5" : "ff4ddaf64a0729339b5b64eb1b6b08e8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "alphagradients",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "all_variants_8888",
+            "source_type" : "gm"
+         },
+         "md5" : "de7df5bc31206e1e97134d524941c32b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "not_native32_bitmap_config",
+            "source_type" : "gm"
+         },
+         "md5" : "fcd6bcb56c1689fcef28b57c22475bad",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "all_bitmap_configs",
+            "source_type" : "gm"
+         },
+         "md5" : "4c7905d4a36f6f9c456b7e074b52707e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "tinyanglearcs",
+            "source_type" : "gm"
+         },
+         "md5" : "523f9c47f5144b0b696c245d81106459",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "manyarcs",
+            "source_type" : "gm"
+         },
+         "md5" : "523f9c47f5144b0b696c245d81106459",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "fillcircle",
+            "source_type" : "gm"
+         },
+         "md5" : "3eed30f160ca82a700d37829ef0a4df4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "strokecircle",
+            "source_type" : "gm"
+         },
+         "md5" : "3eed30f160ca82a700d37829ef0a4df4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "addarc_meas",
+            "source_type" : "gm"
+         },
+         "md5" : "a5597d0187a54fc04e48d6c39dab2857",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "addarc",
+            "source_type" : "gm"
+         },
+         "md5" : "bcfb59ce610f3f98c336b4f976658d34",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "aaxfermodes",
+            "source_type" : "gm"
+         },
+         "md5" : "fb409a07337a890c132ebe678f86992c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "aarectmodes",
+            "source_type" : "gm"
+         },
+         "md5" : "cf2ef71f4a9e90c2f6013ba3b2257ed2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "clipcubic",
+            "source_type" : "gm"
+         },
+         "md5" : "f955df4eb7c322f4f2c7ccbe0a83cbfd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "aaclip",
+            "source_type" : "gm"
+         },
+         "md5" : "4b992e1f8388fb308ce652623c570ace",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "dont_clip_to_layer",
+            "source_type" : "gm"
+         },
+         "md5" : "250aa2fcb9e47f0104dbdcfce0a886fc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "analytic_antialias_inverse",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "analytic_antialias_general",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "glinst",
+            "name" : "analytic_antialias_convex",
+            "source_type" : "gm"
+         },
+         "md5" : "44dd6be087e12ec2c7b0ef165149090c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      }
+   ]
+}

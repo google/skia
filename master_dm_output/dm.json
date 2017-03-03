@@ -1,0 +1,7385 @@
+{
+   "max_rss_MB" : 303,
+   "results" : [
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "yuv_nv12_to_rgb_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "b34fddeb24924ba3c8dc8469cb4701a6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "yuv_to_rgb_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "0b955f387740c66eb23bf0e253c80d64",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "xfermodes3",
+            "source_type" : "gm"
+         },
+         "md5" : "4e241b1838db606765ef1b7c4ad5ddd5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "xfermodes2",
+            "source_type" : "gm"
+         },
+         "md5" : "766551a7ff15f731b34bafcf62f667ee",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "xfermodes",
+            "source_type" : "gm"
+         },
+         "md5" : "74f00d5fdefdac369b926ddaa6816f77",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "xfermodeimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "4b30993e147f10c669b7816938cc21cc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "windowrectangles_mask",
+            "source_type" : "gm"
+         },
+         "md5" : "af041e806e1ddfbf8319a1a5bf52f1cf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "windowrectangles",
+            "source_type" : "gm"
+         },
+         "md5" : "ed4db24f4658a56c8015628aaf6168eb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "verylarge_picture_image",
+            "source_type" : "gm"
+         },
+         "md5" : "cbf15c65640c4dadf013fa4ff01248ec",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "verylargebitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "0284e71e6268ccfaad63c13899f4c42a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "verttext2",
+            "source_type" : "gm"
+         },
+         "md5" : "d41f39392ae969892218a4be08e68fed",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "verttext",
+            "source_type" : "gm"
+         },
+         "md5" : "14953ad582bfe7284cc744e5bc71e659",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "vertices_batching",
+            "source_type" : "gm"
+         },
+         "md5" : "f6a9b019c1d393741bf8f9d7926389bd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "vertices_scaled_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "4db5f159cd3f25bb2abb9470b3c8c6dc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "vertices",
+            "source_type" : "gm"
+         },
+         "md5" : "4db5f159cd3f25bb2abb9470b3c8c6dc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "vertices_object",
+            "source_type" : "gm"
+         },
+         "md5" : "4db5f159cd3f25bb2abb9470b3c8c6dc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "varied_text_clipped_lcd",
+            "source_type" : "gm"
+         },
+         "md5" : "18314515ffee801ad2dcf4d5c4b2cf2f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "varied_text_ignorable_clip_lcd",
+            "source_type" : "gm"
+         },
+         "md5" : "d7191b1eab0c3b830a01b955d46a4be6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "varied_text_clipped_no_lcd",
+            "source_type" : "gm"
+         },
+         "md5" : "4f05fd92ae3421421db3ca66fd181d75",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "varied_text_ignorable_clip_no_lcd",
+            "source_type" : "gm"
+         },
+         "md5" : "abf8ec09c80123bea6dbc735da979ca5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "typefacerendering_pfb",
+            "source_type" : "gm"
+         },
+         "md5" : "877f256130c8c062f96c21301785a2e1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "typefacerendering_pfa",
+            "source_type" : "gm"
+         },
+         "md5" : "877f256130c8c062f96c21301785a2e1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "typefacerendering",
+            "source_type" : "gm"
+         },
+         "md5" : "8deb89761372e54df4add124ec9f6f58",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "typefacestyles_kerning",
+            "source_type" : "gm"
+         },
+         "md5" : "5dadc03d069b65f9f71735fe19206d96",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "typefacestyles",
+            "source_type" : "gm"
+         },
+         "md5" : "72cec5ecfbcb16b9ded2f575cbbbe482",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "transparency_check",
+            "source_type" : "gm"
+         },
+         "md5" : "14e04c5b684acfa131dc08fe6546086e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tinybitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "97760457031fb17ca00d8ba3fbba2fa3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "scaled_tilemode_gradient",
+            "source_type" : "gm"
+         },
+         "md5" : "34ffbb781b835c5fd37f8953346f9f16",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "scaled_tilemode_bitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "b7a8925ec56f41ff483e21d98cd0fa7d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "scaled_tilemodes_npot",
+            "source_type" : "gm"
+         },
+         "md5" : "059b71265f0178b288ddfd27e81b4e7f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "scaled_tilemodes",
+            "source_type" : "gm"
+         },
+         "md5" : "a46c797366bde33d85ef67e677a66ac2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tilemode_gradient",
+            "source_type" : "gm"
+         },
+         "md5" : "34ffbb781b835c5fd37f8953346f9f16",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tilemode_bitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "b7a8925ec56f41ff483e21d98cd0fa7d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tilemodes_npot",
+            "source_type" : "gm"
+         },
+         "md5" : "97fa5f4a7046a3d39dcf4c1df591ccf1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tilemodes",
+            "source_type" : "gm"
+         },
+         "md5" : "5c521825f2cceb5b087a97d13147873b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tileimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "d73fc9088cbcb9d005ae739ddf21b4c3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tiledscaledbitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "971c988358124020602bec5490af201f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "thinstrokedrects",
+            "source_type" : "gm"
+         },
+         "md5" : "0e744d357686a3fccb2d0e16f1ab71d5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "thinrects",
+            "source_type" : "gm"
+         },
+         "md5" : "0e8092d2202236a9ca4f1883ce77a8c9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "thinconcavepaths",
+            "source_type" : "gm"
+         },
+         "md5" : "993fc26018dcf9fa4fdd3bc05687fbf6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "texture_domain_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "3777e37db977ec8e80f26272fea96343",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fancyunderlinebars",
+            "source_type" : "gm"
+         },
+         "md5" : "a52111554476e73060cd3af2f8c85b1e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fancyblobunderline",
+            "source_type" : "gm"
+         },
+         "md5" : "b25e1b78b364c314e603492a3796a274",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fancyposunderline",
+            "source_type" : "gm"
+         },
+         "md5" : "2eef9c805680f0e042245d7074b5e92a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fancyunderline",
+            "source_type" : "gm"
+         },
+         "md5" : "899c9db4f42144385f009c611e466364",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "texteffects",
+            "source_type" : "gm"
+         },
+         "md5" : "979773645595b45d5ec83f90184e99d6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobuseaftergpufree",
+            "source_type" : "gm"
+         },
+         "md5" : "4e93b341a64ba71d715da54615261cf8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobtransforms",
+            "source_type" : "gm"
+         },
+         "md5" : "ab87198e89f37d7cc3d4930c62925994",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobshader",
+            "source_type" : "gm"
+         },
+         "md5" : "382966f98b878533f2d62dbacb1bbce2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobrandomfont",
+            "source_type" : "gm"
+         },
+         "md5" : "3b27ed0afff9c04fb691752840143d54",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobmixedsizes_df",
+            "source_type" : "gm"
+         },
+         "md5" : "ecc8385e522dbdd686869611cf250a39",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobmixedsizes",
+            "source_type" : "gm"
+         },
+         "md5" : "6611c50b9e375d00e64906b3f4922dd8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textbloblooper",
+            "source_type" : "gm"
+         },
+         "md5" : "8ff78a3ae1ab463c882c1e98b8220f95",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobgeometrychange",
+            "source_type" : "gm"
+         },
+         "md5" : "f86ff6092f5f3b93c4f9e6863356a543",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobcolortrans",
+            "source_type" : "gm"
+         },
+         "md5" : "9245789ed744fc97a8cd6ad1c6ebf7ca",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblobblockreordering",
+            "source_type" : "gm"
+         },
+         "md5" : "21d912d1c4b78ecfb2be48d81f533033",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textblob",
+            "source_type" : "gm"
+         },
+         "md5" : "88e998632c8ac980667a7d497c127eee",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "texdata",
+            "source_type" : "gm"
+         },
+         "md5" : "9583696b801801a97cfb2725cc87bd59",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "testgradient",
+            "source_type" : "gm"
+         },
+         "md5" : "e072588c9b4a99d1eda63b162bfaf19b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tall_stretched_bitmaps",
+            "source_type" : "gm"
+         },
+         "md5" : "16c17958e7c13fceb880df388c88d039",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorcomposefilter_alpha",
+            "source_type" : "gm"
+         },
+         "md5" : "6396f0877965b9df8c922c9cda03e185",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorcomposefilter_wacky",
+            "source_type" : "gm"
+         },
+         "md5" : "fc29ef2baf12aaa2c5df2564cad1f5ff",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tablecolorfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "fef0538ffcba96d91546089c3cc37718",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "surfacenew",
+            "source_type" : "gm"
+         },
+         "md5" : "fdb743393bf16b3af77c03ee032d5a0e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "surfaceprops",
+            "source_type" : "gm"
+         },
+         "md5" : "b1649fdeda34ee6a44020223a3869929",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmap_subset_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "ffb06bf6b3e751fe1ff08f82e4a11a24",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "stroketext",
+            "source_type" : "gm"
+         },
+         "md5" : "4dc4da337b40f44529d6329331141e4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "teenyStrokes",
+            "source_type" : "gm"
+         },
+         "md5" : "359715f0e633e1aa215bc1c046203299",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "zeroPath",
+            "source_type" : "gm"
+         },
+         "md5" : "ae8fe9ea80e8dd9af7f048945e5048dc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "zero_control_stroke",
+            "source_type" : "gm"
+         },
+         "md5" : "f1329b2b4d789598b33588f893b7d022",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokes_zoomed",
+            "source_type" : "gm"
+         },
+         "md5" : "02473a1b3a0dca21038e3416ded8206f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokes3",
+            "source_type" : "gm"
+         },
+         "md5" : "ab56da71ffbbf51441d07e5433912dd9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokes_poly",
+            "source_type" : "gm"
+         },
+         "md5" : "3af73bf8be0f9b28d21df8a22cbead7f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokes_round",
+            "source_type" : "gm"
+         },
+         "md5" : "bf1cf0411389c8b7372b043db1ced051",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "quadcap",
+            "source_type" : "gm"
+         },
+         "md5" : "afd96fa9664247fb173de3318ae198a2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "zerolinestroke",
+            "source_type" : "gm"
+         },
+         "md5" : "44a1adf39edfb0c2c2c3bd325fe65b32",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "CubicStroke",
+            "source_type" : "gm"
+         },
+         "md5" : "7bb0194941645e8edf08ddf9ef46b3df",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokerects",
+            "source_type" : "gm"
+         },
+         "md5" : "a34222448726eab1ed33badbd73bab5a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokerect_anisotropic_5408",
+            "source_type" : "gm"
+         },
+         "md5" : "bee49e656ce5beb8917810843b6cf933",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokerect",
+            "source_type" : "gm"
+         },
+         "md5" : "cd8676d618e9ab024bc81d1a5f2dcc48",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug339297",
+            "source_type" : "gm"
+         },
+         "md5" : "24a3247d2620f6621f4f38967c4c78e0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "stroke-fill",
+            "source_type" : "gm"
+         },
+         "md5" : "8d7ea111fa7f809fb925f02768d1cd28",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokedlines",
+            "source_type" : "gm"
+         },
+         "md5" : "64735e690b922b54af48ba3d1dfb3a35",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "stroke_rect_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "0d7af86ec7261a1bf140612f334abe89",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "stringart",
+            "source_type" : "gm"
+         },
+         "md5" : "10e63d031aeac027ce6c515b971d77e6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "stlouisarch",
+            "source_type" : "gm"
+         },
+         "md5" : "e9167110f5a484619c2a5d1ed95e2709",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "srcmode",
+            "source_type" : "gm"
+         },
+         "md5" : "b52c82996053c0e5bbbaaf22f8583698",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "spritebitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "878453efe19e0a325b3733d5eb1454a3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "smallpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "17d89395d871fc697893f42c37bbb0a1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "small_image",
+            "source_type" : "gm"
+         },
+         "md5" : "dd588af1376f9464f4093d8c4473e14e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "smallarc",
+            "source_type" : "gm"
+         },
+         "md5" : "fd7673b8548a74c3e8861bfad03b209b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "linear_pipeline",
+            "source_type" : "gm"
+         },
+         "md5" : "6200a73b0391b4f11d8699b4a7daa305",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "skbug1719",
+            "source_type" : "gm"
+         },
+         "md5" : "3904be987e377ca84c10360edec24450",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "skbug_5321",
+            "source_type" : "gm"
+         },
+         "md5" : "2a0f8be3a0e6bb4bfda8c9ae2fe912fa",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "skbug_4868",
+            "source_type" : "gm"
+         },
+         "md5" : "2cf9561cb7f133a278209d02606e3743",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "skbug_257",
+            "source_type" : "gm"
+         },
+         "md5" : "0562a13eb995feb7848c7d72d44cb47e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simplerect",
+            "source_type" : "gm"
+         },
+         "md5" : "63964988c9450e83b358292ca415054f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simple-magnification",
+            "source_type" : "gm"
+         },
+         "md5" : "f9a17b0865173c8af68928b07712dae8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simpleaaclip_aaclip",
+            "source_type" : "gm"
+         },
+         "md5" : "8e49e2e824af488de56c5090261be115",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simpleaaclip_path",
+            "source_type" : "gm"
+         },
+         "md5" : "31e37763b4473d85ef344326d1b4f2c1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simpleaaclip_rect",
+            "source_type" : "gm"
+         },
+         "md5" : "dcc99f0de1673a63cc0c8dc4b7e69814",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "showmiplevels2_256x256",
+            "source_type" : "gm"
+         },
+         "md5" : "4a1ce3bba5eb1f6fe225524e992f08fe",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "showmiplevels2_255x256",
+            "source_type" : "gm"
+         },
+         "md5" : "76e690f28f47aeb790d859e92518e7e9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "showmiplevels2_256x255",
+            "source_type" : "gm"
+         },
+         "md5" : "70fec2e36b96e4611a4ad3fca475c460",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "showmiplevels2_255x255",
+            "source_type" : "gm"
+         },
+         "md5" : "f2ca3cdb6deee73a8c43143d82de12dc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "showmiplevels_256",
+            "source_type" : "gm"
+         },
+         "md5" : "b7ee507965c0d62bd39c12131d3bb19c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "showmiplevels_255",
+            "source_type" : "gm"
+         },
+         "md5" : "6360ad4e5d4384bfdd0a57f8b53f3e15",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "innershapes_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "156eedea9ab6925f4e305227f51601d6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "innershapes",
+            "source_type" : "gm"
+         },
+         "md5" : "771371fe12a87cf063d5e2b746a45b8b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simpleshapes_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "d6a715bed6665f825f47810ef2454969",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simpleshapes",
+            "source_type" : "gm"
+         },
+         "md5" : "9017dbe005b86f02505b0a51f288f28f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shallow_gradient_sweep_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "cbeedcfb954cebfd73c9fe446ebbc1e2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shallow_gradient_conical_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "dbeedfa4e9cc1a36bb0f55221021a43b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shallow_gradient_radial_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "5611f833ae245e2cf3050d1d5e60f303",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shallow_gradient_linear_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "330a093abfa68c6869f732e9ba895517",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shallow_gradient_sweep",
+            "source_type" : "gm"
+         },
+         "md5" : "96b180a7a8eb5dd2e6b2cbc88fd291c3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shallow_gradient_conical",
+            "source_type" : "gm"
+         },
+         "md5" : "cd4be7d3415ace49ceb5ffb212335c8f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shallow_gradient_radial",
+            "source_type" : "gm"
+         },
+         "md5" : "ad5238555f361e9a33dc53503c466d39",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shallow_gradient_linear",
+            "source_type" : "gm"
+         },
+         "md5" : "807a86da3e9e712445769628592fa068",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shadow_utils",
+            "source_type" : "gm"
+         },
+         "md5" : "6b79645a70f8e096de5f9f299896d09c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shadows",
+            "source_type" : "gm"
+         },
+         "md5" : "baa792460b61dc7a548e58abf8e9ba93",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shadertext3",
+            "source_type" : "gm"
+         },
+         "md5" : "b4390390d0a4bec60cda52d7ad2bd33d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shadertext2",
+            "source_type" : "gm"
+         },
+         "md5" : "10b7c927e55f39dbe5f16d797fe18beb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shadertext",
+            "source_type" : "gm"
+         },
+         "md5" : "105f21e43c486b2dd05d3ac9c0db238d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "shaderbounds_linear",
+            "source_type" : "gm"
+         },
+         "md5" : "cf86a4ce1790db9c35d29edbc72a6fb7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "scaledstrokes",
+            "source_type" : "gm"
+         },
+         "md5" : "fea25c2fa4f2220994c9135998aa5c75",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "savelayer_initfromprev",
+            "source_type" : "gm"
+         },
+         "md5" : "832f04f1ebf934fde4da4c3eb3695aa7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "picture_savelayer",
+            "source_type" : "gm"
+         },
+         "md5" : "dfc81ec347b7c9984c2fb82a32491721",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "savelayer_clipped",
+            "source_type" : "gm"
+         },
+         "md5" : "d71bccf0d17d5edb3a3fbf3536c8c2ed",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "savelayer_unclipped",
+            "source_type" : "gm"
+         },
+         "md5" : "d71bccf0d17d5edb3a3fbf3536c8c2ed",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gpusamplerstress",
+            "source_type" : "gm"
+         },
+         "md5" : "4d33a94f793e3bcfd6fc60bd94e39d4f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rrect_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "16b4e3eef02bc277f7b6feabb2d3a666",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rrect_clip_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "98e10348cf5bf61aa5bcfbbbf1053834",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rrect_clip_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "e9855a42a48cd52cf0036fca10dc3ac4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rrect_draw_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "98e10348cf5bf61aa5bcfbbbf1053834",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rrect_draw_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "9e3b7d3b004643c3bbe049362636458f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rrect_clip_draw_paint",
+            "source_type" : "gm"
+         },
+         "md5" : "d5097d51bb7df3d02d995f8481019ed0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rrect",
+            "source_type" : "gm"
+         },
+         "md5" : "903690c064ad1a78e45e10df53e36a6f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "roundrects",
+            "source_type" : "gm"
+         },
+         "md5" : "9733da14910b62ce9119d78de6cfe590",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "reveal",
+            "source_type" : "gm"
+         },
+         "md5" : "22acd985c119c54eeb4575b2be7b03ca",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "resizeimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "5e86437f7b83b659e4f07298a31b21d5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "repeated_bitmap_jpg",
+            "source_type" : "gm"
+         },
+         "md5" : "cdcdfa7dfb31f4dc9a3d10c7aa00623b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "repeated_bitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "a1f212f354fc533358cedaa2e00831b1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rects",
+            "source_type" : "gm"
+         },
+         "md5" : "60ab2a036ef45ee75af46182d6ac404c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rectangle_texture",
+            "source_type" : "gm"
+         },
+         "md5" : "a883e72730efa9510945246680421695",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "recordopts",
+            "source_type" : "gm"
+         },
+         "md5" : "db29c2094ef11eb0c01f0c565edbee8f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "readpixelspicture",
+            "source_type" : "gm"
+         },
+         "md5" : "7312039ea10fda70c6f0c2e53b02dcd1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "readpixelscodec",
+            "source_type" : "gm"
+         },
+         "md5" : "833c57ffe751f395825305ad7b2ba442",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "readpixels",
+            "source_type" : "gm"
+         },
+         "md5" : "aa0453d99e2ef6bdae3f25475fef2358",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "quadclosepath",
+            "source_type" : "gm"
+         },
+         "md5" : "c344e964d83bf597432ce1202cfa219f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "quadpath",
+            "source_type" : "gm"
+         },
+         "md5" : "6d7235754929d8aa4da3869c10456890",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "polygons",
+            "source_type" : "gm"
+         },
+         "md5" : "d3261e8870a52ba434f3ba2f0b95a42f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "poly2poly",
+            "source_type" : "gm"
+         },
+         "md5" : "07308562daac4d8157056a6e33d558bb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "points",
+            "source_type" : "gm"
+         },
+         "md5" : "0591a2722d9ee4fe4374b5c8914be946",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "PlusMergesAA",
+            "source_type" : "gm"
+         },
+         "md5" : "a2294fac8e4ec6041ea5323e3a8a015c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pixel_snap_combo",
+            "source_type" : "gm"
+         },
+         "md5" : "961480a2e1ed71828dbfe4daf40fd916",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pixel_snap_rect",
+            "source_type" : "gm"
+         },
+         "md5" : "e417e8b7109957dd40a0c4988a555e5d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pixel_snap_line",
+            "source_type" : "gm"
+         },
+         "md5" : "ff2eada8c956fa96cb3cb2935cd023ba",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pixel_snap_point",
+            "source_type" : "gm"
+         },
+         "md5" : "2107abd18eba3f1a827428e3d2025927",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pictureshadertile",
+            "source_type" : "gm"
+         },
+         "md5" : "8d73597a03a19228f375827681ee1c1c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tiled_picture_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "976b29d430ca31904b67cbfe1beabcfd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pictureshader",
+            "source_type" : "gm"
+         },
+         "md5" : "89cb312b1dbbf7869be025eccf76088f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pictureimagegenerator",
+            "source_type" : "gm"
+         },
+         "md5" : "3565a4409e6dcd628dceb6939b71379f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pictureimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "fee48d0a682238a524c7febf7ab94d63",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pictures",
+            "source_type" : "gm"
+         },
+         "md5" : "641f8498d7cb3e1644ff3f0940515e69",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "persp_shaders_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "cb563157be533672e095aa69d3e3f4a5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "persp_shaders_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "47ed9494c9eb23a24fe5cee7d6d3b8c2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "perlinnoise_localmatrix",
+            "source_type" : "gm"
+         },
+         "md5" : "05b7b5f65facdb8ec74b65ebdc961570",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "perlinnoise",
+            "source_type" : "gm"
+         },
+         "md5" : "11891edd61df447a7b29014005bc61b1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pdf_never_embed",
+            "source_type" : "gm"
+         },
+         "md5" : "2de3aca0615f79ecb9cdc1b1fbb43820",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "path-reverse",
+            "source_type" : "gm"
+         },
+         "md5" : "4cdf15e394b61a6ab5f9acfcf9af4760",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pathopsskpclip",
+            "source_type" : "gm"
+         },
+         "md5" : "6e7d50203cb40fa6469258d7f0e15eb4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pathopsinverse",
+            "source_type" : "gm"
+         },
+         "md5" : "8e9f050c887b4baafad3a20d481fd709",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "path_mask_cache",
+            "source_type" : "gm"
+         },
+         "md5" : "bb2e218d3d6c5b2829f4c907dea875c6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pathinterior",
+            "source_type" : "gm"
+         },
+         "md5" : "da0fe98450bae15fd1f9dcc355828eb0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pathinvfill",
+            "source_type" : "gm"
+         },
+         "md5" : "352996392dc02b0802dd47e1dd8997be",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "pathfill",
+            "source_type" : "gm"
+         },
+         "md5" : "8c5b1aaae321a689f3a9db1e4c4a7fd6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rotatedcubicpath",
+            "source_type" : "gm"
+         },
+         "md5" : "52809105e3363a555dd270620e0fb18b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "patheffect",
+            "source_type" : "gm"
+         },
+         "md5" : "3712056621164947e692917d69e8ea80",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "contour_start",
+            "source_type" : "gm"
+         },
+         "md5" : "31fe5acbfb03b60b1b4a1130d6258479",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "path_stroke_with_zero_length",
+            "source_type" : "gm"
+         },
+         "md5" : "caee52f08e7847f7322fc61d0937e29c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "patch_grid",
+            "source_type" : "gm"
+         },
+         "md5" : "31fc11def1532a095eced25af796c77c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "patch_primitive",
+            "source_type" : "gm"
+         },
+         "md5" : "4234c67181d3c385159abfbaf4e441d9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "OverStroke",
+            "source_type" : "gm"
+         },
+         "md5" : "f1559386efc1cd286abaf997458d2f9b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "overdrawcolorfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "8e89bfd4703b0152b67bef95cd9341b7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "ovals",
+            "source_type" : "gm"
+         },
+         "md5" : "e9bd84df3a13fda8900b66d02e9fa452",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simple-offsetimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "8544b2512207053d620c26e06720db50",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "offsetimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "13c2640a331149e3bcbd786d14b74636",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "occludedrrectblur",
+            "source_type" : "gm"
+         },
+         "md5" : "8d7b028fa4e9505eec838bc43db875bf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "nonclosedpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "7aa1a43e1e4239d1936147362b8a6a0f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "ninepatch-stretch",
+            "source_type" : "gm"
+         },
+         "md5" : "ba2ff4667bc32822027168420e10caae",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "nested_flipY_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "0590f84272734c5dfa467ca38eed6196",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "nested_flipY_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "645a5f25ffbcf0eae8ae5ee16381a5d9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "nested_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "0590f84272734c5dfa467ca38eed6196",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "nested_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "645a5f25ffbcf0eae8ae5ee16381a5d9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_biglayer_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "0fa972f7ef3f6c685295c047c2a9f9c0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_sierpinski_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "bc40ea236db2f374861ab76da68433aa",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_invpathclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "96cb1a3200ff18fd10c6ab134283444c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_pathclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "15f35431525b27b3e787f84acb91d427",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_rrectclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "e20a3f57aa814b31251ea60469ed6c00",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_rectclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "cd9015dda214f1e91591047ea30d2fae",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_noclip_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "19458fddc584c14ead99f172301332d8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_biglayer_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "5c8dc492eb31172d339d585cf4b56754",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_sierpinski_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "687b08db18a911a8a441dc0c921ba3cc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_invpathclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "b3c493c88e06c55c6f00e5ab5bf4bdb5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_pathclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "015b27280ea3f8606c68d35cc318bb53",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_rrectclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "e51b6c5b9a31b7dbef8d38f8a976deea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_rectclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "1d13a75537e0726e4b9f78cf6a932ad6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "multipicturedraw_noclip_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "647e01ec18257ae6b14d1a338cba524d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "morphology",
+            "source_type" : "gm"
+         },
+         "md5" : "9f0f9adbd762586b579f4dfb94c8dc58",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "modecolorfilters",
+            "source_type" : "gm"
+         },
+         "md5" : "9b212d58fc5f806ab2a676330d0c5de0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "mixedtextblobs",
+            "source_type" : "gm"
+         },
+         "md5" : "bbdabef69d2b7e91e2c01ccd70ccf4e0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "mipmap_gray8_srgb",
+            "source_type" : "gm"
+         },
+         "md5" : "e4574949dd20c1d110d81902b779b490",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "mipmap_srgb",
+            "source_type" : "gm"
+         },
+         "md5" : "2093949cc162589a7a635ff3e2013260",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "mipmap",
+            "source_type" : "gm"
+         },
+         "md5" : "6637f02dc9c12a28b73ecd05cca5fd3f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "megalooper_1x4",
+            "source_type" : "gm"
+         },
+         "md5" : "5f2da0fe4dd2f41e51eefba1dfd3ca91",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "megalooper_4x1",
+            "source_type" : "gm"
+         },
+         "md5" : "5f2da0fe4dd2f41e51eefba1dfd3ca91",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "megalooper_0x0",
+            "source_type" : "gm"
+         },
+         "md5" : "5f2da0fe4dd2f41e51eefba1dfd3ca91",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "matriximagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "85ec405c09143f51b2c4465a1317b8d6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "matrixconvolution_color",
+            "source_type" : "gm"
+         },
+         "md5" : "b5ef2dee1015323ab854e406d86de542",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "matrixconvolution",
+            "source_type" : "gm"
+         },
+         "md5" : "7faa62b4e2b6ff9471883d278385b7d4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "manyrrects",
+            "source_type" : "gm"
+         },
+         "md5" : "85c8aac4a30812c17501a3e4cf648bee",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "manycircles",
+            "source_type" : "gm"
+         },
+         "md5" : "9e38957d8193ef562871b56c25cd40fb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lumafilter",
+            "source_type" : "gm"
+         },
+         "md5" : "577d3920288721acf5a5ca5953ad7327",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "localmatriximagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "e6e31af11b5404637fc4f12a7f6fa34e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lineclosepath",
+            "source_type" : "gm"
+         },
+         "md5" : "3242b2868e1854bc3f87034941da9dfd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "linepath",
+            "source_type" : "gm"
+         },
+         "md5" : "c6491b8934a0f960d65bb2b3f6b1e5d2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lightingshaderbevel",
+            "source_type" : "gm"
+         },
+         "md5" : "5bb23e63cf387c9df399efffb8866954",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lightingshader2",
+            "source_type" : "gm"
+         },
+         "md5" : "86098a08fa80783bff7637c235625b5b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lightingshader",
+            "source_type" : "gm"
+         },
+         "md5" : "cffa676d14fcd34ed1099cf7896aab64",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lighting",
+            "source_type" : "gm"
+         },
+         "md5" : "6a7c8545ea87df33ad4f7a9f1b705f77",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "savelayer_lcdtext",
+            "source_type" : "gm"
+         },
+         "md5" : "bf379f9beb08fa072a231ccec3743acc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lcdtextsize",
+            "source_type" : "gm"
+         },
+         "md5" : "78547151d9c0454f664f827b59443238",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lcdtext",
+            "source_type" : "gm"
+         },
+         "md5" : "6578142ec420ab3442902c2ed95ee9d9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lcdoverlap",
+            "source_type" : "gm"
+         },
+         "md5" : "a65009ea2505b48d2edd1b5ee91fb1cf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lcdblendmodes",
+            "source_type" : "gm"
+         },
+         "md5" : "26da7d8cd3f01ece3e40434c0ec9a8bc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lattice",
+            "source_type" : "gm"
+         },
+         "md5" : "ff3907b643c596f9ff1c2085c8c56526",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "largeglyphblur",
+            "source_type" : "gm"
+         },
+         "md5" : "489e5785a7d275b4b7cff778e631e184",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "inverse_paths",
+            "source_type" : "gm"
+         },
+         "md5" : "e53ba87ebe14c27e022afb87cc151226",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "internal_links",
+            "source_type" : "gm"
+         },
+         "md5" : "67511b2b66551e9641c64eab340e0d85",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image_to_yuv_planes",
+            "source_type" : "gm"
+         },
+         "md5" : "d7677900709aeb6ec0c649efc2ec55e6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagesrc2_high",
+            "source_type" : "gm"
+         },
+         "md5" : "8c6efb0b9402ad0d5407ab9ea934da88",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagesrc2_med",
+            "source_type" : "gm"
+         },
+         "md5" : "8c6efb0b9402ad0d5407ab9ea934da88",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagesrc2_low",
+            "source_type" : "gm"
+         },
+         "md5" : "9dcdbbb835b6f6a613a0de660bcd7574",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagesrc2_none",
+            "source_type" : "gm"
+         },
+         "md5" : "d14e842578662f0bd59e862728097071",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagesource",
+            "source_type" : "gm"
+         },
+         "md5" : "9a6a228b2f5c61ea6cede1399c5df78e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image_scale_aligned",
+            "source_type" : "gm"
+         },
+         "md5" : "fdd8c91d33c4f92a6f69af6980540c27",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imageresizetiled",
+            "source_type" : "gm"
+         },
+         "md5" : "3145a906bbdd9e8e391b2bbfd3d54f86",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagemasksubset",
+            "source_type" : "gm"
+         },
+         "md5" : "4dee0e007b8c75fc3d0092869a72e624",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagemakewithfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "3ad1f31c999e45b31012aa688c709541",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagemagnifier_cropped",
+            "source_type" : "gm"
+         },
+         "md5" : "7978948ebb57364c1450dda17ebc940f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagemagnifier",
+            "source_type" : "gm"
+         },
+         "md5" : "513da95ad144580f99852b734765c8ed",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image_from_yuv_textures",
+            "source_type" : "gm"
+         },
+         "md5" : "4f784bdc54ffe60e2bcf672a21b5b1b5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "rotate_imagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "773394e18440f9415cdf8b7d9fc2214d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefilterstransformed",
+            "source_type" : "gm"
+         },
+         "md5" : "34b4c90842601842b542f9a9b7468334",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefiltersstroked",
+            "source_type" : "gm"
+         },
+         "md5" : "7819e23be186bce15f0ac32d982472c2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefiltersscaled",
+            "source_type" : "gm"
+         },
+         "md5" : "c99028e42a3f0df49261c4fc4e95c2bf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefiltersgraph",
+            "source_type" : "gm"
+         },
+         "md5" : "02e87b1d70b2b491a823ac698fae33f7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefilterscropped",
+            "source_type" : "gm"
+         },
+         "md5" : "35979aebb0015e9513859de7ef368771",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefilterscropexpand",
+            "source_type" : "gm"
+         },
+         "md5" : "383e3517b349193805c3375510cfcddd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefiltersclipped",
+            "source_type" : "gm"
+         },
+         "md5" : "70b777da9a0d8eb1a9e03107578613b1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textfilter_color",
+            "source_type" : "gm"
+         },
+         "md5" : "58b499ba31ec04b6ddf4a55d89aa29ab",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "textfilter_image",
+            "source_type" : "gm"
+         },
+         "md5" : "0e7fc1097925994cb33028f7a613fd67",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefiltersbase",
+            "source_type" : "gm"
+         },
+         "md5" : "4367be9c5516002de76a332a989e88bf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "savelayer_with_backdrop",
+            "source_type" : "gm"
+         },
+         "md5" : "72a7d95a06dd7577412f83c2d243769f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fast_slow_blurimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "2f16afc2b3587923eb5483e7af0d113d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagefilters_xfermodes",
+            "source_type" : "gm"
+         },
+         "md5" : "281b5b59a14798a89ec0ffe75c7764ae",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imageblurtiled",
+            "source_type" : "gm"
+         },
+         "md5" : "f98f12e955ea647750b503f773a05725",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imageblur2",
+            "source_type" : "gm"
+         },
+         "md5" : "0725794d8ed3a89fea41f902cb37ecde",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imageblur_large",
+            "source_type" : "gm"
+         },
+         "md5" : "00b36230666e61bc022ba0bd4f936c7f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imageblur",
+            "source_type" : "gm"
+         },
+         "md5" : "1b2e4f651ff5b4010bcedbc20ae97561",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagealphathreshold_surface",
+            "source_type" : "gm"
+         },
+         "md5" : "91a1aae03f5cc98d447c1dfb0a591656",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagealphathreshold",
+            "source_type" : "gm"
+         },
+         "md5" : "810d5c41ad7d826510cbb321bf8a9d4d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "imagealphathreshold_crop",
+            "source_type" : "gm"
+         },
+         "md5" : "91a1aae03f5cc98d447c1dfb0a591656",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image-shader",
+            "source_type" : "gm"
+         },
+         "md5" : "81ec6c3674706b10d47b0538f143a384",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image-cacherator-from-texture",
+            "source_type" : "gm"
+         },
+         "md5" : "e8ea05092410a820469fd56683d08e19",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image-cacherator-from-ctable",
+            "source_type" : "gm"
+         },
+         "md5" : "87b25e2443596f00aa75de400ca7aea7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image-cacherator-from-raster",
+            "source_type" : "gm"
+         },
+         "md5" : "b9adf4add557bca2755588d7458ff487",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image-cacherator-from-picture",
+            "source_type" : "gm"
+         },
+         "md5" : "d01f2fe1b5f90ef5f35bb966bd9306f9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image-picture",
+            "source_type" : "gm"
+         },
+         "md5" : "978936934a7ea88ce1d73e2f76e59477",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "new_texture_image",
+            "source_type" : "gm"
+         },
+         "md5" : "0e9c49cdae6d1ca2ebbbbd7e8f3e0f63",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "scale-pixels",
+            "source_type" : "gm"
+         },
+         "md5" : "08fdca224a401af269ec9f58ff7e0674",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "image-surface",
+            "source_type" : "gm"
+         },
+         "md5" : "a2f091d041eae03702cb56456d6f4060",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "hittestpath",
+            "source_type" : "gm"
+         },
+         "md5" : "e4220d296f67172bee8ae0cf58527401",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "highcontrastfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "9164aa4504551d59ad6e14cf73649356",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "hardstop_gradients",
+            "source_type" : "gm"
+         },
+         "md5" : "b22d7749da6ecd92b163ca5949d07e5c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "hairmodes",
+            "source_type" : "gm"
+         },
+         "md5" : "5fb39a0162a78a6b3ee1f121d05b0825",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "hairlines",
+            "source_type" : "gm"
+         },
+         "md5" : "f47711a07ab6439658c82b0884a32b59",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "squarehair",
+            "source_type" : "gm"
+         },
+         "md5" : "75d67093d518af7079479cec2156a4bb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "grayscalejpg",
+            "source_type" : "gm"
+         },
+         "md5" : "2062ed0476407bdd94fbe4b3e072f94a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "chrome_gradtext2",
+            "source_type" : "gm"
+         },
+         "md5" : "ecd8ca8c0a0dcac6043c3421a67fe3be",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "chrome_gradtext1",
+            "source_type" : "gm"
+         },
+         "md5" : "b3dc7690403ed4f6a2d3f5cd753c82ea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradtext",
+            "source_type" : "gm"
+         },
+         "md5" : "406e8e643bb61dfa9d0b11b8974aac7a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_many_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "41e379a04f3358b80322a0a041b7daf3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_many",
+            "source_type" : "gm"
+         },
+         "md5" : "85b93101c5fa2cf12aaf956677af58ad",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_no_texture_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "20fe0bb6b45e7b93c4d74e745289885d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_no_texture",
+            "source_type" : "gm"
+         },
+         "md5" : "80c71b1d5eb1b2335763b7c9729b5a9a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_2pt_conical_edge_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "fcadb2dcbfc83042e31302b7c44fb3b2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_2pt_conical_outside_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "a5636e90dbda40caef0dad053fd3d5a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_2pt_conical_inside_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "0573677ac79cefc8bf624d4d9845eb6a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_2pt_conical_edge",
+            "source_type" : "gm"
+         },
+         "md5" : "4f464837fbef8bcf0b86d73f2749d049",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_2pt_conical_outside",
+            "source_type" : "gm"
+         },
+         "md5" : "0a410f39f4eda736c919abf5bfdc0d67",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_2pt_conical_inside",
+            "source_type" : "gm"
+         },
+         "md5" : "da16ddf00448fcf275e251a831ce14da",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradient_subpixel_4f",
+            "source_type" : "gm"
+         },
+         "md5" : "a4ac8f9798d18aab01a04bca29b0b671",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradient_subpixel",
+            "source_type" : "gm"
+         },
+         "md5" : "a4ac8f9798d18aab01a04bca29b0b671",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradient_many_stops_4f",
+            "source_type" : "gm"
+         },
+         "md5" : "75d28ae3ebfff6ab2590d2cd3d35c61a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradient_many_stops",
+            "source_type" : "gm"
+         },
+         "md5" : "75d28ae3ebfff6ab2590d2cd3d35c61a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_dup_color_stops",
+            "source_type" : "gm"
+         },
+         "md5" : "e436aa207dbd66420b0534c890103172",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "linear_gradient_tiny_4f",
+            "source_type" : "gm"
+         },
+         "md5" : "754b6cf81261fdee269cec480c6aad05",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "linear_gradient_tiny",
+            "source_type" : "gm"
+         },
+         "md5" : "754b6cf81261fdee269cec480c6aad05",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "linear_gradient_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "825edfed24db6e294e5287e167e3b325",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "linear_gradient",
+            "source_type" : "gm"
+         },
+         "md5" : "180d244907fa6aab8e9bccb244bf05a4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "radial_gradient4_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "68c9ee405fc21e058418b49e22d06a7a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "radial_gradient4",
+            "source_type" : "gm"
+         },
+         "md5" : "695ab4230871c4bd5215b83866567e7f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "radial_gradient3_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "5c5fb805b63d79e98762190fb5f54164",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "radial_gradient3",
+            "source_type" : "gm"
+         },
+         "md5" : "a0f42fcd04c44a2bad35512739b4f98c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "radial_gradient2_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "cce16d3828850dca4866f3c9b6efa327",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "radial_gradient2",
+            "source_type" : "gm"
+         },
+         "md5" : "d5e414683477d775d42f97f32ed7538c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "radial_gradient",
+            "source_type" : "gm"
+         },
+         "md5" : "2d32d9e07db54e915074eb3a31fd7a7e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clamped_gradients_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "0f3e571ccef1b968c34f25517f268905",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clamped_gradients",
+            "source_type" : "gm"
+         },
+         "md5" : "cd033497d14bbc5d54f2d8fb40dba902",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "small_color_stop",
+            "source_type" : "gm"
+         },
+         "md5" : "b3d01eaced95b0aabb07094f12bc9815",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_degenerate_2pt_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "619355c472efabe87634583682fae34e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_degenerate_2pt",
+            "source_type" : "gm"
+         },
+         "md5" : "cb81462851924ad9202dd245b6991a59",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_view_perspective_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "d1babe72ac96ac7478e5fbbd028b1ccc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_view_perspective",
+            "source_type" : "gm"
+         },
+         "md5" : "ba2b75e3772034cfb8aa662d82e76dd7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_local_perspective_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "74bde7ca86719fa86b05eebc40ed4e04",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_local_perspective",
+            "source_type" : "gm"
+         },
+         "md5" : "e59f8f71891631b26907554ad81a2431",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients4f_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "69ab6dbc2e0d812a992c3943d84706c7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients4f",
+            "source_type" : "gm"
+         },
+         "md5" : "acf04b4502c6130b0a83e02b9c657815",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients_nodither",
+            "source_type" : "gm"
+         },
+         "md5" : "69ab6dbc2e0d812a992c3943d84706c7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradients",
+            "source_type" : "gm"
+         },
+         "md5" : "acf04b4502c6130b0a83e02b9c657815",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradient_dirty_laundry",
+            "source_type" : "gm"
+         },
+         "md5" : "71cf1cf3f9a3091dd4a9bd14bcc1f5d7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gradient_matrix",
+            "source_type" : "gm"
+         },
+         "md5" : "e781d534447581be2ee1ef0f4e06ca37",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "glyph_pos_align",
+            "source_type" : "gm"
+         },
+         "md5" : "fa3e42cddbcfbb60d57afc3bac89d231",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "glyph_pos_n_f",
+            "source_type" : "gm"
+         },
+         "md5" : "6bf97611ff0fdc9ee6c04714b1c360e2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "glyph_pos_h_f",
+            "source_type" : "gm"
+         },
+         "md5" : "6bf97611ff0fdc9ee6c04714b1c360e2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "glyph_pos_n_s",
+            "source_type" : "gm"
+         },
+         "md5" : "9b8430977b4f7e38d3e5e974e7921d0f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "glyph_pos_h_s",
+            "source_type" : "gm"
+         },
+         "md5" : "5a5c226f561ef3857340006f6c508b67",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "glyph_pos_n_b",
+            "source_type" : "gm"
+         },
+         "md5" : "df432cb3b8c8dc221adad9e5178c1f0b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "glyph_pos_h_b",
+            "source_type" : "gm"
+         },
+         "md5" : "6bf97611ff0fdc9ee6c04714b1c360e2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_mirror_bilerp_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "11e938084c0959175d0b2525291a4c0d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_repeat_bilerp_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "266435f57592074113d097aa0f9bc29d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_clamp_bilerp_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "70def8663309600c3ac8a8ad1a3adc13",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_mirror_point_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "aed306f72ca5699747db7c0018c8fbe7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_repeat_point_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "f34f910ae130282e6b3f923ae9b3c38a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_clamp_point_rotate",
+            "source_type" : "gm"
+         },
+         "md5" : "ee928b002e27bec5fd1cae4d6fa21e0c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_mirror_bilerp_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "526f6c2143f737ec8f2c406b1169811d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_repeat_bilerp_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "8f6a3dc63c0c926f6d1b91b26ebe743f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_clamp_bilerp_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "2ac4561e64b7ed8a72afa5ef1662c707",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_mirror_point_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "bdb7598ad89ac5768838a48db15baa96",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_repeat_point_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "e2058a48a81b6dcfa8acb1b5d98da762",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "giantbitmap_clamp_point_scale",
+            "source_type" : "gm"
+         },
+         "md5" : "936d17be5387c7300db5a1dff56fd976",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "getpostextpath",
+            "source_type" : "gm"
+         },
+         "md5" : "45a3b2cfc7f3680c483040fa44341446",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gaussianedge",
+            "source_type" : "gm"
+         },
+         "md5" : "00a73ccaf25c70812134761249a0ebe0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gamut",
+            "source_type" : "gm"
+         },
+         "md5" : "8e335859b7d3d89e9c53ccad5d83b366",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gammagradienttext",
+            "source_type" : "gm"
+         },
+         "md5" : "fc887ac3323dab7b0daf04b5aa75c661",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gammatext",
+            "source_type" : "gm"
+         },
+         "md5" : "3a87ec88d08a0eb1be86a171b51d8125",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "gamma",
+            "source_type" : "gm"
+         },
+         "md5" : "4357a5ec0dcae926e53963bf0093c0f0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fontscalerdistortable",
+            "source_type" : "gm"
+         },
+         "md5" : "f09cf6dacf66a521b3e4d1a0e25ed5db",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fontscaler",
+            "source_type" : "gm"
+         },
+         "md5" : "a0bf1fdd4304323458cd7b4c1175b0ab",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fontmgr_bounds_1_-0.25",
+            "source_type" : "gm"
+         },
+         "md5" : "7a3f15702345bb5413172dff1985f0f2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fontmgr_bounds_0.75_0",
+            "source_type" : "gm"
+         },
+         "md5" : "8e3f57f48fba11a7a41dcc74fecf91d3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fontmgr_bounds",
+            "source_type" : "gm"
+         },
+         "md5" : "7b7358580dcc3d0f90d2d6def7ce1bc1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fontmgr_match",
+            "source_type" : "gm"
+         },
+         "md5" : "52e40517d250961e06f6be1bd1fca213",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fontmgr_iter",
+            "source_type" : "gm"
+         },
+         "md5" : "4adf3e070bf07183f5cb1dc15bf28e26",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fontcache",
+            "source_type" : "gm"
+         },
+         "md5" : "d661041d5db98c3bba2af60dd752df2d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterindiabox",
+            "source_type" : "gm"
+         },
+         "md5" : "25441cf7f5b940485ed6ffb9edebd269",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterfastbounds",
+            "source_type" : "gm"
+         },
+         "md5" : "9ff36488e77a0c5f41bb835224738430",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbug",
+            "source_type" : "gm"
+         },
+         "md5" : "6aa16f72ef93d34f949b9170d53add42",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_image_color_wheel.png",
+            "source_type" : "gm"
+         },
+         "md5" : "32cff1040a16c303d4d5d5add96abbd5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_image_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "a7a6203d0afff84bc404b58588c8a656",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_image_mandrill_256.png",
+            "source_type" : "gm"
+         },
+         "md5" : "ee757cb5af8b37597a9b318a52a73b23",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_image_mandrill_128.png",
+            "source_type" : "gm"
+         },
+         "md5" : "8017041f754f26eceb231180c776bfca",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_image_mandrill_64.png_g8",
+            "source_type" : "gm"
+         },
+         "md5" : "2ed03b23aeaf09d0794e61b34bdb4d10",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_image_mandrill_64.png",
+            "source_type" : "gm"
+         },
+         "md5" : "be0294de21a53b613fa7f14a80029fb7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_image_mandrill_32.png",
+            "source_type" : "gm"
+         },
+         "md5" : "6e15344dd2e0256dd9f07ef3b96757f2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_image_mandrill_16.png",
+            "source_type" : "gm"
+         },
+         "md5" : "83e03bed8bc58f00a31e7b4fc328f141",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_checkerboard_192_192",
+            "source_type" : "gm"
+         },
+         "md5" : "d6dbdd2d2fae358ad4f48715d18f3c87",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_checkerboard_32_2",
+            "source_type" : "gm"
+         },
+         "md5" : "3f686f0ce39071d82649590702d538ce",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_checkerboard_32_8",
+            "source_type" : "gm"
+         },
+         "md5" : "b697d20ec8b4eac630bc842b0aa5e630",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_checkerboard_32_32_g8",
+            "source_type" : "gm"
+         },
+         "md5" : "c40d1e25318481ca3220ac03dc513d12",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_checkerboard_32_32",
+            "source_type" : "gm"
+         },
+         "md5" : "c40d1e25318481ca3220ac03dc513d12",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_checkerboard_4_4",
+            "source_type" : "gm"
+         },
+         "md5" : "7d3d75fb1db31fa55bcd51501f4498a5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_text_10.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "3d10ac12bb94ecd8c521612b7df1b8e7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_text_7.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "ed121d1363819365c3c93e2688e23862",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filterbitmap_text_3.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "76e443ec618029b184539bc1b9f44427",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filltypespersp",
+            "source_type" : "gm"
+         },
+         "md5" : "4a0f7d374598125a2aa482c1207103b5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "filltypes",
+            "source_type" : "gm"
+         },
+         "md5" : "2c03a1049b90948a0284041d496babfc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fatpathfill",
+            "source_type" : "gm"
+         },
+         "md5" : "0692be402153aeee43f373e670fe4914",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fadefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "63e2f5e0dbd4fc824c614a1691f88ea3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "extractbitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "4571ac0d2562c97ef81fe226a3532c78",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "etc1",
+            "source_type" : "gm"
+         },
+         "md5" : "abc78d33d4a47bf809e2f2fbfe43efe4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "encode-srgb-jpg",
+            "source_type" : "gm"
+         },
+         "md5" : "f616a3a35c29b57659e34468174a9d30",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "encode-srgb-webp",
+            "source_type" : "gm"
+         },
+         "md5" : "23f3aac098b8ce307947a5a96dd10823",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "encode-srgb-png",
+            "source_type" : "gm"
+         },
+         "md5" : "e36d782c779a2762c1b3e960a1efcb89",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "encode-platform",
+            "source_type" : "gm"
+         },
+         "md5" : "d88e2f880145da1fe5f168a424c3d268",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "encode",
+            "source_type" : "gm"
+         },
+         "md5" : "f03fcbbac9afab52658e7a6a6cc55340",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "emptystroke",
+            "source_type" : "gm"
+         },
+         "md5" : "b7ef35124fb24b374b7fc50e69632d9d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "emptypath",
+            "source_type" : "gm"
+         },
+         "md5" : "289f4489026b458e3c7b882d99feff37",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dstreadshuffle",
+            "source_type" : "gm"
+         },
+         "md5" : "2777f6968b56647c9bc5fd8057610316",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drrect",
+            "source_type" : "gm"
+         },
+         "md5" : "ef6ae2e5db0ca5f0ea7a0250acc37cc0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dropshadowimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "30baafa986aca95af0f7c0a15ec540ed",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawregionmodes",
+            "source_type" : "gm"
+         },
+         "md5" : "27e5a0ca57684b61cfd23d3cfd3039ca",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawregion",
+            "source_type" : "gm"
+         },
+         "md5" : "b9e9fa3ec5c6b72c8f9924afd13f5a43",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawminibitmaprect",
+            "source_type" : "gm"
+         },
+         "md5" : "ad83656692492b879d8b4be2e27be342",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawminibitmaprect_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "3a84c62f00dbbe5e5706370a6e8f78d3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawlooper",
+            "source_type" : "gm"
+         },
+         "md5" : "af57e7c3d9f209d1a415c9ba6a1e819a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "776b208d60f31ceb414d3be6ddbf6e48",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawbitmaprect-imagerect-subset",
+            "source_type" : "gm"
+         },
+         "md5" : "5cde68c17fdb5914384cc901981410a7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawbitmaprect-imagerect",
+            "source_type" : "gm"
+         },
+         "md5" : "5cde68c17fdb5914384cc901981410a7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawbitmaprect-subset",
+            "source_type" : "gm"
+         },
+         "md5" : "9a899dda21e78687322ee438e6330fd7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawbitmaprect",
+            "source_type" : "gm"
+         },
+         "md5" : "9a899dda21e78687322ee438e6330fd7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "draw-atlas-colors",
+            "source_type" : "gm"
+         },
+         "md5" : "a0a30bb072a88cec571762b8a799e168",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawTextRSXform",
+            "source_type" : "gm"
+         },
+         "md5" : "1e9340c7ba62d5a10db2a60abb79c208",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "draw-atlas",
+            "source_type" : "gm"
+         },
+         "md5" : "2c2864b39fc39b72a44fb9b3cf1d18a0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "drawable",
+            "source_type" : "gm"
+         },
+         "md5" : "f0e075a5d691e86e1e6ad72b330b7066",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "draw_bitmap_rect_skbug4734",
+            "source_type" : "gm"
+         },
+         "md5" : "0d448767ba9b030b1109895c339d76ee",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_image_none_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "04f37bc71e8b912400e56fd2b3e01920",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_checkerboard_none_512_256",
+            "source_type" : "gm"
+         },
+         "md5" : "5d9a5460d48212dfb3825ec6fcabdbfa",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_text_none_72.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "1e2ca6c3b663e4f9798158678a0d29fa",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_image_low_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "777a02baf2b5f31afe53c01e52fd4fea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_checkerboard_low_512_256",
+            "source_type" : "gm"
+         },
+         "md5" : "b155df905994049c75fab87e935160ea",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_text_low_72.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "bd96532a15f6804b451220ede12455f5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_image_medium_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "47e5919651ec827fe92eeac48385f416",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_checkerboard_medium_512_256",
+            "source_type" : "gm"
+         },
+         "md5" : "9ab2d839de8e4429498dcb0560636dad",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_text_medium_72.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "d892cd2c5a82cb15dfae4154a65666ed",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_image_high_mandrill_512.png",
+            "source_type" : "gm"
+         },
+         "md5" : "47e5919651ec827fe92eeac48385f416",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_checkerboard_high_512_256",
+            "source_type" : "gm"
+         },
+         "md5" : "9ab2d839de8e4429498dcb0560636dad",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "downsamplebitmap_text_high_72.00pt",
+            "source_type" : "gm"
+         },
+         "md5" : "d892cd2c5a82cb15dfae4154a65666ed",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "distantclip",
+            "source_type" : "gm"
+         },
+         "md5" : "cc01d6d65bf1af515ed8d27096d3dcd7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "displacement",
+            "source_type" : "gm"
+         },
+         "md5" : "fa1c4c965d284e34798f3c9a8dd07632",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "discard",
+            "source_type" : "gm"
+         },
+         "md5" : "46fb4023f077d6d25d587dbed1a103c8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dftext",
+            "source_type" : "gm"
+         },
+         "md5" : "9b8b6baad6b72ffc702b8b622d3c015d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "degeneratesegments",
+            "source_type" : "gm"
+         },
+         "md5" : "a53bfabe1176017d671567a2267a33cb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "deferred_texture_image_medium_decoded_indexed",
+            "source_type" : "gm"
+         },
+         "md5" : "aeba8a3225b31abbf4a3eff412d4e0cb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "deferred_texture_image_medium_encoded_indexed",
+            "source_type" : "gm"
+         },
+         "md5" : "aeba8a3225b31abbf4a3eff412d4e0cb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "deferred_texture_image_high",
+            "source_type" : "gm"
+         },
+         "md5" : "27244e70afff703c939321e229e60d42",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "deferred_texture_image_medium_decoded",
+            "source_type" : "gm"
+         },
+         "md5" : "a4e9fb6ff7c85ed24e800416901023b8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "deferred_texture_image_medium_encoded",
+            "source_type" : "gm"
+         },
+         "md5" : "a4e9fb6ff7c85ed24e800416901023b8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "deferred_texture_image_low",
+            "source_type" : "gm"
+         },
+         "md5" : "27244e70afff703c939321e229e60d42",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "deferred_texture_image_none",
+            "source_type" : "gm"
+         },
+         "md5" : "27244e70afff703c939321e229e60d42",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashing5_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "3c2921debeeefcdce336c97949ddbf35",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashing5_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "167048790ab9106dcb4ee094c1697d70",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashing4",
+            "source_type" : "gm"
+         },
+         "md5" : "42c48dc4510f4771bab3ccd5ead1ad4f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashing3",
+            "source_type" : "gm"
+         },
+         "md5" : "24f02f2b9187ce4d6670aafda496c02d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashing2",
+            "source_type" : "gm"
+         },
+         "md5" : "1f881d69cf96a5f6486690455d6e7a4b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashing",
+            "source_type" : "gm"
+         },
+         "md5" : "b92b7dc6deb4c3a8321e0b7785b2cc72",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashtextcaps",
+            "source_type" : "gm"
+         },
+         "md5" : "f7b7e4c8ae481ea6d16c1c97f20a4f0a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "longwavyline",
+            "source_type" : "gm"
+         },
+         "md5" : "cdc7aab3bb8048d6047764ab0dcc079c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "longlinedash",
+            "source_type" : "gm"
+         },
+         "md5" : "4f5f29afbbdb0117c8f03d5f9a8191df",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "longpathdash",
+            "source_type" : "gm"
+         },
+         "md5" : "59bf99a5a189e59d0834ef5d43233c0b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashcubics",
+            "source_type" : "gm"
+         },
+         "md5" : "29a7edad2d9ed34d45c03fadaa1fe12b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dashcircle",
+            "source_type" : "gm"
+         },
+         "md5" : "ee7488b941c847524ceeda7b455a47d1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clippedcubic2",
+            "source_type" : "gm"
+         },
+         "md5" : "b6e2a226d0d5b0215e762d78639a48e8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clippedcubic",
+            "source_type" : "gm"
+         },
+         "md5" : "c5c7c20870a96730d28f676b04d447bf",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "cubicclosepath",
+            "source_type" : "gm"
+         },
+         "md5" : "1881abea824353bd1daed94ead55196b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "cubicpath",
+            "source_type" : "gm"
+         },
+         "md5" : "23602125159a67f5ecde874ab6909f38",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug6083",
+            "source_type" : "gm"
+         },
+         "md5" : "1f938583ce5db93a2aa07893bdcde8d0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug5099",
+            "source_type" : "gm"
+         },
+         "md5" : "a331efe9ca930733017ec82566d6a866",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "croppedrects",
+            "source_type" : "gm"
+         },
+         "md5" : "13263f4597ebf28fc9311794ac5f98a6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "crbug_691386",
+            "source_type" : "gm"
+         },
+         "md5" : "c995456c8fe15656183c7ec1bc6bcb7f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "copyTo4444",
+            "source_type" : "gm"
+         },
+         "md5" : "708e3ec7507933364514faa6929bdfa7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "convex_poly_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "cc3a2edae5c3e76a25eaf445cb736534",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "convex_poly_clip",
+            "source_type" : "gm"
+         },
+         "md5" : "01344946e68b2d82979a4cdd3a8bff61",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "convexpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "19ced7a661404b219c99799f5cec8196",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "convex-lineonly-paths-stroke-and-fill",
+            "source_type" : "gm"
+         },
+         "md5" : "f4287ac1d9beeaf1606d9d7764b05639",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "convex-lineonly-paths",
+            "source_type" : "gm"
+         },
+         "md5" : "19dd981282a989bf39a8e0360c236772",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "const_color_processor",
+            "source_type" : "gm"
+         },
+         "md5" : "68dfec60596ab27ddcfe04333a427995",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "crbug_640176",
+            "source_type" : "gm"
+         },
+         "md5" : "32aeb7e12f92f0245b68c838fa741c9e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "largecircle",
+            "source_type" : "gm"
+         },
+         "md5" : "ad79a44ee82908afe81115bb816c73b3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "arccirclegap",
+            "source_type" : "gm"
+         },
+         "md5" : "90b4b59d2029578ada7c1ed7fd83a896",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "conicpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "256042e1a1cb193a2860af5a94373f12",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "concavepaths",
+            "source_type" : "gm"
+         },
+         "md5" : "32e0b84a7664eddc1c666dc89bb27439",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "composeshader_bitmap",
+            "source_type" : "gm"
+         },
+         "md5" : "c333e7c5dd19e6d86cdb388580167e75",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "composeshader_alpha",
+            "source_type" : "gm"
+         },
+         "md5" : "c52f84acdc7159561c18bc47c6011801",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "composeshader",
+            "source_type" : "gm"
+         },
+         "md5" : "f583502b5fc1d5d123ad956b7b2789b0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "composeshader_bitmap2",
+            "source_type" : "gm"
+         },
+         "md5" : "14efb1d0bd6896fe4de58de48419eda1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip4_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "f217dea6e894410772c9c48805e4078d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip4_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "d1fbfee0f9e2b911a80ace99c17206d2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip3_complex",
+            "source_type" : "gm"
+         },
+         "md5" : "308bf90686ac2fa0529a5906984df164",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip3_simple",
+            "source_type" : "gm"
+         },
+         "md5" : "f39618ff582f66e601a028096c3b5f94",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip2_path_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "69b533217f29c65a4239583653ad824c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip2_rrect_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "dc35c6971490c55621a45d3e1a297f36",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip2_rect_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "3ca869760c3e57401310eb3933f1ab38",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip2_path_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "8bd00a5afced60aab34bf3105d41ad71",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip2_rrect_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "625a78aa576d0d977c0c9cde0b2bee0c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip2",
+            "source_type" : "gm"
+         },
+         "md5" : "e1e20c0890158caf58cbae1c155739dc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_blur_tiled",
+            "source_type" : "gm"
+         },
+         "md5" : "07606ea17fee56ba7dd08f0acdff38ba",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_aa_layer_invert",
+            "source_type" : "gm"
+         },
+         "md5" : "e16054304199b2158dc6ceff11473c98",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_aa_layer",
+            "source_type" : "gm"
+         },
+         "md5" : "e5a81d7784474349890ac04372578d07",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_aa_invert",
+            "source_type" : "gm"
+         },
+         "md5" : "72b8f0b08314a1b605d428e2f53f82c8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_aa",
+            "source_type" : "gm"
+         },
+         "md5" : "5d8522177815306f705ad4ed684421cd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_bw_layer_invert",
+            "source_type" : "gm"
+         },
+         "md5" : "c9a998c7356de1ddf93d1fa7cebb3ca2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_bw_layer",
+            "source_type" : "gm"
+         },
+         "md5" : "9de3cb857a7a30e0e3ddc09158756d47",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_bw_invert",
+            "source_type" : "gm"
+         },
+         "md5" : "a0bd1c2cd7f94870cfc8e1440f876b86",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "complexclip_bw",
+            "source_type" : "gm"
+         },
+         "md5" : "09dbc9f3e38f47f956630f5590000405",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorwheelnative",
+            "source_type" : "gm"
+         },
+         "md5" : "8106083f5f8e7e6b39ff7928ba637a0d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorwheel",
+            "source_type" : "gm"
+         },
+         "md5" : "30d0a3cb44a39ee3cc282a41a5f895df",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colortype_xfermodes",
+            "source_type" : "gm"
+         },
+         "md5" : "64faa332c468dc8326246676a3d29354",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colortype",
+            "source_type" : "gm"
+         },
+         "md5" : "6c8068c96d640f81e4686ddb877a5bcb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorspacexform",
+            "source_type" : "gm"
+         },
+         "md5" : "cd0d79c52631ecae7d9bd2b92d5b9221",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colormatrix",
+            "source_type" : "gm"
+         },
+         "md5" : "7f853ed8eb90ed1cd13121d9d4154696",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "lightingcolorfilter",
+            "source_type" : "gm"
+         },
+         "md5" : "e3fe1390c4d403e25749133b42fec0c9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorfiltershader",
+            "source_type" : "gm"
+         },
+         "md5" : "8ef10cbda42af9268a111d4314749ea0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorfilterimagefilter_layer",
+            "source_type" : "gm"
+         },
+         "md5" : "716c7e198bcbc753aba21ced9e12440a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorfilterimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "6b5ae26a88d2efaa08bbee71133ba868",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "colorfilteralpha8",
+            "source_type" : "gm"
+         },
+         "md5" : "0cf505416f59e0f2c45716cc5dc549ba",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "coloremoji",
+            "source_type" : "gm"
+         },
+         "md5" : "8b2afd810384b498721782ad424b20ac",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "color4shader",
+            "source_type" : "gm"
+         },
+         "md5" : "21503d902c9cd1b48d4f3f5b9ccc0fa0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "color4f",
+            "source_type" : "gm"
+         },
+         "md5" : "844cb4077c9d1da54485b56cc2dae9bd",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clipped-bitmap-shaders-clamp-hq",
+            "source_type" : "gm"
+         },
+         "md5" : "be8246f75839aaf60fa98d5b0a5ed43e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clipped-bitmap-shaders-mirror-hq",
+            "source_type" : "gm"
+         },
+         "md5" : "b2e93721ac4e76093dd1a6c23c3505ec",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clipped-bitmap-shaders-tile-hq",
+            "source_type" : "gm"
+         },
+         "md5" : "b35eb7f89c29c7c60f0c05bc127b53e8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clipped-bitmap-shaders-clamp",
+            "source_type" : "gm"
+         },
+         "md5" : "3bd64ccb05b8582b7e75b55dbfd60cd4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clipped-bitmap-shaders-mirror",
+            "source_type" : "gm"
+         },
+         "md5" : "1fd4ce724d14a2878b80e628d0ecb544",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clipped-bitmap-shaders-tile",
+            "source_type" : "gm"
+         },
+         "md5" : "82d45cc88e3337a5cd80e9f7e488c7c1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clip_region",
+            "source_type" : "gm"
+         },
+         "md5" : "59efc8f2334665d46ecf4973bfedc6b5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clipdrawdraw",
+            "source_type" : "gm"
+         },
+         "md5" : "c56184d8b6a5c48333944f325efdabd4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clip_strokerect",
+            "source_type" : "gm"
+         },
+         "md5" : "3c20a9cd7feff1bebcc289e540b04f20",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "cliperror",
+            "source_type" : "gm"
+         },
+         "md5" : "6e22bf13dbe4af5338794a2b5d933436",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular-clips",
+            "source_type" : "gm"
+         },
+         "md5" : "e8860d6a4096e19d9fc3353eb4597fbb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "onebadarc",
+            "source_type" : "gm"
+         },
+         "md5" : "0b42c82eaf57f72e4fac3b33882fa617",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_weird",
+            "source_type" : "gm"
+         },
+         "md5" : "4a3c641d0b7b26297ed94358e09b3c01",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_stroke_and_fill_round",
+            "source_type" : "gm"
+         },
+         "md5" : "4a29c3f10e0e63b6a4468b54e55098c8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_stroke_and_fill_square",
+            "source_type" : "gm"
+         },
+         "md5" : "b7af972c90619b6780fe2ff00fef3b46",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_stroke_and_fill_butt",
+            "source_type" : "gm"
+         },
+         "md5" : "0973a508e4926cd6da403a5c00f1ef63",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_stroke_round",
+            "source_type" : "gm"
+         },
+         "md5" : "425b2e3a7cd1dc9f21ed8e82e2d823e3",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_stroke_square",
+            "source_type" : "gm"
+         },
+         "md5" : "6a656d63ea599bcd4ca3df725810361b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_stroke_butt",
+            "source_type" : "gm"
+         },
+         "md5" : "ec98b6c6f778b8d03817cafe836fc63c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_hairline",
+            "source_type" : "gm"
+         },
+         "md5" : "47b112d47f136084aa716dc4baf788f0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circular_arcs_fill",
+            "source_type" : "gm"
+         },
+         "md5" : "1c940b1dee65a38c06ee566ed93666a6",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "circles",
+            "source_type" : "gm"
+         },
+         "md5" : "5d48e11f990bef201d09bd9a1fe1e6a8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "c_gms",
+            "source_type" : "gm"
+         },
+         "md5" : "641b4ed1ac8baab45802cb37b1c84853",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug615686",
+            "source_type" : "gm"
+         },
+         "md5" : "c1563406fa71dd234ae667f15fd3b591",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug591993",
+            "source_type" : "gm"
+         },
+         "md5" : "6942f153ea651d619109bd6ef61ea52e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug530095",
+            "source_type" : "gm"
+         },
+         "md5" : "8e4ff9a3948f4a9e687bc7423f206ad5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug5252",
+            "source_type" : "gm"
+         },
+         "md5" : "a974f6c8deba4c66bf91981d07b2f9b0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bmp_filter_quality_repeat",
+            "source_type" : "gm"
+         },
+         "md5" : "789f50fbb8144e1c310b7819aed92b93",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blur2rectsnonninepatch",
+            "source_type" : "gm"
+         },
+         "md5" : "d4d30318e4329a080440762e6fe4fe01",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blur2rects",
+            "source_type" : "gm"
+         },
+         "md5" : "6258df63548951694813477a1ae38988",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blurs",
+            "source_type" : "gm"
+         },
+         "md5" : "01fb6a719ad804723043f641f96fbf33",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "simpleblurroundrect",
+            "source_type" : "gm"
+         },
+         "md5" : "7f1fa128ec5ad2dda23f4e433f7bb00e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blurroundrect-WH-100x100-unevenCorners",
+            "source_type" : "gm"
+         },
+         "md5" : "497a14c56fd3e879ecc50d42d1cf5dd5",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blurredclippedcircle",
+            "source_type" : "gm"
+         },
+         "md5" : "ac56ecdc5d951f82734f701dca3b23c4",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blurrects",
+            "source_type" : "gm"
+         },
+         "md5" : "a34f5c41b99cad7f5c6e80bd5ed7f84f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blurrect_gallery",
+            "source_type" : "gm"
+         },
+         "md5" : "463ef16e259ed3699c74566a896ba73f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blurquickreject",
+            "source_type" : "gm"
+         },
+         "md5" : "9dbc7c7d3fba0b8157c8731b8413918a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blurcircles2",
+            "source_type" : "gm"
+         },
+         "md5" : "4acaa8b49f374f3bc5a15558964633d8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blurcircles",
+            "source_type" : "gm"
+         },
+         "md5" : "4f9ed8464f54ac7f4a836147ed994805",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "blend",
+            "source_type" : "gm"
+         },
+         "md5" : "baa2fa74ccab42a7744be7b4be00bbf8",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bleed_downscale",
+            "source_type" : "gm"
+         },
+         "md5" : "a846954340d8d906a56a850b403faa51",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bleed_alpha_image_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "d9e73bfecceb9d1729b5e8e342f6d017",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bleed_alpha_bmp_shader",
+            "source_type" : "gm"
+         },
+         "md5" : "d9e73bfecceb9d1729b5e8e342f6d017",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bleed_alpha_image",
+            "source_type" : "gm"
+         },
+         "md5" : "13014fc84bb324467723c9abb5e23133",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bleed_alpha_bmp",
+            "source_type" : "gm"
+         },
+         "md5" : "13014fc84bb324467723c9abb5e23133",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bleed_image",
+            "source_type" : "gm"
+         },
+         "md5" : "5d8684e1587e7312bad4285ddfc1b5db",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bleed",
+            "source_type" : "gm"
+         },
+         "md5" : "5d8684e1587e7312bad4285ddfc1b5db",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmaptiled_fractional_vertical",
+            "source_type" : "gm"
+         },
+         "md5" : "192acc52e3fd34cb910142825ee2449b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmaptiled_fractional_horizontal",
+            "source_type" : "gm"
+         },
+         "md5" : "3f474b0acb3730d1adc98fb104c7d1c1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmapshaders",
+            "source_type" : "gm"
+         },
+         "md5" : "db4a626f0846d4342ec6dac970c5b2ab",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmaprecttest",
+            "source_type" : "gm"
+         },
+         "md5" : "942b66114dfeeca04c61cc0ad38afb90",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bigbitmaprect_i",
+            "source_type" : "gm"
+         },
+         "md5" : "a1739ad74299c623eb8bb1e0a925d56b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bigbitmaprect_s",
+            "source_type" : "gm"
+         },
+         "md5" : "a1739ad74299c623eb8bb1e0a925d56b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "3x3bitmaprect",
+            "source_type" : "gm"
+         },
+         "md5" : "ea91500a2a506e85fd7b97e039684d86",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmaprect_i",
+            "source_type" : "gm"
+         },
+         "md5" : "b3d65d4921e749df8056f1dadb275b2d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmaprect_s",
+            "source_type" : "gm"
+         },
+         "md5" : "b3d65d4921e749df8056f1dadb275b2d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmaprect_rounding",
+            "source_type" : "gm"
+         },
+         "md5" : "7d674b700e2c5da32a4b6b722df2819a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmap_premul",
+            "source_type" : "gm"
+         },
+         "md5" : "2fdd6851b32ae931637d4845c037b550",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmap-image-srgb-legacy",
+            "source_type" : "gm"
+         },
+         "md5" : "fd982adbf85c965702f9cfa76fda75e9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "extractalpha",
+            "source_type" : "gm"
+         },
+         "md5" : "7a0eef18bd712dd2da6b8671dee74d14",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmapfilters",
+            "source_type" : "gm"
+         },
+         "md5" : "2e5cf3636b94564d74cec2d9e623255d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bitmapcopy",
+            "source_type" : "gm"
+         },
+         "md5" : "418b35c1aaf6a0e6a406f1b077ff9cec",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bigtileimagefilter",
+            "source_type" : "gm"
+         },
+         "md5" : "dd54a2baf09089a6125f2c1a87db5a3d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bigtext",
+            "source_type" : "gm"
+         },
+         "md5" : "e580bb37a36488ada2e1a1d73a738dfc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "big_rrect_elliptical_corner_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "74207ff1ba1b2395bc0aefc013da7593",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "big_rrect_circular_corner_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "913c915e626931276fc277c5444bfdb0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "big_rrect_ellipse_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "3e1d2c61d3b4cc3113d87bc9e1dea71e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "big_rrect_circle_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "0247a173d89a85b97061a15de10915e2",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "big_rrect_rect_aa_effect",
+            "source_type" : "gm"
+         },
+         "md5" : "44a526a1903ef7bf132b7ed831daf5f0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bigmatrix",
+            "source_type" : "gm"
+         },
+         "md5" : "990b8436d687da08c16219664122ea9f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bigblurs",
+            "source_type" : "gm"
+         },
+         "md5" : "b5f55e537bd1366cff99f9c417c97c0b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "beziers",
+            "source_type" : "gm"
+         },
+         "md5" : "bb8ef6972380aff3016da42b46ea736b",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bezier_quad_effects",
+            "source_type" : "gm"
+         },
+         "md5" : "0d9d588cf51ceb3622ffc8b77ed09854",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bezier_conic_effects",
+            "source_type" : "gm"
+         },
+         "md5" : "f4fb9908dedbbd2fb1b5c5f7f972b922",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bezier_cubic_effects",
+            "source_type" : "gm"
+         },
+         "md5" : "e4cf305b339d0352325d768494e89ebb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "badpaint",
+            "source_type" : "gm"
+         },
+         "md5" : "b0207aa8656c64e44e057a9c1e45c9c7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "arithmode",
+            "source_type" : "gm"
+         },
+         "md5" : "b260c311b2d81b22ce7d6ee7ee230029",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug583299",
+            "source_type" : "gm"
+         },
+         "md5" : "ee6b4e0890acff8b794997c06616edf1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "bug593049",
+            "source_type" : "gm"
+         },
+         "md5" : "0fb695af5b0e79848f20e46e7e39467f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "parsedpaths",
+            "source_type" : "gm"
+         },
+         "md5" : "0c773590b5b46053e5e1e38e970306b9",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "arcto",
+            "source_type" : "gm"
+         },
+         "md5" : "76829c6cda6c6bc0589ac9f0ddf75a06",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "arcofzorro",
+            "source_type" : "gm"
+         },
+         "md5" : "01777eacb34f661860eddcac51724128",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "annotated_text",
+            "source_type" : "gm"
+         },
+         "md5" : "ec7a093dcbbe5084faa642888c2edd15",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "anisotropic_hq",
+            "source_type" : "gm"
+         },
+         "md5" : "923df959ad8566959e9857f407ee0df7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "animated-image-blurs",
+            "source_type" : "gm"
+         },
+         "md5" : "873b7b2a1b6bac66c56e4e714e23fb71",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "animatedGif",
+            "source_type" : "gm"
+         },
+         "md5" : "d762a91def2b4cde922be26e8a33603d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "alphagradients",
+            "source_type" : "gm"
+         },
+         "md5" : "63c2aac28a0aa055d97cbc49aedead0f",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "all_variants_8888",
+            "source_type" : "gm"
+         },
+         "md5" : "34c3c2a0b0f182bb357352033d8498d0",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "not_native32_bitmap_config",
+            "source_type" : "gm"
+         },
+         "md5" : "aadcf90a7c833ec00f2e8f8123f03e51",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "all_bitmap_configs",
+            "source_type" : "gm"
+         },
+         "md5" : "31842244a827de126c38e15dc9ac1cd7",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "tinyanglearcs",
+            "source_type" : "gm"
+         },
+         "md5" : "788938d24f02b6847f6d76f32afc5439",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "manyarcs",
+            "source_type" : "gm"
+         },
+         "md5" : "6cbedc832cf18919b45dd1b9e0e2a73d",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "fillcircle",
+            "source_type" : "gm"
+         },
+         "md5" : "dae27dab05a9116fcce838084194eadb",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "strokecircle",
+            "source_type" : "gm"
+         },
+         "md5" : "6ead41c276fea3973af6eebdb2c089b1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "addarc_meas",
+            "source_type" : "gm"
+         },
+         "md5" : "f10531be1142db70d2c655fe4c17b53a",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "addarc",
+            "source_type" : "gm"
+         },
+         "md5" : "507f366ef35ee816c32fe511f4d2c79c",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "aaxfermodes",
+            "source_type" : "gm"
+         },
+         "md5" : "fc8593d113afab226020c18747565c9e",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "aarectmodes",
+            "source_type" : "gm"
+         },
+         "md5" : "15889ca88f5c42e64b60d003106f1c43",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "clipcubic",
+            "source_type" : "gm"
+         },
+         "md5" : "f533f6f3d6b05b492b0ade06206fa6a1",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "aaclip",
+            "source_type" : "gm"
+         },
+         "md5" : "f7d1c3bf9426ed176898a02c60c3ce94",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "dont_clip_to_layer",
+            "source_type" : "gm"
+         },
+         "md5" : "6bdc90d9eb5a733ec39c38ac66c13ebe",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "analytic_antialias_inverse",
+            "source_type" : "gm"
+         },
+         "md5" : "d6200ac9db1ab231de9733ba61901c76",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "analytic_antialias_general",
+            "source_type" : "gm"
+         },
+         "md5" : "7029b2fed03fe116126b31cad6382bde",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      },
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "analytic_antialias_convex",
+            "source_type" : "gm"
+         },
+         "md5" : "b82af0609b5e0f055d19c84a24220abc",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      }
+   ]
+}

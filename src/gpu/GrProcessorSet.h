@@ -50,6 +50,21 @@ public:
     }
     bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
 
+    bool operator==(const GrProcessorSet& that) const {
+        if (fFlags != that.fFlags ||
+            fFragmentProcessors.count() != that.fFragmentProcessors.count() ||
+            fColorFragmentProcessorCnt != that.fColorFragmentProcessorCnt) {
+            return false;
+        }
+        for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+            if (!fFragmentProcessors[i]->isEqual(*that.fFragmentProcessors[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+    bool operator!=(const GrProcessorSet& that) const { return !(*this == that); }
+
     /**
      * This is used to track analysis of color and coverage values through the fragment processors.
      */
