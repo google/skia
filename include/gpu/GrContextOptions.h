@@ -40,10 +40,6 @@ struct GrContextOptions {
         immediately. Intended to ease debugging. */
     bool fImmediateMode = false;
 
-    /** For debugging purposes turn each GrDrawOp's bounds into a clip rect. This is used to
-        verify that the clip bounds are conservative. */
-    bool fClipDrawOpsToBounds = false;
-
     /** For debugging, override the default maximum look-back or look-ahead window for GrOp
         combining. */
     int fMaxOpCombineLookback = -1;

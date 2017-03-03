@@ -1255,7 +1255,6 @@ DEFINE_int32(opLookahead, -1, "Maximum GrOp lookahead for combining, negative me
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions grOptions;
     grOptions.fImmediateMode = FLAGS_imm;
-    grOptions.fClipDrawOpsToBounds = FLAGS_drawOpClip;
     grOptions.fMaxOpCombineLookback = FLAGS_opLookback;
     grOptions.fMaxOpCombineLookahead = FLAGS_opLookahead;
 

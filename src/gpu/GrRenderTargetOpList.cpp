@@ -56,7 +56,6 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
     // TODO: Stop extracting the context (currently needed by GrClip)
     fContext = fGpu->getContext();
 
-    fClipOpToBounds = options.fClipDrawOpsToBounds;
     fMaxOpLookback = (options.fMaxOpCombineLookback < 0) ? kDefaultMaxOpLookback
                                                          : options.fMaxOpCombineLookback;
     fMaxOpLookahead = (options.fMaxOpCombineLookahead < 0) ? kDefaultMaxOpLookahead
@@ -300,7 +299,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     }
     args.fCaps = this->caps();
     args.fAnalysis = &analysis;
-    if (analysis.usesPLSDstRead() || fClipOpToBounds) {
+    if (analysis.usesPLSDstRead()) {
         GrGLIRect viewport;
         viewport.fLeft = 0;
         viewport.fBottom = 0;
@@ -359,7 +358,6 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
     if (!clip.apply(fContext, renderTargetContext, useHWAA, true, &appliedClip)) {
         return;
     }
-    // TODO: respect fClipOpToBounds if we ever start computing bounds here.
 
     // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
     // attempt this in a situation that would require coverage AA.
