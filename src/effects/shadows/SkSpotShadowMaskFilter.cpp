@@ -279,9 +279,10 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         SkScalar filledArea = (spotShadowRRect.height() + srcSpaceSpotRadius) *
                               (spotShadowRRect.width() + srcSpaceSpotRadius);
 
-        GrColor4f color = paint.getColor4f();
+        GrPaint newPaint(paint);
+        GrColor4f color = newPaint.getColor4f();
         color.fRGBA[3] *= fSpotAlpha;
-        paint.setColor4f(color);
+        newPaint.setColor4f(color);
 
         SkStrokeRec spotStrokeRec(SkStrokeRec::kFill_InitStyle);
         // If the area of the stroked geometry is larger than the fill geometry,
@@ -305,7 +306,7 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         spotShadowRRect.offset(spotOffset.fX, spotOffset.fY);
 
-        rtContext->drawShadowRRect(clip, std::move(paint), viewMatrix, spotShadowRRect,
+        rtContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, spotShadowRRect,
                                    devSpaceSpotRadius, GrStyle(spotStrokeRec, nullptr));
     }
 
