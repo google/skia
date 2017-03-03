@@ -547,10 +547,10 @@ void GrRenderTargetOpList::forwardCombine() {
             if (j == i +1) {
                 // We assume op would have combined with candidate when the candidate was added
                 // via backwards combining in recordOp.
-#ifndef SK_USE_DEVICE_CLIPPING
+
                 // not sure why this fires with device-clipping in gm/complexclip4.cpp
-                SkASSERT(!op->combineIfPossible(candidate.fOp.get(), *this->caps()));
-#endif
+//                SkASSERT(!op->combineIfPossible(candidate.fOp.get(), *this->caps()));
+
             } else if (op->combineIfPossible(candidate.fOp.get(), *this->caps())) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
