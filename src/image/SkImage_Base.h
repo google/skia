@@ -47,7 +47,7 @@ public:
     virtual GrTexture* peekTexture() const { return nullptr; }
 #if SK_SUPPORT_GPU
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }
-    virtual sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
+    virtual sk_sp<GrTextureProxy> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
 #endif
     virtual SkImageCacherator* peekCacherator() const { return nullptr; }
 
@@ -57,8 +57,9 @@ public:
                              CachingHint = kAllow_CachingHint) const = 0;
 
     // Caller must call unref when they are done.
-    virtual GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                                    sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const = 0;
+    virtual sk_sp<GrTextureProxy> asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+                                               sk_sp<SkColorSpace>*,
+                                               SkScalar scaleAdjust[2]) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 

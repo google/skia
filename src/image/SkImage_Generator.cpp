@@ -31,8 +31,9 @@ public:
     SkData* onRefEncoded(GrContext*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
+    sk_sp<GrTextureProxy> asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+                                       sk_sp<SkColorSpace>*,
+                                       SkScalar scaleAdjust[2]) const override;
     bool onIsLazyGenerated() const override { return true; }
 
 private:
@@ -72,15 +73,15 @@ SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
     return fCache.refEncoded(ctx);
 }
 
-bool SkImage_Generator::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
-                                    CachingHint chint) const {
-    return fCache.lockAsBitmap(bitmap, this, dstColorSpace, chint);
+bool SkImage_Generator::getROPixels(SkBitmap* bitmap,
+                                    SkColorSpace* dstColorSpace, CachingHint chint) const {
+    return fCache.lockAsBitmap(nullptr, bitmap, this, dstColorSpace, chint);
 }
 
-GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                           SkColorSpace* dstColorSpace,
-                                           sk_sp<SkColorSpace>* texColorSpace,
-                                           SkScalar scaleAdjust[2]) const {
+sk_sp<GrTextureProxy> SkImage_Generator::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
+                                                      SkColorSpace* dstColorSpace,
+                                                      sk_sp<SkColorSpace>* texColorSpace,
+                                                      SkScalar scaleAdjust[2]) const {
     return fCache.lockAsTexture(ctx, params, dstColorSpace, texColorSpace, this, scaleAdjust);
 }
 
