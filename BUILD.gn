@@ -6,6 +6,11 @@
 import("gn/android_framework_defines.gni")
 import("gn/shared_sources.gni")
 
+if (!defined(is_skia_standalone)) {
+  is_skia_standalone = false
+}
+is_skia_dev_build = is_skia_standalone && !is_official_build
+
 declare_args() {
   skia_use_angle = false
   skia_use_expat = true
@@ -25,11 +30,11 @@ declare_args() {
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
-  skia_enable_jumper = !is_official_build
+  skia_enable_jumper = is_skia_dev_build
   skia_enable_gpu = true
   skia_enable_pdf = true
-  skia_enable_tools = !is_official_build
-  skia_enable_vulkan_debug_layers = !is_official_build && is_debug
+  skia_enable_tools = is_skia_dev_build
+  skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
 }
 declare_args() {
