@@ -23,7 +23,6 @@
 #include "GrStencilAttachment.h"
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
-#include "gl/GrGLRenderTarget.h"
 
 #include "SkStrokeRec.h"
 
@@ -300,20 +299,13 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     args.fCaps = this->caps();
     args.fAnalysis = &analysis;
     if (analysis.usesPLSDstRead()) {
-        GrGLIRect viewport;
-        viewport.fLeft = 0;
-        viewport.fBottom = 0;
-        viewport.fWidth = renderTargetContext->width();
-        viewport.fHeight = renderTargetContext->height();
+        int width = renderTargetContext->width();
+        int height = renderTargetContext->height();
         SkIRect ibounds;
-        ibounds.fLeft = SkTPin(SkScalarFloorToInt(op->bounds().fLeft), viewport.fLeft,
-                              viewport.fWidth);
-        ibounds.fTop = SkTPin(SkScalarFloorToInt(op->bounds().fTop), viewport.fBottom,
-                             viewport.fHeight);
-        ibounds.fRight = SkTPin(SkScalarCeilToInt(op->bounds().fRight), viewport.fLeft,
-                               viewport.fWidth);
-        ibounds.fBottom = SkTPin(SkScalarCeilToInt(op->bounds().fBottom), viewport.fBottom,
-                                viewport.fHeight);
+        ibounds.fLeft = SkTPin(SkScalarFloorToInt(op->bounds().fLeft), 0, width);
+        ibounds.fTop = SkTPin(SkScalarFloorToInt(op->bounds().fTop), 0, height);
+        ibounds.fRight = SkTPin(SkScalarCeilToInt(op->bounds().fRight), 0, width);
+        ibounds.fBottom = SkTPin(SkScalarCeilToInt(op->bounds().fBottom), 0, height);
         if (!appliedClip.addScissor(ibounds)) {
             return;
         }
