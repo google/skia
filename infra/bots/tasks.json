@@ -3679,7 +3679,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "dependencies": [
