@@ -95,7 +95,6 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fDidTestPMConversions = false;
 
     GrRenderTargetOpList::Options rtOpListOptions;
-    rtOpListOptions.fClipDrawOpsToBounds = options.fClipDrawOpsToBounds;
     rtOpListOptions.fMaxOpCombineLookback = options.fMaxOpCombineLookback;
     rtOpListOptions.fMaxOpCombineLookahead = options.fMaxOpCombineLookahead;
     GrPathRendererChain::Options prcOptions;

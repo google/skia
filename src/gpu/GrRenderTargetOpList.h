@@ -41,7 +41,6 @@ class GrRenderTargetOpList final : public GrOpList {
 public:
     /** Options for GrRenderTargetOpList behavior. */
     struct Options {
-        bool fClipDrawOpsToBounds = false;
         int fMaxOpCombineLookback = -1;
         int fMaxOpCombineLookahead = -1;
     };
@@ -172,7 +171,6 @@ private:
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;
 
-    bool fClipOpToBounds;
     int fMaxOpLookback;
     int fMaxOpLookahead;
 
