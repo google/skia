@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e7d3f33_f8a54e96",
+        "filename": "site/user/build.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-03T13:36:11Z",
+      "side": 1,
+      "message": "How about:\n\nSet `target_os\u003d\"ios\"` to build for iOS.  This defaults to `target_cpu\u003d\"arm64\"`.\n\n    bin/gn gen out/ios64 --args\u003d\u0027target_os\u003d\"ios\"\u0027\n    bin/gn gen out/ios32 --args\u003d\u0027target_os\u003d\"ios\" target_cpu\u003d\"arm\"\u0027\n\nIf we mention is_official_build here again it makes it seem like it\u0027s required for iOS.  We cannot list all the options everyone might want every time we write a GN command line.",
+      "revId": "3067ee209362b858cc5dc7278e1cd89f10ee5e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
