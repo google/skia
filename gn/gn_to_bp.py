@@ -33,6 +33,7 @@ tool_shared_libs = [
     'libft2',
     'libdng_sdk',
     'libpiex',
+    'libcutils',
 ]
 
 # The ordering here is important: libsfntly needs to come after libskia.
@@ -57,6 +58,7 @@ cc_library {
         "-U_FORTIFY_SOURCE",
         "-D_FORTIFY_SOURCE=1",
         "-DSKIA_IMPLEMENTATION=1",
+        "-DATRACE_TAG=ATRACE_TAG_VIEW",
     ],
 
     export_include_dirs: [
@@ -129,6 +131,7 @@ cc_library {
         "libpng",
         "libvulkan",
         "libz",
+        "libcutils",
     ],
     static_libs: [
         "libarect",
