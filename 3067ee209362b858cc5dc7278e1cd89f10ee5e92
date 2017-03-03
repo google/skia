@@ -52,6 +52,24 @@
       "revId": "3067ee209362b858cc5dc7278e1cd89f10ee5e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "304f8b7c_38b4a923",
+        "filename": "site/user/build.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-03T13:57:41Z",
+      "side": 1,
+      "message": "That sounds like a fine, separate CL.\n\nEven when setting is_official_build (is_debug\u003dfalse, no debug symbols), users of Skia are probably not building Skia in a way that makes sense to ship.  See the [Third-party Dependencies] section below.  Maybe we should default those skia_use_system_foo flags to true when is_official_build?",
+      "parentUuid": "9a728996_dfb999de",
+      "revId": "3067ee209362b858cc5dc7278e1cd89f10ee5e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
