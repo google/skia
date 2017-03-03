@@ -52,6 +52,10 @@
 // typical block overhead of 8 bytes. For non-POD objects there is a per item overhead of 4 bytes.
 // For arrays of non-POD objects there is a per array overhead of typically 8 bytes. There is an
 // addition overhead when switching from POD data to non-POD data of typically 8 bytes.
+//
+// If additional blocks are needed they are increased exponentially. This strategy bounds the
+// recursion of the RunDtorsOnBlock to be limited to O(ln size-of-memory). In practical terms, this
+// is a maximum recursion depth of 33 for an 8GB machine but usually much less.
 class SkArenaAlloc {
 public:
     SkArenaAlloc(char* block, size_t size, size_t extraSize = 0);
@@ -192,6 +196,9 @@ private:
     char* const    fFirstBlock;
     const uint32_t fFirstSize;
     const uint32_t fExtraSize;
+    // The extra size allocations grow exponentially:
+    //    size-allocated = extraSize * 2 ^ fLogGrowth.
+    uint8_t        fLogGrowth {0};
 };
 
 #endif//SkFixedAlloc_DEFINED

@@ -100,7 +100,8 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
         objSizeAndOverhead += alignment - 1;
     }
 
-    uint32_t allocationSize = std::max(objSizeAndOverhead, fExtraSize);
+    uint32_t allocationSize = std::max(objSizeAndOverhead, fExtraSize << fLogGrowth);
+    fLogGrowth++;
 
     // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t. The > 32K
     // heuristic is from the JEMalloc behavior.
