@@ -16,6 +16,24 @@
       "revId": "3067ee209362b858cc5dc7278e1cd89f10ee5e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a728996_dfb999de",
+        "filename": "site/user/build.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-03T13:47:37Z",
+      "side": 1,
+      "message": "Maybe we should explain what is_official_build is at the top. Most people want official builds but they may not realize it.",
+      "parentUuid": "8e7d3f33_f8a54e96",
+      "revId": "3067ee209362b858cc5dc7278e1cd89f10ee5e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
