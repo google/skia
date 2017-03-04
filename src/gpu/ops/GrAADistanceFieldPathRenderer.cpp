@@ -174,7 +174,7 @@ private:
         fUsesDistanceField = true;
 #else
         // only use distance fields on desktop to save space in the atlas
-        fUsesDistanceField = this->bounds().width() > kMaxMIP || this->bounds().height() > kMaxMIP;
+        fUsesDistanceField = this->boundsX().width() > kMaxMIP || this->boundsX().height() > kMaxMIP;
 #endif
         fViewMatrix = viewMatrix;
         SkVector translate = SkVector::Make(0, 0);
@@ -695,8 +695,8 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AADistanceFieldPathOp* that = t->cast<AADistanceFieldPathOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                    that->boundsX(), caps)) {
             return false;
         }
 

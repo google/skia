@@ -136,22 +136,6 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
         // now copy all vertices
         memcpy(currVertex, blobVertices, byteCount);
 
-#ifdef SK_DEBUG
-        // bounds sanity check
-        SkRect rect;
-        rect.setLargestInverted();
-        SkPoint* vertex = (SkPoint*)((char*)blobVertices);
-        rect.growToInclude(vertex, vertexStride, kVerticesPerGlyph * subRunGlyphCount);
-
-        if (this->usesDistanceFields()) {
-            args.fViewMatrix.mapRect(&rect);
-        }
-        // Allow for small numerical error in the bounds.
-        SkRect bounds = this->bounds();
-        bounds.outset(0.001f, 0.001f);
-        SkASSERT(bounds.contains(rect));
-#endif
-
         currVertex += byteCount;
     }
 
@@ -172,8 +156,8 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
 
 bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
-    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                that->boundsX(), caps)) {
         return false;
     }
 

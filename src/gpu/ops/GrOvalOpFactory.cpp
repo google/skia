@@ -1108,8 +1108,8 @@ private:
             return false;
         }
 
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                    that->boundsX(), caps)) {
             return false;
         }
 
@@ -1338,8 +1338,8 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         EllipseOp* that = t->cast<EllipseOp>();
 
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                    that->boundsX(), caps)) {
             return false;
         }
 
@@ -1538,8 +1538,8 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DIEllipseOp* that = t->cast<DIEllipseOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                    that->boundsX(), caps)) {
             return false;
         }
 
@@ -2005,8 +2005,8 @@ private:
             return false;
         }
 
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                    that->boundsX(), caps)) {
             return false;
         }
 
@@ -2246,8 +2246,8 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         EllipticalRRectOp* that = t->cast<EllipticalRRectOp>();
 
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                    that->boundsX(), caps)) {
             return false;
         }
 

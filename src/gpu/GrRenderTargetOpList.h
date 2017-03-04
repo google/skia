@@ -133,7 +133,7 @@ private:
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
     GrOp* recordOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
-        SkRect bounds = op->bounds();
+        SkRect bounds = op->boundsX();
         return this->recordOp(std::move(op), renderTargetContext, bounds);
     }
 
