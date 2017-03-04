@@ -129,6 +129,12 @@ public:
     bool toXYZD50(SkMatrix44* toXYZD50) const;
 
     /**
+     *  Returns true if the color space is sRGB (sRGB transfer function and sRGB gamut).
+     *  Returns false otherwise.
+     */
+    bool isSRGB() const;
+
+    /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
      *  the data is too large to serialize.
      */
