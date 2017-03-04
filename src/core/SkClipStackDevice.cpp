@@ -9,16 +9,6 @@
 #include "SkDraw.h"
 #include "SkRasterClip.h"
 
-SkIRect SkClipStackDevice::devClipBounds() const {
-    SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();
-    if (!r.isEmpty()) {
-        SkASSERT(this->imageInfo().bounds().contains(r));
-    }
-    return r;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 void SkClipStackDevice::onSave() {
     fClipStack.save();
 }
@@ -62,47 +52,13 @@ void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
     }
 }
 
-bool SkClipStackDevice::onClipIsAA() const {
-    SkClipStack::B2TIter        iter(fClipStack);
-    const SkClipStack::Element* element;
-
-    while ((element = iter.next()) != nullptr) {
-        if (element->isAA()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
-    SkClipStack::BoundsType boundType;
-    bool isIntersectionOfRects;
-    SkRect bounds;
-    fClipStack.getBounds(&bounds, &boundType, &isIntersectionOfRects);
-    if (isIntersectionOfRects && SkClipStack::kNormal_BoundsType == boundType) {
-        rgn->setRect(bounds.round());
-    } else {
-        SkPath path;
-        fClipStack.asPath(&path);
-        rgn->setPath(path, SkRegion(SkIRect::MakeWH(this->width(), this->height())));
-    }
-}
-
-SkBaseDevice::ClipType SkClipStackDevice::onGetClipType() const {
-    if (fClipStack.isWideOpen()) {
-        return kRect_ClipType;
-    }
-    if (fClipStack.isEmpty(SkIRect::MakeWH(this->width(), this->height()))) {
-        return kEmpty_ClipType;
-    } else {
-        SkClipStack::BoundsType boundType;
-        bool isIntersectionOfRects;
-        SkRect bounds;
-        fClipStack.getBounds(&bounds, &boundType, &isIntersectionOfRects);
-        if (isIntersectionOfRects && SkClipStack::kNormal_BoundsType == boundType) {
-            return kRect_ClipType;
-        } else {
-            return kComplex_ClipType;
-        }
-    }
+SkIRect SkClipStackDevice::devClipBounds(const SkDraw& draw) const {
+#ifdef SK_USE_DEVICE_CLIPPING
+    SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();
+    SkASSERT(this->imageInfo().bounds().contains(r));
+    SkASSERT(draw.fRC->getBounds().contains(r));
+    return r;
+#else
+    return draw.fRC->getBounds();
+#endif
 }
