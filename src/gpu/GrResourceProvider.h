@@ -9,12 +9,9 @@
 #define GrResourceProvider_DEFINED
 
 #include "GrBuffer.h"
-#include "GrDrawOpAtlas.h"
 #include "GrGpu.h"
 #include "GrPathRange.h"
-#include "GrTextureProvider.h"
 
-class GrDrawOpAtlas;
 class GrPath;
 class GrRenderTarget;
 class GrSingleOwner;
@@ -25,21 +22,97 @@ class SkPath;
 class SkTypeface;
 
 /**
- * An extension of the texture provider for arbitrary resource types. This class is intended for
- * use within the Gr code base, not by clients or extensions (e.g. third party GrProcessor
- * derivatives).
+ * A factory for arbitrary resource types. This class is intended for use within the Gr code base.
  *
- * This currently inherits from GrTextureProvider non-publically to force callers to provider
- * make a flags (pendingIO) decision and not use the GrTP methods that don't take flags. This
- * can be relaxed once https://bug.skia.org/4156 is fixed.
+ * Some members force callers to make a flags (pendingIO) decision. This can be relaxed once
+ * https://bug.skia.org/4156 is fixed.
  */
-class GrResourceProvider : protected GrTextureProvider {
+class GrResourceProvider {
 public:
     GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner);
 
     template <typename T> T* findAndRefTByUniqueKey(const GrUniqueKey& key) {
         return static_cast<T*>(this->findAndRefResourceByUniqueKey(key));
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Textures
+
+    /**
+     * Creates a new texture in the resource cache and returns it. The caller owns a
+     * ref on the returned texture which must be balanced by a call to unref.
+     *
+     * @param desc          Description of the texture properties.
+     * @param budgeted      Does the texture count against the resource cache budget?
+     * @param texels        A contiguous array of mipmap levels
+     * @param mipLevelCount The amount of elements in the texels array
+     */
+    GrTexture* createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                      const GrMipLevel* texels, int mipLevelCount,
+                                      uint32_t flags = 0);
+
+    /**
+     * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
+     * It then calls createTexture with that SkTArray.
+     *
+     * @param srcData   Pointer to the pixel values (optional).
+     * @param rowBytes  The number of bytes between rows of the texture. Zero
+     *                  implies tightly packed rows. For compressed pixel configs, this
+     *                  field is ignored.
+     */
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* srcData,
+                             size_t rowBytes, uint32_t flags = 0);
+
+    /** Shortcut for creating a texture with no initial data to upload. */
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, uint32_t flags = 0) {
+        return this->createTexture(desc, budgeted, nullptr, 0, flags);
+    }
+
+    /** Assigns a unique key to the texture. The texture will be findable via this key using
+    findTextureByUniqueKey(). If an existing texture has this key, it's key will be removed. */
+    void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
+        SkASSERT(key.isValid());
+        this->assignUniqueKeyToResource(key, texture);
+    }
+
+    /** Finds a texture by unique key. If the texture is found it is ref'ed and returned. */
+    GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
+
+    /**
+     * Finds a texture that approximately matches the descriptor. Will be at least as large in width
+     * and height as desc specifies. If desc specifies that the texture should be a render target
+     * then result will be a render target. Format and sample count will always match the request.
+     * The contents of the texture are undefined. The caller owns a ref on the returned texture and
+     * must balance with a call to unref.
+     */
+    GrTexture* createApproxTexture(const GrSurfaceDesc&, uint32_t flags);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Wrapped Backend Surfaces
+
+    /**
+     * Wraps an existing texture with a GrTexture object.
+     *
+     * OpenGL: if the object is a texture Gr may change its GL texture params
+     *         when it is drawn.
+     *
+     * @return GrTexture object or NULL on failure.
+     */
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTextureDesc& desc,
+                                        GrWrapOwnership = kBorrow_GrWrapOwnership);
+
+    /**
+     * Wraps an existing render target with a GrRenderTarget object. It is
+     * similar to wrapBackendTexture but can be used to draw into surfaces
+     * that are not also textures (e.g. FBO 0 in OpenGL, or an MSAA buffer that
+     * the client will resolve to a texture). Currently wrapped render targets
+     * always use the kBorrow_GrWrapOwnership semantics.
+     *
+     * @return GrRenderTarget object or NULL on failure.
+     */
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
+
+    static const int kMinScratchTextureSize;
 
     /**
      * Either finds and refs, or creates an index buffer for instanced drawing with a specific
@@ -89,26 +162,24 @@ public:
     GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
                               const SkDescriptor*, const GrStyle&);
 
-    using GrTextureProvider::createTexture;
-    using GrTextureProvider::assignUniqueKeyToResource;
-    using GrTextureProvider::findAndRefResourceByUniqueKey;
-    using GrTextureProvider::findAndRefTextureByUniqueKey;
-    using GrTextureProvider::abandon;
-
-    /** These flags alias/extend GrTextureProvider::ScratchTextureFlags */
+    /** These flags govern which scratch resources we are allowed to return */
     enum Flags {
+        kExact_Flag           = 0x1,
+
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
          *  set when accessing resources during a GrOpList flush. This includes the execution of
          *  GrOp objects. The reason is that these memory operations are done immediately and
          *  will occur out of order WRT the operations being flushed.
          *  Make this automatic: https://bug.skia.org/4156
          */
-        kNoPendingIO_Flag = GrTextureProvider::kNoPendingIO_ScratchTextureFlag,
+        kNoPendingIO_Flag     = 0x2,
+
+        kNoCreate_Flag        = 0x4,
 
         /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
          *  creating a buffer to guarantee it resides in GPU memory.
          */
-        kRequireGpuMemory_Flag = GrTextureProvider::kLastScratchTextureFlag << 1,
+        kRequireGpuMemory_Flag = 0x8,
     };
 
     /**
@@ -125,19 +196,12 @@ public:
     GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, uint32_t flags,
                            const void* data = nullptr);
 
-    GrTexture* createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
-        SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
-        return this->internalCreateApproxTexture(desc, flags);
-    }
 
     /**
      * If passed in render target already has a stencil buffer, return it. Otherwise attempt to
      * attach one.
      */
     GrStencilAttachment* attachStencilAttachment(GrRenderTarget* rt);
-
-    GrContext* context() { return this->gpu()->getContext(); }
-    const GrCaps* caps() { return this->gpu()->caps(); }
 
      /**
       * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided
@@ -150,7 +214,40 @@ public:
       */
      sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
 
+    /**
+     * Assigns a unique key to a resource. If the key is associated with another resource that
+     * association is removed and replaced by this resource.
+     */
+    void assignUniqueKeyToResource(const GrUniqueKey&, GrGpuResource*);
+
+    /**
+     * Finds a resource in the cache, based on the specified key. This is intended for use in
+     * conjunction with addResourceToCache(). The return value will be NULL if not found. The
+     * caller must balance with a call to unref().
+     */
+    GrGpuResource* findAndRefResourceByUniqueKey(const GrUniqueKey&);
+
+    void abandon() {
+        fCache = NULL;
+        fGpu = NULL;
+    }
+
 private:
+    GrTexture* internalCreateApproxTexture(const GrSurfaceDesc& desc, uint32_t scratchTextureFlags);
+
+    GrTexture* refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
+
+    GrResourceCache* cache() { return fCache; }
+    const GrResourceCache* cache() const { return fCache; }
+
+    GrGpu* gpu() { return fGpu; }
+    const GrGpu* gpu() const { return fGpu; }
+
+    bool isAbandoned() const {
+        SkASSERT(SkToBool(fGpu) == SkToBool(fCache));
+        return !SkToBool(fCache);
+    }
+
     const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
                                                int patternSize,
                                                int reps,
@@ -159,9 +256,12 @@ private:
 
     const GrBuffer* createQuadIndexBuffer();
 
+    GrResourceCache* fCache;
+    GrGpu* fGpu;
     GrUniqueKey fQuadIndexBufferKey;
 
-    typedef GrTextureProvider INHERITED;
+    // In debug builds we guard against improper thread handling
+    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
 
 #endif

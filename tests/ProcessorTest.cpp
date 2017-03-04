@@ -72,7 +72,7 @@ private:
            const SkTArray<Image>& images)
             : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
         for (const auto& proxy : proxies) {
-            this->addTextureSampler(&fSamplers.emplace_back(context->textureProvider(), proxy));
+            this->addTextureSampler(&fSamplers.emplace_back(context->resourceProvider(), proxy));
         }
         for (const auto& buffer : buffers) {
             this->addBufferAccess(&fBuffers.emplace_back(kRGBA_8888_GrPixelConfig, buffer.get()));
@@ -138,7 +138,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
         {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
             bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
-            sk_sp<GrTextureProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->textureProvider(),
+            sk_sp<GrTextureProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                                       *context->caps(), desc,
                                                                       SkBackingFit::kExact,
                                                                       SkBudgeted::kYes));
@@ -287,7 +287,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                     texel_color(random.nextULessThan(256), random.nextULessThan(256));
         }
     }
-    sk_sp<GrTexture> tex0(context->textureProvider()->createTexture(
+    sk_sp<GrTexture> tex0(context->resourceProvider()->createTexture(
             desc, SkBudgeted::kYes, rgbaData.get(), 256 * sizeof(GrColor)));
 
     // Put random values into the alpha texture that the test FPs can optionally use.
@@ -298,8 +298,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             alphaData.get()[256 * y + x] = random.nextULessThan(256);
         }
     }
-    sk_sp<GrTexture> tex1(context->textureProvider()->createTexture(desc, SkBudgeted::kYes,
-                                                                    alphaData.get(), 256));
+    sk_sp<GrTexture> tex1(context->resourceProvider()->createTexture(desc, SkBudgeted::kYes,
+                                                                     alphaData.get(), 256));
     GrTexture* textures[] = {tex0.get(), tex1.get()};
     GrProcessorTestData testData(&random, context, rtc.get(), textures);
 
@@ -313,7 +313,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                   context->textureProvider(),
+                                                                   context->resourceProvider(),
                                                                    desc, SkBudgeted::kYes,
                                                                    rgbaData.get(),
                                                                    256 * sizeof(GrColor));

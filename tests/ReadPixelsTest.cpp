@@ -16,7 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTextureProvider.h"
+#include "GrResourceProvider.h"
 #include "SkGr.h"
 #endif
 
@@ -481,7 +481,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
             desc.fHeight = DEV_H;
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = origin;
-            sk_sp<GrTexture> texture(ctxInfo.grContext()->textureProvider()->createTexture(desc,
+            sk_sp<GrTexture> texture(ctxInfo.grContext()->resourceProvider()->createTexture(desc,
                 SkBudgeted::kNo));
             test_readpixels_texture(reporter, texture.get());
         }

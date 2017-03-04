@@ -219,7 +219,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     desc.fConfig = kConfig;
 
     sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                   context->textureProvider(),
+                                                                   context->resourceProvider(),
                                                                    desc, SkBudgeted::kYes, data, 0);
     if (!dataProxy) {
         return;

@@ -10,7 +10,6 @@
 
 #include "GrColor.h"
 #include "GrRenderTargetContext.h"
-#include "GrTextureProvider.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkDraw.h"
@@ -22,7 +21,6 @@
 class GrClip;
 class GrPaint;
 class GrShape;
-class GrTextureProvider;
 class GrStyle;
 class GrTexture;
 struct GrUserStencilSettings;

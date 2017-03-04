@@ -12,8 +12,8 @@
 #include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
-#include "GrTextureProvider.h"
 #include "GrTextureRenderTargetProxy.h"
 
 #include "SkMathPriv.h"
@@ -36,15 +36,15 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkSafeUnref(fLastOpList);
 }
 
-GrSurface* GrSurfaceProxy::instantiate(GrTextureProvider* texProvider) {
+GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (fTarget) {
         return fTarget;
     }
 
     if (SkBackingFit::kApprox == fFit) {
-        fTarget = texProvider->createApproxTexture(fDesc, fFlags);
+        fTarget = resourceProvider->createApproxTexture(fDesc, fFlags);
     } else {
-        fTarget = texProvider->createTexture(fDesc, fBudgeted, fFlags);
+        fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags);
     }
     if (!fTarget) {
         return nullptr;
@@ -71,7 +71,7 @@ int GrSurfaceProxy::worstCaseWidth(const GrCaps& caps) const {
     }
 
     if (caps.reuseScratchTextures() || fDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
-        return SkTMax(GrTextureProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fWidth));
+        return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fWidth));
     }
 
     return fDesc.fWidth;
@@ -87,7 +87,7 @@ int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
     }
 
     if (caps.reuseScratchTextures() || fDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
-        return SkTMax(GrTextureProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fHeight));
+        return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fHeight));
     }
 
     return fDesc.fHeight;
@@ -146,7 +146,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
 
 #include "GrResourceProvider.h"
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrTextureProvider* texProvider,
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
                                                    const GrCaps& caps,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
@@ -199,9 +199,9 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrTextureProvider* texProvide
     sk_sp<GrTexture> tex;
 
     if (SkBackingFit::kApprox == fit) {
-        tex.reset(texProvider->createApproxTexture(copyDesc));
+        tex.reset(resourceProvider->createApproxTexture(copyDesc, 0));
     } else {
-        tex.reset(texProvider->createTexture(copyDesc, budgeted));
+        tex.reset(resourceProvider->createTexture(copyDesc, budgeted));
     }
 
     if (!tex) {
@@ -222,24 +222,25 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrTextureProvider* texProvide
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
-                                                   GrTextureProvider* texProvider,
+                                                   GrResourceProvider* resourceProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
                                                    const void* srcData,
                                                    size_t rowBytes) {
     if (srcData) {
         // If we have srcData, for now, we create a wrapped GrTextureProxy
-        sk_sp<GrTexture> tex(texProvider->createTexture(desc, budgeted, srcData, rowBytes));
+        sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted, srcData, rowBytes));
         return GrSurfaceProxy::MakeWrapped(std::move(tex));
     }
 
-    return GrSurfaceProxy::MakeDeferred(texProvider, caps, desc, SkBackingFit::kExact, budgeted);
+    return GrSurfaceProxy::MakeDeferred(resourceProvider, caps, desc, SkBackingFit::kExact,
+                                        budgeted);
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
                                                          GrBackendTextureDesc& desc,
                                                          GrWrapOwnership ownership) {
-    sk_sp<GrTexture> tex(context->textureProvider()->wrapBackendTexture(desc, ownership));
+    sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(desc, ownership));
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
