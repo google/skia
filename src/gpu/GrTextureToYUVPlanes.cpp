@@ -10,9 +10,9 @@
 #include "effects/GrYUVEffect.h"
 #include "GrClip.h"
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "GrPaint.h"
-#include "GrTextureProvider.h"
+#include "GrRenderTargetContext.h"
+#include "GrResourceProvider.h"
 
 namespace {
     using MakeFPProc = sk_sp<GrFragmentProcessor> (*)(sk_sp<GrFragmentProcessor>,

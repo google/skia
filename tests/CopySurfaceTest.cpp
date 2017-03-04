@@ -11,10 +11,10 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
 #include "GrTexture.h"
-#include "GrTextureProvider.h"
 
 #include "SkUtils.h"
 
@@ -75,14 +75,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
 
                             sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(
                                                                     *context->caps(),
-                                                                    context->textureProvider(),
+                                                                    context->resourceProvider(),
                                                                     srcDesc, SkBudgeted::kNo,
                                                                     srcPixels.get(),
                                                                     kRowBytes));
 
                             sk_sp<GrTextureProxy> dst(GrSurfaceProxy::MakeDeferred(
                                                                     *context->caps(),
-                                                                    context->textureProvider(),
+                                                                    context->resourceProvider(),
                                                                     dstDesc, SkBudgeted::kNo,
                                                                     dstPixels.get(),
                                                                     kRowBytes));

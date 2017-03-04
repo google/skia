@@ -360,7 +360,7 @@ public:
     GrRenderTarget* accessRenderTarget() {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
-        return fRenderTargetProxy->instantiate(fContext->textureProvider());
+        return fRenderTargetProxy->instantiate(fContext->resourceProvider());
     }
 
     GrSurfaceProxy* asSurfaceProxy() override { return fRenderTargetProxy.get(); }

@@ -486,7 +486,7 @@ private:
 
 class GrPerlinNoiseEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider* textureProvider,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
                                            SkPerlinNoiseShader::Type type,
                                            int numOctaves, bool stitchTiles,
                                            SkPerlinNoiseShader::PaintingData* paintingData,
@@ -494,7 +494,7 @@ public:
                                            sk_sp<GrTextureProxy> noiseProxy,
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
-            new GrPerlinNoiseEffect(textureProvider, type, numOctaves, stitchTiles, paintingData,
+            new GrPerlinNoiseEffect(resourceProvider, type, numOctaves, stitchTiles, paintingData,
                                     std::move(permutationsProxy), std::move(noiseProxy), matrix));
     }
 
@@ -528,7 +528,7 @@ private:
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
     }
 
-    GrPerlinNoiseEffect(GrTextureProvider* textureProvider,
+    GrPerlinNoiseEffect(GrResourceProvider* resourceProvider,
                         SkPerlinNoiseShader::Type type, int numOctaves, bool stitchTiles,
                         SkPerlinNoiseShader::PaintingData* paintingData,
                         sk_sp<GrTextureProxy> permutationsProxy, sk_sp<GrTextureProxy> noiseProxy,
@@ -538,8 +538,8 @@ private:
             , fCoordTransform(matrix)
             , fNumOctaves(numOctaves)
             , fStitchTiles(stitchTiles)
-            , fPermutationsSampler(textureProvider, std::move(permutationsProxy))
-            , fNoiseSampler(textureProvider, std::move(noiseProxy))
+            , fPermutationsSampler(resourceProvider, std::move(permutationsProxy))
+            , fNoiseSampler(resourceProvider, std::move(noiseProxy))
             , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
@@ -926,7 +926,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader::asFragmentProcessor(const AsFPAr
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
     if (permutationsProxy && noiseProxy) {
         sk_sp<GrFragmentProcessor> inner(
-            GrPerlinNoiseEffect::Make(args.fContext->textureProvider(),
+            GrPerlinNoiseEffect::Make(args.fContext->resourceProvider(),
                                       fType,
                                       fNumOctaves,
                                       fStitchTiles,

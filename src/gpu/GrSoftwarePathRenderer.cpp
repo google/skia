@@ -10,16 +10,16 @@
 #include "GrClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrPipelineBuilder.h"
+#include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
 #include "GrSurfaceContextPriv.h"
-#include "GrTextureProvider.h"
 #include "ops/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // Pass on any style that applies. The caller will apply the style if a suitable renderer is
     // not found and try again with the new GrShape.
-    return !args.fShape->style().applies() && SkToBool(fTexProvider) &&
+    return !args.fShape->style().applies() && SkToBool(fResourceProvider) &&
            (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone);
 }
 
@@ -129,7 +129,7 @@ void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTarg
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrSoftwarePathRenderer::onDrawPath");
-    if (!fTexProvider) {
+    if (!fResourceProvider) {
         return false;
     }
 
@@ -206,7 +206,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     sk_sp<GrTexture> texture;
     if (useCache) {
-        texture.reset(fTexProvider->findAndRefTextureByUniqueKey(maskKey));
+        texture.reset(fResourceProvider->findAndRefTextureByUniqueKey(maskKey));
     }
     if (!texture) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
@@ -219,7 +219,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             return false;
         }
         if (useCache) {
-            fTexProvider->assignUniqueKeyToTexture(maskKey, texture.get());
+            fResourceProvider->assignUniqueKeyToTexture(maskKey, texture.get());
         }
     }
     if (inverseFilled) {

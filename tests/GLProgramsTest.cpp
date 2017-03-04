@@ -292,13 +292,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     sk_sp<GrTexture> dummyTexture1(
-        context->textureProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
+        context->resourceProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
     sk_sp<GrTexture> dummyTexture2(
-        context->textureProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
+        context->resourceProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
 
     if (!dummyTexture1 || ! dummyTexture2) {
         SkDebugf("Could not allocate dummy textures");

@@ -10,7 +10,6 @@
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
-#include "GrTextureProvider.h"
 #include "SkGr.h"
 #include "SkPixelRef.h"
 #include "SkTSearch.h"
@@ -209,9 +208,9 @@ void GrTextureStripAtlas::lockTexture() {
     builder.finish();
 
     // MDB TODO (caching): this side-steps the issue of proxies with unique IDs
-    sk_sp<GrTexture> texture(fDesc.fContext->textureProvider()->findAndRefTextureByUniqueKey(key));
+    sk_sp<GrTexture> texture(fDesc.fContext->resourceProvider()->findAndRefTextureByUniqueKey(key));
     if (!texture) {
-        texture.reset(fDesc.fContext->textureProvider()->createTexture(
+        texture.reset(fDesc.fContext->resourceProvider()->createTexture(
                                                         texDesc, SkBudgeted::kYes,
                                                         nullptr, 0,
                                                         GrResourceProvider::kNoPendingIO_Flag));
@@ -219,7 +218,7 @@ void GrTextureStripAtlas::lockTexture() {
             return;
         }
 
-        fDesc.fContext->textureProvider()->assignUniqueKeyToTexture(key, texture.get());
+        fDesc.fContext->resourceProvider()->assignUniqueKeyToTexture(key, texture.get());
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();

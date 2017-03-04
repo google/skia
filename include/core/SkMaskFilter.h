@@ -22,9 +22,9 @@ class GrRenderTargetContext;
 class GrPaint;
 class GrFragmentProcessor;
 class GrRenderTarget;
+class GrResourceProvider;
 class GrTexture;
 class GrTextureProxy;
-class GrTextureProvider;
 class SkBitmap;
 class SkBlitter;
 class SkCachedData;
@@ -115,7 +115,7 @@ public:
      *  Try to directly render the mask filter into the target. Returns true if drawing was
      *  successful. If false is returned then paint is unmodified.
      */
-    virtual bool directFilterMaskGPU(GrTextureProvider* texProvider,
+    virtual bool directFilterMaskGPU(GrResourceProvider* resourceProvider,
                                      GrRenderTargetContext* renderTargetContext,
                                      GrPaint&& paint,
                                      const GrClip&,

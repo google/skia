@@ -515,7 +515,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, const SkBi
 ColorTableEffect::ColorTableEffect(GrContext* context, sk_sp<GrTextureProxy> proxy,
                                    GrTextureStripAtlas* atlas, int row, unsigned flags)
         : INHERITED(kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
-        , fTextureSampler(context->textureProvider(), std::move(proxy))
+        , fTextureSampler(context->resourceProvider(), std::move(proxy))
         , fAtlas(atlas)
         , fRow(row) {
     this->initClassID<ColorTableEffect>();

@@ -423,7 +423,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
         const SkIRect& subset,
         const SkIPoint& deviceSpaceOffset)
         : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-        , fTextureSampler(context->textureProvider(), proxy, GrSamplerParams::ClampNoFilter())
+        , fTextureSampler(context->resourceProvider(), proxy, GrSamplerParams::ClampNoFilter())
         , fTextureDomain(proxy.get(), GrTextureDomain::MakeTexelDomain(subset),
                          GrTextureDomain::kDecal_Mode) {
     this->addTextureSampler(&fTextureSampler);

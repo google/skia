@@ -16,10 +16,10 @@
 class GrCaps;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
+class GrResourceProvider;
 class GrSurfaceContext;
 class GrSurfaceProxyPriv;
 class GrTextureOpList;
-class GrTextureProvider;
 class GrTextureProxy;
 
 //#define SK_DISABLE_DEFERRED_PROXIES 1
@@ -172,13 +172,13 @@ public:
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
 
-    static sk_sp<GrTextureProxy> MakeDeferred(GrTextureProvider*, const GrCaps&,
+    static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*, const GrCaps&,
                                               const GrSurfaceDesc&, SkBackingFit,
                                               SkBudgeted, uint32_t flags = 0);
 
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
-    static sk_sp<GrTextureProxy> MakeDeferred(const GrCaps&, GrTextureProvider*,
+    static sk_sp<GrTextureProxy> MakeDeferred(const GrCaps&, GrResourceProvider*,
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
@@ -237,7 +237,7 @@ public:
      */
     UniqueID uniqueID() const { return fUniqueID; }
 
-    GrSurface* instantiate(GrTextureProvider* texProvider);
+    GrSurface* instantiate(GrResourceProvider* resourceProvider);
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.

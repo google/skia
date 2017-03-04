@@ -122,17 +122,17 @@ public:
     }
 
     /**
-     * Implements GrTextureProvider::wrapBackendTexture
+     * Implements GrResourceProvider::wrapBackendTexture
      */
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership);
 
     /**
-     * Implements GrTextureProvider::wrapBackendRenderTarget
+     * Implements GrResourceProvider::wrapBackendRenderTarget
      */
     sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&,GrWrapOwnership);
 
     /**
-     * Implements GrTextureProvider::wrapBackendTextureAsRenderTarget
+     * Implements GrResourceProvider::wrapBackendTextureAsRenderTarget
      */
     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&);
 
@@ -480,14 +480,14 @@ public:
 
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerParams. This variation is called when the caller will create a new texture using the
-    // texture provider from a non-texture src (cpu-backed image, ...).
+    // resource provider from a non-texture src (cpu-backed image, ...).
     bool makeCopyForTextureParams(int width, int height, const GrSamplerParams&,
                                  GrTextureProducer::CopyParams*, SkScalar scaleAdjust[2]) const;
 
     // Like the above but this variation should be called when the caller is not creating the
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
-    // GrTextureProvider::wrap methods.
+    // GrResourceProvider::wrap methods.
     bool makeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& params,
                                   GrTextureProducer::CopyParams* copyParams,
                                   SkScalar scaleAdjust[2]) const {

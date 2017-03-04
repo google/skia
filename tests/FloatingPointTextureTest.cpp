@@ -17,8 +17,8 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrResourceProvider.h"
 #include "GrTexture.h"
-#include "GrTextureProvider.h"
 #include "SkHalf.h"
 
 static const int DEV_W = 100, DEV_H = 100;
@@ -51,7 +51,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fHeight = DEV_H;
         desc.fConfig = config;
         desc.fOrigin = 0 == origin ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-        sk_sp<GrTexture> fpTexture(context->textureProvider()->createTexture(
+        sk_sp<GrTexture> fpTexture(context->resourceProvider()->createTexture(
             desc, SkBudgeted::kNo, controlPixelData.begin(), 0));
         // Floating point textures are NOT supported everywhere
         if (nullptr == fpTexture) {

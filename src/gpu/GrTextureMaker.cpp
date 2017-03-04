@@ -9,7 +9,7 @@
 
 #include "GrContext.h"
 #include "GrGpu.h"
-#include "GrTextureProvider.h"
+#include "GrResourceProvider.h"
 
 GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
                                                SkColorSpace* dstColorSpace,
@@ -33,7 +33,7 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey, dstColorSpace);
     if (copyKey.isValid()) {
-        GrTexture* result = fContext->textureProvider()->findAndRefTextureByUniqueKey(copyKey);
+        GrTexture* result = fContext->resourceProvider()->findAndRefTextureByUniqueKey(copyKey);
         if (result) {
             return result;
         }
@@ -45,7 +45,7 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
     }
 
     if (copyKey.isValid()) {
-        fContext->textureProvider()->assignUniqueKeyToTexture(copyKey, result);
+        fContext->resourceProvider()->assignUniqueKeyToTexture(copyKey, result);
         this->didCacheCopy(copyKey);
     }
     return result;

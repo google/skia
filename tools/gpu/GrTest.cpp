@@ -130,7 +130,7 @@ sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
         return nullptr;
     }
 
-    GrTexture* tex = proxy->instantiate(this->textureProvider());
+    GrTexture* tex = proxy->instantiate(this->resourceProvider());
     if (!tex) {
         return nullptr;
     }

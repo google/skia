@@ -17,10 +17,10 @@
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceProvider.h"
 #include "GrSemaphore.h"
 #include "GrTextureAdjuster.h"
 #include "GrTexturePriv.h"
-#include "GrTextureProvider.h"
 #include "GrTextureProxy.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
@@ -195,7 +195,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     }
 
     // TODO: make gpu images be proxy-backed so we don't need to do this
-    GrSurface* subTx = sContext->asSurfaceProxy()->instantiate(ctx->textureProvider());
+    GrSurface* subTx = sContext->asSurfaceProxy()->instantiate(ctx->resourceProvider());
     if (!subTx) {
         return nullptr;
     }
@@ -215,7 +215,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx, const GrBackend
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
         return nullptr;
     }
-    sk_sp<GrTexture> tex = ctx->textureProvider()->wrapBackendTexture(desc, ownership);
+    sk_sp<GrTexture> tex = ctx->resourceProvider()->wrapBackendTexture(desc, ownership);
     if (!tex) {
         return nullptr;
     }

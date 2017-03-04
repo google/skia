@@ -159,10 +159,10 @@ private:
                    GrSamplerParams::FilterMode uvFilterMode, SkYUVColorSpace colorSpace, bool nv12)
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
             , fYTransform(ctx, yuvMatrix[0], yProxy.get(), GrSamplerParams::kNone_FilterMode)
-            , fYSampler(ctx->textureProvider(), std::move(yProxy))
+            , fYSampler(ctx->resourceProvider(), std::move(yProxy))
             , fUTransform(ctx, yuvMatrix[1], uProxy.get(), uvFilterMode)
-            , fUSampler(ctx->textureProvider(), std::move(uProxy), uvFilterMode)
-            , fVSampler(ctx->textureProvider(), vProxy, uvFilterMode)
+            , fUSampler(ctx->resourceProvider(), std::move(uProxy), uvFilterMode)
+            , fVSampler(ctx->resourceProvider(), vProxy, uvFilterMode)
             , fColorSpace(colorSpace)
             , fNV12(nv12) {
         this->initClassID<YUVtoRGBEffect>();

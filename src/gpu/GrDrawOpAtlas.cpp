@@ -28,7 +28,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
     // guarantee we do not recieve a texture with pending IO
     // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(ctx->textureProvider()->createApproxTexture(desc, kFlags));
+    sk_sp<GrTexture> texture(ctx->resourceProvider()->createApproxTexture(desc, kFlags));
     if (!texture) {
         return nullptr;
     }
@@ -210,7 +210,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
-        GrTexture* texture = fProxy->instantiate(fContext->textureProvider());
+        GrTexture* texture = fProxy->instantiate(fContext->resourceProvider());
         if (!texture) {
             return false;
         }
@@ -289,7 +289,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
-    GrTexture* texture = fProxy->instantiate(fContext->textureProvider());
+    GrTexture* texture = fProxy->instantiate(fContext->resourceProvider());
     if (!texture) {
         return false;
     }

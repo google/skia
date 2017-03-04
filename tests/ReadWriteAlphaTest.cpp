@@ -12,9 +12,9 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
-#include "GrTextureProvider.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
@@ -57,7 +57,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
         sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                 context->textureProvider(),
+                                                                 context->resourceProvider(),
                                                                  desc,
                                                                  SkBudgeted::kNo,
                                                                  alphaData, 0));
@@ -161,7 +161,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 }
             }
             sk_sp<GrTexture> texture(
-                context->textureProvider()->createTexture(desc, SkBudgeted::kNo, rgbaData, 0));
+                context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, rgbaData, 0));
             if (!texture) {
                 // We always expect to be able to create a RGBA texture
                 if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {

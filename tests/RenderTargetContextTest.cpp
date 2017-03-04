@@ -71,7 +71,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
         GrTextureProxy* tProxy = rtCtx->asTextureProxy();
         REPORTER_ASSERT(reporter, tProxy);
 
-        GrTexture* tex = tProxy->instantiate(ctx->textureProvider());
+        GrTexture* tex = tProxy->instantiate(ctx->resourceProvider());
         REPORTER_ASSERT(reporter, tex);
 
         check_is_wrapped_status(reporter, rtCtx.get(), true);

@@ -91,7 +91,7 @@ protected:
         desc.fConfig = SkImageInfo2GrPixelConfig(fBmp.info(), *context->caps());
 
         sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                 context->textureProvider(),
+                                                                 context->resourceProvider(),
                                                                  desc, SkBudgeted::kYes,
                                                                  fBmp.getPixels(),
                                                                  fBmp.rowBytes()));

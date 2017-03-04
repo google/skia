@@ -12,7 +12,6 @@
 
 class GrContext;
 class GrFragmentProcessor;
-class GrTextureProvider;
 class GrTextureProxy;
 
 namespace GrYUVEffect {

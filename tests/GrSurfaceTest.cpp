@@ -12,8 +12,8 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrRenderTarget.h"
+#include "GrResourceProvider.h"
 #include "GrTexture.h"
-#include "GrTextureProvider.h"
 #include "GrSurfacePriv.h"
 #include "Test.h"
 
@@ -27,7 +27,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fSampleCnt = 0;
-    GrSurface* texRT1 = context->textureProvider()->createTexture(
+    GrSurface* texRT1 = context->resourceProvider()->createTexture(
             desc, SkBudgeted::kNo, nullptr, 0);
 
     REPORTER_ASSERT(reporter, texRT1 == texRT1->asRenderTarget());
@@ -40,7 +40,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     desc.fFlags = kNone_GrSurfaceFlags;
-    GrSurface* tex1 = context->textureProvider()->createTexture(desc, SkBudgeted::kNo, nullptr, 0);
+    GrSurface* tex1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, nullptr, 0);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1 == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1) == tex1->asTexture());
@@ -55,7 +55,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     backendDesc.fHeight = 256;
     backendDesc.fSampleCnt = 0;
     backendDesc.fTextureHandle = backendTex;
-    sk_sp<GrSurface> texRT2 = context->textureProvider()->wrapBackendTexture(
+    sk_sp<GrSurface> texRT2 = context->resourceProvider()->wrapBackendTexture(
         backendDesc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());

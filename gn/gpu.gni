@@ -211,8 +211,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrTexturePriv.h",
   "$_src/gpu/GrTextureProducer.cpp",
   "$_src/gpu/GrTextureProducer.h",
-  "$_src/gpu/GrTextureProvider.cpp",
-  "$_src/gpu/GrTextureProvider.h",
   "$_src/gpu/GrTextureProxy.cpp",
   "$_src/gpu/GrTextureRenderTargetProxy.cpp",
   "$_src/gpu/GrTextureToYUVPlanes.cpp",

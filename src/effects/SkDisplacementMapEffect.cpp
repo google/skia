@@ -498,11 +498,11 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
                                                            : kNone_OptimizationFlags)
         , fDisplacementTransform(context, offsetMatrix, displacement.get(),
                                  GrSamplerParams::kNone_FilterMode)
-        , fDisplacementSampler(context->textureProvider(), displacement)
+        , fDisplacementSampler(context->resourceProvider(), displacement)
         , fColorTransform(context, color.get(), GrSamplerParams::kNone_FilterMode)
         , fDomain(color.get(), GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
                   GrTextureDomain::kDecal_Mode)
-        , fColorSampler(context->textureProvider(), color)
+        , fColorSampler(context->resourceProvider(), color)
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)

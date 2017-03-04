@@ -151,7 +151,7 @@ sk_sp<GrTexture> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
         return nullptr;
     }
 
-    return sk_ref_sp(tProxy->instantiate(context->textureProvider()));
+    return sk_ref_sp(tProxy->instantiate(context->resourceProvider()));
 }
 
 void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,

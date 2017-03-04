@@ -10,11 +10,11 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "GrSurfaceProxy.h"
-#include "GrTextureProvider.h"
-#include "GrTextureProxy.h"
 #include "GrRenderTargetPriv.h"
 #include "GrRenderTargetProxy.h"
+#include "GrResourceProvider.h"
+#include "GrSurfaceProxy.h"
+#include "GrTextureProxy.h"
 
 // Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,
@@ -38,7 +38,7 @@ static void check_surface(skiatest::Reporter* reporter,
 
 static void check_rendertarget(skiatest::Reporter* reporter,
                                const GrCaps& caps,
-                               GrTextureProvider* provider,
+                               GrResourceProvider* provider,
                                GrRenderTargetProxy* rtProxy,
                                int numSamples,
                                SkBackingFit fit,
@@ -80,7 +80,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
 }
 
 static void check_texture(skiatest::Reporter* reporter,
-                          GrTextureProvider* provider,
+                          GrResourceProvider* provider,
                           GrTextureProxy* texProxy,
                           SkBackingFit fit,
                           bool wasWrapped) {
@@ -110,7 +110,7 @@ static void check_texture(skiatest::Reporter* reporter,
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
-    GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
+    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
     const GrGpuResource::UniqueID kInvalidResourceID = GrGpuResource::UniqueID::InvalidID();
@@ -135,7 +135,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
-                                    tex.reset(provider->createApproxTexture(desc));
+                                    tex.reset(provider->createApproxTexture(desc, 0));
                                 } else {
                                     tex.reset(provider->createTexture(desc, budgeted));
                                 }
@@ -169,7 +169,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
-                                    tex.reset(provider->createApproxTexture(desc));
+                                    tex.reset(provider->createApproxTexture(desc, 0));
                                 } else {
                                     tex.reset(provider->createTexture(desc, budgeted));
                                 }
@@ -206,7 +206,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
-    GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
+    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
     static const int kWidthHeight = 100;

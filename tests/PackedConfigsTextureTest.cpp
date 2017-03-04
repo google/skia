@@ -15,8 +15,8 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrResourceProvider.h"
 #include "GrTexture.h"
-#include "GrTextureProvider.h"
 
 static const int DEV_W = 10, DEV_H = 10;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
@@ -117,7 +117,7 @@ void runTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fConfig = config;
         desc.fOrigin = 0 == origin ?
             kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-        sk_sp<GrTexture> fpTexture(context->textureProvider()->createTexture(
+        sk_sp<GrTexture> fpTexture(context->resourceProvider()->createTexture(
             desc, SkBudgeted::kNo, controlPixelData.begin(), 0));
         SkASSERT(fpTexture);
         fpTexture->readPixels(0, 0, DEV_W, DEV_H, kRGBA_8888_GrPixelConfig, readBuffer.begin(), 0);

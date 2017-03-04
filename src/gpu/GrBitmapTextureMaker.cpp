@@ -9,7 +9,7 @@
 
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
-#include "GrTextureProvider.h"
+#include "GrResourceProvider.h"
 #include "SkBitmap.h"
 #include "SkGrPriv.h"
 #include "SkPixelRef.h"
@@ -32,7 +32,7 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
     GrTexture* tex = nullptr;
 
     if (fOriginalKey.isValid()) {
-        tex = this->context()->textureProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
+        tex = this->context()->resourceProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
         if (tex) {
             return tex;
         }
@@ -44,7 +44,7 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
         tex = GrUploadBitmapToTexture(this->context(), fBitmap);
     }
     if (tex && fOriginalKey.isValid()) {
-        this->context()->textureProvider()->assignUniqueKeyToTexture(fOriginalKey, tex);
+        this->context()->resourceProvider()->assignUniqueKeyToTexture(fOriginalKey, tex);
         GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
     }
     return tex;

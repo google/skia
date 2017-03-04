@@ -13,8 +13,8 @@
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceProvider.h"
 #include "GrTexturePriv.h"
-#include "GrTextureProvider.h"
 #include "GrTextureProxy.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
@@ -162,7 +162,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
         desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
     }
 
-    return ctx->textureProvider()->createTexture(desc, budgeted, pmap->addr(),
+    return ctx->resourceProvider()->createTexture(desc, budgeted, pmap->addr(),
                                                  pmap->rowBytes());
 }
 
@@ -240,10 +240,10 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
     }
 
     {
-        GrTexture* texture = ctx->textureProvider()->createMipMappedTexture(desc,
-                                                                            SkBudgeted::kYes,
-                                                                            texels.get(),
-                                                                            mipLevelCount);
+        GrTexture* texture = ctx->resourceProvider()->createMipMappedTexture(desc,
+                                                                             SkBudgeted::kYes,
+                                                                             texels.get(),
+                                                                             mipLevelCount);
         if (texture) {
             texture->texturePriv().setMipColorMode(colorMode);
         }
@@ -258,8 +258,8 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
     }
 
     const GrCaps* caps = ctx->caps();
-    return ctx->textureProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
-                                                          SkBudgeted::kYes, texels,
+    return ctx->resourceProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
+                                                           SkBudgeted::kYes, texels,
                                                           mipLevelCount);
 }
 
@@ -284,12 +284,12 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap
     sk_sp<GrTexture> tex;
 
     if (originalKey.isValid()) {
-        tex.reset(context->textureProvider()->findAndRefTextureByUniqueKey(originalKey));
+        tex.reset(context->resourceProvider()->findAndRefTextureByUniqueKey(originalKey));
     }
     if (!tex) {
         tex.reset(GrUploadBitmapToTexture(context, bitmap));
         if (tex && originalKey.isValid()) {
-            context->textureProvider()->assignUniqueKeyToTexture(originalKey, tex.get());
+            context->resourceProvider()->assignUniqueKeyToTexture(originalKey, tex.get());
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
         }
     }

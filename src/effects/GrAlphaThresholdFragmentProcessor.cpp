@@ -39,14 +39,14 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         , fOuterThreshold(outerThreshold)
         , fImageCoordTransform(context, SkMatrix::I(), proxy.get(),
                                GrSamplerParams::kNone_FilterMode)
-        , fImageTextureSampler(context->textureProvider(), std::move(proxy))
+        , fImageTextureSampler(context->resourceProvider(), std::move(proxy))
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fMaskCoordTransform(
                   context,
                   SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
                   maskProxy.get(),
                   GrSamplerParams::kNone_FilterMode)
-        , fMaskTextureSampler(context->textureProvider(), maskProxy) {
+        , fMaskTextureSampler(context->resourceProvider(), maskProxy) {
     this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addCoordTransform(&fImageCoordTransform);
     this->addTextureSampler(&fImageTextureSampler);

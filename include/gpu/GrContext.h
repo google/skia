@@ -37,7 +37,6 @@ class GrResourceCache;
 class GrResourceProvider;
 class GrTextBlobCache;
 class GrTextContext;
-class GrTextureProvider;
 class GrSamplerParams;
 class GrVertexBuffer;
 class GrSwizzle;
@@ -145,9 +144,6 @@ public:
      *                          that can be held in the cache.
      */
     void setResourceCacheLimits(int maxResources, size_t maxResourceBytes);
-
-    GrTextureProvider* textureProvider() { return fTextureProvider; }
-    const GrTextureProvider* textureProvider() const { return fTextureProvider; }
 
     /**
      * Frees GPU created by the context. Can be called to reduce GPU memory
@@ -382,12 +378,7 @@ private:
     GrGpu*                                  fGpu;
     const GrCaps*                           fCaps;
     GrResourceCache*                        fResourceCache;
-    // this union exists because the inheritance of GrTextureProvider->GrResourceProvider
-    // is in a private header.
-    union {
-        GrResourceProvider*                 fResourceProvider;
-        GrTextureProvider*                  fTextureProvider;
-    };
+    GrResourceProvider*                     fResourceProvider;
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
@@ -401,7 +392,7 @@ private:
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
-    // GrRenderTargetContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
+    // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner                   fSingleOwner;
 
     struct CleanUpData {
