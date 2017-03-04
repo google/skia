@@ -1459,17 +1459,6 @@ if (skia_enable_tools) {
         "$root_out_dir/gdbserver",
       ]
     }
-    if (ndk_simpleperf != "") {
-      copy("simpleperf") {
-        sources = [
-          "$ndk/$ndk_simpleperf",
-          "$ndk/simpleperf/simpleperf_report.py",
-        ]
-        outputs = [
-          "$root_out_dir/{{source_file_part}}",
-        ]
-      }
-    }
   }
 
   if (skia_enable_gpu) {

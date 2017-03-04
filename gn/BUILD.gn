@@ -126,6 +126,7 @@ config("default") {
     ]
   } else if (current_cpu == "mipsel") {
     cflags += [
+      "-no-integrated-as",  # Clang <4.0 doesn't understand 'usw' mnemonic.
       "-march=mips32r2",
       "-mdspr2",
     ]
