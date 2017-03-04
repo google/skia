@@ -149,7 +149,6 @@ public:
     SkPixmap        fDst;
     const SkMatrix* fMatrix;        // required
     const SkRasterClip* fRC;        // required
-    const SkClipStack* fClipStack;  // optional, may be null
 
 #ifdef SK_DEBUG
     void validate() const;
