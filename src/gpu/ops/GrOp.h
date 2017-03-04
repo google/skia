@@ -71,9 +71,14 @@ public:
         return this->onCombineIfPossible(that, caps);
     }
 
-    const SkRect& bounds() const {
+    const SkRect& boundsX() const {
         SkASSERT(kUninitialized_BoundsFlag != fBoundsFlags);
         return fBounds;
+    }
+
+    void setClippedBounds(const SkRect& clippedBounds) {
+        fBounds = clippedBounds;
+        fBoundsFlags = 0;
     }
 
     bool hasAABloat() const {
@@ -118,7 +123,6 @@ public:
         }
         return fUniqueID;
     }
-    SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
     /**
      * Called prior to executing. The op should perform any resource creation or data transfers
@@ -127,7 +131,7 @@ public:
     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
 
     /** Issues the op's commands to GrGpu. */
-    void execute(GrOpFlushState* state, const SkRect& bounds) { this->onExecute(state, bounds); }
+    void execute(GrOpFlushState* state) { this->onExecute(state); }
 
     /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {
@@ -186,7 +190,7 @@ private:
     virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps) = 0;
 
     virtual void onPrepare(GrOpFlushState*) = 0;
-    virtual void onExecute(GrOpFlushState*, const SkRect& bounds) = 0;
+    virtual void onExecute(GrOpFlushState*) = 0;
 
     static uint32_t GenID(int32_t* idCounter) {
         // The atomic inc returns the old value not the incremented value. So we add
@@ -215,7 +219,6 @@ private:
         SkDEBUGCODE(kUninitialized_BoundsFlag   = 0x4)
     };
 
-    SkDEBUGCODE(bool                    fUsed;)
     const uint16_t                      fClassID;
     uint16_t                            fBoundsFlags;
 

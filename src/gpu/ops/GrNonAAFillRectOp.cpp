@@ -152,8 +152,8 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAAFillRectOp* that = t->cast<NonAAFillRectOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                    that->boundsX(), caps)) {
             return false;
         }
 
