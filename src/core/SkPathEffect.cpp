@@ -27,6 +27,8 @@ SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef SK_SUPPORT_LEGACY_PATHEFFECT_SUBCLASSES
+
 /** \class SkPairPathEffect
 
  Common baseclass for Compose and Sum. This subclass manages two pathEffects,
@@ -138,6 +140,7 @@ private:
 
     typedef SkPairPathEffect INHERITED;
 };
+#endif
 
 SkPairPathEffect::SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1)
     : fPE0(std::move(pe0)), fPE1(std::move(pe1))
