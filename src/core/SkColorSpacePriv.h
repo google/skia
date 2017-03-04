@@ -59,7 +59,8 @@ static inline bool color_space_almost_equal(float a, float b) {
 }
 
 static inline float add_epsilon(float v) {
-    return v + FLT_MIN;
+    static constexpr float kEpsilon = 1.0f / (1 << 23);
+    return v + kEpsilon;
 }
 
 static inline bool is_zero_to_one(float v) {
