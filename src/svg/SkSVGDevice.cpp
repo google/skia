@@ -278,9 +278,14 @@ struct SkSVGDevice::MxCp {
     const SkMatrix* fMatrix;
     const SkClipStack*  fClipStack;
 
-    MxCp(SkSVGDevice* device) {
+    MxCp(SkSVGDevice* device, const SkDraw& draw) {
+#ifdef SK_USE_DEVICE_CLIPPING
         fMatrix = &device->ctm();
         fClipStack = &device->cs();
+#else
+        fMatrix = draw.fMatrix;
+        fClipStack = draw.fClipStack;
+#endif
     }
 };
 
@@ -602,13 +607,13 @@ SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
 SkSVGDevice::~SkSVGDevice() {
 }
 
-void SkSVGDevice::drawPaint(const SkPaint& paint) {
-    AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this), paint);
+void SkSVGDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
+    AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
     rect.addRectAttributes(SkRect::MakeWH(SkIntToScalar(this->width()),
                                           SkIntToScalar(this->height())));
 }
 
-void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
+void SkSVGDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
                              const SkPoint pts[], const SkPaint& paint) {
     SkPath path;
 
@@ -623,7 +628,7 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
                 path.rewind();
                 path.moveTo(pts[i]);
                 path.lineTo(pts[i+1]);
-                AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
+                AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
                 elem.addPathAttributes(path);
             }
             break;
@@ -631,37 +636,37 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
             if (count > 1) {
                 path.addPoly(pts, SkToInt(count), false);
                 path.moveTo(pts[0]);
-                AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
+                AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
                 elem.addPathAttributes(path);
             }
             break;
     }
 }
 
-void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {
-    AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this), paint);
+void SkSVGDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
+    AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
     rect.addRectAttributes(r);
 }
 
-void SkSVGDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
-    AutoElement ellipse("ellipse", fWriter, fResourceBucket.get(), MxCp(this), paint);
+void SkSVGDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
+    AutoElement ellipse("ellipse", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
     ellipse.addAttribute("cx", oval.centerX());
     ellipse.addAttribute("cy", oval.centerY());
     ellipse.addAttribute("rx", oval.width() / 2);
     ellipse.addAttribute("ry", oval.height() / 2);
 }
 
-void SkSVGDevice::drawRRect(const SkRRect& rr, const SkPaint& paint) {
+void SkSVGDevice::drawRRect(const SkDraw& draw, const SkRRect& rr, const SkPaint& paint) {
     SkPath path;
     path.addRRect(rr);
 
-    AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
     elem.addPathAttributes(path);
 }
 
-void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint,
+void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint& paint,
                            const SkMatrix* prePathMatrix, bool pathIsMutable) {
-    AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
     elem.addPathAttributes(path);
 
     // TODO: inverse fill types?
@@ -706,9 +711,9 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
     }
 }
 
-void SkSVGDevice::drawBitmap(const SkBitmap& bitmap,
+void SkSVGDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
                              const SkMatrix& matrix, const SkPaint& paint) {
-    MxCp mc(this);
+    MxCp mc(this, draw);
     SkMatrix adjustedMatrix = *mc.fMatrix;
     adjustedMatrix.preConcat(matrix);
     mc.fMatrix = &adjustedMatrix;
@@ -716,9 +721,9 @@ void SkSVGDevice::drawBitmap(const SkBitmap& bitmap,
     drawBitmapCommon(mc, bitmap, paint);
 }
 
-void SkSVGDevice::drawSprite(const SkBitmap& bitmap,
+void SkSVGDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                              int x, int y, const SkPaint& paint) {
-    MxCp mc(this);
+    MxCp mc(this, draw);
     SkMatrix adjustedMatrix = *mc.fMatrix;
     adjustedMatrix.preTranslate(SkIntToScalar(x), SkIntToScalar(y));
     mc.fMatrix = &adjustedMatrix;
@@ -726,10 +731,10 @@ void SkSVGDevice::drawSprite(const SkBitmap& bitmap,
     drawBitmapCommon(mc, bitmap, paint);
 }
 
-void SkSVGDevice::drawBitmapRect(const SkBitmap& bm, const SkRect* srcOrNull,
+void SkSVGDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bm, const SkRect* srcOrNull,
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint) {
-    MxCp mc(this);
+    MxCp mc(this, draw);
 
     SkClipStack adjustedClipStack;
     if (srcOrNull && *srcOrNull != SkRect::Make(bm.bounds())) {
@@ -749,9 +754,9 @@ void SkSVGDevice::drawBitmapRect(const SkBitmap& bm, const SkRect* srcOrNull,
     drawBitmapCommon(mc, bm, paint);
 }
 
-void SkSVGDevice::drawText(const void* text, size_t len,
+void SkSVGDevice::drawText(const SkDraw& draw, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
-    AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
     elem.addTextAttributes(paint);
 
     SVGTextBuilder builder(text, len, paint, SkPoint::Make(x, y), 0);
@@ -760,12 +765,12 @@ void SkSVGDevice::drawText(const void* text, size_t len,
     elem.addText(builder.text());
 }
 
-void SkSVGDevice::drawPosText(const void* text, size_t len,
+void SkSVGDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos, const SkPoint& offset,
                               const SkPaint& paint) {
     SkASSERT(scalarsPerPos == 1 || scalarsPerPos == 2);
 
-    AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this, draw), paint);
     elem.addTextAttributes(paint);
 
     SVGTextBuilder builder(text, len, paint, offset, scalarsPerPos, pos);
@@ -774,7 +779,7 @@ void SkSVGDevice::drawPosText(const void* text, size_t len,
     elem.addText(builder.text());
 }
 
-void SkSVGDevice::drawTextOnPath(const void* text, size_t len, const SkPath& path,
+void SkSVGDevice::drawTextOnPath(const SkDraw&, const void* text, size_t len, const SkPath& path,
                                  const SkMatrix* matrix, const SkPaint& paint) {
     SkString pathID = fResourceBucket->addPath();
 
@@ -811,7 +816,7 @@ void SkSVGDevice::drawTextOnPath(const void* text, size_t len, const SkPath& pat
     }
 }
 
-void SkSVGDevice::drawVertices(SkCanvas::VertexMode, int vertexCount,
+void SkSVGDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
                                const SkPoint verts[], const SkPoint texs[],
                                const SkColor colors[], SkBlendMode,
                                const uint16_t indices[], int indexCount,
@@ -820,7 +825,7 @@ void SkSVGDevice::drawVertices(SkCanvas::VertexMode, int vertexCount,
     SkDebugf("unsupported operation: drawVertices()\n");
 }
 
-void SkSVGDevice::drawDevice(SkBaseDevice*, int x, int y,
+void SkSVGDevice::drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                              const SkPaint&) {
     // todo
     SkDebugf("unsupported operation: drawDevice()\n");

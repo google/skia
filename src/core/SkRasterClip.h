@@ -13,39 +13,6 @@
 
 class SkRRect;
 
-class SkConservativeClip {
-    SkIRect         fBounds;
-    const SkIRect*  fClipRestrictionRect;
-
-    inline void applyClipRestriction(SkRegion::Op op, SkIRect* bounds) {
-        if (op >= SkRegion::kUnion_Op && fClipRestrictionRect
-            && !fClipRestrictionRect->isEmpty()) {
-            if (!bounds->intersect(*fClipRestrictionRect)) {
-                bounds->setEmpty();
-            }
-        }
-    }
-
-public:
-    SkConservativeClip() : fBounds(SkIRect::MakeEmpty()), fClipRestrictionRect(nullptr) {}
-
-    bool isEmpty() const { return fBounds.isEmpty(); }
-    bool isRect() const { return true; }
-    const SkIRect& getBounds() const { return fBounds; }
-
-    void setEmpty() { fBounds.setEmpty(); }
-    void setRect(const SkIRect& r) { fBounds = r; }
-    void setDeviceClipRestriction(const SkIRect* rect) {
-        fClipRestrictionRect = rect;
-    }
-
-    void op(const SkRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void op(const SkRRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void op(const SkPath&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
-    void op(const SkRegion&, SkRegion::Op);
-    void op(const SkIRect&, SkRegion::Op);
-};
-
 /**
  *  Wraps a SkRegion and SkAAClip, so we have a single object that can represent either our
  *  BW or antialiased clips.
@@ -57,8 +24,8 @@ public:
  */
 class SkRasterClip {
 public:
-    SkRasterClip();
-    SkRasterClip(const SkIRect&);
+    SkRasterClip(bool forceConservativeRects = false);
+    SkRasterClip(const SkIRect&, bool forceConservativeRects = false);
     SkRasterClip(const SkRegion&);
     SkRasterClip(const SkRasterClip&);
     ~SkRasterClip();
@@ -69,6 +36,8 @@ public:
     bool operator!=(const SkRasterClip& other) const {
         return !(*this == other);
     }
+
+    bool isForceConservativeRects() const { return fForceConservativeRects; }
 
     bool isBW() const { return fIsBW; }
     bool isAA() const { return !fIsBW; }
@@ -132,6 +101,7 @@ public:
 private:
     SkRegion    fBW;
     SkAAClip    fAA;
+    bool        fForceConservativeRects;
     bool        fIsBW;
     // these 2 are caches based on querying the right obj based on fIsBW
     bool        fIsEmpty;
