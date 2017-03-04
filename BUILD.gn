@@ -1463,7 +1463,6 @@ if (skia_enable_tools) {
       copy("simpleperf") {
         sources = [
           "$ndk/$ndk_simpleperf",
-          "$ndk/simpleperf/simpleperf_report.py",
         ]
         outputs = [
           "$root_out_dir/{{source_file_part}}",
