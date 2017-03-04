@@ -77,7 +77,7 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::copy");
 
     // TODO: defer instantiation until flush time
-    sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->textureProvider())));
+    sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->resourceProvider())));
     if (!src) {
         return false;
     }
@@ -89,7 +89,7 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
 #endif
 
     // TODO: this needs to be fixed up since it ends the deferrable of the GrTexture
-    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->textureProvider())));
+    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->resourceProvider())));
     if (!tex) {
         return false;
     }
@@ -122,7 +122,7 @@ bool GrTextureContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
     }
 
     // Deferral of the VRAM resources must end in this instance anyway
-    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->textureProvider())));
+    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->resourceProvider())));
     if (!tex) {
         return false;
     }
@@ -145,7 +145,7 @@ bool GrTextureContext::onWritePixels(const SkImageInfo& srcInfo, const void* src
     }
 
     // Deferral of the VRAM resources must end in this instance anyway
-    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->textureProvider())));
+    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->resourceProvider())));
     if (!tex) {
         return false;
     }

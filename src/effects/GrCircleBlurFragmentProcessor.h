@@ -16,7 +16,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrProcessorUnitTest.h"
 
-class GrTextureProvider;
+class GrResourceProvider;
 
 // This FP handles the special case of a blurred circle. It uses a 1D
 // profile that is just rotated about the origin of the circle.
@@ -34,7 +34,7 @@ public:
         return str;
     }
 
-    static sk_sp<GrFragmentProcessor> Make(GrTextureProvider*, const SkRect& circle, float sigma);
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, const SkRect& circle, float sigma);
 
 private:
     // This nested GLSL processor implementation is defined in the cpp file.
@@ -45,7 +45,7 @@ private:
      * The x texture coord should map from 0 to 1 across the radius range of solidRadius to
      * solidRadius + textureRadius.
      */
-    GrCircleBlurFragmentProcessor(GrTextureProvider*, const SkRect& circle,
+    GrCircleBlurFragmentProcessor(GrResourceProvider*, const SkRect& circle,
                                   float textureRadius, float innerRadius,
                                   sk_sp<GrTextureProxy> blurProfile);
 

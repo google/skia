@@ -10,7 +10,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
-#include "GrTextureProvider.h"
+#include "GrResourceProvider.h"
 #include "gl/GrGLGpu.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
@@ -118,8 +118,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     desc.fWidth = texS;
     desc.fHeight = texS;
 
-    GrTextureProvider* texProvider = context->textureProvider();
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(), texProvider,
+    GrResourceProvider* resourceProvider = context->resourceProvider();
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(), resourceProvider,
                                                                desc, SkBudgeted::kNo,
                                                                texData, 0);
 

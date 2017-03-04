@@ -93,7 +93,7 @@ protected:
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
 
                 proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                        context->textureProvider(),
+                                                        context->resourceProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[i].getPixels(), fBmp[i].rowBytes());
                 if (!proxy[i]) {
@@ -226,7 +226,7 @@ protected:
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
 
                 proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                        context->textureProvider(),
+                                                        context->resourceProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[index].getPixels(),
                                                         fBmp[index].rowBytes());

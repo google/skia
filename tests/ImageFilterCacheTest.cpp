@@ -179,7 +179,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTextureProvider.h"
+#include "GrResourceProvider.h"
 
 static GrTexture* create_texture(GrContext* context) {
     SkBitmap srcBM = create_bm();
@@ -190,7 +190,7 @@ static GrTexture* create_texture(GrContext* context) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    return context->textureProvider()->createTexture(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
+    return context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
 }
 
 static sk_sp<GrTextureProxy> create_proxy(GrContext* context) {
@@ -203,7 +203,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* context) {
     desc.fHeight = kFullSize;
 
     return GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                        context->textureProvider(),
+                                        context->resourceProvider(),
                                         desc, SkBudgeted::kYes,
                                         srcBM.getPixels(),
                                         srcBM.rowBytes());

@@ -114,7 +114,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
     }
 
     // TODO: add proxy-backed SkImage_Gpu
-    GrTexture* tex = srcProxy->instantiate(ctx->textureProvider())->asTexture();
+    GrTexture* tex = srcProxy->instantiate(ctx->resourceProvider())->asTexture();
 
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;

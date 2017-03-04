@@ -107,7 +107,7 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrContext* context,
         copySrcDesc.fFlags = flags;
 
         sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                               context->textureProvider(),
+                                                               context->resourceProvider(),
                                                                copySrcDesc,
                                                                SkBudgeted::kYes, pixels.get(), 0));
         dstContext->copy(src.get());
