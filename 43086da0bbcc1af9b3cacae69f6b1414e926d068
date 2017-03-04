@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "385b0a4e_67a11fbf",
+        "filename": "src/core/SkATrace.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-04T03:10:14Z",
+      "side": 1,
+      "message": "I wonder if when not on a Framework build if we\u0027d want this to fall back to our other tracing, like TRACE_EVENT0? Ideally I don\u0027t think we want to have to put in multiple macros in the same spot to handle different backends.\n\nAlternatively, I wonder if it makes sense to have this class actually be an SkEventTracer and then we just update the macros in a way that we can enable and disable different sets of traces depending on what we\u0027re using them for.",
+      "range": {
+        "startLine": 57,
+        "startChar": 9,
+        "endLine": 57,
+        "endChar": 34
+      },
+      "revId": "43086da0bbcc1af9b3cacae69f6b1414e926d068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
