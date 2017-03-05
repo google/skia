@@ -292,6 +292,7 @@ gm_sources = [
   "$_gm/textblobshader.cpp",
   "$_gm/textblobtransforms.cpp",
   "$_gm/textblobuseaftergpufree.cpp",
+  "$_gm/textbox.cpp",
   "$_gm/texteffects.cpp",
   "$_gm/texturedomaineffect.cpp",
   "$_gm/thinconcavepaths.cpp",
