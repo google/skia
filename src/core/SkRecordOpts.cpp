@@ -187,6 +187,9 @@ struct SaveLayerDrawRestoreNooper {
     typedef Pattern<Is<SaveLayer>, IsDraw, Is<Restore>> Match;
 
     bool onMatch(SkRecord* record, Match* match, int begin, int end) {
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        SK_ABORT("Abort because of bug skia:6334");
+#endif
         if (match->first<SaveLayer>()->backdrop) {
             // can't throw away the layer if we have a backdrop
             return false;
@@ -297,7 +300,12 @@ void SkRecordOptimize(SkRecord* record) {
     //     https://bugs.chromium.org/p/skia/issues/detail?id=5548
 //    SkRecordNoopSaveRestores(record);
 
+    // Turn off this optimization completely for Android framework
+    // because it makes the following Android CTS test fail:
+    // android.uirendering.cts.testclasses.LayerTests#testSaveLayerClippedWithAlpha
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkRecordNoopSaveLayerDrawRestores(record);
+#endif
     SkRecordMergeSvgOpacityAndFilterLayers(record);
 
     record->defrag();
@@ -305,7 +313,10 @@ void SkRecordOptimize(SkRecord* record) {
 
 void SkRecordOptimize2(SkRecord* record) {
     multiple_set_matrices(record);
+    // See why we turn this off in SkRecordOptimize above.
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkRecordNoopSaveRestores(record);
+#endif
     SkRecordNoopSaveLayerDrawRestores(record);
     SkRecordMergeSvgOpacityAndFilterLayers(record);
 
