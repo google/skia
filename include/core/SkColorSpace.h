@@ -106,6 +106,8 @@ public:
 
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
+     *  This includes the canonical sRGB transfer function as well as a 2.2f exponential
+     *  transfer function.
      */
     bool gammaCloseToSRGB() const;
 
@@ -127,6 +129,20 @@ public:
      *  Returns false otherwise.
      */
     bool toXYZD50(SkMatrix44* toXYZD50) const;
+
+    /**
+     *  Returns true if the color space is sRGB.
+     *  Returns false otherwise.
+     *
+     *  This allows a little bit of tolerance, given that we might see small numerical error
+     *  in some cases: converting ICC fixed point to float, converting white point to D50,
+     *  rounding decisions on transfer function and matrix.
+     *
+     *  This does not consider a 2.2f exponential transfer function to be sRGB.  While these
+     *  functions are similar (and it is sometimes useful to consider them together), this
+     *  function checks for logical equality.
+     */
+    bool isSRGB() const;
 
     /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
