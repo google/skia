@@ -154,8 +154,8 @@ GrDrawAtlasOp::GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spri
 bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawAtlasOp* that = t->cast<GrDrawAtlasOp>();
 
-    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                that->boundsX(), caps)) {
         return false;
     }
 

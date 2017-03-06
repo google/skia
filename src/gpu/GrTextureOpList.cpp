@@ -36,7 +36,7 @@ void GrTextureOpList::dump() const {
         SkDebugf("%d: %s\n", i, fRecordedOps[i]->name());
         SkString str = fRecordedOps[i]->dumpInfo();
         SkDebugf("%s\n", str.c_str());
-        const SkRect& clippedBounds = fRecordedOps[i]->bounds();
+        const SkRect& clippedBounds = fRecordedOps[i]->boundsX();
         SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
                     clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
                     clippedBounds.fBottom);
@@ -65,7 +65,7 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
     }
 
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        fRecordedOps[i]->execute(flushState, fRecordedOps[i]->bounds());
+        fRecordedOps[i]->execute(flushState);
     }
 
     fGpu->finishOpList();
