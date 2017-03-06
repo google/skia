@@ -1761,8 +1761,6 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
     glyphCount = calculateGlyphCount(hdc, fLogFont);
 
     info = new SkAdvancedTypefaceMetrics;
-    info->fEmSize = otm.otmEMSquare;
-    info->fLastGlyphID = SkToU16(glyphCount - 1);
     tchar_to_skstring(lf.lfFaceName, &info->fFontName);
     // If bit 1 is set, the font may not be embedded in a document.
     // If bit 1 is clear, the font can be embedded.

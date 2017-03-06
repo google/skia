@@ -154,7 +154,6 @@ SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     info->fFontName.set(fTestFont->fName);
     int glyphCount = this->onCountGlyphs();
-    info->fLastGlyphID = SkToU16(glyphCount - 1);
 
     SkTDArray<SkUnichar>& toUnicode = info->fGlyphToUnicode;
     toUnicode.setCount(glyphCount);

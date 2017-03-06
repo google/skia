@@ -1307,7 +1307,12 @@ void SkPDFDevice::internalDrawText(
     }
     bool defaultPositioning = (positioning == SkTextBlob::kDefault_Positioning);
     paint.setHinting(SkPaint::kNo_Hinting);
-    SkAutoGlyphCache glyphCache(paint, nullptr, nullptr);
+
+    int emSize;
+    SkAutoGlyphCache glyphCache = SkPDFFont::MakeVectorCache(typeface, &emSize);
+
+    SkScalar textSize = paint.getTextSize();
+    SkScalar advanceScale = textSize * paint.getTextScaleX() / emSize;
 
     SkPaint::Align alignment = paint.getTextAlign();
     float alignmentFactor = SkPaint::kLeft_Align   == alignment ?  0.0f :
@@ -1316,7 +1321,7 @@ void SkPDFDevice::internalDrawText(
     if (defaultPositioning && alignment != SkPaint::kLeft_Align) {
         SkScalar advance = 0;
         for (int i = 0; i < glyphCount; ++i) {
-            advance += glyphCache->getGlyphIDAdvance(glyphs[i]).fAdvanceX;
+            advance += advanceScale * glyphCache->getGlyphIDAdvance(glyphs[i]).fAdvanceX;
         }
         offset.offset(alignmentFactor * advance, 0);
     }
@@ -1325,13 +1330,13 @@ void SkPDFDevice::internalDrawText(
         return;
     }
     SkDynamicMemoryWStream* out = &content.entry()->fContent;
-    SkScalar textSize = paint.getTextSize();
     const SkTDArray<SkUnichar>& glyphToUnicode = metrics->fGlyphToUnicode;
 
     out->writeText("BT\n");
     SK_AT_SCOPE_EXIT(out->writeText("ET\n"));
 
-    const SkGlyphID maxGlyphID = metrics->fLastGlyphID;
+    const SkGlyphID maxGlyphID = SkToU16(typeface->countGlyphs() - 1);
+
     bool multiByteGlyphs = SkPDFFont::IsMultiByte(SkPDFFont::FontType(*metrics));
     if (clusterator.reversedChars()) {
         out->writeText("/ReversedChars BMC\n");
@@ -1404,7 +1409,7 @@ void SkPDFDevice::internalDrawText(
             SkPoint xy{0, 0};
             SkScalar advance{0};
             if (!defaultPositioning) {
-                advance = glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
+                advance = advanceScale * glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
                 xy = SkTextBlob::kFull_Positioning == positioning
                    ? SkPoint{pos[2 * index], pos[2 * index + 1]}
                    : SkPoint{pos[index], 0};

@@ -328,8 +328,6 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     fDWriteFontFace->GetMetrics(&dwfm);
 
     info = new SkAdvancedTypefaceMetrics;
-    info->fEmSize = dwfm.designUnitsPerEm;
-    info->fLastGlyphID = SkToU16(glyphCount - 1);
 
     info->fAscent = SkToS16(dwfm.ascent);
     info->fDescent = SkToS16(dwfm.descent);

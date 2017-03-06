@@ -84,8 +84,7 @@ protected:
     }
 
     int onGetUPEM() const override {
-        SkASSERT(0);  // don't expect to get here
-        return 1;
+        return 2048;
     }
 
     void onGetFamilyName(SkString* familyName) const override;

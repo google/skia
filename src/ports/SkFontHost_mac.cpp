@@ -1501,8 +1501,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
     }
 
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont.get());
-    info->fLastGlyphID = SkToU16(glyphCount - 1);
-    info->fEmSize = CTFontGetUnitsPerEm(ctFont.get());
 
     if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
         populate_glyph_to_unicode(ctFont.get(), glyphCount, &info->fGlyphToUnicode);
