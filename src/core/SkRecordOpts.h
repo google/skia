@@ -16,9 +16,11 @@ void SkRecordOptimize(SkRecord*);
 // Turns logical no-op Save-[non-drawing command]*-Restore patterns into actual no-ops.
 void SkRecordNoopSaveRestores(SkRecord*);
 
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
 // For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the
 // draw, and no-op the SaveLayer and Restore.
 void SkRecordNoopSaveLayerDrawRestores(SkRecord*);
+#endif
 
 // For SVG generated SaveLayer-Save-ClipRect-SaveLayer-3xRestore patterns, merge
 // the alpha of the first SaveLayer to the second SaveLayer.
