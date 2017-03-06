@@ -87,6 +87,8 @@ public:
         return fPreferedStencilFormat;
     }
 
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
+
 private:
     enum VkVendor {
         kQualcomm_VkVendor = 20803,
