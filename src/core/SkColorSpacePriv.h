@@ -58,14 +58,10 @@ static inline bool color_space_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.01f;
 }
 
-static inline float add_epsilon(float v) {
-    return v + FLT_MIN;
-}
-
 static inline bool is_zero_to_one(float v) {
     // Because we allow a value just barely larger than 1, the client can use an
     // entirely linear transfer function.
-    return (0.0f <= v) && (v <= add_epsilon(1.0f));
+    return (0.0f <= v) && (v <= nextafterf(1.0f, 2.0f));
 }
 
 static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
@@ -185,7 +181,7 @@ static inline bool named_to_parametric(SkColorSpaceTransferFn* coeffs,
             coeffs->fC = 1.0f;
             // Make sure that we use the linear segment of the transfer function even
             // when the x-value is 1.0f.
-            coeffs->fD = add_epsilon(1.0f);
+            coeffs->fD = nextafterf(1.0f, 2.0f);
             coeffs->fE = 0.0f;
             coeffs->fF = 0.0f;
             coeffs->fG = 0.0f;
