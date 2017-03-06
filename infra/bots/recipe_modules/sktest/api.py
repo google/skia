@@ -305,6 +305,10 @@ def dm_flags(bot):
     blacklist('_ image _ abnormal.wbmp')
     blacklist(['msaa16', 'gm', '_', 'blurcircles'])
 
+  if 'IntelHD405' in bot and 'Ubuntu16' in bot:
+    # skia:6331
+    blacklist('msaa16 image gen_codec_gpu abnormal.wbmp')
+
   if 'Nexus5' in bot:
     # skia:5876
     blacklist(['_', 'gm', '_', 'encode-platform'])

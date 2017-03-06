@@ -47,6 +47,7 @@ TEST_BUILDERS = {
        '_AbandonGpuContext'),
       ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
        '_PreAbandonGpuContext'),
+      'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug',
       'Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan',
       'Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release',
       'Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE',
