@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fadbdfe3_cfbb3b5f",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-06T16:11:47Z",
+      "side": 1,
+      "message": "Yes, gamut is independently pickable/editable in viewer at this point. So for everything but kLegacy, these control format, transfer function, and blending.",
+      "parentUuid": "dd104dd9_076ed7be",
+      "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca1bff51_0d4994e1",
         "filename": "tools/viewer/Viewer.h",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "4ed005a1_5385da4a",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-06T16:11:47Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s a better name.",
+      "parentUuid": "ca1bff51_0d4994e1",
+      "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b8e8682_b42e0224",
         "filename": "tools/viewer/Viewer.h",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-06T16:07:26Z",
       "side": 1,
       "message": "--\u003e kColorManagedSRGB?",
+      "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70476ac7_000f8d7a",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-06T16:11:47Z",
+      "side": 1,
+      "message": "I was wary of sRGB due to the gamut implications (and to make it more obviously distinguished from kColorManagedF16).  Maybe kColorManagedSRGB8888, kColorManagedSRGB8888_NonLinearBlending, and kColorManagedF16Linear?",
+      "parentUuid": "7b8e8682_b42e0224",
       "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
