@@ -369,7 +369,10 @@ void InstancedRendering::Op::applyPipelineOptimizations(
     }
     fInfo.fUsesLocalCoords = optimizations.readsLocalCoords();
     fInfo.fCannotTweakAlphaForCoverage = !optimizations.canTweakAlphaForCoverage();
+}
 
+void InstancedRendering::Op::wasRecorded() {
+    SkASSERT(!fIsTracked);
     fInstancedRendering->fTrackedOps.addToTail(this);
     fIsTracked = true;
 }

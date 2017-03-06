@@ -141,6 +141,9 @@ protected:
         void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w);
         void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z);
 
+        // Registers the op with the InstancedRendering list of tracked ops.
+        void wasRecorded() override;
+
     protected:
         Op(uint32_t classID, InstancedRendering* ir);
 
