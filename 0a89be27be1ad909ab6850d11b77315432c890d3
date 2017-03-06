@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "d1820d22_a972dd58",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T14:58:25Z",
+      "side": 1,
+      "message": "Right, that\u0027s our own doing, from\n\n    if (sanitizers \u003d\u003d \"memory\") {\n      cflags +\u003d [ \"-fsanitize-memory-track-origins\" ]\n      cflags_cc +\u003d [ \"-stdlib\u003dlibc++\" ]\n      ldflags +\u003d [ \"-stdlib\u003dlibc++\" ]\n    }\n\nWhat I\u0027m wondering is, can you run through MSAN without the C++ standard library being compiled with MSAN?  Both libc++.so work and run all the way through without any errors?  That\u0027s really surprising.",
+      "parentUuid": "d26e1ea8_660e675a",
+      "range": {
+        "startLine": 20,
+        "startChar": 57,
+        "endLine": 20,
+        "endChar": 60
+      },
+      "revId": "0a89be27be1ad909ab6850d11b77315432c890d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "518deeef_26f916a5",
         "filename": "site/dev/testing/xsan.md",
         "patchSetId": 2
