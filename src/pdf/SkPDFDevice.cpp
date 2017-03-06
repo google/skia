@@ -959,11 +959,7 @@ public:
             fCurrentMatrixOrigin.set(0.0f, 0.0f);
             fInitialized = true;
         }
-#ifdef SK_BUILD_FOR_WIN
         const bool kAlwaysPosition = true;
-#else
-        const bool kAlwaysPosition = false;
-#endif
         if (!fDefaultPositioning) {
             SkPoint position = xy - fCurrentMatrixOrigin;
             if (kAlwaysPosition || position != SkPoint{fXAdvance, 0}) {
