@@ -146,3 +146,26 @@ private:
     typedef GM INHERITED;
 };
 DEF_GM( return new NewSurfaceGM )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    sk_sp<SkSurface> surf = canvas->makeSurface(info, nullptr);
+    if (!surf) {
+        surf = SkSurface::MakeRaster(info, nullptr);
+    }
+
+    surf->getCanvas()->clear(SK_ColorRED);
+    // its important that image survives longer than the next draw, so the surface will see
+    // an outstanding image, and have to decide if it should retain or discard those pixels
+    sk_sp<SkImage> image = surf->makeImageSnapshot();
+
+    // normally a clear+opaque should trigger the discard optimization, but since we have a clip
+    // it should not (we need the previous red pixels).
+    surf->getCanvas()->clipRect(SkRect::MakeWH(128, 256));
+    surf->getCanvas()->clear(SK_ColorBLUE);
+
+    // expect to see two rects: blue | red
+    canvas->drawImage(surf->makeImageSnapshot(), 0, 0, nullptr);
+}
