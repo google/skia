@@ -197,6 +197,7 @@ func swarmDimensions(parts map[string]string) []string {
 		}
 	} else {
 		d["gpu"] = "none"
+		d["id"] = "skia-vm-037"
 	}
 	rv := make([]string, 0, len(d))
 	for k, v := range d {
