@@ -370,6 +370,9 @@ void SkPathMeasure::buildSegments() {
                 SkScalar prevD = distance;
                 distance = this->compute_conic_segs(conic, distance, 0, conic.fPts[0],
                                                     kMaxTValue, conic.fPts[2], ptIndex);
+                if (SkScalarIsNaN(distance)) {
+                    distance = prevD;
+                }
                 if (distance > prevD) {
                     // we store the conic weight in our next point, followed by the last 2 pts
                     // thus to reconstitue a conic, you'd need to say
