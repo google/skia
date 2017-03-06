@@ -64,41 +64,56 @@ static bool make_bool(Fuzz* fuzz) {
     return b;
 }
 
+// We don't always want to test NaNs.
+static void fuzz_nice_float(Fuzz* fuzz, float* f) {
+    fuzz->next(f);
+    if (*f != *f || ::fabs(*f) > 1.0e35f) {
+        *f = 0.0f;
+    }
+}
 
-template <int MAX_OPS>
-static void fuzz_path(Fuzz* fuzz, SkPath* path) {
+template <typename... Args>
+void fuzz_nice_float(Fuzz* fuzz, float* f, Args... rest) {
+    fuzz_nice_float(fuzz, f);
+    fuzz_nice_float(fuzz, rest...);
+}
+
+static void fuzz_path(Fuzz* fuzz, SkPath* path, int maxOps) {
+    if (maxOps < 2) {
+        maxOps = 2;
+    }
     uint8_t fillType;
     fuzz->nextRange(&fillType, 0, (uint8_t)SkPath::kInverseEvenOdd_FillType);
     path->setFillType((SkPath::FillType)fillType);
     uint8_t numOps;
-    fuzz->nextRange(&numOps, 2, MAX_OPS);
+    fuzz->nextRange(&numOps, 2, maxOps);
     for (uint8_t i = 0; i < numOps; ++i) {
         uint8_t op;
         fuzz->nextRange(&op, 0, 6);
         SkScalar a, b, c, d, e, f;
         switch (op) {
             case 0:
-                fuzz->next(&a, &b);
+                fuzz_nice_float(fuzz, &a, &b);
                 path->moveTo(a, b);
                 break;
             case 1:
-                fuzz->next(&a, &b);
+                fuzz_nice_float(fuzz, &a, &b);
                 path->lineTo(a, b);
                 break;
             case 2:
-                fuzz->next(&a, &b, &c, &d);
+                fuzz_nice_float(fuzz, &a, &b, &c, &d);
                 path->quadTo(a, b, c, d);
                 break;
             case 3:
-                fuzz->next(&a, &b, &c, &d, &e);
+                fuzz_nice_float(fuzz, &a, &b, &c, &d, &e);
                 path->conicTo(a, b, c, d, e);
                 break;
             case 4:
-                fuzz->next(&a, &b, &c, &d, &e, &f);
+                fuzz_nice_float(fuzz, &a, &b, &c, &d, &e, &f);
                 path->cubicTo(a, b, c, d, e, f);
                 break;
             case 5:
-                fuzz->next(&a, &b, &c, &d, &e);
+                fuzz_nice_float(fuzz, &a, &b, &c, &d, &e);
                 path->arcTo(a, b, c, d, e);
                 break;
             case 6:
@@ -728,7 +743,7 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
             }
             case 21: {
                 SkPath path;
-                fuzz_path<30>(fuzz, &path);
+                fuzz_path(fuzz, &path, 30);
                 int op;
                 bool doAntiAlias;
                 fuzz->next(&doAntiAlias);
@@ -807,7 +822,7 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
             }
             case 32: {
                 SkPath path;
-                fuzz_path<60>(fuzz, &path);
+                fuzz_path(fuzz, &path, 60);
                 canvas->drawPath(path, paint);
                 break;
             }
@@ -1039,7 +1054,7 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 FuzzPaintText(fuzz, &paint);
                 SkTDArray<uint8_t> text = fuzz_text(fuzz, paint);
                 SkPath path;
-                fuzz_path<20>(fuzz, &path);
+                fuzz_path(fuzz, &path, 20);
                 SkScalar hOffset, vOffset;
                 fuzz->next(&hOffset, &vOffset);
                 canvas->drawTextOnPathHV(text.begin(), SkToSizeT(text.count()),
@@ -1056,7 +1071,7 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 FuzzPaintText(fuzz, &paint);
                 SkTDArray<uint8_t> text = fuzz_text(fuzz, paint);
                 SkPath path;
-                fuzz_path<20>(fuzz, &path);
+                fuzz_path(fuzz, &path, 20);
                 canvas->drawTextOnPath(text.begin(), SkToSizeT(text.count()), path,
                                        useMatrix ? &matrix : nullptr, paint);
                 break;
