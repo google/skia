@@ -76,7 +76,8 @@ private:
     DWRITE_RENDERING_MODE fRenderingMode;
     DWRITE_TEXTURE_TYPE fTextureType;
     DWRITE_MEASURING_MODE fMeasuringMode;
-    SkTScopedComPtr<IDWriteFactory2> fFactory2;
+    DWRITE_TEXT_ANTIALIAS_MODE fAntiAliasMode;
+    DWRITE_GRID_FIT_MODE fGridFitMode;
     bool fIsColorFont;
 };
 
