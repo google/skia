@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "030ecd25_ce476e83",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-06T15:59:49Z",
+      "side": 1,
+      "message": "nit: remove \"there\"",
+      "revId": "fedcf5ec0040cd1f79f8632c74cd1ebeec05c413",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
