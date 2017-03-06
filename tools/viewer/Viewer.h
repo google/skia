@@ -32,10 +32,17 @@ public:
     bool onChar(SkUnichar c, uint32_t modifiers);
 
 private:
+    enum class ColorMode {
+        kLegacy,           // N32, no color management
+        kLegacyPlusPlus,   // N32, color managed with nonlinear blending
+        kColorManaged8888, // N32, color managed with sRGB transfer function & linear blending
+        kColorManagedF16,  // F16, color managed with linear transfer function & linear blending
+    };
+
     void initSlides();
     void updateTitle();
     void setBackend(sk_app::Window::BackendType);
-    void setColorMode(SkColorType, bool colorManaged);
+    void setColorMode(ColorMode);
     void setStartupSlide();
     void setupCurrentSlide(int previousSlide);
     void listNames();
@@ -75,8 +82,7 @@ private:
     sk_app::Window::BackendType fBackendType;
 
     // Color properties for slide rendering
-    SkColorType            fColorType;
-    bool                   fColorManaged;
+    ColorMode              fColorMode;
     SkColorSpacePrimaries  fColorSpacePrimaries;
 
     // transform data
