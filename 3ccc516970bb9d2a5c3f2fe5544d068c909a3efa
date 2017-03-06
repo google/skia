@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae9af7de_9bd59c56",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T20:24:42Z",
+      "side": 1,
+      "message": "This is fine, but it\u0027s probably simpler to put the #ifndef around all this code, so that it doesn\u0027t even exist on Android.  This way ships dead, asserting code.",
+      "revId": "3ccc516970bb9d2a5c3f2fe5544d068c909a3efa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "827f82f0_790efb14",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T20:24:42Z",
+      "side": 1,
+      "message": "Why are you disabling SkRecordNoopSaveRestores here?  Do you not want to disable only SkRecordNoopSaveLayerDrawRestores?",
+      "range": {
+        "startLine": 320,
+        "startChar": 4,
+        "endLine": 320,
+        "endChar": 37
+      },
+      "revId": "3ccc516970bb9d2a5c3f2fe5544d068c909a3efa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
