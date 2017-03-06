@@ -32,6 +32,10 @@ def get_extra_env_vars(builder_dict):
 
 class CompileApi(recipe_api.RecipeApi):
   def run(self):
+    self.m.step('where python', ['where', 'python'])
+    depot_tools = self.m.vars.make_path('c:\\Users\\chrome-bot\\depot_tools')
+    with self.m.step.context({'cwd': depot_tools}):
+      self.m.step('depot_tools rev', ['git', 'rev-parse', 'HEAD'])
     self.m.core.setup()
 
     env = get_extra_env_vars(self.m.vars.builder_cfg)
