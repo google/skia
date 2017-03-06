@@ -906,10 +906,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "stepname:ct-nanobench-1 on Ubuntu-14.04",
+      "stepname:ct-nanobench-1",
       "[dummy hash for ct-nanobench-1]"
     ],
-    "name": "[trigger] ct-nanobench-1 on Ubuntu-14.04",
+    "name": "[trigger] ct-nanobench-1",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -976,10 +976,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "stepname:ct-nanobench-2 on Ubuntu-14.04",
+      "stepname:ct-nanobench-2",
       "[dummy hash for ct-nanobench-2]"
     ],
-    "name": "[trigger] ct-nanobench-2 on Ubuntu-14.04",
+    "name": "[trigger] ct-nanobench-2",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1046,10 +1046,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "stepname:ct-nanobench-3 on Ubuntu-14.04",
+      "stepname:ct-nanobench-3",
       "[dummy hash for ct-nanobench-3]"
     ],
-    "name": "[trigger] ct-nanobench-3 on Ubuntu-14.04",
+    "name": "[trigger] ct-nanobench-3",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1116,10 +1116,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "stepname:ct-nanobench-4 on Ubuntu-14.04",
+      "stepname:ct-nanobench-4",
       "[dummy hash for ct-nanobench-4]"
     ],
-    "name": "[trigger] ct-nanobench-4 on Ubuntu-14.04",
+    "name": "[trigger] ct-nanobench-4",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1186,10 +1186,10 @@
       "--tag",
       "revision:abc123",
       "--tag",
-      "stepname:ct-nanobench-5 on Ubuntu-14.04",
+      "stepname:ct-nanobench-5",
       "[dummy hash for ct-nanobench-5]"
     ],
-    "name": "[trigger] ct-nanobench-5 on Ubuntu-14.04",
+    "name": "[trigger] ct-nanobench-5",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1224,7 +1224,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-1"
     ],
-    "name": "ct-nanobench-1 on Ubuntu-14.04",
+    "name": "ct-nanobench-1",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1353,7 +1353,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-2"
     ],
-    "name": "ct-nanobench-2 on Ubuntu-14.04",
+    "name": "ct-nanobench-2",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1482,7 +1482,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-3"
     ],
-    "name": "ct-nanobench-3 on Ubuntu-14.04",
+    "name": "ct-nanobench-3",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1611,7 +1611,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-4"
     ],
-    "name": "ct-nanobench-4 on Ubuntu-14.04",
+    "name": "ct-nanobench-4",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -1740,7 +1740,7 @@
       "--task-output-dir",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-5"
     ],
-    "name": "ct-nanobench-5 on Ubuntu-14.04",
+    "name": "ct-nanobench-5",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
