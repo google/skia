@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8ea709b_2eb51d0b",
+        "filename": "src/core/SkColorSpacePriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T13:43:05Z",
+      "side": 1,
+      "message": "We also sometimes do this:\n\n  int32_t x;\n  memcpy(\u0026x, \u0026v, 4);\n  x +\u003d 1;\n  memcpy(\u0026v, \u0026x, 4);\n  return v;",
+      "revId": "6779dbcbe00796b7e36a6ec586718fc950a19f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
