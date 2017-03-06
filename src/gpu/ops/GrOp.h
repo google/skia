@@ -125,6 +125,9 @@ public:
         return fUniqueID;
     }
 
+    /** Some ops need to be notified when they've been recorded into a GrOpList. */
+    virtual void wasRecorded() {}
+
     /**
      * Called prior to executing. The op should perform any resource creation or data transfers
      * necessary before execute() is called.
