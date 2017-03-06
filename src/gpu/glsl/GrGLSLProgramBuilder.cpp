@@ -62,12 +62,8 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
     this->emitAndInstallPrimProc(primProc, inputColor, inputCoverage);
 
     this->emitAndInstallFragProcs(inputColor, inputCoverage);
-    if (primProc.getPixelLocalStorageState() !=
-        GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
-        this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor,
-                                     *inputCoverage, primProc.getPixelLocalStorageState());
-        this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
-    }
+    this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor, *inputCoverage);
+    this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
 
     return this->checkSamplerCounts() && this->checkImageStorageCounts();
 }
@@ -217,8 +213,7 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
 
 void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                                   const GrGLSLExpr4& colorIn,
-                                                  const GrGLSLExpr4& coverageIn,
-                                                  GrPixelLocalStorageState plsState) {
+                                                  const GrGLSLExpr4& coverageIn) {
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
 
@@ -243,7 +238,6 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     SkSTArray<2, ImageStorageHandle> imageStorageArray(xp.numImageStorages());
     this->emitSamplersAndImageStorages(xp, &texSamplers, &bufferSamplers, &imageStorageArray);
 
-    bool usePLSDstRead = (plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState);
     GrGLSLXferProcessor::EmitArgs args(&fFS,
                                        this->uniformHandler(),
                                        this->shaderCaps(),
@@ -253,8 +247,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                        fFS.getSecondaryColorOutputName(),
                                        texSamplers.begin(),
                                        bufferSamplers.begin(),
-                                       imageStorageArray.begin(),
-                                       usePLSDstRead);
+                                       imageStorageArray.begin());
     fXferProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

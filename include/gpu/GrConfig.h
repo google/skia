@@ -173,11 +173,4 @@ typedef unsigned __int64 uint64_t;
  */
 #define GR_STATIC_ASSERT(CONDITION) static_assert(CONDITION, "bug")
 
-/**
- * Set to 1 to enable pixel local storage path rendering on supported devices.
- */
-#if !defined(GR_ENABLE_PLS_PATH_RENDERING)
-    #define GR_ENABLE_PLS_PATH_RENDERING 0
-#endif
-
 #endif

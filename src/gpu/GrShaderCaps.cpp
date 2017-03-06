@@ -47,7 +47,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fTexelBufferSupport = false;
     fImageLoadStoreSupport = false;
     fShaderPrecisionVaries = false;
-    fPLSPathRenderingSupport = false;
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
@@ -66,8 +65,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fSampleMaskOverrideCoverageSupport = false;
     fExternalTextureSupport = false;
     fTexelFetchSupport = false;
-
-    fPixelLocalStorageSize = 0;
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;

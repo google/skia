@@ -70,8 +70,7 @@ public:
                            const GrCaps& caps) const {
         FragmentProcessorAnalysisInputs input;
         this->getFragmentProcessorAnalysisInputs(&input);
-        analysis->reset(*input.colorInput(), *input.coverageInput(), processors,
-                        input.usesPLSDstRead(), appliedClip, caps);
+        analysis->reset(*input.colorInput(), *input.coverageInput(), processors, appliedClip, caps);
     }
 
 protected:
@@ -121,14 +120,9 @@ protected:
         GrPipelineInput* colorInput() { return &fColorInput; }
         GrPipelineInput* coverageInput() { return &fCoverageInput; }
 
-        void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
-
-        bool usesPLSDstRead() const { return fUsesPLSDstRead; }
-
     private:
         GrPipelineInput fColorInput;
         GrPipelineInput fCoverageInput;
-        bool fUsesPLSDstRead = false;
     };
 
 private:

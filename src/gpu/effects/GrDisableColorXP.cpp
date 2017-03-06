@@ -90,7 +90,6 @@ GrXferProcessor* GrDisableColorXPFactory::onCreateXferProcessor(
         const FragmentProcessorAnalysis& analysis,
         bool hasMixedSamples,
         const DstTexture* dst) const {
-    SkASSERT(!analysis.usesPLSDstRead());
     return DisableColorXP::Create();
 }
 

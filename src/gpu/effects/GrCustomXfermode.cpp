@@ -52,14 +52,9 @@ static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
 #undef EQ_OFFSET
 }
 
-static bool can_use_hw_blend_equation(GrBlendEquation equation,
-                                      bool usePLSRead,
-                                      bool isLCDCoverage,
+static bool can_use_hw_blend_equation(GrBlendEquation equation, bool isLCDCoverage,
                                       const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
-        return false;
-    }
-    if (usePLSRead) {
         return false;
     }
     if (isLCDCoverage) {
@@ -334,7 +329,7 @@ private:
 
     bool willReadsDst(const FragmentProcessorAnalysis&) const override { return true; }
 
-    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
+    bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
 
@@ -352,20 +347,16 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                         bool hasMixedSamples,
                                                         const DstTexture* dstTexture) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.usesPLSDstRead(),
-                                  analysis.hasLCDCoverage(), caps)) {
+    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.hasLCDCoverage(), caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }
     return new CustomXP(dstTexture, hasMixedSamples, fMode);
 }
 
-bool CustomXPFactory::onWillReadDstInShader(const GrCaps& caps,
-                                            const FragmentProcessorAnalysis& analysis) const {
-    // This should not be called if we're using PLS dst read.
-    static constexpr bool kUsesPLSRead = false;
-    return !can_use_hw_blend_equation(fHWBlendEquation, kUsesPLSRead, analysis.hasLCDCoverage(),
-                                      caps);
+bool CustomXPFactory::willReadDstInShader(const GrCaps& caps,
+                                          const FragmentProcessorAnalysis& analysis) const {
+    return !can_use_hw_blend_equation(fHWBlendEquation, analysis.hasLCDCoverage(), caps);
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);

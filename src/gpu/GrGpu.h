@@ -376,7 +376,7 @@ public:
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) = 0;
 
     // Called by GrOpList when flushing.
-    // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
+    // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits).
     virtual void finishOpList() {}
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;

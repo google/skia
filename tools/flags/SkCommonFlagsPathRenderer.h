@@ -16,11 +16,11 @@
 
 DECLARE_string(pr);
 
-#define DEFINE_pathrenderer_flag \
-    DEFINE_string(pr, "all", \
-                  "Set of enabled gpu path renderers. Defined as a list of: " \
-                    "[[~]all [~]dashline [~]nvpr [~]msaa [~]aahairline [~]aaconvex " \
-                    "[~]aalinearizing [~]pls [~]sdf [~]tess [~]grdefault]")
+#define DEFINE_pathrenderer_flag                                                   \
+    DEFINE_string(pr, "all",                                                       \
+                  "Set of enabled gpu path renderers. Defined as a list of: "      \
+                  "[[~]all [~]dashline [~]nvpr [~]msaa [~]aahairline [~]aaconvex " \
+                  "[~]aalinearizing [~]sdf [~]tess [~]grdefault]")
 
 inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
@@ -38,8 +38,6 @@ inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const ch
         return GpuPathRenderers::kAAConvex;
     } else if (!strcmp(name, "aalinearizing")) {
         return GpuPathRenderers::kAALinearizing;
-    } else if (!strcmp(name, "pls")) {
-        return GpuPathRenderers::kPLS;
     } else if (!strcmp(name, "sdf")) {
         return GpuPathRenderers::kDistanceField;
     } else if (!strcmp(name, "tess")) {

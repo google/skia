@@ -276,8 +276,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrOp.h",
   "$_src/gpu/ops/GrOvalOpFactory.cpp",
   "$_src/gpu/ops/GrOvalOpFactory.h",
-  "$_src/gpu/ops/GrPLSPathRenderer.cpp",
-  "$_src/gpu/ops/GrPLSPathRenderer.h",
   "$_src/gpu/ops/GrRectOpFactory.h",
   "$_src/gpu/ops/GrRectOpFactory.cpp",
   "$_src/gpu/ops/GrRegionOp.cpp",

@@ -94,10 +94,9 @@ struct GrContextOptions {
         kAAHairline        = 1 << 3,
         kAAConvex          = 1 << 4,
         kAALinearizing     = 1 << 5,
-        kPLS               = 1 << 6,
-        kDistanceField     = 1 << 7,
-        kTessellating      = 1 << 8,
-        kDefault           = 1 << 9,
+        kDistanceField     = 1 << 6,
+        kTessellating      = 1 << 7,
+        kDefault           = 1 << 8,
 
         kAll               = kDefault | (kDefault - 1)
     };

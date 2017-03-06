@@ -38,11 +38,9 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
 void GrProcessorSet::FragmentProcessorAnalysis::internalReset(const GrPipelineInput& colorInput,
                                                               const GrPipelineInput coverageInput,
                                                               const GrProcessorSet& processors,
-                                                              bool usesPLSDstRead,
                                                               const GrFragmentProcessor* clipFP,
                                                               const GrCaps& caps) {
     GrProcOptInfo colorInfo(colorInput);
-    fUsesPLSDstRead = usesPLSDstRead;
     fCompatibleWithCoverageAsAlpha = !coverageInput.isLCDCoverage();
 
     const GrFragmentProcessor* const* fps = processors.fFragmentProcessors.get();
@@ -91,15 +89,14 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalReset(const GrPipelineIn
 void GrProcessorSet::FragmentProcessorAnalysis::reset(const GrPipelineInput& colorInput,
                                                       const GrPipelineInput coverageInput,
                                                       const GrProcessorSet& processors,
-                                                      bool usesPLSDstRead,
                                                       const GrAppliedClip& appliedClip,
                                                       const GrCaps& caps) {
-    this->internalReset(colorInput, coverageInput, processors, usesPLSDstRead,
+    this->internalReset(colorInput, coverageInput, processors,
                         appliedClip.clipCoverageFragmentProcessor(), caps);
 }
 
 GrProcessorSet::FragmentProcessorAnalysis::FragmentProcessorAnalysis(
         const GrPipelineInput& colorInput, const GrPipelineInput coverageInput, const GrCaps& caps)
         : FragmentProcessorAnalysis() {
-    this->internalReset(colorInput, coverageInput, GrProcessorSet(GrPaint()), false, nullptr, caps);
+    this->internalReset(colorInput, coverageInput, GrProcessorSet(GrPaint()), nullptr, caps);
 }
