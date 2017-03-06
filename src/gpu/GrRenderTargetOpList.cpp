@@ -274,6 +274,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     }
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
     fRecordedOps.emplace_back(std::move(op), renderTarget);
+    fRecordedOps.back().fOp->wasRecorded();
     fLastFullClearOp = nullptr;
     fLastFullClearRenderTargetID.makeInvalid();
     return fRecordedOps.back().fOp.get();
