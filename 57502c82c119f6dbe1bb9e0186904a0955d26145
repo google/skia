@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a819898f_ca429725",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-06T14:46:47Z",
+      "side": 1,
+      "message": "In fuzz_range https://github.com/google/skia/blob/master/fuzz/Fuzz.h#L88, we block out infinite values too.  Is that also wanted here?\n\nAlso, could we call this something like fuzz_nice_float to indicate that it won\u0027t include bad values?  I imagine some APIs we will want to test with NaNs.",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 22
+      },
+      "revId": "57502c82c119f6dbe1bb9e0186904a0955d26145",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
