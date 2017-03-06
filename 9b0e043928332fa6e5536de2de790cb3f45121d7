@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd104dd9_076ed7be",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T16:07:26Z",
+      "side": 1,
+      "message": "Is this, format and transfer function but not gamut?  I assume these all have some implied default (sRGB) gamut?",
+      "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca1bff51_0d4994e1",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T16:07:26Z",
+      "side": 1,
+      "message": "I think we\u0027re starting to proliferate names for this...\n\nIf we\u0027re just talking about format and transfer function, it\u0027s probably kColorManaged_NonLinearBlending ?",
+      "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b8e8682_b42e0224",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T16:07:26Z",
+      "side": 1,
+      "message": "--\u003e kColorManagedSRGB?",
+      "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
