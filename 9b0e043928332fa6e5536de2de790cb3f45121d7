@@ -104,6 +104,24 @@
       "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "135f5839_f263f4bb",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T16:13:36Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "70476ac7_000f8d7a",
+      "revId": "9b0e043928332fa6e5536de2de790cb3f45121d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
