@@ -66,7 +66,6 @@ skia_core_sources = [
   "$_src/core/SkCachedData.cpp",
   "$_src/core/SkCanvas.cpp",
   "$_src/core/SkCanvasPriv.h",
-  "$_src/core/SkChunkAlloc.cpp",
   "$_src/core/SkClipStack.cpp",
   "$_src/core/SkClipStack.h",
   "$_src/core/SkClipStackDevice.cpp",
@@ -452,7 +451,6 @@ skia_core_sources = [
   # private
   "$_include/private/SkAtomics.h",
   "$_include/private/SkChecksum.h",
-  "$_include/private/SkChunkAlloc.h",
   "$_include/private/SkFixed.h",
   "$_include/private/SkFloatBits.h",
   "$_include/private/SkFloatingPoint.h",

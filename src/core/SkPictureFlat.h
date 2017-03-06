@@ -9,7 +9,6 @@
 
 #include "SkCanvas.h"
 #include "SkChecksum.h"
-#include "SkChunkAlloc.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkPaint.h"
