@@ -1,5 +1,7 @@
-Testing Skia with MSAN, ASAN, and TSAN
-======================================
+MSAN, ASAN, & TSAN
+==================
+
+*Testing Skia with memory, address, and thread santizers.*
 
 Get Clang binaries
 ------------------
