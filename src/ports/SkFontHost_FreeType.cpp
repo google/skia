@@ -560,8 +560,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
     if (!canSubset(face)) {
         info->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
     }
-    info->fLastGlyphID = face->num_glyphs - 1;
-    info->fEmSize = 1000;
 
     const char* fontType = FT_Get_X11_Font_Format(face);
     if (strcmp(fontType, "Type 1") == 0) {
@@ -572,10 +570,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
         info->fType = SkAdvancedTypefaceMetrics::kCFF_Font;
     } else if (strcmp(fontType, "TrueType") == 0) {
         info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
-        TT_Header* ttHeader;
-        if ((ttHeader = (TT_Header*)FT_Get_Sfnt_Table(face, ft_sfnt_head)) != nullptr) {
-            info->fEmSize = ttHeader->Units_Per_EM;
-        }
     } else {
         info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
     }
