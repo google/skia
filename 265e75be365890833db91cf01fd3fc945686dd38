@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16cdb7e9_c7a43e64",
+        "filename": "gm/beziereffects.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-06T17:02:27Z",
+      "side": 0,
+      "message": "This and the other op in this file were using their bounds as their geometry to draw. I\u0027ve made them retain the original rect since the bounds get updated when the op is recorded.",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 30
+      },
+      "revId": "265e75be365890833db91cf01fd3fc945686dd38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22db0cf1_157a8e69",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-06T17:02:27Z",
+      "side": 0,
+      "message": "This seems to be compensating for aa bloat, but now the op\u0027s clipped bounds already incorporate the bloat.",
+      "range": {
+        "startLine": 100,
+        "startChar": 3,
+        "endLine": 101,
+        "endChar": 30
+      },
+      "revId": "265e75be365890833db91cf01fd3fc945686dd38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08f436ba_d008bdf4",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-06T17:02:27Z",
+      "side": 0,
+      "message": "This is no longer valid as the clipped bounds may not contain all the glyphs.",
+      "range": {
+        "startLine": 152,
+        "startChar": 17,
+        "endLine": 152,
+        "endChar": 38
+      },
+      "revId": "265e75be365890833db91cf01fd3fc945686dd38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
