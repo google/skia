@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f3fd5c6_dee6c705",
+        "filename": "src/gpu/ops/GrOp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-06T20:54:08Z",
+      "side": 1,
+      "message": "Do we foresee other reasons an op might want this hook, or could the comment be more specific?\n\n\"This is called once the op is recorded into a GrOpList and guaranteed to execute during the the GrOpList\u0027s next flush. Subclasses can use this hook to begin preparations for the upcoming flush.\"\n\n.. Or something.",
+      "range": {
+        "startLine": 128,
+        "startChar": 42,
+        "endLine": 128,
+        "endChar": 49
+      },
+      "revId": "08edeb8b34862c66bfe718cdf01bc123b98a26af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
