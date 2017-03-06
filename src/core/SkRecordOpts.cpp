@@ -187,6 +187,13 @@ struct SaveLayerDrawRestoreNooper {
     typedef Pattern<Is<SaveLayer>, IsDraw, Is<Restore>> Match;
 
     bool onMatch(SkRecord* record, Match* match, int begin, int end) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        // Turn off this optimization completely for Android framework
+        // because it makes the following Android CTS test fail:
+        // android.uirendering.cts.testclasses.LayerTests#testSaveLayerClippedWithAlpha
+        return false;
+#endif
+
         if (match->first<SaveLayer>()->backdrop) {
             // can't throw away the layer if we have a backdrop
             return false;
