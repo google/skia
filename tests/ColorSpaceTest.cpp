@@ -478,3 +478,23 @@ DEF_TEST(ColorSpace_MatrixHash, r) {
     REPORTER_ASSERT(r, *as_CSB(srgb)->toXYZD50() == *as_CSB(strange)->toXYZD50());
     REPORTER_ASSERT(r, as_CSB(srgb)->toXYZD50Hash() == as_CSB(strange)->toXYZD50Hash());
 }
+
+DEF_TEST(ColorSpace_IsSRGB, r) {
+    sk_sp<SkColorSpace> srgb0 = SkColorSpace::MakeSRGB();
+    sk_sp<SkColorSpace> srgb1 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+            SkColorSpace::kSRGB_Gamut, SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
+
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.0f;
+    fn.fE = 0.0f;
+    fn.fF = 0.0f;
+    fn.fG = 2.2f;
+    sk_sp<SkColorSpace> twoDotTwo = SkColorSpace::MakeRGB(fn, SkColorSpace::kSRGB_Gamut);
+
+    REPORTER_ASSERT(r, srgb0->isSRGB());
+    REPORTER_ASSERT(r, srgb1->isSRGB());
+    REPORTER_ASSERT(r, !twoDotTwo->isSRGB());
+}
