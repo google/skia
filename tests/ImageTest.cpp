@@ -12,6 +12,7 @@
 #include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColorSpacePriv.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
@@ -27,6 +28,7 @@
 #include "SkUtils.h"
 #include "Test.h"
 
+#include "Resources.h"
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
@@ -1037,6 +1039,48 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     }
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static sk_sp<SkImage> create_picture_image(sk_sp<SkColorSpace> space) {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(10, 10);
+    canvas->clear(SK_ColorCYAN);
+    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(), SkISize::Make(10, 10),
+                                    nullptr, nullptr, SkImage::BitDepth::kU8, std::move(space));
+};
+
+DEF_TEST(Image_ColorSpace, r) {
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
+    sk_sp<SkImage> image = GetResourceAsImage("mandrill_512_q075.jpg");
+    REPORTER_ASSERT(r, srgb.get() == image->colorSpace());
+
+    image = GetResourceAsImage("webp-color-profile-lossy.webp");
+    SkColorSpaceTransferFn fn;
+    bool success = image->colorSpace()->isNumericalTransferFn(&fn);
+    REPORTER_ASSERT(r, success);
+    REPORTER_ASSERT(r, color_space_almost_equal(1.8f, fn.fG));
+
+    sk_sp<SkColorSpace> rec2020 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                        SkColorSpace::kRec2020_Gamut);
+    image = create_picture_image(rec2020);
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
+
+    SkBitmap bitmap;
+    SkImageInfo info = SkImageInfo::MakeN32(10, 10, kPremul_SkAlphaType, rec2020);
+    bitmap.allocPixels(info);
+    image = SkImage::MakeFromBitmap(bitmap);
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
+
+    sk_sp<SkSurface> surface = SkSurface::MakeRaster(
+            SkImageInfo::MakeN32Premul(SkISize::Make(10, 10)));
+    image = surface->makeImageSnapshot();
+    REPORTER_ASSERT(r, nullptr == image->colorSpace());
+
+    surface = SkSurface::MakeRaster(info);
+    image = surface->makeImageSnapshot();
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
