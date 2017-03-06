@@ -377,8 +377,8 @@ const GrBuffer* AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvi
 bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     AAStrokeRectOp* that = t->cast<AAStrokeRectOp>();
 
-    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+    if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                that->boundsX(), caps)) {
         return false;
     }
 

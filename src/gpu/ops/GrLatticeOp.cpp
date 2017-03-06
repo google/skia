@@ -137,8 +137,8 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->boundsX(), *that->pipeline(),
+                                    that->boundsX(), caps)) {
             return false;
         }
 

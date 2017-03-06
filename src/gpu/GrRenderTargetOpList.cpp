@@ -97,9 +97,6 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
                                            const GrClip& clip,
                                            const SkRect& opBounds,
                                            GrXferProcessor::DstTexture* dstTexture) {
-    SkRect bounds = opBounds;
-    bounds.outset(0.5f, 0.5f);
-
     if (this->caps()->textureBarrierSupport()) {
         if (GrTexture* rtTex = rt->asTexture()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
@@ -114,7 +111,7 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
     clip.getConservativeBounds(rt->width(), rt->height(), &copyRect);
 
     SkIRect drawIBounds;
-    bounds.roundOut(&drawIBounds);
+    opBounds.roundOut(&drawIBounds);
     if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "Missed an early reject. "
@@ -198,7 +195,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             }
             flushState->setCommandBuffer(commandBuffer.get());
         }
-        fRecordedOps[i].fOp->execute(flushState, fRecordedOps[i].fClippedBounds);
+        fRecordedOps[i].fOp->execute(flushState);
     }
     if (commandBuffer) {
         commandBuffer->end();
@@ -234,7 +231,7 @@ void GrRenderTargetOpList::freeGpuResources() {
 }
 
 static void op_bounds(SkRect* bounds, const GrOp* op) {
-    *bounds = op->bounds();
+    *bounds = op->boundsX();
     if (op->hasZeroArea()) {
         if (op->hasAABloat()) {
             bounds->outset(0.5f, 0.5f);
@@ -304,7 +301,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     }
 
     if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
-        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
+        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, bounds,
                               &args.fDstTexture);
         if (!args.fDstTexture.texture()) {
             return;
@@ -316,7 +313,8 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif
-    this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
+    op->setClippedBounds(appliedClip.clippedDrawBounds());
+    this->recordOp(std::move(op), renderTargetContext);
 }
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,

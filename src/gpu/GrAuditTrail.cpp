@@ -15,7 +15,7 @@ void GrAuditTrail::addOp(const GrOp* op, GrGpuResource::UniqueID renderTargetID)
     Op* auditOp = new Op;
     fOpPool.emplace_back(auditOp);
     auditOp->fName = op->name();
-    auditOp->fBounds = op->bounds();
+    auditOp->fBounds = op->boundsX();
     auditOp->fClientID = kGrAuditTrailInvalidID;
     auditOp->fOpListID = kGrAuditTrailInvalidID;
     auditOp->fChildID = kGrAuditTrailInvalidID;
@@ -45,7 +45,7 @@ void GrAuditTrail::addOp(const GrOp* op, GrGpuResource::UniqueID renderTargetID)
     // We use the op pointer as a key to find the OpNode we are 'glomming' ops onto
     fIDLookup.set(op->uniqueID(), auditOp->fOpListID);
     OpNode* opNode = new OpNode(renderTargetID);
-    opNode->fBounds = op->bounds();
+    opNode->fBounds = op->boundsX();
     opNode->fChildren.push_back(auditOp);
     fOpList.emplace_back(opNode);
 }
@@ -76,7 +76,7 @@ void GrAuditTrail::opsCombined(const GrOp* consumer, const GrOp* consumed) {
     }
 
     // Update the bounds for the combineWith node
-    consumerOp.fBounds = consumer->bounds();
+    consumerOp.fBounds = consumer->boundsX();
 
     // remove the old node from our opList and clear the combinee's lookup
     // NOTE: because we can't change the shape of the oplist, we use a sentinel
