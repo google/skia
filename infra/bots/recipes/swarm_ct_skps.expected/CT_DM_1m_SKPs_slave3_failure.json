@@ -333,23 +333,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "rmtree",
       "[START_DIR]/luci-go"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
-    "name": "rmtree luci-go",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rmtree luci-go"
   },
   {
     "cmd": [
@@ -370,45 +361,27 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "rmtree",
       "[START_DIR]/swarming_temp_dir"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
-    "name": "rmtree swarming_temp_dir",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rmtree swarming_temp_dir"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs/slave1"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
-    "name": "rmtree slave1",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rmtree slave1"
   },
   {
     "cmd": [
@@ -490,23 +463,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs/slave2"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
-    "name": "rmtree slave2",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rmtree slave2"
   },
   {
     "cmd": [
@@ -588,23 +552,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs/slave3"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
-    "name": "rmtree slave3",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rmtree slave3"
   },
   {
     "cmd": [
@@ -686,23 +641,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs/slave4"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
-    "name": "rmtree slave4",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rmtree slave4"
   },
   {
     "cmd": [
@@ -784,23 +730,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs/slave5"
     ],
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
-    "name": "rmtree slave5",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rmtree slave5"
   },
   {
     "cmd": [
