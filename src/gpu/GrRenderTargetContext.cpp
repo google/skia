@@ -6,8 +6,8 @@
  */
 
 #include "GrRenderTargetContext.h"
+#include "GrAppliedClip.h"
 #include "GrColor.h"
-#include "GrDrawOpTest.h"
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
@@ -17,9 +17,14 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceProvider.h"
+#include "GrStencilAttachment.h"
+#include "SkLatticeIter.h"
+#include "SkMatrixPriv.h"
 #include "SkSurfacePriv.h"
-
+#include "effects/GrRRectEffect.h"
+#include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
+#include "ops/GrDrawOp.h"
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawVerticesOp.h"
 #include "ops/GrLatticeOp.h"
@@ -28,19 +33,10 @@
 #include "ops/GrRectOpFactory.h"
 #include "ops/GrRegionOp.h"
 #include "ops/GrShadowRRectOp.h"
-
-#include "effects/GrRRectEffect.h"
-
-#include "instanced/InstancedRendering.h"
-
+#include "ops/GrStencilPathOp.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
-
 #include "../private/GrAuditTrail.h"
-
-#include "SkGr.h"
-#include "SkLatticeIter.h"
-#include "SkMatrixPriv.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER \
@@ -523,7 +519,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
             if (ss) {
                 pipelineBuilder.setUserStencil(ss);
             }
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, clip, std::move(op));
             return true;
         }
     }
@@ -540,7 +536,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
                 if (ss) {
                     pipelineBuilder.setUserStencil(ss);
                 }
-                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+                this->addDrawOp(pipelineBuilder, clip, std::move(op));
                 return true;
             }
         }
@@ -663,7 +659,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             pipelineBuilder.setSnapVerticesToPixelCenters(snapToPixelCenters);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, clip, std::move(op));
             return;
         }
     }
@@ -699,9 +695,55 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
                                             GrAAType aaType,
                                             const SkMatrix& viewMatrix,
                                             const GrPath* path) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkDEBUGCODE(fRenderTargetContext->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
+                              "GrRenderTargetContext::stencilPath");
+
     SkASSERT(aaType != GrAAType::kCoverage);
-    fRenderTargetContext->getOpList()->stencilPath(fRenderTargetContext, clip, aaType, viewMatrix,
-                                                   path);
+
+    bool useHWAA = GrAATypeIsHW(aaType);
+    // TODO: extract portions of checkDraw that are relevant to path stenciling.
+    SkASSERT(path);
+    SkASSERT(fRenderTargetContext->caps()->shaderCaps()->pathRenderingSupport());
+
+    // FIXME: Use path bounds instead of this WAR once
+    // https://bugs.chromium.org/p/skia/issues/detail?id=5640 is resolved.
+    SkRect bounds = SkRect::MakeIWH(fRenderTargetContext->width(), fRenderTargetContext->height());
+
+    // Setup clip
+    GrAppliedClip appliedClip(bounds);
+    if (!clip.apply(fRenderTargetContext->fContext, fRenderTargetContext, useHWAA, true,
+                    &appliedClip)) {
+        return;
+    }
+
+    // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
+    // attempt this in a situation that would require coverage AA.
+    SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
+
+    GrRenderTarget* rt = fRenderTargetContext->accessRenderTarget();
+    if (!rt) {
+        return;
+    }
+    GrStencilAttachment* stencilAttachment =
+            fRenderTargetContext->fContext->resourceProvider()->attachStencilAttachment(rt);
+    if (!stencilAttachment) {
+        SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
+        return;
+    }
+
+    std::unique_ptr<GrOp> op = GrStencilPathOp::Make(viewMatrix,
+                                                     useHWAA,
+                                                     path->getFillType(),
+                                                     appliedClip.hasStencilClip(),
+                                                     stencilAttachment->bits(),
+                                                     appliedClip.scissorState(),
+                                                     fRenderTargetContext->accessRenderTarget(),
+                                                     path);
+    op->setClippedBounds(appliedClip.clippedDrawBounds());
+    fRenderTargetContext->getOpList()->recordOp(std::move(op), fRenderTargetContext);
 }
 
 void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
@@ -779,7 +821,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
                                                     &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, clip, std::move(op));
             return;
         }
     }
@@ -838,7 +880,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
                                                     &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, clip, std::move(op));
             return;
         }
     }
@@ -854,7 +896,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
         std::unique_ptr<GrDrawOp> op =
                 GrAAFillRectOp::Make(paint.getColor(), viewMatrix, localMatrix, croppedRect);
         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-        this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+        this->addDrawOp(pipelineBuilder, clip, std::move(op));
         return;
     }
 
@@ -904,7 +946,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
         return;
     }
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+    this->addDrawOp(pipelineBuilder, clip, std::move(op));
 }
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
@@ -926,7 +968,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
         return;
     }
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+    this->addDrawOp(pipelineBuilder, clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -948,7 +990,7 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
     std::unique_ptr<GrDrawOp> op =
             GrDrawAtlasOp::Make(paint.getColor(), viewMatrix, spriteCount, xform, texRect, colors);
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+    this->addDrawOp(pipelineBuilder, clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -993,7 +1035,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
                                                      fInstancedPipelineInfo, &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, *clip, std::move(op));
             return;
         }
     }
@@ -1009,7 +1051,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
                                                                     shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, *clip, std::move(op));
             return;
         }
     }
@@ -1047,7 +1089,7 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
                                                          blurRadius, stroke, shaderCaps);
     if (op) {
         GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-        this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+        this->addDrawOp(pipelineBuilder, clip, std::move(op));
         return;
     }
 }
@@ -1071,7 +1113,7 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
                                                       &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, clip, std::move(op));
             return true;
         }
     }
@@ -1191,7 +1233,7 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
 
     std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+    this->addDrawOp(pipelineBuilder, clip, std::move(op));
 }
 
 void GrRenderTargetContext::drawOval(const GrClip& clip,
@@ -1222,7 +1264,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
                                                     fInstancedPipelineInfo, &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, clip, std::move(op));
             return;
         }
     }
@@ -1234,7 +1276,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
                 GrOvalOpFactory::MakeOvalOp(paint.getColor(), viewMatrix, oval, stroke, shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, clip, std::move(op));
             return;
         }
     }
@@ -1274,7 +1316,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
                                                                   shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+            this->addDrawOp(pipelineBuilder, clip, std::move(op));
             return;
         }
     }
@@ -1302,7 +1344,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
                                                           imageHeight, std::move(iter), dst);
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+    this->addDrawOp(pipelineBuilder, clip, std::move(op));
 }
 
 void GrRenderTargetContext::prepareForExternalIO() {
@@ -1339,7 +1381,7 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
     if (ss) {
         pipelineBuilder.setUserStencil(ss);
     }
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+    this->addDrawOp(pipelineBuilder, clip, std::move(op));
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
@@ -1419,7 +1461,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
                         GrRectOpFactory::MakeAAFillNestedRects(paint.getColor(), viewMatrix, rects);
                 if (op) {
                     GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-                    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+                    this->addDrawOp(pipelineBuilder, clip, std::move(op));
                 }
                 return;
             }
@@ -1433,7 +1475,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
                     paint.getColor(), viewMatrix, ovalRect, style.strokeRec(), shaderCaps);
             if (op) {
                 GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+                this->addDrawOp(pipelineBuilder, clip, std::move(op));
                 return;
             }
         }
@@ -1605,6 +1647,32 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     pr->drawPath(args);
 }
 
+static void op_bounds(SkRect* bounds, const GrOp* op) {
+    *bounds = op->bounds();
+    if (op->hasZeroArea()) {
+        if (op->hasAABloat()) {
+            bounds->outset(0.5f, 0.5f);
+        } else {
+            // We don't know which way the particular GPU will snap lines or points at integer
+            // coords. So we ensure that the bounds is large enough for either snap.
+            SkRect before = *bounds;
+            bounds->roundOut(bounds);
+            if (bounds->fLeft == before.fLeft) {
+                bounds->fLeft -= 1;
+            }
+            if (bounds->fTop == before.fTop) {
+                bounds->fTop -= 1;
+            }
+            if (bounds->fRight == before.fRight) {
+                bounds->fRight += 1;
+            }
+            if (bounds->fBottom == before.fBottom) {
+                bounds->fBottom += 1;
+            }
+        }
+    }
+}
+
 void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
                                       std::unique_ptr<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
@@ -1612,5 +1680,99 @@ void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, 
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
 
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+    // Setup clip
+    SkRect bounds;
+    op_bounds(&bounds, op.get());
+    GrAppliedClip appliedClip(bounds);
+    if (!clip.apply(fContext, this, pipelineBuilder.isHWAntialias(),
+                    pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
+        return;
+    }
+
+    // This forces instantiation of the render target. Pipeline creation is moving to flush time
+    // by which point instantiation must have occurred anyway.
+    GrRenderTarget* rt = this->accessRenderTarget();
+    if (!rt) {
+        return;
+    }
+
+    GrResourceProvider* resourceProvider = fContext->resourceProvider();
+    if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
+        if (!resourceProvider->attachStencilAttachment(this->accessRenderTarget())) {
+            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
+            return;
+        }
+    }
+
+    GrProcessorSet::FragmentProcessorAnalysis analysis;
+    op->analyzeProcessors(&analysis, pipelineBuilder.processors(), appliedClip, *this->caps());
+
+    GrPipeline::InitArgs args;
+    pipelineBuilder.getPipelineInitArgs(&args);
+    args.fAppliedClip = &appliedClip;
+    args.fRenderTarget = rt;
+    args.fCaps = this->caps();
+    args.fAnalysis = &analysis;
+
+    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
+        this->setupDstTexture(rt, clip, bounds, &args.fDstTexture);
+        if (!args.fDstTexture.texture()) {
+            return;
+        }
+    }
+    op->initPipeline(args);
+    // TODO: We need to add pipeline dependencies on textures, etc before recording this op.
+    op->setClippedBounds(appliedClip.clippedDrawBounds());
+    this->getOpList()->addOp(std::move(op), this);
+}
+
+void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& clip,
+                                            const SkRect& opBounds,
+                                            GrXferProcessor::DstTexture* dstTexture) {
+    if (this->caps()->textureBarrierSupport()) {
+        if (GrTexture* rtTex = rt->asTexture()) {
+            // The render target is a texture, so we can read from it directly in the shader. The XP
+            // will be responsible to detect this situation and request a texture barrier.
+            dstTexture->setTexture(sk_ref_sp(rtTex));
+            dstTexture->setOffset(0, 0);
+            return;
+        }
+    }
+
+    SkIRect copyRect;
+    clip.getConservativeBounds(rt->width(), rt->height(), &copyRect);
+
+    SkIRect drawIBounds;
+    opBounds.roundOut(&drawIBounds);
+    if (!copyRect.intersect(drawIBounds)) {
+#ifdef SK_DEBUG
+        GrCapsDebugf(this->caps(), "Missed an early reject. "
+                                   "Bailing on draw from setupDstTexture.\n");
+#endif
+        return;
+    }
+
+    // MSAA consideration: When there is support for reading MSAA samples in the shader we could
+    // have per-sample dst values by making the copy multisampled.
+    GrSurfaceDesc desc;
+    if (!this->caps()->initDescForDstCopy(rt, &desc)) {
+        desc.fOrigin = kDefault_GrSurfaceOrigin;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fConfig = rt->config();
+    }
+
+    desc.fWidth = copyRect.width();
+    desc.fHeight = copyRect.height();
+
+    static const uint32_t kFlags = 0;
+    sk_sp<GrTexture> copy(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
+
+    if (!copy) {
+        SkDebugf("Failed to create temporary copy of destination texture.\n");
+        return;
+    }
+    SkIPoint dstPoint = {0, 0};
+    this->getOpList()->copySurface(copy.get(), rt, copyRect, dstPoint);
+    dstTexture->setTexture(std::move(copy));
+    dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
 }
