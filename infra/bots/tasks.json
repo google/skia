@@ -872,18 +872,6 @@
         "Upload-Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE"
       ]
     },
-    "Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE"
-      ]
-    },
-    "Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE"
-      ]
-    },
     "Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -1531,18 +1519,6 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE"
-      ]
-    },
-    "Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE"
-      ]
-    },
-    "Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE"
       ]
     },
     "Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug": {
@@ -7531,104 +7507,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:38"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug-ANGLE"
-      ],
-      "dimensions": [
-        "gpu:8086:22b1",
-        "os:Windows-10-14393",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:38"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release-ANGLE"
-      ],
-      "dimensions": [
-        "gpu:8086:22b1",
-        "os:Windows-10-14393",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -12985,104 +12863,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:38"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug-ANGLE"
-      ],
-      "dimensions": [
-        "gpu:8086:22b1",
-        "os:Windows-10-14393",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:38"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release-ANGLE"
-      ],
-      "dimensions": [
-        "gpu:8086:22b1",
-        "os:Windows-10-14393",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -15424,36 +15204,6 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-perf"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE": {
-      "dependencies": [
-        "Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -17884,66 +17634,6 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE": {
-      "dependencies": [
-        "Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-ANGLE",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE": {
-      "dependencies": [
-        "Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win10-MSVC-NUC5PPYH-GPU-IntelHD405-x86_64-Release-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
