@@ -6,35 +6,17 @@
  */
 
 #include "GrRenderTargetOpList.h"
-
-#include "GrAppliedClip.h"
 #include "GrAuditTrail.h"
 #include "GrCaps.h"
-#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
-#include "GrPath.h"
-#include "GrPipeline.h"
-#include "GrMemoryPool.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
-#include "GrRenderTargetPriv.h"
-#include "GrStencilAttachment.h"
-#include "GrSurfacePriv.h"
-#include "GrTexture.h"
-
-#include "SkStrokeRec.h"
-
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
 #include "ops/GrCopySurfaceOp.h"
 #include "ops/GrDiscardOp.h"
-#include "ops/GrDrawOp.h"
-#include "ops/GrDrawPathOp.h"
-#include "ops/GrRectOpFactory.h"
-#include "ops/GrStencilPathOp.h"
-
 #include "instanced/InstancedRendering.h"
 
 using gr_instanced::InstancedRendering;
@@ -52,8 +34,6 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
     , fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
     , fLastClipStackGenID(SK_InvalidUniqueID) {
-    // TODO: Stop extracting the context (currently needed by GrClip)
-    fContext = fGpu->getContext();
 
     fMaxOpLookback = (options.fMaxOpCombineLookback < 0) ? kDefaultMaxOpLookback
                                                          : options.fMaxOpCombineLookback;
@@ -91,58 +71,6 @@ void GrRenderTargetOpList::dump() const {
     }
 }
 #endif
-
-void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
-                                           const GrClip& clip,
-                                           const SkRect& opBounds,
-                                           GrXferProcessor::DstTexture* dstTexture) {
-    if (this->caps()->textureBarrierSupport()) {
-        if (GrTexture* rtTex = rt->asTexture()) {
-            // The render target is a texture, so we can read from it directly in the shader. The XP
-            // will be responsible to detect this situation and request a texture barrier.
-            dstTexture->setTexture(sk_ref_sp(rtTex));
-            dstTexture->setOffset(0, 0);
-            return;
-        }
-    }
-
-    SkIRect copyRect;
-    clip.getConservativeBounds(rt->width(), rt->height(), &copyRect);
-
-    SkIRect drawIBounds;
-    opBounds.roundOut(&drawIBounds);
-    if (!copyRect.intersect(drawIBounds)) {
-#ifdef SK_DEBUG
-        GrCapsDebugf(this->caps(), "Missed an early reject. "
-                                   "Bailing on draw from setupDstTexture.\n");
-#endif
-        return;
-    }
-
-    // MSAA consideration: When there is support for reading MSAA samples in the shader we could
-    // have per-sample dst values by making the copy multisampled.
-    GrSurfaceDesc desc;
-    if (!fGpu->initDescForDstCopy(rt, &desc)) {
-        desc.fOrigin = kDefault_GrSurfaceOrigin;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fConfig = rt->config();
-    }
-
-    desc.fWidth = copyRect.width();
-    desc.fHeight = copyRect.height();
-
-    static const uint32_t kFlags = 0;
-    sk_sp<GrTexture> copy(fResourceProvider->createApproxTexture(desc, kFlags));
-
-    if (!copy) {
-        SkDebugf("Failed to create temporary copy of destination texture.\n");
-        return;
-    }
-    SkIPoint dstPoint = {0, 0};
-    this->copySurface(copy.get(), rt, copyRect, dstPoint);
-    dstTexture->setTexture(std::move(copy));
-    dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
-}
 
 void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
     // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
@@ -216,150 +144,17 @@ void GrRenderTargetOpList::reset() {
 }
 
 void GrRenderTargetOpList::abandonGpuResources() {
-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+    if (GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport()) {
         InstancedRendering* ir = this->instancedRendering();
         ir->resetGpuResources(InstancedRendering::ResetType::kAbandon);
     }
 }
 
 void GrRenderTargetOpList::freeGpuResources() {
-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
+    if (GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport()) {
         InstancedRendering* ir = this->instancedRendering();
         ir->resetGpuResources(InstancedRendering::ResetType::kDestroy);
     }
-}
-
-static void op_bounds(SkRect* bounds, const GrOp* op) {
-    *bounds = op->bounds();
-    if (op->hasZeroArea()) {
-        if (op->hasAABloat()) {
-            bounds->outset(0.5f, 0.5f);
-        } else {
-            // We don't know which way the particular GPU will snap lines or points at integer
-            // coords. So we ensure that the bounds is large enough for either snap.
-            SkRect before = *bounds;
-            bounds->roundOut(bounds);
-            if (bounds->fLeft == before.fLeft) {
-                bounds->fLeft -= 1;
-            }
-            if (bounds->fTop == before.fTop) {
-                bounds->fTop -= 1;
-            }
-            if (bounds->fRight == before.fRight) {
-                bounds->fRight += 1;
-            }
-            if (bounds->fBottom == before.fBottom) {
-                bounds->fBottom += 1;
-            }
-        }
-    }
-}
-
-void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
-                                     GrRenderTargetContext* renderTargetContext,
-                                     const GrClip& clip,
-                                     std::unique_ptr<GrDrawOp> op) {
-    // Setup clip
-    SkRect bounds;
-    op_bounds(&bounds, op.get());
-    GrAppliedClip appliedClip(bounds);
-    if (!clip.apply(fContext, renderTargetContext, pipelineBuilder.isHWAntialias(),
-                    pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
-        return;
-    }
-
-    if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
-        if (!renderTargetContext->accessRenderTarget()) {
-            return;
-        }
-
-        if (!fResourceProvider->attachStencilAttachment(
-                renderTargetContext->accessRenderTarget())) {
-            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
-            return;
-        }
-    }
-
-    GrProcessorSet::FragmentProcessorAnalysis analysis;
-    op->analyzeProcessors(&analysis, pipelineBuilder.processors(), appliedClip, *this->caps());
-
-    GrPipeline::InitArgs args;
-    pipelineBuilder.getPipelineInitArgs(&args);
-    args.fAppliedClip = &appliedClip;
-    // This forces instantiation of the render target. Pipeline creation is moving to flush time
-    // by which point instantiation must have occurred anyway.
-    args.fRenderTarget = renderTargetContext->accessRenderTarget();
-    if (!args.fRenderTarget) {
-        return;
-    }
-    args.fCaps = this->caps();
-    args.fAnalysis = &analysis;
-
-    if (!renderTargetContext->accessRenderTarget()) {
-        return;
-    }
-
-    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
-        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, bounds,
-                              &args.fDstTexture);
-        if (!args.fDstTexture.texture()) {
-            return;
-        }
-    }
-    op->initPipeline(args);
-
-#ifdef ENABLE_MDB
-    SkASSERT(fSurface);
-    op->pipeline()->addDependenciesTo(fSurface);
-#endif
-    op->setClippedBounds(appliedClip.clippedDrawBounds());
-    this->recordOp(std::move(op), renderTargetContext);
-}
-
-void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
-                                       const GrClip& clip,
-                                       GrAAType aaType,
-                                       const SkMatrix& viewMatrix,
-                                       const GrPath* path) {
-    bool useHWAA = GrAATypeIsHW(aaType);
-    // TODO: extract portions of checkDraw that are relevant to path stenciling.
-    SkASSERT(path);
-    SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
-
-    // FIXME: Use path bounds instead of this WAR once
-    // https://bugs.chromium.org/p/skia/issues/detail?id=5640 is resolved.
-    SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
-
-    // Setup clip
-    GrAppliedClip appliedClip(bounds);
-    if (!clip.apply(fContext, renderTargetContext, useHWAA, true, &appliedClip)) {
-        return;
-    }
-
-    // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
-    // attempt this in a situation that would require coverage AA.
-    SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
-
-    if (!renderTargetContext->accessRenderTarget()) {
-        return;
-    }
-    GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(
-                                                renderTargetContext->accessRenderTarget());
-    if (!stencilAttachment) {
-        SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
-        return;
-    }
-
-    std::unique_ptr<GrOp> op = GrStencilPathOp::Make(viewMatrix,
-                                                     useHWAA,
-                                                     path->getFillType(),
-                                                     appliedClip.hasStencilClip(),
-                                                     stencilAttachment->bits(),
-                                                     appliedClip.scissorState(),
-                                                     renderTargetContext->accessRenderTarget(),
-                                                     path);
-    op->setClippedBounds(appliedClip.clippedDrawBounds());
-    this->recordOp(std::move(op), renderTargetContext);
 }
 
 void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext, GrColor color) {

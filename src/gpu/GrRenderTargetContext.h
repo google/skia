@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrPaint.h"
 #include "GrSurfaceContext.h"
+#include "GrXferProcessor.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 #include "../private/GrInstancedPipelineInfo.h"
@@ -471,8 +472,16 @@ private:
     bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
                        size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
-    // This entry point allows the GrTextContext-derived classes to add their ops to the GrOpList.
+    // This performs processing specific to GrDrawOp-derived ops before recording them into the
+    // op list.
     void addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
+
+    // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
+    // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
+    // a texture copy could not be made.
+    void setupDstTexture(GrRenderTarget*, const GrClip&, const SkRect& opBounds,
+                         GrXferProcessor::DstTexture*);
+
 
     GrRenderTargetOpList* getOpList();
 
