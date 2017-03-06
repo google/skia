@@ -153,6 +153,7 @@ SkAdvancedTypefaceMetrics* SkTestTypeface::onGetAdvancedTypefaceMetrics(
 // pdf only
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     info->fFontName.set(fTestFont->fName);
+    info->fEmSize = 2048;
     int glyphCount = this->onCountGlyphs();
     info->fLastGlyphID = SkToU16(glyphCount - 1);
 
