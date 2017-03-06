@@ -6,11 +6,11 @@
  */
 
 #include "GrVkCaps.h"
-
+#include "GrRenderTarget.h"
 #include "GrShaderCaps.h"
 #include "GrVkUtil.h"
-#include "vk/GrVkInterface.h"
 #include "vk/GrVkBackendContext.h"
+#include "vk/GrVkInterface.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                    VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags)
@@ -50,6 +50,22 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
     this->init(contextOptions, vkInterface, physDev, featureFlags, extensionFlags);
+}
+
+bool GrVkCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+    // We can always succeed here with either a CopyImage (none msaa src) or ResolveImage (msaa).
+    // For CopyImage we can make a simple texture, for ResolveImage we require the dst to be a
+    // render target as well.
+    desc->fOrigin = src->origin();
+    desc->fConfig = src->config();
+    if (src->numColorSamples() > 1 || (src->asTexture() && this->supportsCopiesAsDraws())) {
+        desc->fFlags = kRenderTarget_GrSurfaceFlag;
+    } else {
+        // Just going to use CopyImage here
+        desc->fFlags = kNone_GrSurfaceFlags;
+    }
+
+    return true;
 }
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
