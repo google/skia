@@ -65,7 +65,7 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
     }
 
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        fRecordedOps[i]->execute(flushState, fRecordedOps[i]->bounds());
+        fRecordedOps[i]->execute(flushState);
     }
 
     fGpu->finishOpList();

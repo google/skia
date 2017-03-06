@@ -452,7 +452,7 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         MSAAPathOp* that = t->cast<MSAAPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                     that->bounds(), caps)) {
+                                    that->bounds(), caps)) {
             return false;
         }
 

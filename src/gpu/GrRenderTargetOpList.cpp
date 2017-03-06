@@ -84,10 +84,9 @@ void GrRenderTargetOpList::dump() const {
             SkDebugf("%d: %s\n", i, fRecordedOps[i].fOp->name());
             SkString str = fRecordedOps[i].fOp->dumpInfo();
             SkDebugf("%s\n", str.c_str());
-            const SkRect& clippedBounds = fRecordedOps[i].fClippedBounds;
-            SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                     clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
-                     clippedBounds.fBottom);
+            const SkRect& bounds = fRecordedOps[i].fOp->bounds();
+            SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", bounds.fLeft,
+                     bounds.fTop, bounds.fRight, bounds.fBottom);
         }
     }
 }
@@ -97,9 +96,6 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
                                            const GrClip& clip,
                                            const SkRect& opBounds,
                                            GrXferProcessor::DstTexture* dstTexture) {
-    SkRect bounds = opBounds;
-    bounds.outset(0.5f, 0.5f);
-
     if (this->caps()->textureBarrierSupport()) {
         if (GrTexture* rtTex = rt->asTexture()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
@@ -114,7 +110,7 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
     clip.getConservativeBounds(rt->width(), rt->height(), &copyRect);
 
     SkIRect drawIBounds;
-    bounds.roundOut(&drawIBounds);
+    opBounds.roundOut(&drawIBounds);
     if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "Missed an early reject. "
@@ -198,7 +194,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             }
             flushState->setCommandBuffer(commandBuffer.get());
         }
-        fRecordedOps[i].fOp->execute(flushState, fRecordedOps[i].fClippedBounds);
+        fRecordedOps[i].fOp->execute(flushState);
     }
     if (commandBuffer) {
         commandBuffer->end();
@@ -304,7 +300,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     }
 
     if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
-        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
+        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, bounds,
                               &args.fDstTexture);
         if (!args.fDstTexture.texture()) {
             return;
@@ -316,7 +312,8 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif
-    this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
+    op->setClippedBounds(appliedClip.clippedDrawBounds());
+    this->recordOp(std::move(op), renderTargetContext);
 }
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
@@ -361,7 +358,8 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
                                                      appliedClip.scissorState(),
                                                      renderTargetContext->accessRenderTarget(),
                                                      path);
-    this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
+    op->setClippedBounds(appliedClip.clippedDrawBounds());
+    this->recordOp(std::move(op), renderTargetContext);
 }
 
 void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext, GrColor color) {
@@ -420,18 +418,8 @@ static inline bool can_reorder(const SkRect& a, const SkRect& b) {
            b.fRight <= a.fLeft || b.fBottom <= a.fTop;
 }
 
-static void join(SkRect* out, const SkRect& a, const SkRect& b) {
-    SkASSERT(a.fLeft <= a.fRight && a.fTop <= a.fBottom);
-    SkASSERT(b.fLeft <= b.fRight && b.fTop <= b.fBottom);
-    out->fLeft   = SkTMin(a.fLeft,   b.fLeft);
-    out->fTop    = SkTMin(a.fTop,    b.fTop);
-    out->fRight  = SkTMax(a.fRight,  b.fRight);
-    out->fBottom = SkTMax(a.fBottom, b.fBottom);
-}
-
 GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
-                                     GrRenderTargetContext* renderTargetContext,
-                                     const SkRect& clippedBounds) {
+                                     GrRenderTargetContext* renderTargetContext) {
     GrRenderTarget* renderTarget =
             renderTargetContext ? renderTargetContext->accessRenderTarget()
                                 : nullptr;
@@ -451,9 +439,8 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                op->bounds().fLeft, op->bounds().fRight,
                op->bounds().fTop, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
-    GrOP_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-              clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
-              clippedBounds.fBottom);
+    GrOP_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", op->bounds().fLeft,
+              op->bounds().fTop, op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
     // If we don't have a valid destination render target then we cannot reorder.
@@ -473,13 +460,10 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                 GrOP_INFO("\t\t\tCombined op info:\n");
                 GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
-                join(&fRecordedOps.fromBack(i).fClippedBounds,
-                     fRecordedOps.fromBack(i).fClippedBounds, clippedBounds);
                 return candidate.fOp.get();
             }
             // Stop going backwards if we would cause a painter's order violation.
-            const SkRect& candidateBounds = fRecordedOps.fromBack(i).fClippedBounds;
-            if (!can_reorder(candidateBounds, clippedBounds)) {
+            if (!can_reorder(fRecordedOps.fromBack(i).fOp->bounds(), op->bounds())) {
                 GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
@@ -494,7 +478,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         GrOP_INFO("\t\tFirstOp\n");
     }
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
-    fRecordedOps.emplace_back(std::move(op), clippedBounds, renderTarget);
+    fRecordedOps.emplace_back(std::move(op), renderTarget);
     fLastFullClearOp = nullptr;
     fLastFullClearRenderTargetID.makeInvalid();
     return fRecordedOps.back().fOp.get();
@@ -511,7 +495,6 @@ void GrRenderTargetOpList::forwardCombine() {
         if (!renderTarget) {
             continue;
         }
-        const SkRect& opBounds = fRecordedOps[i].fClippedBounds;
         int maxCandidateIdx = SkTMin(i + fMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
         while (true) {
@@ -534,12 +517,10 @@ void GrRenderTargetOpList::forwardCombine() {
                           candidate.fOp->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());
                 fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
-                join(&fRecordedOps[j].fClippedBounds, fRecordedOps[j].fClippedBounds, opBounds);
                 break;
             }
             // Stop going traversing if we would cause a painter's order violation.
-            const SkRect& candidateBounds = fRecordedOps[j].fClippedBounds;
-            if (!can_reorder(candidateBounds, opBounds)) {
+            if (!can_reorder(fRecordedOps[j].fOp->bounds(), op->bounds())) {
                 GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;

@@ -109,7 +109,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state, const SkRect& /*bounds*/) override {
+    void onExecute(GrOpFlushState* state) override {
         state->commandBuffer()->clear(fRenderTarget.get(), fClip, fColor);
     }
 

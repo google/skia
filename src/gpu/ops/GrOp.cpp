@@ -56,7 +56,6 @@ GrOp::GrOp(uint32_t classID)
     : fClassID(classID)
     , fUniqueID(kIllegalOpID) {
     SkASSERT(classID == SkToU32(fClassID));
-    SkDEBUGCODE(fUsed = false;)
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
 }
 

@@ -27,7 +27,7 @@ SkString GrDrawPathOp::dumpInfo() const {
     return string;
 }
 
-void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
+void GrDrawPathOp::onExecute(GrOpFlushState* state) {
     GrProgramDesc desc;
 
     sk_sp<GrPathProcessor> pathProc(
@@ -115,7 +115,7 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     return true;
 }
 
-void GrDrawPathRangeOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
+void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
     const Draw& head = *fDraws.head();
 
     SkMatrix drawMatrix(this->viewMatrix());

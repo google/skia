@@ -132,13 +132,7 @@ private:
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
-    GrOp* recordOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
-        SkRect bounds = op->bounds();
-        return this->recordOp(std::move(op), renderTargetContext, bounds);
-    }
-
-    // Variant that allows an explicit bounds (computed from the Op's bounds and a clip).
-    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds);
+    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*);
 
     void forwardCombine();
 
@@ -154,10 +148,9 @@ private:
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
     struct RecordedOp {
-        RecordedOp(std::unique_ptr<GrOp> op, const SkRect& clippedBounds, GrRenderTarget* rt)
-                : fOp(std::move(op)), fClippedBounds(clippedBounds), fRenderTarget(rt) {}
+        RecordedOp(std::unique_ptr<GrOp> op, GrRenderTarget* rt)
+                : fOp(std::move(op)), fRenderTarget(rt) {}
         std::unique_ptr<GrOp> fOp;
-        SkRect fClippedBounds;
         // TODO: These ops will all to target the same render target and this won't be needed.
         GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
     };
