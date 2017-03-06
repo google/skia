@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9772d04a_7a151b8c",
+        "filename": "src/core/SkColorSpacePriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T14:06:22Z",
+      "side": 1,
+      "message": "Sure, if was assuming we were avoiding that for some reason.  add_epsiolon() is nextafterf(), just perhaps restricted to inputs of 1.0f?  As is, it\u0027s restricted to positive inputs.",
+      "revId": "54d9aeae9253f34548684d6f389b6a26d7a79424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
