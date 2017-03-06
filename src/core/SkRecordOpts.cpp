@@ -297,7 +297,12 @@ void SkRecordOptimize(SkRecord* record) {
     //     https://bugs.chromium.org/p/skia/issues/detail?id=5548
 //    SkRecordNoopSaveRestores(record);
 
+    // Turn off this optimization completely for Android framework
+    // because it makes the following Android CTS test fail:
+    // android.uirendering.cts.testclasses.LayerTests#testSaveLayerClippedWithAlpha
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkRecordNoopSaveLayerDrawRestores(record);
+#endif
     SkRecordMergeSvgOpacityAndFilterLayers(record);
 
     record->defrag();
@@ -305,7 +310,10 @@ void SkRecordOptimize(SkRecord* record) {
 
 void SkRecordOptimize2(SkRecord* record) {
     multiple_set_matrices(record);
+    // See why we turn this off in SkRecordOptimize above.
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkRecordNoopSaveRestores(record);
+#endif
     SkRecordNoopSaveLayerDrawRestores(record);
     SkRecordMergeSvgOpacityAndFilterLayers(record);
 
