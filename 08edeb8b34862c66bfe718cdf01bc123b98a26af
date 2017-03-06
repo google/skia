@@ -22,6 +22,30 @@
       "revId": "08edeb8b34862c66bfe718cdf01bc123b98a26af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1c472d9_8a533d86",
+        "filename": "src/gpu/ops/GrOp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-06T21:00:28Z",
+      "side": 1,
+      "message": "Other than CCPR I don\u0027t know of anything that would use this. I can mention something about flush. With MDB it is not guaranteed that there will ever be a flush. A discard will remove all the ops without executing them.",
+      "parentUuid": "4f3fd5c6_dee6c705",
+      "range": {
+        "startLine": 128,
+        "startChar": 42,
+        "endLine": 128,
+        "endChar": 49
+      },
+      "revId": "08edeb8b34862c66bfe718cdf01bc123b98a26af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
