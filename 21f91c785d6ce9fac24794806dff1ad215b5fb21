@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2210e6ed_ca43755b",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-06T18:36:33Z",
+      "side": 0,
+      "message": "I moved this over as a TODO instead of copying this code. This relies on a nonexistant GrDrawOp::pipeline() member.",
+      "range": {
+        "startLine": 311,
+        "startChar": 0,
+        "endLine": 314,
+        "endChar": 6
+      },
+      "revId": "21f91c785d6ce9fac24794806dff1ad215b5fb21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
