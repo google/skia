@@ -1766,13 +1766,6 @@ void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
     if (origClip.isEmpty()) {
         return;
     }
-    #ifdef SK_SUPPORT_LEGACY_AAA
-    if (path.isInverseFillType() || !path.isConvex()) {
-        // Fall back as we only implemented the algorithm for convex shapes yet.
-        SkScan::AntiFillPath(path, origClip, blitter, forceRLE);
-        return;
-    }
-    #endif
 
     const bool isInverse = path.isInverseFillType();
     SkIRect ir;

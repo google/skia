@@ -754,9 +754,6 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
 }
 
 static bool suitableForAAA(const SkPath& path) {
-#ifdef SK_SUPPORT_LEGACY_AAA
-    return true;
-#endif
     if (gSkForceAnalyticAA.load()) {
         return true;
     }
@@ -764,8 +761,8 @@ static bool suitableForAAA(const SkPath& path) {
     // When the path have so many points compared to the size of its bounds/resolution,
     // it indicates that the path is not quite smooth in the current resolution:
     // the expected number of turning points in every pixel row/column is significantly greater than
-    // zero. Hence Aanlytic AA is not likely to produce visible quality improvents, and Analytic AA
-    // might be slower than supersampling.
+    // zero. Hence Aanlytic AA is not likely to produce visible quality improvements, and Analytic
+    // AA might be slower than supersampling.
     return path.countPoints() < SkTMax(bounds.width(), bounds.height()) / 2 - 10;
 }
 
