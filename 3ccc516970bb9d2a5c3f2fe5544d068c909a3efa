@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "923b7b28_f91dd223",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T20:34:54Z",
+      "side": 1,
+      "message": "#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK",
+      "revId": "3ccc516970bb9d2a5c3f2fe5544d068c909a3efa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ae9af7de_9bd59c56",
         "filename": "src/core/SkRecordOpts.cpp",
         "patchSetId": 4
@@ -31,6 +48,41 @@
       "side": 1,
       "message": "Thanks for the suggestion. Is the new patch what you meant?",
       "parentUuid": "ae9af7de_9bd59c56",
+      "revId": "3ccc516970bb9d2a5c3f2fe5544d068c909a3efa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0be5bb42_81416154",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T20:34:54Z",
+      "side": 1,
+      "message": "No, I think they belong where I\u0027ve noted, with no #else case and no abort.",
+      "parentUuid": "1d4df268_28af0c5c",
+      "revId": "3ccc516970bb9d2a5c3f2fe5544d068c909a3efa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15b77b88_c42ade56",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T20:34:54Z",
+      "side": 1,
+      "message": "#endif",
       "revId": "3ccc516970bb9d2a5c3f2fe5544d068c909a3efa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
