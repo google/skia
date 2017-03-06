@@ -144,8 +144,6 @@ public:
 
     void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override;
 
-    void finishOpList() override;
-
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
@@ -272,10 +270,6 @@ private:
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
     bool generateMipmap(GrGLTexture* texture, bool gammaCorrect);
-
-    void stampPLSSetupRect(const SkRect& bounds);
-
-    void setupPixelLocalStorage(const GrPipeline&, const GrPrimitiveProcessor&);
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
@@ -404,7 +398,6 @@ private:
     bool createCopyProgram(GrTexture* srcTexture);
     bool createMipmapProgram(int progIdx);
     bool createWireRectProgram();
-    bool createPLSSetupProgram();
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -646,15 +639,6 @@ private:
         const bool tall = (height > 1) && SkToBool(height & 0x1);
         return (wide ? 0x2 : 0x0) | (tall ? 0x1 : 0x0);
     }
-
-    struct {
-        GrGLuint          fProgram;
-        GrGLint           fPosXformUniform;
-        sk_sp<GrGLBuffer> fArrayBuffer;
-    }                                       fPLSSetupProgram;
-
-    bool                                    fHWPLSEnabled;
-    bool                                    fPLSHasBeenUsed;
 
     float                                   fHWMinSampleShading;
 

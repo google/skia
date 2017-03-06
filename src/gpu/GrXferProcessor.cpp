@@ -188,21 +188,13 @@ bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& c
                                      const GrProcessorSet::FragmentProcessorAnalysis& analysis) {
     bool result;
     if (factory) {
-        result = !analysis.usesPLSDstRead() && !caps.shaderCaps()->dstReadInShaderSupport() &&
+        result = !caps.shaderCaps()->dstReadInShaderSupport() &&
                  factory->willReadDstInShader(caps, analysis);
     } else {
         result = GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(caps, analysis);
     }
     SkASSERT(!(result && !WillReadDst(factory, analysis)));
     return result;
-}
-
-bool GrXPFactory::willReadDstInShader(const GrCaps& caps,
-                                      const FragmentProcessorAnalysis& analysis) const {
-    if (analysis.usesPLSDstRead()) {
-        return true;
-    }
-    return this->onWillReadDstInShader(caps, analysis);
 }
 
 GrXferProcessor* GrXPFactory::createXferProcessor(const FragmentProcessorAnalysis& analysis,

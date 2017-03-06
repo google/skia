@@ -41,7 +41,7 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool onWillReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
+    bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
         return false;
     }
 

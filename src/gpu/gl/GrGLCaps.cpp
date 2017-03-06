@@ -290,17 +290,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
     }
 
-    if (ctxInfo.hasExtension("GL_EXT_shader_pixel_local_storage")) {
-        #define GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_FAST_SIZE_EXT 0x8F63
-        GR_GL_GetIntegerv(gli, GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_FAST_SIZE_EXT,
-                          &shaderCaps->fPixelLocalStorageSize);
-        shaderCaps->fPLSPathRenderingSupport = shaderCaps->fFBFetchSupport;
-    }
-    else {
-        shaderCaps->fPixelLocalStorageSize = 0;
-        shaderCaps->fPLSPathRenderingSupport = false;
-    }
-
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
     GrGLint maxSamplers;

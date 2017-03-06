@@ -735,9 +735,6 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(
         const FragmentProcessorAnalysis& analysis,
         bool hasMixedSamples,
         const DstTexture* dstTexture) const {
-    if (analysis.usesPLSDstRead()) {
-        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fBlendMode);
-    }
     BlendFormula blendFormula;
     if (analysis.hasLCDCoverage()) {
         if (SkBlendMode::kSrcOver == fBlendMode && analysis.hasKnownOutputColor() &&
@@ -768,8 +765,8 @@ bool GrPorterDuffXPFactory::willReadsDst(const FragmentProcessorAnalysis& analys
     return (colorFormula.usesDstColor() || analysis.hasCoverage());
 }
 
-bool GrPorterDuffXPFactory::onWillReadDstInShader(const GrCaps& caps,
-                                                  const FragmentProcessorAnalysis& analysis) const {
+bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps,
+                                                const FragmentProcessorAnalysis& analysis) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
@@ -830,9 +827,6 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const FragmentProcessorAnalysis& analysis,
         bool hasMixedSamples,
         const GrXferProcessor::DstTexture* dstTexture) {
-    if (analysis.usesPLSDstRead()) {
-        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkBlendMode::kSrcOver);
-    }
 
     // We want to not make an xfer processor if possible. Thus for the simple case where we are not
     // doing lcd blending we will just use our global SimpleSrcOverXP. This slightly differs from

@@ -98,24 +98,6 @@ public:
     bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
 
     /**
-     * PLS storage size in bytes (0 when not supported). The PLS spec defines a minimum size of 16
-     * bytes whenever PLS is supported.
-     */
-    int pixelLocalStorageSize() const { return fPixelLocalStorageSize; }
-
-    /**
-     * True if this context supports the necessary extensions and features to enable the PLS path
-     * renderer.
-     */
-    bool plsPathRenderingSupport() const {
-#if GR_ENABLE_PLS_PATH_RENDERING
-        return fPLSPathRenderingSupport;
-#else
-        return false;
-#endif
-    }
-
-    /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
      *
      * TODO(joshualitt) On desktop opengl 4.2+ we can achieve something similar to this effect
@@ -286,7 +268,6 @@ private:
     bool fIntegerSupport            : 1;
     bool fTexelBufferSupport        : 1;
     bool fImageLoadStoreSupport     : 1;
-    bool fPLSPathRenderingSupport   : 1;
     bool fShaderPrecisionVaries     : 1;
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
@@ -310,7 +291,6 @@ private:
     bool fMustImplementGSInvocationsWithLoop : 1;
 
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
-    int fPixelLocalStorageSize;
 
     const char* fVersionDeclString;
 

@@ -77,12 +77,9 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
 
     this->setFragmentData(primProc, pipeline, &nextSamplerIdx);
 
-    if (primProc.getPixelLocalStorageState() !=
-        GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
-        const GrXferProcessor& xp = pipeline.getXferProcessor();
-        fXferProcessor->setData(fProgramDataManager, xp);
-        this->bindTextures(xp, pipeline.getAllowSRGBInputs(), &nextSamplerIdx);
-    }
+    const GrXferProcessor& xp = pipeline.getXferProcessor();
+    fXferProcessor->setData(fProgramDataManager, xp);
+    this->bindTextures(xp, pipeline.getAllowSRGBInputs(), &nextSamplerIdx);
 }
 
 void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,
@@ -92,12 +89,6 @@ void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,
     GrFragmentProcessor::Iter iter(pipeline);
     while (const GrFragmentProcessor* fp  = iter.next()) {
         this->generateMipmaps(*fp, pipeline.getAllowSRGBInputs());
-    }
-
-    if (primProc.getPixelLocalStorageState() !=
-        GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
-        const GrXferProcessor& xp = pipeline.getXferProcessor();
-        this->generateMipmaps(xp, pipeline.getAllowSRGBInputs());
     }
 }
 
