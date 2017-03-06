@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1d4df268_28af0c5c",
+        "filename": "src/core/SkRecordOpts.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-06T20:31:39Z",
+      "side": 1,
+      "message": "Thanks for the suggestion. Is the new patch what you meant?",
+      "parentUuid": "ae9af7de_9bd59c56",
+      "revId": "3ccc516970bb9d2a5c3f2fe5544d068c909a3efa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "827f82f0_790efb14",
         "filename": "src/core/SkRecordOpts.cpp",
         "patchSetId": 4
