@@ -59,7 +59,11 @@ static inline bool color_space_almost_equal(float a, float b) {
 }
 
 static inline float add_epsilon(float v) {
-    return v + FLT_MIN;
+    int32_t x;
+    memcpy(&x, &v, 4);
+    x += 1;
+    memcpy(&v, &x, 4);
+    return v;
 }
 
 static inline bool is_zero_to_one(float v) {
