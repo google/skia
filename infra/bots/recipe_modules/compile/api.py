@@ -32,6 +32,7 @@ def get_extra_env_vars(builder_dict):
 
 class CompileApi(recipe_api.RecipeApi):
   def run(self):
+    self.m.step('where python', ['where', 'python'])
     self.m.core.setup()
 
     env = get_extra_env_vars(self.m.vars.builder_cfg)
