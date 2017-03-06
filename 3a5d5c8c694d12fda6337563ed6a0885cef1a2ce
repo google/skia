@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0fad1b0_feb995b4",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T16:42:15Z",
+      "side": 1,
+      "message": "here too?",
+      "range": {
+        "startLine": 740,
+        "startChar": 26,
+        "endLine": 740,
+        "endChar": 47
+      },
+      "revId": "3a5d5c8c694d12fda6337563ed6a0885cef1a2ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
