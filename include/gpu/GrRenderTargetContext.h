@@ -428,7 +428,6 @@ private:
     friend class GrAALinearizingConvexPathRenderer;  // for access to addDrawOp
     friend class GrAADistanceFieldPathRenderer;  // for access to addDrawOp
     friend class GrDefaultPathRenderer;          // for access to addDrawOp
-    friend class GrPLSPathRenderer;              // for access to addDrawOp
     friend class GrMSAAPathRenderer;             // for access to addDrawOp
     friend class GrStencilAndCoverPathRenderer;  // for access to addDrawOp
     friend class GrTessellatingPathRenderer;     // for access to addDrawOp

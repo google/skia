@@ -298,18 +298,6 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     }
     args.fCaps = this->caps();
     args.fAnalysis = &analysis;
-    if (analysis.usesPLSDstRead()) {
-        int width = renderTargetContext->width();
-        int height = renderTargetContext->height();
-        SkIRect ibounds;
-        ibounds.fLeft = SkTPin(SkScalarFloorToInt(op->bounds().fLeft), 0, width);
-        ibounds.fTop = SkTPin(SkScalarFloorToInt(op->bounds().fTop), 0, height);
-        ibounds.fRight = SkTPin(SkScalarCeilToInt(op->bounds().fRight), 0, width);
-        ibounds.fBottom = SkTPin(SkScalarCeilToInt(op->bounds().fBottom), 0, height);
-        if (!appliedClip.addScissor(ibounds)) {
-            return;
-        }
-    }
 
     if (!renderTargetContext->accessRenderTarget()) {
         return;

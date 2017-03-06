@@ -21,7 +21,6 @@
 #include "ops/GrDashLinePathRenderer.h"
 #include "ops/GrDefaultPathRenderer.h"
 #include "ops/GrMSAAPathRenderer.h"
-#include "ops/GrPLSPathRenderer.h"
 #include "ops/GrStencilAndCoverPathRenderer.h"
 #include "ops/GrTessellatingPathRenderer.h"
 
@@ -53,11 +52,6 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAALinearizing) {
         fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
-    }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kPLS) {
-        if (caps.shaderCaps()->plsPathRenderingSupport()) {
-            fChain.push_back(sk_make_sp<GrPLSPathRenderer>());
-        }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kDistanceField) {
         fChain.push_back(sk_make_sp<GrAADistanceFieldPathRenderer>());

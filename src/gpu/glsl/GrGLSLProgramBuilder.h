@@ -154,8 +154,7 @@ private:
                                 GrGLSLExpr4* output);
     void emitAndInstallXferProc(const GrXferProcessor&,
                                 const GrGLSLExpr4& colorIn,
-                                const GrGLSLExpr4& coverageIn,
-                                GrPixelLocalStorageState plsState);
+                                const GrGLSLExpr4& coverageIn);
     void emitSamplersAndImageStorages(const GrProcessor& processor,
                                       SkTArray<SamplerHandle>* outTexSamplerHandles,
                                       SkTArray<SamplerHandle>* outBufferSamplerHandles,

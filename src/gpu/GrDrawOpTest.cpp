@@ -32,7 +32,6 @@ DRAW_OP_TEST_EXTERN(DIEllipseOp);
 DRAW_OP_TEST_EXTERN(EllipseOp);
 DRAW_OP_TEST_EXTERN(GrDrawAtlasOp);
 DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
-DRAW_OP_TEST_EXTERN(PLSPathOp);
 DRAW_OP_TEST_EXTERN(RRectOp);
 DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 DRAW_OP_TEST_EXTERN(TextBlobOp);
@@ -56,8 +55,6 @@ std::unique_ptr<GrDrawOp> GrRandomDrawOp(SkRandom* random, GrContext* context) {
         DRAW_OP_TEST_ENTRY(EllipseOp),
         DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
         DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
-        // This currently hits an assert when the GrDisableColorXPFactory is randomly selected.
-        // DRAW_OP_TEST_ENTRY(PLSPathOp),
         DRAW_OP_TEST_ENTRY(RRectOp),
         DRAW_OP_TEST_ENTRY(TesselatingPathOp),
         DRAW_OP_TEST_ENTRY(TextBlobOp),

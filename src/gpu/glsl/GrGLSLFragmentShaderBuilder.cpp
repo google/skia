@@ -96,13 +96,6 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
 bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
     switch (feature) {
-        case kPixelLocalStorage_GLSLFeature:
-            if (shaderCaps.pixelLocalStorageSize() <= 0) {
-                return false;
-            }
-            this->addFeature(1 << kPixelLocalStorage_GLSLFeature,
-                             "GL_EXT_shader_pixel_local_storage");
-            return true;
         case kMultisampleInterpolation_GLSLFeature:
             if (!shaderCaps.multisampleInterpolationSupport()) {
                 return false;

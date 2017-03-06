@@ -56,12 +56,12 @@ public:
     class FragmentProcessorAnalysis {
     public:
         FragmentProcessorAnalysis() = default;
-        // This version is used by a unit test that assumes no clip, no processors, and no PLS.
+        // This version is used by a unit test that assumes no clip and no fragment processors.
         FragmentProcessorAnalysis(const GrPipelineInput& colorInput,
                                   const GrPipelineInput coverageInput, const GrCaps&);
 
         void reset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
-                   const GrProcessorSet&, bool usesPLSDstRead, const GrAppliedClip&, const GrCaps&);
+                   const GrProcessorSet&, const GrAppliedClip&, const GrCaps&);
 
         int initialColorProcessorsToEliminate(GrColor* newInputColor) const {
             if (fInitialColorProcessorsToEliminate > 0) {
@@ -70,7 +70,6 @@ public:
             return fInitialColorProcessorsToEliminate;
         }
 
-        bool usesPLSDstRead() const { return fUsesPLSDstRead; }
         bool usesLocalCoords() const { return fUsesLocalCoords; }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
         bool isOutputColorOpaque() const {
@@ -89,13 +88,11 @@ public:
 
     private:
         void internalReset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
-                           const GrProcessorSet&, bool usesPLSDstRead,
-                           const GrFragmentProcessor* clipFP, const GrCaps&);
+                           const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
 
         enum class ColorType { kUnknown, kOpaqueConstant, kConstant, kOpaque };
         enum class CoverageType { kNone, kSingleChannel, kLCD };
 
-        bool fUsesPLSDstRead = false;
         bool fCompatibleWithCoverageAsAlpha = true;
         bool fUsesLocalCoords = false;
         CoverageType fCoverageType = CoverageType::kNone;

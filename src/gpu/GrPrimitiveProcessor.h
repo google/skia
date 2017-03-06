@@ -35,16 +35,6 @@ class GrGLSLPrimitiveProcessor;
 
 struct GrInitInvariantOutput;
 
-// Describes the state of pixel local storage with respect to the current draw.
-enum GrPixelLocalStorageState {
-    // The draw is actively updating PLS.
-    kDraw_GrPixelLocalStorageState,
-    // The draw is a "finish" operation which is reading from PLS and writing color.
-    kFinish_GrPixelLocalStorageState,
-    // The draw does not use PLS.
-    kDisabled_GrPixelLocalStorageState
-};
-
 /*
  * This class allows the GrPipeline to communicate information about the pipeline to a GrOp which
  * inform its decisions for GrPrimitiveProcessor setup. These are not properly part of the pipeline
@@ -166,10 +156,6 @@ public:
     virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const = 0;
 
     virtual bool isPathRendering() const { return false; }
-
-    virtual GrPixelLocalStorageState getPixelLocalStorageState() const {
-        return kDisabled_GrPixelLocalStorageState;
-    }
 
     /**
      * If non-null, overrides the dest color returned by GrGLSLFragmentShaderBuilder::dstColor().
