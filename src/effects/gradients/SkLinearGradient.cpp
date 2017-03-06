@@ -134,11 +134,31 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
         case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
     }
 
+    const bool blendCorrectly = cs && !as_CSB(cs)->nonLinearBlending();
     const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
     const SkColor4f c0 = to_colorspace(fOrigColors4f[0], fColorSpace.get(), cs),
                     c1 = to_colorspace(fOrigColors4f[1], fColorSpace.get(), cs);
-    const SkPM4f  pmc0 = premulGrad ? c0.premul() : SkPM4f::From4f(Sk4f::Load(&c0)),
-                  pmc1 = premulGrad ? c1.premul() : SkPM4f::From4f(Sk4f::Load(&c1));
+    SkPM4f pmc0, pmc1;
+    if (premulGrad) {
+        if (blendCorrectly) {
+            pmc0 = c0.premul();
+            pmc1 = c1.premul();
+        } else {
+            SkPMColor pm0 = SkPreMultiplyColor(fOrigColors[0]);
+            SkPMColor pm1 = SkPreMultiplyColor(fOrigColors[1]);
+            pmc0 = SkPM4f::From4f(Sk4f(sk_linear_from_srgb[(pm0 >>  0) & 0xFF],
+                                       sk_linear_from_srgb[(pm0 >>  8) & 0xFF],
+                                       sk_linear_from_srgb[(pm0 >> 16) & 0xFF],
+                                       (1.0f / 255.0f) *  ((pm0 >> 24) & 0xFF)));
+            pmc1 = SkPM4f::From4f(Sk4f(sk_linear_from_srgb[(pm1 >>  0) & 0xFF],
+                                       sk_linear_from_srgb[(pm1 >>  8) & 0xFF],
+                                       sk_linear_from_srgb[(pm1 >> 16) & 0xFF],
+                                       (1.0f / 255.0f) *  ((pm1 >> 24) & 0xFF)));
+        }
+    } else {
+        pmc0 = SkPM4f::From4f(Sk4f::Load(&c0));
+        pmc1 = SkPM4f::From4f(Sk4f::Load(&c1));
+    }
 
     auto* c0_and_dc = alloc->makeArrayDefault<SkPM4f>(2);
     c0_and_dc[0] = pmc0;
@@ -147,7 +167,17 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
     p->append(SkRasterPipeline::linear_gradient_2stops, c0_and_dc);
 
     if (!premulGrad && !this->colorsAreOpaque()) {
-        p->append(SkRasterPipeline::premul);
+        if (blendCorrectly) {
+            p->append(SkRasterPipeline::premul);
+        } else {
+            p->append(SkRasterPipeline::to_srgb);
+            p->append(SkRasterPipeline::premul);
+            p->append_from_srgb(kPremul_SkAlphaType);
+        }
+    } else if (!this->colorsAreOpaque()) {
+        p->append(SkRasterPipeline::to_srgb);
+        p->append(SkRasterPipeline::clamp_a);
+        p->append_from_srgb(kPremul_SkAlphaType);
     }
 
     return true;

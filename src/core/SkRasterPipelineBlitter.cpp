@@ -91,7 +91,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            const SkMatrix& ctm,
                                            SkArenaAlloc* alloc) {
-    bool blendCorrectly = !(dst.colorSpace() && as_CSB(dst.colorSpace())->nonLinearBlending());
+    bool blendCorrectly = dst.colorSpace() && !as_CSB(dst.colorSpace())->nonLinearBlending();
     auto blitter = alloc->make<SkRasterPipelineBlitter>(
             dst,
             paint.getBlendMode(),
