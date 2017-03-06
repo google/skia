@@ -59,8 +59,9 @@ public:
     };
     FontFlags fFlags;  // Global font flags.
 
-    uint16_t fLastGlyphID; // The last valid glyph ID in the font.
-    uint16_t fEmSize;  // The size of the em box (defines font units).
+
+    uint16_t fLastGlyphID;  //!< Unused, will be deleted.
+    uint16_t fEmSize;       //!< Unused, will be deleted.
 
     // These enum values match the values used in the PDF file format.
     enum StyleFlags : uint32_t {
