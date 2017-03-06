@@ -1712,6 +1712,7 @@
     "Build-Mac-Clang-arm-Debug-iOS": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1737,6 +1738,7 @@
     "Build-Mac-Clang-arm-Release-iOS": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1769,6 +1771,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1794,6 +1797,7 @@
     "Build-Mac-Clang-arm64-Debug-iOS": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1819,6 +1823,7 @@
     "Build-Mac-Clang-arm64-Release-iOS": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1844,6 +1849,7 @@
     "Build-Mac-Clang-x86_64-Debug": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1869,6 +1875,7 @@
     "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1894,6 +1901,7 @@
     "Build-Mac-Clang-x86_64-Release": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1919,6 +1927,7 @@
     "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Mac-10.11",
         "pool:Skia"
       ],
@@ -1951,6 +1960,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -1983,6 +1993,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2015,6 +2026,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2047,6 +2059,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2079,6 +2092,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2111,6 +2125,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2143,6 +2158,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2175,6 +2191,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2207,6 +2224,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2239,6 +2257,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2271,6 +2290,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2303,6 +2323,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2335,6 +2356,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2367,6 +2389,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2399,6 +2422,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2431,6 +2455,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2463,6 +2488,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2495,6 +2521,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2527,6 +2554,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2559,6 +2587,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2596,6 +2625,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2628,6 +2658,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2660,6 +2691,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2692,6 +2724,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2724,6 +2757,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2756,6 +2790,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2793,6 +2828,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2818,6 +2854,7 @@
     "Build-Ubuntu-GCC-x86-Debug": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2843,6 +2880,7 @@
     "Build-Ubuntu-GCC-x86-Release": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2868,6 +2906,7 @@
     "Build-Ubuntu-GCC-x86_64-Debug": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2893,6 +2932,7 @@
     "Build-Ubuntu-GCC-x86_64-Debug-NoGPU": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2918,6 +2958,7 @@
     "Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2943,6 +2984,7 @@
     "Build-Ubuntu-GCC-x86_64-Release": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -2968,6 +3010,7 @@
     "Build-Ubuntu-GCC-x86_64-Release-ANGLE": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -3000,6 +3043,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -3025,6 +3069,7 @@
     "Build-Ubuntu-GCC-x86_64-Release-Mesa": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -3050,6 +3095,7 @@
     "Build-Ubuntu-GCC-x86_64-Release-NoGPU": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -3075,6 +3121,7 @@
     "Build-Ubuntu-GCC-x86_64-Release-PDFium": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -3100,6 +3147,7 @@
     "Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -3125,6 +3173,7 @@
     "Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -3150,6 +3199,7 @@
     "Build-Ubuntu-GCC-x86_64-Release-Shared": {
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
@@ -3182,6 +3232,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3214,6 +3265,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3246,6 +3298,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3278,6 +3331,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3310,6 +3364,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3342,6 +3397,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3374,6 +3430,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3406,6 +3463,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3438,6 +3496,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3470,6 +3529,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3502,6 +3562,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3539,6 +3600,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3571,6 +3633,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3603,6 +3666,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3635,6 +3699,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -3672,6 +3737,7 @@
       ],
       "dimensions": [
         "gpu:none",
+        "id:skia-vm-037",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
