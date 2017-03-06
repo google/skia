@@ -1764,7 +1764,7 @@
         {
           "name": "skia/bots/android_ndk_darwin",
           "path": "android_ndk_darwin",
-          "version": "version:1"
+          "version": "version:2"
         }
       ],
       "dimensions": [
@@ -1946,7 +1946,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -1978,7 +1978,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2010,7 +2010,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2042,7 +2042,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2074,7 +2074,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2106,7 +2106,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2138,7 +2138,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2170,7 +2170,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2202,7 +2202,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2234,7 +2234,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2266,7 +2266,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2298,7 +2298,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2330,7 +2330,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2362,7 +2362,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2394,7 +2394,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2426,7 +2426,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2458,7 +2458,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2995,7 +2995,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:5"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -3177,7 +3177,7 @@
         {
           "name": "skia/bots/android_ndk_windows",
           "path": "n",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dimensions": [
