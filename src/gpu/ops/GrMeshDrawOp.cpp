@@ -59,7 +59,7 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
                                  quadsToDraw);
 }
 
-void GrMeshDrawOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
+void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
     int currUploadIdx = 0;
     int currMeshIdx = 0;
 
@@ -73,7 +73,7 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
         }
         const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
         state->commandBuffer()->draw(*this->pipeline(), *draw.fGeometryProcessor.get(),
-                                     fMeshes.begin() + currMeshIdx, draw.fMeshCnt, bounds);
+                                     fMeshes.begin() + currMeshIdx, draw.fMeshCnt, this->bounds());
         currMeshIdx += draw.fMeshCnt;
         state->flushToken();
     }
