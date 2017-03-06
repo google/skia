@@ -61,3 +61,56 @@ DEF_BENCH(return (new PictureOverheadBench<0,  true>);)
 DEF_BENCH(return (new PictureOverheadBench<1,  true>);)
 DEF_BENCH(return (new PictureOverheadBench<2,  true>);)
 DEF_BENCH(return (new PictureOverheadBench<10, true>);)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class ClipOverheadRecordingBench : public Benchmark {
+    SkString fName;
+    const bool fDoLite;
+
+public:
+    ClipOverheadRecordingBench(bool doLite) : fDoLite(doLite) {
+        fName.printf("clip_overhead_recording_%s", doLite ? "lite" : "std");
+    }
+
+protected:
+    const char* onGetName() override { return fName.c_str(); }
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkLiteRecorder lite;
+        SkPictureRecorder rec;
+
+        SkIRect iBounds = {0,0, 2000,3000};
+        SkRect bounds = SkRect::Make(iBounds);
+
+        for (int i = 0; i < loops; i++) {
+            SkLiteDL liteDL;
+            SkCanvas* canvas;
+            if (fDoLite) {
+                lite.reset(&liteDL, iBounds);
+                canvas = &lite;
+            } else {
+                rec.beginRecording(bounds);
+                canvas = rec.getRecordingCanvas();
+            }
+
+            SkPaint paint;
+            SkRRect rrect;
+            rrect.setOval({0, 0, 1000, 1000});
+            for (int i = 0; i < 1000; i++) {
+                canvas->save();
+                canvas->translate(10, 10);
+                canvas->clipRect({10,10, 1000, 1000});
+                canvas->drawRRect(rrect, paint);
+                canvas->restore();
+            }
+
+            if (!fDoLite) {
+                (void)rec.finishRecordingAsPicture();
+            }
+        }
+    }
+};
+DEF_BENCH( return new ClipOverheadRecordingBench(true); )
+DEF_BENCH( return new ClipOverheadRecordingBench(false); )
