@@ -299,6 +299,10 @@ bool SkColorSpace::toXYZD50(SkMatrix44* toXYZD50) const {
     return false;
 }
 
+bool SkColorSpace::isSRGB() const {
+    return gSRGB == this || gSRGBNonLinearBlending == this;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkColorSpace> SkColorSpace_Base::makeWithoutFlags() {
