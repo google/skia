@@ -79,8 +79,6 @@ public:
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override;
 
-    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
-
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,

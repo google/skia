@@ -359,6 +359,8 @@ public:
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
 
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
+
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,

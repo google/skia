@@ -8,19 +8,11 @@
 #ifndef GrRenderTargetOpList_DEFINED
 #define GrRenderTargetOpList_DEFINED
 
-#include "GrClip.h"
-#include "GrContext.h"
 #include "GrOpList.h"
-#include "GrPathProcessor.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrPathRendering.h"
-#include "GrXferProcessor.h"
-
-#include "ops/GrDrawOp.h"
-
 #include "SkClipStack.h"
 #include "SkMatrix.h"
-#include "SkPath.h"
 #include "SkStringUtils.h"
 #include "SkStrokeRec.h"
 #include "SkTArray.h"
@@ -29,10 +21,8 @@
 
 class GrAuditTrail;
 class GrClearOp;
-class GrClip;
 class GrCaps;
-class GrPath;
-class GrDrawPathOpBase;
+class GrClip;
 class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
@@ -77,25 +67,9 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
-                   std::unique_ptr<GrDrawOp>);
-
     void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         this->recordOp(std::move(op), renderTargetContext);
     }
-
-    /**
-     * Draws the path into user stencil bits. Upon return, all user stencil values
-     * inside the path will be nonzero. The path's fill must be either even/odd or
-     * winding (notnverse or hairline).It will respect the HW antialias boolean (if
-     * possible in the 3D API).  Note, we will never have an inverse fill with
-     * stencil path.
-     */
-    void stencilPath(GrRenderTargetContext*,
-                     const GrClip&,
-                     GrAAType aa,
-                     const SkMatrix& viewMatrix,
-                     const GrPath*);
 
     /** Clears the entire render target */
     void fullClear(GrRenderTargetContext*, GrColor color);
@@ -136,14 +110,6 @@ private:
 
     void forwardCombine();
 
-    // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
-    // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
-    // a texture copy could not be made.
-    void setupDstTexture(GrRenderTarget*,
-                         const GrClip&,
-                         const SkRect& opBounds,
-                         GrXferProcessor::DstTexture*);
-
     // Used only via GrRenderTargetContextPriv.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
@@ -159,8 +125,6 @@ private:
     GrClearOp* fLastFullClearOp = nullptr;
     GrGpuResource::UniqueID fLastFullClearRenderTargetID = GrGpuResource::UniqueID::InvalidID();
 
-    // The context is only in service of the GrClip, remove once it doesn't need this.
-    GrContext* fContext;
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;
 

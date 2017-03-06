@@ -237,8 +237,7 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
                                                       GrAAType aaType,
-                                                      std::unique_ptr<GrDrawOp>
-                                                              op,
+                                                      std::unique_ptr<GrDrawOp> op,
                                                       const GrUserStencilSettings* uss,
                                                       bool snapToCenters) {
     ASSERT_SINGLE_OWNER
@@ -253,8 +252,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
     }
     pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
-    fRenderTargetContext->getOpList()->addDrawOp(pipelineBuilder, fRenderTargetContext, GrNoClip(),
-                                                 std::move(op));
+    fRenderTargetContext->addDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER
@@ -280,6 +278,9 @@ public:
     bool isConfigTexturable(GrPixelConfig config) const override { return false; }
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override {
+        return false;
+    }
 
 private:
     typedef GrCaps INHERITED;
@@ -308,10 +309,6 @@ public:
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {
         *effectiveSampleCnt = rt->desc().fSampleCnt;
-    }
-
-    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override {
-        return false;
     }
 
     GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
