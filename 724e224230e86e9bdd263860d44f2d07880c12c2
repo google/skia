@@ -22,6 +22,30 @@
       "revId": "724e224230e86e9bdd263860d44f2d07880c12c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5f360bd_10c6f2b5",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-06T14:12:11Z",
+      "side": 1,
+      "message": "Maybe.  It\u0027s not going to make things any simpler.  We still need to target specific sysroots when linking.",
+      "parentUuid": "0f153463_6ab93006",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 16
+      },
+      "revId": "724e224230e86e9bdd263860d44f2d07880c12c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
