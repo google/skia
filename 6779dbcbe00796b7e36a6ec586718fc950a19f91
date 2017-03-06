@@ -16,6 +16,24 @@
       "revId": "6779dbcbe00796b7e36a6ec586718fc950a19f91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a80711ee_5687878e",
+        "filename": "src/core/SkColorSpacePriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-06T13:59:42Z",
+      "side": 1,
+      "message": "That sgtm.",
+      "parentUuid": "c8ea709b_2eb51d0b",
+      "revId": "6779dbcbe00796b7e36a6ec586718fc950a19f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
