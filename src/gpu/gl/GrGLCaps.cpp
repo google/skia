@@ -5,16 +5,15 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrGLCaps.h"
-
 #include "GrContextOptions.h"
 #include "GrGLContext.h"
 #include "GrGLRenderTarget.h"
+#include "GrGLTexture.h"
 #include "GrShaderCaps.h"
-#include "instanced/GLInstancedRendering.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
+#include "instanced/GLInstancedRendering.h"
 
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLContextInfo& ctxInfo,
@@ -2066,6 +2065,62 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         SkASSERT(defaultEntry.fFormats.fExternalType != fConfigTable[i].fFormats.fExternalType);
     }
 #endif
+}
+
+bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+    // If the src is a texture, we can implement the blit as a draw assuming the config is
+    // renderable.
+    if (src->asTexture() && this->isConfigRenderable(src->config(), false)) {
+        desc->fOrigin = kDefault_GrSurfaceOrigin;
+        desc->fFlags = kRenderTarget_GrSurfaceFlag;
+        desc->fConfig = src->config();
+        return true;
+    }
+
+    const GrGLTexture* srcTexture = static_cast<const GrGLTexture*>(src->asTexture());
+    if (srcTexture && srcTexture->target() != GR_GL_TEXTURE_2D) {
+        // Not supported for FBO blit or CopyTexSubImage
+        return false;
+    }
+
+    // We look for opportunities to use CopyTexSubImage, or fbo blit. If neither are
+    // possible and we return false to fallback to creating a render target dst for render-to-
+    // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
+    // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
+    GrSurfaceOrigin originForBlitFramebuffer = kDefault_GrSurfaceOrigin;
+    if (this->blitFramebufferSupportFlags() & kNoScalingOrMirroring_BlitFramebufferFlag) {
+        originForBlitFramebuffer = src->origin();
+    }
+
+    // Check for format issues with glCopyTexSubImage2D
+    if (this->bgraIsInternalFormat() && kBGRA_8888_GrPixelConfig == src->config()) {
+        // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
+        // then we set up for that, otherwise fail.
+        if (this->canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
+            desc->fOrigin = originForBlitFramebuffer;
+            desc->fConfig = kBGRA_8888_GrPixelConfig;
+            return true;
+        }
+        return false;
+    }
+
+    const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src);
+    if (srcRT->renderFBOID() != srcRT->textureFBOID()) {
+        // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
+        // fail.
+        if (this->canConfigBeFBOColorAttachment(src->config())) {
+            desc->fOrigin = originForBlitFramebuffer;
+            desc->fConfig = src->config();
+            return true;
+        }
+        return false;
+    }
+
+    // We'll do a CopyTexSubImage. Make the dst a plain old texture.
+    desc->fConfig = src->config();
+    desc->fOrigin = src->origin();
+    desc->fFlags = kNone_GrSurfaceFlags;
+    return true;
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
