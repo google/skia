@@ -929,12 +929,14 @@ public:
                     SkScalar textSkewX,
                     bool wideChars,
                     bool defaultPositioning,
-                    SkPoint origin)
+                    SkPoint origin,
+                    bool alwaysPosition)
         : fContent(content)
         , fCurrentMatrixOrigin(origin)
         , fTextSkewX(textSkewX)
         , fWideChars(wideChars)
-        , fDefaultPositioning(defaultPositioning) {
+        , fDefaultPositioning(defaultPositioning)
+        , fAlwaysPosition(alwaysPosition) {
     }
     ~GlyphPositioner() { this->flush(); }
     void flush() {
@@ -959,14 +961,9 @@ public:
             fCurrentMatrixOrigin.set(0.0f, 0.0f);
             fInitialized = true;
         }
-#ifdef SK_BUILD_FOR_WIN
-        const bool kAlwaysPosition = true;
-#else
-        const bool kAlwaysPosition = false;
-#endif
         if (!fDefaultPositioning) {
             SkPoint position = xy - fCurrentMatrixOrigin;
-            if (kAlwaysPosition || position != SkPoint{fXAdvance, 0}) {
+            if (fAlwaysPosition || position != SkPoint{fXAdvance, 0}) {
                 this->flush();
                 SkPDFUtils::AppendScalar(position.x(), fContent);
                 fContent->writeText(" ");
@@ -998,6 +995,7 @@ private:
     bool fInText = false;
     bool fInitialized = false;
     const bool fDefaultPositioning;
+    const bool fAlwaysPosition;
 };
 
 /** Given the m-to-n glyph-to-character mapping data (as returned by
@@ -1314,11 +1312,20 @@ void SkPDFDevice::internalDrawText(
         out->writeText("/ReversedChars BMC\n");
     }
     SK_AT_SCOPE_EXIT(if (clusterator.reversedChars()) { out->writeText("EMC\n"); } );
+
+#ifdef SK_BUILD_FOR_WIN
+    bool alwaysPosition = true;
+#elif defined(SK_BUILD_FOR_MAC)
+    bool alwaysPosition = false;
+#else  // (FreeType) https://crbug.com/696356
+    bool alwaysPosition = (textSize != SkScalarFloorToScalar(textSize));
+#endif
     GlyphPositioner glyphPositioner(out,
                                     paint.getTextSkewX(),
                                     multiByteGlyphs,
                                     defaultPositioning,
-                                    offset);
+                                    offset,
+                                    alwaysPosition);
     SkPDFFont* font = nullptr;
 
     while (Clusterator::Cluster c = clusterator.next()) {
