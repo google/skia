@@ -880,7 +880,9 @@ ImageGenSrc::ImageGenSrc(Path path, Mode mode, SkAlphaType alphaType, bool isGpu
 
 bool ImageGenSrc::veto(SinkFlags flags) const {
     if (fIsGpu) {
-        return flags.type != SinkFlags::kGPU || flags.approach != SinkFlags::kDirect;
+        // MSAA runs tend to run out of memory and tests the same code paths as regular gpu configs.
+        return flags.type != SinkFlags::kGPU || flags.approach != SinkFlags::kDirect ||
+               flags.multisampled == SinkFlags::kMultisampled;
     }
 
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
