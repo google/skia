@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47b25dea_460366e7",
+        "filename": "gm/premul.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-07T22:41:41Z",
+      "side": 1,
+      "message": "This is the \"bad\" case (with noticeable diffs).  Seems like this is more affected by different transfer fns than different gamuts.  The toLinear case is fine, I believe because we are saved by the clamp.\n\nI also added a less extreme version of this effect - from1.8.  I can notice the diffs there too, but they aren\u0027t as bad.",
+      "range": {
+        "startLine": 125,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 44
+      },
+      "revId": "df442fa4b313b7c72bea32a34eaf473beb90bfb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
