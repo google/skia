@@ -13,7 +13,7 @@ if (!defined(is_skia_standalone)) {
 declare_args() {
   skia_use_angle = false
   skia_use_expat = true
-  skia_use_fontconfig = is_linux
+  skia_use_fontconfig = is_linux && target_cpu != "arm"
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gdi = false
   skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
