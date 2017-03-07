@@ -94,3 +94,10 @@ void sk_color_premultiply_array(const sk_color_t* colors, int size, sk_pmcolor_t
         pmcolors[i] = SkPreMultiplyColor(colors[i]);
     }
 }
+
+void sk_color_get_bit_shift(int* a, int* r, int* g, int* b) {
+    *a = (int)SK_A32_SHIFT;
+    *r = (int)SK_R32_SHIFT;
+    *g = (int)SK_G32_SHIFT;
+    *b = (int)SK_B32_SHIFT;
+}
