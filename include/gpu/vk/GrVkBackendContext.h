@@ -11,8 +11,7 @@
 #include "SkRefCnt.h"
 
 #include "vk/GrVkDefines.h"
-
-struct GrVkInterface;
+#include "vk/GrVkInterface.h"
 
 enum GrVkExtensionFlags {
     kEXT_debug_report_GrVkExtensionFlag    = 0x0001,
@@ -53,7 +52,8 @@ struct GrVkBackendContext : public SkRefCnt {
     // Helper function to create the default Vulkan objects needed by the GrVkGpu object
     // If presentQueueIndex is non-NULL, will try to set up presentQueue as part of device
     // creation using the platform-specific canPresent() function.
-    static const GrVkBackendContext* Create(uint32_t* presentQueueIndex = nullptr,
+    static const GrVkBackendContext* Create(GrVkInterface::GetProc getProc,
+                                            uint32_t* presentQueueIndex = nullptr,
                                             CanPresentFn = CanPresentFn());
 
     ~GrVkBackendContext() override;
