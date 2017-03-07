@@ -57,8 +57,11 @@ private:
 };
 
 struct SinkFlags {
-    enum { kNull, kGPU, kVector, kRaster } type;
-    enum { kDirect, kIndirect } approach;
+    enum Type { kNull, kGPU, kVector, kRaster } type;
+    enum Approach { kDirect, kIndirect } approach;
+    enum Multisampled { kNotMultisampled, kMultisampled } multisampled;
+    SinkFlags(Type t, Approach a, Multisampled ms = kNotMultisampled)
+            : type(t), approach(a), multisampled(ms) {}
 };
 
 struct Src {
@@ -310,7 +313,9 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
-    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
+    SinkFlags flags() const override {
+        return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, SinkFlags::kMultisampled };
+    }
 private:
     sk_gpu_test::GrContextFactory::ContextType        fContextType;
     sk_gpu_test::GrContextFactory::ContextOverrides   fContextOverrides;
