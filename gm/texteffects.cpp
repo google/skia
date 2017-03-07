@@ -462,3 +462,105 @@ DEF_SIMPLE_GM(fancyunderlinebars, canvas, 1500, 460) {
         canvas->translate(0, textSize * 1.3f);
     }
 }
+
+DEF_SIMPLE_GM(setRasterizer, canvas, 256, 256)
+{
+        SkLayerRasterizer::Builder layerBuilder;
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(1);
+        layerBuilder.addLayer(paint);
+
+        paint.setAlpha(0x10);
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setBlendMode(SkBlendMode::kSrc);
+        layerBuilder.addLayer(paint);
+        paint.reset();
+        paint.setAntiAlias(true);
+        paint.setTextSize(100);
+        paint.setRasterizer(layerBuilder.detach());
+canvas->clear(SK_ColorWHITE);
+        canvas->drawText("outline", 7, 10, 80, paint);
+}
+
+DEF_SIMPLE_GM(refRasterizer, canvas, 256, 256)
+{
+           SkLayerRasterizer::Builder layerBuilder;
+           SkPaint paint1, paint2;
+           layerBuilder.addLayer(paint2);
+           paint1.setRasterizer(layerBuilder.detach());
+           SkDebugf("rasterizer unique: %s\n", paint1.getRasterizer()->unique() ? "true" : "false");
+           paint2.setRasterizer(paint1.refRasterizer());
+           SkDebugf("rasterizer unique: %s\n", paint1.getRasterizer()->unique() ? "true" : "false");
+        }
+
+
+DEF_SIMPLE_GM(getfontmetrics, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(120);
+    SkPaint::FontMetrics fm;
+    SkScalar lineHeight = paint.getFontMetrics(&fm);
+    SkPoint pt = { 70, 180 };
+    canvas->clear(SK_ColorWHITE);
+    canvas->drawText("M", 1, pt.fX, pt.fY, paint);
+    canvas->drawLine(pt.fX, pt.fY, pt.fX, pt.fY + fm.fTop, paint);
+    SkScalar ascent = pt.fY + fm.fAscent;
+    canvas->drawLine(pt.fX - 25, ascent, pt.fX - 25, ascent + lineHeight, paint);
+    canvas->drawLine(pt.fX - 50, pt.fY, pt.fX - 50, pt.fY + fm.fDescent, paint);
+    canvas->drawLine(pt.fX + 100, pt.fY, pt.fX + 100, pt.fY + fm.fAscent, paint);
+    canvas->drawLine(pt.fX + 125, pt.fY, pt.fX + 125, pt.fY - fm.fXHeight, paint);
+    canvas->drawLine(pt.fX + 150, pt.fY, pt.fX + 150, pt.fY - fm.fCapHeight, paint);
+    canvas->drawLine(pt.fX + 5, pt.fY, pt.fX + 5, pt.fY + fm.fBottom, paint);
+    SkScalar xmin = pt.fX + fm.fXMin;
+    canvas->drawLine(xmin, pt.fY + 60, xmin + fm.fMaxCharWidth, pt.fY + 60, paint);
+    canvas->drawLine(xmin, pt.fY - 145, pt.fX, pt.fY - 145, paint);
+    canvas->drawLine(pt.fX + fm.fXMax, pt.fY - 160, pt.fX, pt.fY - 160, paint);
+    SkScalar upos = pt.fY + fm.fUnderlinePosition;
+    canvas->drawLine(pt.fX + 25, upos, pt.fX + 130, upos, paint);
+    SkScalar urad = fm.fUnderlineThickness / 2;
+    canvas->drawLine(pt.fX + 130, upos - urad, pt.fX + 160, upos - urad, paint);
+    canvas->drawLine(pt.fX + 130, upos + urad, pt.fX + 160, upos + urad, paint);
+
+    paint.setTextSize(12);
+    canvas->drawText("x-min", 5,         pt.fX - 50, pt.fY - 148, paint);
+    canvas->drawText("x-max", 5,         pt.fX + 140, pt.fY - 150, paint);
+    canvas->drawText("max char width", 14, pt.fX + 120, pt.fY + 57, paint);
+    canvas->drawText("underline position", 18, pt.fX + 30, pt.fY + 22, paint);
+    canvas->drawText("underline thickness", 19, pt.fX + 162, pt.fY + 13, paint);
+
+    canvas->rotate(-90);
+    canvas->drawText("descent", 7,      -pt.fY - 30, pt.fX - 54,  paint);
+    canvas->drawText("line height", 11, -pt.fY,      pt.fX - 29,  paint);
+    canvas->drawText("top", 3,          -pt.fY + 30, pt.fX - 4,   paint);
+    canvas->drawText("ascent", 6,       -pt.fY,      pt.fX + 110, paint);
+    canvas->drawText("x-height", 8,     -pt.fY,      pt.fX + 135, paint);
+    canvas->drawText("cap-height", 10,  -pt.fY,      pt.fX + 160, paint);
+    canvas->drawText("bottom", 6,       -pt.fY - 50, pt.fX + 15,  paint);
+}
+
+DEF_SIMPLE_GM(glyphsToUnichars, canvas, 256, 256) {
+        SkPaint paint;
+        const char hello[] = "Hello!";
+        const int count = sizeof(hello) - 1;
+        SkGlyphID glyphs[count];
+        paint.textToGlyphs(hello, sizeof(glyphs), glyphs);
+        SkUnichar unichars[count];
+        paint.glyphsToUnichars(glyphs, count, unichars);
+        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+        canvas->drawText(unichars, count, 10, 30, paint);
+}
+
+DEF_SIMPLE_GM(painttostring, canvas, 256, 256) {
+    SkPaint paint;
+    SkString str;
+    paint.toString(&str);
+    const char textSize[] = "TextSize:";
+    const int trailerSize = strlen("</dd?><dt>");
+    int textSizeLoc = str.find(textSize) + strlen(textSize) - 1 + trailerSize;
+    const char* sizeStart = &str.c_str()[textSizeLoc];
+    int textSizeEnd = SkStrFind(sizeStart, "</dd>");
+    SkDebugf("text size = %.*s\n", textSizeEnd , sizeStart);
+
+}
