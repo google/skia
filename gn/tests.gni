@@ -186,6 +186,7 @@ tests_sources = [
   "$_tests/RoundRectTest.cpp",
   "$_tests/RRectInPathTest.cpp",
   "$_tests/RTreeTest.cpp",
+  "$_tests/SectionTest.cpp",
   "$_tests/ScalarTest.cpp",
   "$_tests/ScaleToSidesTest.cpp",
   "$_tests/SerializationTest.cpp",
