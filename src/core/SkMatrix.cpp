@@ -286,11 +286,7 @@ void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
 }
 
 void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
-    if (!dx && !dy) {
-        return;
-    }
-
-    if (fTypeMask <= kTranslate_Mask) {
+    if (this->getType() <= kTranslate_Mask) {
         fMat[kMTransX] += dx;
         fMat[kMTransY] += dy;
         this->setTypeMask((fMat[kMTransX] != 0 || fMat[kMTransY] != 0) ? kTranslate_Mask
