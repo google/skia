@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8f81df2_ea6c9489",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-03-07T18:25:21Z",
+      "side": 1,
+      "message": "setTypeMask(fMat[kMTransX] !\u003d 0 | fMat[kMTransY] !\u003d0);",
+      "range": {
+        "startLine": 292,
+        "startChar": 26,
+        "endLine": 292,
+        "endChar": 70
+      },
+      "revId": "81220a9749a70287db9bcd387fc7ff11d79afb72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
