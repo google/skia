@@ -6,6 +6,7 @@
  */
 
 #include "GrSurfaceContext.h"
+#include "SkColorSpace_Base.h"
 
 #include "../private/GrAuditTrail.h"
 
@@ -26,4 +27,8 @@ GrSurfaceContext::GrSurfaceContext(GrContext* context,
     , fSingleOwner(singleOwner)
 #endif
     , fDrawingManager(drawingMgr) {
+}
+
+bool GrSurfaceContext::isGammaCorrect() const {
+    return fColorSpace && !as_CSB(fColorSpace)->nonLinearBlending();
 }
