@@ -13,6 +13,7 @@
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrRenderTargetProxy.h"
+#include "GrSemaphore.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfacePriv.h"

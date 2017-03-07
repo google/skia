@@ -118,7 +118,7 @@ class GrSemaphore;
 
 class GrGLExternalTextureData : public GrExternalTextureData {
 public:
-    GrGLExternalTextureData(const GrGLTextureInfo& info, sk_sp<GrSemaphore> semaphore);
+    GrGLExternalTextureData(const GrGLTextureInfo& info, sk_sp<GrSemaphore> semaphore, GrContext*);
     GrBackend getBackend() const override { return kOpenGL_GrBackend; }
 
 protected:
