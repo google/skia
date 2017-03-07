@@ -18,40 +18,40 @@ public:
     static SkBaseDevice* Create(const SkISize& size, SkXMLWriter* writer);
 
 protected:
-    void drawPaint(const SkDraw&, const SkPaint& paint) override;
-    void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
+    void drawPaint(const SkPaint& paint) override;
+    void drawPoints(SkCanvas::PointMode mode, size_t count,
                     const SkPoint[], const SkPaint& paint) override;
-    void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint) override;
-    void drawOval(const SkDraw&, const SkRect& oval, const SkPaint& paint) override;
-    void drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& paint) override;
-    void drawPath(const SkDraw&, const SkPath& path,
+    void drawRect(const SkRect& r, const SkPaint& paint) override;
+    void drawOval(const SkRect& oval, const SkPaint& paint) override;
+    void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
+    void drawPath(const SkPath& path,
                   const SkPaint& paint,
                   const SkMatrix* prePathMatrix = nullptr,
                   bool pathIsMutable = false) override;
 
-    void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
+    void drawBitmap(const SkBitmap& bitmap,
                     const SkMatrix& matrix, const SkPaint& paint) override;
-    void drawSprite(const SkDraw&, const SkBitmap& bitmap,
+    void drawSprite(const SkBitmap& bitmap,
                     int x, int y, const SkPaint& paint) override;
-    void drawBitmapRect(const SkDraw&, const SkBitmap&,
+    void drawBitmapRect(const SkBitmap&,
                         const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint, SkCanvas::SrcRectConstraint) override;
 
-    void drawText(const SkDraw&, const void* text, size_t len,
+    void drawText(const void* text, size_t len,
                   SkScalar x, SkScalar y, const SkPaint& paint) override;
-    void drawPosText(const SkDraw&, const void* text, size_t len,
+    void drawPosText(const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint& paint) override;
-    void drawTextOnPath(const SkDraw&, const void* text, size_t len,
+    void drawTextOnPath(const void* text, size_t len,
                         const SkPath& path, const SkMatrix* matrix,
                         const SkPaint& paint) override;
-    void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
+    void drawVertices(SkCanvas::VertexMode, int vertexCount,
                       const SkPoint verts[], const SkPoint texs[],
                       const SkColor colors[], SkBlendMode,
                       const uint16_t indices[], int indexCount,
                       const SkPaint& paint) override;
 
-    void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
+    void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 
 private:
