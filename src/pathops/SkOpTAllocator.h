@@ -7,22 +7,26 @@
 #ifndef SkOpTAllocator_DEFINED
 #define SkOpTAllocator_DEFINED
 
-#include "SkArenaAlloc.h"
+#include "SkChunkAlloc.h"
 
 // T is SkOpAngle2, SkOpSpan2, or SkOpSegment2
 template<typename T>
 class SkOpTAllocator {
 public:
-    static T* Allocate(SkArenaAlloc* allocator) {
-        return allocator->make<T>();
+    static T* Allocate(SkChunkAlloc* allocator) {
+        void* ptr = allocator->allocThrow(sizeof(T));
+        T* record = (T*) ptr;
+        return record;
     }
 
-    static T* AllocateArray(SkArenaAlloc* allocator, int count) {
-        return allocator->makeArrayDefault<T>(count);
+    static T* AllocateArray(SkChunkAlloc* allocator, int count) {
+        void* ptr = allocator->allocThrow(sizeof(T) * count);
+        T* record = (T*) ptr;
+        return record;
     }
 
-    static T* New(SkArenaAlloc* allocator) {
-        return allocator->make<T>();
+    static T* New(SkChunkAlloc* allocator) {
+        return new (Allocate(allocator)) T();
     }
 };
 
