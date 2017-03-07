@@ -1097,6 +1097,12 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         CircleOp* that = t->cast<CircleOp>();
+
+        // can only represent 65535 unique vertices with 16-bit indices
+        if (fVertCount + that->fVertCount > 65535) {
+            return false;
+        }
+
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -1988,6 +1994,12 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         CircularRRectOp* that = t->cast<CircularRRectOp>();
+
+        // can only represent 65535 unique vertices with 16-bit indices
+        if (fVertCount + that->fVertCount > 65535) {
+            return false;
+        }
+
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
