@@ -63,25 +63,22 @@ CODE const uint32_t sk_just_return_aarch64[] = {
 };
 
 CODE const uint32_t sk_seed_shader_aarch64[] = {
-  0xaa0203e9,                             //mov           x9, x2
-  0xa9400c28,                             //ldp           x8, x3, [x1]
-  0x4ddfc922,                             //ld1r          {v2.4s}, [x9], #4
-  0x3cc14047,                             //ldur          q7, [x2, #20]
+  0xa8c10c28,                             //ldp           x8, x3, [x1], #16
+  0x3cc14046,                             //ldur          q6, [x2, #20]
   0x4e040c00,                             //dup           v0.4s, w0
+  0x4f0167e7,                             //movi          v7.4s, #0x3f, lsl #24
   0x4d40c901,                             //ld1r          {v1.4s}, [x8]
-  0x4d40c926,                             //ld1r          {v6.4s}, [x9]
   0x4e21d800,                             //scvtf         v0.4s, v0.4s
-  0x91004028,                             //add           x8, x1, #0x10
+  0x4e27d400,                             //fadd          v0.4s, v0.4s, v7.4s
+  0x4f03f602,                             //fmov          v2.4s, #1.000000000000000000e+00
   0x4e21d821,                             //scvtf         v1.4s, v1.4s
-  0x4e26d400,                             //fadd          v0.4s, v0.4s, v6.4s
   0x6f00e403,                             //movi          v3.2d, #0x0
   0x6f00e404,                             //movi          v4.2d, #0x0
   0x6f00e405,                             //movi          v5.2d, #0x0
-  0x4e26d421,                             //fadd          v1.4s, v1.4s, v6.4s
+  0x4e26d400,                             //fadd          v0.4s, v0.4s, v6.4s
   0x6f00e406,                             //movi          v6.2d, #0x0
-  0x4e20d4e0,                             //fadd          v0.4s, v7.4s, v0.4s
+  0x4e27d421,                             //fadd          v1.4s, v1.4s, v7.4s
   0x6f00e407,                             //movi          v7.2d, #0x0
-  0xaa0803e1,                             //mov           x1, x8
   0xd61f0060,                             //br            x3
 };
 
@@ -114,8 +111,8 @@ CODE const uint32_t sk_plus__aarch64[] = {
 };
 
 CODE const uint32_t sk_srcover_aarch64[] = {
-  0x4d40c850,                             //ld1r          {v16.4s}, [x2]
   0xf8408423,                             //ldr           x3, [x1], #8
+  0x4f03f610,                             //fmov          v16.4s, #1.000000000000000000e+00
   0x4ea3d610,                             //fsub          v16.4s, v16.4s, v3.4s
   0x4e24ce00,                             //fmla          v0.4s, v16.4s, v4.4s
   0x4e25ce01,                             //fmla          v1.4s, v16.4s, v5.4s
@@ -125,12 +122,12 @@ CODE const uint32_t sk_srcover_aarch64[] = {
 };
 
 CODE const uint32_t sk_dstover_aarch64[] = {
-  0x4d40c851,                             //ld1r          {v17.4s}, [x2]
+  0x4f03f611,                             //fmov          v17.4s, #1.000000000000000000e+00
   0xf8408423,                             //ldr           x3, [x1], #8
   0x4ea41c90,                             //mov           v16.16b, v4.16b
-  0x4ea61cd2,                             //mov           v18.16b, v6.16b
   0x4ea7d634,                             //fsub          v20.4s, v17.4s, v7.4s
   0x4ea51cb1,                             //mov           v17.16b, v5.16b
+  0x4ea61cd2,                             //mov           v18.16b, v6.16b
   0x4ea71cf3,                             //mov           v19.16b, v7.16b
   0x4e20ce90,                             //fmla          v16.4s, v20.4s, v0.4s
   0x4e21ce91,                             //fmla          v17.4s, v20.4s, v1.4s
@@ -154,8 +151,8 @@ CODE const uint32_t sk_clamp_0_aarch64[] = {
 };
 
 CODE const uint32_t sk_clamp_1_aarch64[] = {
-  0x4d40c850,                             //ld1r          {v16.4s}, [x2]
   0xf8408423,                             //ldr           x3, [x1], #8
+  0x4f03f610,                             //fmov          v16.4s, #1.000000000000000000e+00
   0x4eb0f400,                             //fmin          v0.4s, v0.4s, v16.4s
   0x4eb0f421,                             //fmin          v1.4s, v1.4s, v16.4s
   0x4eb0f442,                             //fmin          v2.4s, v2.4s, v16.4s
@@ -164,8 +161,8 @@ CODE const uint32_t sk_clamp_1_aarch64[] = {
 };
 
 CODE const uint32_t sk_clamp_a_aarch64[] = {
-  0x4d40c850,                             //ld1r          {v16.4s}, [x2]
   0xf8408423,                             //ldr           x3, [x1], #8
+  0x4f03f610,                             //fmov          v16.4s, #1.000000000000000000e+00
   0x4eb0f463,                             //fmin          v3.4s, v3.4s, v16.4s
   0x4ea3f400,                             //fmin          v0.4s, v0.4s, v3.4s
   0x4ea3f421,                             //fmin          v1.4s, v1.4s, v3.4s
@@ -235,11 +232,11 @@ CODE const uint32_t sk_premul_aarch64[] = {
 };
 
 CODE const uint32_t sk_unpremul_aarch64[] = {
-  0x4d40c850,                             //ld1r          {v16.4s}, [x2]
+  0x4f03f611,                             //fmov          v17.4s, #1.000000000000000000e+00
   0xf8408423,                             //ldr           x3, [x1], #8
-  0x4ea0d871,                             //fcmeq         v17.4s, v3.4s, #0.0
-  0x6e23fe10,                             //fdiv          v16.4s, v16.4s, v3.4s
-  0x4e711e10,                             //bic           v16.16b, v16.16b, v17.16b
+  0x4ea0d870,                             //fcmeq         v16.4s, v3.4s, #0.0
+  0x6e23fe31,                             //fdiv          v17.4s, v17.4s, v3.4s
+  0x4e701e30,                             //bic           v16.16b, v17.16b, v16.16b
   0x6e20de00,                             //fmul          v0.4s, v16.4s, v0.4s
   0x6e21de01,                             //fmul          v1.4s, v16.4s, v1.4s
   0x6e22de02,                             //fmul          v2.4s, v16.4s, v2.4s
@@ -357,21 +354,23 @@ CODE const uint32_t sk_scale_1_float_aarch64[] = {
 
 CODE const uint32_t sk_scale_u8_aarch64[] = {
   0xa8c10c28,                             //ldp           x8, x3, [x1], #16
-  0xbd400c51,                             //ldr           s17, [x2, #12]
+  0x52a77009,                             //mov           w9, #0x3b800000
+  0x72901029,                             //movk          w9, #0x8081
+  0x4e040d30,                             //dup           v16.4s, w9
   0xf9400108,                             //ldr           x8, [x8]
   0x8b000108,                             //add           x8, x8, x0
   0x39400109,                             //ldrb          w9, [x8]
   0x3940050a,                             //ldrb          w10, [x8, #1]
   0x3940090b,                             //ldrb          w11, [x8, #2]
   0x39400d08,                             //ldrb          w8, [x8, #3]
-  0x4e021d30,                             //mov           v16.h[0], w9
-  0x4e061d50,                             //mov           v16.h[1], w10
-  0x4e0a1d70,                             //mov           v16.h[2], w11
-  0x4e0e1d10,                             //mov           v16.h[3], w8
-  0x2f07b7f0,                             //bic           v16.4h, #0xff, lsl #8
-  0x2f10a610,                             //uxtl          v16.4s, v16.4h
-  0x6e21da10,                             //ucvtf         v16.4s, v16.4s
-  0x4f919210,                             //fmul          v16.4s, v16.4s, v17.s[0]
+  0x4e021d31,                             //mov           v17.h[0], w9
+  0x4e061d51,                             //mov           v17.h[1], w10
+  0x4e0a1d71,                             //mov           v17.h[2], w11
+  0x4e0e1d11,                             //mov           v17.h[3], w8
+  0x2f07b7f1,                             //bic           v17.4h, #0xff, lsl #8
+  0x2f10a631,                             //uxtl          v17.4s, v17.4h
+  0x6e21da31,                             //ucvtf         v17.4s, v17.4s
+  0x6e30de30,                             //fmul          v16.4s, v17.4s, v16.4s
   0x6e20de00,                             //fmul          v0.4s, v16.4s, v0.4s
   0x6e21de01,                             //fmul          v1.4s, v16.4s, v1.4s
   0x6e22de02,                             //fmul          v2.4s, v16.4s, v2.4s
@@ -399,22 +398,24 @@ CODE const uint32_t sk_lerp_1_float_aarch64[] = {
 
 CODE const uint32_t sk_lerp_u8_aarch64[] = {
   0xa8c10c28,                             //ldp           x8, x3, [x1], #16
-  0xbd400c51,                             //ldr           s17, [x2, #12]
-  0x4ea4d412,                             //fsub          v18.4s, v0.4s, v4.4s
+  0x52a77009,                             //mov           w9, #0x3b800000
+  0x72901029,                             //movk          w9, #0x8081
+  0x4e040d30,                             //dup           v16.4s, w9
   0xf9400108,                             //ldr           x8, [x8]
+  0x4ea4d412,                             //fsub          v18.4s, v0.4s, v4.4s
   0x8b000108,                             //add           x8, x8, x0
-  0x39400109,                             //ldrb          w9, [x8]
-  0x3940050a,                             //ldrb          w10, [x8, #1]
+  0x3940010a,                             //ldrb          w10, [x8]
+  0x39400509,                             //ldrb          w9, [x8, #1]
   0x3940090b,                             //ldrb          w11, [x8, #2]
   0x39400d08,                             //ldrb          w8, [x8, #3]
-  0x4e021d30,                             //mov           v16.h[0], w9
-  0x4e061d50,                             //mov           v16.h[1], w10
-  0x4e0a1d70,                             //mov           v16.h[2], w11
-  0x4e0e1d10,                             //mov           v16.h[3], w8
-  0x2f07b7f0,                             //bic           v16.4h, #0xff, lsl #8
-  0x2f10a600,                             //uxtl          v0.4s, v16.4h
+  0x4e021d51,                             //mov           v17.h[0], w10
+  0x4e061d31,                             //mov           v17.h[1], w9
+  0x4e0a1d71,                             //mov           v17.h[2], w11
+  0x4e0e1d11,                             //mov           v17.h[3], w8
+  0x2f07b7f1,                             //bic           v17.4h, #0xff, lsl #8
+  0x2f10a620,                             //uxtl          v0.4s, v17.4h
   0x6e21d800,                             //ucvtf         v0.4s, v0.4s
-  0x4f919010,                             //fmul          v16.4s, v0.4s, v17.s[0]
+  0x6e30dc10,                             //fmul          v16.4s, v0.4s, v16.4s
   0x4ea41c80,                             //mov           v0.16b, v4.16b
   0x4ea5d431,                             //fsub          v17.4s, v1.4s, v5.4s
   0x4ea51ca1,                             //mov           v1.16b, v5.16b
@@ -433,35 +434,35 @@ CODE const uint32_t sk_lerp_565_aarch64[] = {
   0xa8c10c28,                             //ldp           x8, x3, [x1], #16
   0xd37ff809,                             //lsl           x9, x0, #1
   0x2d4ec851,                             //ldp           s17, s18, [x2, #116]
-  0x4ea4d413,                             //fsub          v19.4s, v0.4s, v4.4s
+  0x4ea4d414,                             //fsub          v20.4s, v0.4s, v4.4s
   0xf9400108,                             //ldr           x8, [x8]
-  0x4ea41c80,                             //mov           v0.16b, v4.16b
   0xfc696903,                             //ldr           d3, [x8, x9]
   0x9101a048,                             //add           x8, x2, #0x68
   0x4d40c910,                             //ld1r          {v16.4s}, [x8]
   0x9101b048,                             //add           x8, x2, #0x6c
-  0x2f10a463,                             //uxtl          v3.4s, v3.4h
-  0x4e231e10,                             //and           v16.16b, v16.16b, v3.16b
-  0x4e21da10,                             //scvtf         v16.4s, v16.4s
-  0x4f919210,                             //fmul          v16.4s, v16.4s, v17.s[0]
-  0x4d40c911,                             //ld1r          {v17.4s}, [x8]
+  0x4d40c913,                             //ld1r          {v19.4s}, [x8]
   0x9101c048,                             //add           x8, x2, #0x70
-  0x4e33ce00,                             //fmla          v0.4s, v16.4s, v19.4s
-  0x4ea5d430,                             //fsub          v16.4s, v1.4s, v5.4s
-  0x4e231e31,                             //and           v17.16b, v17.16b, v3.16b
-  0x4e21da31,                             //scvtf         v17.4s, v17.4s
-  0x4f929231,                             //fmul          v17.4s, v17.4s, v18.s[0]
-  0x4d40c912,                             //ld1r          {v18.4s}, [x8]
+  0x2f10a463,                             //uxtl          v3.4s, v3.4h
+  0x4d40c915,                             //ld1r          {v21.4s}, [x8]
+  0x4e231e00,                             //and           v0.16b, v16.16b, v3.16b
+  0x4e21d800,                             //scvtf         v0.4s, v0.4s
+  0x4f919010,                             //fmul          v16.4s, v0.4s, v17.s[0]
+  0x4ea41c80,                             //mov           v0.16b, v4.16b
+  0xbd407c51,                             //ldr           s17, [x2, #124]
+  0x4e34ce00,                             //fmla          v0.4s, v16.4s, v20.4s
+  0x4e231e70,                             //and           v16.16b, v19.16b, v3.16b
+  0x4e231ea3,                             //and           v3.16b, v21.16b, v3.16b
+  0x4ea5d433,                             //fsub          v19.4s, v1.4s, v5.4s
+  0x4e21da01,                             //scvtf         v1.4s, v16.4s
+  0x4f929030,                             //fmul          v16.4s, v1.4s, v18.s[0]
+  0x4ea6d452,                             //fsub          v18.4s, v2.4s, v6.4s
+  0x4e21d862,                             //scvtf         v2.4s, v3.4s
   0x4ea51ca1,                             //mov           v1.16b, v5.16b
-  0x4e30ce21,                             //fmla          v1.4s, v17.4s, v16.4s
-  0xbd407c50,                             //ldr           s16, [x2, #124]
-  0x4e231e52,                             //and           v18.16b, v18.16b, v3.16b
-  0x4d40c843,                             //ld1r          {v3.4s}, [x2]
-  0x4e21da52,                             //scvtf         v18.4s, v18.4s
-  0x4ea6d451,                             //fsub          v17.4s, v2.4s, v6.4s
+  0x4f919043,                             //fmul          v3.4s, v2.4s, v17.s[0]
   0x4ea61cc2,                             //mov           v2.16b, v6.16b
-  0x4f909250,                             //fmul          v16.4s, v18.4s, v16.s[0]
-  0x4e31ce02,                             //fmla          v2.4s, v16.4s, v17.4s
+  0x4e33ce01,                             //fmla          v1.4s, v16.4s, v19.4s
+  0x4e32cc62,                             //fmla          v2.4s, v3.4s, v18.4s
+  0x4f03f603,                             //fmov          v3.4s, #1.000000000000000000e+00
   0xd61f0060,                             //br            x3
 };
 
@@ -617,46 +618,48 @@ CODE const uint32_t sk_store_565_aarch64[] = {
 CODE const uint32_t sk_load_8888_aarch64[] = {
   0xa8c10c28,                             //ldp           x8, x3, [x1], #16
   0xd37ef409,                             //lsl           x9, x0, #2
-  0xbd400c42,                             //ldr           s2, [x2, #12]
+  0x6f00e621,                             //movi          v1.2d, #0xff000000ff
   0xf9400108,                             //ldr           x8, [x8]
   0x3ce96900,                             //ldr           q0, [x8, x9]
-  0x91004048,                             //add           x8, x2, #0x10
-  0x4d40c901,                             //ld1r          {v1.4s}, [x8]
+  0x52a77008,                             //mov           w8, #0x3b800000
+  0x72901028,                             //movk          w8, #0x8081
+  0x4e040d02,                             //dup           v2.4s, w8
   0x6f380410,                             //ushr          v16.4s, v0.4s, #8
   0x6f300411,                             //ushr          v17.4s, v0.4s, #16
-  0x4e201c23,                             //and           v3.16b, v1.16b, v0.16b
+  0x4e211c03,                             //and           v3.16b, v0.16b, v1.16b
   0x6f280400,                             //ushr          v0.4s, v0.4s, #24
-  0x4e301c30,                             //and           v16.16b, v1.16b, v16.16b
-  0x4e311c21,                             //and           v1.16b, v1.16b, v17.16b
+  0x4e211e10,                             //and           v16.16b, v16.16b, v1.16b
+  0x4e211e21,                             //and           v1.16b, v17.16b, v1.16b
   0x4e21d863,                             //scvtf         v3.4s, v3.4s
   0x4e21d811,                             //scvtf         v17.4s, v0.4s
   0x4e21da10,                             //scvtf         v16.4s, v16.4s
   0x4e21d832,                             //scvtf         v18.4s, v1.4s
-  0x4f829060,                             //fmul          v0.4s, v3.4s, v2.s[0]
-  0x4f829223,                             //fmul          v3.4s, v17.4s, v2.s[0]
-  0x4f829201,                             //fmul          v1.4s, v16.4s, v2.s[0]
-  0x4f829242,                             //fmul          v2.4s, v18.4s, v2.s[0]
+  0x6e22dc60,                             //fmul          v0.4s, v3.4s, v2.4s
+  0x6e22de23,                             //fmul          v3.4s, v17.4s, v2.4s
+  0x6e22de01,                             //fmul          v1.4s, v16.4s, v2.4s
+  0x6e22de42,                             //fmul          v2.4s, v18.4s, v2.4s
   0xd61f0060,                             //br            x3
 };
 
 CODE const uint32_t sk_store_8888_aarch64[] = {
-  0xbd400850,                             //ldr           s16, [x2, #8]
+  0x52a86fea,                             //mov           w10, #0x437f0000
+  0x4e040d50,                             //dup           v16.4s, w10
   0xf9400028,                             //ldr           x8, [x1]
-  0xd37ef409,                             //lsl           x9, x0, #2
-  0x4f909032,                             //fmul          v18.4s, v1.4s, v16.s[0]
-  0x4f909011,                             //fmul          v17.4s, v0.4s, v16.s[0]
+  0x6e30dc32,                             //fmul          v18.4s, v1.4s, v16.4s
+  0x6e30dc11,                             //fmul          v17.4s, v0.4s, v16.4s
   0x6e21aa52,                             //fcvtnu        v18.4s, v18.4s
   0x6e21aa31,                             //fcvtnu        v17.4s, v17.4s
   0x4f285652,                             //shl           v18.4s, v18.4s, #8
   0x4eb11e51,                             //orr           v17.16b, v18.16b, v17.16b
-  0x4f909052,                             //fmul          v18.4s, v2.4s, v16.s[0]
-  0xf9400108,                             //ldr           x8, [x8]
-  0x4f909070,                             //fmul          v16.4s, v3.4s, v16.s[0]
+  0x6e30dc52,                             //fmul          v18.4s, v2.4s, v16.4s
+  0x6e30dc70,                             //fmul          v16.4s, v3.4s, v16.4s
   0x6e21aa52,                             //fcvtnu        v18.4s, v18.4s
+  0xf9400108,                             //ldr           x8, [x8]
   0x6e21aa10,                             //fcvtnu        v16.4s, v16.4s
   0x4f305652,                             //shl           v18.4s, v18.4s, #16
   0x4eb21e31,                             //orr           v17.16b, v17.16b, v18.16b
   0x4f385610,                             //shl           v16.4s, v16.4s, #24
+  0xd37ef409,                             //lsl           x9, x0, #2
   0x4eb01e30,                             //orr           v16.16b, v17.16b, v16.16b
   0x3ca96910,                             //str           q16, [x8, x9]
   0xf9400423,                             //ldr           x3, [x1, #8]
@@ -968,23 +971,22 @@ CODE const uint32_t sk_just_return_vfp4[] = {
 };
 
 CODE const uint32_t sk_seed_shader_vfp4[] = {
-  0xe8911008,                             //ldm           r1, {r3, ip}
   0xee800b90,                             //vdup.32       d16, r0
+  0xe8911008,                             //ldm           r1, {r3, ip}
   0xf3fb0620,                             //vcvt.f32.s32  d16, d16
+  0xf2c3161f,                             //vmov.i32      d17, #1056964608
   0xedd23b05,                             //vldr          d19, [r2, #20]
-  0xf2803010,                             //vmov.i32      d3, #0
-  0xf4e31c9f,                             //vld1.32       {d17[]}, [r3 :32]
-  0xe2823004,                             //add           r3, r2, #4
-  0xf3fb1621,                             //vcvt.f32.s32  d17, d17
-  0xe2811008,                             //add           r1, r1, #8
   0xf4e32c9f,                             //vld1.32       {d18[]}, [r3 :32]
+  0xf2872f10,                             //vmov.f32      d2, #1
+  0xf3fb2622,                             //vcvt.f32.s32  d18, d18
+  0xe2811008,                             //add           r1, r1, #8
+  0xf2400da1,                             //vadd.f32      d16, d16, d17
+  0xf2803010,                             //vmov.i32      d3, #0
   0xf2804010,                             //vmov.i32      d4, #0
-  0xf2400da2,                             //vadd.f32      d16, d16, d18
+  0xf2021da1,                             //vadd.f32      d1, d18, d17
+  0xf2000da3,                             //vadd.f32      d0, d16, d19
   0xf2805010,                             //vmov.i32      d5, #0
-  0xf4a22c9f,                             //vld1.32       {d2[]}, [r2 :32]
-  0xf2011da2,                             //vadd.f32      d1, d17, d18
   0xf2806010,                             //vmov.i32      d6, #0
-  0xf2030da0,                             //vadd.f32      d0, d19, d16
   0xf2807010,                             //vmov.i32      d7, #0
   0xe12fff1c,                             //bx            ip
 };
@@ -1019,7 +1021,7 @@ CODE const uint32_t sk_plus__vfp4[] = {
 };
 
 CODE const uint32_t sk_srcover_vfp4[] = {
-  0xf4e20c9f,                             //vld1.32       {d16[]}, [r2 :32]
+  0xf2c70f10,                             //vmov.f32      d16, #1
   0xe4913004,                             //ldr           r3, [r1], #4
   0xf2600d83,                             //vsub.f32      d16, d16, d3
   0xf2040c30,                             //vfma.f32      d0, d4, d16
@@ -1030,12 +1032,12 @@ CODE const uint32_t sk_srcover_vfp4[] = {
 };
 
 CODE const uint32_t sk_dstover_vfp4[] = {
-  0xf4e20c9f,                             //vld1.32       {d16[]}, [r2 :32]
+  0xf2c70f10,                             //vmov.f32      d16, #1
+  0xe4913004,                             //ldr           r3, [r1], #4
   0xf2651115,                             //vorr          d17, d5, d5
   0xf2604d87,                             //vsub.f32      d20, d16, d7
   0xf2640114,                             //vorr          d16, d4, d4
   0xf2662116,                             //vorr          d18, d6, d6
-  0xe4913004,                             //ldr           r3, [r1], #4
   0xf2673117,                             //vorr          d19, d7, d7
   0xf2400c34,                             //vfma.f32      d16, d0, d20
   0xf2411c34,                             //vfma.f32      d17, d1, d20
@@ -1059,7 +1061,7 @@ CODE const uint32_t sk_clamp_0_vfp4[] = {
 };
 
 CODE const uint32_t sk_clamp_1_vfp4[] = {
-  0xf4e20c9f,                             //vld1.32       {d16[]}, [r2 :32]
+  0xf2c70f10,                             //vmov.f32      d16, #1
   0xe4913004,                             //ldr           r3, [r1], #4
   0xf2200f20,                             //vmin.f32      d0, d0, d16
   0xf2211f20,                             //vmin.f32      d1, d1, d16
@@ -1069,7 +1071,7 @@ CODE const uint32_t sk_clamp_1_vfp4[] = {
 };
 
 CODE const uint32_t sk_clamp_a_vfp4[] = {
-  0xf4e20c9f,                             //vld1.32       {d16[]}, [r2 :32]
+  0xf2c70f10,                             //vmov.f32      d16, #1
   0xe4913004,                             //ldr           r3, [r1], #4
   0xf2233f20,                             //vmin.f32      d3, d3, d16
   0xf2200f03,                             //vmin.f32      d0, d0, d3
@@ -1145,9 +1147,9 @@ CODE const uint32_t sk_premul_vfp4[] = {
 
 CODE const uint32_t sk_unpremul_vfp4[] = {
   0xed2d8b04,                             //vpush         {d8-d9}
-  0xed928a00,                             //vldr          s16, [r2]
-  0xf2c00010,                             //vmov.i32      d16, #0
+  0xeeb78a00,                             //vmov.f32      s16, #112
   0xf3f91503,                             //vceq.f32      d17, d3, #0
+  0xf2c00010,                             //vmov.i32      d16, #0
   0xe4913004,                             //ldr           r3, [r1], #4
   0xeec89a23,                             //vdiv.f32      s19, s16, s7
   0xee889a03,                             //vdiv.f32      s18, s16, s6
@@ -1281,28 +1283,28 @@ CODE const uint32_t sk_scale_1_float_vfp4[] = {
 };
 
 CODE const uint32_t sk_scale_u8_vfp4[] = {
-  0xed2d8b02,                             //vpush         {d8}
-  0xe24dd008,                             //sub           sp, sp, #8
+  0xe24dd004,                             //sub           sp, sp, #4
   0xe8911008,                             //ldm           r1, {r3, ip}
   0xe2811008,                             //add           r1, r1, #8
   0xe5933000,                             //ldr           r3, [r3]
   0xe0833000,                             //add           r3, r3, r0
   0xe1d330b0,                             //ldrh          r3, [r3]
-  0xe1cd30b4,                             //strh          r3, [sp, #4]
-  0xe28d3004,                             //add           r3, sp, #4
-  0xed928a03,                             //vldr          s16, [r2, #12]
+  0xe1cd30b0,                             //strh          r3, [sp]
+  0xe1a0300d,                             //mov           r3, sp
   0xf4e3041f,                             //vld1.16       {d16[0]}, [r3 :16]
   0xf3c80a30,                             //vmovl.u8      q8, d16
   0xf3d00a30,                             //vmovl.u16     q8, d16
   0xf3fb06a0,                             //vcvt.f32.u32  d16, d16
-  0xf2e009c8,                             //vmul.f32      d16, d16, d8[0]
+  0xeddf1b06,                             //vldr          d17, [pc, #24]
+  0xf3400db1,                             //vmul.f32      d16, d16, d17
   0xf3000d90,                             //vmul.f32      d0, d16, d0
   0xf3001d91,                             //vmul.f32      d1, d16, d1
   0xf3002d92,                             //vmul.f32      d2, d16, d2
   0xf3003d93,                             //vmul.f32      d3, d16, d3
-  0xe28dd008,                             //add           sp, sp, #8
-  0xecbd8b02,                             //vpop          {d8}
+  0xe28dd004,                             //add           sp, sp, #4
   0xe12fff1c,                             //bx            ip
+  0x3b808081,                             //.word         0x3b808081
+  0x3b808081,                             //.word         0x3b808081
 };
 
 CODE const uint32_t sk_lerp_1_float_vfp4[] = {
@@ -1325,36 +1327,36 @@ CODE const uint32_t sk_lerp_1_float_vfp4[] = {
 };
 
 CODE const uint32_t sk_lerp_u8_vfp4[] = {
-  0xed2d8b02,                             //vpush         {d8}
-  0xe24dd008,                             //sub           sp, sp, #8
+  0xe24dd004,                             //sub           sp, sp, #4
   0xe8911008,                             //ldm           r1, {r3, ip}
-  0xf2612d05,                             //vsub.f32      d18, d1, d5
+  0xf2602d04,                             //vsub.f32      d18, d0, d4
   0xf2623d06,                             //vsub.f32      d19, d2, d6
   0xf2634d07,                             //vsub.f32      d20, d3, d7
   0xe2811008,                             //add           r1, r1, #8
   0xe5933000,                             //ldr           r3, [r3]
-  0xf2251115,                             //vorr          d1, d5, d5
+  0xf2240114,                             //vorr          d0, d4, d4
   0xf2262116,                             //vorr          d2, d6, d6
   0xe0833000,                             //add           r3, r3, r0
   0xf2273117,                             //vorr          d3, d7, d7
   0xe1d330b0,                             //ldrh          r3, [r3]
-  0xe1cd30b4,                             //strh          r3, [sp, #4]
-  0xe28d3004,                             //add           r3, sp, #4
-  0xed928a03,                             //vldr          s16, [r2, #12]
+  0xe1cd30b0,                             //strh          r3, [sp]
+  0xe1a0300d,                             //mov           r3, sp
   0xf4e3041f,                             //vld1.16       {d16[0]}, [r3 :16]
   0xf3c80a30,                             //vmovl.u8      q8, d16
   0xf3d00a30,                             //vmovl.u16     q8, d16
   0xf3fb06a0,                             //vcvt.f32.u32  d16, d16
-  0xf2601d04,                             //vsub.f32      d17, d0, d4
-  0xf2240114,                             //vorr          d0, d4, d4
-  0xf2e009c8,                             //vmul.f32      d16, d16, d8[0]
-  0xf2010cb0,                             //vfma.f32      d0, d17, d16
-  0xf2021cb0,                             //vfma.f32      d1, d18, d16
+  0xeddf1b08,                             //vldr          d17, [pc, #32]
+  0xf3400db1,                             //vmul.f32      d16, d16, d17
+  0xf2611d05,                             //vsub.f32      d17, d1, d5
+  0xf2251115,                             //vorr          d1, d5, d5
+  0xf2020cb0,                             //vfma.f32      d0, d18, d16
+  0xf2011cb0,                             //vfma.f32      d1, d17, d16
   0xf2032cb0,                             //vfma.f32      d2, d19, d16
   0xf2043cb0,                             //vfma.f32      d3, d20, d16
-  0xe28dd008,                             //add           sp, sp, #8
-  0xecbd8b02,                             //vpop          {d8}
+  0xe28dd004,                             //add           sp, sp, #4
   0xe12fff1c,                             //bx            ip
+  0x3b808081,                             //.word         0x3b808081
+  0x3b808081,                             //.word         0x3b808081
 };
 
 CODE const uint32_t sk_lerp_565_vfp4[] = {
@@ -1387,7 +1389,6 @@ CODE const uint32_t sk_lerp_565_vfp4[] = {
   0xf3fb2622,                             //vcvt.f32.s32  d18, d18
   0xf2614d05,                             //vsub.f32      d20, d1, d5
   0xf2e009c3,                             //vmul.f32      d16, d16, d3[0]
-  0xf4a23c9f,                             //vld1.32       {d3[]}, [r2 :32]
   0xf2625d06,                             //vsub.f32      d21, d2, d6
   0xf2e119c8,                             //vmul.f32      d17, d17, d8[0]
   0xf2e229c9,                             //vmul.f32      d18, d18, d9[0]
@@ -1396,6 +1397,7 @@ CODE const uint32_t sk_lerp_565_vfp4[] = {
   0xf2030cb0,                             //vfma.f32      d0, d19, d16
   0xf2041cb1,                             //vfma.f32      d1, d20, d17
   0xf2052cb2,                             //vfma.f32      d2, d21, d18
+  0xf2873f10,                             //vmov.f32      d3, #1
   0xe28dd008,                             //add           sp, sp, #8
   0xecbd8b04,                             //vpop          {d8-d9}
   0xe12fff1c,                             //bx            ip
@@ -1542,64 +1544,67 @@ CODE const uint32_t sk_store_565_vfp4[] = {
   0xe5913004,                             //ldr           r3, [r1, #4]
   0xe2811008,                             //add           r1, r1, #8
   0xe12fff13,                             //bx            r3
+  0xe320f000,                             //nop           {0}
 };
 
 CODE const uint32_t sk_load_8888_vfp4[] = {
-  0xe92d4800,                             //push          {fp, lr}
   0xe8911008,                             //ldm           r1, {r3, ip}
+  0xf3c7001f,                             //vmov.i32      d16, #255
   0xe2811008,                             //add           r1, r1, #8
-  0xed922a03,                             //vldr          s4, [r2, #12]
-  0xe593e000,                             //ldr           lr, [r3]
-  0xe2823010,                             //add           r3, r2, #16
-  0xf4e30c9f,                             //vld1.32       {d16[]}, [r3 :32]
-  0xe08e3100,                             //add           r3, lr, r0, lsl #2
+  0xe5933000,                             //ldr           r3, [r3]
+  0xe0833100,                             //add           r3, r3, r0, lsl #2
   0xedd31b00,                             //vldr          d17, [r3]
-  0xf24021b1,                             //vand          d18, d16, d17
+  0xf24121b0,                             //vand          d18, d17, d16
   0xf3f83031,                             //vshr.u32      d19, d17, #8
   0xf3e84031,                             //vshr.u32      d20, d17, #24
   0xf3f01031,                             //vshr.u32      d17, d17, #16
-  0xf24031b3,                             //vand          d19, d16, d19
-  0xf24001b1,                             //vand          d16, d16, d17
+  0xf24331b0,                             //vand          d19, d19, d16
+  0xf24101b0,                             //vand          d16, d17, d16
+  0xeddf1b08,                             //vldr          d17, [pc, #32]
   0xf3fb2622,                             //vcvt.f32.s32  d18, d18
   0xf3fb4624,                             //vcvt.f32.s32  d20, d20
-  0xf3fb1623,                             //vcvt.f32.s32  d17, d19
+  0xf3fb3623,                             //vcvt.f32.s32  d19, d19
   0xf3fb0620,                             //vcvt.f32.s32  d16, d16
-  0xf2a209c2,                             //vmul.f32      d0, d18, d2[0]
-  0xf2a439c2,                             //vmul.f32      d3, d20, d2[0]
-  0xf2a119c2,                             //vmul.f32      d1, d17, d2[0]
-  0xf2a029c2,                             //vmul.f32      d2, d16, d2[0]
-  0xe8bd4800,                             //pop           {fp, lr}
+  0xf3020db1,                             //vmul.f32      d0, d18, d17
+  0xf3043db1,                             //vmul.f32      d3, d20, d17
+  0xf3031db1,                             //vmul.f32      d1, d19, d17
+  0xf3002db1,                             //vmul.f32      d2, d16, d17
   0xe12fff1c,                             //bx            ip
+  0x3b808081,                             //.word         0x3b808081
+  0x3b808081,                             //.word         0x3b808081
 };
 
 CODE const uint32_t sk_store_8888_vfp4[] = {
-  0xe2823008,                             //add           r3, r2, #8
+  0xeddf0b1a,                             //vldr          d16, [pc, #104]
   0xf2c3261f,                             //vmov.i32      d18, #1056964608
-  0xf2c3361f,                             //vmov.i32      d19, #1056964608
-  0xf4e31c9f,                             //vld1.32       {d17[]}, [r3 :32]
-  0xf2c3061f,                             //vmov.i32      d16, #1056964608
-  0xf2412c31,                             //vfma.f32      d18, d1, d17
-  0xf2423c31,                             //vfma.f32      d19, d2, d17
-  0xf2c3461f,                             //vmov.i32      d20, #1056964608
+  0xf2412c30,                             //vfma.f32      d18, d1, d16
   0xe5913000,                             //ldr           r3, [r1]
-  0xf2400c31,                             //vfma.f32      d16, d0, d17
-  0xf2434c31,                             //vfma.f32      d20, d3, d17
+  0xf2c3361f,                             //vmov.i32      d19, #1056964608
+  0xf2c3161f,                             //vmov.i32      d17, #1056964608
+  0xf2423c30,                             //vfma.f32      d19, d2, d16
   0xe5933000,                             //ldr           r3, [r3]
+  0xf2c3461f,                             //vmov.i32      d20, #1056964608
+  0xf2401c30,                             //vfma.f32      d17, d0, d16
   0xe0833100,                             //add           r3, r3, r0, lsl #2
-  0xf3fb17a2,                             //vcvt.u32.f32  d17, d18
+  0xf2434c30,                             //vfma.f32      d20, d3, d16
+  0xf3fb07a2,                             //vcvt.u32.f32  d16, d18
   0xf3fb27a3,                             //vcvt.u32.f32  d18, d19
-  0xf3fb07a0,                             //vcvt.u32.f32  d16, d16
+  0xf3fb17a1,                             //vcvt.u32.f32  d17, d17
   0xf3fb37a4,                             //vcvt.u32.f32  d19, d20
-  0xf2e81531,                             //vshl.s32      d17, d17, #8
+  0xf2e80530,                             //vshl.s32      d16, d16, #8
   0xf2f02532,                             //vshl.s32      d18, d18, #16
-  0xf26101b0,                             //vorr          d16, d17, d16
+  0xf26001b1,                             //vorr          d16, d16, d17
   0xf2f81533,                             //vshl.s32      d17, d19, #24
   0xf26001b2,                             //vorr          d16, d16, d18
   0xf26001b1,                             //vorr          d16, d16, d17
   0xedc30b00,                             //vstr          d16, [r3]
-  0xe5913004,                             //ldr           r3, [r1, #4]
-  0xe2811008,                             //add           r1, r1, #8
-  0xe12fff13,                             //bx            r3
+  0xe2813008,                             //add           r3, r1, #8
+  0xe591c004,                             //ldr           ip, [r1, #4]
+  0xe1a01003,                             //mov           r1, r3
+  0xe12fff1c,                             //bx            ip
+  0xe320f000,                             //nop           {0}
+  0x437f0000,                             //.word         0x437f0000
+  0x437f0000,                             //.word         0x437f0000
 };
 
 CODE const uint32_t sk_load_f16_vfp4[] = {
@@ -1681,8 +1686,8 @@ CODE const uint32_t sk_repeat_x_vfp4[] = {
   0xed2d8b04,                             //vpush         {d8-d9}
   0xe8911008,                             //ldm           r1, {r3, ip}
   0xf2c02010,                             //vmov.i32      d18, #0
-  0xf4e23c9f,                             //vld1.32       {d19[]}, [r2 :32]
   0xe2811008,                             //add           r1, r1, #8
+  0xeddf3b10,                             //vldr          d19, [pc, #64]
   0xed938a00,                             //vldr          s16, [r3]
   0xeec09a88,                             //vdiv.f32      s19, s1, s16
   0xee809a08,                             //vdiv.f32      s18, s0, s16
@@ -1699,14 +1704,17 @@ CODE const uint32_t sk_repeat_x_vfp4[] = {
   0xf2200fa1,                             //vmin.f32      d0, d16, d17
   0xecbd8b04,                             //vpop          {d8-d9}
   0xe12fff1c,                             //bx            ip
+  0xe320f000,                             //nop           {0}
+  0x3f800000,                             //.word         0x3f800000
+  0x3f800000,                             //.word         0x3f800000
 };
 
 CODE const uint32_t sk_repeat_y_vfp4[] = {
   0xed2d8b04,                             //vpush         {d8-d9}
   0xe8911008,                             //ldm           r1, {r3, ip}
   0xf2c02010,                             //vmov.i32      d18, #0
-  0xf4e23c9f,                             //vld1.32       {d19[]}, [r2 :32]
   0xe2811008,                             //add           r1, r1, #8
+  0xeddf3b10,                             //vldr          d19, [pc, #64]
   0xed938a00,                             //vldr          s16, [r3]
   0xeec19a88,                             //vdiv.f32      s19, s3, s16
   0xee819a08,                             //vdiv.f32      s18, s2, s16
@@ -1723,14 +1731,17 @@ CODE const uint32_t sk_repeat_y_vfp4[] = {
   0xf2201fa1,                             //vmin.f32      d1, d16, d17
   0xecbd8b04,                             //vpop          {d8-d9}
   0xe12fff1c,                             //bx            ip
+  0xe320f000,                             //nop           {0}
+  0x3f800000,                             //.word         0x3f800000
+  0x3f800000,                             //.word         0x3f800000
 };
 
 CODE const uint32_t sk_mirror_x_vfp4[] = {
   0xed2d8b04,                             //vpush         {d8-d9}
   0xe8911008,                             //ldm           r1, {r3, ip}
   0xf2c03010,                             //vmov.i32      d19, #0
-  0xf4e24c9f,                             //vld1.32       {d20[]}, [r2 :32]
   0xe2811008,                             //add           r1, r1, #8
+  0xeddf4b14,                             //vldr          d20, [pc, #80]
   0xed938a00,                             //vldr          s16, [r3]
   0xee389a08,                             //vadd.f32      s18, s16, s16
   0xf3f40c08,                             //vdup.32       d16, d8[0]
@@ -1751,14 +1762,17 @@ CODE const uint32_t sk_mirror_x_vfp4[] = {
   0xf2210fa0,                             //vmin.f32      d0, d17, d16
   0xecbd8b04,                             //vpop          {d8-d9}
   0xe12fff1c,                             //bx            ip
+  0xe320f000,                             //nop           {0}
+  0x3f800000,                             //.word         0x3f800000
+  0x3f800000,                             //.word         0x3f800000
 };
 
 CODE const uint32_t sk_mirror_y_vfp4[] = {
   0xed2d8b04,                             //vpush         {d8-d9}
   0xe8911008,                             //ldm           r1, {r3, ip}
   0xf2c03010,                             //vmov.i32      d19, #0
-  0xf4e24c9f,                             //vld1.32       {d20[]}, [r2 :32]
   0xe2811008,                             //add           r1, r1, #8
+  0xeddf4b14,                             //vldr          d20, [pc, #80]
   0xed938a00,                             //vldr          s16, [r3]
   0xee389a08,                             //vadd.f32      s18, s16, s16
   0xf3f40c08,                             //vdup.32       d16, d8[0]
@@ -1779,6 +1793,9 @@ CODE const uint32_t sk_mirror_y_vfp4[] = {
   0xf2211fa0,                             //vmin.f32      d1, d17, d16
   0xecbd8b04,                             //vpop          {d8-d9}
   0xe12fff1c,                             //bx            ip
+  0xe320f000,                             //nop           {0}
+  0x3f800000,                             //.word         0x3f800000
+  0x3f800000,                             //.word         0x3f800000
 };
 
 CODE const uint32_t sk_luminance_to_alpha_vfp4[] = {
@@ -2064,13 +2081,17 @@ CODE const uint8_t sk_seed_shader_hsw[] = {
   197,249,110,199,                        //vmovd         %edi,%xmm0
   196,226,125,24,192,                     //vbroadcastss  %xmm0,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
-  196,226,125,24,74,4,                    //vbroadcastss  0x4(%rdx),%ymm1
+  65,184,0,0,0,63,                        //mov           $0x3f000000,%r8d
+  196,193,121,110,200,                    //vmovd         %r8d,%xmm1
+  196,226,125,24,201,                     //vbroadcastss  %xmm1,%ymm1
   197,252,88,193,                         //vaddps        %ymm1,%ymm0,%ymm0
   197,252,88,66,20,                       //vaddps        0x14(%rdx),%ymm0,%ymm0
   196,226,125,24,16,                      //vbroadcastss  (%rax),%ymm2
   197,252,91,210,                         //vcvtdq2ps     %ymm2,%ymm2
   197,236,88,201,                         //vaddps        %ymm1,%ymm2,%ymm1
-  196,226,125,24,18,                      //vbroadcastss  (%rdx),%ymm2
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,249,110,208,                        //vmovd         %eax,%xmm2
+  196,226,125,24,210,                     //vbroadcastss  %xmm2,%ymm2
   72,173,                                 //lods          %ds:(%rsi),%rax
   197,228,87,219,                         //vxorps        %ymm3,%ymm3,%ymm3
   197,220,87,228,                         //vxorps        %ymm4,%ymm4,%ymm4
@@ -2109,7 +2130,9 @@ CODE const uint8_t sk_plus__hsw[] = {
 };
 
 CODE const uint8_t sk_srcover_hsw[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   197,60,92,195,                          //vsubps        %ymm3,%ymm8,%ymm8
   196,194,93,184,192,                     //vfmadd231ps   %ymm8,%ymm4,%ymm0
   196,194,85,184,200,                     //vfmadd231ps   %ymm8,%ymm5,%ymm1
@@ -2120,7 +2143,9 @@ CODE const uint8_t sk_srcover_hsw[] = {
 };
 
 CODE const uint8_t sk_dstover_hsw[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   197,60,92,199,                          //vsubps        %ymm7,%ymm8,%ymm8
   196,226,61,168,196,                     //vfmadd213ps   %ymm4,%ymm8,%ymm0
   196,226,61,168,205,                     //vfmadd213ps   %ymm5,%ymm8,%ymm1
@@ -2141,7 +2166,9 @@ CODE const uint8_t sk_clamp_0_hsw[] = {
 };
 
 CODE const uint8_t sk_clamp_1_hsw[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   196,193,124,93,192,                     //vminps        %ymm8,%ymm0,%ymm0
   196,193,116,93,200,                     //vminps        %ymm8,%ymm1,%ymm1
   196,193,108,93,208,                     //vminps        %ymm8,%ymm2,%ymm2
@@ -2151,7 +2178,9 @@ CODE const uint8_t sk_clamp_1_hsw[] = {
 };
 
 CODE const uint8_t sk_clamp_a_hsw[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   196,193,100,93,216,                     //vminps        %ymm8,%ymm3,%ymm3
   197,252,93,195,                         //vminps        %ymm3,%ymm0,%ymm0
   197,244,93,203,                         //vminps        %ymm3,%ymm1,%ymm1
@@ -2223,7 +2252,9 @@ CODE const uint8_t sk_premul_hsw[] = {
 CODE const uint8_t sk_unpremul_hsw[] = {
   196,65,60,87,192,                       //vxorps        %ymm8,%ymm8,%ymm8
   196,65,100,194,200,0,                   //vcmpeqps      %ymm8,%ymm3,%ymm9
-  196,98,125,24,18,                       //vbroadcastss  (%rdx),%ymm10
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,208,                        //vmovd         %eax,%xmm10
+  196,66,125,24,210,                      //vbroadcastss  %xmm10,%ymm10
   197,44,94,211,                          //vdivps        %ymm3,%ymm10,%ymm10
   196,67,45,74,192,144,                   //vblendvps     %ymm9,%ymm8,%ymm10,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
@@ -2318,11 +2349,13 @@ CODE const uint8_t sk_scale_u8_hsw[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,48,                                 //jne           41a <_sk_scale_u8_hsw+0x40>
+  117,56,                                 //jne           462 <_sk_scale_u8_hsw+0x48>
   197,123,16,0,                           //vmovsd        (%rax),%xmm8
   196,66,125,49,192,                      //vpmovzxbd     %xmm8,%ymm8
   196,65,124,91,192,                      //vcvtdq2ps     %ymm8,%ymm8
-  196,98,125,24,74,12,                    //vbroadcastss  0xc(%rdx),%ymm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,121,110,200,                        //vmovd         %eax,%xmm9
+  196,66,125,24,201,                      //vbroadcastss  %xmm9,%ymm9
   196,65,60,89,193,                       //vmulps        %ymm9,%ymm8,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
   197,188,89,201,                         //vmulps        %ymm1,%ymm8,%ymm1
@@ -2340,9 +2373,9 @@ CODE const uint8_t sk_scale_u8_hsw[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           422 <_sk_scale_u8_hsw+0x48>
+  117,234,                                //jne           46a <_sk_scale_u8_hsw+0x50>
   196,65,249,110,193,                     //vmovq         %r9,%xmm8
-  235,175,                                //jmp           3ee <_sk_scale_u8_hsw+0x14>
+  235,167,                                //jmp           42e <_sk_scale_u8_hsw+0x14>
 };
 
 CODE const uint8_t sk_lerp_1_float_hsw[] = {
@@ -2366,11 +2399,13 @@ CODE const uint8_t sk_lerp_u8_hsw[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,68,                                 //jne           4c2 <_sk_lerp_u8_hsw+0x54>
+  117,76,                                 //jne           512 <_sk_lerp_u8_hsw+0x5c>
   197,123,16,0,                           //vmovsd        (%rax),%xmm8
   196,66,125,49,192,                      //vpmovzxbd     %xmm8,%ymm8
   196,65,124,91,192,                      //vcvtdq2ps     %ymm8,%ymm8
-  196,98,125,24,74,12,                    //vbroadcastss  0xc(%rdx),%ymm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,121,110,200,                        //vmovd         %eax,%xmm9
+  196,66,125,24,201,                      //vbroadcastss  %xmm9,%ymm9
   196,65,60,89,193,                       //vmulps        %ymm9,%ymm8,%ymm8
   197,252,92,196,                         //vsubps        %ymm4,%ymm0,%ymm0
   196,226,61,168,196,                     //vfmadd213ps   %ymm4,%ymm8,%ymm0
@@ -2392,16 +2427,16 @@ CODE const uint8_t sk_lerp_u8_hsw[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           4ca <_sk_lerp_u8_hsw+0x5c>
+  117,234,                                //jne           51a <_sk_lerp_u8_hsw+0x64>
   196,65,249,110,193,                     //vmovq         %r9,%xmm8
-  235,155,                                //jmp           482 <_sk_lerp_u8_hsw+0x14>
+  235,147,                                //jmp           4ca <_sk_lerp_u8_hsw+0x14>
 };
 
 CODE const uint8_t sk_lerp_565_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  117,123,                                //jne           56c <_sk_lerp_565_hsw+0x85>
+  15,133,132,0,0,0,                       //jne           5c9 <_sk_lerp_565_hsw+0x92>
   196,193,122,111,28,122,                 //vmovdqu       (%r10,%rdi,2),%xmm3
   196,226,125,51,219,                     //vpmovzxwd     %xmm3,%ymm3
   196,98,125,88,66,104,                   //vpbroadcastd  0x68(%rdx),%ymm8
@@ -2425,7 +2460,9 @@ CODE const uint8_t sk_lerp_565_hsw[] = {
   196,226,53,168,205,                     //vfmadd213ps   %ymm5,%ymm9,%ymm1
   197,236,92,214,                         //vsubps        %ymm6,%ymm2,%ymm2
   196,226,101,168,214,                    //vfmadd213ps   %ymm6,%ymm3,%ymm2
-  196,226,125,24,26,                      //vbroadcastss  (%rdx),%ymm3
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,249,110,216,                        //vmovd         %eax,%xmm3
+  196,226,125,24,219,                     //vbroadcastss  %xmm3,%ymm3
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
   65,137,200,                             //mov           %ecx,%r8d
@@ -2434,8 +2471,8 @@ CODE const uint8_t sk_lerp_565_hsw[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  15,135,111,255,255,255,                 //ja            4f7 <_sk_lerp_565_hsw+0x10>
-  76,141,13,73,0,0,0,                     //lea           0x49(%rip),%r9        # 5d8 <_sk_lerp_565_hsw+0xf1>
+  15,135,102,255,255,255,                 //ja            54b <_sk_lerp_565_hsw+0x14>
+  76,141,13,76,0,0,0,                     //lea           0x4c(%rip),%r9        # 638 <_sk_lerp_565_hsw+0x101>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -2447,27 +2484,26 @@ CODE const uint8_t sk_lerp_565_hsw[] = {
   196,193,97,196,92,122,4,2,              //vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm3,%xmm3
   196,193,97,196,92,122,2,1,              //vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm3,%xmm3
   196,193,97,196,28,122,0,                //vpinsrw       $0x0,(%r10,%rdi,2),%xmm3,%xmm3
-  233,31,255,255,255,                     //jmpq          4f7 <_sk_lerp_565_hsw+0x10>
-  244,                                    //hlt
+  233,22,255,255,255,                     //jmpq          54b <_sk_lerp_565_hsw+0x14>
+  15,31,0,                                //nopl          (%rax)
+  241,                                    //icebp
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  236,                                    //in            (%dx),%al
-  255,                                    //(bad)
-  255,                                    //(bad)
-  255,228,                                //jmpq          *%rsp
+  233,255,255,255,225,                    //jmpq          ffffffffe2000640 <_sk_linear_gradient_2stops_hsw+0xffffffffe1fff55e>
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  220,255,                                //fdivr         %st,%st(7)
+  217,255,                                //fcos
   255,                                    //(bad)
-  255,212,                                //callq         *%rsp
-  255,                                    //(bad)
-  255,                                    //(bad)
-  255,204,                                //dec           %esp
+  255,209,                                //callq         *%rcx
   255,                                    //(bad)
   255,                                    //(bad)
-  255,192,                                //inc           %eax
+  255,201,                                //dec           %ecx
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,                                    //(bad)
+  189,                                    //.byte         0xbd
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //.byte         0xff
@@ -2479,7 +2515,7 @@ CODE const uint8_t sk_load_tables_hsw[] = {
   76,141,12,189,0,0,0,0,                  //lea           0x0(,%rdi,4),%r9
   76,3,8,                                 //add           (%rax),%r9
   77,133,192,                             //test          %r8,%r8
-  117,106,                                //jne           673 <_sk_load_tables_hsw+0x7f>
+  117,106,                                //jne           6d3 <_sk_load_tables_hsw+0x7f>
   196,193,126,111,25,                     //vmovdqu       (%r9),%ymm3
   196,226,125,88,82,16,                   //vpbroadcastd  0x10(%rdx),%ymm2
   197,237,219,203,                        //vpand         %ymm3,%ymm2,%ymm1
@@ -2511,7 +2547,7 @@ CODE const uint8_t sk_load_tables_hsw[] = {
   196,193,249,110,194,                    //vmovq         %r10,%xmm0
   196,226,125,33,192,                     //vpmovsxbd     %xmm0,%ymm0
   196,194,125,140,25,                     //vpmaskmovd    (%r9),%ymm0,%ymm3
-  233,114,255,255,255,                    //jmpq          60e <_sk_load_tables_hsw+0x1a>
+  233,114,255,255,255,                    //jmpq          66e <_sk_load_tables_hsw+0x1a>
 };
 
 CODE const uint8_t sk_load_a8_hsw[] = {
@@ -2520,7 +2556,7 @@ CODE const uint8_t sk_load_a8_hsw[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,42,                                 //jne           6d6 <_sk_load_a8_hsw+0x3a>
+  117,42,                                 //jne           736 <_sk_load_a8_hsw+0x3a>
   197,251,16,0,                           //vmovsd        (%rax),%xmm0
   196,226,125,49,192,                     //vpmovzxbd     %xmm0,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
@@ -2541,9 +2577,9 @@ CODE const uint8_t sk_load_a8_hsw[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           6de <_sk_load_a8_hsw+0x42>
+  117,234,                                //jne           73e <_sk_load_a8_hsw+0x42>
   196,193,249,110,193,                    //vmovq         %r9,%xmm0
-  235,181,                                //jmp           6b0 <_sk_load_a8_hsw+0x14>
+  235,181,                                //jmp           710 <_sk_load_a8_hsw+0x14>
 };
 
 CODE const uint8_t sk_store_a8_hsw[] = {
@@ -2556,7 +2592,7 @@ CODE const uint8_t sk_store_a8_hsw[] = {
   196,66,57,43,193,                       //vpackusdw     %xmm9,%xmm8,%xmm8
   196,65,57,103,192,                      //vpackuswb     %xmm8,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           72e <_sk_store_a8_hsw+0x33>
+  117,10,                                 //jne           78e <_sk_store_a8_hsw+0x33>
   196,65,123,17,4,57,                     //vmovsd        %xmm8,(%r9,%rdi,1)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -2565,9 +2601,9 @@ CODE const uint8_t sk_store_a8_hsw[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            72a <_sk_store_a8_hsw+0x2f>
+  119,236,                                //ja            78a <_sk_store_a8_hsw+0x2f>
   196,66,121,48,192,                      //vpmovzxbw     %xmm8,%xmm8
-  76,141,21,66,0,0,0,                     //lea           0x42(%rip),%r10        # 78c <_sk_store_a8_hsw+0x91>
+  76,141,21,66,0,0,0,                     //lea           0x42(%rip),%r10        # 7ec <_sk_store_a8_hsw+0x91>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -2578,7 +2614,7 @@ CODE const uint8_t sk_store_a8_hsw[] = {
   196,67,121,20,68,57,2,4,                //vpextrb       $0x4,%xmm8,0x2(%r9,%rdi,1)
   196,67,121,20,68,57,1,2,                //vpextrb       $0x2,%xmm8,0x1(%r9,%rdi,1)
   196,67,121,20,4,57,0,                   //vpextrb       $0x0,%xmm8,(%r9,%rdi,1)
-  235,158,                                //jmp           72a <_sk_store_a8_hsw+0x2f>
+  235,158,                                //jmp           78a <_sk_store_a8_hsw+0x2f>
   247,255,                                //idiv          %edi
   255,                                    //(bad)
   255,                                    //(bad)
@@ -2607,7 +2643,7 @@ CODE const uint8_t sk_load_565_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  117,92,                                 //jne           80e <_sk_load_565_hsw+0x66>
+  117,92,                                 //jne           86e <_sk_load_565_hsw+0x66>
   196,193,122,111,4,122,                  //vmovdqu       (%r10,%rdi,2),%xmm0
   196,226,125,51,208,                     //vpmovzxwd     %xmm0,%ymm2
   196,226,125,88,66,104,                  //vpbroadcastd  0x68(%rdx),%ymm0
@@ -2634,8 +2670,8 @@ CODE const uint8_t sk_load_565_hsw[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,146,                                //ja            7b8 <_sk_load_565_hsw+0x10>
-  76,141,13,75,0,0,0,                     //lea           0x4b(%rip),%r9        # 878 <_sk_load_565_hsw+0xd0>
+  119,146,                                //ja            818 <_sk_load_565_hsw+0x10>
+  76,141,13,75,0,0,0,                     //lea           0x4b(%rip),%r9        # 8d8 <_sk_load_565_hsw+0xd0>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -2647,7 +2683,7 @@ CODE const uint8_t sk_load_565_hsw[] = {
   196,193,121,196,68,122,4,2,             //vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   196,193,121,196,68,122,2,1,             //vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   196,193,121,196,4,122,0,                //vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  233,66,255,255,255,                     //jmpq          7b8 <_sk_load_565_hsw+0x10>
+  233,66,255,255,255,                     //jmpq          818 <_sk_load_565_hsw+0x10>
   102,144,                                //xchg          %ax,%ax
   242,255,                                //repnz         (bad)
   255,                                    //(bad)
@@ -2692,7 +2728,7 @@ CODE const uint8_t sk_store_565_hsw[] = {
   196,67,125,57,193,1,                    //vextracti128  $0x1,%ymm8,%xmm9
   196,66,57,43,193,                       //vpackusdw     %xmm9,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           8f6 <_sk_store_565_hsw+0x62>
+  117,10,                                 //jne           956 <_sk_store_565_hsw+0x62>
   196,65,122,127,4,121,                   //vmovdqu       %xmm8,(%r9,%rdi,2)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -2701,8 +2737,8 @@ CODE const uint8_t sk_store_565_hsw[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            8f2 <_sk_store_565_hsw+0x5e>
-  76,141,21,71,0,0,0,                     //lea           0x47(%rip),%r10        # 954 <_sk_store_565_hsw+0xc0>
+  119,236,                                //ja            952 <_sk_store_565_hsw+0x5e>
+  76,141,21,71,0,0,0,                     //lea           0x47(%rip),%r10        # 9b4 <_sk_store_565_hsw+0xc0>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -2714,7 +2750,7 @@ CODE const uint8_t sk_store_565_hsw[] = {
   196,67,121,21,68,121,2,1,               //vpextrw       $0x1,%xmm8,0x2(%r9,%rdi,2)
   197,121,126,192,                        //vmovd         %xmm8,%eax
   102,65,137,4,121,                       //mov           %ax,(%r9,%rdi,2)
-  235,161,                                //jmp           8f2 <_sk_store_565_hsw+0x5e>
+  235,161,                                //jmp           952 <_sk_store_565_hsw+0x5e>
   15,31,0,                                //nopl          (%rax)
   242,255,                                //repnz         (bad)
   255,                                    //(bad)
@@ -2746,21 +2782,25 @@ CODE const uint8_t sk_load_8888_hsw[] = {
   76,141,12,189,0,0,0,0,                  //lea           0x0(,%rdi,4),%r9
   76,3,8,                                 //add           (%rax),%r9
   77,133,192,                             //test          %r8,%r8
-  117,85,                                 //jne           9da <_sk_load_8888_hsw+0x6a>
+  117,104,                                //jne           a4d <_sk_load_8888_hsw+0x7d>
   196,193,126,111,25,                     //vmovdqu       (%r9),%ymm3
-  196,226,125,88,82,16,                   //vpbroadcastd  0x10(%rdx),%ymm2
+  184,255,0,0,0,                          //mov           $0xff,%eax
+  197,249,110,192,                        //vmovd         %eax,%xmm0
+  196,226,125,88,208,                     //vpbroadcastd  %xmm0,%ymm2
   197,237,219,195,                        //vpand         %ymm3,%ymm2,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
-  196,98,125,24,66,12,                    //vbroadcastss  0xc(%rdx),%ymm8
-  197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,249,110,200,                        //vmovd         %eax,%xmm1
+  196,98,125,24,193,                      //vbroadcastss  %xmm1,%ymm8
+  196,193,124,89,192,                     //vmulps        %ymm8,%ymm0,%ymm0
   197,245,114,211,8,                      //vpsrld        $0x8,%ymm3,%ymm1
   197,237,219,201,                        //vpand         %ymm1,%ymm2,%ymm1
   197,252,91,201,                         //vcvtdq2ps     %ymm1,%ymm1
-  197,188,89,201,                         //vmulps        %ymm1,%ymm8,%ymm1
+  196,193,116,89,200,                     //vmulps        %ymm8,%ymm1,%ymm1
   197,181,114,211,16,                     //vpsrld        $0x10,%ymm3,%ymm9
   196,193,109,219,209,                    //vpand         %ymm9,%ymm2,%ymm2
   197,252,91,210,                         //vcvtdq2ps     %ymm2,%ymm2
-  197,188,89,210,                         //vmulps        %ymm2,%ymm8,%ymm2
+  196,193,108,89,208,                     //vmulps        %ymm8,%ymm2,%ymm2
   197,229,114,211,24,                     //vpsrld        $0x18,%ymm3,%ymm3
   197,252,91,219,                         //vcvtdq2ps     %ymm3,%ymm3
   196,193,100,89,216,                     //vmulps        %ymm8,%ymm3,%ymm3
@@ -2775,7 +2815,7 @@ CODE const uint8_t sk_load_8888_hsw[] = {
   196,225,249,110,192,                    //vmovq         %rax,%xmm0
   196,226,125,33,192,                     //vpmovsxbd     %xmm0,%ymm0
   196,194,125,140,25,                     //vpmaskmovd    (%r9),%ymm0,%ymm3
-  235,138,                                //jmp           98a <_sk_load_8888_hsw+0x1a>
+  233,116,255,255,255,                    //jmpq          9ea <_sk_load_8888_hsw+0x1a>
 };
 
 CODE const uint8_t sk_store_8888_hsw[] = {
@@ -2783,7 +2823,9 @@ CODE const uint8_t sk_store_8888_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,141,12,189,0,0,0,0,                  //lea           0x0(,%rdi,4),%r9
   76,3,8,                                 //add           (%rax),%r9
-  196,98,125,24,66,8,                     //vbroadcastss  0x8(%rdx),%ymm8
+  184,0,0,127,67,                         //mov           $0x437f0000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   197,60,89,200,                          //vmulps        %ymm0,%ymm8,%ymm9
   196,65,125,91,201,                      //vcvtps2dq     %ymm9,%ymm9
   197,60,89,209,                          //vmulps        %ymm1,%ymm8,%ymm10
@@ -2799,7 +2841,7 @@ CODE const uint8_t sk_store_8888_hsw[] = {
   196,65,45,235,192,                      //vpor          %ymm8,%ymm10,%ymm8
   196,65,53,235,192,                      //vpor          %ymm8,%ymm9,%ymm8
   77,133,192,                             //test          %r8,%r8
-  117,12,                                 //jne           a6c <_sk_store_8888_hsw+0x6c>
+  117,12,                                 //jne           aea <_sk_store_8888_hsw+0x74>
   196,65,126,127,1,                       //vmovdqu       %ymm8,(%r9)
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,137,193,                             //mov           %r8,%rcx
@@ -2812,14 +2854,14 @@ CODE const uint8_t sk_store_8888_hsw[] = {
   196,97,249,110,200,                     //vmovq         %rax,%xmm9
   196,66,125,33,201,                      //vpmovsxbd     %xmm9,%ymm9
   196,66,53,142,1,                        //vpmaskmovd    %ymm8,%ymm9,(%r9)
-  235,211,                                //jmp           a65 <_sk_store_8888_hsw+0x65>
+  235,211,                                //jmp           ae3 <_sk_store_8888_hsw+0x6d>
 };
 
 CODE const uint8_t sk_load_f16_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
   72,133,201,                             //test          %rcx,%rcx
-  117,97,                                 //jne           afd <_sk_load_f16_hsw+0x6b>
+  117,97,                                 //jne           b7b <_sk_load_f16_hsw+0x6b>
   197,249,16,12,248,                      //vmovupd       (%rax,%rdi,8),%xmm1
   197,249,16,84,248,16,                   //vmovupd       0x10(%rax,%rdi,8),%xmm2
   197,249,16,92,248,32,                   //vmovupd       0x20(%rax,%rdi,8),%xmm3
@@ -2845,35 +2887,35 @@ CODE const uint8_t sk_load_f16_hsw[] = {
   197,251,16,12,248,                      //vmovsd        (%rax,%rdi,8),%xmm1
   196,65,57,87,192,                       //vxorpd        %xmm8,%xmm8,%xmm8
   72,131,249,1,                           //cmp           $0x1,%rcx
-  117,6,                                  //jne           b13 <_sk_load_f16_hsw+0x81>
+  117,6,                                  //jne           b91 <_sk_load_f16_hsw+0x81>
   197,250,126,201,                        //vmovq         %xmm1,%xmm1
-  235,30,                                 //jmp           b31 <_sk_load_f16_hsw+0x9f>
+  235,30,                                 //jmp           baf <_sk_load_f16_hsw+0x9f>
   197,241,22,76,248,8,                    //vmovhpd       0x8(%rax,%rdi,8),%xmm1,%xmm1
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,18,                                 //jb            b31 <_sk_load_f16_hsw+0x9f>
+  114,18,                                 //jb            baf <_sk_load_f16_hsw+0x9f>
   197,251,16,84,248,16,                   //vmovsd        0x10(%rax,%rdi,8),%xmm2
   72,131,249,3,                           //cmp           $0x3,%rcx
-  117,19,                                 //jne           b3e <_sk_load_f16_hsw+0xac>
+  117,19,                                 //jne           bbc <_sk_load_f16_hsw+0xac>
   197,250,126,210,                        //vmovq         %xmm2,%xmm2
-  235,46,                                 //jmp           b5f <_sk_load_f16_hsw+0xcd>
+  235,46,                                 //jmp           bdd <_sk_load_f16_hsw+0xcd>
   197,225,87,219,                         //vxorpd        %xmm3,%xmm3,%xmm3
   197,233,87,210,                         //vxorpd        %xmm2,%xmm2,%xmm2
-  233,117,255,255,255,                    //jmpq          ab3 <_sk_load_f16_hsw+0x21>
+  233,117,255,255,255,                    //jmpq          b31 <_sk_load_f16_hsw+0x21>
   197,233,22,84,248,24,                   //vmovhpd       0x18(%rax,%rdi,8),%xmm2,%xmm2
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,21,                                 //jb            b5f <_sk_load_f16_hsw+0xcd>
+  114,21,                                 //jb            bdd <_sk_load_f16_hsw+0xcd>
   197,251,16,92,248,32,                   //vmovsd        0x20(%rax,%rdi,8),%xmm3
   72,131,249,5,                           //cmp           $0x5,%rcx
-  117,18,                                 //jne           b68 <_sk_load_f16_hsw+0xd6>
+  117,18,                                 //jne           be6 <_sk_load_f16_hsw+0xd6>
   197,250,126,219,                        //vmovq         %xmm3,%xmm3
-  233,84,255,255,255,                     //jmpq          ab3 <_sk_load_f16_hsw+0x21>
+  233,84,255,255,255,                     //jmpq          b31 <_sk_load_f16_hsw+0x21>
   197,225,87,219,                         //vxorpd        %xmm3,%xmm3,%xmm3
-  233,75,255,255,255,                     //jmpq          ab3 <_sk_load_f16_hsw+0x21>
+  233,75,255,255,255,                     //jmpq          b31 <_sk_load_f16_hsw+0x21>
   197,225,22,92,248,40,                   //vmovhpd       0x28(%rax,%rdi,8),%xmm3,%xmm3
   72,131,249,7,                           //cmp           $0x7,%rcx
-  15,130,59,255,255,255,                  //jb            ab3 <_sk_load_f16_hsw+0x21>
+  15,130,59,255,255,255,                  //jb            b31 <_sk_load_f16_hsw+0x21>
   197,123,16,68,248,48,                   //vmovsd        0x30(%rax,%rdi,8),%xmm8
-  233,48,255,255,255,                     //jmpq          ab3 <_sk_load_f16_hsw+0x21>
+  233,48,255,255,255,                     //jmpq          b31 <_sk_load_f16_hsw+0x21>
 };
 
 CODE const uint8_t sk_store_f16_hsw[] = {
@@ -2892,7 +2934,7 @@ CODE const uint8_t sk_store_f16_hsw[] = {
   196,65,57,98,205,                       //vpunpckldq    %xmm13,%xmm8,%xmm9
   196,65,57,106,197,                      //vpunpckhdq    %xmm13,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,27,                                 //jne           be8 <_sk_store_f16_hsw+0x65>
+  117,27,                                 //jne           c66 <_sk_store_f16_hsw+0x65>
   197,120,17,28,248,                      //vmovups       %xmm11,(%rax,%rdi,8)
   197,120,17,84,248,16,                   //vmovups       %xmm10,0x10(%rax,%rdi,8)
   197,120,17,76,248,32,                   //vmovups       %xmm9,0x20(%rax,%rdi,8)
@@ -2901,22 +2943,22 @@ CODE const uint8_t sk_store_f16_hsw[] = {
   255,224,                                //jmpq          *%rax
   197,121,214,28,248,                     //vmovq         %xmm11,(%rax,%rdi,8)
   72,131,249,1,                           //cmp           $0x1,%rcx
-  116,241,                                //je            be4 <_sk_store_f16_hsw+0x61>
+  116,241,                                //je            c62 <_sk_store_f16_hsw+0x61>
   197,121,23,92,248,8,                    //vmovhpd       %xmm11,0x8(%rax,%rdi,8)
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,229,                                //jb            be4 <_sk_store_f16_hsw+0x61>
+  114,229,                                //jb            c62 <_sk_store_f16_hsw+0x61>
   197,121,214,84,248,16,                  //vmovq         %xmm10,0x10(%rax,%rdi,8)
-  116,221,                                //je            be4 <_sk_store_f16_hsw+0x61>
+  116,221,                                //je            c62 <_sk_store_f16_hsw+0x61>
   197,121,23,84,248,24,                   //vmovhpd       %xmm10,0x18(%rax,%rdi,8)
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,209,                                //jb            be4 <_sk_store_f16_hsw+0x61>
+  114,209,                                //jb            c62 <_sk_store_f16_hsw+0x61>
   197,121,214,76,248,32,                  //vmovq         %xmm9,0x20(%rax,%rdi,8)
-  116,201,                                //je            be4 <_sk_store_f16_hsw+0x61>
+  116,201,                                //je            c62 <_sk_store_f16_hsw+0x61>
   197,121,23,76,248,40,                   //vmovhpd       %xmm9,0x28(%rax,%rdi,8)
   72,131,249,7,                           //cmp           $0x7,%rcx
-  114,189,                                //jb            be4 <_sk_store_f16_hsw+0x61>
+  114,189,                                //jb            c62 <_sk_store_f16_hsw+0x61>
   197,121,214,68,248,48,                  //vmovq         %xmm8,0x30(%rax,%rdi,8)
-  235,181,                                //jmp           be4 <_sk_store_f16_hsw+0x61>
+  235,181,                                //jmp           c62 <_sk_store_f16_hsw+0x61>
 };
 
 CODE const uint8_t sk_store_f32_hsw[] = {
@@ -2932,7 +2974,7 @@ CODE const uint8_t sk_store_f32_hsw[] = {
   196,65,37,20,196,                       //vunpcklpd     %ymm12,%ymm11,%ymm8
   196,65,37,21,220,                       //vunpckhpd     %ymm12,%ymm11,%ymm11
   72,133,201,                             //test          %rcx,%rcx
-  117,55,                                 //jne           c9c <_sk_store_f32_hsw+0x6d>
+  117,55,                                 //jne           d1a <_sk_store_f32_hsw+0x6d>
   196,67,45,24,225,1,                     //vinsertf128   $0x1,%xmm9,%ymm10,%ymm12
   196,67,61,24,235,1,                     //vinsertf128   $0x1,%xmm11,%ymm8,%ymm13
   196,67,45,6,201,49,                     //vperm2f128    $0x31,%ymm9,%ymm10,%ymm9
@@ -2945,22 +2987,22 @@ CODE const uint8_t sk_store_f32_hsw[] = {
   255,224,                                //jmpq          *%rax
   196,65,121,17,20,128,                   //vmovupd       %xmm10,(%r8,%rax,4)
   72,131,249,1,                           //cmp           $0x1,%rcx
-  116,240,                                //je            c98 <_sk_store_f32_hsw+0x69>
+  116,240,                                //je            d16 <_sk_store_f32_hsw+0x69>
   196,65,121,17,76,128,16,                //vmovupd       %xmm9,0x10(%r8,%rax,4)
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,227,                                //jb            c98 <_sk_store_f32_hsw+0x69>
+  114,227,                                //jb            d16 <_sk_store_f32_hsw+0x69>
   196,65,121,17,68,128,32,                //vmovupd       %xmm8,0x20(%r8,%rax,4)
-  116,218,                                //je            c98 <_sk_store_f32_hsw+0x69>
+  116,218,                                //je            d16 <_sk_store_f32_hsw+0x69>
   196,65,121,17,92,128,48,                //vmovupd       %xmm11,0x30(%r8,%rax,4)
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,205,                                //jb            c98 <_sk_store_f32_hsw+0x69>
+  114,205,                                //jb            d16 <_sk_store_f32_hsw+0x69>
   196,67,125,25,84,128,64,1,              //vextractf128  $0x1,%ymm10,0x40(%r8,%rax,4)
-  116,195,                                //je            c98 <_sk_store_f32_hsw+0x69>
+  116,195,                                //je            d16 <_sk_store_f32_hsw+0x69>
   196,67,125,25,76,128,80,1,              //vextractf128  $0x1,%ymm9,0x50(%r8,%rax,4)
   72,131,249,7,                           //cmp           $0x7,%rcx
-  114,181,                                //jb            c98 <_sk_store_f32_hsw+0x69>
+  114,181,                                //jb            d16 <_sk_store_f32_hsw+0x69>
   196,67,125,25,68,128,96,1,              //vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
-  235,171,                                //jmp           c98 <_sk_store_f32_hsw+0x69>
+  235,171,                                //jmp           d16 <_sk_store_f32_hsw+0x69>
 };
 
 CODE const uint8_t sk_clamp_x_hsw[] = {
@@ -3275,13 +3317,19 @@ CODE const uint8_t sk_seed_shader_avx[] = {
   197,249,112,192,0,                      //vpshufd       $0x0,%xmm0,%xmm0
   196,227,125,24,192,1,                   //vinsertf128   $0x1,%xmm0,%ymm0,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
-  196,226,125,24,74,4,                    //vbroadcastss  0x4(%rdx),%ymm1
+  65,184,0,0,0,63,                        //mov           $0x3f000000,%r8d
+  196,193,121,110,200,                    //vmovd         %r8d,%xmm1
+  196,227,121,4,201,0,                    //vpermilps     $0x0,%xmm1,%xmm1
+  196,227,117,24,201,1,                   //vinsertf128   $0x1,%xmm1,%ymm1,%ymm1
   197,252,88,193,                         //vaddps        %ymm1,%ymm0,%ymm0
   197,252,88,66,20,                       //vaddps        0x14(%rdx),%ymm0,%ymm0
   196,226,125,24,16,                      //vbroadcastss  (%rax),%ymm2
   197,252,91,210,                         //vcvtdq2ps     %ymm2,%ymm2
   197,236,88,201,                         //vaddps        %ymm1,%ymm2,%ymm1
-  196,226,125,24,18,                      //vbroadcastss  (%rdx),%ymm2
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,249,110,208,                        //vmovd         %eax,%xmm2
+  196,227,121,4,210,0,                    //vpermilps     $0x0,%xmm2,%xmm2
+  196,227,109,24,210,1,                   //vinsertf128   $0x1,%xmm2,%ymm2,%ymm2
   72,173,                                 //lods          %ds:(%rsi),%rax
   197,228,87,219,                         //vxorps        %ymm3,%ymm3,%ymm3
   197,220,87,228,                         //vxorps        %ymm4,%ymm4,%ymm4
@@ -3320,7 +3368,10 @@ CODE const uint8_t sk_plus__avx[] = {
 };
 
 CODE const uint8_t sk_srcover_avx[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   197,60,92,195,                          //vsubps        %ymm3,%ymm8,%ymm8
   197,60,89,204,                          //vmulps        %ymm4,%ymm8,%ymm9
   197,180,88,192,                         //vaddps        %ymm0,%ymm9,%ymm0
@@ -3335,7 +3386,10 @@ CODE const uint8_t sk_srcover_avx[] = {
 };
 
 CODE const uint8_t sk_dstover_avx[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   197,60,92,199,                          //vsubps        %ymm7,%ymm8,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
   197,252,88,196,                         //vaddps        %ymm4,%ymm0,%ymm0
@@ -3360,7 +3414,10 @@ CODE const uint8_t sk_clamp_0_avx[] = {
 };
 
 CODE const uint8_t sk_clamp_1_avx[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   196,193,124,93,192,                     //vminps        %ymm8,%ymm0,%ymm0
   196,193,116,93,200,                     //vminps        %ymm8,%ymm1,%ymm1
   196,193,108,93,208,                     //vminps        %ymm8,%ymm2,%ymm2
@@ -3370,7 +3427,10 @@ CODE const uint8_t sk_clamp_1_avx[] = {
 };
 
 CODE const uint8_t sk_clamp_a_avx[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   196,193,100,93,216,                     //vminps        %ymm8,%ymm3,%ymm3
   197,252,93,195,                         //vminps        %ymm3,%ymm0,%ymm0
   197,244,93,203,                         //vminps        %ymm3,%ymm1,%ymm1
@@ -3442,7 +3502,10 @@ CODE const uint8_t sk_premul_avx[] = {
 CODE const uint8_t sk_unpremul_avx[] = {
   196,65,60,87,192,                       //vxorps        %ymm8,%ymm8,%ymm8
   196,65,100,194,200,0,                   //vcmpeqps      %ymm8,%ymm3,%ymm9
-  196,98,125,24,18,                       //vbroadcastss  (%rdx),%ymm10
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,208,                        //vmovd         %eax,%xmm10
+  196,67,121,4,210,0,                     //vpermilps     $0x0,%xmm10,%xmm10
+  196,67,45,24,210,1,                     //vinsertf128   $0x1,%xmm10,%ymm10,%ymm10
   197,44,94,211,                          //vdivps        %ymm3,%ymm10,%ymm10
   196,67,45,74,192,144,                   //vblendvps     %ymm9,%ymm8,%ymm10,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
@@ -3547,14 +3610,17 @@ CODE const uint8_t sk_scale_u8_avx[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,65,                                 //jne           478 <_sk_scale_u8_avx+0x51>
+  117,80,                                 //jne           4f8 <_sk_scale_u8_avx+0x60>
   197,123,16,0,                           //vmovsd        (%rax),%xmm8
   196,66,121,49,200,                      //vpmovzxbd     %xmm8,%xmm9
   196,67,121,4,192,229,                   //vpermilps     $0xe5,%xmm8,%xmm8
   196,66,121,49,192,                      //vpmovzxbd     %xmm8,%xmm8
   196,67,53,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm9,%ymm8
   196,65,124,91,192,                      //vcvtdq2ps     %ymm8,%ymm8
-  196,98,125,24,74,12,                    //vbroadcastss  0xc(%rdx),%ymm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,121,110,200,                        //vmovd         %eax,%xmm9
+  196,67,121,4,201,0,                     //vpermilps     $0x0,%xmm9,%xmm9
+  196,67,53,24,201,1,                     //vinsertf128   $0x1,%xmm9,%ymm9,%ymm9
   196,65,60,89,193,                       //vmulps        %ymm9,%ymm8,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
   197,188,89,201,                         //vmulps        %ymm1,%ymm8,%ymm1
@@ -3572,9 +3638,9 @@ CODE const uint8_t sk_scale_u8_avx[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           480 <_sk_scale_u8_avx+0x59>
+  117,234,                                //jne           500 <_sk_scale_u8_avx+0x68>
   196,65,249,110,193,                     //vmovq         %r9,%xmm8
-  235,158,                                //jmp           43b <_sk_scale_u8_avx+0x14>
+  235,143,                                //jmp           4ac <_sk_scale_u8_avx+0x14>
 };
 
 CODE const uint8_t sk_lerp_1_float_avx[] = {
@@ -3602,14 +3668,17 @@ CODE const uint8_t sk_lerp_u8_avx[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,101,                                //jne           551 <_sk_lerp_u8_avx+0x75>
+  117,116,                                //jne           5e0 <_sk_lerp_u8_avx+0x84>
   197,123,16,0,                           //vmovsd        (%rax),%xmm8
   196,66,121,49,200,                      //vpmovzxbd     %xmm8,%xmm9
   196,67,121,4,192,229,                   //vpermilps     $0xe5,%xmm8,%xmm8
   196,66,121,49,192,                      //vpmovzxbd     %xmm8,%xmm8
   196,67,53,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm9,%ymm8
   196,65,124,91,192,                      //vcvtdq2ps     %ymm8,%ymm8
-  196,98,125,24,74,12,                    //vbroadcastss  0xc(%rdx),%ymm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,121,110,200,                        //vmovd         %eax,%xmm9
+  196,67,121,4,201,0,                     //vpermilps     $0x0,%xmm9,%xmm9
+  196,67,53,24,201,1,                     //vinsertf128   $0x1,%xmm9,%ymm9,%ymm9
   196,65,60,89,193,                       //vmulps        %ymm9,%ymm8,%ymm8
   197,252,92,196,                         //vsubps        %ymm4,%ymm0,%ymm0
   196,193,124,89,192,                     //vmulps        %ymm8,%ymm0,%ymm0
@@ -3635,16 +3704,16 @@ CODE const uint8_t sk_lerp_u8_avx[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           559 <_sk_lerp_u8_avx+0x7d>
+  117,234,                                //jne           5e8 <_sk_lerp_u8_avx+0x8c>
   196,65,249,110,193,                     //vmovq         %r9,%xmm8
-  233,119,255,255,255,                    //jmpq          4f0 <_sk_lerp_u8_avx+0x14>
+  233,104,255,255,255,                    //jmpq          570 <_sk_lerp_u8_avx+0x14>
 };
 
 CODE const uint8_t sk_lerp_565_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  15,133,148,0,0,0,                       //jne           61b <_sk_lerp_565_avx+0xa2>
+  15,133,164,0,0,0,                       //jne           6ba <_sk_lerp_565_avx+0xb2>
   196,65,122,111,4,122,                   //vmovdqu       (%r10,%rdi,2),%xmm8
   197,225,239,219,                        //vpxor         %xmm3,%xmm3,%xmm3
   197,185,105,219,                        //vpunpckhwd    %xmm3,%xmm8,%xmm3
@@ -3674,7 +3743,10 @@ CODE const uint8_t sk_lerp_565_avx[] = {
   197,236,92,214,                         //vsubps        %ymm6,%ymm2,%ymm2
   197,236,89,211,                         //vmulps        %ymm3,%ymm2,%ymm2
   197,236,88,214,                         //vaddps        %ymm6,%ymm2,%ymm2
-  196,226,125,24,26,                      //vbroadcastss  (%rdx),%ymm3
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,249,110,216,                        //vmovd         %eax,%xmm3
+  196,227,121,4,219,0,                    //vpermilps     $0x0,%xmm3,%xmm3
+  196,227,101,24,219,1,                   //vinsertf128   $0x1,%xmm3,%ymm3,%ymm3
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
   65,137,200,                             //mov           %ecx,%r8d
@@ -3683,8 +3755,8 @@ CODE const uint8_t sk_lerp_565_avx[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  15,135,85,255,255,255,                  //ja            58d <_sk_lerp_565_avx+0x14>
-  76,141,13,73,0,0,0,                     //lea           0x49(%rip),%r9        # 688 <_sk_lerp_565_avx+0x10f>
+  15,135,69,255,255,255,                  //ja            61c <_sk_lerp_565_avx+0x14>
+  76,141,13,74,0,0,0,                     //lea           0x4a(%rip),%r9        # 728 <_sk_lerp_565_avx+0x120>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -3696,27 +3768,27 @@ CODE const uint8_t sk_lerp_565_avx[] = {
   196,65,57,196,68,122,4,2,               //vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm8,%xmm8
   196,65,57,196,68,122,2,1,               //vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm8,%xmm8
   196,65,57,196,4,122,0,                  //vpinsrw       $0x0,(%r10,%rdi,2),%xmm8,%xmm8
-  233,5,255,255,255,                      //jmpq          58d <_sk_lerp_565_avx+0x14>
-  244,                                    //hlt
+  233,245,254,255,255,                    //jmpq          61c <_sk_lerp_565_avx+0x14>
+  144,                                    //nop
+  243,255,                                //repz          (bad)
+  255,                                    //(bad)
+  255,                                    //(bad)
+  235,255,                                //jmp           72d <_sk_lerp_565_avx+0x125>
+  255,                                    //(bad)
+  255,227,                                //jmpq          *%rbx
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  236,                                    //in            (%dx),%al
+  219,255,                                //(bad)
+  255,                                    //(bad)
+  255,211,                                //callq         *%rbx
   255,                                    //(bad)
   255,                                    //(bad)
-  255,228,                                //jmpq          *%rsp
+  255,203,                                //dec           %ebx
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  220,255,                                //fdivr         %st,%st(7)
-  255,                                    //(bad)
-  255,212,                                //callq         *%rsp
-  255,                                    //(bad)
-  255,                                    //(bad)
-  255,204,                                //dec           %esp
-  255,                                    //(bad)
-  255,                                    //(bad)
-  255,192,                                //inc           %eax
+  191,                                    //.byte         0xbf
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //.byte         0xff
@@ -3732,7 +3804,7 @@ CODE const uint8_t sk_load_tables_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,0,                               //mov           (%rax),%r8
   72,133,201,                             //test          %rcx,%rcx
-  15,133,18,2,0,0,                        //jne           8ce <_sk_load_tables_avx+0x22a>
+  15,133,18,2,0,0,                        //jne           96e <_sk_load_tables_avx+0x22a>
   196,65,124,16,4,184,                    //vmovups       (%r8,%rdi,4),%ymm8
   196,98,125,24,74,16,                    //vbroadcastss  0x10(%rdx),%ymm9
   196,193,52,84,192,                      //vandps        %ymm8,%ymm9,%ymm0
@@ -3844,8 +3916,8 @@ CODE const uint8_t sk_load_tables_avx[] = {
   65,254,201,                             //dec           %r9b
   69,15,182,201,                          //movzbl        %r9b,%r9d
   65,128,249,6,                           //cmp           $0x6,%r9b
-  15,135,215,253,255,255,                 //ja            6c2 <_sk_load_tables_avx+0x1e>
-  76,141,21,138,0,0,0,                    //lea           0x8a(%rip),%r10        # 97c <_sk_load_tables_avx+0x2d8>
+  15,135,215,253,255,255,                 //ja            762 <_sk_load_tables_avx+0x1e>
+  76,141,21,138,0,0,0,                    //lea           0x8a(%rip),%r10        # a1c <_sk_load_tables_avx+0x2d8>
   79,99,12,138,                           //movslq        (%r10,%r9,4),%r9
   77,1,209,                               //add           %r10,%r9
   65,255,225,                             //jmpq          *%r9
@@ -3868,7 +3940,7 @@ CODE const uint8_t sk_load_tables_avx[] = {
   196,99,61,12,192,15,                    //vblendps      $0xf,%ymm0,%ymm8,%ymm8
   196,195,57,34,4,184,0,                  //vpinsrd       $0x0,(%r8,%rdi,4),%xmm8,%xmm0
   196,99,61,12,192,15,                    //vblendps      $0xf,%ymm0,%ymm8,%ymm8
-  233,70,253,255,255,                     //jmpq          6c2 <_sk_load_tables_avx+0x1e>
+  233,70,253,255,255,                     //jmpq          762 <_sk_load_tables_avx+0x1e>
   238,                                    //out           %al,(%dx)
   255,                                    //(bad)
   255,                                    //(bad)
@@ -3895,7 +3967,7 @@ CODE const uint8_t sk_load_a8_avx[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,59,                                 //jne           9e3 <_sk_load_a8_avx+0x4b>
+  117,59,                                 //jne           a83 <_sk_load_a8_avx+0x4b>
   197,251,16,0,                           //vmovsd        (%rax),%xmm0
   196,226,121,49,200,                     //vpmovzxbd     %xmm0,%xmm1
   196,227,121,4,192,229,                  //vpermilps     $0xe5,%xmm0,%xmm0
@@ -3919,9 +3991,9 @@ CODE const uint8_t sk_load_a8_avx[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           9eb <_sk_load_a8_avx+0x53>
+  117,234,                                //jne           a8b <_sk_load_a8_avx+0x53>
   196,193,249,110,193,                    //vmovq         %r9,%xmm0
-  235,164,                                //jmp           9ac <_sk_load_a8_avx+0x14>
+  235,164,                                //jmp           a4c <_sk_load_a8_avx+0x14>
 };
 
 CODE const uint8_t sk_store_a8_avx[] = {
@@ -3934,7 +4006,7 @@ CODE const uint8_t sk_store_a8_avx[] = {
   196,66,57,43,193,                       //vpackusdw     %xmm9,%xmm8,%xmm8
   196,65,57,103,192,                      //vpackuswb     %xmm8,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           a3b <_sk_store_a8_avx+0x33>
+  117,10,                                 //jne           adb <_sk_store_a8_avx+0x33>
   196,65,123,17,4,57,                     //vmovsd        %xmm8,(%r9,%rdi,1)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -3943,9 +4015,9 @@ CODE const uint8_t sk_store_a8_avx[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            a37 <_sk_store_a8_avx+0x2f>
+  119,236,                                //ja            ad7 <_sk_store_a8_avx+0x2f>
   196,66,121,48,192,                      //vpmovzxbw     %xmm8,%xmm8
-  76,141,21,69,0,0,0,                     //lea           0x45(%rip),%r10        # a9c <_sk_store_a8_avx+0x94>
+  76,141,21,69,0,0,0,                     //lea           0x45(%rip),%r10        # b3c <_sk_store_a8_avx+0x94>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -3956,7 +4028,7 @@ CODE const uint8_t sk_store_a8_avx[] = {
   196,67,121,20,68,57,2,4,                //vpextrb       $0x4,%xmm8,0x2(%r9,%rdi,1)
   196,67,121,20,68,57,1,2,                //vpextrb       $0x2,%xmm8,0x1(%r9,%rdi,1)
   196,67,121,20,4,57,0,                   //vpextrb       $0x0,%xmm8,(%r9,%rdi,1)
-  235,158,                                //jmp           a37 <_sk_store_a8_avx+0x2f>
+  235,158,                                //jmp           ad7 <_sk_store_a8_avx+0x2f>
   15,31,0,                                //nopl          (%rax)
   244,                                    //hlt
   255,                                    //(bad)
@@ -3987,7 +4059,7 @@ CODE const uint8_t sk_load_565_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  117,106,                                //jne           b2c <_sk_load_565_avx+0x74>
+  117,106,                                //jne           bcc <_sk_load_565_avx+0x74>
   196,193,122,111,4,122,                  //vmovdqu       (%r10,%rdi,2),%xmm0
   197,241,239,201,                        //vpxor         %xmm1,%xmm1,%xmm1
   197,249,105,201,                        //vpunpckhwd    %xmm1,%xmm0,%xmm1
@@ -4017,8 +4089,8 @@ CODE const uint8_t sk_load_565_avx[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,132,                                //ja            ac8 <_sk_load_565_avx+0x10>
-  76,141,13,73,0,0,0,                     //lea           0x49(%rip),%r9        # b94 <_sk_load_565_avx+0xdc>
+  119,132,                                //ja            b68 <_sk_load_565_avx+0x10>
+  76,141,13,73,0,0,0,                     //lea           0x49(%rip),%r9        # c34 <_sk_load_565_avx+0xdc>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -4030,7 +4102,7 @@ CODE const uint8_t sk_load_565_avx[] = {
   196,193,121,196,68,122,4,2,             //vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   196,193,121,196,68,122,2,1,             //vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   196,193,121,196,4,122,0,                //vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  233,52,255,255,255,                     //jmpq          ac8 <_sk_load_565_avx+0x10>
+  233,52,255,255,255,                     //jmpq          b68 <_sk_load_565_avx+0x10>
   244,                                    //hlt
   255,                                    //(bad)
   255,                                    //(bad)
@@ -4080,7 +4152,7 @@ CODE const uint8_t sk_store_565_avx[] = {
   196,67,125,25,193,1,                    //vextractf128  $0x1,%ymm8,%xmm9
   196,66,57,43,193,                       //vpackusdw     %xmm9,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           c36 <_sk_store_565_avx+0x86>
+  117,10,                                 //jne           cd6 <_sk_store_565_avx+0x86>
   196,65,122,127,4,121,                   //vmovdqu       %xmm8,(%r9,%rdi,2)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -4089,8 +4161,8 @@ CODE const uint8_t sk_store_565_avx[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            c32 <_sk_store_565_avx+0x82>
-  76,141,21,71,0,0,0,                     //lea           0x47(%rip),%r10        # c94 <_sk_store_565_avx+0xe4>
+  119,236,                                //ja            cd2 <_sk_store_565_avx+0x82>
+  76,141,21,71,0,0,0,                     //lea           0x47(%rip),%r10        # d34 <_sk_store_565_avx+0xe4>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -4102,7 +4174,7 @@ CODE const uint8_t sk_store_565_avx[] = {
   196,67,121,21,68,121,2,1,               //vpextrw       $0x1,%xmm8,0x2(%r9,%rdi,2)
   197,121,126,192,                        //vmovd         %xmm8,%eax
   102,65,137,4,121,                       //mov           %ax,(%r9,%rdi,2)
-  235,161,                                //jmp           c32 <_sk_store_565_avx+0x82>
+  235,161,                                //jmp           cd2 <_sk_store_565_avx+0x82>
   15,31,0,                                //nopl          (%rax)
   242,255,                                //repnz         (bad)
   255,                                    //(bad)
@@ -4132,26 +4204,32 @@ CODE const uint8_t sk_load_8888_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  117,125,                                //jne           d37 <_sk_load_8888_avx+0x87>
+  15,133,157,0,0,0,                       //jne           dfb <_sk_load_8888_avx+0xab>
   196,65,124,16,12,186,                   //vmovups       (%r10,%rdi,4),%ymm9
-  196,98,125,24,90,16,                    //vbroadcastss  0x10(%rdx),%ymm11
+  184,255,0,0,0,                          //mov           $0xff,%eax
+  197,249,110,192,                        //vmovd         %eax,%xmm0
+  197,249,112,192,0,                      //vpshufd       $0x0,%xmm0,%xmm0
+  196,99,125,24,216,1,                    //vinsertf128   $0x1,%xmm0,%ymm0,%ymm11
   196,193,36,84,193,                      //vandps        %ymm9,%ymm11,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
-  196,98,125,24,66,12,                    //vbroadcastss  0xc(%rdx),%ymm8
-  197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,249,110,200,                        //vmovd         %eax,%xmm1
+  196,227,121,4,201,0,                    //vpermilps     $0x0,%xmm1,%xmm1
+  196,99,117,24,193,1,                    //vinsertf128   $0x1,%xmm1,%ymm1,%ymm8
+  196,193,124,89,192,                     //vmulps        %ymm8,%ymm0,%ymm0
   196,193,41,114,209,8,                   //vpsrld        $0x8,%xmm9,%xmm10
   196,99,125,25,203,1,                    //vextractf128  $0x1,%ymm9,%xmm3
   197,241,114,211,8,                      //vpsrld        $0x8,%xmm3,%xmm1
   196,227,45,24,201,1,                    //vinsertf128   $0x1,%xmm1,%ymm10,%ymm1
   197,164,84,201,                         //vandps        %ymm1,%ymm11,%ymm1
   197,252,91,201,                         //vcvtdq2ps     %ymm1,%ymm1
-  197,188,89,201,                         //vmulps        %ymm1,%ymm8,%ymm1
+  196,193,116,89,200,                     //vmulps        %ymm8,%ymm1,%ymm1
   196,193,41,114,209,16,                  //vpsrld        $0x10,%xmm9,%xmm10
   197,233,114,211,16,                     //vpsrld        $0x10,%xmm3,%xmm2
   196,227,45,24,210,1,                    //vinsertf128   $0x1,%xmm2,%ymm10,%ymm2
   197,164,84,210,                         //vandps        %ymm2,%ymm11,%ymm2
   197,252,91,210,                         //vcvtdq2ps     %ymm2,%ymm2
-  197,188,89,210,                         //vmulps        %ymm2,%ymm8,%ymm2
+  196,193,108,89,208,                     //vmulps        %ymm8,%ymm2,%ymm2
   196,193,49,114,209,24,                  //vpsrld        $0x18,%xmm9,%xmm9
   197,225,114,211,24,                     //vpsrld        $0x18,%xmm3,%xmm3
   196,227,53,24,219,1,                    //vinsertf128   $0x1,%xmm3,%ymm9,%ymm3
@@ -4165,8 +4243,8 @@ CODE const uint8_t sk_load_8888_avx[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  15,135,108,255,255,255,                 //ja            cc0 <_sk_load_8888_avx+0x10>
-  76,141,13,137,0,0,0,                    //lea           0x89(%rip),%r9        # de4 <_sk_load_8888_avx+0x134>
+  15,135,76,255,255,255,                  //ja            d64 <_sk_load_8888_avx+0x14>
+  76,141,13,137,0,0,0,                    //lea           0x89(%rip),%r9        # ea8 <_sk_load_8888_avx+0x158>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -4189,7 +4267,7 @@ CODE const uint8_t sk_load_8888_avx[] = {
   196,99,53,12,200,15,                    //vblendps      $0xf,%ymm0,%ymm9,%ymm9
   196,195,49,34,4,186,0,                  //vpinsrd       $0x0,(%r10,%rdi,4),%xmm9,%xmm0
   196,99,53,12,200,15,                    //vblendps      $0xf,%ymm0,%ymm9,%ymm9
-  233,220,254,255,255,                    //jmpq          cc0 <_sk_load_8888_avx+0x10>
+  233,188,254,255,255,                    //jmpq          d64 <_sk_load_8888_avx+0x14>
   238,                                    //out           %al,(%dx)
   255,                                    //(bad)
   255,                                    //(bad)
@@ -4213,7 +4291,10 @@ CODE const uint8_t sk_load_8888_avx[] = {
 CODE const uint8_t sk_store_8888_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,8,                               //mov           (%rax),%r9
-  196,98,125,24,66,8,                     //vbroadcastss  0x8(%rdx),%ymm8
+  184,0,0,127,67,                         //mov           $0x437f0000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   197,60,89,200,                          //vmulps        %ymm0,%ymm8,%ymm9
   196,65,125,91,201,                      //vcvtps2dq     %ymm9,%ymm9
   197,60,89,209,                          //vmulps        %ymm1,%ymm8,%ymm10
@@ -4238,7 +4319,7 @@ CODE const uint8_t sk_store_8888_avx[] = {
   196,65,45,86,192,                       //vorpd         %ymm8,%ymm10,%ymm8
   196,65,53,86,192,                       //vorpd         %ymm8,%ymm9,%ymm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           e95 <_sk_store_8888_avx+0x95>
+  117,10,                                 //jne           f68 <_sk_store_8888_avx+0xa4>
   196,65,124,17,4,185,                    //vmovups       %ymm8,(%r9,%rdi,4)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -4247,8 +4328,8 @@ CODE const uint8_t sk_store_8888_avx[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            e91 <_sk_store_8888_avx+0x91>
-  76,141,21,84,0,0,0,                     //lea           0x54(%rip),%r10        # f00 <_sk_store_8888_avx+0x100>
+  119,236,                                //ja            f64 <_sk_store_8888_avx+0xa0>
+  76,141,21,85,0,0,0,                     //lea           0x55(%rip),%r10        # fd4 <_sk_store_8888_avx+0x110>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -4262,28 +4343,29 @@ CODE const uint8_t sk_store_8888_avx[] = {
   196,67,121,22,68,185,8,2,               //vpextrd       $0x2,%xmm8,0x8(%r9,%rdi,4)
   196,67,121,22,68,185,4,1,               //vpextrd       $0x1,%xmm8,0x4(%r9,%rdi,4)
   196,65,121,126,4,185,                   //vmovd         %xmm8,(%r9,%rdi,4)
-  235,147,                                //jmp           e91 <_sk_store_8888_avx+0x91>
-  102,144,                                //xchg          %ax,%ax
-  246,255,                                //idiv          %bh
-  255,                                    //(bad)
-  255,                                    //(bad)
-  238,                                    //out           %al,(%dx)
-  255,                                    //(bad)
-  255,                                    //(bad)
-  255,230,                                //jmpq          *%rsi
+  235,147,                                //jmp           f64 <_sk_store_8888_avx+0xa0>
+  15,31,0,                                //nopl          (%rax)
+  245,                                    //cmc
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  222,255,                                //fdivrp        %st,%st(7)
-  255,                                    //(bad)
-  255,209,                                //callq         *%rcx
+  237,                                    //in            (%dx),%eax
   255,                                    //(bad)
   255,                                    //(bad)
-  255,195,                                //inc           %ebx
+  255,229,                                //jmpq          *%rbp
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,                                    //(bad)
+  221,255,                                //(bad)
+  255,                                    //(bad)
+  255,208,                                //callq         *%rax
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,194,                                //inc           %edx
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //.byte         0xff
-  181,255,                                //mov           $0xff,%ch
+  180,255,                                //mov           $0xff,%ah
   255,                                    //(bad)
   255,                                    //.byte         0xff
 };
@@ -4292,7 +4374,7 @@ CODE const uint8_t sk_load_f16_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
   72,133,201,                             //test          %rcx,%rcx
-  15,133,240,0,0,0,                       //jne           101a <_sk_load_f16_avx+0xfe>
+  15,133,240,0,0,0,                       //jne           10ee <_sk_load_f16_avx+0xfe>
   197,249,16,12,248,                      //vmovupd       (%rax,%rdi,8),%xmm1
   197,249,16,84,248,16,                   //vmovupd       0x10(%rax,%rdi,8),%xmm2
   197,249,16,92,248,32,                   //vmovupd       0x20(%rax,%rdi,8),%xmm3
@@ -4346,35 +4428,35 @@ CODE const uint8_t sk_load_f16_avx[] = {
   197,251,16,12,248,                      //vmovsd        (%rax,%rdi,8),%xmm1
   196,65,57,87,192,                       //vxorpd        %xmm8,%xmm8,%xmm8
   72,131,249,1,                           //cmp           $0x1,%rcx
-  117,6,                                  //jne           1030 <_sk_load_f16_avx+0x114>
+  117,6,                                  //jne           1104 <_sk_load_f16_avx+0x114>
   197,250,126,201,                        //vmovq         %xmm1,%xmm1
-  235,30,                                 //jmp           104e <_sk_load_f16_avx+0x132>
+  235,30,                                 //jmp           1122 <_sk_load_f16_avx+0x132>
   197,241,22,76,248,8,                    //vmovhpd       0x8(%rax,%rdi,8),%xmm1,%xmm1
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,18,                                 //jb            104e <_sk_load_f16_avx+0x132>
+  114,18,                                 //jb            1122 <_sk_load_f16_avx+0x132>
   197,251,16,84,248,16,                   //vmovsd        0x10(%rax,%rdi,8),%xmm2
   72,131,249,3,                           //cmp           $0x3,%rcx
-  117,19,                                 //jne           105b <_sk_load_f16_avx+0x13f>
+  117,19,                                 //jne           112f <_sk_load_f16_avx+0x13f>
   197,250,126,210,                        //vmovq         %xmm2,%xmm2
-  235,46,                                 //jmp           107c <_sk_load_f16_avx+0x160>
+  235,46,                                 //jmp           1150 <_sk_load_f16_avx+0x160>
   197,225,87,219,                         //vxorpd        %xmm3,%xmm3,%xmm3
   197,233,87,210,                         //vxorpd        %xmm2,%xmm2,%xmm2
-  233,230,254,255,255,                    //jmpq          f41 <_sk_load_f16_avx+0x25>
+  233,230,254,255,255,                    //jmpq          1015 <_sk_load_f16_avx+0x25>
   197,233,22,84,248,24,                   //vmovhpd       0x18(%rax,%rdi,8),%xmm2,%xmm2
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,21,                                 //jb            107c <_sk_load_f16_avx+0x160>
+  114,21,                                 //jb            1150 <_sk_load_f16_avx+0x160>
   197,251,16,92,248,32,                   //vmovsd        0x20(%rax,%rdi,8),%xmm3
   72,131,249,5,                           //cmp           $0x5,%rcx
-  117,18,                                 //jne           1085 <_sk_load_f16_avx+0x169>
+  117,18,                                 //jne           1159 <_sk_load_f16_avx+0x169>
   197,250,126,219,                        //vmovq         %xmm3,%xmm3
-  233,197,254,255,255,                    //jmpq          f41 <_sk_load_f16_avx+0x25>
+  233,197,254,255,255,                    //jmpq          1015 <_sk_load_f16_avx+0x25>
   197,225,87,219,                         //vxorpd        %xmm3,%xmm3,%xmm3
-  233,188,254,255,255,                    //jmpq          f41 <_sk_load_f16_avx+0x25>
+  233,188,254,255,255,                    //jmpq          1015 <_sk_load_f16_avx+0x25>
   197,225,22,92,248,40,                   //vmovhpd       0x28(%rax,%rdi,8),%xmm3,%xmm3
   72,131,249,7,                           //cmp           $0x7,%rcx
-  15,130,172,254,255,255,                 //jb            f41 <_sk_load_f16_avx+0x25>
+  15,130,172,254,255,255,                 //jb            1015 <_sk_load_f16_avx+0x25>
   197,123,16,68,248,48,                   //vmovsd        0x30(%rax,%rdi,8),%xmm8
-  233,161,254,255,255,                    //jmpq          f41 <_sk_load_f16_avx+0x25>
+  233,161,254,255,255,                    //jmpq          1015 <_sk_load_f16_avx+0x25>
 };
 
 CODE const uint8_t sk_store_f16_avx[] = {
@@ -4410,7 +4492,7 @@ CODE const uint8_t sk_store_f16_avx[] = {
   196,65,25,98,205,                       //vpunpckldq    %xmm13,%xmm12,%xmm9
   196,65,25,106,197,                      //vpunpckhdq    %xmm13,%xmm12,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,27,                                 //jne           1163 <_sk_store_f16_avx+0xc3>
+  117,27,                                 //jne           1237 <_sk_store_f16_avx+0xc3>
   197,120,17,28,248,                      //vmovups       %xmm11,(%rax,%rdi,8)
   197,120,17,84,248,16,                   //vmovups       %xmm10,0x10(%rax,%rdi,8)
   197,120,17,76,248,32,                   //vmovups       %xmm9,0x20(%rax,%rdi,8)
@@ -4419,22 +4501,22 @@ CODE const uint8_t sk_store_f16_avx[] = {
   255,224,                                //jmpq          *%rax
   197,121,214,28,248,                     //vmovq         %xmm11,(%rax,%rdi,8)
   72,131,249,1,                           //cmp           $0x1,%rcx
-  116,241,                                //je            115f <_sk_store_f16_avx+0xbf>
+  116,241,                                //je            1233 <_sk_store_f16_avx+0xbf>
   197,121,23,92,248,8,                    //vmovhpd       %xmm11,0x8(%rax,%rdi,8)
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,229,                                //jb            115f <_sk_store_f16_avx+0xbf>
+  114,229,                                //jb            1233 <_sk_store_f16_avx+0xbf>
   197,121,214,84,248,16,                  //vmovq         %xmm10,0x10(%rax,%rdi,8)
-  116,221,                                //je            115f <_sk_store_f16_avx+0xbf>
+  116,221,                                //je            1233 <_sk_store_f16_avx+0xbf>
   197,121,23,84,248,24,                   //vmovhpd       %xmm10,0x18(%rax,%rdi,8)
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,209,                                //jb            115f <_sk_store_f16_avx+0xbf>
+  114,209,                                //jb            1233 <_sk_store_f16_avx+0xbf>
   197,121,214,76,248,32,                  //vmovq         %xmm9,0x20(%rax,%rdi,8)
-  116,201,                                //je            115f <_sk_store_f16_avx+0xbf>
+  116,201,                                //je            1233 <_sk_store_f16_avx+0xbf>
   197,121,23,76,248,40,                   //vmovhpd       %xmm9,0x28(%rax,%rdi,8)
   72,131,249,7,                           //cmp           $0x7,%rcx
-  114,189,                                //jb            115f <_sk_store_f16_avx+0xbf>
+  114,189,                                //jb            1233 <_sk_store_f16_avx+0xbf>
   197,121,214,68,248,48,                  //vmovq         %xmm8,0x30(%rax,%rdi,8)
-  235,181,                                //jmp           115f <_sk_store_f16_avx+0xbf>
+  235,181,                                //jmp           1233 <_sk_store_f16_avx+0xbf>
 };
 
 CODE const uint8_t sk_store_f32_avx[] = {
@@ -4450,7 +4532,7 @@ CODE const uint8_t sk_store_f32_avx[] = {
   196,65,37,20,196,                       //vunpcklpd     %ymm12,%ymm11,%ymm8
   196,65,37,21,220,                       //vunpckhpd     %ymm12,%ymm11,%ymm11
   72,133,201,                             //test          %rcx,%rcx
-  117,55,                                 //jne           1217 <_sk_store_f32_avx+0x6d>
+  117,55,                                 //jne           12eb <_sk_store_f32_avx+0x6d>
   196,67,45,24,225,1,                     //vinsertf128   $0x1,%xmm9,%ymm10,%ymm12
   196,67,61,24,235,1,                     //vinsertf128   $0x1,%xmm11,%ymm8,%ymm13
   196,67,45,6,201,49,                     //vperm2f128    $0x31,%ymm9,%ymm10,%ymm9
@@ -4463,22 +4545,22 @@ CODE const uint8_t sk_store_f32_avx[] = {
   255,224,                                //jmpq          *%rax
   196,65,121,17,20,128,                   //vmovupd       %xmm10,(%r8,%rax,4)
   72,131,249,1,                           //cmp           $0x1,%rcx
-  116,240,                                //je            1213 <_sk_store_f32_avx+0x69>
+  116,240,                                //je            12e7 <_sk_store_f32_avx+0x69>
   196,65,121,17,76,128,16,                //vmovupd       %xmm9,0x10(%r8,%rax,4)
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,227,                                //jb            1213 <_sk_store_f32_avx+0x69>
+  114,227,                                //jb            12e7 <_sk_store_f32_avx+0x69>
   196,65,121,17,68,128,32,                //vmovupd       %xmm8,0x20(%r8,%rax,4)
-  116,218,                                //je            1213 <_sk_store_f32_avx+0x69>
+  116,218,                                //je            12e7 <_sk_store_f32_avx+0x69>
   196,65,121,17,92,128,48,                //vmovupd       %xmm11,0x30(%r8,%rax,4)
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,205,                                //jb            1213 <_sk_store_f32_avx+0x69>
+  114,205,                                //jb            12e7 <_sk_store_f32_avx+0x69>
   196,67,125,25,84,128,64,1,              //vextractf128  $0x1,%ymm10,0x40(%r8,%rax,4)
-  116,195,                                //je            1213 <_sk_store_f32_avx+0x69>
+  116,195,                                //je            12e7 <_sk_store_f32_avx+0x69>
   196,67,125,25,76,128,80,1,              //vextractf128  $0x1,%ymm9,0x50(%r8,%rax,4)
   72,131,249,7,                           //cmp           $0x7,%rcx
-  114,181,                                //jb            1213 <_sk_store_f32_avx+0x69>
+  114,181,                                //jb            12e7 <_sk_store_f32_avx+0x69>
   196,67,125,25,68,128,96,1,              //vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
-  235,171,                                //jmp           1213 <_sk_store_f32_avx+0x69>
+  235,171,                                //jmp           12e7 <_sk_store_f32_avx+0x69>
 };
 
 CODE const uint8_t sk_clamp_x_avx[] = {
@@ -4839,16 +4921,18 @@ CODE const uint8_t sk_seed_shader_sse41[] = {
   102,15,110,199,                         //movd          %edi,%xmm0
   102,15,112,192,0,                       //pshufd        $0x0,%xmm0,%xmm0
   15,91,200,                              //cvtdq2ps      %xmm0,%xmm1
-  243,15,16,18,                           //movss         (%rdx),%xmm2
-  243,15,16,90,4,                         //movss         0x4(%rdx),%xmm3
-  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
-  15,88,203,                              //addps         %xmm3,%xmm1
+  185,0,0,0,63,                           //mov           $0x3f000000,%ecx
+  102,15,110,209,                         //movd          %ecx,%xmm2
+  15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
+  15,88,202,                              //addps         %xmm2,%xmm1
   15,16,66,20,                            //movups        0x14(%rdx),%xmm0
   15,88,193,                              //addps         %xmm1,%xmm0
   102,15,110,8,                           //movd          (%rax),%xmm1
   102,15,112,201,0,                       //pshufd        $0x0,%xmm1,%xmm1
   15,91,201,                              //cvtdq2ps      %xmm1,%xmm1
-  15,88,203,                              //addps         %xmm3,%xmm1
+  15,88,202,                              //addps         %xmm2,%xmm1
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,15,110,208,                         //movd          %eax,%xmm2
   15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
   72,173,                                 //lods          %ds:(%rsi),%rax
   15,87,219,                              //xorps         %xmm3,%xmm3
@@ -4892,7 +4976,8 @@ CODE const uint8_t sk_plus__sse41[] = {
 };
 
 CODE const uint8_t sk_srcover_sse41[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   68,15,92,195,                           //subps         %xmm3,%xmm8
   69,15,40,200,                           //movaps        %xmm8,%xmm9
@@ -4911,7 +4996,8 @@ CODE const uint8_t sk_srcover_sse41[] = {
 };
 
 CODE const uint8_t sk_dstover_sse41[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   68,15,92,199,                           //subps         %xmm7,%xmm8
   65,15,89,192,                           //mulps         %xmm8,%xmm0
@@ -4937,7 +5023,8 @@ CODE const uint8_t sk_clamp_0_sse41[] = {
 };
 
 CODE const uint8_t sk_clamp_1_sse41[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,93,192,                           //minps         %xmm8,%xmm0
   65,15,93,200,                           //minps         %xmm8,%xmm1
@@ -4948,7 +5035,8 @@ CODE const uint8_t sk_clamp_1_sse41[] = {
 };
 
 CODE const uint8_t sk_clamp_a_sse41[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,93,216,                           //minps         %xmm8,%xmm3
   15,93,195,                              //minps         %xmm3,%xmm0
@@ -5024,7 +5112,8 @@ CODE const uint8_t sk_premul_sse41[] = {
 CODE const uint8_t sk_unpremul_sse41[] = {
   68,15,40,192,                           //movaps        %xmm0,%xmm8
   69,15,87,201,                           //xorps         %xmm9,%xmm9
-  243,68,15,16,18,                        //movss         (%rdx),%xmm10
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,208,                      //movd          %eax,%xmm10
   69,15,198,210,0,                        //shufps        $0x0,%xmm10,%xmm10
   68,15,94,211,                           //divps         %xmm3,%xmm10
   15,40,195,                              //movaps        %xmm3,%xmm0
@@ -5178,7 +5267,8 @@ CODE const uint8_t sk_scale_u8_sse41[] = {
   72,139,0,                               //mov           (%rax),%rax
   102,68,15,56,49,4,56,                   //pmovzxbd      (%rax,%rdi,1),%xmm8
   69,15,91,192,                           //cvtdq2ps      %xmm8,%xmm8
-  243,68,15,16,74,12,                     //movss         0xc(%rdx),%xmm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   69,15,89,200,                           //mulps         %xmm8,%xmm9
   65,15,89,193,                           //mulps         %xmm9,%xmm0
@@ -5214,7 +5304,8 @@ CODE const uint8_t sk_lerp_u8_sse41[] = {
   72,139,0,                               //mov           (%rax),%rax
   102,68,15,56,49,4,56,                   //pmovzxbd      (%rax,%rdi,1),%xmm8
   69,15,91,192,                           //cvtdq2ps      %xmm8,%xmm8
-  243,68,15,16,74,12,                     //movss         0xc(%rdx),%xmm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   69,15,89,200,                           //mulps         %xmm8,%xmm9
   15,92,196,                              //subps         %xmm4,%xmm0
@@ -5241,33 +5332,34 @@ CODE const uint8_t sk_lerp_565_sse41[] = {
   102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
   102,65,15,219,216,                      //pand          %xmm8,%xmm3
   68,15,91,203,                           //cvtdq2ps      %xmm3,%xmm9
-  243,15,16,26,                           //movss         (%rdx),%xmm3
-  243,68,15,16,82,116,                    //movss         0x74(%rdx),%xmm10
-  69,15,198,210,0,                        //shufps        $0x0,%xmm10,%xmm10
-  69,15,89,209,                           //mulps         %xmm9,%xmm10
-  102,68,15,110,74,108,                   //movd          0x6c(%rdx),%xmm9
-  102,69,15,112,201,0,                    //pshufd        $0x0,%xmm9,%xmm9
-  102,69,15,219,200,                      //pand          %xmm8,%xmm9
-  69,15,91,201,                           //cvtdq2ps      %xmm9,%xmm9
-  243,68,15,16,90,120,                    //movss         0x78(%rdx),%xmm11
+  243,68,15,16,90,116,                    //movss         0x74(%rdx),%xmm11
+  243,68,15,16,82,120,                    //movss         0x78(%rdx),%xmm10
   69,15,198,219,0,                        //shufps        $0x0,%xmm11,%xmm11
   69,15,89,217,                           //mulps         %xmm9,%xmm11
-  102,68,15,110,74,112,                   //movd          0x70(%rdx),%xmm9
-  102,69,15,112,201,0,                    //pshufd        $0x0,%xmm9,%xmm9
-  102,69,15,219,200,                      //pand          %xmm8,%xmm9
-  69,15,91,193,                           //cvtdq2ps      %xmm9,%xmm8
-  243,68,15,16,74,124,                    //movss         0x7c(%rdx),%xmm9
-  69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
-  69,15,89,200,                           //mulps         %xmm8,%xmm9
+  102,15,110,90,108,                      //movd          0x6c(%rdx),%xmm3
+  102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
+  102,65,15,219,216,                      //pand          %xmm8,%xmm3
+  15,91,219,                              //cvtdq2ps      %xmm3,%xmm3
+  69,15,198,210,0,                        //shufps        $0x0,%xmm10,%xmm10
+  68,15,89,211,                           //mulps         %xmm3,%xmm10
+  102,15,110,90,112,                      //movd          0x70(%rdx),%xmm3
+  102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
+  102,65,15,219,216,                      //pand          %xmm8,%xmm3
+  68,15,91,195,                           //cvtdq2ps      %xmm3,%xmm8
+  243,15,16,90,124,                       //movss         0x7c(%rdx),%xmm3
+  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
+  65,15,89,216,                           //mulps         %xmm8,%xmm3
   15,92,196,                              //subps         %xmm4,%xmm0
-  65,15,89,194,                           //mulps         %xmm10,%xmm0
+  65,15,89,195,                           //mulps         %xmm11,%xmm0
   15,88,196,                              //addps         %xmm4,%xmm0
   15,92,205,                              //subps         %xmm5,%xmm1
-  65,15,89,203,                           //mulps         %xmm11,%xmm1
+  65,15,89,202,                           //mulps         %xmm10,%xmm1
   15,88,205,                              //addps         %xmm5,%xmm1
   15,92,214,                              //subps         %xmm6,%xmm2
-  65,15,89,209,                           //mulps         %xmm9,%xmm2
+  15,89,211,                              //mulps         %xmm3,%xmm2
   15,88,214,                              //addps         %xmm6,%xmm2
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,15,110,216,                         //movd          %eax,%xmm3
   15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -5420,7 +5512,8 @@ CODE const uint8_t sk_load_8888_sse41[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
   243,15,111,28,184,                      //movdqu        (%rax,%rdi,4),%xmm3
-  102,15,110,66,16,                       //movd          0x10(%rdx),%xmm0
+  184,255,0,0,0,                          //mov           $0xff,%eax
+  102,15,110,192,                         //movd          %eax,%xmm0
   102,15,112,192,0,                       //pshufd        $0x0,%xmm0,%xmm0
   102,15,111,203,                         //movdqa        %xmm3,%xmm1
   102,15,114,209,8,                       //psrld         $0x8,%xmm1
@@ -5430,7 +5523,8 @@ CODE const uint8_t sk_load_8888_sse41[] = {
   102,15,219,208,                         //pand          %xmm0,%xmm2
   102,15,219,195,                         //pand          %xmm3,%xmm0
   15,91,192,                              //cvtdq2ps      %xmm0,%xmm0
-  243,68,15,16,66,12,                     //movss         0xc(%rdx),%xmm8
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,89,192,                           //mulps         %xmm8,%xmm0
   15,91,201,                              //cvtdq2ps      %xmm1,%xmm1
@@ -5447,7 +5541,8 @@ CODE const uint8_t sk_load_8888_sse41[] = {
 CODE const uint8_t sk_store_8888_sse41[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
-  243,68,15,16,66,8,                      //movss         0x8(%rdx),%xmm8
+  185,0,0,127,67,                         //mov           $0x437f0000,%ecx
+  102,68,15,110,193,                      //movd          %ecx,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   69,15,40,200,                           //movaps        %xmm8,%xmm9
   68,15,89,200,                           //mulps         %xmm0,%xmm9
@@ -5975,16 +6070,18 @@ CODE const uint8_t sk_seed_shader_sse2[] = {
   102,15,110,199,                         //movd          %edi,%xmm0
   102,15,112,192,0,                       //pshufd        $0x0,%xmm0,%xmm0
   15,91,200,                              //cvtdq2ps      %xmm0,%xmm1
-  243,15,16,18,                           //movss         (%rdx),%xmm2
-  243,15,16,90,4,                         //movss         0x4(%rdx),%xmm3
-  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
-  15,88,203,                              //addps         %xmm3,%xmm1
+  185,0,0,0,63,                           //mov           $0x3f000000,%ecx
+  102,15,110,209,                         //movd          %ecx,%xmm2
+  15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
+  15,88,202,                              //addps         %xmm2,%xmm1
   15,16,66,20,                            //movups        0x14(%rdx),%xmm0
   15,88,193,                              //addps         %xmm1,%xmm0
   102,15,110,8,                           //movd          (%rax),%xmm1
   102,15,112,201,0,                       //pshufd        $0x0,%xmm1,%xmm1
   15,91,201,                              //cvtdq2ps      %xmm1,%xmm1
-  15,88,203,                              //addps         %xmm3,%xmm1
+  15,88,202,                              //addps         %xmm2,%xmm1
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,15,110,208,                         //movd          %eax,%xmm2
   15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
   72,173,                                 //lods          %ds:(%rsi),%rax
   15,87,219,                              //xorps         %xmm3,%xmm3
@@ -6028,7 +6125,8 @@ CODE const uint8_t sk_plus__sse2[] = {
 };
 
 CODE const uint8_t sk_srcover_sse2[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   68,15,92,195,                           //subps         %xmm3,%xmm8
   69,15,40,200,                           //movaps        %xmm8,%xmm9
@@ -6047,7 +6145,8 @@ CODE const uint8_t sk_srcover_sse2[] = {
 };
 
 CODE const uint8_t sk_dstover_sse2[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   68,15,92,199,                           //subps         %xmm7,%xmm8
   65,15,89,192,                           //mulps         %xmm8,%xmm0
@@ -6073,7 +6172,8 @@ CODE const uint8_t sk_clamp_0_sse2[] = {
 };
 
 CODE const uint8_t sk_clamp_1_sse2[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,93,192,                           //minps         %xmm8,%xmm0
   65,15,93,200,                           //minps         %xmm8,%xmm1
@@ -6084,7 +6184,8 @@ CODE const uint8_t sk_clamp_1_sse2[] = {
 };
 
 CODE const uint8_t sk_clamp_a_sse2[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,93,216,                           //minps         %xmm8,%xmm3
   15,93,195,                              //minps         %xmm3,%xmm0
@@ -6160,7 +6261,8 @@ CODE const uint8_t sk_premul_sse2[] = {
 CODE const uint8_t sk_unpremul_sse2[] = {
   69,15,87,192,                           //xorps         %xmm8,%xmm8
   68,15,194,195,0,                        //cmpeqps       %xmm3,%xmm8
-  243,68,15,16,10,                        //movss         (%rdx),%xmm9
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   68,15,94,203,                           //divps         %xmm3,%xmm9
   69,15,85,193,                           //andnps        %xmm9,%xmm8
@@ -6315,7 +6417,8 @@ CODE const uint8_t sk_scale_u8_sse2[] = {
   102,69,15,96,193,                       //punpcklbw     %xmm9,%xmm8
   102,69,15,97,193,                       //punpcklwd     %xmm9,%xmm8
   69,15,91,192,                           //cvtdq2ps      %xmm8,%xmm8
-  243,68,15,16,74,12,                     //movss         0xc(%rdx),%xmm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   69,15,89,200,                           //mulps         %xmm8,%xmm9
   65,15,89,193,                           //mulps         %xmm9,%xmm0
@@ -6354,7 +6457,8 @@ CODE const uint8_t sk_lerp_u8_sse2[] = {
   102,69,15,96,193,                       //punpcklbw     %xmm9,%xmm8
   102,69,15,97,193,                       //punpcklwd     %xmm9,%xmm8
   69,15,91,192,                           //cvtdq2ps      %xmm8,%xmm8
-  243,68,15,16,74,12,                     //movss         0xc(%rdx),%xmm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   69,15,89,200,                           //mulps         %xmm8,%xmm9
   15,92,196,                              //subps         %xmm4,%xmm0
@@ -6376,40 +6480,41 @@ CODE const uint8_t sk_lerp_u8_sse2[] = {
 CODE const uint8_t sk_lerp_565_sse2[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
-  243,68,15,126,4,120,                    //movq          (%rax,%rdi,2),%xmm8
+  243,68,15,126,12,120,                   //movq          (%rax,%rdi,2),%xmm9
   102,15,239,219,                         //pxor          %xmm3,%xmm3
-  102,68,15,97,195,                       //punpcklwd     %xmm3,%xmm8
+  102,68,15,97,203,                       //punpcklwd     %xmm3,%xmm9
   102,15,110,90,104,                      //movd          0x68(%rdx),%xmm3
   102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
-  102,65,15,219,216,                      //pand          %xmm8,%xmm3
-  68,15,91,203,                           //cvtdq2ps      %xmm3,%xmm9
-  243,15,16,26,                           //movss         (%rdx),%xmm3
-  243,68,15,16,82,116,                    //movss         0x74(%rdx),%xmm10
-  69,15,198,210,0,                        //shufps        $0x0,%xmm10,%xmm10
-  69,15,89,209,                           //mulps         %xmm9,%xmm10
-  102,68,15,110,74,108,                   //movd          0x6c(%rdx),%xmm9
-  102,69,15,112,201,0,                    //pshufd        $0x0,%xmm9,%xmm9
-  102,69,15,219,200,                      //pand          %xmm8,%xmm9
-  69,15,91,201,                           //cvtdq2ps      %xmm9,%xmm9
-  243,68,15,16,90,120,                    //movss         0x78(%rdx),%xmm11
+  102,65,15,219,217,                      //pand          %xmm9,%xmm3
+  68,15,91,211,                           //cvtdq2ps      %xmm3,%xmm10
+  243,68,15,16,90,116,                    //movss         0x74(%rdx),%xmm11
+  243,68,15,16,66,120,                    //movss         0x78(%rdx),%xmm8
   69,15,198,219,0,                        //shufps        $0x0,%xmm11,%xmm11
-  69,15,89,217,                           //mulps         %xmm9,%xmm11
-  102,68,15,110,74,112,                   //movd          0x70(%rdx),%xmm9
-  102,69,15,112,201,0,                    //pshufd        $0x0,%xmm9,%xmm9
-  102,69,15,219,200,                      //pand          %xmm8,%xmm9
-  69,15,91,193,                           //cvtdq2ps      %xmm9,%xmm8
-  243,68,15,16,74,124,                    //movss         0x7c(%rdx),%xmm9
-  69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
-  69,15,89,200,                           //mulps         %xmm8,%xmm9
+  69,15,89,218,                           //mulps         %xmm10,%xmm11
+  102,15,110,90,108,                      //movd          0x6c(%rdx),%xmm3
+  102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
+  102,65,15,219,217,                      //pand          %xmm9,%xmm3
+  15,91,219,                              //cvtdq2ps      %xmm3,%xmm3
+  69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
+  68,15,89,195,                           //mulps         %xmm3,%xmm8
+  102,15,110,90,112,                      //movd          0x70(%rdx),%xmm3
+  102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
+  102,65,15,219,217,                      //pand          %xmm9,%xmm3
+  68,15,91,203,                           //cvtdq2ps      %xmm3,%xmm9
+  243,15,16,90,124,                       //movss         0x7c(%rdx),%xmm3
+  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
+  65,15,89,217,                           //mulps         %xmm9,%xmm3
   15,92,196,                              //subps         %xmm4,%xmm0
-  65,15,89,194,                           //mulps         %xmm10,%xmm0
+  65,15,89,195,                           //mulps         %xmm11,%xmm0
   15,88,196,                              //addps         %xmm4,%xmm0
   15,92,205,                              //subps         %xmm5,%xmm1
-  65,15,89,203,                           //mulps         %xmm11,%xmm1
+  65,15,89,200,                           //mulps         %xmm8,%xmm1
   15,88,205,                              //addps         %xmm5,%xmm1
   15,92,214,                              //subps         %xmm6,%xmm2
-  65,15,89,209,                           //mulps         %xmm9,%xmm2
+  15,89,211,                              //mulps         %xmm3,%xmm2
   15,88,214,                              //addps         %xmm6,%xmm2
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,15,110,216,                         //movd          %eax,%xmm3
   15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -6579,7 +6684,8 @@ CODE const uint8_t sk_load_8888_sse2[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
   243,15,111,28,184,                      //movdqu        (%rax,%rdi,4),%xmm3
-  102,15,110,66,16,                       //movd          0x10(%rdx),%xmm0
+  184,255,0,0,0,                          //mov           $0xff,%eax
+  102,15,110,192,                         //movd          %eax,%xmm0
   102,15,112,192,0,                       //pshufd        $0x0,%xmm0,%xmm0
   102,15,111,203,                         //movdqa        %xmm3,%xmm1
   102,15,114,209,8,                       //psrld         $0x8,%xmm1
@@ -6589,7 +6695,8 @@ CODE const uint8_t sk_load_8888_sse2[] = {
   102,15,219,208,                         //pand          %xmm0,%xmm2
   102,15,219,195,                         //pand          %xmm3,%xmm0
   15,91,192,                              //cvtdq2ps      %xmm0,%xmm0
-  243,68,15,16,66,12,                     //movss         0xc(%rdx),%xmm8
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,89,192,                           //mulps         %xmm8,%xmm0
   15,91,201,                              //cvtdq2ps      %xmm1,%xmm1
@@ -6606,7 +6713,8 @@ CODE const uint8_t sk_load_8888_sse2[] = {
 CODE const uint8_t sk_store_8888_sse2[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
-  243,68,15,16,66,8,                      //movss         0x8(%rdx),%xmm8
+  185,0,0,127,67,                         //mov           $0x437f0000,%ecx
+  102,68,15,110,193,                      //movd          %ecx,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   69,15,40,200,                           //movaps        %xmm8,%xmm9
   68,15,89,200,                           //mulps         %xmm0,%xmm9
@@ -6762,7 +6870,8 @@ CODE const uint8_t sk_repeat_x_sse2[] = {
   243,69,15,91,209,                       //cvttps2dq     %xmm9,%xmm10
   69,15,91,210,                           //cvtdq2ps      %xmm10,%xmm10
   69,15,194,202,1,                        //cmpltps       %xmm10,%xmm9
-  243,68,15,16,26,                        //movss         (%rdx),%xmm11
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,216,                      //movd          %eax,%xmm11
   69,15,198,219,0,                        //shufps        $0x0,%xmm11,%xmm11
   69,15,84,217,                           //andps         %xmm9,%xmm11
   69,15,92,211,                           //subps         %xmm11,%xmm10
@@ -6784,7 +6893,8 @@ CODE const uint8_t sk_repeat_y_sse2[] = {
   243,69,15,91,209,                       //cvttps2dq     %xmm9,%xmm10
   69,15,91,210,                           //cvtdq2ps      %xmm10,%xmm10
   69,15,194,202,1,                        //cmpltps       %xmm10,%xmm9
-  243,68,15,16,26,                        //movss         (%rdx),%xmm11
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,216,                      //movd          %eax,%xmm11
   69,15,198,219,0,                        //shufps        $0x0,%xmm11,%xmm11
   69,15,84,217,                           //andps         %xmm9,%xmm11
   69,15,92,211,                           //subps         %xmm11,%xmm10
@@ -6810,7 +6920,8 @@ CODE const uint8_t sk_mirror_x_sse2[] = {
   243,69,15,91,218,                       //cvttps2dq     %xmm10,%xmm11
   69,15,91,219,                           //cvtdq2ps      %xmm11,%xmm11
   69,15,194,211,1,                        //cmpltps       %xmm11,%xmm10
-  243,68,15,16,34,                        //movss         (%rdx),%xmm12
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,224,                      //movd          %eax,%xmm12
   69,15,198,228,0,                        //shufps        $0x0,%xmm12,%xmm12
   69,15,84,226,                           //andps         %xmm10,%xmm12
   69,15,87,210,                           //xorps         %xmm10,%xmm10
@@ -6840,7 +6951,8 @@ CODE const uint8_t sk_mirror_y_sse2[] = {
   243,69,15,91,218,                       //cvttps2dq     %xmm10,%xmm11
   69,15,91,219,                           //cvtdq2ps      %xmm11,%xmm11
   69,15,194,211,1,                        //cmpltps       %xmm11,%xmm10
-  243,68,15,16,34,                        //movss         (%rdx),%xmm12
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,224,                      //movd          %eax,%xmm12
   69,15,198,228,0,                        //shufps        $0x0,%xmm12,%xmm12
   69,15,84,226,                           //andps         %xmm10,%xmm12
   69,15,87,210,                           //xorps         %xmm10,%xmm10
@@ -7205,13 +7317,17 @@ CODE const uint8_t sk_seed_shader_hsw[] = {
   197,249,110,199,                        //vmovd         %edi,%xmm0
   196,226,125,24,192,                     //vbroadcastss  %xmm0,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
-  196,226,125,24,74,4,                    //vbroadcastss  0x4(%rdx),%ymm1
+  65,184,0,0,0,63,                        //mov           $0x3f000000,%r8d
+  196,193,121,110,200,                    //vmovd         %r8d,%xmm1
+  196,226,125,24,201,                     //vbroadcastss  %xmm1,%ymm1
   197,252,88,193,                         //vaddps        %ymm1,%ymm0,%ymm0
   197,252,88,66,20,                       //vaddps        0x14(%rdx),%ymm0,%ymm0
   196,226,125,24,16,                      //vbroadcastss  (%rax),%ymm2
   197,252,91,210,                         //vcvtdq2ps     %ymm2,%ymm2
   197,236,88,201,                         //vaddps        %ymm1,%ymm2,%ymm1
-  196,226,125,24,18,                      //vbroadcastss  (%rdx),%ymm2
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,249,110,208,                        //vmovd         %eax,%xmm2
+  196,226,125,24,210,                     //vbroadcastss  %xmm2,%ymm2
   72,173,                                 //lods          %ds:(%rsi),%rax
   197,228,87,219,                         //vxorps        %ymm3,%ymm3,%ymm3
   197,220,87,228,                         //vxorps        %ymm4,%ymm4,%ymm4
@@ -7250,7 +7366,9 @@ CODE const uint8_t sk_plus__hsw[] = {
 };
 
 CODE const uint8_t sk_srcover_hsw[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   197,60,92,195,                          //vsubps        %ymm3,%ymm8,%ymm8
   196,194,93,184,192,                     //vfmadd231ps   %ymm8,%ymm4,%ymm0
   196,194,85,184,200,                     //vfmadd231ps   %ymm8,%ymm5,%ymm1
@@ -7261,7 +7379,9 @@ CODE const uint8_t sk_srcover_hsw[] = {
 };
 
 CODE const uint8_t sk_dstover_hsw[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   197,60,92,199,                          //vsubps        %ymm7,%ymm8,%ymm8
   196,226,61,168,196,                     //vfmadd213ps   %ymm4,%ymm8,%ymm0
   196,226,61,168,205,                     //vfmadd213ps   %ymm5,%ymm8,%ymm1
@@ -7282,7 +7402,9 @@ CODE const uint8_t sk_clamp_0_hsw[] = {
 };
 
 CODE const uint8_t sk_clamp_1_hsw[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   196,193,124,93,192,                     //vminps        %ymm8,%ymm0,%ymm0
   196,193,116,93,200,                     //vminps        %ymm8,%ymm1,%ymm1
   196,193,108,93,208,                     //vminps        %ymm8,%ymm2,%ymm2
@@ -7292,7 +7414,9 @@ CODE const uint8_t sk_clamp_1_hsw[] = {
 };
 
 CODE const uint8_t sk_clamp_a_hsw[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   196,193,100,93,216,                     //vminps        %ymm8,%ymm3,%ymm3
   197,252,93,195,                         //vminps        %ymm3,%ymm0,%ymm0
   197,244,93,203,                         //vminps        %ymm3,%ymm1,%ymm1
@@ -7364,7 +7488,9 @@ CODE const uint8_t sk_premul_hsw[] = {
 CODE const uint8_t sk_unpremul_hsw[] = {
   196,65,60,87,192,                       //vxorps        %ymm8,%ymm8,%ymm8
   196,65,100,194,200,0,                   //vcmpeqps      %ymm8,%ymm3,%ymm9
-  196,98,125,24,18,                       //vbroadcastss  (%rdx),%ymm10
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,208,                        //vmovd         %eax,%xmm10
+  196,66,125,24,210,                      //vbroadcastss  %xmm10,%ymm10
   197,44,94,211,                          //vdivps        %ymm3,%ymm10,%ymm10
   196,67,45,74,192,144,                   //vblendvps     %ymm9,%ymm8,%ymm10,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
@@ -7459,11 +7585,13 @@ CODE const uint8_t sk_scale_u8_hsw[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,48,                                 //jne           4b1 <_sk_scale_u8_hsw+0x40>
+  117,56,                                 //jne           4f9 <_sk_scale_u8_hsw+0x48>
   197,123,16,0,                           //vmovsd        (%rax),%xmm8
   196,66,125,49,192,                      //vpmovzxbd     %xmm8,%ymm8
   196,65,124,91,192,                      //vcvtdq2ps     %ymm8,%ymm8
-  196,98,125,24,74,12,                    //vbroadcastss  0xc(%rdx),%ymm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,121,110,200,                        //vmovd         %eax,%xmm9
+  196,66,125,24,201,                      //vbroadcastss  %xmm9,%ymm9
   196,65,60,89,193,                       //vmulps        %ymm9,%ymm8,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
   197,188,89,201,                         //vmulps        %ymm1,%ymm8,%ymm1
@@ -7481,9 +7609,9 @@ CODE const uint8_t sk_scale_u8_hsw[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           4b9 <_sk_scale_u8_hsw+0x48>
+  117,234,                                //jne           501 <_sk_scale_u8_hsw+0x50>
   196,65,249,110,193,                     //vmovq         %r9,%xmm8
-  235,175,                                //jmp           485 <_sk_scale_u8_hsw+0x14>
+  235,167,                                //jmp           4c5 <_sk_scale_u8_hsw+0x14>
 };
 
 CODE const uint8_t sk_lerp_1_float_hsw[] = {
@@ -7507,11 +7635,13 @@ CODE const uint8_t sk_lerp_u8_hsw[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,68,                                 //jne           559 <_sk_lerp_u8_hsw+0x54>
+  117,76,                                 //jne           5a9 <_sk_lerp_u8_hsw+0x5c>
   197,123,16,0,                           //vmovsd        (%rax),%xmm8
   196,66,125,49,192,                      //vpmovzxbd     %xmm8,%ymm8
   196,65,124,91,192,                      //vcvtdq2ps     %ymm8,%ymm8
-  196,98,125,24,74,12,                    //vbroadcastss  0xc(%rdx),%ymm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,121,110,200,                        //vmovd         %eax,%xmm9
+  196,66,125,24,201,                      //vbroadcastss  %xmm9,%ymm9
   196,65,60,89,193,                       //vmulps        %ymm9,%ymm8,%ymm8
   197,252,92,196,                         //vsubps        %ymm4,%ymm0,%ymm0
   196,226,61,168,196,                     //vfmadd213ps   %ymm4,%ymm8,%ymm0
@@ -7533,16 +7663,16 @@ CODE const uint8_t sk_lerp_u8_hsw[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           561 <_sk_lerp_u8_hsw+0x5c>
+  117,234,                                //jne           5b1 <_sk_lerp_u8_hsw+0x64>
   196,65,249,110,193,                     //vmovq         %r9,%xmm8
-  235,155,                                //jmp           519 <_sk_lerp_u8_hsw+0x14>
+  235,147,                                //jmp           561 <_sk_lerp_u8_hsw+0x14>
 };
 
 CODE const uint8_t sk_lerp_565_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  117,123,                                //jne           603 <_sk_lerp_565_hsw+0x85>
+  15,133,132,0,0,0,                       //jne           660 <_sk_lerp_565_hsw+0x92>
   196,193,122,111,28,122,                 //vmovdqu       (%r10,%rdi,2),%xmm3
   196,226,125,51,219,                     //vpmovzxwd     %xmm3,%ymm3
   196,98,125,88,66,104,                   //vpbroadcastd  0x68(%rdx),%ymm8
@@ -7566,7 +7696,9 @@ CODE const uint8_t sk_lerp_565_hsw[] = {
   196,226,53,168,205,                     //vfmadd213ps   %ymm5,%ymm9,%ymm1
   197,236,92,214,                         //vsubps        %ymm6,%ymm2,%ymm2
   196,226,101,168,214,                    //vfmadd213ps   %ymm6,%ymm3,%ymm2
-  196,226,125,24,26,                      //vbroadcastss  (%rdx),%ymm3
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,249,110,216,                        //vmovd         %eax,%xmm3
+  196,226,125,24,219,                     //vbroadcastss  %xmm3,%ymm3
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
   65,137,200,                             //mov           %ecx,%r8d
@@ -7575,8 +7707,8 @@ CODE const uint8_t sk_lerp_565_hsw[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  15,135,111,255,255,255,                 //ja            58e <_sk_lerp_565_hsw+0x10>
-  76,141,13,74,0,0,0,                     //lea           0x4a(%rip),%r9        # 670 <_sk_lerp_565_hsw+0xf2>
+  15,135,102,255,255,255,                 //ja            5e2 <_sk_lerp_565_hsw+0x14>
+  76,141,13,73,0,0,0,                     //lea           0x49(%rip),%r9        # 6cc <_sk_lerp_565_hsw+0xfe>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -7588,27 +7720,27 @@ CODE const uint8_t sk_lerp_565_hsw[] = {
   196,193,97,196,92,122,4,2,              //vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm3,%xmm3
   196,193,97,196,92,122,2,1,              //vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm3,%xmm3
   196,193,97,196,28,122,0,                //vpinsrw       $0x0,(%r10,%rdi,2),%xmm3,%xmm3
-  233,31,255,255,255,                     //jmpq          58e <_sk_lerp_565_hsw+0x10>
-  144,                                    //nop
-  243,255,                                //repz          (bad)
-  255,                                    //(bad)
-  255,                                    //(bad)
-  235,255,                                //jmp           675 <_sk_lerp_565_hsw+0xf7>
-  255,                                    //(bad)
-  255,227,                                //jmpq          *%rbx
+  233,22,255,255,255,                     //jmpq          5e2 <_sk_lerp_565_hsw+0x14>
+  244,                                    //hlt
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  219,255,                                //(bad)
-  255,                                    //(bad)
-  255,211,                                //callq         *%rbx
+  236,                                    //in            (%dx),%al
   255,                                    //(bad)
   255,                                    //(bad)
-  255,203,                                //dec           %ebx
+  255,228,                                //jmpq          *%rsp
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  191,                                    //.byte         0xbf
+  220,255,                                //fdivr         %st,%st(7)
+  255,                                    //(bad)
+  255,212,                                //callq         *%rsp
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,204,                                //dec           %esp
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,192,                                //inc           %eax
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //.byte         0xff
@@ -7620,7 +7752,7 @@ CODE const uint8_t sk_load_tables_hsw[] = {
   76,141,12,189,0,0,0,0,                  //lea           0x0(,%rdi,4),%r9
   76,3,8,                                 //add           (%rax),%r9
   77,133,192,                             //test          %r8,%r8
-  117,106,                                //jne           70b <_sk_load_tables_hsw+0x7f>
+  117,106,                                //jne           767 <_sk_load_tables_hsw+0x7f>
   196,193,126,111,25,                     //vmovdqu       (%r9),%ymm3
   196,226,125,88,82,16,                   //vpbroadcastd  0x10(%rdx),%ymm2
   197,237,219,203,                        //vpand         %ymm3,%ymm2,%ymm1
@@ -7652,7 +7784,7 @@ CODE const uint8_t sk_load_tables_hsw[] = {
   196,193,249,110,194,                    //vmovq         %r10,%xmm0
   196,226,125,33,192,                     //vpmovsxbd     %xmm0,%ymm0
   196,194,125,140,25,                     //vpmaskmovd    (%r9),%ymm0,%ymm3
-  233,114,255,255,255,                    //jmpq          6a6 <_sk_load_tables_hsw+0x1a>
+  233,114,255,255,255,                    //jmpq          702 <_sk_load_tables_hsw+0x1a>
 };
 
 CODE const uint8_t sk_load_a8_hsw[] = {
@@ -7661,7 +7793,7 @@ CODE const uint8_t sk_load_a8_hsw[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,42,                                 //jne           76e <_sk_load_a8_hsw+0x3a>
+  117,42,                                 //jne           7ca <_sk_load_a8_hsw+0x3a>
   197,251,16,0,                           //vmovsd        (%rax),%xmm0
   196,226,125,49,192,                     //vpmovzxbd     %xmm0,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
@@ -7682,9 +7814,9 @@ CODE const uint8_t sk_load_a8_hsw[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           776 <_sk_load_a8_hsw+0x42>
+  117,234,                                //jne           7d2 <_sk_load_a8_hsw+0x42>
   196,193,249,110,193,                    //vmovq         %r9,%xmm0
-  235,181,                                //jmp           748 <_sk_load_a8_hsw+0x14>
+  235,181,                                //jmp           7a4 <_sk_load_a8_hsw+0x14>
 };
 
 CODE const uint8_t sk_store_a8_hsw[] = {
@@ -7697,7 +7829,7 @@ CODE const uint8_t sk_store_a8_hsw[] = {
   196,66,57,43,193,                       //vpackusdw     %xmm9,%xmm8,%xmm8
   196,65,57,103,192,                      //vpackuswb     %xmm8,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           7c6 <_sk_store_a8_hsw+0x33>
+  117,10,                                 //jne           822 <_sk_store_a8_hsw+0x33>
   196,65,123,17,4,57,                     //vmovsd        %xmm8,(%r9,%rdi,1)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -7706,9 +7838,9 @@ CODE const uint8_t sk_store_a8_hsw[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            7c2 <_sk_store_a8_hsw+0x2f>
+  119,236,                                //ja            81e <_sk_store_a8_hsw+0x2f>
   196,66,121,48,192,                      //vpmovzxbw     %xmm8,%xmm8
-  76,141,21,66,0,0,0,                     //lea           0x42(%rip),%r10        # 824 <_sk_store_a8_hsw+0x91>
+  76,141,21,66,0,0,0,                     //lea           0x42(%rip),%r10        # 880 <_sk_store_a8_hsw+0x91>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -7719,7 +7851,7 @@ CODE const uint8_t sk_store_a8_hsw[] = {
   196,67,121,20,68,57,2,4,                //vpextrb       $0x4,%xmm8,0x2(%r9,%rdi,1)
   196,67,121,20,68,57,1,2,                //vpextrb       $0x2,%xmm8,0x1(%r9,%rdi,1)
   196,67,121,20,4,57,0,                   //vpextrb       $0x0,%xmm8,(%r9,%rdi,1)
-  235,158,                                //jmp           7c2 <_sk_store_a8_hsw+0x2f>
+  235,158,                                //jmp           81e <_sk_store_a8_hsw+0x2f>
   247,255,                                //idiv          %edi
   255,                                    //(bad)
   255,                                    //(bad)
@@ -7748,7 +7880,7 @@ CODE const uint8_t sk_load_565_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  117,92,                                 //jne           8a6 <_sk_load_565_hsw+0x66>
+  117,92,                                 //jne           902 <_sk_load_565_hsw+0x66>
   196,193,122,111,4,122,                  //vmovdqu       (%r10,%rdi,2),%xmm0
   196,226,125,51,208,                     //vpmovzxwd     %xmm0,%ymm2
   196,226,125,88,66,104,                  //vpbroadcastd  0x68(%rdx),%ymm0
@@ -7775,8 +7907,8 @@ CODE const uint8_t sk_load_565_hsw[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,146,                                //ja            850 <_sk_load_565_hsw+0x10>
-  76,141,13,75,0,0,0,                     //lea           0x4b(%rip),%r9        # 910 <_sk_load_565_hsw+0xd0>
+  119,146,                                //ja            8ac <_sk_load_565_hsw+0x10>
+  76,141,13,75,0,0,0,                     //lea           0x4b(%rip),%r9        # 96c <_sk_load_565_hsw+0xd0>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -7788,7 +7920,7 @@ CODE const uint8_t sk_load_565_hsw[] = {
   196,193,121,196,68,122,4,2,             //vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   196,193,121,196,68,122,2,1,             //vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   196,193,121,196,4,122,0,                //vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  233,66,255,255,255,                     //jmpq          850 <_sk_load_565_hsw+0x10>
+  233,66,255,255,255,                     //jmpq          8ac <_sk_load_565_hsw+0x10>
   102,144,                                //xchg          %ax,%ax
   242,255,                                //repnz         (bad)
   255,                                    //(bad)
@@ -7833,7 +7965,7 @@ CODE const uint8_t sk_store_565_hsw[] = {
   196,67,125,57,193,1,                    //vextracti128  $0x1,%ymm8,%xmm9
   196,66,57,43,193,                       //vpackusdw     %xmm9,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           98e <_sk_store_565_hsw+0x62>
+  117,10,                                 //jne           9ea <_sk_store_565_hsw+0x62>
   196,65,122,127,4,121,                   //vmovdqu       %xmm8,(%r9,%rdi,2)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -7842,8 +7974,8 @@ CODE const uint8_t sk_store_565_hsw[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            98a <_sk_store_565_hsw+0x5e>
-  76,141,21,71,0,0,0,                     //lea           0x47(%rip),%r10        # 9ec <_sk_store_565_hsw+0xc0>
+  119,236,                                //ja            9e6 <_sk_store_565_hsw+0x5e>
+  76,141,21,71,0,0,0,                     //lea           0x47(%rip),%r10        # a48 <_sk_store_565_hsw+0xc0>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -7855,7 +7987,7 @@ CODE const uint8_t sk_store_565_hsw[] = {
   196,67,121,21,68,121,2,1,               //vpextrw       $0x1,%xmm8,0x2(%r9,%rdi,2)
   197,121,126,192,                        //vmovd         %xmm8,%eax
   102,65,137,4,121,                       //mov           %ax,(%r9,%rdi,2)
-  235,161,                                //jmp           98a <_sk_store_565_hsw+0x5e>
+  235,161,                                //jmp           9e6 <_sk_store_565_hsw+0x5e>
   15,31,0,                                //nopl          (%rax)
   242,255,                                //repnz         (bad)
   255,                                    //(bad)
@@ -7887,21 +8019,25 @@ CODE const uint8_t sk_load_8888_hsw[] = {
   76,141,12,189,0,0,0,0,                  //lea           0x0(,%rdi,4),%r9
   76,3,8,                                 //add           (%rax),%r9
   77,133,192,                             //test          %r8,%r8
-  117,85,                                 //jne           a72 <_sk_load_8888_hsw+0x6a>
+  117,104,                                //jne           ae1 <_sk_load_8888_hsw+0x7d>
   196,193,126,111,25,                     //vmovdqu       (%r9),%ymm3
-  196,226,125,88,82,16,                   //vpbroadcastd  0x10(%rdx),%ymm2
+  184,255,0,0,0,                          //mov           $0xff,%eax
+  197,249,110,192,                        //vmovd         %eax,%xmm0
+  196,226,125,88,208,                     //vpbroadcastd  %xmm0,%ymm2
   197,237,219,195,                        //vpand         %ymm3,%ymm2,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
-  196,98,125,24,66,12,                    //vbroadcastss  0xc(%rdx),%ymm8
-  197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,249,110,200,                        //vmovd         %eax,%xmm1
+  196,98,125,24,193,                      //vbroadcastss  %xmm1,%ymm8
+  196,193,124,89,192,                     //vmulps        %ymm8,%ymm0,%ymm0
   197,245,114,211,8,                      //vpsrld        $0x8,%ymm3,%ymm1
   197,237,219,201,                        //vpand         %ymm1,%ymm2,%ymm1
   197,252,91,201,                         //vcvtdq2ps     %ymm1,%ymm1
-  197,188,89,201,                         //vmulps        %ymm1,%ymm8,%ymm1
+  196,193,116,89,200,                     //vmulps        %ymm8,%ymm1,%ymm1
   197,181,114,211,16,                     //vpsrld        $0x10,%ymm3,%ymm9
   196,193,109,219,209,                    //vpand         %ymm9,%ymm2,%ymm2
   197,252,91,210,                         //vcvtdq2ps     %ymm2,%ymm2
-  197,188,89,210,                         //vmulps        %ymm2,%ymm8,%ymm2
+  196,193,108,89,208,                     //vmulps        %ymm8,%ymm2,%ymm2
   197,229,114,211,24,                     //vpsrld        $0x18,%ymm3,%ymm3
   197,252,91,219,                         //vcvtdq2ps     %ymm3,%ymm3
   196,193,100,89,216,                     //vmulps        %ymm8,%ymm3,%ymm3
@@ -7916,7 +8052,7 @@ CODE const uint8_t sk_load_8888_hsw[] = {
   196,225,249,110,192,                    //vmovq         %rax,%xmm0
   196,226,125,33,192,                     //vpmovsxbd     %xmm0,%ymm0
   196,194,125,140,25,                     //vpmaskmovd    (%r9),%ymm0,%ymm3
-  235,138,                                //jmp           a22 <_sk_load_8888_hsw+0x1a>
+  233,116,255,255,255,                    //jmpq          a7e <_sk_load_8888_hsw+0x1a>
 };
 
 CODE const uint8_t sk_store_8888_hsw[] = {
@@ -7924,7 +8060,9 @@ CODE const uint8_t sk_store_8888_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,141,12,189,0,0,0,0,                  //lea           0x0(,%rdi,4),%r9
   76,3,8,                                 //add           (%rax),%r9
-  196,98,125,24,66,8,                     //vbroadcastss  0x8(%rdx),%ymm8
+  184,0,0,127,67,                         //mov           $0x437f0000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,66,125,24,192,                      //vbroadcastss  %xmm8,%ymm8
   197,60,89,200,                          //vmulps        %ymm0,%ymm8,%ymm9
   196,65,125,91,201,                      //vcvtps2dq     %ymm9,%ymm9
   197,60,89,209,                          //vmulps        %ymm1,%ymm8,%ymm10
@@ -7940,7 +8078,7 @@ CODE const uint8_t sk_store_8888_hsw[] = {
   196,65,45,235,192,                      //vpor          %ymm8,%ymm10,%ymm8
   196,65,53,235,192,                      //vpor          %ymm8,%ymm9,%ymm8
   77,133,192,                             //test          %r8,%r8
-  117,12,                                 //jne           b04 <_sk_store_8888_hsw+0x6c>
+  117,12,                                 //jne           b7e <_sk_store_8888_hsw+0x74>
   196,65,126,127,1,                       //vmovdqu       %ymm8,(%r9)
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,137,193,                             //mov           %r8,%rcx
@@ -7953,14 +8091,14 @@ CODE const uint8_t sk_store_8888_hsw[] = {
   196,97,249,110,200,                     //vmovq         %rax,%xmm9
   196,66,125,33,201,                      //vpmovsxbd     %xmm9,%ymm9
   196,66,53,142,1,                        //vpmaskmovd    %ymm8,%ymm9,(%r9)
-  235,211,                                //jmp           afd <_sk_store_8888_hsw+0x65>
+  235,211,                                //jmp           b77 <_sk_store_8888_hsw+0x6d>
 };
 
 CODE const uint8_t sk_load_f16_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
   72,133,201,                             //test          %rcx,%rcx
-  117,97,                                 //jne           b95 <_sk_load_f16_hsw+0x6b>
+  117,97,                                 //jne           c0f <_sk_load_f16_hsw+0x6b>
   197,249,16,12,248,                      //vmovupd       (%rax,%rdi,8),%xmm1
   197,249,16,84,248,16,                   //vmovupd       0x10(%rax,%rdi,8),%xmm2
   197,249,16,92,248,32,                   //vmovupd       0x20(%rax,%rdi,8),%xmm3
@@ -7986,35 +8124,35 @@ CODE const uint8_t sk_load_f16_hsw[] = {
   197,251,16,12,248,                      //vmovsd        (%rax,%rdi,8),%xmm1
   196,65,57,87,192,                       //vxorpd        %xmm8,%xmm8,%xmm8
   72,131,249,1,                           //cmp           $0x1,%rcx
-  117,6,                                  //jne           bab <_sk_load_f16_hsw+0x81>
+  117,6,                                  //jne           c25 <_sk_load_f16_hsw+0x81>
   197,250,126,201,                        //vmovq         %xmm1,%xmm1
-  235,30,                                 //jmp           bc9 <_sk_load_f16_hsw+0x9f>
+  235,30,                                 //jmp           c43 <_sk_load_f16_hsw+0x9f>
   197,241,22,76,248,8,                    //vmovhpd       0x8(%rax,%rdi,8),%xmm1,%xmm1
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,18,                                 //jb            bc9 <_sk_load_f16_hsw+0x9f>
+  114,18,                                 //jb            c43 <_sk_load_f16_hsw+0x9f>
   197,251,16,84,248,16,                   //vmovsd        0x10(%rax,%rdi,8),%xmm2
   72,131,249,3,                           //cmp           $0x3,%rcx
-  117,19,                                 //jne           bd6 <_sk_load_f16_hsw+0xac>
+  117,19,                                 //jne           c50 <_sk_load_f16_hsw+0xac>
   197,250,126,210,                        //vmovq         %xmm2,%xmm2
-  235,46,                                 //jmp           bf7 <_sk_load_f16_hsw+0xcd>
+  235,46,                                 //jmp           c71 <_sk_load_f16_hsw+0xcd>
   197,225,87,219,                         //vxorpd        %xmm3,%xmm3,%xmm3
   197,233,87,210,                         //vxorpd        %xmm2,%xmm2,%xmm2
-  233,117,255,255,255,                    //jmpq          b4b <_sk_load_f16_hsw+0x21>
+  233,117,255,255,255,                    //jmpq          bc5 <_sk_load_f16_hsw+0x21>
   197,233,22,84,248,24,                   //vmovhpd       0x18(%rax,%rdi,8),%xmm2,%xmm2
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,21,                                 //jb            bf7 <_sk_load_f16_hsw+0xcd>
+  114,21,                                 //jb            c71 <_sk_load_f16_hsw+0xcd>
   197,251,16,92,248,32,                   //vmovsd        0x20(%rax,%rdi,8),%xmm3
   72,131,249,5,                           //cmp           $0x5,%rcx
-  117,18,                                 //jne           c00 <_sk_load_f16_hsw+0xd6>
+  117,18,                                 //jne           c7a <_sk_load_f16_hsw+0xd6>
   197,250,126,219,                        //vmovq         %xmm3,%xmm3
-  233,84,255,255,255,                     //jmpq          b4b <_sk_load_f16_hsw+0x21>
+  233,84,255,255,255,                     //jmpq          bc5 <_sk_load_f16_hsw+0x21>
   197,225,87,219,                         //vxorpd        %xmm3,%xmm3,%xmm3
-  233,75,255,255,255,                     //jmpq          b4b <_sk_load_f16_hsw+0x21>
+  233,75,255,255,255,                     //jmpq          bc5 <_sk_load_f16_hsw+0x21>
   197,225,22,92,248,40,                   //vmovhpd       0x28(%rax,%rdi,8),%xmm3,%xmm3
   72,131,249,7,                           //cmp           $0x7,%rcx
-  15,130,59,255,255,255,                  //jb            b4b <_sk_load_f16_hsw+0x21>
+  15,130,59,255,255,255,                  //jb            bc5 <_sk_load_f16_hsw+0x21>
   197,123,16,68,248,48,                   //vmovsd        0x30(%rax,%rdi,8),%xmm8
-  233,48,255,255,255,                     //jmpq          b4b <_sk_load_f16_hsw+0x21>
+  233,48,255,255,255,                     //jmpq          bc5 <_sk_load_f16_hsw+0x21>
 };
 
 CODE const uint8_t sk_store_f16_hsw[] = {
@@ -8033,7 +8171,7 @@ CODE const uint8_t sk_store_f16_hsw[] = {
   196,65,57,98,205,                       //vpunpckldq    %xmm13,%xmm8,%xmm9
   196,65,57,106,197,                      //vpunpckhdq    %xmm13,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,27,                                 //jne           c80 <_sk_store_f16_hsw+0x65>
+  117,27,                                 //jne           cfa <_sk_store_f16_hsw+0x65>
   197,120,17,28,248,                      //vmovups       %xmm11,(%rax,%rdi,8)
   197,120,17,84,248,16,                   //vmovups       %xmm10,0x10(%rax,%rdi,8)
   197,120,17,76,248,32,                   //vmovups       %xmm9,0x20(%rax,%rdi,8)
@@ -8042,22 +8180,22 @@ CODE const uint8_t sk_store_f16_hsw[] = {
   255,224,                                //jmpq          *%rax
   197,121,214,28,248,                     //vmovq         %xmm11,(%rax,%rdi,8)
   72,131,249,1,                           //cmp           $0x1,%rcx
-  116,241,                                //je            c7c <_sk_store_f16_hsw+0x61>
+  116,241,                                //je            cf6 <_sk_store_f16_hsw+0x61>
   197,121,23,92,248,8,                    //vmovhpd       %xmm11,0x8(%rax,%rdi,8)
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,229,                                //jb            c7c <_sk_store_f16_hsw+0x61>
+  114,229,                                //jb            cf6 <_sk_store_f16_hsw+0x61>
   197,121,214,84,248,16,                  //vmovq         %xmm10,0x10(%rax,%rdi,8)
-  116,221,                                //je            c7c <_sk_store_f16_hsw+0x61>
+  116,221,                                //je            cf6 <_sk_store_f16_hsw+0x61>
   197,121,23,84,248,24,                   //vmovhpd       %xmm10,0x18(%rax,%rdi,8)
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,209,                                //jb            c7c <_sk_store_f16_hsw+0x61>
+  114,209,                                //jb            cf6 <_sk_store_f16_hsw+0x61>
   197,121,214,76,248,32,                  //vmovq         %xmm9,0x20(%rax,%rdi,8)
-  116,201,                                //je            c7c <_sk_store_f16_hsw+0x61>
+  116,201,                                //je            cf6 <_sk_store_f16_hsw+0x61>
   197,121,23,76,248,40,                   //vmovhpd       %xmm9,0x28(%rax,%rdi,8)
   72,131,249,7,                           //cmp           $0x7,%rcx
-  114,189,                                //jb            c7c <_sk_store_f16_hsw+0x61>
+  114,189,                                //jb            cf6 <_sk_store_f16_hsw+0x61>
   197,121,214,68,248,48,                  //vmovq         %xmm8,0x30(%rax,%rdi,8)
-  235,181,                                //jmp           c7c <_sk_store_f16_hsw+0x61>
+  235,181,                                //jmp           cf6 <_sk_store_f16_hsw+0x61>
 };
 
 CODE const uint8_t sk_store_f32_hsw[] = {
@@ -8073,7 +8211,7 @@ CODE const uint8_t sk_store_f32_hsw[] = {
   196,65,37,20,196,                       //vunpcklpd     %ymm12,%ymm11,%ymm8
   196,65,37,21,220,                       //vunpckhpd     %ymm12,%ymm11,%ymm11
   72,133,201,                             //test          %rcx,%rcx
-  117,55,                                 //jne           d34 <_sk_store_f32_hsw+0x6d>
+  117,55,                                 //jne           dae <_sk_store_f32_hsw+0x6d>
   196,67,45,24,225,1,                     //vinsertf128   $0x1,%xmm9,%ymm10,%ymm12
   196,67,61,24,235,1,                     //vinsertf128   $0x1,%xmm11,%ymm8,%ymm13
   196,67,45,6,201,49,                     //vperm2f128    $0x31,%ymm9,%ymm10,%ymm9
@@ -8086,22 +8224,22 @@ CODE const uint8_t sk_store_f32_hsw[] = {
   255,224,                                //jmpq          *%rax
   196,65,121,17,20,128,                   //vmovupd       %xmm10,(%r8,%rax,4)
   72,131,249,1,                           //cmp           $0x1,%rcx
-  116,240,                                //je            d30 <_sk_store_f32_hsw+0x69>
+  116,240,                                //je            daa <_sk_store_f32_hsw+0x69>
   196,65,121,17,76,128,16,                //vmovupd       %xmm9,0x10(%r8,%rax,4)
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,227,                                //jb            d30 <_sk_store_f32_hsw+0x69>
+  114,227,                                //jb            daa <_sk_store_f32_hsw+0x69>
   196,65,121,17,68,128,32,                //vmovupd       %xmm8,0x20(%r8,%rax,4)
-  116,218,                                //je            d30 <_sk_store_f32_hsw+0x69>
+  116,218,                                //je            daa <_sk_store_f32_hsw+0x69>
   196,65,121,17,92,128,48,                //vmovupd       %xmm11,0x30(%r8,%rax,4)
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,205,                                //jb            d30 <_sk_store_f32_hsw+0x69>
+  114,205,                                //jb            daa <_sk_store_f32_hsw+0x69>
   196,67,125,25,84,128,64,1,              //vextractf128  $0x1,%ymm10,0x40(%r8,%rax,4)
-  116,195,                                //je            d30 <_sk_store_f32_hsw+0x69>
+  116,195,                                //je            daa <_sk_store_f32_hsw+0x69>
   196,67,125,25,76,128,80,1,              //vextractf128  $0x1,%ymm9,0x50(%r8,%rax,4)
   72,131,249,7,                           //cmp           $0x7,%rcx
-  114,181,                                //jb            d30 <_sk_store_f32_hsw+0x69>
+  114,181,                                //jb            daa <_sk_store_f32_hsw+0x69>
   196,67,125,25,68,128,96,1,              //vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
-  235,171,                                //jmp           d30 <_sk_store_f32_hsw+0x69>
+  235,171,                                //jmp           daa <_sk_store_f32_hsw+0x69>
 };
 
 CODE const uint8_t sk_clamp_x_hsw[] = {
@@ -8443,13 +8581,19 @@ CODE const uint8_t sk_seed_shader_avx[] = {
   197,249,112,192,0,                      //vpshufd       $0x0,%xmm0,%xmm0
   196,227,125,24,192,1,                   //vinsertf128   $0x1,%xmm0,%ymm0,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
-  196,226,125,24,74,4,                    //vbroadcastss  0x4(%rdx),%ymm1
+  65,184,0,0,0,63,                        //mov           $0x3f000000,%r8d
+  196,193,121,110,200,                    //vmovd         %r8d,%xmm1
+  196,227,121,4,201,0,                    //vpermilps     $0x0,%xmm1,%xmm1
+  196,227,117,24,201,1,                   //vinsertf128   $0x1,%xmm1,%ymm1,%ymm1
   197,252,88,193,                         //vaddps        %ymm1,%ymm0,%ymm0
   197,252,88,66,20,                       //vaddps        0x14(%rdx),%ymm0,%ymm0
   196,226,125,24,16,                      //vbroadcastss  (%rax),%ymm2
   197,252,91,210,                         //vcvtdq2ps     %ymm2,%ymm2
   197,236,88,201,                         //vaddps        %ymm1,%ymm2,%ymm1
-  196,226,125,24,18,                      //vbroadcastss  (%rdx),%ymm2
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,249,110,208,                        //vmovd         %eax,%xmm2
+  196,227,121,4,210,0,                    //vpermilps     $0x0,%xmm2,%xmm2
+  196,227,109,24,210,1,                   //vinsertf128   $0x1,%xmm2,%ymm2,%ymm2
   72,173,                                 //lods          %ds:(%rsi),%rax
   197,228,87,219,                         //vxorps        %ymm3,%ymm3,%ymm3
   197,220,87,228,                         //vxorps        %ymm4,%ymm4,%ymm4
@@ -8488,7 +8632,10 @@ CODE const uint8_t sk_plus__avx[] = {
 };
 
 CODE const uint8_t sk_srcover_avx[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   197,60,92,195,                          //vsubps        %ymm3,%ymm8,%ymm8
   197,60,89,204,                          //vmulps        %ymm4,%ymm8,%ymm9
   197,180,88,192,                         //vaddps        %ymm0,%ymm9,%ymm0
@@ -8503,7 +8650,10 @@ CODE const uint8_t sk_srcover_avx[] = {
 };
 
 CODE const uint8_t sk_dstover_avx[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   197,60,92,199,                          //vsubps        %ymm7,%ymm8,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
   197,252,88,196,                         //vaddps        %ymm4,%ymm0,%ymm0
@@ -8528,7 +8678,10 @@ CODE const uint8_t sk_clamp_0_avx[] = {
 };
 
 CODE const uint8_t sk_clamp_1_avx[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   196,193,124,93,192,                     //vminps        %ymm8,%ymm0,%ymm0
   196,193,116,93,200,                     //vminps        %ymm8,%ymm1,%ymm1
   196,193,108,93,208,                     //vminps        %ymm8,%ymm2,%ymm2
@@ -8538,7 +8691,10 @@ CODE const uint8_t sk_clamp_1_avx[] = {
 };
 
 CODE const uint8_t sk_clamp_a_avx[] = {
-  196,98,125,24,2,                        //vbroadcastss  (%rdx),%ymm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   196,193,100,93,216,                     //vminps        %ymm8,%ymm3,%ymm3
   197,252,93,195,                         //vminps        %ymm3,%ymm0,%ymm0
   197,244,93,203,                         //vminps        %ymm3,%ymm1,%ymm1
@@ -8610,7 +8766,10 @@ CODE const uint8_t sk_premul_avx[] = {
 CODE const uint8_t sk_unpremul_avx[] = {
   196,65,60,87,192,                       //vxorps        %ymm8,%ymm8,%ymm8
   196,65,100,194,200,0,                   //vcmpeqps      %ymm8,%ymm3,%ymm9
-  196,98,125,24,18,                       //vbroadcastss  (%rdx),%ymm10
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,121,110,208,                        //vmovd         %eax,%xmm10
+  196,67,121,4,210,0,                     //vpermilps     $0x0,%xmm10,%xmm10
+  196,67,45,24,210,1,                     //vinsertf128   $0x1,%xmm10,%ymm10,%ymm10
   197,44,94,211,                          //vdivps        %ymm3,%ymm10,%ymm10
   196,67,45,74,192,144,                   //vblendvps     %ymm9,%ymm8,%ymm10,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
@@ -8715,14 +8874,17 @@ CODE const uint8_t sk_scale_u8_avx[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,65,                                 //jne           50f <_sk_scale_u8_avx+0x51>
+  117,80,                                 //jne           58f <_sk_scale_u8_avx+0x60>
   197,123,16,0,                           //vmovsd        (%rax),%xmm8
   196,66,121,49,200,                      //vpmovzxbd     %xmm8,%xmm9
   196,67,121,4,192,229,                   //vpermilps     $0xe5,%xmm8,%xmm8
   196,66,121,49,192,                      //vpmovzxbd     %xmm8,%xmm8
   196,67,53,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm9,%ymm8
   196,65,124,91,192,                      //vcvtdq2ps     %ymm8,%ymm8
-  196,98,125,24,74,12,                    //vbroadcastss  0xc(%rdx),%ymm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,121,110,200,                        //vmovd         %eax,%xmm9
+  196,67,121,4,201,0,                     //vpermilps     $0x0,%xmm9,%xmm9
+  196,67,53,24,201,1,                     //vinsertf128   $0x1,%xmm9,%ymm9,%ymm9
   196,65,60,89,193,                       //vmulps        %ymm9,%ymm8,%ymm8
   197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
   197,188,89,201,                         //vmulps        %ymm1,%ymm8,%ymm1
@@ -8740,9 +8902,9 @@ CODE const uint8_t sk_scale_u8_avx[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           517 <_sk_scale_u8_avx+0x59>
+  117,234,                                //jne           597 <_sk_scale_u8_avx+0x68>
   196,65,249,110,193,                     //vmovq         %r9,%xmm8
-  235,158,                                //jmp           4d2 <_sk_scale_u8_avx+0x14>
+  235,143,                                //jmp           543 <_sk_scale_u8_avx+0x14>
 };
 
 CODE const uint8_t sk_lerp_1_float_avx[] = {
@@ -8770,14 +8932,17 @@ CODE const uint8_t sk_lerp_u8_avx[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,101,                                //jne           5e8 <_sk_lerp_u8_avx+0x75>
+  117,116,                                //jne           677 <_sk_lerp_u8_avx+0x84>
   197,123,16,0,                           //vmovsd        (%rax),%xmm8
   196,66,121,49,200,                      //vpmovzxbd     %xmm8,%xmm9
   196,67,121,4,192,229,                   //vpermilps     $0xe5,%xmm8,%xmm8
   196,66,121,49,192,                      //vpmovzxbd     %xmm8,%xmm8
   196,67,53,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm9,%ymm8
   196,65,124,91,192,                      //vcvtdq2ps     %ymm8,%ymm8
-  196,98,125,24,74,12,                    //vbroadcastss  0xc(%rdx),%ymm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,121,110,200,                        //vmovd         %eax,%xmm9
+  196,67,121,4,201,0,                     //vpermilps     $0x0,%xmm9,%xmm9
+  196,67,53,24,201,1,                     //vinsertf128   $0x1,%xmm9,%ymm9,%ymm9
   196,65,60,89,193,                       //vmulps        %ymm9,%ymm8,%ymm8
   197,252,92,196,                         //vsubps        %ymm4,%ymm0,%ymm0
   196,193,124,89,192,                     //vmulps        %ymm8,%ymm0,%ymm0
@@ -8803,16 +8968,16 @@ CODE const uint8_t sk_lerp_u8_avx[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           5f0 <_sk_lerp_u8_avx+0x7d>
+  117,234,                                //jne           67f <_sk_lerp_u8_avx+0x8c>
   196,65,249,110,193,                     //vmovq         %r9,%xmm8
-  233,119,255,255,255,                    //jmpq          587 <_sk_lerp_u8_avx+0x14>
+  233,104,255,255,255,                    //jmpq          607 <_sk_lerp_u8_avx+0x14>
 };
 
 CODE const uint8_t sk_lerp_565_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  15,133,148,0,0,0,                       //jne           6b2 <_sk_lerp_565_avx+0xa2>
+  15,133,164,0,0,0,                       //jne           751 <_sk_lerp_565_avx+0xb2>
   196,65,122,111,4,122,                   //vmovdqu       (%r10,%rdi,2),%xmm8
   197,225,239,219,                        //vpxor         %xmm3,%xmm3,%xmm3
   197,185,105,219,                        //vpunpckhwd    %xmm3,%xmm8,%xmm3
@@ -8842,7 +9007,10 @@ CODE const uint8_t sk_lerp_565_avx[] = {
   197,236,92,214,                         //vsubps        %ymm6,%ymm2,%ymm2
   197,236,89,211,                         //vmulps        %ymm3,%ymm2,%ymm2
   197,236,88,214,                         //vaddps        %ymm6,%ymm2,%ymm2
-  196,226,125,24,26,                      //vbroadcastss  (%rdx),%ymm3
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  197,249,110,216,                        //vmovd         %eax,%xmm3
+  196,227,121,4,219,0,                    //vpermilps     $0x0,%xmm3,%xmm3
+  196,227,101,24,219,1,                   //vinsertf128   $0x1,%xmm3,%ymm3,%ymm3
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
   65,137,200,                             //mov           %ecx,%r8d
@@ -8851,8 +9019,8 @@ CODE const uint8_t sk_lerp_565_avx[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  15,135,85,255,255,255,                  //ja            624 <_sk_lerp_565_avx+0x14>
-  76,141,13,74,0,0,0,                     //lea           0x4a(%rip),%r9        # 720 <_sk_lerp_565_avx+0x110>
+  15,135,69,255,255,255,                  //ja            6b3 <_sk_lerp_565_avx+0x14>
+  76,141,13,75,0,0,0,                     //lea           0x4b(%rip),%r9        # 7c0 <_sk_lerp_565_avx+0x121>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -8864,27 +9032,28 @@ CODE const uint8_t sk_lerp_565_avx[] = {
   196,65,57,196,68,122,4,2,               //vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm8,%xmm8
   196,65,57,196,68,122,2,1,               //vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm8,%xmm8
   196,65,57,196,4,122,0,                  //vpinsrw       $0x0,(%r10,%rdi,2),%xmm8,%xmm8
-  233,5,255,255,255,                      //jmpq          624 <_sk_lerp_565_avx+0x14>
-  144,                                    //nop
-  243,255,                                //repz          (bad)
+  233,245,254,255,255,                    //jmpq          6b3 <_sk_lerp_565_avx+0x14>
+  102,144,                                //xchg          %ax,%ax
+  242,255,                                //repnz         (bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  235,255,                                //jmp           725 <_sk_lerp_565_avx+0x115>
-  255,                                    //(bad)
-  255,227,                                //jmpq          *%rbx
+  234,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  255,                                    //(bad)
-  219,255,                                //(bad)
-  255,                                    //(bad)
-  255,211,                                //callq         *%rbx
-  255,                                    //(bad)
-  255,                                    //(bad)
-  255,203,                                //dec           %ebx
+  255,226,                                //jmpq          *%rdx
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  191,                                    //.byte         0xbf
+  218,255,                                //(bad)
+  255,                                    //(bad)
+  255,210,                                //callq         *%rdx
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,202,                                //dec           %edx
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,                                    //(bad)
+  190,                                    //.byte         0xbe
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //.byte         0xff
@@ -8900,7 +9069,7 @@ CODE const uint8_t sk_load_tables_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,0,                               //mov           (%rax),%r8
   72,133,201,                             //test          %rcx,%rcx
-  15,133,18,2,0,0,                        //jne           966 <_sk_load_tables_avx+0x22a>
+  15,133,18,2,0,0,                        //jne           a06 <_sk_load_tables_avx+0x22a>
   196,65,124,16,4,184,                    //vmovups       (%r8,%rdi,4),%ymm8
   196,98,125,24,74,16,                    //vbroadcastss  0x10(%rdx),%ymm9
   196,193,52,84,192,                      //vandps        %ymm8,%ymm9,%ymm0
@@ -9012,8 +9181,8 @@ CODE const uint8_t sk_load_tables_avx[] = {
   65,254,201,                             //dec           %r9b
   69,15,182,201,                          //movzbl        %r9b,%r9d
   65,128,249,6,                           //cmp           $0x6,%r9b
-  15,135,215,253,255,255,                 //ja            75a <_sk_load_tables_avx+0x1e>
-  76,141,21,138,0,0,0,                    //lea           0x8a(%rip),%r10        # a14 <_sk_load_tables_avx+0x2d8>
+  15,135,215,253,255,255,                 //ja            7fa <_sk_load_tables_avx+0x1e>
+  76,141,21,138,0,0,0,                    //lea           0x8a(%rip),%r10        # ab4 <_sk_load_tables_avx+0x2d8>
   79,99,12,138,                           //movslq        (%r10,%r9,4),%r9
   77,1,209,                               //add           %r10,%r9
   65,255,225,                             //jmpq          *%r9
@@ -9036,7 +9205,7 @@ CODE const uint8_t sk_load_tables_avx[] = {
   196,99,61,12,192,15,                    //vblendps      $0xf,%ymm0,%ymm8,%ymm8
   196,195,57,34,4,184,0,                  //vpinsrd       $0x0,(%r8,%rdi,4),%xmm8,%xmm0
   196,99,61,12,192,15,                    //vblendps      $0xf,%ymm0,%ymm8,%ymm8
-  233,70,253,255,255,                     //jmpq          75a <_sk_load_tables_avx+0x1e>
+  233,70,253,255,255,                     //jmpq          7fa <_sk_load_tables_avx+0x1e>
   238,                                    //out           %al,(%dx)
   255,                                    //(bad)
   255,                                    //(bad)
@@ -9063,7 +9232,7 @@ CODE const uint8_t sk_load_a8_avx[] = {
   72,139,0,                               //mov           (%rax),%rax
   72,1,248,                               //add           %rdi,%rax
   77,133,192,                             //test          %r8,%r8
-  117,59,                                 //jne           a7b <_sk_load_a8_avx+0x4b>
+  117,59,                                 //jne           b1b <_sk_load_a8_avx+0x4b>
   197,251,16,0,                           //vmovsd        (%rax),%xmm0
   196,226,121,49,200,                     //vpmovzxbd     %xmm0,%xmm1
   196,227,121,4,192,229,                  //vpermilps     $0xe5,%xmm0,%xmm0
@@ -9087,9 +9256,9 @@ CODE const uint8_t sk_load_a8_avx[] = {
   77,9,217,                               //or            %r11,%r9
   72,131,193,8,                           //add           $0x8,%rcx
   73,255,202,                             //dec           %r10
-  117,234,                                //jne           a83 <_sk_load_a8_avx+0x53>
+  117,234,                                //jne           b23 <_sk_load_a8_avx+0x53>
   196,193,249,110,193,                    //vmovq         %r9,%xmm0
-  235,164,                                //jmp           a44 <_sk_load_a8_avx+0x14>
+  235,164,                                //jmp           ae4 <_sk_load_a8_avx+0x14>
 };
 
 CODE const uint8_t sk_store_a8_avx[] = {
@@ -9102,7 +9271,7 @@ CODE const uint8_t sk_store_a8_avx[] = {
   196,66,57,43,193,                       //vpackusdw     %xmm9,%xmm8,%xmm8
   196,65,57,103,192,                      //vpackuswb     %xmm8,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           ad3 <_sk_store_a8_avx+0x33>
+  117,10,                                 //jne           b73 <_sk_store_a8_avx+0x33>
   196,65,123,17,4,57,                     //vmovsd        %xmm8,(%r9,%rdi,1)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -9111,9 +9280,9 @@ CODE const uint8_t sk_store_a8_avx[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            acf <_sk_store_a8_avx+0x2f>
+  119,236,                                //ja            b6f <_sk_store_a8_avx+0x2f>
   196,66,121,48,192,                      //vpmovzxbw     %xmm8,%xmm8
-  76,141,21,69,0,0,0,                     //lea           0x45(%rip),%r10        # b34 <_sk_store_a8_avx+0x94>
+  76,141,21,69,0,0,0,                     //lea           0x45(%rip),%r10        # bd4 <_sk_store_a8_avx+0x94>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -9124,7 +9293,7 @@ CODE const uint8_t sk_store_a8_avx[] = {
   196,67,121,20,68,57,2,4,                //vpextrb       $0x4,%xmm8,0x2(%r9,%rdi,1)
   196,67,121,20,68,57,1,2,                //vpextrb       $0x2,%xmm8,0x1(%r9,%rdi,1)
   196,67,121,20,4,57,0,                   //vpextrb       $0x0,%xmm8,(%r9,%rdi,1)
-  235,158,                                //jmp           acf <_sk_store_a8_avx+0x2f>
+  235,158,                                //jmp           b6f <_sk_store_a8_avx+0x2f>
   15,31,0,                                //nopl          (%rax)
   244,                                    //hlt
   255,                                    //(bad)
@@ -9155,7 +9324,7 @@ CODE const uint8_t sk_load_565_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  117,106,                                //jne           bc4 <_sk_load_565_avx+0x74>
+  117,106,                                //jne           c64 <_sk_load_565_avx+0x74>
   196,193,122,111,4,122,                  //vmovdqu       (%r10,%rdi,2),%xmm0
   197,241,239,201,                        //vpxor         %xmm1,%xmm1,%xmm1
   197,249,105,201,                        //vpunpckhwd    %xmm1,%xmm0,%xmm1
@@ -9185,8 +9354,8 @@ CODE const uint8_t sk_load_565_avx[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,132,                                //ja            b60 <_sk_load_565_avx+0x10>
-  76,141,13,73,0,0,0,                     //lea           0x49(%rip),%r9        # c2c <_sk_load_565_avx+0xdc>
+  119,132,                                //ja            c00 <_sk_load_565_avx+0x10>
+  76,141,13,73,0,0,0,                     //lea           0x49(%rip),%r9        # ccc <_sk_load_565_avx+0xdc>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -9198,7 +9367,7 @@ CODE const uint8_t sk_load_565_avx[] = {
   196,193,121,196,68,122,4,2,             //vpinsrw       $0x2,0x4(%r10,%rdi,2),%xmm0,%xmm0
   196,193,121,196,68,122,2,1,             //vpinsrw       $0x1,0x2(%r10,%rdi,2),%xmm0,%xmm0
   196,193,121,196,4,122,0,                //vpinsrw       $0x0,(%r10,%rdi,2),%xmm0,%xmm0
-  233,52,255,255,255,                     //jmpq          b60 <_sk_load_565_avx+0x10>
+  233,52,255,255,255,                     //jmpq          c00 <_sk_load_565_avx+0x10>
   244,                                    //hlt
   255,                                    //(bad)
   255,                                    //(bad)
@@ -9248,7 +9417,7 @@ CODE const uint8_t sk_store_565_avx[] = {
   196,67,125,25,193,1,                    //vextractf128  $0x1,%ymm8,%xmm9
   196,66,57,43,193,                       //vpackusdw     %xmm9,%xmm8,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           cce <_sk_store_565_avx+0x86>
+  117,10,                                 //jne           d6e <_sk_store_565_avx+0x86>
   196,65,122,127,4,121,                   //vmovdqu       %xmm8,(%r9,%rdi,2)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -9257,8 +9426,8 @@ CODE const uint8_t sk_store_565_avx[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            cca <_sk_store_565_avx+0x82>
-  76,141,21,71,0,0,0,                     //lea           0x47(%rip),%r10        # d2c <_sk_store_565_avx+0xe4>
+  119,236,                                //ja            d6a <_sk_store_565_avx+0x82>
+  76,141,21,71,0,0,0,                     //lea           0x47(%rip),%r10        # dcc <_sk_store_565_avx+0xe4>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -9270,7 +9439,7 @@ CODE const uint8_t sk_store_565_avx[] = {
   196,67,121,21,68,121,2,1,               //vpextrw       $0x1,%xmm8,0x2(%r9,%rdi,2)
   197,121,126,192,                        //vmovd         %xmm8,%eax
   102,65,137,4,121,                       //mov           %ax,(%r9,%rdi,2)
-  235,161,                                //jmp           cca <_sk_store_565_avx+0x82>
+  235,161,                                //jmp           d6a <_sk_store_565_avx+0x82>
   15,31,0,                                //nopl          (%rax)
   242,255,                                //repnz         (bad)
   255,                                    //(bad)
@@ -9300,26 +9469,32 @@ CODE const uint8_t sk_load_8888_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,16,                              //mov           (%rax),%r10
   72,133,201,                             //test          %rcx,%rcx
-  117,125,                                //jne           dcf <_sk_load_8888_avx+0x87>
+  15,133,157,0,0,0,                       //jne           e93 <_sk_load_8888_avx+0xab>
   196,65,124,16,12,186,                   //vmovups       (%r10,%rdi,4),%ymm9
-  196,98,125,24,90,16,                    //vbroadcastss  0x10(%rdx),%ymm11
+  184,255,0,0,0,                          //mov           $0xff,%eax
+  197,249,110,192,                        //vmovd         %eax,%xmm0
+  197,249,112,192,0,                      //vpshufd       $0x0,%xmm0,%xmm0
+  196,99,125,24,216,1,                    //vinsertf128   $0x1,%xmm0,%ymm0,%ymm11
   196,193,36,84,193,                      //vandps        %ymm9,%ymm11,%ymm0
   197,252,91,192,                         //vcvtdq2ps     %ymm0,%ymm0
-  196,98,125,24,66,12,                    //vbroadcastss  0xc(%rdx),%ymm8
-  197,188,89,192,                         //vmulps        %ymm0,%ymm8,%ymm0
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  197,249,110,200,                        //vmovd         %eax,%xmm1
+  196,227,121,4,201,0,                    //vpermilps     $0x0,%xmm1,%xmm1
+  196,99,117,24,193,1,                    //vinsertf128   $0x1,%xmm1,%ymm1,%ymm8
+  196,193,124,89,192,                     //vmulps        %ymm8,%ymm0,%ymm0
   196,193,41,114,209,8,                   //vpsrld        $0x8,%xmm9,%xmm10
   196,99,125,25,203,1,                    //vextractf128  $0x1,%ymm9,%xmm3
   197,241,114,211,8,                      //vpsrld        $0x8,%xmm3,%xmm1
   196,227,45,24,201,1,                    //vinsertf128   $0x1,%xmm1,%ymm10,%ymm1
   197,164,84,201,                         //vandps        %ymm1,%ymm11,%ymm1
   197,252,91,201,                         //vcvtdq2ps     %ymm1,%ymm1
-  197,188,89,201,                         //vmulps        %ymm1,%ymm8,%ymm1
+  196,193,116,89,200,                     //vmulps        %ymm8,%ymm1,%ymm1
   196,193,41,114,209,16,                  //vpsrld        $0x10,%xmm9,%xmm10
   197,233,114,211,16,                     //vpsrld        $0x10,%xmm3,%xmm2
   196,227,45,24,210,1,                    //vinsertf128   $0x1,%xmm2,%ymm10,%ymm2
   197,164,84,210,                         //vandps        %ymm2,%ymm11,%ymm2
   197,252,91,210,                         //vcvtdq2ps     %ymm2,%ymm2
-  197,188,89,210,                         //vmulps        %ymm2,%ymm8,%ymm2
+  196,193,108,89,208,                     //vmulps        %ymm8,%ymm2,%ymm2
   196,193,49,114,209,24,                  //vpsrld        $0x18,%xmm9,%xmm9
   197,225,114,211,24,                     //vpsrld        $0x18,%xmm3,%xmm3
   196,227,53,24,219,1,                    //vinsertf128   $0x1,%xmm3,%ymm9,%ymm3
@@ -9333,8 +9508,8 @@ CODE const uint8_t sk_load_8888_avx[] = {
   65,254,200,                             //dec           %r8b
   69,15,182,192,                          //movzbl        %r8b,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  15,135,108,255,255,255,                 //ja            d58 <_sk_load_8888_avx+0x10>
-  76,141,13,137,0,0,0,                    //lea           0x89(%rip),%r9        # e7c <_sk_load_8888_avx+0x134>
+  15,135,76,255,255,255,                  //ja            dfc <_sk_load_8888_avx+0x14>
+  76,141,13,137,0,0,0,                    //lea           0x89(%rip),%r9        # f40 <_sk_load_8888_avx+0x158>
   75,99,4,129,                            //movslq        (%r9,%r8,4),%rax
   76,1,200,                               //add           %r9,%rax
   255,224,                                //jmpq          *%rax
@@ -9357,7 +9532,7 @@ CODE const uint8_t sk_load_8888_avx[] = {
   196,99,53,12,200,15,                    //vblendps      $0xf,%ymm0,%ymm9,%ymm9
   196,195,49,34,4,186,0,                  //vpinsrd       $0x0,(%r10,%rdi,4),%xmm9,%xmm0
   196,99,53,12,200,15,                    //vblendps      $0xf,%ymm0,%ymm9,%ymm9
-  233,220,254,255,255,                    //jmpq          d58 <_sk_load_8888_avx+0x10>
+  233,188,254,255,255,                    //jmpq          dfc <_sk_load_8888_avx+0x14>
   238,                                    //out           %al,(%dx)
   255,                                    //(bad)
   255,                                    //(bad)
@@ -9381,7 +9556,10 @@ CODE const uint8_t sk_load_8888_avx[] = {
 CODE const uint8_t sk_store_8888_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   76,139,8,                               //mov           (%rax),%r9
-  196,98,125,24,66,8,                     //vbroadcastss  0x8(%rdx),%ymm8
+  184,0,0,127,67,                         //mov           $0x437f0000,%eax
+  197,121,110,192,                        //vmovd         %eax,%xmm8
+  196,67,121,4,192,0,                     //vpermilps     $0x0,%xmm8,%xmm8
+  196,67,61,24,192,1,                     //vinsertf128   $0x1,%xmm8,%ymm8,%ymm8
   197,60,89,200,                          //vmulps        %ymm0,%ymm8,%ymm9
   196,65,125,91,201,                      //vcvtps2dq     %ymm9,%ymm9
   197,60,89,209,                          //vmulps        %ymm1,%ymm8,%ymm10
@@ -9406,7 +9584,7 @@ CODE const uint8_t sk_store_8888_avx[] = {
   196,65,45,86,192,                       //vorpd         %ymm8,%ymm10,%ymm8
   196,65,53,86,192,                       //vorpd         %ymm8,%ymm9,%ymm8
   72,133,201,                             //test          %rcx,%rcx
-  117,10,                                 //jne           f2d <_sk_store_8888_avx+0x95>
+  117,10,                                 //jne           1000 <_sk_store_8888_avx+0xa4>
   196,65,124,17,4,185,                    //vmovups       %ymm8,(%r9,%rdi,4)
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -9415,8 +9593,8 @@ CODE const uint8_t sk_store_8888_avx[] = {
   254,200,                                //dec           %al
   68,15,182,192,                          //movzbl        %al,%r8d
   65,128,248,6,                           //cmp           $0x6,%r8b
-  119,236,                                //ja            f29 <_sk_store_8888_avx+0x91>
-  76,141,21,84,0,0,0,                     //lea           0x54(%rip),%r10        # f98 <_sk_store_8888_avx+0x100>
+  119,236,                                //ja            ffc <_sk_store_8888_avx+0xa0>
+  76,141,21,85,0,0,0,                     //lea           0x55(%rip),%r10        # 106c <_sk_store_8888_avx+0x110>
   75,99,4,130,                            //movslq        (%r10,%r8,4),%rax
   76,1,208,                               //add           %r10,%rax
   255,224,                                //jmpq          *%rax
@@ -9430,28 +9608,29 @@ CODE const uint8_t sk_store_8888_avx[] = {
   196,67,121,22,68,185,8,2,               //vpextrd       $0x2,%xmm8,0x8(%r9,%rdi,4)
   196,67,121,22,68,185,4,1,               //vpextrd       $0x1,%xmm8,0x4(%r9,%rdi,4)
   196,65,121,126,4,185,                   //vmovd         %xmm8,(%r9,%rdi,4)
-  235,147,                                //jmp           f29 <_sk_store_8888_avx+0x91>
-  102,144,                                //xchg          %ax,%ax
-  246,255,                                //idiv          %bh
-  255,                                    //(bad)
-  255,                                    //(bad)
-  238,                                    //out           %al,(%dx)
-  255,                                    //(bad)
-  255,                                    //(bad)
-  255,230,                                //jmpq          *%rsi
+  235,147,                                //jmp           ffc <_sk_store_8888_avx+0xa0>
+  15,31,0,                                //nopl          (%rax)
+  245,                                    //cmc
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  222,255,                                //fdivrp        %st,%st(7)
-  255,                                    //(bad)
-  255,209,                                //callq         *%rcx
+  237,                                    //in            (%dx),%eax
   255,                                    //(bad)
   255,                                    //(bad)
-  255,195,                                //inc           %ebx
+  255,229,                                //jmpq          *%rbp
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,                                    //(bad)
+  221,255,                                //(bad)
+  255,                                    //(bad)
+  255,208,                                //callq         *%rax
+  255,                                    //(bad)
+  255,                                    //(bad)
+  255,194,                                //inc           %edx
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //.byte         0xff
-  181,255,                                //mov           $0xff,%ch
+  180,255,                                //mov           $0xff,%ah
   255,                                    //(bad)
   255,                                    //.byte         0xff
 };
@@ -9460,7 +9639,7 @@ CODE const uint8_t sk_load_f16_avx[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
   72,133,201,                             //test          %rcx,%rcx
-  15,133,240,0,0,0,                       //jne           10b2 <_sk_load_f16_avx+0xfe>
+  15,133,240,0,0,0,                       //jne           1186 <_sk_load_f16_avx+0xfe>
   197,249,16,12,248,                      //vmovupd       (%rax,%rdi,8),%xmm1
   197,249,16,84,248,16,                   //vmovupd       0x10(%rax,%rdi,8),%xmm2
   197,249,16,92,248,32,                   //vmovupd       0x20(%rax,%rdi,8),%xmm3
@@ -9514,35 +9693,35 @@ CODE const uint8_t sk_load_f16_avx[] = {
   197,251,16,12,248,                      //vmovsd        (%rax,%rdi,8),%xmm1
   196,65,57,87,192,                       //vxorpd        %xmm8,%xmm8,%xmm8
   72,131,249,1,                           //cmp           $0x1,%rcx
-  117,6,                                  //jne           10c8 <_sk_load_f16_avx+0x114>
+  117,6,                                  //jne           119c <_sk_load_f16_avx+0x114>
   197,250,126,201,                        //vmovq         %xmm1,%xmm1
-  235,30,                                 //jmp           10e6 <_sk_load_f16_avx+0x132>
+  235,30,                                 //jmp           11ba <_sk_load_f16_avx+0x132>
   197,241,22,76,248,8,                    //vmovhpd       0x8(%rax,%rdi,8),%xmm1,%xmm1
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,18,                                 //jb            10e6 <_sk_load_f16_avx+0x132>
+  114,18,                                 //jb            11ba <_sk_load_f16_avx+0x132>
   197,251,16,84,248,16,                   //vmovsd        0x10(%rax,%rdi,8),%xmm2
   72,131,249,3,                           //cmp           $0x3,%rcx
-  117,19,                                 //jne           10f3 <_sk_load_f16_avx+0x13f>
+  117,19,                                 //jne           11c7 <_sk_load_f16_avx+0x13f>
   197,250,126,210,                        //vmovq         %xmm2,%xmm2
-  235,46,                                 //jmp           1114 <_sk_load_f16_avx+0x160>
+  235,46,                                 //jmp           11e8 <_sk_load_f16_avx+0x160>
   197,225,87,219,                         //vxorpd        %xmm3,%xmm3,%xmm3
   197,233,87,210,                         //vxorpd        %xmm2,%xmm2,%xmm2
-  233,230,254,255,255,                    //jmpq          fd9 <_sk_load_f16_avx+0x25>
+  233,230,254,255,255,                    //jmpq          10ad <_sk_load_f16_avx+0x25>
   197,233,22,84,248,24,                   //vmovhpd       0x18(%rax,%rdi,8),%xmm2,%xmm2
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,21,                                 //jb            1114 <_sk_load_f16_avx+0x160>
+  114,21,                                 //jb            11e8 <_sk_load_f16_avx+0x160>
   197,251,16,92,248,32,                   //vmovsd        0x20(%rax,%rdi,8),%xmm3
   72,131,249,5,                           //cmp           $0x5,%rcx
-  117,18,                                 //jne           111d <_sk_load_f16_avx+0x169>
+  117,18,                                 //jne           11f1 <_sk_load_f16_avx+0x169>
   197,250,126,219,                        //vmovq         %xmm3,%xmm3
-  233,197,254,255,255,                    //jmpq          fd9 <_sk_load_f16_avx+0x25>
+  233,197,254,255,255,                    //jmpq          10ad <_sk_load_f16_avx+0x25>
   197,225,87,219,                         //vxorpd        %xmm3,%xmm3,%xmm3
-  233,188,254,255,255,                    //jmpq          fd9 <_sk_load_f16_avx+0x25>
+  233,188,254,255,255,                    //jmpq          10ad <_sk_load_f16_avx+0x25>
   197,225,22,92,248,40,                   //vmovhpd       0x28(%rax,%rdi,8),%xmm3,%xmm3
   72,131,249,7,                           //cmp           $0x7,%rcx
-  15,130,172,254,255,255,                 //jb            fd9 <_sk_load_f16_avx+0x25>
+  15,130,172,254,255,255,                 //jb            10ad <_sk_load_f16_avx+0x25>
   197,123,16,68,248,48,                   //vmovsd        0x30(%rax,%rdi,8),%xmm8
-  233,161,254,255,255,                    //jmpq          fd9 <_sk_load_f16_avx+0x25>
+  233,161,254,255,255,                    //jmpq          10ad <_sk_load_f16_avx+0x25>
 };
 
 CODE const uint8_t sk_store_f16_avx[] = {
@@ -9578,7 +9757,7 @@ CODE const uint8_t sk_store_f16_avx[] = {
   196,65,25,98,205,                       //vpunpckldq    %xmm13,%xmm12,%xmm9
   196,65,25,106,197,                      //vpunpckhdq    %xmm13,%xmm12,%xmm8
   72,133,201,                             //test          %rcx,%rcx
-  117,27,                                 //jne           11fb <_sk_store_f16_avx+0xc3>
+  117,27,                                 //jne           12cf <_sk_store_f16_avx+0xc3>
   197,120,17,28,248,                      //vmovups       %xmm11,(%rax,%rdi,8)
   197,120,17,84,248,16,                   //vmovups       %xmm10,0x10(%rax,%rdi,8)
   197,120,17,76,248,32,                   //vmovups       %xmm9,0x20(%rax,%rdi,8)
@@ -9587,22 +9766,22 @@ CODE const uint8_t sk_store_f16_avx[] = {
   255,224,                                //jmpq          *%rax
   197,121,214,28,248,                     //vmovq         %xmm11,(%rax,%rdi,8)
   72,131,249,1,                           //cmp           $0x1,%rcx
-  116,241,                                //je            11f7 <_sk_store_f16_avx+0xbf>
+  116,241,                                //je            12cb <_sk_store_f16_avx+0xbf>
   197,121,23,92,248,8,                    //vmovhpd       %xmm11,0x8(%rax,%rdi,8)
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,229,                                //jb            11f7 <_sk_store_f16_avx+0xbf>
+  114,229,                                //jb            12cb <_sk_store_f16_avx+0xbf>
   197,121,214,84,248,16,                  //vmovq         %xmm10,0x10(%rax,%rdi,8)
-  116,221,                                //je            11f7 <_sk_store_f16_avx+0xbf>
+  116,221,                                //je            12cb <_sk_store_f16_avx+0xbf>
   197,121,23,84,248,24,                   //vmovhpd       %xmm10,0x18(%rax,%rdi,8)
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,209,                                //jb            11f7 <_sk_store_f16_avx+0xbf>
+  114,209,                                //jb            12cb <_sk_store_f16_avx+0xbf>
   197,121,214,76,248,32,                  //vmovq         %xmm9,0x20(%rax,%rdi,8)
-  116,201,                                //je            11f7 <_sk_store_f16_avx+0xbf>
+  116,201,                                //je            12cb <_sk_store_f16_avx+0xbf>
   197,121,23,76,248,40,                   //vmovhpd       %xmm9,0x28(%rax,%rdi,8)
   72,131,249,7,                           //cmp           $0x7,%rcx
-  114,189,                                //jb            11f7 <_sk_store_f16_avx+0xbf>
+  114,189,                                //jb            12cb <_sk_store_f16_avx+0xbf>
   197,121,214,68,248,48,                  //vmovq         %xmm8,0x30(%rax,%rdi,8)
-  235,181,                                //jmp           11f7 <_sk_store_f16_avx+0xbf>
+  235,181,                                //jmp           12cb <_sk_store_f16_avx+0xbf>
 };
 
 CODE const uint8_t sk_store_f32_avx[] = {
@@ -9618,7 +9797,7 @@ CODE const uint8_t sk_store_f32_avx[] = {
   196,65,37,20,196,                       //vunpcklpd     %ymm12,%ymm11,%ymm8
   196,65,37,21,220,                       //vunpckhpd     %ymm12,%ymm11,%ymm11
   72,133,201,                             //test          %rcx,%rcx
-  117,55,                                 //jne           12af <_sk_store_f32_avx+0x6d>
+  117,55,                                 //jne           1383 <_sk_store_f32_avx+0x6d>
   196,67,45,24,225,1,                     //vinsertf128   $0x1,%xmm9,%ymm10,%ymm12
   196,67,61,24,235,1,                     //vinsertf128   $0x1,%xmm11,%ymm8,%ymm13
   196,67,45,6,201,49,                     //vperm2f128    $0x31,%ymm9,%ymm10,%ymm9
@@ -9631,22 +9810,22 @@ CODE const uint8_t sk_store_f32_avx[] = {
   255,224,                                //jmpq          *%rax
   196,65,121,17,20,128,                   //vmovupd       %xmm10,(%r8,%rax,4)
   72,131,249,1,                           //cmp           $0x1,%rcx
-  116,240,                                //je            12ab <_sk_store_f32_avx+0x69>
+  116,240,                                //je            137f <_sk_store_f32_avx+0x69>
   196,65,121,17,76,128,16,                //vmovupd       %xmm9,0x10(%r8,%rax,4)
   72,131,249,3,                           //cmp           $0x3,%rcx
-  114,227,                                //jb            12ab <_sk_store_f32_avx+0x69>
+  114,227,                                //jb            137f <_sk_store_f32_avx+0x69>
   196,65,121,17,68,128,32,                //vmovupd       %xmm8,0x20(%r8,%rax,4)
-  116,218,                                //je            12ab <_sk_store_f32_avx+0x69>
+  116,218,                                //je            137f <_sk_store_f32_avx+0x69>
   196,65,121,17,92,128,48,                //vmovupd       %xmm11,0x30(%r8,%rax,4)
   72,131,249,5,                           //cmp           $0x5,%rcx
-  114,205,                                //jb            12ab <_sk_store_f32_avx+0x69>
+  114,205,                                //jb            137f <_sk_store_f32_avx+0x69>
   196,67,125,25,84,128,64,1,              //vextractf128  $0x1,%ymm10,0x40(%r8,%rax,4)
-  116,195,                                //je            12ab <_sk_store_f32_avx+0x69>
+  116,195,                                //je            137f <_sk_store_f32_avx+0x69>
   196,67,125,25,76,128,80,1,              //vextractf128  $0x1,%ymm9,0x50(%r8,%rax,4)
   72,131,249,7,                           //cmp           $0x7,%rcx
-  114,181,                                //jb            12ab <_sk_store_f32_avx+0x69>
+  114,181,                                //jb            137f <_sk_store_f32_avx+0x69>
   196,67,125,25,68,128,96,1,              //vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
-  235,171,                                //jmp           12ab <_sk_store_f32_avx+0x69>
+  235,171,                                //jmp           137f <_sk_store_f32_avx+0x69>
 };
 
 CODE const uint8_t sk_clamp_x_avx[] = {
@@ -10034,16 +10213,18 @@ CODE const uint8_t sk_seed_shader_sse41[] = {
   102,15,110,199,                         //movd          %edi,%xmm0
   102,15,112,192,0,                       //pshufd        $0x0,%xmm0,%xmm0
   15,91,200,                              //cvtdq2ps      %xmm0,%xmm1
-  243,15,16,18,                           //movss         (%rdx),%xmm2
-  243,15,16,90,4,                         //movss         0x4(%rdx),%xmm3
-  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
-  15,88,203,                              //addps         %xmm3,%xmm1
+  185,0,0,0,63,                           //mov           $0x3f000000,%ecx
+  102,15,110,209,                         //movd          %ecx,%xmm2
+  15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
+  15,88,202,                              //addps         %xmm2,%xmm1
   15,16,66,20,                            //movups        0x14(%rdx),%xmm0
   15,88,193,                              //addps         %xmm1,%xmm0
   102,15,110,8,                           //movd          (%rax),%xmm1
   102,15,112,201,0,                       //pshufd        $0x0,%xmm1,%xmm1
   15,91,201,                              //cvtdq2ps      %xmm1,%xmm1
-  15,88,203,                              //addps         %xmm3,%xmm1
+  15,88,202,                              //addps         %xmm2,%xmm1
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,15,110,208,                         //movd          %eax,%xmm2
   15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
   72,173,                                 //lods          %ds:(%rsi),%rax
   15,87,219,                              //xorps         %xmm3,%xmm3
@@ -10087,7 +10268,8 @@ CODE const uint8_t sk_plus__sse41[] = {
 };
 
 CODE const uint8_t sk_srcover_sse41[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   68,15,92,195,                           //subps         %xmm3,%xmm8
   69,15,40,200,                           //movaps        %xmm8,%xmm9
@@ -10106,7 +10288,8 @@ CODE const uint8_t sk_srcover_sse41[] = {
 };
 
 CODE const uint8_t sk_dstover_sse41[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   68,15,92,199,                           //subps         %xmm7,%xmm8
   65,15,89,192,                           //mulps         %xmm8,%xmm0
@@ -10132,7 +10315,8 @@ CODE const uint8_t sk_clamp_0_sse41[] = {
 };
 
 CODE const uint8_t sk_clamp_1_sse41[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,93,192,                           //minps         %xmm8,%xmm0
   65,15,93,200,                           //minps         %xmm8,%xmm1
@@ -10143,7 +10327,8 @@ CODE const uint8_t sk_clamp_1_sse41[] = {
 };
 
 CODE const uint8_t sk_clamp_a_sse41[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,93,216,                           //minps         %xmm8,%xmm3
   15,93,195,                              //minps         %xmm3,%xmm0
@@ -10219,7 +10404,8 @@ CODE const uint8_t sk_premul_sse41[] = {
 CODE const uint8_t sk_unpremul_sse41[] = {
   68,15,40,192,                           //movaps        %xmm0,%xmm8
   69,15,87,201,                           //xorps         %xmm9,%xmm9
-  243,68,15,16,18,                        //movss         (%rdx),%xmm10
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,208,                      //movd          %eax,%xmm10
   69,15,198,210,0,                        //shufps        $0x0,%xmm10,%xmm10
   68,15,94,211,                           //divps         %xmm3,%xmm10
   15,40,195,                              //movaps        %xmm3,%xmm0
@@ -10373,7 +10559,8 @@ CODE const uint8_t sk_scale_u8_sse41[] = {
   72,139,0,                               //mov           (%rax),%rax
   102,68,15,56,49,4,56,                   //pmovzxbd      (%rax,%rdi,1),%xmm8
   69,15,91,192,                           //cvtdq2ps      %xmm8,%xmm8
-  243,68,15,16,74,12,                     //movss         0xc(%rdx),%xmm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   69,15,89,200,                           //mulps         %xmm8,%xmm9
   65,15,89,193,                           //mulps         %xmm9,%xmm0
@@ -10409,7 +10596,8 @@ CODE const uint8_t sk_lerp_u8_sse41[] = {
   72,139,0,                               //mov           (%rax),%rax
   102,68,15,56,49,4,56,                   //pmovzxbd      (%rax,%rdi,1),%xmm8
   69,15,91,192,                           //cvtdq2ps      %xmm8,%xmm8
-  243,68,15,16,74,12,                     //movss         0xc(%rdx),%xmm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   69,15,89,200,                           //mulps         %xmm8,%xmm9
   15,92,196,                              //subps         %xmm4,%xmm0
@@ -10436,33 +10624,34 @@ CODE const uint8_t sk_lerp_565_sse41[] = {
   102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
   102,65,15,219,216,                      //pand          %xmm8,%xmm3
   68,15,91,203,                           //cvtdq2ps      %xmm3,%xmm9
-  243,15,16,26,                           //movss         (%rdx),%xmm3
-  243,68,15,16,82,116,                    //movss         0x74(%rdx),%xmm10
-  69,15,198,210,0,                        //shufps        $0x0,%xmm10,%xmm10
-  69,15,89,209,                           //mulps         %xmm9,%xmm10
-  102,68,15,110,74,108,                   //movd          0x6c(%rdx),%xmm9
-  102,69,15,112,201,0,                    //pshufd        $0x0,%xmm9,%xmm9
-  102,69,15,219,200,                      //pand          %xmm8,%xmm9
-  69,15,91,201,                           //cvtdq2ps      %xmm9,%xmm9
-  243,68,15,16,90,120,                    //movss         0x78(%rdx),%xmm11
+  243,68,15,16,90,116,                    //movss         0x74(%rdx),%xmm11
+  243,68,15,16,82,120,                    //movss         0x78(%rdx),%xmm10
   69,15,198,219,0,                        //shufps        $0x0,%xmm11,%xmm11
   69,15,89,217,                           //mulps         %xmm9,%xmm11
-  102,68,15,110,74,112,                   //movd          0x70(%rdx),%xmm9
-  102,69,15,112,201,0,                    //pshufd        $0x0,%xmm9,%xmm9
-  102,69,15,219,200,                      //pand          %xmm8,%xmm9
-  69,15,91,193,                           //cvtdq2ps      %xmm9,%xmm8
-  243,68,15,16,74,124,                    //movss         0x7c(%rdx),%xmm9
-  69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
-  69,15,89,200,                           //mulps         %xmm8,%xmm9
+  102,15,110,90,108,                      //movd          0x6c(%rdx),%xmm3
+  102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
+  102,65,15,219,216,                      //pand          %xmm8,%xmm3
+  15,91,219,                              //cvtdq2ps      %xmm3,%xmm3
+  69,15,198,210,0,                        //shufps        $0x0,%xmm10,%xmm10
+  68,15,89,211,                           //mulps         %xmm3,%xmm10
+  102,15,110,90,112,                      //movd          0x70(%rdx),%xmm3
+  102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
+  102,65,15,219,216,                      //pand          %xmm8,%xmm3
+  68,15,91,195,                           //cvtdq2ps      %xmm3,%xmm8
+  243,15,16,90,124,                       //movss         0x7c(%rdx),%xmm3
+  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
+  65,15,89,216,                           //mulps         %xmm8,%xmm3
   15,92,196,                              //subps         %xmm4,%xmm0
-  65,15,89,194,                           //mulps         %xmm10,%xmm0
+  65,15,89,195,                           //mulps         %xmm11,%xmm0
   15,88,196,                              //addps         %xmm4,%xmm0
   15,92,205,                              //subps         %xmm5,%xmm1
-  65,15,89,203,                           //mulps         %xmm11,%xmm1
+  65,15,89,202,                           //mulps         %xmm10,%xmm1
   15,88,205,                              //addps         %xmm5,%xmm1
   15,92,214,                              //subps         %xmm6,%xmm2
-  65,15,89,209,                           //mulps         %xmm9,%xmm2
+  15,89,211,                              //mulps         %xmm3,%xmm2
   15,88,214,                              //addps         %xmm6,%xmm2
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,15,110,216,                         //movd          %eax,%xmm3
   15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -10615,7 +10804,8 @@ CODE const uint8_t sk_load_8888_sse41[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
   243,15,111,28,184,                      //movdqu        (%rax,%rdi,4),%xmm3
-  102,15,110,66,16,                       //movd          0x10(%rdx),%xmm0
+  184,255,0,0,0,                          //mov           $0xff,%eax
+  102,15,110,192,                         //movd          %eax,%xmm0
   102,15,112,192,0,                       //pshufd        $0x0,%xmm0,%xmm0
   102,15,111,203,                         //movdqa        %xmm3,%xmm1
   102,15,114,209,8,                       //psrld         $0x8,%xmm1
@@ -10625,7 +10815,8 @@ CODE const uint8_t sk_load_8888_sse41[] = {
   102,15,219,208,                         //pand          %xmm0,%xmm2
   102,15,219,195,                         //pand          %xmm3,%xmm0
   15,91,192,                              //cvtdq2ps      %xmm0,%xmm0
-  243,68,15,16,66,12,                     //movss         0xc(%rdx),%xmm8
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,89,192,                           //mulps         %xmm8,%xmm0
   15,91,201,                              //cvtdq2ps      %xmm1,%xmm1
@@ -10642,7 +10833,8 @@ CODE const uint8_t sk_load_8888_sse41[] = {
 CODE const uint8_t sk_store_8888_sse41[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
-  243,68,15,16,66,8,                      //movss         0x8(%rdx),%xmm8
+  185,0,0,127,67,                         //mov           $0x437f0000,%ecx
+  102,68,15,110,193,                      //movd          %ecx,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   69,15,40,200,                           //movaps        %xmm8,%xmm9
   68,15,89,200,                           //mulps         %xmm0,%xmm9
@@ -11197,16 +11389,18 @@ CODE const uint8_t sk_seed_shader_sse2[] = {
   102,15,110,199,                         //movd          %edi,%xmm0
   102,15,112,192,0,                       //pshufd        $0x0,%xmm0,%xmm0
   15,91,200,                              //cvtdq2ps      %xmm0,%xmm1
-  243,15,16,18,                           //movss         (%rdx),%xmm2
-  243,15,16,90,4,                         //movss         0x4(%rdx),%xmm3
-  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
-  15,88,203,                              //addps         %xmm3,%xmm1
+  185,0,0,0,63,                           //mov           $0x3f000000,%ecx
+  102,15,110,209,                         //movd          %ecx,%xmm2
+  15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
+  15,88,202,                              //addps         %xmm2,%xmm1
   15,16,66,20,                            //movups        0x14(%rdx),%xmm0
   15,88,193,                              //addps         %xmm1,%xmm0
   102,15,110,8,                           //movd          (%rax),%xmm1
   102,15,112,201,0,                       //pshufd        $0x0,%xmm1,%xmm1
   15,91,201,                              //cvtdq2ps      %xmm1,%xmm1
-  15,88,203,                              //addps         %xmm3,%xmm1
+  15,88,202,                              //addps         %xmm2,%xmm1
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,15,110,208,                         //movd          %eax,%xmm2
   15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
   72,173,                                 //lods          %ds:(%rsi),%rax
   15,87,219,                              //xorps         %xmm3,%xmm3
@@ -11250,7 +11444,8 @@ CODE const uint8_t sk_plus__sse2[] = {
 };
 
 CODE const uint8_t sk_srcover_sse2[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   68,15,92,195,                           //subps         %xmm3,%xmm8
   69,15,40,200,                           //movaps        %xmm8,%xmm9
@@ -11269,7 +11464,8 @@ CODE const uint8_t sk_srcover_sse2[] = {
 };
 
 CODE const uint8_t sk_dstover_sse2[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   68,15,92,199,                           //subps         %xmm7,%xmm8
   65,15,89,192,                           //mulps         %xmm8,%xmm0
@@ -11295,7 +11491,8 @@ CODE const uint8_t sk_clamp_0_sse2[] = {
 };
 
 CODE const uint8_t sk_clamp_1_sse2[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,93,192,                           //minps         %xmm8,%xmm0
   65,15,93,200,                           //minps         %xmm8,%xmm1
@@ -11306,7 +11503,8 @@ CODE const uint8_t sk_clamp_1_sse2[] = {
 };
 
 CODE const uint8_t sk_clamp_a_sse2[] = {
-  243,68,15,16,2,                         //movss         (%rdx),%xmm8
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,93,216,                           //minps         %xmm8,%xmm3
   15,93,195,                              //minps         %xmm3,%xmm0
@@ -11382,7 +11580,8 @@ CODE const uint8_t sk_premul_sse2[] = {
 CODE const uint8_t sk_unpremul_sse2[] = {
   69,15,87,192,                           //xorps         %xmm8,%xmm8
   68,15,194,195,0,                        //cmpeqps       %xmm3,%xmm8
-  243,68,15,16,10,                        //movss         (%rdx),%xmm9
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   68,15,94,203,                           //divps         %xmm3,%xmm9
   69,15,85,193,                           //andnps        %xmm9,%xmm8
@@ -11537,7 +11736,8 @@ CODE const uint8_t sk_scale_u8_sse2[] = {
   102,69,15,96,193,                       //punpcklbw     %xmm9,%xmm8
   102,69,15,97,193,                       //punpcklwd     %xmm9,%xmm8
   69,15,91,192,                           //cvtdq2ps      %xmm8,%xmm8
-  243,68,15,16,74,12,                     //movss         0xc(%rdx),%xmm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   69,15,89,200,                           //mulps         %xmm8,%xmm9
   65,15,89,193,                           //mulps         %xmm9,%xmm0
@@ -11576,7 +11776,8 @@ CODE const uint8_t sk_lerp_u8_sse2[] = {
   102,69,15,96,193,                       //punpcklbw     %xmm9,%xmm8
   102,69,15,97,193,                       //punpcklwd     %xmm9,%xmm8
   69,15,91,192,                           //cvtdq2ps      %xmm8,%xmm8
-  243,68,15,16,74,12,                     //movss         0xc(%rdx),%xmm9
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,200,                      //movd          %eax,%xmm9
   69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
   69,15,89,200,                           //mulps         %xmm8,%xmm9
   15,92,196,                              //subps         %xmm4,%xmm0
@@ -11598,40 +11799,41 @@ CODE const uint8_t sk_lerp_u8_sse2[] = {
 CODE const uint8_t sk_lerp_565_sse2[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
-  243,68,15,126,4,120,                    //movq          (%rax,%rdi,2),%xmm8
+  243,68,15,126,12,120,                   //movq          (%rax,%rdi,2),%xmm9
   102,15,239,219,                         //pxor          %xmm3,%xmm3
-  102,68,15,97,195,                       //punpcklwd     %xmm3,%xmm8
+  102,68,15,97,203,                       //punpcklwd     %xmm3,%xmm9
   102,15,110,90,104,                      //movd          0x68(%rdx),%xmm3
   102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
-  102,65,15,219,216,                      //pand          %xmm8,%xmm3
-  68,15,91,203,                           //cvtdq2ps      %xmm3,%xmm9
-  243,15,16,26,                           //movss         (%rdx),%xmm3
-  243,68,15,16,82,116,                    //movss         0x74(%rdx),%xmm10
-  69,15,198,210,0,                        //shufps        $0x0,%xmm10,%xmm10
-  69,15,89,209,                           //mulps         %xmm9,%xmm10
-  102,68,15,110,74,108,                   //movd          0x6c(%rdx),%xmm9
-  102,69,15,112,201,0,                    //pshufd        $0x0,%xmm9,%xmm9
-  102,69,15,219,200,                      //pand          %xmm8,%xmm9
-  69,15,91,201,                           //cvtdq2ps      %xmm9,%xmm9
-  243,68,15,16,90,120,                    //movss         0x78(%rdx),%xmm11
+  102,65,15,219,217,                      //pand          %xmm9,%xmm3
+  68,15,91,211,                           //cvtdq2ps      %xmm3,%xmm10
+  243,68,15,16,90,116,                    //movss         0x74(%rdx),%xmm11
+  243,68,15,16,66,120,                    //movss         0x78(%rdx),%xmm8
   69,15,198,219,0,                        //shufps        $0x0,%xmm11,%xmm11
-  69,15,89,217,                           //mulps         %xmm9,%xmm11
-  102,68,15,110,74,112,                   //movd          0x70(%rdx),%xmm9
-  102,69,15,112,201,0,                    //pshufd        $0x0,%xmm9,%xmm9
-  102,69,15,219,200,                      //pand          %xmm8,%xmm9
-  69,15,91,193,                           //cvtdq2ps      %xmm9,%xmm8
-  243,68,15,16,74,124,                    //movss         0x7c(%rdx),%xmm9
-  69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
-  69,15,89,200,                           //mulps         %xmm8,%xmm9
+  69,15,89,218,                           //mulps         %xmm10,%xmm11
+  102,15,110,90,108,                      //movd          0x6c(%rdx),%xmm3
+  102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
+  102,65,15,219,217,                      //pand          %xmm9,%xmm3
+  15,91,219,                              //cvtdq2ps      %xmm3,%xmm3
+  69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
+  68,15,89,195,                           //mulps         %xmm3,%xmm8
+  102,15,110,90,112,                      //movd          0x70(%rdx),%xmm3
+  102,15,112,219,0,                       //pshufd        $0x0,%xmm3,%xmm3
+  102,65,15,219,217,                      //pand          %xmm9,%xmm3
+  68,15,91,203,                           //cvtdq2ps      %xmm3,%xmm9
+  243,15,16,90,124,                       //movss         0x7c(%rdx),%xmm3
+  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
+  65,15,89,217,                           //mulps         %xmm9,%xmm3
   15,92,196,                              //subps         %xmm4,%xmm0
-  65,15,89,194,                           //mulps         %xmm10,%xmm0
+  65,15,89,195,                           //mulps         %xmm11,%xmm0
   15,88,196,                              //addps         %xmm4,%xmm0
   15,92,205,                              //subps         %xmm5,%xmm1
-  65,15,89,203,                           //mulps         %xmm11,%xmm1
+  65,15,89,200,                           //mulps         %xmm8,%xmm1
   15,88,205,                              //addps         %xmm5,%xmm1
   15,92,214,                              //subps         %xmm6,%xmm2
-  65,15,89,209,                           //mulps         %xmm9,%xmm2
+  15,89,211,                              //mulps         %xmm3,%xmm2
   15,88,214,                              //addps         %xmm6,%xmm2
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,15,110,216,                         //movd          %eax,%xmm3
   15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
   72,173,                                 //lods          %ds:(%rsi),%rax
   255,224,                                //jmpq          *%rax
@@ -11801,7 +12003,8 @@ CODE const uint8_t sk_load_8888_sse2[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
   243,15,111,28,184,                      //movdqu        (%rax,%rdi,4),%xmm3
-  102,15,110,66,16,                       //movd          0x10(%rdx),%xmm0
+  184,255,0,0,0,                          //mov           $0xff,%eax
+  102,15,110,192,                         //movd          %eax,%xmm0
   102,15,112,192,0,                       //pshufd        $0x0,%xmm0,%xmm0
   102,15,111,203,                         //movdqa        %xmm3,%xmm1
   102,15,114,209,8,                       //psrld         $0x8,%xmm1
@@ -11811,7 +12014,8 @@ CODE const uint8_t sk_load_8888_sse2[] = {
   102,15,219,208,                         //pand          %xmm0,%xmm2
   102,15,219,195,                         //pand          %xmm3,%xmm0
   15,91,192,                              //cvtdq2ps      %xmm0,%xmm0
-  243,68,15,16,66,12,                     //movss         0xc(%rdx),%xmm8
+  184,129,128,128,59,                     //mov           $0x3b808081,%eax
+  102,68,15,110,192,                      //movd          %eax,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   65,15,89,192,                           //mulps         %xmm8,%xmm0
   15,91,201,                              //cvtdq2ps      %xmm1,%xmm1
@@ -11828,7 +12032,8 @@ CODE const uint8_t sk_load_8888_sse2[] = {
 CODE const uint8_t sk_store_8888_sse2[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   72,139,0,                               //mov           (%rax),%rax
-  243,68,15,16,66,8,                      //movss         0x8(%rdx),%xmm8
+  185,0,0,127,67,                         //mov           $0x437f0000,%ecx
+  102,68,15,110,193,                      //movd          %ecx,%xmm8
   69,15,198,192,0,                        //shufps        $0x0,%xmm8,%xmm8
   69,15,40,200,                           //movaps        %xmm8,%xmm9
   68,15,89,200,                           //mulps         %xmm0,%xmm9
@@ -11984,7 +12189,8 @@ CODE const uint8_t sk_repeat_x_sse2[] = {
   243,69,15,91,209,                       //cvttps2dq     %xmm9,%xmm10
   69,15,91,210,                           //cvtdq2ps      %xmm10,%xmm10
   69,15,194,202,1,                        //cmpltps       %xmm10,%xmm9
-  243,68,15,16,26,                        //movss         (%rdx),%xmm11
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,216,                      //movd          %eax,%xmm11
   69,15,198,219,0,                        //shufps        $0x0,%xmm11,%xmm11
   69,15,84,217,                           //andps         %xmm9,%xmm11
   69,15,92,211,                           //subps         %xmm11,%xmm10
@@ -12006,7 +12212,8 @@ CODE const uint8_t sk_repeat_y_sse2[] = {
   243,69,15,91,209,                       //cvttps2dq     %xmm9,%xmm10
   69,15,91,210,                           //cvtdq2ps      %xmm10,%xmm10
   69,15,194,202,1,                        //cmpltps       %xmm10,%xmm9
-  243,68,15,16,26,                        //movss         (%rdx),%xmm11
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,216,                      //movd          %eax,%xmm11
   69,15,198,219,0,                        //shufps        $0x0,%xmm11,%xmm11
   69,15,84,217,                           //andps         %xmm9,%xmm11
   69,15,92,211,                           //subps         %xmm11,%xmm10
@@ -12032,7 +12239,8 @@ CODE const uint8_t sk_mirror_x_sse2[] = {
   243,69,15,91,218,                       //cvttps2dq     %xmm10,%xmm11
   69,15,91,219,                           //cvtdq2ps      %xmm11,%xmm11
   69,15,194,211,1,                        //cmpltps       %xmm11,%xmm10
-  243,68,15,16,34,                        //movss         (%rdx),%xmm12
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,224,                      //movd          %eax,%xmm12
   69,15,198,228,0,                        //shufps        $0x0,%xmm12,%xmm12
   69,15,84,226,                           //andps         %xmm10,%xmm12
   69,15,87,210,                           //xorps         %xmm10,%xmm10
@@ -12062,7 +12270,8 @@ CODE const uint8_t sk_mirror_y_sse2[] = {
   243,69,15,91,218,                       //cvttps2dq     %xmm10,%xmm11
   69,15,91,219,                           //cvtdq2ps      %xmm11,%xmm11
   69,15,194,211,1,                        //cmpltps       %xmm11,%xmm10
-  243,68,15,16,34,                        //movss         (%rdx),%xmm12
+  184,0,0,128,63,                         //mov           $0x3f800000,%eax
+  102,68,15,110,224,                      //movd          %eax,%xmm12
   69,15,198,228,0,                        //shufps        $0x0,%xmm12,%xmm12
   69,15,84,226,                           //andps         %xmm10,%xmm12
   69,15,87,210,                           //xorps         %xmm10,%xmm10
