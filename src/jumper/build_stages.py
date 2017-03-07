@@ -85,7 +85,7 @@ def parse_object_file(dot_o, array_type, target=None):
 
   # Ok.  Let's disassemble.
   active = False
-  disassemble = ['-d', '--insn-width=9', dot_o]
+  disassemble = ['-d', '--insn-width=10', dot_o]
   for line in subprocess.check_output(cmd + disassemble).split('\n'):
     line = line.strip()
 
