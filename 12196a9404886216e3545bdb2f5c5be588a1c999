@@ -16,6 +16,23 @@
       "revId": "12196a9404886216e3545bdb2f5c5be588a1c999",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d479c53_9916aaa2",
+        "filename": "src/core/SkMipMapPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T18:13:13Z",
+      "side": 1,
+      "message": "It\u0027ll be easier to convince ourselves that we only end up with one copy of these if they\u0027re defined in a .cpp file.  These can probably just go in SkSRGB.h and SkSRGB.cpp like the other tables?",
+      "revId": "12196a9404886216e3545bdb2f5c5be588a1c999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
