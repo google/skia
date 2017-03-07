@@ -8,9 +8,6 @@
 #include "SkJumper.h"
 #include <string.h>
 
-// It's tricky to relocate code referencing ordinary constants, so we read them from this struct.
-using K = const SkJumper_constants;
-
 template <typename T, typename P>
 static T unaligned_load(const P* p) {
     T v;
@@ -26,19 +23,22 @@ static Dst bit_cast(const Src& src) {
 
 // A couple functions for embedding constants directly into code,
 // so that no .const or .literal4 section is created.
-
-static inline int constant(int x) {
+static inline int C(int x) {
 #if defined(JUMPER) && defined(__x86_64__)
     // Move x-the-compile-time-constant as a literal into x-the-register.
     asm("mov %1, %0" : "=r"(x) : "i"(x));
 #endif
     return x;
 }
-
-static inline float constant(float f) {
-    int x = constant(unaligned_load<int>(&f));
+static inline float C(float f) {
+    int x = C(unaligned_load<int>(&f));
     return unaligned_load<float>(&x);
 }
+static inline int   operator "" _i(unsigned long long int i) { return C(  (int)i); }
+static inline float operator "" _f(           long double f) { return C((float)f); }
+
+// Not all constants can be generated using C() or _i/_f.  We read the rest from this struct.
+using K = const SkJumper_constants;
 
 #if !defined(JUMPER)
     // This path should lead to portable code that can be compiled directly into Skia.
@@ -55,7 +55,7 @@ static inline float constant(float f) {
     static F   min(F a, F b)       { return fminf(a,b); }
     static F   max(F a, F b)       { return fmaxf(a,b); }
     static F   abs_ (F v)          { return fabsf(v); }
-    static F   floor(F v, K*)      { return floorf(v); }
+    static F   floor(F v)          { return floorf(v); }
     static F   rcp  (F v)          { return 1.0f / v; }
     static F   rsqrt(F v)          { return 1.0f / sqrtf(v); }
     static U32 round(F v, F scale) { return (uint32_t)lrintf(v*scale); }
@@ -83,7 +83,7 @@ static inline float constant(float f) {
     static F   min(F a, F b)                        { return vminq_f32(a,b);          }
     static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
     static F   abs_ (F v)                           { return vabsq_f32(v);            }
-    static F   floor(F v, K*)                       { return vrndmq_f32(v);           }
+    static F   floor(F v)                           { return vrndmq_f32(v);           }
     static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
     static U32 round(F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
@@ -121,9 +121,9 @@ static inline float constant(float f) {
 
     static F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
 
-    static F floor(F v, K* k) {
+    static F floor(F v) {
         F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
-        return roundtrip - if_then_else(roundtrip > v, constant(1.0f), 0);
+        return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
     }
 
     static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
@@ -151,7 +151,7 @@ static inline float constant(float f) {
     static F   min(F a, F b)       { return _mm256_min_ps(a,b);    }
     static F   max(F a, F b)       { return _mm256_max_ps(a,b);    }
     static F   abs_(F v)           { return _mm256_and_ps(v, 0-v); }
-    static F   floor(F v, K*)      { return _mm256_floor_ps(v);    }
+    static F   floor(F v)          { return _mm256_floor_ps(v);    }
     static F   rcp  (F v)          { return _mm256_rcp_ps  (v);    }
     static F   rsqrt(F v)          { return _mm256_rsqrt_ps(v);    }
     static U32 round(F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
@@ -220,12 +220,12 @@ static inline float constant(float f) {
         return _mm_or_ps(_mm_and_ps(c, t), _mm_andnot_ps(c, e));
     }
 
-    static F floor(F v, K* k) {
+    static F floor(F v) {
     #if defined(__SSE4_1__)
         return _mm_floor_ps(v);
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-        return roundtrip - if_then_else(roundtrip > v, constant(1.0f), 0);
+        return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
     #endif
     }
 
@@ -345,11 +345,11 @@ static F lerp(F from, F to, F t) {
     return mad(to-from, t, from);
 }
 
-static void from_565(U16 _565, F* r, F* g, F* b, K* k) {
+static void from_565(U16 _565, F* r, F* g, F* b) {
     U32 wide = expand(_565);
-    *r = cast(wide & k->r_565_mask) * k->r_565_scale;
-    *g = cast(wide & k->g_565_mask) * k->g_565_scale;
-    *b = cast(wide & k->b_565_mask) * k->b_565_scale;
+    *r = cast(wide & C(31<<11)) * C(1.0f / (31<<11));
+    *g = cast(wide & C(63<< 5)) * C(1.0f / (63<< 5));
+    *b = cast(wide & C(31<< 0)) * C(1.0f / (31<< 0));
 }
 
 // Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
@@ -503,10 +503,9 @@ STAGE(seed_shader) {
     // It's important for speed to explicitly cast(x) and cast(y),
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
-
-    r = cast(x) + constant(0.5f) + unaligned_load<F>(k->iota);
-    g = cast(y) + constant(0.5f);
-    b = constant(1.0f);
+    r = cast(x) + 0.5_f + unaligned_load<F>(k->iota);
+    g = cast(y) + 0.5_f;
+    b = 1.0_f;
     a = 0;
     dr = dg = db = da = 0;
 }
@@ -531,14 +530,14 @@ STAGE(plus_) {
 }
 
 STAGE(srcover) {
-    auto A = constant(1.0f) - a;
+    auto A = C(1.0f) - a;
     r = mad(dr, A, r);
     g = mad(dg, A, g);
     b = mad(db, A, b);
     a = mad(da, A, a);
 }
 STAGE(dstover) {
-    auto DA = constant(1.0f) - da;
+    auto DA = 1.0_f - da;
     r = mad(r, DA, dr);
     g = mad(g, DA, dg);
     b = mad(b, DA, db);
@@ -553,14 +552,14 @@ STAGE(clamp_0) {
 }
 
 STAGE(clamp_1) {
-    r = min(r, constant(1.0f));
-    g = min(g, constant(1.0f));
-    b = min(b, constant(1.0f));
-    a = min(a, constant(1.0f));
+    r = min(r, 1.0_f);
+    g = min(g, 1.0_f);
+    b = min(b, 1.0_f);
+    a = min(a, 1.0_f);
 }
 
 STAGE(clamp_a) {
-    a = min(a, constant(1.0f));
+    a = min(a, 1.0_f);
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
@@ -608,7 +607,7 @@ STAGE(premul) {
     b = b * a;
 }
 STAGE(unpremul) {
-    auto scale = if_then_else(a == 0, 0, constant(1.0f) / a);
+    auto scale = if_then_else(a == 0, 0, 1.0_f / a);
     r = r * scale;
     g = g * scale;
     b = b * scale;
@@ -616,9 +615,9 @@ STAGE(unpremul) {
 
 STAGE(from_srgb) {
     auto fn = [&](F s) {
-        auto lo = s * k->_1_1292;
-        auto hi = mad(s*s, mad(s, k->_03000, k->_06975), k->_00025);
-        return if_then_else(s < k->_0055, lo, hi);
+        auto lo = s * C(1/12.92f);
+        auto hi = mad(s*s, mad(s, 0.3000_f, 0.6975_f), 0.0025_f);
+        return if_then_else(s < 0.055_f, lo, hi);
     };
     r = fn(r);
     g = fn(g);
@@ -628,11 +627,10 @@ STAGE(to_srgb) {
     auto fn = [&](F l) {
         F sqrt = rcp  (rsqrt(l)),
           ftrt = rsqrt(rsqrt(l));
-        auto lo = l * k->_1246;
-        auto hi = min(k->_1, mad(k->_0411192, ftrt,
-                             mad(k->_0689206, sqrt,
-                                 k->n_00988)));
-        return if_then_else(l < k->_00043, lo, hi);
+        auto lo = l * 12.46_f;
+        auto hi = min(1.0_f, mad(0.411192_f, ftrt,
+                             mad(0.689206_f, sqrt, -0.0988_f)));
+        return if_then_else(l < 0.0043_f, lo, hi);
     };
     r = fn(r);
     g = fn(g);
@@ -651,7 +649,7 @@ STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     auto scales = load<U8>(ptr, tail);
-    auto c = cast(expand(scales)) * constant(1/255.0f);
+    auto c = cast(expand(scales)) * C(1/255.0f);
 
     r = r * c;
     g = g * c;
@@ -671,7 +669,7 @@ STAGE(lerp_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     auto scales = load<U8>(ptr, tail);
-    auto c = cast(expand(scales)) * constant(1/255.0f);
+    auto c = cast(expand(scales)) * C(1/255.0f);
 
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
@@ -682,12 +680,12 @@ STAGE(lerp_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
     F cr,cg,cb;
-    from_565(load<U16>(ptr, tail), &cr, &cg, &cb, k);
+    from_565(load<U16>(ptr, tail), &cr, &cg, &cb);
 
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
-    a = constant(1.0f);
+    a = 1.0_f;
 }
 
 STAGE(load_tables) {
@@ -698,37 +696,37 @@ STAGE(load_tables) {
     auto c = (const Ctx*)ctx;
 
     auto px = load<U32>(c->src + x, tail);
-    r = gather(c->r, (px      ) & k->_0x000000ff);
-    g = gather(c->g, (px >>  8) & k->_0x000000ff);
-    b = gather(c->b, (px >> 16) & k->_0x000000ff);
-    a = cast(        (px >> 24)) * k->_1_255;
+    r = gather(c->r, (px      ) & 0xff_i);
+    g = gather(c->g, (px >>  8) & 0xff_i);
+    b = gather(c->b, (px >> 16) & 0xff_i);
+    a = cast(        (px >> 24)) * C(1/255.0f);
 }
 
 STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     r = g = b = 0.0f;
-    a = cast(expand(load<U8>(ptr, tail))) * k->_1_255;
+    a = cast(expand(load<U8>(ptr, tail))) * C(1/255.0f);
 }
 STAGE(store_a8) {
     auto ptr = *(uint8_t**)ctx + x;
 
-    U8 packed = pack(pack(round(a, k->_255)));
+    U8 packed = pack(pack(round(a, 255.0_f)));
     store(ptr, packed, tail);
 }
 
 STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
-    from_565(load<U16>(ptr, tail), &r,&g,&b, k);
-    a = k->_1;
+    from_565(load<U16>(ptr, tail), &r,&g,&b);
+    a = 1.0_f;
 }
 STAGE(store_565) {
     auto ptr = *(uint16_t**)ctx + x;
 
-    U16 px = pack( round(r, k->_31) << 11
-                 | round(g, k->_63) <<  5
-                 | round(b, k->_31)      );
+    U16 px = pack( round(r, 31.0_f) << 11
+                 | round(g, 63.0_f) <<  5
+                 | round(b, 31.0_f)      );
     store(ptr, px, tail);
 }
 
@@ -736,19 +734,19 @@ STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
 
     auto px = load<U32>(ptr, tail);
-    r = cast((px      ) & constant(0xff)) * constant(1/255.0f);
-    g = cast((px >>  8) & constant(0xff)) * constant(1/255.0f);
-    b = cast((px >> 16) & constant(0xff)) * constant(1/255.0f);
-    a = cast((px >> 24)                 ) * constant(1/255.0f);
+    r = cast((px      ) & 0xff_i) * C(1/255.0f);
+    g = cast((px >>  8) & 0xff_i) * C(1/255.0f);
+    b = cast((px >> 16) & 0xff_i) * C(1/255.0f);
+    a = cast((px >> 24)         ) * C(1/255.0f);
 }
 
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
 
-    U32 px = round(r, constant(255.0f))
-           | round(g, constant(255.0f)) <<  8
-           | round(b, constant(255.0f)) << 16
-           | round(a, constant(255.0f)) << 24;
+    U32 px = round(r, 255.0_f)
+           | round(g, 255.0_f) <<  8
+           | round(b, 255.0_f) << 16
+           | round(a, 255.0_f) << 24;
     store(ptr, px, tail);
 }
 
@@ -757,9 +755,9 @@ STAGE(load_f16) {
 
 #if !defined(JUMPER)
     auto half_to_float = [&](int16_t h) {
-        if (h < 0x0400) { h = 0; }                // Flush denorm and negative to zero.
-        return bit_cast<F>(h << 13)               // Line up the mantissa,
-             * bit_cast<F>(U32(k->_0x77800000));  // then fix up the exponent.
+        if (h < 0x0400) { h = 0; }            // Flush denorm and negative to zero.
+        return bit_cast<F>(h << 13)           // Line up the mantissa,
+             * bit_cast<F>(U32(0x77800000));  // then fix up the exponent.
     };
     auto rgba = (const int16_t*)ptr;
     r = half_to_float(rgba[0]);
@@ -844,8 +842,8 @@ STAGE(load_f16) {
 
     // half_to_float() slows down ~10x for denorm inputs, so we flush them to zero.
     // With a signed comparison this conveniently also flushes negative half floats to zero.
-    auto ftz = [k](__m128i v) {
-        return _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(k->_0x04000400)), v);
+    auto ftz = [](__m128i v) {
+        return _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(0x04000400_i)), v);
     };
     rg0123 = ftz(rg0123);
     ba0123 = ftz(ba0123);
@@ -862,8 +860,8 @@ STAGE(load_f16) {
                               _mm_unpackhi_epi16(ba4567, _mm_setzero_si128()));
 
     auto half_to_float = [&](U32 h) {
-        return bit_cast<F>(h << 13)               // Line up the mantissa,
-             * bit_cast<F>(U32(k->_0x77800000));  // then fix up the exponent.
+        return bit_cast<F>(h << 13)             // Line up the mantissa,
+             * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
     };
 
     r = half_to_float(R);
@@ -882,15 +880,15 @@ STAGE(load_f16) {
          ba = _mm_unpackhi_epi16(_02, _13);  // b0 b1 b2 b3 a0 a1 a2 a3
 
     // Same deal as AVX, flush denorms and negatives to zero.
-    auto ftz = [k](__m128i v) {
-        return _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(k->_0x04000400)), v);
+    auto ftz = [](__m128i v) {
+        return _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(0x04000400_i)), v);
     };
     rg = ftz(rg);
     ba = ftz(ba);
 
     auto half_to_float = [&](U32 h) {
-        return bit_cast<F>(h << 13)               // Line up the mantissa,
-             * bit_cast<F>(U32(k->_0x77800000));  // then fix up the exponent.
+        return bit_cast<F>(h << 13)             // Line up the mantissa,
+             * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
     };
 
     r = half_to_float(_mm_unpacklo_epi16(rg, _mm_setzero_si128()));
@@ -905,8 +903,8 @@ STAGE(store_f16) {
 
 #if !defined(JUMPER)
     auto float_to_half = [&](F f) {
-        return bit_cast<U32>(f * bit_cast<F>(U32(k->_0x07800000)))  // Fix up the exponent,
-            >> 13;                                                  // then line up the mantissa.
+        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
+            >> 13;                                                // then line up the mantissa.
     };
     auto rgba = (int16_t*)ptr;
     rgba[0] = float_to_half(r);
@@ -960,8 +958,8 @@ STAGE(store_f16) {
     }
 #elif defined(__AVX__)
     auto float_to_half = [&](F f) {
-        return bit_cast<U32>(f * bit_cast<F>(U32(k->_0x07800000)))  // Fix up the exponent,
-            >> 13;                                                  // then line up the mantissa.
+        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
+            >> 13;                                                // then line up the mantissa.
     };
     U32 R = float_to_half(r),
         G = float_to_half(g),
@@ -1002,8 +1000,8 @@ STAGE(store_f16) {
     }
 #elif defined(__SSE2__)
     auto float_to_half = [&](F f) {
-        return bit_cast<U32>(f * bit_cast<F>(U32(k->_0x07800000)))  // Fix up the exponent,
-            >> 13;                                                  // then line up the mantissa.
+        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
+            >> 13;                                                // then line up the mantissa.
     };
     U32 R = float_to_half(r),
         G = float_to_half(g),
@@ -1070,27 +1068,27 @@ STAGE(store_f32) {
 static F ulp_before(F v) {
     return bit_cast<F>(bit_cast<U32>(v) + U32(0xffffffff));
 }
-static F clamp(F v, float limit, K*) {
+static F clamp(F v, float limit) {
     v = max(0, v);
     return min(v, ulp_before(limit));
 }
-static F repeat(F v, float limit, K* k) {
-    v = v - floor(v/limit, k)*limit;
+static F repeat(F v, float limit) {
+    v = v - floor(v/limit)*limit;
     return min(v, ulp_before(limit));
 }
-static F mirror(F v, float limit, K* k) {
-    v = abs_( (v-limit) - (limit+limit)*floor((v-limit)/(limit+limit),k) - limit );
+static F mirror(F v, float limit) {
+    v = abs_( (v-limit) - (limit+limit)*floor((v-limit)/(limit+limit)) - limit );
     return min(v, ulp_before(limit));
 }
-STAGE(clamp_x)  { r = clamp (r, *(const float*)ctx, k); }
-STAGE(clamp_y)  { g = clamp (g, *(const float*)ctx, k); }
-STAGE(repeat_x) { r = repeat(r, *(const float*)ctx, k); }
-STAGE(repeat_y) { g = repeat(g, *(const float*)ctx, k); }
-STAGE(mirror_x) { r = mirror(r, *(const float*)ctx, k); }
-STAGE(mirror_y) { g = mirror(g, *(const float*)ctx, k); }
+STAGE(clamp_x)  { r = clamp (r, *(const float*)ctx); }
+STAGE(clamp_y)  { g = clamp (g, *(const float*)ctx); }
+STAGE(repeat_x) { r = repeat(r, *(const float*)ctx); }
+STAGE(repeat_y) { g = repeat(g, *(const float*)ctx); }
+STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
+STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
 
 STAGE(luminance_to_alpha) {
-    a = r*k->lum_r + g*k->lum_g + b*k->lum_b;
+    a = r*0.2126_f + g*0.7152_f + b*0.0722_f;
     r = g = b = 0;
 }
 

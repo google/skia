@@ -14,54 +14,19 @@
 
 #include <stdint.h>
 
-// SkJumper Stages can use constant literals only if they end up baked into the instruction,
-// like bit shifts and rounding modes.  Any other constant values must be pulled from this struct
-// (except 0, ~0, and 0.0f, which always end up as some sort of xor or cmpeq instruction).
+// SkJumper_stages.cpp has some unusual constraints on what constants it can use.
 //
-// This constraint makes it much easier to move and reorder the code for each Stage.
+// If the constant is baked into the instruction, that's ok.
+// If the constant is synthesized through code, that's ok.
+// If the constant is loaded from memory, that's no good.
+//
+// We offer a couple facilities to get at any other constants you need:
+//   - the C() function usually constrains constants to be directly baked into an instruction; or
+//   - the _i and _f user-defined literal operators call C() for you in a prettier way; or
+//   - you can load values from this struct.
 
 struct SkJumper_constants {
-    float    _1;           //  1.0f
-    float    _0_5;         //  0.5f
-    float    _255;         //  255.0f
-    float    _1_255;       //  1/255.0f
-    uint32_t _0x000000ff;  //  0x000000ff
-
-    float    iota[8];      //  0,1,2,3,4,5,6,7
-
-    // from_srgb
-    float    _00025;       //  0.0025f
-    float    _06975;       //  0.6975f
-    float    _03000;       //  0.3000f
-    float    _1_1292;      //  1/12.92f
-    float    _0055;        //  0.055f
-
-    // to_srgb
-    float    _1246;        //  12.46f
-    float    _0411192;     //  0.411192f
-    float    _0689206;     //  0.689206f
-    float   n_00988;       // -0.0988f
-    float    _00043;       //  0.0043f
-
-    // fp16 <-> fp32
-    uint32_t _0x77800000;
-    uint32_t _0x07800000;
-    uint32_t _0x04000400;
-
-    // 565
-    uint32_t r_565_mask;
-    uint32_t g_565_mask;
-    uint32_t b_565_mask;
-    float    r_565_scale;
-    float    g_565_scale;
-    float    b_565_scale;
-    float    _31;
-    float    _63;
-
-    // luminance -> alpha
-    float lum_r;
-    float lum_g;
-    float lum_b;
+    float iota[8];      //  0,1,2,3,4,5,6,7
 };
 
 #endif//SkJumper_DEFINED
