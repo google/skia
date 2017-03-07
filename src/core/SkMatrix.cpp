@@ -271,7 +271,7 @@ static inline SkScalar scross(SkScalar a, SkScalar b, SkScalar c, SkScalar d) {
 }
 
 void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
-    if (dx || dy) {
+    if ((dx != 0) | (dy != 0)) {
         fMat[kMTransX] = dx;
         fMat[kMTransY] = dy;
 
@@ -286,35 +286,24 @@ void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
 }
 
 void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
-    if (!dx && !dy) {
-        return;
-    }
+    const unsigned mask = this->getType();
 
-    if (fTypeMask <= kTranslate_Mask) {
+    if (mask <= kTranslate_Mask) {
         fMat[kMTransX] += dx;
         fMat[kMTransY] += dy;
-        this->setTypeMask((fMat[kMTransX] != 0 || fMat[kMTransY] != 0) ? kTranslate_Mask
-                                                                       : kIdentity_Mask);
-    } else if (this->hasPerspective()) {
+    } else if (mask & kPerspective_Mask) {
         SkMatrix    m;
         m.setTranslate(dx, dy);
         this->preConcat(m);
+        return;
     } else {
         fMat[kMTransX] += sdot(fMat[kMScaleX], dx, fMat[kMSkewX], dy);
         fMat[kMTransY] += sdot(fMat[kMSkewY], dx, fMat[kMScaleY], dy);
-        if (fMat[kMTransX] || fMat[kMTransY]) {
-            fTypeMask |= kTranslate_Mask;
-        } else {
-            fTypeMask &= ~kTranslate_Mask;
-        }
     }
+    this->updateTranslateMask();
 }
 
 void SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
-    if (!dx && !dy) {
-        return;
-    }
-
     if (this->hasPerspective()) {
         SkMatrix    m;
         m.setTranslate(dx, dy);
@@ -322,11 +311,7 @@ void SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
     } else {
         fMat[kMTransX] += dx;
         fMat[kMTransY] += dy;
-        if (fMat[kMTransX] || fMat[kMTransY]) {
-            fTypeMask |= kTranslate_Mask;
-        } else {
-            fTypeMask &= ~kTranslate_Mask;
-        }
+        this->updateTranslateMask();
     }
 }
 
