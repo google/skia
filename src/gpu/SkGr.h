@@ -54,27 +54,10 @@ GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
 GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
                                      GrColorSpaceXform* gamutXform);
 
-static inline GrColor SkColorToOpaqueGrColor(SkColor c) {
-    unsigned r = SkColorGetR(c);
-    unsigned g = SkColorGetG(c);
-    unsigned b = SkColorGetB(c);
-    return GrColorPackRGBA(r, g, b, 0xFF);
-}
-
 /** Replicates the SkColor's alpha to all four channels of the GrColor. */
 static inline GrColor SkColorAlphaToGrColor(SkColor c) {
     U8CPU a = SkColorGetA(c);
     return GrColorPackRGBA(a, a, a, a);
-}
-
-static inline SkPMColor GrColorToSkPMColor(GrColor c) {
-    GrColorIsPMAssert(c);
-    return SkPackARGB32(GrColorUnpackA(c), GrColorUnpackR(c), GrColorUnpackG(c), GrColorUnpackB(c));
-}
-
-static inline GrColor SkPMColorToGrColor(SkPMColor c) {
-    return GrColorPackRGBA(SkGetPackedR32(c), SkGetPackedG32(c), SkGetPackedB32(c),
-                           SkGetPackedA32(c));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
