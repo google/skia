@@ -9,8 +9,9 @@
 #define GrTextBlobCache_DEFINED
 
 #include "GrAtlasTextContext.h"
-#include "SkTDynamicHash.h"
+#include "SkTArray.h"
 #include "SkTextBlobRunIterator.h"
+#include "SkTHash.h"
 
 class GrTextBlobCache {
 public:
@@ -54,18 +55,33 @@ public:
         return cacheBlob;
     }
 
-    GrAtlasTextBlob* find(const GrAtlasTextBlob::Key& key) {
-        return fCache.find(key);
+    GrAtlasTextBlob* find(const GrAtlasTextBlob::Key& key) const {
+        const auto* idEntry = fBlobIDCache.find(key.fUniqueID);
+        return idEntry ? idEntry->find(key) : nullptr;
     }
 
     void remove(GrAtlasTextBlob* blob) {
-        fCache.remove(blob->key());
+        auto  id      = GrAtlasTextBlob::GetKey(*blob).fUniqueID;
+        auto* idEntry = fBlobIDCache.find(id);
+        SkASSERT(idEntry);
+
+        idEntry->removeBlob(blob);
+        if (idEntry->fBlobs.empty()) {
+            fBlobIDCache.remove(id);
+        }
+
         fBlobList.remove(blob);
         blob->unref();
     }
 
     void add(GrAtlasTextBlob* blob) {
-        fCache.add(blob);
+        auto  id      = GrAtlasTextBlob::GetKey(*blob).fUniqueID;
+        auto* idEntry = fBlobIDCache.find(id);
+        if (!idEntry) {
+            idEntry = fBlobIDCache.set(id, BlobIDCacheEntry(id));
+        }
+
+        idEntry->addBlob(blob);
         fBlobList.addToHead(blob);
 
         this->checkPurge(blob);
@@ -96,7 +112,53 @@ public:
     }
 
 private:
-    typedef SkTInternalLList<GrAtlasTextBlob> BitmapBlobList;
+    using BitmapBlobList = SkTInternalLList<GrAtlasTextBlob>;
+
+    struct BlobIDCacheEntry {
+        BlobIDCacheEntry() : fID(SK_InvalidGenID) {}
+        explicit BlobIDCacheEntry(uint32_t id) : fID(id) {}
+
+        static uint32_t GetKey(const BlobIDCacheEntry& entry) {
+            return entry.fID;
+        }
+
+        void addBlob(GrAtlasTextBlob* blob) {
+            SkASSERT(blob);
+            SkASSERT(GrAtlasTextBlob::GetKey(*blob).fUniqueID == fID);
+            SkASSERT(!this->find(GrAtlasTextBlob::GetKey(*blob)));
+
+            fBlobs.push_back(blob);
+        }
+
+        void removeBlob(GrAtlasTextBlob* blob) {
+            SkASSERT(blob);
+            SkASSERT(GrAtlasTextBlob::GetKey(*blob).fUniqueID == fID);
+
+            auto index = this->findBlobIndex(GrAtlasTextBlob::GetKey(*blob));
+            SkASSERT(index >= 0);
+
+            fBlobs.removeShuffle(index);
+        }
+
+        GrAtlasTextBlob* find(const GrAtlasTextBlob::Key& key) const {
+            auto index = this->findBlobIndex(key);
+            return index < 0 ? nullptr : fBlobs[index];
+        }
+
+        int findBlobIndex(const GrAtlasTextBlob::Key& key) const{
+            for (int i = 0; i < fBlobs.count(); ++i) {
+                if (GrAtlasTextBlob::GetKey(*fBlobs[i]) == key) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        uint32_t                             fID;
+        // Current clients don't generate multiple GrAtlasTextBlobs per SkTextBlob, so an array w/
+        // linear search is acceptable.  If usage changes, we should re-evaluate this structure.
+        SkSTArray<1, GrAtlasTextBlob*, true> fBlobs;
+    };
 
     void checkPurge(GrAtlasTextBlob* blob = nullptr) {
         // If we are overbudget, then unref until we are below budget again
@@ -105,12 +167,10 @@ private:
             iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
             GrAtlasTextBlob* lruBlob = nullptr;
             while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
-                fCache.remove(lruBlob->key());
-
                 // Backup the iterator before removing and unrefing the blob
                 iter.prev();
-                fBlobList.remove(lruBlob);
-                lruBlob->unref();
+
+                this->remove(lruBlob);
             }
 
             // If we break out of the loop with lruBlob == blob, then we haven't purged enough
@@ -134,7 +194,7 @@ private:
     static const int kMinGrowthSize = 1 << 17;
     static const int kDefaultBudget = 1 << 22;
     BitmapBlobList fBlobList;
-    SkTDynamicHash<GrAtlasTextBlob, GrAtlasTextBlob::Key> fCache;
+    SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache;
     GrMemoryPool fPool;
     PFOverBudgetCB fCallback;
     void* fData;

@@ -12,15 +12,16 @@ GrTextBlobCache::~GrTextBlobCache() {
 }
 
 void GrTextBlobCache::freeAll() {
-    SkTDynamicHash<GrAtlasTextBlob, GrAtlasTextBlob::Key>::Iter iter(&fCache);
-    while (!iter.done()) {
-        GrAtlasTextBlob* blob = &(*iter);
-        fBlobList.remove(blob);
-        blob->unref();
-        ++iter;
-    }
-    fCache.rewind();
+    fBlobIDCache.foreach([this](uint32_t, BlobIDCacheEntry* entry) {
+        for (auto* blob : entry->fBlobs) {
+            fBlobList.remove(blob);
+            blob->unref();
+        }
+    });
+
+    fBlobIDCache.reset();
 
     // There should be no allocations in the memory pool at this point
     SkASSERT(fPool.isEmpty());
+    SkASSERT(fBlobList.isEmpty());
 }
