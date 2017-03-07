@@ -349,6 +349,9 @@ def dm_flags(bot):
   if 'GalaxyJ5' in bot:
     match.append('~SRGBReadWritePixels') # skia:6097
 
+  if 'GalaxyS6' in bot:
+    match.append('~SpecialImage') # skia:6338
+
   if 'ANGLE' in bot and 'Debug' in bot:
     match.append('~GLPrograms') # skia:4717
 
