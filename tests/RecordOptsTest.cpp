@@ -101,7 +101,6 @@ DEF_TEST(RecordOpts_SaveSaveLayerRestoreRestore, r) {
     }
 }
 
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
 static void assert_savelayer_restore(skiatest::Reporter* r,
                                      SkRecord* record,
                                      int i,
@@ -115,6 +114,8 @@ static void assert_savelayer_restore(skiatest::Reporter* r,
         assert_type<SkRecords::Restore>(r, *record, i+1);
     }
 }
+
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 static void assert_savelayer_draw_restore(skiatest::Reporter* r,
                                           SkRecord* record,
