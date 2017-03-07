@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56f539b0_a2e7b2a1",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-07T21:42:50Z",
+      "side": 1,
+      "message": "extra semicolon",
+      "range": {
+        "startLine": 231,
+        "startChar": 78,
+        "endLine": 231,
+        "endChar": 79
+      },
+      "revId": "a5e3e7ba105c1d3a91fb0d8a50b8740ab7a1974b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7435c236_98392cbc",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-07T21:42:50Z",
+      "side": 1,
+      "message": "canb -\u003e can",
+      "range": {
+        "startLine": 116,
+        "startChar": 28,
+        "endLine": 116,
+        "endChar": 29
+      },
+      "revId": "a5e3e7ba105c1d3a91fb0d8a50b8740ab7a1974b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
