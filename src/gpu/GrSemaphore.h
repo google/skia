@@ -23,7 +23,7 @@ private:
 protected:
     explicit GrSemaphore(const GrGpu* gpu) : fGpu(gpu) {}
 
-    friend class GrGLExternalTextureData; // resetGpu
+    friend class GrResourceProvider; // resetGpu
 
     const GrGpu* fGpu;
 };

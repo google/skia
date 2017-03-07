@@ -11,6 +11,7 @@
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
 
+class GrSemaphore;
 class GrSurfaceProxy;
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.

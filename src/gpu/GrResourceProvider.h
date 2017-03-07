@@ -227,6 +227,17 @@ public:
      */
     GrGpuResource* findAndRefResourceByUniqueKey(const GrUniqueKey&);
 
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore();
+
+    // Takes the GrSemaphore and sets the ownership of the semaphore to the GrGpu object used by
+    // this class. This call is only used when passing a GrSemaphore from one context to another.
+    void takeOwnershipOfSemaphore(sk_sp<GrSemaphore>);
+    // Takes the GrSemaphore and resets the ownership of the semaphore so that it is not owned by
+    // any GrGpu. A follow up call to takeOwnershipofSemaphore must be made so that the underlying
+    // semaphore can be deleted. This call is only used when passing a GrSemaphore from one context
+    // to another.
+    void releaseOwnershipOfSemaphore(sk_sp<GrSemaphore>);
+
     void abandon() {
         fCache = NULL;
         fGpu = NULL;

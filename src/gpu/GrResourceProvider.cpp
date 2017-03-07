@@ -15,6 +15,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
+#include "GrSemaphore.h"
 #include "GrStencilAttachment.h"
 #include "GrTexturePriv.h"
 #include "../private/GrSingleOwner.h"
@@ -372,3 +373,17 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
     }
     return this->gpu()->wrapBackendTextureAsRenderTarget(desc);
 }
+
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore() {
+    return fGpu->makeSemaphore();
+}
+
+void GrResourceProvider::takeOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {
+    semaphore->resetGpu(fGpu);
+}
+
+void GrResourceProvider::releaseOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {
+    semaphore->resetGpu(nullptr);
+}
+
+
