@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e6a74f4_79d2d26c",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T00:51:04Z",
+      "side": 1,
+      "message": "What\u0027s the deal?  Why does null-dst have to change?",
+      "revId": "2a767fb613a9daf5a35d0c20b706939f79e6ae1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
