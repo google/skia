@@ -1073,6 +1073,11 @@ STAGE(repeat_y) { g = repeat(g, *(const float*)ctx, k); }
 STAGE(mirror_x) { r = mirror(r, *(const float*)ctx, k); }
 STAGE(mirror_y) { g = mirror(g, *(const float*)ctx, k); }
 
+STAGE(luminance_to_alpha) {
+    a = r*k->lum_r + g*k->lum_g + b*k->lum_b;
+    r = g = b = 0;
+}
+
 STAGE(matrix_2x3) {
     auto m = (const float*)ctx;
 
@@ -1090,6 +1095,18 @@ STAGE(matrix_3x4) {
     r = R;
     g = G;
     b = B;
+}
+STAGE(matrix_4x5) {
+    auto m = (const float*)ctx;
+
+    auto R = mad(r,m[0], mad(g,m[4], mad(b,m[ 8], mad(a,m[12], m[16])))),
+         G = mad(r,m[1], mad(g,m[5], mad(b,m[ 9], mad(a,m[13], m[17])))),
+         B = mad(r,m[2], mad(g,m[6], mad(b,m[10], mad(a,m[14], m[18])))),
+         A = mad(r,m[3], mad(g,m[7], mad(b,m[11], mad(a,m[15], m[19]))));
+    r = R;
+    g = G;
+    b = B;
+    a = A;
 }
 STAGE(matrix_perspective) {
     // N.B. Unlike the other matrix_ stages, this matrix is row-major.
