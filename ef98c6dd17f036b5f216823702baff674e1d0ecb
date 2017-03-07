@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b658541_3c8562bf",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T13:47:12Z",
+      "side": 1,
+      "message": "Let\u0027s start by just setting this to false when running GN.",
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f695b2d9_a7fcbcf8",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T13:47:12Z",
+      "side": 1,
+      "message": "They don\u0027t use Clang?",
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d1c99c1_b43be354",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T13:47:12Z",
+      "side": 1,
+      "message": "Does this come back as unknown or something?",
+      "range": {
+        "startLine": 133,
+        "startChar": 9,
+        "endLine": 133,
+        "endChar": 23
+      },
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5483b2d7_b8715d8a",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T13:47:12Z",
+      "side": 1,
+      "message": "They don\u0027t support thumb?  That\u0027s weird.  This is a good way to reduce code size.",
+      "range": {
+        "startLine": 135,
+        "startChar": 8,
+        "endLine": 135,
+        "endChar": 17
+      },
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7fa9b43_264fc74d",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T13:47:12Z",
+      "side": 1,
+      "message": "I think you want is_official_build or to use extra_cflags.",
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f48b4877_c5c63200",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T13:47:12Z",
+      "side": 1,
+      "message": "Ditto for extra_ldflags.",
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

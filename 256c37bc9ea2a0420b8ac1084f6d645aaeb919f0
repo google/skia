@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7135278b_e1215931",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T13:47:12Z",
+      "side": 0,
+      "message": "You can use extra_cflags for this.  Your -Os will override the default -O3.",
+      "range": {
+        "startLine": 402,
+        "startChar": 6,
+        "endLine": 402,
+        "endChar": 11
+      },
+      "revId": "256c37bc9ea2a0420b8ac1084f6d645aaeb919f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bab7d37_d123187e",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T13:47:12Z",
+      "side": 0,
+      "message": "Does their compiler not know this flag?",
+      "range": {
+        "startLine": 405,
+        "startChar": 6,
+        "endLine": 405,
+        "endChar": 33
+      },
+      "revId": "256c37bc9ea2a0420b8ac1084f6d645aaeb919f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
