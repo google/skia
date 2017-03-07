@@ -510,19 +510,12 @@ static AI void store_srgb(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk
                           const uint8_t* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
-    dr = sk_linear_to_srgb_needs_trunc(dr);
-    dg = sk_linear_to_srgb_needs_trunc(dg);
-    db = sk_linear_to_srgb_needs_trunc(db);
-
-    dr = sk_clamp_0_255(dr);
-    dg = sk_clamp_0_255(dg);
-    db = sk_clamp_0_255(db);
 
     Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
-    Sk4i rgba = (SkNx_cast<int>(dr) << kRShift)
-              | (SkNx_cast<int>(dg) << kGShift)
-              | (SkNx_cast<int>(db) << kBShift)
+    Sk4i rgba = (sk_linear_to_srgb(dr) << kRShift)
+              | (sk_linear_to_srgb(dg) << kGShift)
+              | (sk_linear_to_srgb(db) << kBShift)
               | (da                           );
     rgba.store(dst);
 }
@@ -531,10 +524,8 @@ template <Order kOrder>
 static AI void store_srgb_1(void* dst, const uint32_t* src,
                             Sk4f& rgba, const Sk4f&,
                             const uint8_t* const[3]) {
-    rgba = sk_clamp_0_255(sk_linear_to_srgb_needs_trunc(rgba));
-
     uint32_t tmp;
-    SkNx_cast<uint8_t>(SkNx_cast<int32_t>(rgba)).store(&tmp);
+    SkNx_cast<uint8_t>(sk_linear_to_srgb(rgba)).store(&tmp);
     tmp = (*src & 0xFF000000) | (tmp & 0x00FFFFFF);
     if (kBGRA_Order == kOrder) {
         tmp = SkSwizzle_RB(tmp);

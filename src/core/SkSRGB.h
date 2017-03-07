@@ -21,12 +21,20 @@
  */
 
 extern const float sk_linear_from_srgb[256];
+extern const uint8_t sk_linear_index_to_srgb_lookup_table[1024];
 
 template <typename V>
 static inline V sk_clamp_0_255(const V& x) {
     // The order of the arguments is important here.  We want to make sure that NaN
     // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
     return V::Min(V::Max(x, 0.0f), 255.0f);
+}
+
+template <typename V>
+static inline V sk_clamp_0_1023(const V& x) {
+    // The order of the arguments is important here.  We want to make sure that NaN
+    // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
+    return V::Min(V::Max(x, 0.0f), 1023.0f);
 }
 
 // [0.0f, 1.0f] -> [0.0f, 255.xf], for small x.  Correct after truncation.
@@ -66,10 +74,37 @@ static inline V sk_linear_to_srgb_needs_round(const V& x) {
     return (x < 0.0043f).thenElse(lo, hi);
 }
 
+
+// The following code can generate an integer sequence. e.g.
+//     int_sequence_t<4> => int_sequence<0, 1, 2, 3>
+//     int_sequence_t<N> => int_sequence<0, 1, 2, ... N-1>
+template<int...> struct int_sequence{};
+template<int N, int... Is> struct int_sequence_gen : int_sequence_gen<N-1, N, Is...> {};
+template<int... Is> struct int_sequence_gen<0, Is...> { using type = int_sequence<0, Is...>; };
+template<int N> using int_sequence_t = typename int_sequence_gen<N-1>::type;
+
+
+template<int... Ix>
+static inline SkNx<sizeof...(Ix),int> index_to_srgb_lookup(
+                                        const SkNx<sizeof...(Ix),int>& v, int_sequence<Ix...>&& s) {
+    return { sk_linear_index_to_srgb_lookup_table[v[Ix]]... };
+}
+
 template <int N>
 static inline SkNx<N,int> sk_linear_to_srgb(const SkNx<N,float>& x) {
-    auto f = sk_linear_to_srgb_needs_trunc(x);
-    return SkNx_cast<int>(sk_clamp_0_255(f));
+    // The barrier(0.116971f) is the linear value of the color SRGB(96.0/255.0)
+    // Transform the input linear color into an index of the lookup table as follow:
+    //      - Transform range [0.0, 0.116971f) to [0.0, 512.0) linearly    ( l = 4377.17x )
+    //      - Transform range [0.116971f, 1.0] to [512.0, 1023.0] linearly ( l = 444.31 + 578.69x )
+    // And then truncate the result as an index.
+    const SkNx<N,float> k  = 4377.17f,
+                        k0 =  444.31f,
+                        k1 =  578.69f;
+    auto lo  = x * k;
+    auto hi  = SkNx_fma(x, k1, k0);
+    auto idx = SkNx_cast<int>(sk_clamp_0_1023((x < 0.116971f).thenElse(lo, hi)));
+
+    return index_to_srgb_lookup(idx, int_sequence_t<N>());
 }
 
 
