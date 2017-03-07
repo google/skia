@@ -222,6 +222,7 @@ const char* kSlideStateName = "Slide";
 const char* kBackendStateName = "Backend";
 const char* kMSAAStateName = "MSAA";
 const char* kPathRendererStateName = "Path renderer";
+const char* kInstancedRenderingStateName = "Instanced rendering";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
 const char* kFpsStateName = "FPS";
@@ -984,6 +985,8 @@ void Viewer::drawImGui(SkCanvas* canvas) {
         // We have some dynamic content that sizes to fill available size. If the scroll bar isn't
         // always visible, we can end up in a layout feedback loop.
         ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiSetCond_FirstUseEver);
+        DisplayParams params = fWindow->getRequestedDisplayParams();
+        bool paramsChanged = false;
         if (ImGui::Begin("Tools", &fShowImGuiDebugWindow,
                          ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
             if (ImGui::CollapsingHeader("Backend")) {
@@ -1001,14 +1004,20 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                     });
                 }
 
+                const GrContext* ctx = fWindow->getGrContext();
+                bool* inst = &params.fGrContextOptions.fEnableInstancedRendering;
+                if (ctx && ImGui::Checkbox("Instanced Rendering", inst)) {
+                    paramsChanged = true;
+                }
+
                 if (ImGui::TreeNode("Path Renderers")) {
-                    const GrContext* ctx = fWindow->getGrContext();
-                    DisplayParams params = fWindow->getRequestedDisplayParams();
                     GpuPathRenderers prevPr = params.fGrContextOptions.fGpuPathRenderers;
-                    GpuPathRenderers newPr = prevPr;
                     auto prButton = [&](GpuPathRenderers x) {
                         if (ImGui::RadioButton(gPathRendererNames[x].c_str(), prevPr == x)) {
-                            newPr = x;
+                            if (x != params.fGrContextOptions.fGpuPathRenderers) {
+                                params.fGrContextOptions.fGpuPathRenderers = x;
+                                paramsChanged = true;
+                            }
                         }
                     };
 
@@ -1030,15 +1039,6 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                         prButton(GpuPathRenderers::kDistanceField);
                         prButton(GpuPathRenderers::kTessellating);
                         prButton(GpuPathRenderers::kNone);
-                    }
-
-                    if (newPr != prevPr) {
-                        params.fGrContextOptions.fGpuPathRenderers = newPr;
-                        fDeferredActions.push_back([=]() {
-                            fWindow->setRequestedDisplayParams(params);
-                            fWindow->inval();
-                            this->updateTitle();
-                        });
                     }
                     ImGui::TreePop();
                 }
@@ -1106,7 +1106,13 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 ImGui_Primaries(&fColorSpacePrimaries, &fImGuiGamutPaint);
             }
         }
-
+        if (paramsChanged) {
+            fDeferredActions.push_back([=]() {
+                fWindow->setRequestedDisplayParams(params);
+                fWindow->inval();
+                this->updateTitle();
+            });
+        }
         ImGui::End();
     }
 
@@ -1270,6 +1276,20 @@ void Viewer::updateUIState() {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     }
 
+    // Instanced rendering state
+    Json::Value instState(Json::objectValue);
+    instState[kName] = kInstancedRenderingStateName;
+    if (ctx) {
+        if (fWindow->getRequestedDisplayParams().fGrContextOptions.fEnableInstancedRendering) {
+            instState[kValue] = kON;
+        } else {
+            instState[kValue] = kOFF;
+        }
+        instState[kOptions] = Json::Value(Json::arrayValue);
+        instState[kOptions].append(kOFF);
+        instState[kOptions].append(kON);
+    }
+
     // Softkey state
     Json::Value softkeyState(Json::objectValue);
     softkeyState[kName] = kSoftkeyStateName;
@@ -1296,6 +1316,7 @@ void Viewer::updateUIState() {
     state.append(backendState);
     state.append(msaaState);
     state.append(prState);
+    state.append(instState);
     state.append(softkeyState);
     state.append(fpsState);
 
@@ -1312,7 +1333,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
         fCurrentSlide = 0;
         for(auto slide : fSlides) {
             if (slide->getName().equals(stateValue)) {
-                setupCurrentSlide(previousSlide);
+                this->setupCurrentSlide(previousSlide);
                 break;
             }
             fCurrentSlide++;
@@ -1339,8 +1360,8 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
             params.fMSAASampleCount = sampleCount;
             fWindow->setRequestedDisplayParams(params);
             fWindow->inval();
-            updateTitle();
-            updateUIState();
+            this->updateTitle();
+            this->updateUIState();
         }
     } else if (stateName.equals(kPathRendererStateName)) {
         DisplayParams params = fWindow->getRequestedDisplayParams();
@@ -1350,16 +1371,26 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                     params.fGrContextOptions.fGpuPathRenderers = pair.first;
                     fWindow->setRequestedDisplayParams(params);
                     fWindow->inval();
-                    updateTitle();
-                    updateUIState();
+                    this->updateTitle();
+                    this->updateUIState();
                 }
                 break;
             }
         }
+    } else if (stateName.equals(kInstancedRenderingStateName)) {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
+        bool value = !strcmp(stateValue.c_str(), kON);
+        if (params.fGrContextOptions.fEnableInstancedRendering != value) {
+            params.fGrContextOptions.fEnableInstancedRendering = value;
+            fWindow->setRequestedDisplayParams(params);
+            fWindow->inval();
+            this->updateTitle();
+            this->updateUIState();
+        }
     } else if (stateName.equals(kSoftkeyStateName)) {
         if (!stateValue.equals(kSoftkeyHint)) {
             fCommands.onSoftkey(stateValue);
-            updateUIState(); // This is still needed to reset the value to kSoftkeyHint
+            this->updateUIState(); // This is still needed to reset the value to kSoftkeyHint
         }
     } else if (stateName.equals(kRefreshStateName)) {
         // This state is actually NOT in the UI state.
