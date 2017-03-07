@@ -57,6 +57,11 @@ struct SkJumper_constants {
     float    b_565_scale;
     float    _31;
     float    _63;
+
+    // luminance -> alpha
+    float lum_r;
+    float lum_g;
+    float lum_b;
 };
 
 #endif//SkJumper_DEFINED

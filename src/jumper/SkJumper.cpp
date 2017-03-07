@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorPriv.h"
 #include "SkCpu.h"
 #include "SkJumper.h"
 #include "SkRasterPipeline.h"
@@ -44,6 +45,7 @@ static K kConstants = {
          0x0000f800,      0x000007e0,      0x0000001f, // 565
     1.0f/0x0000f800, 1.0f/0x000007e0, 1.0f/0x0000001f,
     31.0f, 63.0f,
+    SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,    // luminance -> alpha
 };
 
 #define STAGES(M)         \
@@ -80,8 +82,10 @@ static K kConstants = {
     M(load_f16)           \
     M(store_f16)          \
     M(store_f32)          \
+    M(luminance_to_alpha) \
     M(matrix_2x3)         \
     M(matrix_3x4)         \
+    M(matrix_4x5)         \
     M(matrix_perspective) \
     M(clamp_x)            \
     M(clamp_y)            \
