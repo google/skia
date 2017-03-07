@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkHalf.h"
 #include "SkMathPriv.h"
+#include "SkMipMapPriv.h"
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
 #include "SkTypes.h"
@@ -35,11 +36,17 @@ struct ColorTypeFilter_8888 {
 
 struct ColorTypeFilter_S32 {
     typedef uint32_t Type;
-    static Sk4f Expand(uint32_t x) {
-        return Sk4f_fromS32(x);
+    static Sk4h Expand(uint32_t x) {
+        return Sk4h(linear12_from_srgb[(x      ) & 0xFF],
+                    linear12_from_srgb[(x >>  8) & 0xFF],
+                    linear12_from_srgb[(x >> 16) & 0xFF],
+                                       (x >> 24) <<   4);
     }
-    static uint32_t Compact(const Sk4f& x) {
-        return Sk4f_toS32(x);
+    static uint32_t Compact(const Sk4h& x) {
+        return  linear12_to_srgb[x[0]]       |
+                linear12_to_srgb[x[1]] <<  8 |
+                linear12_to_srgb[x[2]] << 16 |
+                (x[3] >> 4)            << 24;
     }
 };
 
@@ -189,6 +196,76 @@ template <typename F> void downsample_2_2(void* dst, const void* src, size_t src
     }
 }
 
+void downsample_2_2_srgb(void* dst, const void* src, size_t srcRB, int count) {
+    const uint8_t* p0 = ((const uint8_t*) src);
+    const uint8_t* p1 = ((const uint8_t*) src) + srcRB;
+    uint8_t* d = (uint8_t*) dst;
+    uint16_t storage[8];
+
+    // Given pixels:
+    // a0 b0 c0 d0 ...
+    // a1 b1 c1 d1 ...
+    // We want:
+    // (a0 + b0 + a1 + b1) / 4
+    // (c0 + d0 + c1 + d1) / 4
+    // ...
+    while (count >= 4) {
+        __m128i a0c0 = _mm_setr_epi16(linear12_from_srgb[p0[ 0]],
+                                      linear12_from_srgb[p0[ 1]],
+                                      linear12_from_srgb[p0[ 2]],
+                                      p0[ 3] << 4               ,
+                                      linear12_from_srgb[p0[ 8]],
+                                      linear12_from_srgb[p0[ 9]],
+                                      linear12_from_srgb[p0[10]],
+                                      p0[11] << 4               );
+        __m128i b0d0 = _mm_setr_epi16(linear12_from_srgb[p0[ 4]],
+                                      linear12_from_srgb[p0[ 5]],
+                                      linear12_from_srgb[p0[ 6]],
+                                      p0[ 7] << 4               ,
+                                      linear12_from_srgb[p0[12]],
+                                      linear12_from_srgb[p0[13]],
+                                      linear12_from_srgb[p0[14]],
+                                      p0[15] << 4               );
+        __m128i a1c1 = _mm_setr_epi16(linear12_from_srgb[p1[ 0]],
+                                      linear12_from_srgb[p1[ 1]],
+                                      linear12_from_srgb[p1[ 2]],
+                                      p1[ 3] << 4               ,
+                                      linear12_from_srgb[p1[ 8]],
+                                      linear12_from_srgb[p1[ 9]],
+                                      linear12_from_srgb[p1[10]],
+                                      p1[11] << 4               );
+        __m128i b1d1 = _mm_setr_epi16(linear12_from_srgb[p1[ 4]],
+                                      linear12_from_srgb[p1[ 5]],
+                                      linear12_from_srgb[p1[ 6]],
+                                      p1[ 7] << 4               ,
+                                      linear12_from_srgb[p1[12]],
+                                      linear12_from_srgb[p1[13]],
+                                      linear12_from_srgb[p1[14]],
+                                      p1[15] << 4               );
+
+        __m128i sum = _mm_add_epi16(_mm_add_epi16(a0c0, b0d0), _mm_add_epi16(a1c1, b1d1));
+        __m128i avg = _mm_srli_epi16(sum, 2);
+        _mm_store_si128((__m128i*) storage, avg);
+        d[0] = linear12_to_srgb[storage[0]];
+        d[1] = linear12_to_srgb[storage[1]];
+        d[2] = linear12_to_srgb[storage[2]];
+        d[3] = storage[3] >> 4;
+        d[4] = linear12_to_srgb[storage[4]];
+        d[5] = linear12_to_srgb[storage[5]];
+        d[6] = linear12_to_srgb[storage[6]];
+        d[7] = storage[7] >> 4;
+
+        p0 += 16;
+        p1 += 16;
+        d += 8;
+        count -= 4;
+    }
+
+    if (count) {
+        downsample_2_2<ColorTypeFilter_S32>(d, p0, srcRB, count);
+    }
+}
+
 template <typename F> void downsample_2_3(void* dst, const void* src, size_t srcRB, int count) {
     SkASSERT(count > 0);
     auto p0 = static_cast<const typename F::Type*>(src);
@@ -322,7 +399,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode col
                 proc_1_2 = downsample_1_2<ColorTypeFilter_S32>;
                 proc_1_3 = downsample_1_3<ColorTypeFilter_S32>;
                 proc_2_1 = downsample_2_1<ColorTypeFilter_S32>;
-                proc_2_2 = downsample_2_2<ColorTypeFilter_S32>;
+                proc_2_2 = downsample_2_2_srgb;
                 proc_2_3 = downsample_2_3<ColorTypeFilter_S32>;
                 proc_3_1 = downsample_3_1<ColorTypeFilter_S32>;
                 proc_3_2 = downsample_3_2<ColorTypeFilter_S32>;
