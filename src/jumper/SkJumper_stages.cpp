@@ -399,9 +399,6 @@ struct LazyCtx {
     // extra work to handle even the jagged <kStride tail in AVX+ mode.
     using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
 
-    #if defined(JUMPER) && defined(WIN)
-    __attribute__((ms_abi))
-    #endif
     extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
         F v{};
         auto start = (Stage*)load_and_inc(program);
@@ -413,6 +410,11 @@ struct LazyCtx {
             start(x,program,k,tail, v,v,v,v, v,v,v,v);
         }
         return limit;
+    }
+
+    __attribute__((ms_abi))
+    extern "C" size_t WRAP(start_pipeline_ms)(size_t x, void** program, K* k, size_t limit) {
+        return WRAP(start_pipeline)(x,program,k,limit);
     }
 
     #define STAGE(name)                                                           \
@@ -436,9 +438,6 @@ struct LazyCtx {
     // an interlaced sequence of Stage pointers and context pointers.
     using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
 
-    #if defined(JUMPER) && defined(WIN)
-    __attribute__((ms_abi))
-    #endif
     extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
         F v{};
         auto start = (Stage*)load_and_inc(program);
@@ -448,6 +447,13 @@ struct LazyCtx {
         }
         return x;
     }
+
+    #if defined(JUMPER) && defined(__x86_64__)
+    __attribute__((ms_abi))
+    extern "C" size_t WRAP(start_pipeline_ms)(size_t x, void** program, K* k, size_t limit) {
+        return WRAP(start_pipeline)(x,program,k,limit);
+    }
+    #endif
 
     #define STAGE(name)                                                           \
         static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
