@@ -600,33 +600,26 @@ Poly* new_poly(Poly** head, Vertex* v, int winding, SkArenaAlloc& alloc) {
     return poly;
 }
 
-Vertex* append_point_to_contour(const SkPoint& p, Vertex* prev, Vertex** head,
-                                SkArenaAlloc& alloc) {
+void append_point_to_contour(const SkPoint& p, VertexList* contour, SkArenaAlloc& alloc) {
     Vertex* v = alloc.make<Vertex>(p, 255);
 #if LOGGING_ENABLED
     static float gID = 0.0f;
     v->fID = gID++;
 #endif
-    if (prev) {
-        prev->fNext = v;
-        v->fPrev = prev;
-    } else {
-        *head = v;
-    }
-    return v;
+    contour->append(v);
 }
 
-Vertex* generate_quadratic_points(const SkPoint& p0,
-                                  const SkPoint& p1,
-                                  const SkPoint& p2,
-                                  SkScalar tolSqd,
-                                  Vertex* prev,
-                                  Vertex** head,
-                                  int pointsLeft,
-                                  SkArenaAlloc& alloc) {
+void generate_quadratic_points(const SkPoint& p0,
+                               const SkPoint& p1,
+                               const SkPoint& p2,
+                               SkScalar tolSqd,
+                               VertexList* contour,
+                               int pointsLeft,
+                               SkArenaAlloc& alloc) {
     SkScalar d = p1.distanceToLineSegmentBetweenSqd(p0, p2);
     if (pointsLeft < 2 || d < tolSqd || !SkScalarIsFinite(d)) {
-        return append_point_to_contour(p2, prev, head, alloc);
+        append_point_to_contour(p2, contour, alloc);
+        return;
     }
 
     const SkPoint q[] = {
@@ -636,25 +629,24 @@ Vertex* generate_quadratic_points(const SkPoint& p0,
     const SkPoint r = { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) };
 
     pointsLeft >>= 1;
-    prev = generate_quadratic_points(p0, q[0], r, tolSqd, prev, head, pointsLeft, alloc);
-    prev = generate_quadratic_points(r, q[1], p2, tolSqd, prev, head, pointsLeft, alloc);
-    return prev;
+    generate_quadratic_points(p0, q[0], r, tolSqd, contour, pointsLeft, alloc);
+    generate_quadratic_points(r, q[1], p2, tolSqd, contour, pointsLeft, alloc);
 }
 
-Vertex* generate_cubic_points(const SkPoint& p0,
-                              const SkPoint& p1,
-                              const SkPoint& p2,
-                              const SkPoint& p3,
-                              SkScalar tolSqd,
-                              Vertex* prev,
-                              Vertex** head,
-                              int pointsLeft,
-                              SkArenaAlloc& alloc) {
+void generate_cubic_points(const SkPoint& p0,
+                           const SkPoint& p1,
+                           const SkPoint& p2,
+                           const SkPoint& p3,
+                           SkScalar tolSqd,
+                           VertexList* contour,
+                           int pointsLeft,
+                           SkArenaAlloc& alloc) {
     SkScalar d1 = p1.distanceToLineSegmentBetweenSqd(p0, p3);
     SkScalar d2 = p2.distanceToLineSegmentBetweenSqd(p0, p3);
     if (pointsLeft < 2 || (d1 < tolSqd && d2 < tolSqd) ||
         !SkScalarIsFinite(d1) || !SkScalarIsFinite(d2)) {
-        return append_point_to_contour(p3, prev, head, alloc);
+        append_point_to_contour(p3, contour, alloc);
+        return;
     }
     const SkPoint q[] = {
         { SkScalarAve(p0.fX, p1.fX), SkScalarAve(p0.fY, p1.fY) },
@@ -667,92 +659,70 @@ Vertex* generate_cubic_points(const SkPoint& p0,
     };
     const SkPoint s = { SkScalarAve(r[0].fX, r[1].fX), SkScalarAve(r[0].fY, r[1].fY) };
     pointsLeft >>= 1;
-    prev = generate_cubic_points(p0, q[0], r[0], s, tolSqd, prev, head, pointsLeft, alloc);
-    prev = generate_cubic_points(s, r[1], q[2], p3, tolSqd, prev, head, pointsLeft, alloc);
-    return prev;
+    generate_cubic_points(p0, q[0], r[0], s, tolSqd, contour, pointsLeft, alloc);
+    generate_cubic_points(s, r[1], q[2], p3, tolSqd, contour, pointsLeft, alloc);
 }
 
 // Stage 1: convert the input path to a set of linear contours (linked list of Vertices).
 
 void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                      Vertex** contours, SkArenaAlloc& alloc, bool *isLinear) {
+                      VertexList* contours, SkArenaAlloc& alloc, bool *isLinear) {
     SkScalar toleranceSqd = tolerance * tolerance;
 
     SkPoint pts[4];
-    bool done = false;
     *isLinear = true;
+    VertexList* contour = contours;
     SkPath::Iter iter(path, false);
-    Vertex* prev = nullptr;
-    Vertex* head = nullptr;
     if (path.isInverseFillType()) {
         SkPoint quad[4];
         clipBounds.toQuad(quad);
         for (int i = 3; i >= 0; i--) {
-            prev = append_point_to_contour(quad[i], prev, &head, alloc);
+            append_point_to_contour(quad[i], contours, alloc);
         }
-        head->fPrev = prev;
-        prev->fNext = head;
-        *contours++ = head;
-        head = prev = nullptr;
+        contour++;
     }
     SkAutoConicToQuads converter;
-    while (!done) {
-        SkPath::Verb verb = iter.next(pts);
+    SkPath::Verb verb;
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kConic_Verb: {
                 SkScalar weight = iter.conicWeight();
                 const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     int pointsLeft = GrPathUtils::quadraticPointCount(quadPts, tolerance);
-                    prev = generate_quadratic_points(quadPts[0], quadPts[1], quadPts[2],
-                                                     toleranceSqd, prev, &head, pointsLeft, alloc);
+                    generate_quadratic_points(quadPts[0], quadPts[1], quadPts[2], toleranceSqd,
+                                              contour, pointsLeft, alloc);
                     quadPts += 2;
                 }
                 *isLinear = false;
                 break;
             }
             case SkPath::kMove_Verb:
-                if (head) {
-                    head->fPrev = prev;
-                    prev->fNext = head;
-                    *contours++ = head;
+                if (contour->fHead) {
+                    contour++;
                 }
-                head = prev = nullptr;
-                prev = append_point_to_contour(pts[0], prev, &head, alloc);
+                append_point_to_contour(pts[0], contour, alloc);
                 break;
             case SkPath::kLine_Verb: {
-                prev = append_point_to_contour(pts[1], prev, &head, alloc);
+                append_point_to_contour(pts[1], contour, alloc);
                 break;
             }
             case SkPath::kQuad_Verb: {
                 int pointsLeft = GrPathUtils::quadraticPointCount(pts, tolerance);
-                prev = generate_quadratic_points(pts[0], pts[1], pts[2], toleranceSqd, prev,
-                                                 &head, pointsLeft, alloc);
+                generate_quadratic_points(pts[0], pts[1], pts[2], toleranceSqd, contour,
+                                          pointsLeft, alloc);
                 *isLinear = false;
                 break;
             }
             case SkPath::kCubic_Verb: {
                 int pointsLeft = GrPathUtils::cubicPointCount(pts, tolerance);
-                prev = generate_cubic_points(pts[0], pts[1], pts[2], pts[3],
-                                toleranceSqd, prev, &head, pointsLeft, alloc);
+                generate_cubic_points(pts[0], pts[1], pts[2], pts[3], toleranceSqd, contour,
+                                      pointsLeft, alloc);
                 *isLinear = false;
                 break;
             }
             case SkPath::kClose_Verb:
-                if (head) {
-                    head->fPrev = prev;
-                    prev->fNext = head;
-                    *contours++ = head;
-                }
-                head = prev = nullptr;
-                break;
             case SkPath::kDone_Verb:
-                if (head) {
-                    head->fPrev = prev;
-                    prev->fNext = head;
-                    *contours++ = head;
-                }
-                done = true;
                 break;
         }
     }
@@ -1134,32 +1104,24 @@ Vertex* check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, C
     return nullptr;
 }
 
-void sanitize_contours(Vertex** contours, int contourCnt, bool approximate) {
-    for (int i = 0; i < contourCnt; ++i) {
-        SkASSERT(contours[i]);
+void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
+    for (VertexList* contour = contours; contourCnt > 0; --contourCnt, ++contour) {
+        SkASSERT(contour->fHead);
+        Vertex* prev = contour->fTail;
         if (approximate) {
-            round(&contours[i]->fPrev->fPoint);
+            round(&prev->fPoint);
         }
-        for (Vertex* v = contours[i];;) {
+        for (Vertex* v = contour->fHead; v;) {
             if (approximate) {
                 round(&v->fPoint);
             }
-            if (coincident(v->fPrev->fPoint, v->fPoint)) {
+            Vertex* next = v->fNext;
+            if (coincident(prev->fPoint, v->fPoint)) {
                 LOG("vertex %g,%g coincident; removing\n", v->fPoint.fX, v->fPoint.fY);
-                if (v->fPrev == v) {
-                    contours[i] = nullptr;
-                    break;
-                }
-                v->fPrev->fNext = v->fNext;
-                v->fNext->fPrev = v->fPrev;
-                if (contours[i] == v) {
-                    contours[i] = v->fPrev;
-                }
-                v = v->fPrev;
-            } else {
-                v = v->fNext;
-                if (v == contours[i]) break;
+                contour->remove(v);
             }
+            prev = v;
+            v = next;
         }
     }
 }
@@ -1177,28 +1139,18 @@ void merge_coincident_vertices(VertexList* mesh, Comparator& c, SkArenaAlloc& al
 
 // Stage 2: convert the contours to a mesh of edges connecting the vertices.
 
-void build_edges(Vertex** contours, int contourCnt, VertexList* mesh, Comparator& c,
+void build_edges(VertexList* contours, int contourCnt, VertexList* mesh, Comparator& c,
                  SkArenaAlloc& alloc) {
-    Vertex* prev = nullptr;
-    for (int i = 0; i < contourCnt; ++i) {
-        for (Vertex* v = contours[i]; v != nullptr;) {
-            Vertex* vNext = v->fNext;
-            connect(v->fPrev, v, Edge::Type::kInner, c, alloc);
-            if (prev) {
-                prev->fNext = v;
-                v->fPrev = prev;
-            } else {
-                mesh->fHead = v;
-            }
+    for (VertexList* contour = contours; contourCnt > 0; --contourCnt, ++contour) {
+        Vertex* prev = contour->fTail;
+        for (Vertex* v = contour->fHead; v;) {
+            Vertex* next = v->fNext;
+            connect(prev, v, Edge::Type::kInner, c, alloc);
+            mesh->append(v);
             prev = v;
-            v = vNext;
-            if (v == contours[i]) break;
+            v = next;
         }
     }
-    if (prev) {
-        prev->fNext = mesh->fHead->fPrev = nullptr;
-    }
-    mesh->fTail = prev;
 }
 
 // Stage 3: sort the vertices by increasing sweep direction.
@@ -1625,14 +1577,14 @@ void extract_boundaries(const VertexList& inMesh, VertexList* outMesh, SkPath::F
 
 // This is a driver function which calls stages 2-5 in turn.
 
-void contours_to_mesh(Vertex** contours, int contourCnt, bool antialias,
+void contours_to_mesh(VertexList* contours, int contourCnt, bool antialias,
                       VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
 #if LOGGING_ENABLED
     for (int i = 0; i < contourCnt; ++i) {
-        Vertex* v = contours[i];
+        Vertex* v = contours[i].fHead;
         SkASSERT(v);
         LOG("path.moveTo(%20.20g, %20.20g);\n", v->fPoint.fX, v->fPoint.fY);
-        for (v = v->fNext; v != contours[i]; v = v->fNext) {
+        for (v = v->fNext; v; v = v->fNext) {
             LOG("path.lineTo(%20.20g, %20.20g);\n", v->fPoint.fX, v->fPoint.fY);
         }
     }
@@ -1662,7 +1614,7 @@ void sort_and_simplify(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc)
     simplify(*vertices, c, alloc);
 }
 
-Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fillType,
+Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType fillType,
                         const SkRect& pathBounds, bool antialias,
                         SkArenaAlloc& alloc) {
     Comparator c(pathBounds.width() > pathBounds.height() ? Comparator::Direction::kHorizontal
@@ -1697,7 +1649,7 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     if (SkPath::IsInverseFillType(fillType)) {
         contourCnt++;
     }
-    std::unique_ptr<Vertex*[]> contours(new Vertex* [contourCnt]);
+    std::unique_ptr<VertexList[]> contours(new VertexList[contourCnt]);
 
     path_to_contours(path, tolerance, clipBounds, contours.get(), alloc, isLinear);
     return contours_to_polys(contours.get(), contourCnt, path.getFillType(), path.getBounds(),
