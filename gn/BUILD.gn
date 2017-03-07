@@ -20,6 +20,13 @@ declare_args() {
     }
   }
 
+  toolchain_prefix = "/usr/local/google/home/kjlubick/2chromecast-chain/toolchain/armv7a/bin/armv7a-cros-linux-gnueabi"
+
+  # Testing chromecast build
+  cc = "$toolchain_prefix-gcc"
+  cxx = "$toolchain_prefix-g++"
+  ar = "$toolchain_prefix-ar"
+
   windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
 
   extra_cflags = []
@@ -29,6 +36,8 @@ declare_args() {
 
   cc_wrapper = ""
   malloc = ""
+  arm_sysroot = ""
+  arm_target = ""
 }
 
 if (host_os == "win") {
@@ -119,11 +128,18 @@ config("default") {
   }
 
   if (current_cpu == "arm") {
-    cflags += [
-      "-march=armv7-a",
-      "-mfpu=neon",
-      "-mthumb",
-    ]
+    if (is_android) {
+      cflags += [
+        "-march=armv7-a",
+        "-mfpu=neon",
+        "-mthumb",
+      ]
+    } else if (arm_target != "") {
+      cflags += [
+        "-march=armv7",
+        "-mfpu=neon",
+      ]
+    }
   } else if (current_cpu == "mipsel") {
     cflags += [
       "-march=mips32r2",
@@ -183,6 +199,16 @@ config("default") {
     }
 
     libs += [ "gnustl_static" ]
+  }
+
+  if (arm_target != "") {
+    asmflags += []
+    cflags += [ "-s" ]
+    cflags_cc += []
+    ldflags += [
+      "-static-libstdc++",
+      "-static-libgcc",
+    ]
   }
 
   if (is_ios) {
@@ -399,10 +425,9 @@ config("release") {
     ]
   } else {
     cflags = [
-      "-O3",
+      "-Os",
       "-fdata-sections",
       "-ffunction-sections",
-      "-momit-leaf-frame-pointer",
     ]
     if (is_mac || is_ios) {
       ldflags = [ "-dead_strip" ]
