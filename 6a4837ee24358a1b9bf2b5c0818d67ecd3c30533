@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33afa1fa_f4aeac79",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-07T15:04:42Z",
+      "side": 1,
+      "message": "do we still need the priv version of this?",
+      "range": {
+        "startLine": 694,
+        "startChar": 5,
+        "endLine": 694,
+        "endChar": 30
+      },
+      "revId": "6a4837ee24358a1b9bf2b5c0818d67ecd3c30533",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "108f57cf_a8fd4481",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-07T15:04:42Z",
+      "side": 0,
+      "message": "did this get dropped intentionally?",
+      "range": {
+        "startLine": 311,
+        "startChar": 0,
+        "endLine": 314,
+        "endChar": 6
+      },
+      "revId": "fba38f915f1558f5e11a9d746b4ae0a10c46d2ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86bbb98a_ddf5e88b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3495,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-07T15:04:42Z",
+      "side": 0,
+      "message": "is this check not needed?",
+      "range": {
+        "startLine": 3495,
+        "startChar": 8,
+        "endLine": 3495,
+        "endChar": 48
+      },
+      "revId": "fba38f915f1558f5e11a9d746b4ae0a10c46d2ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
