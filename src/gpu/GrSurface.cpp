@@ -10,7 +10,7 @@
 #include "GrOpList.h"
 #include "GrSurfacePriv.h"
 
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkMathPriv.h"
 
 GrSurface::~GrSurface() {

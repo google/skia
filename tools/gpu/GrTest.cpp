@@ -17,7 +17,7 @@
 #include "GrResourceCache.h"
 #include "GrSemaphore.h"
 
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkMathPriv.h"
 #include "SkString.h"

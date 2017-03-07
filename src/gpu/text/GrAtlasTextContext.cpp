@@ -11,7 +11,7 @@
 #include "GrTextBlobCache.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 
 GrAtlasTextContext::GrAtlasTextContext()
     : fDistanceAdjustTable(new GrDistanceFieldAdjustTable) {

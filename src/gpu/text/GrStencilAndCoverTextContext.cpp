@@ -20,7 +20,7 @@
 #include "SkDrawFilter.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkPath.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextFormatParams.h"

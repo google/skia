@@ -11,7 +11,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceProvider.h"
 #include "SkBitmap.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkPixelRef.h"
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }

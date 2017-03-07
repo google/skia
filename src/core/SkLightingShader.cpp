@@ -105,7 +105,6 @@ private:
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 
 // This FP expects a premul'd color input for its diffuse color. Premul'ing of the paint's color is
 // handled by the asFragmentProcessor() factory, but shaders providing diffuse color must output it

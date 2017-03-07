@@ -24,7 +24,7 @@
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #endif
 
 #ifndef SK_IGNORE_TO_STRING

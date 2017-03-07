@@ -9,7 +9,7 @@
 
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkImage_Base.h"
 #include "SkImageCacherator.h"
 #include "SkPixelRef.h"

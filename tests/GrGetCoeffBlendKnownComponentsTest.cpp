@@ -11,8 +11,17 @@
 
 #include "GrBlend.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "SkRandom.h"
+
+static inline SkPMColor GrColorToSkPMColor(GrColor c) {
+    GrColorIsPMAssert(c);
+    return SkPackARGB32(GrColorUnpackA(c), GrColorUnpackR(c), GrColorUnpackG(c), GrColorUnpackB(c));
+}
+
+static inline GrColor SkPMColorToGrColor(SkPMColor c) {
+    return GrColorPackRGBA(SkGetPackedR32(c), SkGetPackedG32(c), SkGetPackedB32(c),
+                           SkGetPackedA32(c));
+}
 
 static GrColor make_baseline_color(GrColor src, GrColor dst, const SkXfermode* xm) {
     SkPMColor skSrc = GrColorToSkPMColor(src);

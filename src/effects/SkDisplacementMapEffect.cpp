@@ -20,7 +20,6 @@
 #include "GrTextureProxy.h"
 
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"

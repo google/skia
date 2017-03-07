@@ -13,7 +13,7 @@
 #include "GrStyle.h"
 #include "GrTextureAdjuster.h"
 #include "SkDraw.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkMaskFilter.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"

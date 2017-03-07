@@ -363,7 +363,6 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
 #include "GrFragmentProcessor.h"
 #include "GrTextureStripAtlas.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

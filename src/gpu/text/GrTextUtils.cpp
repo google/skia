@@ -18,7 +18,7 @@
 #include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkGlyphCache.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkTextBlobRunIterator.h"

@@ -18,7 +18,7 @@
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkDraw.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkTLazy.h"

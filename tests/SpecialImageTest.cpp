@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrSurfaceProxy.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #endif
 
 
