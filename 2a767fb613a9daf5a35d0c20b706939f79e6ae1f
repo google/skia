@@ -16,6 +16,24 @@
       "revId": "2a767fb613a9daf5a35d0c20b706939f79e6ae1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "213f8cef_d13bf2a1",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-07T13:21:41Z",
+      "side": 1,
+      "message": "Doesn\u0027t need to be part of this change.  But I think we should thinking about null dst as if it is non-linear blending mode...",
+      "parentUuid": "4e6a74f4_79d2d26c",
+      "revId": "2a767fb613a9daf5a35d0c20b706939f79e6ae1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
