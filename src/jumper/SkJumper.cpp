@@ -37,15 +37,7 @@
 // It's fine to rearrange and add new ones if you update SkJumper_constants.
 using K = const SkJumper_constants;
 static K kConstants = {
-    1.0f, 0.5f, 255.0f, 1/255.0f, 0x000000ff,
     {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f},
-    0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
-    12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
-    0x77800000, 0x07800000, 0x04000400,                // fp16 <-> fp32
-         0x0000f800,      0x000007e0,      0x0000001f, // 565
-    1.0f/0x0000f800, 1.0f/0x000007e0, 1.0f/0x0000001f,
-    31.0f, 63.0f,
-    SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,    // luminance -> alpha
 };
 
 #define STAGES(M)         \

@@ -78,14 +78,14 @@ def parse_object_file(dot_o, array_type, target=None):
 
   # Look for sections we know we can't handle.
   section_headers = subprocess.check_output(cmd + ['-h', dot_o])
-  for section in ['.literal4', '.literal8', '.literal16', '.const']:
-    if section in section_headers:
-      print >>sys.stderr, 'Found %s section, which we cannot handle.' % section
-      assert section not in section_headers
+  for snippet in ['.literal', '.const', '.rodata']:
+    if snippet in section_headers:
+      print >>sys.stderr, 'Found %s in section.' % snippet
+      assert snippet not in section_headers
 
   # Ok.  Let's disassemble.
   active = False
-  disassemble = ['-d', '--insn-width=9', dot_o]
+  disassemble = ['-d', '--insn-width=10', dot_o]
   for line in subprocess.check_output(cmd + disassemble).split('\n'):
     line = line.strip()
 
