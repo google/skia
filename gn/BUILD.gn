@@ -403,7 +403,6 @@ config("release") {
       "-O3",
       "-fdata-sections",
       "-ffunction-sections",
-      "-momit-leaf-frame-pointer",
     ]
     if (is_mac || is_ios) {
       ldflags = [ "-dead_strip" ]
