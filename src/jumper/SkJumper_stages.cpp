@@ -24,6 +24,22 @@ static Dst bit_cast(const Src& src) {
     return unaligned_load<Dst>(&src);
 }
 
+// A couple functions for embedding constants directly into code,
+// so that no .const or .literal4 section is created.
+
+static inline int constant(int x) {
+#if defined(JUMPER) && defined(__x86_64__)
+    // Move x-the-compile-time-constant as a literal into x-the-register.
+    asm("mov %1, %0" : "=r"(x) : "i"(x));
+#endif
+    return x;
+}
+
+static inline float constant(float f) {
+    int x = constant(unaligned_load<int>(&f));
+    return unaligned_load<float>(&x);
+}
+
 #if !defined(JUMPER)
     // This path should lead to portable code that can be compiled directly into Skia.
     // (All other paths are compiled offline by Clang into SkJumper_generated.h.)
@@ -107,7 +123,7 @@ static Dst bit_cast(const Src& src) {
 
     static F floor(F v, K* k) {
         F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
-        return roundtrip - if_then_else(roundtrip > v, k->_1, 0);
+        return roundtrip - if_then_else(roundtrip > v, constant(1.0f), 0);
     }
 
     static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
@@ -209,7 +225,7 @@ static Dst bit_cast(const Src& src) {
         return _mm_floor_ps(v);
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-        return roundtrip - if_then_else(roundtrip > v, k->_1, 0);
+        return roundtrip - if_then_else(roundtrip > v, constant(1.0f), 0);
     #endif
     }
 
@@ -488,9 +504,9 @@ STAGE(seed_shader) {
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
 
-    r = cast(x) + k->_0_5 + unaligned_load<F>(k->iota);
-    g = cast(y) + k->_0_5;
-    b = k->_1;
+    r = cast(x) + constant(0.5f) + unaligned_load<F>(k->iota);
+    g = cast(y) + constant(0.5f);
+    b = constant(1.0f);
     a = 0;
     dr = dg = db = da = 0;
 }
@@ -515,14 +531,14 @@ STAGE(plus_) {
 }
 
 STAGE(srcover) {
-    auto A = k->_1 - a;
+    auto A = constant(1.0f) - a;
     r = mad(dr, A, r);
     g = mad(dg, A, g);
     b = mad(db, A, b);
     a = mad(da, A, a);
 }
 STAGE(dstover) {
-    auto DA = k->_1 - da;
+    auto DA = constant(1.0f) - da;
     r = mad(r, DA, dr);
     g = mad(g, DA, dg);
     b = mad(b, DA, db);
@@ -537,14 +553,14 @@ STAGE(clamp_0) {
 }
 
 STAGE(clamp_1) {
-    r = min(r, k->_1);
-    g = min(g, k->_1);
-    b = min(b, k->_1);
-    a = min(a, k->_1);
+    r = min(r, constant(1.0f));
+    g = min(g, constant(1.0f));
+    b = min(b, constant(1.0f));
+    a = min(a, constant(1.0f));
 }
 
 STAGE(clamp_a) {
-    a = min(a, k->_1);
+    a = min(a, constant(1.0f));
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
@@ -592,7 +608,7 @@ STAGE(premul) {
     b = b * a;
 }
 STAGE(unpremul) {
-    auto scale = if_then_else(a == 0, 0, k->_1 / a);
+    auto scale = if_then_else(a == 0, 0, constant(1.0f) / a);
     r = r * scale;
     g = g * scale;
     b = b * scale;
@@ -635,7 +651,7 @@ STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     auto scales = load<U8>(ptr, tail);
-    auto c = cast(expand(scales)) * k->_1_255;
+    auto c = cast(expand(scales)) * constant(1/255.0f);
 
     r = r * c;
     g = g * c;
@@ -655,7 +671,7 @@ STAGE(lerp_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     auto scales = load<U8>(ptr, tail);
-    auto c = cast(expand(scales)) * k->_1_255;
+    auto c = cast(expand(scales)) * constant(1/255.0f);
 
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
@@ -671,7 +687,7 @@ STAGE(lerp_565) {
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
-    a = k->_1;
+    a = constant(1.0f);
 }
 
 STAGE(load_tables) {
@@ -720,19 +736,19 @@ STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
 
     auto px = load<U32>(ptr, tail);
-    r = cast((px      ) & k->_0x000000ff) * k->_1_255;
-    g = cast((px >>  8) & k->_0x000000ff) * k->_1_255;
-    b = cast((px >> 16) & k->_0x000000ff) * k->_1_255;
-    a = cast((px >> 24)                 ) * k->_1_255;
+    r = cast((px      ) & constant(0xff)) * constant(1/255.0f);
+    g = cast((px >>  8) & constant(0xff)) * constant(1/255.0f);
+    b = cast((px >> 16) & constant(0xff)) * constant(1/255.0f);
+    a = cast((px >> 24)                 ) * constant(1/255.0f);
 }
 
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
 
-    U32 px = round(r, k->_255)
-           | round(g, k->_255) <<  8
-           | round(b, k->_255) << 16
-           | round(a, k->_255) << 24;
+    U32 px = round(r, constant(255.0f))
+           | round(g, constant(255.0f)) <<  8
+           | round(b, constant(255.0f)) << 16
+           | round(a, constant(255.0f)) << 24;
     store(ptr, px, tail);
 }
 
