@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9c9250c2_6fe7832a",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-07T14:46:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b658541_3c8562bf",
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f695b2d9_a7fcbcf8",
         "filename": "gn/BUILD.gn",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "398975f9_b8ea39ab",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-07T14:46:51Z",
+      "side": 1,
+      "message": "I got this to work.  I will try clang next.",
+      "parentUuid": "f695b2d9_a7fcbcf8",
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d1c99c1_b43be354",
         "filename": "gn/BUILD.gn",
         "patchSetId": 1
@@ -47,6 +83,30 @@
       "writtenOn": "2017-03-07T13:47:12Z",
       "side": 1,
       "message": "Does this come back as unknown or something?",
+      "range": {
+        "startLine": 133,
+        "startChar": 9,
+        "endLine": 133,
+        "endChar": 23
+      },
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4e7965c_37311999",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-07T14:46:51Z",
+      "side": 1,
+      "message": "Was unneeded, actually.",
+      "parentUuid": "1d1c99c1_b43be354",
       "range": {
         "startLine": 133,
         "startChar": 9,
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "6dccea64_6595a779",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-07T14:46:51Z",
+      "side": 1,
+      "message": "Added it back in.",
+      "parentUuid": "5483b2d7_b8715d8a",
+      "range": {
+        "startLine": 135,
+        "startChar": 8,
+        "endLine": 135,
+        "endChar": 17
+      },
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a7fa9b43_264fc74d",
         "filename": "gn/BUILD.gn",
         "patchSetId": 1
@@ -93,6 +177,24 @@
       "writtenOn": "2017-03-07T13:47:12Z",
       "side": 1,
       "message": "I think you want is_official_build or to use extra_cflags.",
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bbfb23b_c6dd6840",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-07T14:46:51Z",
+      "side": 1,
+      "message": "is_official_build worked well",
+      "parentUuid": "a7fa9b43_264fc74d",
       "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -113,6 +215,24 @@
       "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f275bce_1914fe66",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-07T14:46:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f48b4877_c5c63200",
+      "revId": "ef98c6dd17f036b5f216823702baff674e1d0ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
