@@ -816,6 +816,14 @@ private:
         return ((fTypeMask & 0xF) == 0);
     }
 
+    inline void updateTranslateMask() {
+        if ((fMat[kMTransX] != 0) | (fMat[kMTransY] != 0)) {
+            fTypeMask |= kTranslate_Mask;
+        } else {
+            fTypeMask &= ~kTranslate_Mask;
+        }
+    }
+
     bool SK_WARN_UNUSED_RESULT invertNonIdentity(SkMatrix* inverse) const;
 
     static bool Poly2Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);
