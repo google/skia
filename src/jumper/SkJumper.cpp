@@ -7,7 +7,6 @@
 
 #include "SkColorPriv.h"
 #include "SkCpu.h"
-#include "SkJumper.h"
 #include "SkRasterPipeline.h"
 #include "SkTemplates.h"
 
@@ -32,21 +31,6 @@
 #if !defined(__has_feature)
     #define __has_feature(x) 0
 #endif
-
-// Stages expect these constants to be set to these values.
-// It's fine to rearrange and add new ones if you update SkJumper_constants.
-using K = const SkJumper_constants;
-static K kConstants = {
-    1.0f, 0.5f, 255.0f, 1/255.0f, 0x000000ff,
-    {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f},
-    0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
-    12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
-    0x77800000, 0x07800000, 0x04000400,                // fp16 <-> fp32
-         0x0000f800,      0x000007e0,      0x0000001f, // 565
-    1.0f/0x0000f800, 1.0f/0x000007e0, 1.0f/0x0000001f,
-    31.0f, 63.0f,
-    SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,    // luminance -> alpha
-};
 
 #define STAGES(M)         \
     M(seed_shader)        \
@@ -108,24 +92,24 @@ extern "C" {
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
-    size_t ASM(start_pipeline,aarch64)(size_t, void**, K*, size_t);
+    size_t ASM(start_pipeline,aarch64)(size_t, void**, size_t);
     StageFn ASM(just_return,aarch64);
     #define M(st) StageFn ASM(st,aarch64);
         STAGES(M)
     #undef M
 
 #elif defined(__arm__)
-    size_t ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
+    size_t ASM(start_pipeline,vfp4)(size_t, void**, size_t);
     StageFn ASM(just_return,vfp4);
     #define M(st) StageFn ASM(st,vfp4);
         STAGES(M)
     #undef M
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    size_t ASM(start_pipeline,hsw  )(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,avx  )(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,sse41)(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,sse2 )(size_t, void**, K*, size_t);
+    size_t ASM(start_pipeline,hsw  )(size_t, void**, size_t);
+    size_t ASM(start_pipeline,avx  )(size_t, void**, size_t);
+    size_t ASM(start_pipeline,sse41)(size_t, void**, size_t);
+    size_t ASM(start_pipeline,sse2 )(size_t, void**, size_t);
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,avx),
@@ -147,7 +131,7 @@ extern "C" {
 #endif
 
     // Portable, single-pixel stages.
-    size_t sk_start_pipeline(size_t, void**, K*, size_t);
+    size_t sk_start_pipeline(size_t, void**, size_t);
     StageFn sk_just_return;
     #define M(st) StageFn sk_##st;
         STAGES(M)
@@ -253,7 +237,7 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     auto build_and_run = [&](size_t   min_stride,
                              StageFn* (*lookup)(SkRasterPipeline::StockStage),
                              StageFn* just_return,
-                             size_t   (*start_pipeline)(size_t, void**, K*, size_t)) {
+                             size_t   (*start_pipeline)(size_t, void**, size_t)) {
         if (x + min_stride <= limit) {
             void** ip = program.get();
             for (auto&& st : fStages) {
@@ -268,7 +252,7 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
             }
             *ip = (void*)just_return;
 
-            x = start_pipeline(x, program.get(), &kConstants, limit);
+            x = start_pipeline(x, program.get(), limit);
         }
         return true;
     };
