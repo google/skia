@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e10d65ed_a816da65",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T17:49:11Z",
+      "side": 1,
+      "message": "Presumably you want this to be !is_fuchsia, right?  If not, why are we adding this?",
+      "range": {
+        "startLine": 39,
+        "startChar": 26,
+        "endLine": 39,
+        "endChar": 30
+      },
+      "revId": "9d9ea9b9e52a7e52f2cab539b418ba0a9a30442d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86f3a55a_9deca029",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T17:49:11Z",
+      "side": 1,
+      "message": "Why don\u0027t you move this down to the next declare_args() block and write it something like this?\n\n    if (is_win) {\n        skia_vulkan_headers_path \u003d \"$skia_vulkan_sdk/Include\"\n    } else {\n        skia_vulkan_headers_path \u003d \"$skia_vulkan_sdk/include\"\n    }\n\nThat way we can fold our existing defaults and whatever you want to override it to together into one unconditional path below.",
+      "revId": "9d9ea9b9e52a7e52f2cab539b418ba0a9a30442d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2626b4ed_1f53b148",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T17:49:11Z",
+      "side": 1,
+      "message": "Did you mean to write \u003d\u003d here?",
+      "range": {
+        "startLine": 140,
+        "startChar": 37,
+        "endLine": 140,
+        "endChar": 39
+      },
+      "revId": "9d9ea9b9e52a7e52f2cab539b418ba0a9a30442d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
