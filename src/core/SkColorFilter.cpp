@@ -113,7 +113,9 @@ public:
         SkString outerS, innerS;
         fOuter->toString(&outerS);
         fInner->toString(&innerS);
-        str->appendf("SkComposeColorFilter: outer(%s) inner(%s)", outerS.c_str(), innerS.c_str());
+        // These strings can be long.  SkString::appendf has limitations.
+        str->append(SkStringPrintf("SkComposeColorFilter: outer(%s) inner(%s)", outerS.c_str(),
+                                   innerS.c_str()));
     }
 #endif
 

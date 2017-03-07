@@ -23,9 +23,13 @@
 #include "SkTypeface.h"
 
 // EFFECTS
+#include "SkColorMatrixFilter.h"
 #include "SkGaussianEdgeShader.h"
 #include "SkGradientShader.h"
+#include "SkHighContrastFilter.h"
+#include "SkLumaColorFilter.h"
 #include "SkPerlinNoiseShader.h"
+#include "SkTableColorFilter.h"
 
 // SRC
 #include "SkUtils.h"
@@ -37,7 +41,6 @@
 // TODO:
 //   SkCanvas::drawTextBlob
 //   SkCanvas::drawTextRSXform
-//   SkColorFilter
 //   SkImageFilter
 //   SkMaskFilter
 //   SkPathEffect
@@ -185,9 +188,14 @@ template <> inline void Fuzz::next(SkRRect* rr) {
     SkRect r;
     SkVector radii[4];
     this->next(&r);
-    this->nextN(radii, 4);
+    r.sort();
+    for (SkVector& vec : radii) {
+        this->nextRange(&vec.fX, 0.0f, 1.0f);
+        vec.fX *= 0.5f * r.width();
+        this->nextRange(&vec.fY, 0.0f, 1.0f);
+        vec.fY *= 0.5f * r.height();
+    }
     rr->setRectRadii(r, radii);
-    SkASSERT(rr->isValid());
 }
 
 template <> inline void Fuzz::next(SkBlendMode* mode) {
@@ -201,7 +209,67 @@ SkBitmap MakeFuzzBitmap(Fuzz*);
 
 static sk_sp<SkPicture> make_picture(Fuzz*, int depth);
 
-sk_sp<SkColorFilter> MakeColorFilter(Fuzz* fuzz) { return nullptr; /*TODO*/ }
+sk_sp<SkColorFilter> MakeColorFilter(Fuzz* fuzz, int depth = 3) {
+    if (depth <= 0) {
+        return nullptr;
+    }
+    int colorFilterType;
+    fuzz->nextRange(&colorFilterType, 0, 8);
+    switch (colorFilterType) {
+        case 0:
+            return nullptr;
+        case 1: {
+            SkColor color;
+            SkBlendMode mode;
+            fuzz->next(&color, &mode);
+            return SkColorFilter::MakeModeFilter(color, mode);
+        }
+        case 2: {
+            sk_sp<SkColorFilter> outer = MakeColorFilter(fuzz, depth - 1);
+            sk_sp<SkColorFilter> inner = MakeColorFilter(fuzz, depth - 1);
+            return SkColorFilter::MakeComposeFilter(std::move(outer), std::move(inner));
+        }
+        case 3: {
+            SkScalar array[20];
+            fuzz->nextN(array, SK_ARRAY_COUNT(array));
+            return SkColorFilter::MakeMatrixFilterRowMajor255(array);
+        }
+        case 4: {
+            SkColor mul, add;
+            fuzz->next(&mul, &add);
+            return SkColorMatrixFilter::MakeLightingFilter(mul, add);
+        }
+        case 5: {
+            bool grayscale;
+            int invertStyle;
+            float contrast;
+            fuzz->next(&grayscale);
+            fuzz->nextRange(&invertStyle, 0, 2);
+            fuzz->nextRange(&contrast, -1.0f, 1.0f);
+            return SkHighContrastFilter::Make(SkHighContrastConfig(
+                    grayscale, SkHighContrastConfig::InvertStyle(invertStyle), contrast));
+        }
+        case 6:
+            return SkLumaColorFilter::Make();
+        case 7: {
+            uint8_t table[256];
+            fuzz->nextN(table, SK_ARRAY_COUNT(table));
+            return SkTableColorFilter::Make(table);
+        }
+        case 8: {
+            uint8_t tableA[256];
+            uint8_t tableR[256];
+            uint8_t tableG[256];
+            uint8_t tableB[256];
+            fuzz->nextN(tableA, SK_ARRAY_COUNT(tableA));
+            fuzz->nextN(tableR, SK_ARRAY_COUNT(tableR));
+            fuzz->nextN(tableG, SK_ARRAY_COUNT(tableG));
+            fuzz->nextN(tableB, SK_ARRAY_COUNT(tableB));
+            return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
+        }
+    }
+    return nullptr;
+}
 
 void make_pos(Fuzz* fuzz, SkScalar* pos, int colorCount) {
     SkScalar totalPos = 0;
@@ -808,7 +876,9 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 SkRRect orr, irr;
                 fuzz->next(&orr);
                 fuzz->next(&irr);
-                canvas->drawDRRect(orr, irr, paint);
+                if (orr.getBounds().contains(irr.getBounds())) {
+                    canvas->drawDRRect(orr, irr, paint);
+                }
                 break;
             }
             case 31: {
