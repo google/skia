@@ -105,12 +105,10 @@ private:
             iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
             GrAtlasTextBlob* lruBlob = nullptr;
             while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
-                fCache.remove(lruBlob->key());
-
                 // Backup the iterator before removing and unrefing the blob
                 iter.prev();
-                fBlobList.remove(lruBlob);
-                lruBlob->unref();
+
+                this->remove(lruBlob);
             }
 
             // If we break out of the loop with lruBlob == blob, then we haven't purged enough
