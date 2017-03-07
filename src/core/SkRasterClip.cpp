@@ -115,6 +115,15 @@ void SkConservativeClip::op(const SkRegion& rgn, SkRegion::Op op) {
 }
 
 void SkConservativeClip::op(const SkIRect& devRect, SkRegion::Op op) {
+    if (SkRegion::kIntersect_Op == op) {
+        if (devRect.isEmpty()) {
+            fBounds.setEmpty();
+        } else {
+            (void)fBounds.intersect(devRect);
+        }
+        return;
+    }
+
     // This may still create a complex region (which we would then take the bounds
     // Perhaps we should inline the op-logic directly to never create the rgn...
     SkRegion result;
