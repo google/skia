@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
 #include "SkMatrix.h"
 #include "SkOpEdgeBuilder.h"
 #include "SkPathPriv.h"
@@ -13,10 +12,10 @@
 #include "SkPathOpsCommon.h"
 
 static bool one_contour(const SkPath& path) {
-    char storage[256];
-    SkArenaAlloc allocator(storage);
+    SkChunkAlloc allocator(256);
     int verbCount = path.countVerbs();
-    uint8_t* verbs = (uint8_t*) allocator.makeArrayDefault<uint8_t>(verbCount);
+    uint8_t* verbs = (uint8_t*) allocator.alloc(sizeof(uint8_t) * verbCount,
+            SkChunkAlloc::kThrow_AllocFailType);
     (void) path.getVerbs(verbs, verbCount);
     for (int index = 1; index < verbCount; ++index) {
         if (verbs[index] == SkPath::kMove_Verb) {
@@ -51,8 +50,7 @@ bool SkOpBuilder::FixWinding(SkPath* path) {
         path->setFillType(fillType);
         return true;
     }
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkChunkAlloc allocator(4096);
     SkOpContourHead contourHead;
     SkOpGlobalState globalState(&contourHead, &allocator  SkDEBUGPARAMS(false)
             SkDEBUGPARAMS(nullptr));

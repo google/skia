@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkArenaAlloc.h"
 #include "SkFloatBits.h"
 #include "SkOpCoincidence.h"
 #include "SkPathOpsTypes.h"
@@ -226,7 +225,7 @@ double SkDCubeRoot(double x) {
 }
 
 SkOpGlobalState::SkOpGlobalState(SkOpContourHead* head,
-                                 SkArenaAlloc* allocator
+                                 SkChunkAlloc* allocator
                                  SkDEBUGPARAMS(bool debugSkipAssert)
                                  SkDEBUGPARAMS(const char* testName))
     : fAllocator(allocator)
