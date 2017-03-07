@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9692eb2_b27b4f02",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-07T18:10:48Z",
+      "side": 1,
+      "message": "How much does this unrolling matter?  I\u0027d figure our time is all spent in and out of tables?",
+      "revId": "12196a9404886216e3545bdb2f5c5be588a1c999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
