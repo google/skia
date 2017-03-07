@@ -46,11 +46,13 @@ GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace);
 GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace);
 
 /**
- * As above, but with explicit control over the linearization and gamut xform steps.
- * Typically used when you have easy access to a pre-computed xform.
+ * As above, but with a caller-supplied color space xform object. Faster for the cases where we
+ * have that cached.
  */
-GrColor4f SkColorToPremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
-GrColor4f SkColorToUnpremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
+GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
+                                   GrColorSpaceXform* gamutXform);
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
+                                     GrColorSpaceXform* gamutXform);
 
 static inline GrColor SkColorToOpaqueGrColor(SkColor c) {
     unsigned r = SkColorGetR(c);

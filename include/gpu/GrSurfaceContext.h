@@ -34,7 +34,7 @@ public:
 
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
-    bool isGammaCorrect() const { return SkToBool(fColorSpace.get()); }
+    bool isGammaCorrect() const;
 
     // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
     int width() const { return this->asSurfaceProxy()->width(); }

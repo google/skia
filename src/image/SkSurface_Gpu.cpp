@@ -10,6 +10,7 @@
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
@@ -177,13 +178,15 @@ bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace
             return !colorSpace || colorSpace->gammaIsLinear();
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-            return context->caps()->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();
+            return context->caps()->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB() &&
+                   !as_CSB(colorSpace)->nonLinearBlending();
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
             // If we don't have sRGB support, we may get here with a color space. It still needs
             // to be sRGB-like (so that the application will work correctly on sRGB devices.)
             return !colorSpace ||
-                (!context->caps()->srgbSupport() && colorSpace->gammaCloseToSRGB());
+                (colorSpace->gammaCloseToSRGB() && (!context->caps()->srgbSupport() ||
+                                                    !as_CSB(colorSpace)->nonLinearBlending()));
         default:
             return !colorSpace;
     }
