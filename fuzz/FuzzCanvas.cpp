@@ -1103,8 +1103,8 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 SkCanvas::VertexMode vertexMode;
                 SkBlendMode mode;
                 uint8_t vm, bm;
-                fuzz->nextRange(&vm, 0, 3);
-                fuzz->nextRange(&bm, 0, (int)SkBlendMode::kLastMode);
+                fuzz->nextRange(&vm, 0, (uint8_t)SkCanvas::kTriangleFan_VertexMode);
+                fuzz->nextRange(&bm, 0, (uint8_t)SkBlendMode::kLastMode);
                 vertexMode = (SkCanvas::VertexMode)vm;
                 mode = (SkBlendMode)bm;
                 constexpr int kMaxCount = 100;
