@@ -274,7 +274,9 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
                                 recorder.restore();
                                 assert_merge_svg_opacity_and_filter_layers(r, &record, index,
                                                                            outerNoOped);
+                            #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
                                 assert_savelayer_restore(r, &record, index + 3, innerNoOped);
+                            #endif
                                 index += 7;
                             }
                         }
