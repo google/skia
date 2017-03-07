@@ -9,7 +9,6 @@
 #define SkGpuDevice_DEFINED
 
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "SkBitmap.h"
 #include "SkClipStackDevice.h"
 #include "SkPicture.h"

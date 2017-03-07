@@ -8,7 +8,7 @@
 #include "GrDrawVerticesOp.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrOpFlushState.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(
         GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,

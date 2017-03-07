@@ -19,7 +19,6 @@
 #include "GrContext.h"
 #include "GrTextureAdjuster.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #endif
 
 // fixes https://bug.skia.org/5096

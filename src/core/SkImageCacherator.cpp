@@ -25,7 +25,6 @@
 #include "GrSamplerParams.h"
 #include "GrYUVProvider.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #endif
 
 // Until we actually have codecs/etc. that can contain/support a GPU texture format

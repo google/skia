@@ -12,7 +12,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 
 GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
                                      const SkIRect& contentArea, uint32_t uniqueID,

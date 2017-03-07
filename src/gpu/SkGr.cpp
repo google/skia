@@ -6,7 +6,6 @@
  */
 
 #include "SkGr.h"
-#include "SkGrPriv.h"
 
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"

@@ -26,7 +26,7 @@
 #include "SkCanvas.h"
 #include "SkCrossContextImageData.h"
 #include "SkBitmapCache.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkImageCacherator.h"
 #include "SkImageInfoPriv.h"

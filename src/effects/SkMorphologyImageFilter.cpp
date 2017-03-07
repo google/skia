@@ -23,7 +23,6 @@
 #include "GrTextureProxy.h"
 
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "effects/Gr1DKernelEffect.h"
 #include "effects/GrProxyMove.h"
 #include "glsl/GrGLSLFragmentProcessor.h"

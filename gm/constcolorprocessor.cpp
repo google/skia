@@ -13,7 +13,7 @@
 
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkGradientShader.h"
 #include "effects/GrConstColorProcessor.h"
 #include "ops/GrDrawOp.h"

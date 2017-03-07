@@ -87,7 +87,6 @@ private:
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "SkImage_Base.h"
 #include "GrInvariantOutput.h"
 #include "SkSpecialImage.h"

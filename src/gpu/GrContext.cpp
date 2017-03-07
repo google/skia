@@ -21,7 +21,7 @@
 #include "GrTextureContext.h"
 
 #include "SkConvertPixels.h"
-#include "SkGrPriv.h"
+#include "SkGr.h"
 #include "SkUnPreMultiplyPriv.h"
 
 #include "effects/GrConfigConversionEffect.h"

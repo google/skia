@@ -1131,7 +1131,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 
 static inline bool close_to_one_half(const SkFixed& val) {
     return SkScalarNearlyEqual(SkFixedToScalar(val), SK_ScalarHalf);

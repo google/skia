@@ -23,7 +23,6 @@
 #include "GrSamplerParams.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
 #endif
 

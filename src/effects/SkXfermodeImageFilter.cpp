@@ -23,7 +23,6 @@
 #include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #endif
 #include "SkClipOpPriv.h"
 

@@ -20,7 +20,6 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

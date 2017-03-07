@@ -195,7 +195,6 @@ bool SkRRectsGaussianEdgeMaskFilterImpl::filterMask(SkMask* dst, const SkMask& s
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 
 class RRectsGaussianEdgeFP : public GrFragmentProcessor {
 public:

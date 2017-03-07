@@ -453,13 +453,11 @@ skia_gpu_sources = [
   "$_src/gpu/glsl/GrGLSLXferProcessor.h",
 
   # Sk files
-  "$_include/gpu/SkGr.h",
-
   "$_src/gpu/SkGpuDevice.cpp",
   "$_src/gpu/SkGpuDevice.h",
   "$_src/gpu/SkGpuDevice_drawTexture.cpp",
+  "$_src/gpu/SkGr.h",
   "$_src/gpu/SkGr.cpp",
-  "$_src/gpu/SkGrPriv.h",
 
   "$_src/image/SkImage_Gpu.h",
   "$_src/image/SkImage_Gpu.cpp",

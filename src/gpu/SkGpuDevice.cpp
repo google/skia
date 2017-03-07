@@ -22,7 +22,6 @@
 #include "SkDraw.h"
 #include "SkGlyphCache.h"
 #include "SkGr.h"
-#include "SkGrPriv.h"
 #include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
