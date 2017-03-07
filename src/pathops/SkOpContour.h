@@ -21,12 +21,6 @@ public:
         reset();
     }
 
-    ~SkOpContour() {
-        if (fNext) {
-            fNext->~SkOpContour();
-        }
-    }
-
     bool operator<(const SkOpContour& rh) const {
         return fBounds.fTop == rh.fBounds.fTop
             ? fBounds.fLeft < rh.fBounds.fLeft
@@ -277,7 +271,7 @@ public:
         SkDEBUGCODE(fDebugIndent -= 2);
     }
 
-    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc* );
+    void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkArenaAlloc*);
 
     void reset() {
         fTail = nullptr;
