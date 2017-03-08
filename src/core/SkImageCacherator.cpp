@@ -557,7 +557,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
                                      kLockTexturePathCount);
             GrTexture* tex2 = proxy->instantiate(ctx->resourceProvider());
             if (tex2) {
-                return set_key_and_return(ctx->resourceProvider(), SkSafeRef(tex2), key);
+                return set_key_and_return(ctx->resourceProvider(), SkRef(tex2), key);
             }
         }
     }
@@ -581,11 +581,13 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
     if (!ctx->contextPriv().disableGpuYUVConversion()) {
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
-        sk_sp<GrTexture> tex = provider.refAsTexture(ctx, desc, true);
-        if (tex) {
+        if (sk_sp<GrTextureProxy> proxy = provider.refAsTextureProxy(ctx, desc, true)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
-            return set_key_and_return(ctx->resourceProvider(), tex.release(), key);
+            GrTexture* tex2 = proxy->instantiate(ctx->resourceProvider());
+            if (tex2) {
+                return set_key_and_return(ctx->resourceProvider(), SkRef(tex2), key);
+            }
         }
     }
 

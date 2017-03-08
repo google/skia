@@ -84,9 +84,9 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
     return true;
 }
 
-sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
-                                             const GrSurfaceDesc& desc,
-                                             bool useCache) {
+sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
+                                                       const GrSurfaceDesc& desc,
+                                                       bool useCache) {
     SkYUVPlanesCache::Info yuvInfo;
     void* planes[3];
     YUVScoper scoper;
@@ -159,5 +159,5 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
 
-    return renderTargetContext->asTexture();
+    return renderTargetContext->asTextureProxyRef();
 }

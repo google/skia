@@ -49,6 +49,10 @@ public:
         *uniqueID = this->uniqueID();
         return fTexture;
     }
+
+    bool onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
+                          const size_t rowBytes[3], SkYUVColorSpace colorSpace) const override;
+
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
 
