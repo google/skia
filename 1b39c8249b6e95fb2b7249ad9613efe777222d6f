@@ -22,6 +22,30 @@
       "revId": "1b39c8249b6e95fb2b7249ad9613efe777222d6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a51cb2b8_22ff8c3e",
+        "filename": "src/core/SkImageCacherator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-08T21:26:32Z",
+      "side": 1,
+      "message": "Just to match the \u0027tex2\u0027 in the generateTexture block, which is probably \u0027tex2\u0027 to weakly distinguish it from the earlier \u0027tex\u0027 variable. All these should go away once this method returns a texture proxy so I\u0027m not too worked up about the wackiness. The same goes for getting the context out of the fTexture member variable in SkImage_Gpu\u0027s onReadYUV8Planes method.",
+      "parentUuid": "69daaaef_f8461706",
+      "range": {
+        "startLine": 588,
+        "startChar": 23,
+        "endLine": 588,
+        "endChar": 27
+      },
+      "revId": "1b39c8249b6e95fb2b7249ad9613efe777222d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
