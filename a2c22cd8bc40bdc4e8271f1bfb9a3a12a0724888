@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e95e683_a24bfe87",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T15:52:32Z",
+      "side": 1,
+      "message": "how is this different from\n\n    void drawPaint(const SkPaint\u0026) override {}\n\n?",
+      "range": {
+        "startLine": 80,
+        "startChar": 50,
+        "endLine": 80,
+        "endChar": 63
+      },
+      "revId": "a2c22cd8bc40bdc4e8271f1bfb9a3a12a0724888",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
