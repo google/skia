@@ -1673,10 +1673,13 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
-                                      std::unique_ptr<GrDrawOp> op) {
+uint32_t GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
+                                          const GrClip& clip,
+                                          std::unique_ptr<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
+    if (this->drawingManager()->wasAbandoned()) {
+        return SK_InvalidUniqueID;
+    }
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
 
@@ -1686,21 +1689,21 @@ void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, 
     GrAppliedClip appliedClip(bounds);
     if (!clip.apply(fContext, this, pipelineBuilder.isHWAntialias(),
                     pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
-        return;
+        return SK_InvalidUniqueID;
     }
 
     // This forces instantiation of the render target. Pipeline creation is moving to flush time
     // by which point instantiation must have occurred anyway.
     GrRenderTarget* rt = this->accessRenderTarget();
     if (!rt) {
-        return;
+        return SK_InvalidUniqueID;
     }
 
     GrResourceProvider* resourceProvider = fContext->resourceProvider();
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
         if (!resourceProvider->attachStencilAttachment(this->accessRenderTarget())) {
             SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
-            return;
+            return SK_InvalidUniqueID;
         }
     }
 
@@ -1717,13 +1720,13 @@ void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, 
     if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
         this->setupDstTexture(rt, clip, bounds, &args.fDstTexture);
         if (!args.fDstTexture.texture()) {
-            return;
+            return SK_InvalidUniqueID;
         }
     }
     op->initPipeline(args);
     // TODO: We need to add pipeline dependencies on textures, etc before recording this op.
     op->setClippedBounds(appliedClip.clippedDrawBounds());
-    this->getOpList()->addOp(std::move(op), this);
+    return this->getOpList()->addOp(std::move(op), this);
 }
 
 void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& clip,

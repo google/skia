@@ -473,8 +473,9 @@ private:
                        size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
     // This performs processing specific to GrDrawOp-derived ops before recording them into the
-    // op list.
-    void addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
+    // op list. It returns the id of the opList to which the op was added, or 0, if it was
+    // dropped (e.g., due to clipping).
+    uint32_t addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
 
     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
     // be used by GrXferProcessor to access the destination color. If the texture is nullptr then

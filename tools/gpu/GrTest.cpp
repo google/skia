@@ -233,15 +233,16 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
-#define RETURN_IF_ABANDONED if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return; }
 
-void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
-                                                      GrAAType aaType,
-                                                      std::unique_ptr<GrDrawOp> op,
-                                                      const GrUserStencilSettings* uss,
-                                                      bool snapToCenters) {
+uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
+                                                          GrAAType aaType,
+                                                          std::unique_ptr<GrDrawOp> op,
+                                                          const GrUserStencilSettings* uss,
+                                                          bool snapToCenters) {
     ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
+    if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
+        return SK_InvalidUniqueID;
+    }
     SkDEBUGCODE(fRenderTargetContext->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::testingOnly_addDrawOp");
@@ -252,11 +253,10 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
     }
     pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
-    fRenderTargetContext->addDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
+    return fRenderTargetContext->addDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER
-#undef RETURN_IF_ABANDONED
 
 ///////////////////////////////////////////////////////////////////////////////
 

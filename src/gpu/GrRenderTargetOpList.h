@@ -67,8 +67,9 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
+    uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         this->recordOp(std::move(op), renderTargetContext);
+        return this->uniqueID();
     }
 
     /** Clears the entire render target */

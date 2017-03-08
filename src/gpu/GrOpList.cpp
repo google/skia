@@ -11,17 +11,23 @@
 #include "GrSurface.h"
 #include "GrSurfaceProxy.h"
 
-GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail) 
-    : fFlags(0)
+uint32_t GrOpList::CreateUniqueID() {
+    static int32_t gUniqueID = SK_InvalidUniqueID;
+    uint32_t id;
+    // Loop in case our global wraps around, as we never want to return a 0.
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
+GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
+    : fUniqueID(CreateUniqueID())
+    , fFlags(0)
     , fTarget(surfaceProxy)
     , fAuditTrail(auditTrail) {
 
     surfaceProxy->setLastOpList(this);
-
-#ifdef SK_DEBUG
-    static int debugID = 0;
-    fDebugID = debugID++;
-#endif
 }
 
 GrOpList::~GrOpList() {
@@ -62,10 +68,10 @@ void GrOpList::addDependency(GrSurface* dependedOn) {
 #ifdef SK_DEBUG
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d -> RT: %d\n", fDebugID, fTarget ? fTarget->uniqueID().asUInt() : -1);
+    SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget ? fTarget->uniqueID().asUInt() : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
-        SkDebugf("%d, ", fDependencies[i]->fDebugID);
+        SkDebugf("%d, ", fDependencies[i]->fUniqueID);
     }
     SkDebugf("\n");
 }
