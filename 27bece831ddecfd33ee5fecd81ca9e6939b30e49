@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e8d4d6f_ed10e5e3",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-08T13:41:40Z",
+      "side": 0,
+      "message": "Isn\u0027t this GM not going to test the window rectangle capabilities correctly w/o this (or something to replace it)?",
+      "revId": "27bece831ddecfd33ee5fecd81ca9e6939b30e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
