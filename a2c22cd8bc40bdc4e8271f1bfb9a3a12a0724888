@@ -22,6 +22,30 @@
       "revId": "a2c22cd8bc40bdc4e8271f1bfb9a3a12a0724888",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd8fa6e2_9d69f156",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-08T16:00:33Z",
+      "side": 1,
+      "message": "I started with sk_crash(), since a recorder should never need to fall into the device.\n\nHowever, we (for some reason) support this:\n\nSkCanvas canvas(10, 10);\n\nWhich isn\u0027t a recorder, but is supposed to not draw (and not crash). Hence the device draw methods *do* get called. So I replaced sk_crash() with function to document that the class wasn\u0027t incomplete, but deliberately wanted to not draw. Perhaps I should rename it do_not_draw() or draws_nothing().\n\nThat said, I don\u0027t feel strongly either way.",
+      "parentUuid": "3e95e683_a24bfe87",
+      "range": {
+        "startLine": 80,
+        "startChar": 50,
+        "endLine": 80,
+        "endChar": 63
+      },
+      "revId": "a2c22cd8bc40bdc4e8271f1bfb9a3a12a0724888",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
