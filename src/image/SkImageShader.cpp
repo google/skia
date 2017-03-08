@@ -340,6 +340,12 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
         p->append(SkRasterPipeline::move_dst_src);
     }
 
+    if (info.colorType() == kAlpha_8_SkColorType) {
+        p->append(SkRasterPipeline::set_rgb, &ctx->color4f);
+        p->append(SkRasterPipeline::premul);
+        return true;
+    }
+
     auto effective_color_type = [](SkColorType ct) {
         return ct == kIndex_8_SkColorType ? kN32_SkColorType : ct;
     };
@@ -347,10 +353,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
     if (effective_color_type(info.colorType()) == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }
-    if (info.colorType() == kAlpha_8_SkColorType) {
-        p->append(SkRasterPipeline::set_rgb, &ctx->color4f);
-    }
-    if (info.colorType() == kAlpha_8_SkColorType || info.alphaType() == kUnpremul_SkAlphaType) {
+    if (info.alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::premul);
     }
     if (quality > kLow_SkFilterQuality) {
