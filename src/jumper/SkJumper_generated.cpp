@@ -16,7 +16,7 @@
 #elif defined(__MACH__)
     #define CODE extern "C" __attribute__((section("__TEXT,__text")))
 #else
-    #define CODE extern "C" __attribute__((section(".text#")))
+    #define CODE extern "C" __attribute__((section(".text")))
 #endif
 
 #if defined(__aarch64__)
