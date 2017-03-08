@@ -16,6 +16,47 @@
       "revId": "893bb692d731c563ea1991299a5ee00311255a18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15f08ed9_cc37b27a",
+        "filename": "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-08T15:49:46Z",
+      "side": 1,
+      "message": "Interesting. It looks like you have to have already created a context to use that, though. Will RenderDoc attach to the second context you create? I know I\u0027ve had issues with some api capture tools in the past when multiple contexts are used.\n\nWe could also make core/compat be a DisplayParam.",
+      "parentUuid": "3ae85834_31b37a22",
+      "revId": "893bb692d731c563ea1991299a5ee00311255a18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4387ba9_c205df1a",
+        "filename": "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-08T15:49:46Z",
+      "side": 1,
+      "message": "Oops, put these in the opposite order of what I intended. Will fix.",
+      "range": {
+        "startLine": 69,
+        "startChar": 32,
+        "endLine": 70,
+        "endChar": 73
+      },
+      "revId": "893bb692d731c563ea1991299a5ee00311255a18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
