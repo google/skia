@@ -376,6 +376,7 @@ private:
 
     virtual SkImageFilterCache* getImageFilterCache() { return NULL; }
 
+    friend class SkNoPixelsDevice;
     friend class SkBitmapDevice;
     void privateResize(int w, int h) {
         *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);

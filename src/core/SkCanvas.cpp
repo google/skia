@@ -53,6 +53,57 @@
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
+class SkNoPixelsDevice : public SkBaseDevice {
+public:
+    SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props)
+        : SkBaseDevice(SkImageInfo::MakeUnknown(bounds.width(), bounds.height()), props)
+    {}
+
+    void resetForNextPicture(const SkIRect& bounds) {
+        this->privateResize(bounds.width(), bounds.height());
+    }
+
+protected:
+    // We don't track the clip at all (for performance), but we have to respond to some queries.
+    // We pretend to be wide-open. We could pretend to always be empty, but that *seems* worse.
+    void onSave() override {}
+    void onRestore() override {}
+    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override {}
+    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override {}
+    void onClipPath(const SkPath& path, SkClipOp, bool aa) override {}
+    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override {}
+    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override {}
+    bool onClipIsAA() const override { return false; }
+    void onAsRgnClip(SkRegion* rgn) const override {
+        rgn->setRect(SkIRect::MakeWH(this->width(), this->height()));
+    }
+    ClipType onGetClipType() const override {
+        return kRect_ClipType;
+    }
+
+    void drawPaint(const SkPaint& paint) override {}
+    void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&) override {}
+    void drawRect(const SkRect&, const SkPaint&) override {}
+    void drawOval(const SkRect&, const SkPaint&) override {}
+    void drawRRect(const SkRRect&, const SkPaint&) override {}
+    void drawPath(const SkPath&, const SkPaint&, const SkMatrix*, bool) override {}
+    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkPaint&) override {}
+    void drawSprite(const SkBitmap&, int, int, const SkPaint&) override {}
+    void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
+                        SkCanvas::SrcRectConstraint) override {}
+    void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {}
+    void drawPosText(const void*, size_t, const SkScalar[], int, const SkPoint&,
+                     const SkPaint&) override {}
+    void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
+    void drawVertices(SkCanvas::VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
+                      SkBlendMode, const uint16_t[], int, const SkPaint&) override {}
+
+private:
+    typedef SkBaseDevice INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -578,8 +629,8 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     fMCRec->reset(bounds);
 
     // We're peering through a lot of structs here.  Only at this scope do we
-    // know that the device is an SkBitmapDevice (really an SkNoPixelsBitmapDevice).
-    static_cast<SkBitmapDevice*>(fMCRec->fLayer->fDevice)->setNewSize(bounds.size());
+    // know that the device is a SkNoPixelsDevice.
+    static_cast<SkNoPixelsDevice*>(fMCRec->fLayer->fDevice)->resetForNextPicture(bounds);
     fDeviceClipBounds = qr_clip_bounds(bounds);
     fIsScaleTranslate = true;
 }
@@ -631,32 +682,13 @@ SkCanvas::SkCanvas()
     this->init(nullptr, kDefault_InitFlags);
 }
 
-static SkBitmap make_nopixels(int width, int height) {
-    SkBitmap bitmap;
-    bitmap.setInfo(SkImageInfo::MakeUnknown(width, height));
-    return bitmap;
-}
-
-class SkNoPixelsBitmapDevice : public SkBitmapDevice {
-public:
-    SkNoPixelsBitmapDevice(const SkIRect& bounds, const SkSurfaceProps& surfaceProps)
-        : INHERITED(make_nopixels(bounds.width(), bounds.height()), surfaceProps)
-    {
-        this->setOrigin(SkMatrix::I(), bounds.x(), bounds.y());
-    }
-
-private:
-
-    typedef SkBitmapDevice INHERITED;
-};
-
 SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfacePropsCopyOrDefault(props))
 {
     inc_canvas();
 
-    this->init(new SkNoPixelsBitmapDevice(SkIRect::MakeWH(width, height), fProps),
+    this->init(new SkNoPixelsDevice(SkIRect::MakeWH(width, height), fProps),
                kDefault_InitFlags)->unref();
 }
 
@@ -666,7 +698,7 @@ SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
 {
     inc_canvas();
 
-    this->init(new SkNoPixelsBitmapDevice(bounds, fProps), flags)->unref();
+    this->init(new SkNoPixelsDevice(bounds, fProps), flags)->unref();
 }
 
 SkCanvas::SkCanvas(SkBaseDevice* device)
