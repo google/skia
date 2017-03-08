@@ -21,6 +21,7 @@ class GrContext;
 class GrRenderTargetContext;
 class SkBaseDevice;
 class SkBitmap;
+class SkCanvasClipVisitor;
 class SkClipStack;
 class SkData;
 class SkDraw;
@@ -1325,6 +1326,14 @@ public:
     */
     const SkMatrix& getTotalMatrix() const;
 
+    typedef SkCanvasClipVisitor ClipVisitor;
+    /**
+     *  Replays the clip operations, back to front, that have been applied to
+     *  the canvas, calling the appropriate method on the visitor for each
+     *  clip. All clips have already been transformed into device space.
+     */
+    void replayClips(ClipVisitor*) const;
+
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call
@@ -1731,5 +1740,13 @@ private:
     int         fSaveCount;
 };
 #define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
+
+class SkCanvasClipVisitor {
+public:
+    virtual ~SkCanvasClipVisitor();
+    virtual void clipRect(const SkRect&, SkClipOp, bool antialias) = 0;
+    virtual void clipRRect(const SkRRect&, SkClipOp, bool antialias) = 0;
+    virtual void clipPath(const SkPath&, SkClipOp, bool antialias) = 0;
+};
 
 #endif
