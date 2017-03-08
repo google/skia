@@ -34,6 +34,24 @@
       "revId": "27bece831ddecfd33ee5fecd81ca9e6939b30e49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41a4cccf_4f6e2a86",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-08T14:03:01Z",
+      "side": 0,
+      "message": "It looks like this could just iterate over the stack without the visitor and make clip calls on the canvas. The visitor is just used on line 99 which looks like it could be replaced by code that figures out what type of clip element represents and calling canvas-\u003eclipFoo().",
+      "parentUuid": "bd150f35_86326768",
+      "revId": "27bece831ddecfd33ee5fecd81ca9e6939b30e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
