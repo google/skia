@@ -158,6 +158,8 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
 bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar y, SkPoint dst[7]);
 bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar x, SkPoint dst[7]);
 
+bool SkFindCubicLoopIntersection(const SkPoint src[], SkScalar tValues[2]);
+
 enum SkCubicType {
     kSerpentine_SkCubicType,
     kCusp_SkCubicType,

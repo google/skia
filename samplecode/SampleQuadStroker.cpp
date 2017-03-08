@@ -171,17 +171,17 @@ public:
         fRadius = 150;
 
         fCubicButton.fLabel = 'C';
-        fCubicButton.fEnabled = false;
+        fCubicButton.fEnabled = true;
         fConicButton.fLabel = 'K';
         fConicButton.fEnabled = false;
         fQuadButton.fLabel = 'Q';
         fQuadButton.fEnabled = false;
         fArcButton.fLabel = 'A';
-        fArcButton.fEnabled = true;
+        fArcButton.fEnabled = false;
         fRRectButton.fLabel = 'R';
         fRRectButton.fEnabled = false;
         fCircleButton.fLabel = 'O';
-        fCircleButton.fEnabled = true;
+        fCircleButton.fEnabled = false;
         fCircleButton.fFill = true;
         fTextButton.fLabel = 'T';
         fTextButton.fEnabled = false;
@@ -423,6 +423,7 @@ protected:
         }
         canvas->drawPath(scaled, paint);
         draw_points(canvas, scaled, SKELETON_COLOR, true);
+        return;
 
         if (fDrawRibs) {
             draw_ribs(canvas, scaled, width, 0xFF00FF00);
@@ -515,7 +516,7 @@ protected:
     }
 
     void setForGeometry() {
-        fDrawRibs = true;
+        fDrawRibs = false;
         fDrawTangents = true;
         fDrawTDivs = false;
         fWidthScale = 1;
@@ -528,7 +529,7 @@ protected:
 
     void setForSingles() {
         setForGeometry();
-        fDrawTDivs = true;
+        fDrawTDivs = false;
     }
 
     void setAsNeeded() {
@@ -584,6 +585,19 @@ protected:
             path.cubicTo(fPts[1], fPts[2], fPts[3]);
             setForSingles();
             draw_stroke(canvas, path, width, 950, false);
+
+            SkScalar t[2];
+            if (SkFindCubicLoopIntersection(fPts, t)) {
+                SkPoint pair[2];
+                SkEvalCubicAt(fPts, t[0], &pair[0], nullptr, nullptr);
+                SkEvalCubicAt(fPts, t[1], &pair[1], nullptr, nullptr);
+                SkASSERT(SkScalarNearlyEqual(pair[0].fX, pair[1].fX));
+                SkASSERT(SkScalarNearlyEqual(pair[0].fY, pair[1].fY));
+                SkPaint paint;
+                paint.setAntiAlias(true);
+                paint.setStyle(SkPaint::kStroke_Style);
+                canvas->drawCircle(pair[0].fX, pair[0].fY, 15, paint);
+            }
         }
 
         if (fConicButton.fEnabled) {
@@ -683,12 +697,12 @@ protected:
         if (fArcButton.fEnabled) {
             draw_control(canvas, fRadiusControl, fRadius, 0, 500, "radius");
         }
-#ifdef SK_DEBUG
+#if 0
         draw_control(canvas, fErrorControl, gDebugStrokerError, kStrokerErrorMin, kStrokerErrorMax,
                 "error");
-#endif
         draw_control(canvas, fWidthControl, fWidth * fWidthScale, kWidthMin * fWidthScale,
                 kWidthMax * fWidthScale, "width");
+#endif
         draw_button(canvas, fQuadButton);
         draw_button(canvas, fCubicButton);
         draw_button(canvas, fConicButton);

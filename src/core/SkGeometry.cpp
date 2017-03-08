@@ -1379,3 +1379,26 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
     }
     return conicCount;
 }
+
+#include "SkIntersections.h"
+
+bool SkFindCubicLoopIntersection(const SkPoint src[], SkScalar tValues[2]) {
+    SkPoint dst[7];
+    SkChopCubicAtHalf(src, dst);
+    SkDCubic c1, c2;
+    c1.set(&dst[0]);
+    c2.set(&dst[3]);
+    SkIntersections intersections;
+    int found = intersections.intersect(c1, c2);
+    if (found == 2) {
+        for (int index = 0; index < found; ++index) {
+            tValues[0] = intersections[0][index] / 2;
+            tValues[1] = 0.5f + intersections[1][index] / 2;
+            if (tValues[0] != tValues[1]) {
+                break;
+            }
+        }
+        return true;
+    }
+    return false;
+}
