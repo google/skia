@@ -91,13 +91,12 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            const SkMatrix& ctm,
                                            SkArenaAlloc* alloc) {
-    bool blendCorrectly = !(dst.colorSpace() && as_CSB(dst.colorSpace())->nonLinearBlending());
+    bool blendCorrectly = dst.colorSpace() && !as_CSB(dst.colorSpace())->nonLinearBlending();
     auto blitter = alloc->make<SkRasterPipelineBlitter>(
             dst,
             paint.getBlendMode(),
             SkPM4f_from_SkColor(paint.getColor(), dst.colorSpace()),
             blendCorrectly);
-
 
     SkBlendMode*      blend       = &blitter->fBlend;
     SkPM4f*           paintColor  = &blitter->fPaintColor;
@@ -127,11 +126,12 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         is_constant = shader->isConstant();
     } else {
         pipeline->append(SkRasterPipeline::constant_color, paintColor);
-    }
 
-    // Some people want the rest of the pipeline to operate on sRGB encoded color channels...
-    if (!blendCorrectly && dst.info().gammaCloseToSRGB()) {
-        pipeline->append(SkRasterPipeline::to_srgb);
+        // If we are not blending correctly, the rest of the pipeline needs to operate on sRGB
+        // encoded channels.  When the shader is non-null, this is handled by the shader.
+        if (!blendCorrectly && dst.info().gammaCloseToSRGB()) {
+            pipeline->append(SkRasterPipeline::to_srgb);
+        }
     }
 
     if (colorFilter) {
