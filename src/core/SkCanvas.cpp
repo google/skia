@@ -1563,6 +1563,17 @@ void SkCanvas::validateClip() const {
 }
 #endif
 
+void SkCanvas::replayClips(ClipVisitor* visitor) const {
+#if 0
+    SkClipStack::B2TIter                iter(*fClipStack);
+    const SkClipStack::Element*         element;
+
+    while ((element = iter.next()) != nullptr) {
+        element->replay(visitor);
+    }
+#endif
+}
+
 bool SkCanvas::androidFramework_isClipAA() const {
     bool containsAA = false;
 
@@ -3149,6 +3160,10 @@ void SkCanvas::LayerIter::clip(SkRegion* rgn) const {
 
 int SkCanvas::LayerIter::x() const { return fImpl->getX(); }
 int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkCanvasClipVisitor::~SkCanvasClipVisitor() { }
 
 ///////////////////////////////////////////////////////////////////////////////
 
