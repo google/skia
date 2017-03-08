@@ -78,8 +78,8 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
-                   std::unique_ptr<GrDrawOp>);
+    GrOp* addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
+                    std::unique_ptr<GrDrawOp>);
 
     void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         this->recordOp(std::move(op), renderTargetContext);

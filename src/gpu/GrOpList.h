@@ -73,6 +73,8 @@ public:
      */
     virtual GrRenderTargetOpList* asRenderTargetOpList() { return nullptr; }
 
+    int32_t uniqueID() const { return fUniqueID; }
+
     /*
      * Dump out the GrOpList dependency DAG
      */
@@ -80,6 +82,8 @@ public:
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+
+    static uint32_t CreateUniqueID();
 
     enum Flags {
         kClosed_Flag    = 0x01,   //!< This GrOpList can't accept any more ops
@@ -126,15 +130,15 @@ private:
 
     void addDependency(GrOpList* dependedOn);
 
-    SkDEBUGCODE(int                                 fDebugID;)
-    uint32_t                                        fFlags;
-    GrSurfaceProxy*                                 fTarget;
+    uint32_t             fUniqueID;
+    uint32_t             fFlags;
+    GrSurfaceProxy*      fTarget;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
-    SkTDArray<GrOpList*>                            fDependencies;
+    SkTDArray<GrOpList*> fDependencies;
 
 protected:
-    GrAuditTrail*                                   fAuditTrail;
+    GrAuditTrail*        fAuditTrail;
 
     typedef SkRefCnt INHERITED;
 };
