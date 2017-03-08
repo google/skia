@@ -75,6 +75,11 @@ public:
         fAddedToCache.store(true);
     }
 
+    virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) {
+        // TODO: Implement this.
+        return sk_ref_sp(this);
+    }
+
     virtual bool onPinAsTexture(GrContext*) const { return false; }
     virtual void onUnpinAsTexture(GrContext*) const {}
 
