@@ -8,12 +8,12 @@
 #ifndef SkLocalMatrixShader_DEFINED
 #define SkLocalMatrixShader_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
 class GrFragmentProcessor;
-class SkArenaAlloc;
 
 class SkLocalMatrixShader : public SkShader {
 public:

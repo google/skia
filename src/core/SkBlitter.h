@@ -8,6 +8,7 @@
 #ifndef SkBlitter_DEFINED
 #define SkBlitter_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkAutoMalloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkColor.h"
@@ -15,7 +16,6 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 
-class SkArenaAlloc;
 class SkMatrix;
 class SkPaint;
 class SkPixmap;

@@ -13,9 +13,42 @@
 #include "SkTypes.h"
 #include <cstddef>
 #include <new>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+class SkArenaBlockAlloc {
+protected:
+    SkArenaBlockAlloc(uint32_t baseBlockSize) : fBaseBlockSize{baseBlockSize} {}
+
+    std::tuple<char*, uint32_t> newBlock(uint32_t requestedSize) {
+
+        uint32_t allocationSize = std::max(requestedSize, fBaseBlockSize * fFib0);
+        fFib0 += fFib1;
+        std::swap(fFib0, fFib1);
+
+        // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t(16). The >
+        // 32K heuristic is from the JEMalloc behavior.
+        uint32_t mask  = requestedSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
+        allocationSize = (requestedSize + mask) & ~mask;
+
+        SkASSERT(allocationSize >= requestedSize);
+
+        char* newBlock = new char[allocationSize];
+        return std::make_tuple(newBlock, allocationSize);
+    }
+
+    void deleteBlock(char* block) const {
+        delete [] block;
+    }
+
+private:
+    const uint32_t fBaseBlockSize;
+    // Use the Fibonacci sequence as the growth factor for block size. The size of the block
+    // allocated is fFib0 * fExtraSize. Using 2 ^ n * fExtraSize had too much slop for Android.
+    uint32_t       fFib0 {1}, fFib1 {1};
+};
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
@@ -54,22 +87,22 @@
 // addition overhead when switching from POD data to non-POD data of typically 8 bytes.
 //
 // If additional blocks are needed they are increased exponentially. This strategy bounds the
-// recursion of the RunDtorsOnBlock to be limited to O(ln size-of-memory). In practical terms, this
-// is a maximum recursion depth of 33 for an 8GB machine but usually much less.
-class SkArenaAlloc {
+// recursion of the RunDtorsOnBlock to be limited to O(log size-of-memory). Block size grow using
+// the Fibonacci sequence which means that for 2^32 memory there are 48 allocations, and for 2^48
+// there are 71 allocations.
+template <typename BlockAlloc = SkArenaBlockAlloc>
+class SkArenaAllocBase : private BlockAlloc {
 public:
-    SkArenaAlloc(char* block, size_t size, size_t extraSize = 0);
+    SkArenaAllocBase(char* block, size_t size, size_t extraSize = 0);
 
     template <size_t kSize>
-    SkArenaAlloc(char (&block)[kSize], size_t extraSize = kSize)
-        : SkArenaAlloc(block, kSize, extraSize)
-    {}
+    SkArenaAllocBase(char (&block)[kSize], size_t extraSize = kSize)
+        : SkArenaAllocBase(block, kSize, extraSize) {}
 
-    SkArenaAlloc(size_t extraSize)
-        : SkArenaAlloc(nullptr, 0, extraSize)
-    {}
+    explicit SkArenaAllocBase(size_t extraSize)
+        : SkArenaAllocBase(nullptr, 0, extraSize) {}
 
-    ~SkArenaAlloc();
+    ~SkArenaAllocBase();
 
     template <typename T, typename... Args>
     T* make(Args&&... args) {
@@ -86,7 +119,7 @@ public:
 
             // Advance to end of object to install footer.
             fCursor = objStart + size;
-            FooterAction* releaser = [](char* objEnd) {
+            FooterAction* releaser = [](char* objEnd, SkArenaAllocBase*) {
                 char* objStart = objEnd - (sizeof(T) + sizeof(Footer));
                 ((T*)objStart)->~T();
                 return objStart;
@@ -137,11 +170,12 @@ public:
 
 private:
     using Footer = int64_t;
-    using FooterAction = char* (char*);
+    using FooterAction = char* (char*, SkArenaAllocBase*);
 
-    static char* SkipPod(char* footerEnd);
-    static void RunDtorsOnBlock(char* footerEnd);
-    static char* NextBlock(char* footerEnd);
+    static char* EndChain(char* footerEnd, SkArenaAllocBase*);
+    static char* SkipPod(char* footerEnd, SkArenaAllocBase*);
+    static void RunDtorsOnBlock(char* footerEnd, SkArenaAllocBase*);
+    static char* NextBlock(char* footerEnd, SkArenaAllocBase*);
 
     void installFooter(FooterAction* releaser, uint32_t padding);
     void installUint32Footer(FooterAction* action, uint32_t value, uint32_t padding);
@@ -172,7 +206,7 @@ private:
             // Advance to end of array to install footer.?
             fCursor = objStart + arraySize;
             this->installUint32Footer(
-                [](char* footerEnd) {
+                [](char* footerEnd, SkArenaAllocBase*) {
                     char* objEnd = footerEnd - (sizeof(Footer) + sizeof(uint32_t));
                     uint32_t count;
                     memmove(&count, objEnd, sizeof(uint32_t));
@@ -196,9 +230,8 @@ private:
     char* const    fFirstBlock;
     const uint32_t fFirstSize;
     const uint32_t fExtraSize;
-    // The extra size allocations grow exponentially:
-    //    size-allocated = extraSize * 2 ^ fLogGrowth.
-    uint8_t        fLogGrowth {0};
 };
+
+typedef SkArenaAllocBase<SkArenaBlockAlloc> SkArenaAlloc;
 
 #endif//SkFixedAlloc_DEFINED

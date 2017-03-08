@@ -8,10 +8,9 @@
 #ifndef SkColorFilterShader_DEFINED
 #define SkColorFilterShader_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkColorFilter.h"
 #include "SkShader.h"
-
-class SkArenaAlloc;
 
 class SkColorFilterShader : public SkShader {
 public:

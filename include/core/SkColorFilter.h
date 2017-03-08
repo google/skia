@@ -8,6 +8,7 @@
 #ifndef SkColorFilter_DEFINED
 #define SkColorFilter_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
@@ -15,7 +16,6 @@
 
 class GrContext;
 class GrFragmentProcessor;
-class SkArenaAlloc;
 class SkBitmap;
 class SkColorSpace;
 class SkRasterPipeline;

@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkGaussianEdgeShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-
-class SkArenaAlloc;
 
  /** \class SkGaussianEdgeShaderImpl
  This subclass of shader applies a Gaussian to shadow edge
