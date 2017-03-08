@@ -467,7 +467,7 @@ private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle fScaleUni;
-    UniformHandle fColorSpaceXformUni;
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     GrTextureDomain::GLDomain fGLDomain;
 
     typedef GrGLSLFragmentProcessor INHERITED;
@@ -571,9 +571,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
                                    // a number smaller than that to approximate 0, but
                                    // leave room for 32-bit float GPU rounding errors.
 
-    GrGLSLColorSpaceXformHelper colorSpaceHelper(args.fUniformHandler,
-                                                 displacementMap.colorSpaceXform(),
-                                                 &fColorSpaceXformUni);
+    fColorSpaceHelper.emitCode(args.fUniformHandler, displacementMap.colorSpaceXform());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     fragBuilder->codeAppendf("\t\tvec4 %s = ", dColor);
@@ -634,7 +632,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
                             SkString(cCoords),
                             args.fTexSamplers[1],
                             nullptr,
-                            &colorSpaceHelper);
+                            &fColorSpaceHelper);
     fragBuilder->codeAppend(";\n");
 }
 
@@ -649,7 +647,7 @@ void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
     fGLDomain.setData(pdman, displacementMap.domain(), colorTex);
     if (SkToBool(displacementMap.colorSpaceXform())) {
-        pdman.setSkMatrix44(fColorSpaceXformUni, displacementMap.colorSpaceXform()->srcToDst());
+        fColorSpaceHelper.setData(pdman, displacementMap.colorSpaceXform());
     }
 }
 

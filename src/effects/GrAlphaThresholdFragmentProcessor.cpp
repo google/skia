@@ -79,7 +79,7 @@ protected:
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerThresholdVar;
     GrGLSLProgramDataManager::UniformHandle fOuterThresholdVar;
-    GrGLSLProgramDataManager::UniformHandle fColorSpaceXformVar;
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
@@ -94,8 +94,7 @@ void GrGLAlphaThresholdFragmentProcessor::emitCode(EmitArgs& args) {
 
     const GrAlphaThresholdFragmentProcessor& atfp =
         args.fFp.cast<GrAlphaThresholdFragmentProcessor>();
-    GrGLSLColorSpaceXformHelper colorSpaceHelper(uniformHandler, atfp.colorSpaceXform(),
-                                                 &fColorSpaceXformVar);
+    fColorSpaceHelper.emitCode(uniformHandler, atfp.colorSpaceXform());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
@@ -105,7 +104,7 @@ void GrGLAlphaThresholdFragmentProcessor::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("vec2 mask_coord = %s;", maskCoords2D.c_str());
     fragBuilder->codeAppend("vec4 input_color = ");
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord", kVec2f_GrSLType,
-                                     &colorSpaceHelper);
+                                     &fColorSpaceHelper);
     fragBuilder->codeAppend(";");
     fragBuilder->codeAppend("vec4 mask_color = ");
     fragBuilder->appendTextureLookup(args.fTexSamplers[1], "mask_coord");
@@ -140,7 +139,7 @@ void GrGLAlphaThresholdFragmentProcessor::onSetData(const GrGLSLProgramDataManag
     pdman.set1f(fInnerThresholdVar, atfp.innerThreshold());
     pdman.set1f(fOuterThresholdVar, atfp.outerThreshold());
     if (SkToBool(atfp.colorSpaceXform())) {
-        pdman.setSkMatrix44(fColorSpaceXformVar, atfp.colorSpaceXform()->srcToDst());
+        fColorSpaceHelper.setData(pdman, atfp.colorSpaceXform());
     }
 }
 

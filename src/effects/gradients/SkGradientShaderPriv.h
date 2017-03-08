@@ -295,6 +295,7 @@ static inline int next_dither_toggle(int toggle) {
 #include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
+#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
@@ -520,7 +521,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fColorsUni;
     GrGLSLProgramDataManager::UniformHandle fHardStopT;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
-    GrGLSLProgramDataManager::UniformHandle fColorSpaceXformUni;
+    GrGLSLColorSpaceXformHelper             fColorSpaceHelper;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };

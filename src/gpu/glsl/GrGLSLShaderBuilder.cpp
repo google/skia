@@ -91,7 +91,7 @@ void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
                                               const char* coordName,
                                               GrSLType varyingType,
                                               GrGLSLColorSpaceXformHelper* colorXformHelper) {
-    if (colorXformHelper && colorXformHelper->getXformMatrix()) {
+    if (colorXformHelper && colorXformHelper->isValid()) {
         // With a color gamut transform, we need to wrap the lookup in another function call
         SkString lookup;
         this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
@@ -109,7 +109,7 @@ void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
                                                     GrGLSLColorSpaceXformHelper* colorXformHelper) {
     SkString lookup;
     this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
-    if (colorXformHelper && colorXformHelper->getXformMatrix()) {
+    if (colorXformHelper && colorXformHelper->isValid()) {
         SkString xform;
         this->appendColorGamutXform(&xform, lookup.c_str(), colorXformHelper);
         this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(xform)).c_str());
@@ -141,8 +141,9 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
                        functionBody.c_str(),
                        &colorGamutXformFuncName);
 
+    GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
     out->appendf("%s(%s, %s)", colorGamutXformFuncName.c_str(), srcColor,
-                 colorXformHelper->getXformMatrix());
+                 uniformHandler->getUniformCStr(colorXformHelper->gamutXformUniform()));
 }
 
 void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,

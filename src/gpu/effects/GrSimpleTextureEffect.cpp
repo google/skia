@@ -42,9 +42,7 @@ class GrGLSimpleTextureEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
         const GrSimpleTextureEffect& textureEffect = args.fFp.cast<GrSimpleTextureEffect>();
-        GrGLSLColorSpaceXformHelper colorSpaceHelper(args.fUniformHandler,
-                                                     textureEffect.colorSpaceXform(),
-                                                     &fColorSpaceXformUni);
+        fColorSpaceHelper.emitCode(args.fUniformHandler, textureEffect.colorSpaceXform());
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         fragBuilder->codeAppendf("%s = ", args.fOutputColor);
@@ -52,7 +50,7 @@ public:
                                                     args.fTexSamplers[0],
                                                     args.fTransformedCoords[0].c_str(),
                                                     args.fTransformedCoords[0].getType(),
-                                                    &colorSpaceHelper);
+                                                    &fColorSpaceHelper);
         fragBuilder->codeAppend(";");
     }
 
@@ -66,14 +64,14 @@ protected:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& processor) override {
         const GrSimpleTextureEffect& textureEffect = processor.cast<GrSimpleTextureEffect>();
         if (SkToBool(textureEffect.colorSpaceXform())) {
-            pdman.setSkMatrix44(fColorSpaceXformUni, textureEffect.colorSpaceXform()->srcToDst());
+            fColorSpaceHelper.setData(pdman, textureEffect.colorSpaceXform());
         }
     }
 
 private:
     typedef GrGLSLFragmentProcessor INHERITED;
 
-    UniformHandle fColorSpaceXformUni;
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

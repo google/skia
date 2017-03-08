@@ -32,7 +32,7 @@ private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle               fImageIncrementUni;
-    UniformHandle               fColorSpaceXformUni;
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     GrTextureDomain::GLDomain   fDomain;
 
     typedef GrGLSLFragmentProcessor INHERITED;
@@ -48,8 +48,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
 
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
-    GrGLSLColorSpaceXformHelper colorSpaceHelper(uniformHandler, bicubicEffect.colorSpaceXform(),
-                                                 &fColorSpaceXformUni);
+    fColorSpaceHelper.emitCode(uniformHandler, bicubicEffect.colorSpaceXform());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
@@ -107,9 +106,9 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
             y);
     }
     SkString bicubicColor("(wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3)");
-    if (colorSpaceHelper.getXformMatrix()) {
+    if (fColorSpaceHelper.isValid()) {
         SkString xformedColor;
-        fragBuilder->appendColorGamutXform(&xformedColor, bicubicColor.c_str(), &colorSpaceHelper);
+        fragBuilder->appendColorGamutXform(&xformedColor, bicubicColor.c_str(), &fColorSpaceHelper);
         bicubicColor.swap(xformedColor);
     }
     fragBuilder->codeAppendf("%s = %s;",
@@ -127,7 +126,7 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
     fDomain.setData(pdman, bicubicEffect.domain(), texture);
     if (SkToBool(bicubicEffect.colorSpaceXform())) {
-        pdman.setSkMatrix44(fColorSpaceXformUni, bicubicEffect.colorSpaceXform()->srcToDst());
+        fColorSpaceHelper.setData(pdman, bicubicEffect.colorSpaceXform());
     }
 }
 
