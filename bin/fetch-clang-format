@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import hashlib
+import os
+import shutil
+import stat
+import sys
+import urllib2
+
+os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
+
+def fetch(target):
+  target_path = 'buildtools/linux64/' + target if 'linux'  in sys.platform else \
+                'buildtools/mac/' + target     if 'darwin' in sys.platform else \
+                'buildtools/win/'+ target + '.exe'
+
+  sha1 = open(target_path + '.sha1').read().strip()
+
+  def sha1_of_file(path):
+    h = hashlib.sha1()
+    if os.path.isfile(path):
+      with open(path, 'rb') as f:
+        h.update(f.read())
+    return h.hexdigest()
+
+  if sha1_of_file(target_path) != sha1:
+    with open(target_path, 'wb') as f:
+      url = 'https://chromium-%s.storage-download.googleapis.com/%s' % (target, sha1)
+      f.write(urllib2.urlopen(url).read())
+
+    os.chmod(target_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+                          stat.S_IRGRP                | stat.S_IXGRP |
+                          stat.S_IROTH                | stat.S_IXOTH )
+
+  target_copy_path = os.path.join('bin', os.path.basename(target_path))
+  if sha1_of_file(target_copy_path) != sha1:
+    shutil.copy(target_path, target_copy_path)
+
+fetch('clang-format')
