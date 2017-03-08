@@ -248,7 +248,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                                 canvas->rotate(2, x + subpixel.offset.x(),
                                                   y + subpixel.offset.y());
                             }
-                            canvas->drawText(&character, 1,
+                            canvas->drawText("Ü", 1,
                                              x + subpixel.offset.x(),
                                              y + subpixel.offset.y(), paint);
 
@@ -272,6 +272,15 @@ DEF_SIMPLE_GM_BG_NAME(typefacerendering, canvas, 640, 680, SK_ColorWHITE,
         draw_typeface_rendering_gm(canvas, std::move(face));
     }
 }
+
+DEF_SIMPLE_GM_BG_NAME(typefacerendering_voda, canvas, 640, 680, SK_ColorWHITE,
+                      SkStringPrintf("typefacerenderingvoda",
+                                     sk_tool_utils::major_platform_os_name().c_str())) {
+    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("/fonts/ttf_vodafonelt-webfont.ttf")) {
+      draw_typeface_rendering_gm(canvas, std::move(face));
+    }
+}
+
 
 // Type1 fonts don't currently work in Skia on Windows.
 #ifndef SK_BUILD_FOR_WIN
