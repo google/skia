@@ -74,29 +74,29 @@ private:
     void onCoverClipStack(const SkClipStack&, SkCanvas*) final;
 };
 
-/**
- * This is a simple helper class for resetting a canvas's clip to our test's SkClipStack.
- */
-class ReplayClipStackVisitor final : public SkCanvasClipVisitor {
-public:
-    typedef SkClipOp Op;
-    ReplayClipStackVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
-    void clipRect(const SkRect& r, Op op, bool aa) override { fCanvas->clipRect(r, op, aa); }
-    void clipRRect(const SkRRect& rr, Op op, bool aa) override { fCanvas->clipRRect(rr, op, aa); }
-    void clipPath(const SkPath&, Op, bool) override { SkFAIL("Not implemented"); }
-private:
-    SkCanvas* const fCanvas;
-};
-
 void WindowRectanglesGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas) {
     SkPaint paint;
     paint.setColor(0xff00aa80);
 
     // Set up the canvas's clip to match our SkClipStack.
-    ReplayClipStackVisitor visitor(canvas);
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
     for (const SkClipStack::Element* element = iter.next(); element; element = iter.next()) {
-        element->replay(&visitor);
+        SkClipOp op = element->getOp();
+        bool isAA = element->isAA();
+        switch (element->getType()) {
+            case SkClipStack::Element::kPath_Type:
+                canvas->clipPath(element->getPath(), op, isAA);
+                break;
+            case SkClipStack::Element::kRRect_Type:
+                canvas->clipRRect(element->getRRect(), op, isAA);
+                break;
+            case SkClipStack::Element::kRect_Type:
+                canvas->clipRect(element->getRect(), op, isAA);
+                break;
+            case SkClipStack::Element::kEmpty_Type:
+                canvas->clipRect({ 0, 0, 0, 0 }, kIntersect_SkClipOp, false);
+                break;
+        }
     }
 
     canvas->drawRect(SkRect::Make(kCoverRect), paint);
