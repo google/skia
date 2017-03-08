@@ -312,7 +312,10 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         pipeline.append(SkRasterPipeline::premul);
     }
 
-    if (isColorAware && dstInfo.gammaCloseToSRGB()) {
+    if (isColorAware && !as_CSB(dstInfo.colorSpace())->nonLinearBlending() &&
+        dstInfo.gammaCloseToSRGB())
+    {
+        // If we want non-linear blending, the gamut transform will handle the to_srgb conversion.
         pipeline.append(SkRasterPipeline::to_srgb);
     }
 

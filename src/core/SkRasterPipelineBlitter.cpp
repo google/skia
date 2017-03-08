@@ -130,11 +130,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         pipeline->append(SkRasterPipeline::constant_color, paintColor);
     }
 
-    // Some people want the rest of the pipeline to operate on sRGB encoded color channels...
-    if (nonLinearBlending && dst.info().gammaCloseToSRGB()) {
-        pipeline->append(SkRasterPipeline::to_srgb);
-    }
-
     if (colorFilter) {
         if (!colorFilter->appendStages(pipeline, dst.colorSpace(), alloc, is_opaque)) {
             return nullptr;
