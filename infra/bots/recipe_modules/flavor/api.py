@@ -11,6 +11,7 @@ from recipe_engine import recipe_api
 from . import default_flavor
 from . import flutter_flavor
 from . import gn_android_flavor
+from . import gn_chromecast_flavor
 from . import gn_flavor
 from . import ios_flavor
 from . import pdfium_flavor
@@ -30,6 +31,9 @@ VERSION_NONE = -1
 def is_android(builder_cfg):
   return 'Android' in builder_cfg.get('extra_config', '')
 
+def is_chromecast(builder_cfg):
+  return 'Chromecast' in builder_cfg.get('extra_config', '')
+
 def is_flutter(builder_cfg):
   return 'Flutter' in builder_cfg.get('extra_config', '')
 
@@ -48,6 +52,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     """Return a flavor utils object specific to the given builder."""
     if is_flutter(builder_cfg):
       return flutter_flavor.FlutterFlavorUtils(self.m)
+    if is_chromecast(builder_cfg):
+      return gn_chromecast_flavor.GNChromecastFlavorUtils(self.m)
     if is_android(builder_cfg):
       return gn_android_flavor.GNAndroidFlavorUtils(self.m)
     elif is_ios(builder_cfg):
