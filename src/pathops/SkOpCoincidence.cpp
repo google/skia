@@ -278,7 +278,11 @@ bool SkOpCoincidence::addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase*
     const SkOpPtT* testPtT = testSpan->ptT();
     const SkOpPtT* stopPtT = testPtT;
     const SkOpSegment* baseSeg = base->segment();
+    int escapeHatch = 100000;  // this is 100 times larger than the debugLoopLimit test
     while ((testPtT = testPtT->next()) != stopPtT) {
+        if (--escapeHatch <= 0) {
+            return false;  // if triggered (likely by a fuzz-generated test) too complex to succeed
+        }
         const SkOpSegment* testSeg = testPtT->segment();
         if (testPtT->deleted()) {
             continue;
