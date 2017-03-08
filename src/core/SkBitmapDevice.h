@@ -163,8 +163,6 @@ private:
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
 
-    void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
-
     typedef SkBaseDevice INHERITED;
 };
 
