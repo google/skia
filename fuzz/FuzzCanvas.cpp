@@ -18,6 +18,7 @@
 #include "SkNullCanvas.h"
 #include "SkPathEffect.h"
 #include "SkPictureRecorder.h"
+#include "SkRSXform.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
@@ -40,7 +41,6 @@
 
 // TODO:
 //   SkCanvas::drawTextBlob
-//   SkCanvas::drawTextRSXform
 //   SkImageFilter
 //   SkMaskFilter
 //   SkPathEffect
@@ -580,13 +580,14 @@ void FuzzPaintText(Fuzz* fuzz, SkPaint* paint) {
             fuzz, paint, SkPaint::kUTF8_TextEncoding, SkPaint::kGlyphID_TextEncoding);
 }
 
+constexpr int kMaxGlyphCount = 20;
+
 SkTDArray<uint8_t> fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
     SkTDArray<uint8_t> array;
     if (SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding()) {
         int glyphRange = paint.getTypeface()
                        ? paint.getTypeface()->countGlyphs()
                        : SkTypeface::MakeDefault()->countGlyphs();
-        constexpr int kMaxGlyphCount = 20;
         int glyphCount;
         fuzz->nextRange(&glyphCount, 0, kMaxGlyphCount);
         SkGlyphID* glyphs = (SkGlyphID*)array.append(glyphCount * sizeof(SkGlyphID));
@@ -1147,7 +1148,21 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 4) {
                 break;
             }
             case 50: {
-                // canvas->drawTextRSXform(...); // TODO
+                FuzzPaint(fuzz, &paint, depth);
+                FuzzPaintText(fuzz, &paint);
+                SkTDArray<uint8_t> text = fuzz_text(fuzz, paint);
+                SkRSXform rSXform[kMaxGlyphCount];
+                int glyphCount = paint.countText(text.begin(), SkToSizeT(text.count()));
+                SkASSERT(glyphCount <= kMaxGlyphCount);
+                fuzz->nextN(rSXform, glyphCount);
+                SkRect cullRect;
+                bool useCullRect;
+                fuzz->next(&useCullRect);
+                if (useCullRect) {
+                    fuzz->next(&cullRect);
+                }
+                canvas->drawTextRSXform(text.begin(), SkToSizeT(text.count()), rSXform,
+                                        useCullRect ? &cullRect : nullptr, paint);
                 break;
             }
             case 51: {
