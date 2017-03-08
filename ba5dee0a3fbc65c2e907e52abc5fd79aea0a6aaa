@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "812f56cf_88fd1968",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T14:59:45Z",
+      "side": 1,
+      "message": "Right, inputs are linear, outputs are whatever we want for blending (and color filtering?): non-linear if nonLinearBlending, linear if !nonLinearBlending.\n\nI think we may need to do a little audit of callers of to_colorspace() and append_gamut_transform() to see which want this new non-linear check and which don\u0027t.  That may lead us to refactor these helpers a bit.  Seems unlikely that we want it only when converting 1 color at a time but not when converting more colors at a time...",
+      "parentUuid": "8eb8f793_dd8282d4",
+      "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a14db954_adae9c47",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 4
