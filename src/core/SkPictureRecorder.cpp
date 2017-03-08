@@ -9,7 +9,6 @@
 #include "SkData.h"
 #include "SkDrawable.h"
 #include "SkPictureRecorder.h"
-#include "SkPictureUtils.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
 #include "SkRecordOpts.h"
@@ -89,7 +88,7 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
 
     size_t subPictureBytes = fRecorder->approxBytesUsedBySubPictures();
     for (int i = 0; pictList && i < pictList->count(); i++) {
-        subPictureBytes += SkPictureUtils::ApproximateBytesUsed(pictList->begin()[i]);
+        subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
     }
     return sk_make_sp<SkBigPicture>(fCullRect, fRecord.release(), pictList, fBBH.release(),
                                     subPictureBytes);
