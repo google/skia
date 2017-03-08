@@ -192,6 +192,7 @@ cc_test {
 # We'll run GN to get the main source lists and include directories for Skia.
 gn_args = {
   'is_official_build':  'true',
+  'skia_enable_jumper': 'true',
   'skia_enable_tools':  'true',
   'skia_use_vulkan':    'true',
   'target_cpu':         '"none"',
