@@ -386,4 +386,14 @@ void GrResourceProvider::releaseOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphor
     semaphore->resetGpu(nullptr);
 }
 
+sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key) {
+    ASSERT_SINGLE_OWNER
+
+    return nullptr;
+}
+
+void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrSurfaceProxy*) {
+//        tex->resourcePriv().setUniqueKey(key);
+
+}
 

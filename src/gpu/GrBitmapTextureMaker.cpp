@@ -27,27 +27,27 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
     }
 }
 
-GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
-                                                    SkColorSpace* dstColorSpace) {
-    GrTexture* tex = nullptr;
+sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
+                                                               SkColorSpace* dstColorSpace) {
+    sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
-        tex = this->context()->resourceProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
-        if (tex) {
-            return tex;
+        proxy = this->context()->resourceProvider()->findProxyByUniqueKey(fOriginalKey);
+        if (proxy) {
+            return proxy;
         }
     }
     if (willBeMipped) {
-        tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap, dstColorSpace);
+        proxy = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap, dstColorSpace);
     }
-    if (!tex) {
-        tex = GrUploadBitmapToTexture(this->context(), fBitmap);
+    if (!proxy) {
+        proxy = GrUploadBitmapToTexture(this->context(), fBitmap);
     }
-    if (tex && fOriginalKey.isValid()) {
-        this->context()->resourceProvider()->assignUniqueKeyToTexture(fOriginalKey, tex);
+    if (proxy && fOriginalKey.isValid()) {
+        this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
         GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
     }
-    return tex;
+    return proxy;
 }
 
 void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,

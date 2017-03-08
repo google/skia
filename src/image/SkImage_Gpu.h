@@ -25,6 +25,8 @@ public:
      */
     SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType, sk_sp<GrTexture>, sk_sp<SkColorSpace>,
                 SkBudgeted);
+    SkImage_Gpu(GrContext*, int w, int h, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
+                sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_Gpu() override;
 
     SkImageInfo onImageInfo() const override;
@@ -39,15 +41,16 @@ public:
     }
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext* ctx, const GrSamplerParams& params, SkColorSpace*,
-                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
+    sk_sp<GrTextureProxy> asTextureRef(GrContext* ctx, const GrSamplerParams& params, SkColorSpace*,
+                                       sk_sp<SkColorSpace>*,
+                                       SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture.get(); }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override;
-    sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
+    sk_sp<GrTextureProxy> refPinnedTexture(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
-        return fTexture;
+        return GrSurfaceProxy::MakeWrapped(fTexture);
     }
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
