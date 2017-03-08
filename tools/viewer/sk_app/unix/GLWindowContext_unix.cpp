@@ -34,6 +34,7 @@ private:
 
     Display*     fDisplay;
     XWindow      fWindow;
+    GLXFBConfig* fFBConfig;
     XVisualInfo* fVisualInfo;
     GLXContext   fGLContext;
 };
@@ -42,6 +43,7 @@ GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo, const 
         : GLWindowContext(params)
         , fDisplay(winInfo.fDisplay)
         , fWindow(winInfo.fWindow)
+        , fFBConfig(winInfo.fFBConfig)
         , fVisualInfo(winInfo.fVisualInfo)
         , fGLContext() {
     fWidth = winInfo.fWidth;
@@ -49,10 +51,38 @@ GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo, const 
     this->initializeContext();
 }
 
+using CreateContextAttribsFn = GLXContext(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+
 void GLWindowContext_xlib::onInitializeContext() {
-    // any config code here (particularly for msaa)?
     SkASSERT(fDisplay);
-    fGLContext = glXCreateContext(fDisplay, fVisualInfo, nullptr, GL_TRUE);
+    SkASSERT(!fGLContext);
+    // We attempt to use glXCreateContextAttribsARB as RenderDoc requires that the context be
+    // created with this rather than glXCreateContext.
+    CreateContextAttribsFn* createContextAttribs = (CreateContextAttribsFn*)glXGetProcAddressARB(
+            (const GLubyte*)"glXCreateContextAttribsARB");
+    if (createContextAttribs && fFBConfig) {
+        // Specifying 3.2 allows an arbitrarily high context version (so long as no 3.2 features
+        // have been removed).
+        for (int minor = 2; minor >= 0 && !fGLContext; --minor) {
+            // Ganesh prefers a compatibility profile for possible NVPR support. However, RenderDoc
+            // requires a core profile. Edit this code to use RenderDoc.
+            for (int profile : {GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+                                GLX_CONTEXT_CORE_PROFILE_BIT_ARB}) {
+                int attribs[] = {
+                        GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, minor,
+                        GLX_CONTEXT_PROFILE_MASK_ARB, profile,
+                        0
+                };
+                fGLContext = createContextAttribs(fDisplay, *fFBConfig, nullptr, True, attribs);
+                if (fGLContext) {
+                    break;
+                }
+            }
+        }
+    }
+    if (!fGLContext) {
+        fGLContext = glXCreateContext(fDisplay, fVisualInfo, nullptr, GL_TRUE);
+    }
     if (!fGLContext) {
         return;
     }
