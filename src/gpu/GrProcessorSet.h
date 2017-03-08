@@ -23,10 +23,24 @@ public:
     ~GrProcessorSet() {
         // We are deliberately not using sk_sp here because this will be updated to work with
         // "pending execution" refs.
-        for (auto fp : fFragmentProcessors) {
-            fp->unref();
+        if (this->isPendingExecution()) {
+            for (auto fp : fFragmentProcessors) {
+                fp->completedExecution();
+            }
+        } else {
+            for (auto fp : fFragmentProcessors) {
+                fp->unref();
+            }
         }
     }
+
+    /**
+     * If an op is recorded with this processor set then this must be called to ensure pending
+     * reads and writes are propogated to resources referred to by the processors. Otherwise,
+     * data hazards may occur.
+     */
+    void makePendingExecution();
+    bool isPendingExecution() const { return SkToBool(kPendingExecution_Flag & fFlags); }
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
     int numCoverageFragmentProcessors() const {
@@ -49,6 +63,24 @@ public:
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
     }
     bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
+
+    bool operator==(const GrProcessorSet& that) const {
+        if (fFlags != that.fFlags ||
+            fFragmentProcessors.count() != that.fFragmentProcessors.count() ||
+            fColorFragmentProcessorCnt != that.fColorFragmentProcessorCnt) {
+            return false;
+        }
+        for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+            if (!fFragmentProcessors[i]->isEqual(*that.fFragmentProcessors[i])) {
+                return false;
+            }
+        }
+        if (fXPFactory != that.fXPFactory) {
+            return false;
+        }
+        return true;
+    }
+    bool operator!=(const GrProcessorSet& that) const { return !(*this == that); }
 
     /**
      * This is used to track analysis of color and coverage values through the fragment processors.
@@ -138,7 +170,8 @@ private:
     enum Flags : uint16_t {
         kUseDistanceVectorField_Flag = 0x1,
         kDisableOutputConversionToSRGB_Flag = 0x2,
-        kAllowSRGBInputs_Flag = 0x4
+        kAllowSRGBInputs_Flag = 0x4,
+        kPendingExecution_Flag  = 0x8
     };
 
     const GrXPFactory* fXPFactory = nullptr;

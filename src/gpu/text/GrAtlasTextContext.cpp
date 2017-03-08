@@ -7,6 +7,7 @@
 #include "GrAtlasTextContext.h"
 
 #include "GrContext.h"
+#include "ops/GrMeshDrawOp.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextBlobCache.h"
 #include "SkDraw.h"

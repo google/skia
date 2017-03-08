@@ -53,11 +53,11 @@ private:
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps, const GrAppliedClip*) override { return false; }
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override {
+    void onExecute(GrOpFlushState* state, const GrAppliedClip*, GrRenderTarget* rt) override {
         if (!state->commandBuffer()) {
             state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
         } else {
