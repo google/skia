@@ -102,19 +102,9 @@ inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b) {
     */
     SK_ALWAYS_INLINE SkFixed SkFloatToFixed_arm(float x)
     {
-        int32_t y, z;
-        asm("movs    %1, %3, lsl #1         \n"
-            "mov     %2, #0x8E              \n"
-            "sub     %1, %2, %1, lsr #24    \n"
-            "mov     %2, %3, lsl #8         \n"
-            "orr     %2, %2, #0x80000000    \n"
-            "mov     %1, %2, lsr %1         \n"
-            "it cs                          \n"
-            "rsbcs   %1, %1, #0             \n"
-            : "=r"(x), "=&r"(y), "=&r"(z)
-            : "r"(x)
-            : "cc"
-            );
+        int32_t y;
+        asm("vcvt.s32.f32 %0, %0, #16": "+w"(x));
+        memcpy(&y, &x, sizeof(y));
         return y;
     }
     inline SkFixed SkFixedMul_arm(SkFixed x, SkFixed y)
