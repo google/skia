@@ -21,8 +21,6 @@
 #include "GrResourceKey.h"
 #endif
 
-class SkCanvasClipVisitor;
-
 // Because a single save/restore state can have multiple clips, this class
 // stores the stack depth (fSaveCount) and clips (fDeque) separately.
 // Each clip in fDeque stores the stack state to which it belongs
@@ -195,11 +193,6 @@ public:
         bool isInverseFilled() const {
             return kPath_Type == fType && fPath.get()->isInverseFillType();
         }
-
-        /**
-        * Replay this clip into the visitor.
-        */
-        void replay(SkCanvasClipVisitor*) const;
 
 #ifdef SK_DEBUG
         /**
