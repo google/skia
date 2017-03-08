@@ -23,6 +23,7 @@ namespace window_context_factory {
 struct XlibWindowInfo {
     Display*     fDisplay;
     XWindow      fWindow;
+    GLXFBConfig* fFBConfig;
     XVisualInfo* fVisualInfo;
     int          fWidth;
     int          fHeight;

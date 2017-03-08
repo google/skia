@@ -24,6 +24,7 @@ public:
                   , fDisplay(nullptr)
                   , fWindow(0)
                   , fGC(nullptr)
+                  , fFBConfig(nullptr)
                   , fVisualInfo(nullptr)
                   , fMSAASampleCount(0) {}
     ~Window_unix() override { this->closeWindow(); }
@@ -77,6 +78,7 @@ private:
     Display*     fDisplay;
     XWindow      fWindow;
     GC           fGC;
+    GLXFBConfig* fFBConfig;
     XVisualInfo* fVisualInfo;
     int          fMSAASampleCount;
 
