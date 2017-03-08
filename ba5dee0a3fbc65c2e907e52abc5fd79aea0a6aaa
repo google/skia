@@ -141,6 +141,24 @@
       "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52547d4c_2a431b6e",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-08T15:14:37Z",
+      "side": 1,
+      "message": "That\u0027s a good point :).  Will table the policy change and we can consider it on its own later.",
+      "parentUuid": "1f944fc5_52c4a066",
+      "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
