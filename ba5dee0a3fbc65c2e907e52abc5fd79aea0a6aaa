@@ -51,6 +51,24 @@
       "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec72a6dd_0bac0c52",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T14:53:50Z",
+      "side": 1,
+      "message": "I\u0027ll also concede that it\u0027s time to invert the logic and rename the variable we track to \u0027nonLinearBlending\u0027.  I think that\u0027s our best neutral non-loaded descriptive name so far for this ridiculous nonsense mode.",
+      "parentUuid": "00a84539_09cb5498",
+      "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
