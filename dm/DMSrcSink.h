@@ -314,7 +314,9 @@ public:
     bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override {
-        return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, SinkFlags::kMultisampled };
+        SinkFlags::Multisampled ms = fSampleCount > 0 ? SinkFlags::kMultisampled
+                                                      : SinkFlags::kNotMultisampled;
+        return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
     }
 private:
     sk_gpu_test::GrContextFactory::ContextType        fContextType;
