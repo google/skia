@@ -74,31 +74,9 @@ private:
     void onCoverClipStack(const SkClipStack&, SkCanvas*) final;
 };
 
-/**
- * This is a simple helper class for resetting a canvas's clip to our test's SkClipStack.
- */
-class ReplayClipStackVisitor final : public SkCanvasClipVisitor {
-public:
-    typedef SkClipOp Op;
-    ReplayClipStackVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
-    void clipRect(const SkRect& r, Op op, bool aa) override { fCanvas->clipRect(r, op, aa); }
-    void clipRRect(const SkRRect& rr, Op op, bool aa) override { fCanvas->clipRRect(rr, op, aa); }
-    void clipPath(const SkPath&, Op, bool) override { SkFAIL("Not implemented"); }
-private:
-    SkCanvas* const fCanvas;
-};
-
 void WindowRectanglesGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas) {
     SkPaint paint;
     paint.setColor(0xff00aa80);
-
-    // Set up the canvas's clip to match our SkClipStack.
-    ReplayClipStackVisitor visitor(canvas);
-    SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
-    for (const SkClipStack::Element* element = iter.next(); element; element = iter.next()) {
-        element->replay(&visitor);
-    }
-
     canvas->drawRect(SkRect::Make(kCoverRect), paint);
 }
 

@@ -149,39 +149,6 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     return layer;
 }
 
-class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
-public:
-    SkDebugClipVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
-
-    void clipRect(const SkRect& r, SkClipOp, bool doAA) override {
-        SkPaint p;
-        p.setColor(SK_ColorRED);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setAntiAlias(doAA);
-        fCanvas->drawRect(r, p);
-    }
-    void clipRRect(const SkRRect& rr, SkClipOp, bool doAA) override {
-        SkPaint p;
-        p.setColor(SK_ColorGREEN);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setAntiAlias(doAA);
-        fCanvas->drawRRect(rr, p);
-    }
-    void clipPath(const SkPath& path, SkClipOp, bool doAA) override {
-        SkPaint p;
-        p.setColor(SK_ColorBLUE);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setAntiAlias(doAA);
-        fCanvas->drawPath(path, p);
-    }
-
-protected:
-    SkCanvas* fCanvas;
-
-private:
-    typedef SkCanvas::ClipVisitor INHERITED;
-};
-
 // set up the saveLayer commands so that the active ones
 // return true in their 'active' method
 void SkDebugCanvas::markActiveCommands(int index) {
@@ -298,11 +265,6 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             r.outset(SK_Scalar1, SK_Scalar1);
             filterCanvas.clipRect(r, kReplace_SkClipOp);
         }
-        // visualize existing clips
-        SkDebugClipVisitor visitor(&filterCanvas);
-
-        filterCanvas.replayClips(&visitor);
-
         filterCanvas.restore();
     }
     if (pathOpsMode) {
