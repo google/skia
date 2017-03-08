@@ -85,8 +85,9 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
  *  performed on the absolute texture coordinates (e.g., if the texture is resized out to
  *  the next power of two). It can be null if the caller is sure the bitmap won't be resized.
  */
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
-                                    const GrSamplerParams&, SkScalar scaleAdjust[2]);
+class GrTextureProxy;
+sk_sp<GrTextureProxy> GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
+                                               const GrSamplerParams&, SkScalar scaleAdjust[2]);
 
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
 GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps);

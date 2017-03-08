@@ -31,7 +31,8 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, SkImageCacherator* 
     }
 }
 
-GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) {
+sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTexture(bool willBeMipped,
+                                                              SkColorSpace* dstColorSpace) {
     return fCacher->lockTexture(this->context(), fOriginalKey, fClient, fCachingHint, willBeMipped,
                                 dstColorSpace);
 }

@@ -746,8 +746,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = GrDrawOpAtlas::Make(args.fContext,
-                                     kAlpha_8_GrPixelConfig,
+        fAtlas = GrDrawOpAtlas::Make(args.fContext, kAlpha_8_GrPixelConfig,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                      NUM_PLOTS_X, NUM_PLOTS_Y,
                                      &GrAADistanceFieldPathRenderer::HandleEviction,
