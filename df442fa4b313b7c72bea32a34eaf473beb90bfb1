@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "559722e1_a7ccb99c",
+        "filename": "gm/premul.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-08T14:25:58Z",
+      "side": 1,
+      "message": "Given that this is testing a really specific aspect of premultiplication (how it interacts with color space xforms when done in either the source or dest transfer function space), can we give this a slightly more descriptive name?",
+      "revId": "df442fa4b313b7c72bea32a34eaf473beb90bfb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47b25dea_460366e7",
         "filename": "gm/premul.cpp",
         "patchSetId": 1
@@ -22,6 +39,30 @@
       "revId": "df442fa4b313b7c72bea32a34eaf473beb90bfb1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "788e1d8c_89e98b28",
+        "filename": "gm/premul.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-08T14:25:58Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "47b25dea_460366e7",
+      "range": {
+        "startLine": 125,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 44
+      },
+      "revId": "df442fa4b313b7c72bea32a34eaf473beb90bfb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
