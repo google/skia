@@ -20,9 +20,7 @@
  *  sk_linear_to_srgb() will run a little faster than usual when compiled with SSE4.1+.
  */
 
-extern const float    sk_linear_from_srgb[256];
-extern const uint16_t sk_linear12_from_srgb[256];
-extern const uint8_t  sk_linear12_to_srgb[4096];
+extern const float sk_linear_from_srgb[256];
 
 template <typename V>
 static inline V sk_clamp_0_255(const V& x) {

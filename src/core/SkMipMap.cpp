@@ -12,7 +12,6 @@
 #include "SkMathPriv.h"
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
-#include "SkSRGB.h"
 #include "SkTypes.h"
 
 //
@@ -36,17 +35,11 @@ struct ColorTypeFilter_8888 {
 
 struct ColorTypeFilter_S32 {
     typedef uint32_t Type;
-    static Sk4h Expand(uint32_t x) {
-        return Sk4h(sk_linear12_from_srgb[(x      ) & 0xFF],
-                    sk_linear12_from_srgb[(x >>  8) & 0xFF],
-                    sk_linear12_from_srgb[(x >> 16) & 0xFF],
-                                          (x >> 24) <<   4);
+    static Sk4f Expand(uint32_t x) {
+        return Sk4f_fromS32(x);
     }
-    static uint32_t Compact(const Sk4h& x) {
-        return sk_linear12_to_srgb[x[0]]       |
-               sk_linear12_to_srgb[x[1]] <<  8 |
-               sk_linear12_to_srgb[x[2]] << 16 |
-               (x[3] >> 4)               << 24;
+    static uint32_t Compact(const Sk4f& x) {
+        return Sk4f_toS32(x);
     }
 };
 
@@ -293,77 +286,6 @@ template <typename F> void downsample_3_3(void* dst, const void* src, size_t src
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Some sRGB specific performance optimizations.
-
-void downsample_2_2_srgb(void* dst, const void* src, size_t srcRB, int count) {
-    const uint8_t* p0 = ((const uint8_t*) src);
-    const uint8_t* p1 = ((const uint8_t*) src) + srcRB;
-    uint8_t* d = (uint8_t*) dst;
-
-    // Given pixels:
-    // a0 b0 c0 d0 ...
-    // a1 b1 c1 d1 ...
-    // We want:
-    // (a0 + b0 + a1 + b1) / 4
-    // (c0 + d0 + c1 + d1) / 4
-    // ...
-    while (count >= 4) {
-        Sk8h a0c0 = Sk8h(sk_linear12_from_srgb[p0[ 0]],
-                         sk_linear12_from_srgb[p0[ 1]],
-                         sk_linear12_from_srgb[p0[ 2]],
-                         p0[ 3] << 4                  ,
-                         sk_linear12_from_srgb[p0[ 8]],
-                         sk_linear12_from_srgb[p0[ 9]],
-                         sk_linear12_from_srgb[p0[10]],
-                         p0[11] << 4               );
-        Sk8h b0d0 = Sk8h(sk_linear12_from_srgb[p0[ 4]],
-                         sk_linear12_from_srgb[p0[ 5]],
-                         sk_linear12_from_srgb[p0[ 6]],
-                         p0[ 7] << 4                  ,
-                         sk_linear12_from_srgb[p0[12]],
-                         sk_linear12_from_srgb[p0[13]],
-                         sk_linear12_from_srgb[p0[14]],
-                         p0[15] << 4                 );
-        Sk8h a1c1 = Sk8h(sk_linear12_from_srgb[p1[ 0]],
-                         sk_linear12_from_srgb[p1[ 1]],
-                         sk_linear12_from_srgb[p1[ 2]],
-                         p1[ 3] << 4                  ,
-                         sk_linear12_from_srgb[p1[ 8]],
-                         sk_linear12_from_srgb[p1[ 9]],
-                         sk_linear12_from_srgb[p1[10]],
-                         p1[11] << 4                 );
-        Sk8h b1d1 = Sk8h(sk_linear12_from_srgb[p1[ 4]],
-                         sk_linear12_from_srgb[p1[ 5]],
-                         sk_linear12_from_srgb[p1[ 6]],
-                         p1[ 7] << 4                  ,
-                         sk_linear12_from_srgb[p1[12]],
-                         sk_linear12_from_srgb[p1[13]],
-                         sk_linear12_from_srgb[p1[14]],
-                         p1[15] << 4                 );
-
-        Sk8h avg = (a0c0 + b0d0 + a1c1 + b1d1) >> 2;
-        d[0] = sk_linear12_to_srgb[avg[0]];
-        d[1] = sk_linear12_to_srgb[avg[1]];
-        d[2] = sk_linear12_to_srgb[avg[2]];
-        d[3] = avg[3] >> 4;
-        d[4] = sk_linear12_to_srgb[avg[4]];
-        d[5] = sk_linear12_to_srgb[avg[5]];
-        d[6] = sk_linear12_to_srgb[avg[6]];
-        d[7] = avg[7] >> 4;
-
-        p0 += 16;
-        p1 += 16;
-        d += 8;
-        count -= 4;
-    }
-
-    if (count) {
-        downsample_2_2<ColorTypeFilter_S32>(d, p0, srcRB, count);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     if (levelCount < 0) {
         return 0;
@@ -400,7 +322,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode col
                 proc_1_2 = downsample_1_2<ColorTypeFilter_S32>;
                 proc_1_3 = downsample_1_3<ColorTypeFilter_S32>;
                 proc_2_1 = downsample_2_1<ColorTypeFilter_S32>;
-                proc_2_2 = downsample_2_2_srgb;
+                proc_2_2 = downsample_2_2<ColorTypeFilter_S32>;
                 proc_2_3 = downsample_2_3<ColorTypeFilter_S32>;
                 proc_3_1 = downsample_3_1<ColorTypeFilter_S32>;
                 proc_3_2 = downsample_3_2<ColorTypeFilter_S32>;
