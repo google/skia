@@ -938,10 +938,7 @@ HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],
 HRESULT SkFontMgr_DirectWrite::getDefaultFontFamily(IDWriteFontFamily** fontFamily) const {
     NONCLIENTMETRICSW metrics;
     metrics.cbSize = sizeof(metrics);
-    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS,
-                                   sizeof(metrics),
-                                   &metrics,
-                                   0)) {
+    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(metrics), &metrics, 0)) {
         return E_UNEXPECTED;
     }
     HRM(this->getByFamilyName(metrics.lfMessageFont.lfFaceName, fontFamily),
@@ -961,7 +958,7 @@ SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[
 
     if (nullptr == fontFamily.get()) {
         // No family with given name, try default.
-        HRNM(this->getDefaultFontFamily(&fontFamily), "Could not get default font family.");
+        this->getDefaultFontFamily(&fontFamily);
     }
 
     if (nullptr == fontFamily.get()) {
