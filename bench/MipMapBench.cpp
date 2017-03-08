@@ -65,3 +65,6 @@ DEF_BENCH( return new MipMapBench(511, 511,
                                   SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )
 DEF_BENCH( return new MipMapBench(512, 512, SkDestinationSurfaceColorMode::kLegacy, true); )
 DEF_BENCH( return new MipMapBench(511, 511, SkDestinationSurfaceColorMode::kLegacy, true); )
+DEF_BENCH( return new MipMapBench(2048, 2048, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(2048, 2048,
+                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )
