@@ -261,28 +261,28 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
-                                     GrRenderTargetContext* renderTargetContext,
-                                     const GrClip& clip,
-                                     std::unique_ptr<GrDrawOp> op) {
+bool GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
+                                      GrRenderTargetContext* renderTargetContext,
+                                      const GrClip& clip,
+                                      std::unique_ptr<GrDrawOp> op) {
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(bounds);
     if (!clip.apply(fContext, renderTargetContext, pipelineBuilder.isHWAntialias(),
                     pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
-        return;
+        return false;
     }
 
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
         if (!renderTargetContext->accessRenderTarget()) {
-            return;
+            return false;
         }
 
         if (!fResourceProvider->attachStencilAttachment(
                 renderTargetContext->accessRenderTarget())) {
             SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
-            return;
+            return false;
         }
     }
 
@@ -296,7 +296,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     // by which point instantiation must have occurred anyway.
     args.fRenderTarget = renderTargetContext->accessRenderTarget();
     if (!args.fRenderTarget) {
-        return;
+        return false;
     }
     args.fCaps = this->caps();
     args.fAnalysis = &analysis;
@@ -316,19 +316,19 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
         ibounds.fBottom = SkTPin(SkScalarCeilToInt(op->bounds().fBottom), viewport.fBottom,
                                 viewport.fHeight);
         if (!appliedClip.addScissor(ibounds)) {
-            return;
+            return false;
         }
     }
 
     if (!renderTargetContext->accessRenderTarget()) {
-        return;
+        return false;
     }
 
     if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
         this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
                               &args.fDstTexture);
         if (!args.fDstTexture.texture()) {
-            return;
+            return false;
         }
     }
     op->initPipeline(args);
@@ -337,7 +337,8 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif
-    this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
+    return SkToBool(this->recordOp(std::move(op), renderTargetContext,
+                                   appliedClip.clippedDrawBounds()));
 }
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,

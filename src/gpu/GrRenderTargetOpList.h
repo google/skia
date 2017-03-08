@@ -78,7 +78,10 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
+    /**
+     * Returns true if the op was successfully added, false otherwise
+     */
+    bool addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
                    std::unique_ptr<GrDrawOp>);
 
     void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
