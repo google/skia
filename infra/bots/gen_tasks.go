@@ -97,6 +97,9 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 				ec = "Android_Vulkan"
 			}
 			task_os = "Ubuntu"
+		} else if task_os == "Chromecast" {
+			task_os = "Ubuntu"
+			ec = "Chromecast"
 		} else if task_os == "iOS" {
 			ec = task_os
 			task_os = "Mac"
@@ -223,6 +226,8 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 		}
+	} else if strings.Contains(name, "Chromecast") {
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
 	} else if strings.Contains(name, "Ubuntu") {
 		if strings.Contains(name, "Clang") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
