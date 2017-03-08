@@ -52,6 +52,24 @@
       "revId": "27bece831ddecfd33ee5fecd81ca9e6939b30e49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "296fbe46_b0d12b52",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-08T19:17:09Z",
+      "side": 0,
+      "message": "Done. Landed ahead of this CL (which now doesn\u0027t modify this gm)",
+      "parentUuid": "41a4cccf_4f6e2a86",
+      "revId": "27bece831ddecfd33ee5fecd81ca9e6939b30e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
