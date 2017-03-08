@@ -321,9 +321,7 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
-            GrGLSLColorSpaceXformHelper colorSpaceHelper(args.fUniformHandler,
-                                                         tde.colorSpaceXform(),
-                                                         &fColorSpaceXformUni);
+            fColorSpaceHelper.emitCode(args.fUniformHandler, tde.colorSpaceXform());
             fGLDomain.sampleTexture(fragBuilder,
                                     args.fUniformHandler,
                                     args.fShaderCaps,
@@ -332,7 +330,7 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
                                     coords2D,
                                     args.fTexSamplers[0],
                                     args.fInputColor,
-                                    &colorSpaceHelper);
+                                    &fColorSpaceHelper);
         }
 
     protected:
@@ -341,13 +339,13 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
             const GrTextureDomain& domain = tde.fTextureDomain;
             fGLDomain.setData(pdman, domain, tde.textureSampler(0).texture());
             if (SkToBool(tde.colorSpaceXform())) {
-                pdman.setSkMatrix44(fColorSpaceXformUni, tde.colorSpaceXform()->srcToDst());
+                fColorSpaceHelper.setData(pdman, tde.colorSpaceXform());
             }
         }
 
     private:
         GrTextureDomain::GLDomain         fGLDomain;
-        UniformHandle                     fColorSpaceXformUni;
+        GrGLSLColorSpaceXformHelper       fColorSpaceHelper;
     };
 
     return new GLSLProcessor;

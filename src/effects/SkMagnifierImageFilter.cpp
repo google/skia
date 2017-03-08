@@ -143,7 +143,7 @@ private:
     UniformHandle       fInvZoomVar;
     UniformHandle       fInvInsetVar;
     UniformHandle       fBoundsVar;
-    UniformHandle       fColorSpaceXformVar;
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
@@ -164,8 +164,7 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
                                             "Bounds");
 
     const GrMagnifierEffect& zoom = args.fFp.cast<GrMagnifierEffect>();
-    GrGLSLColorSpaceXformHelper colorSpaceHelper(uniformHandler, zoom.colorSpaceXform(),
-                                                 &fColorSpaceXformVar);
+    fColorSpaceHelper.emitCode(uniformHandler, zoom.colorSpaceXform());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
@@ -194,7 +193,7 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("\t\tvec2 mix_coord = mix(coord, zoom_coord, weight);\n");
     fragBuilder->codeAppend("\t\tvec4 output_color = ");
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], "mix_coord", kVec2f_GrSLType,
-                                     &colorSpaceHelper);
+                                     &fColorSpaceHelper);
     fragBuilder->codeAppend(";\n");
 
     fragBuilder->codeAppendf("\t\t%s = output_color;", args.fOutputColor);
@@ -239,7 +238,7 @@ void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     }
 
     if (SkToBool(zoom.colorSpaceXform())) {
-        pdman.setSkMatrix44(fColorSpaceXformVar, zoom.colorSpaceXform()->srcToDst());
+        fColorSpaceHelper.setData(pdman, zoom.colorSpaceXform());
     }
 }
 
