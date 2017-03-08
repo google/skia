@@ -33,6 +33,24 @@
       "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00a84539_09cb5498",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T14:51:06Z",
+      "side": 1,
+      "message": "I don\u0027t think so.   I think I was being paranoid without thinking through it thoroughly enough.  blendCorrectly and fBlendCorrectly only have any effect when dst.info().gammaCloseToSRGB().  This should have no effect.\n\nI\u0027d still like to land it as a separate change to prove it to ourselves that it\u0027s a no-op.  I\u0027m also not sure _why_ we want to land it.  I think the code reads a lot more clearly this way.",
+      "parentUuid": "a14db954_adae9c47",
+      "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
