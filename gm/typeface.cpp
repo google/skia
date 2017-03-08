@@ -294,3 +294,96 @@ DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfb, canvas, 640, 680, SK_ColorWHITE,
 }
 
 #endif
+
+DEF_SIMPLE_GM(embeddedbitmap, canvas, 256, 256) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(30, 15);
+    bitmap.eraseColor(0);
+    SkCanvas offscreen(bitmap);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(13);
+    paint.setTypeface(MakeResourceAsTypeface("/fonts/hintgasp.ttf"));
+    for (bool embedded : { false, true}) {
+        paint.setEmbeddedBitmapText(embedded);
+        offscreen.drawText("A", 1, embedded ? 5 : 15, 15, paint);
+    }
+    canvas->clear(SK_ColorWHITE);
+    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->scale(10, 10);
+    canvas->drawBitmap(bitmap, -2, 1);
+}
+
+DEF_SIMPLE_GM(topictypeface, canvas, 256, 256) {
+    SkPaint p;
+    p.setTypeface(SkTypeface::MakeFromName("Times New Roman", 
+        SkFontStyle(SkFontStyle::kBold_Weight, SkFontStyle::kNormal_Width,
+SkFontStyle::kItalic_Slant)));
+    p.setAntiAlias(true);
+    p.setTextSize(36);
+    const char aBigHello[] = "A Big Hello!";
+    canvas->drawText(aBigHello, sizeof(aBigHello) - 1, 20, 100, p);
+}
+
+DEF_SIMPLE_GM(reftypeface, canvas, 256, 256) {
+           SkPaint paint1, paint2;
+           paint1.setTypeface(SkTypeface::MakeFromName("Times New Roman", 
+                    SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
+                    SkFontStyle::kItalic_Slant)));
+           SkDebugf("typeface1 %c= typeface2\n", paint1.getTypeface() == paint2.getTypeface()
+                ? '=' : '!');
+           paint2.setTypeface(paint1.refTypeface());
+           SkDebugf("typeface1 %c= typeface2\n", paint1.getTypeface() == paint2.getTypeface()
+                ? '=' : '!');
+}
+
+DEF_SIMPLE_GM(settypeface, canvas, 256, 256) {
+            SkPaint paint;
+            const char courierNew[] = "Courier New";
+            paint.setTypeface(SkTypeface::MakeFromName(courierNew, SkFontStyle()));
+            canvas->drawText(courierNew, sizeof(courierNew) - 1, 10, 30, paint);
+            paint.setTypeface(nullptr);
+            canvas->drawText("default", 7, 10, 50, paint);
+}
+
+DEF_SIMPLE_GM(containstext, canvas, 256, 256) {
+        SkPaint paint;
+        const uint16_t goodGlyph = 511;
+        const uint16_t zeroGlyph = 0;
+        const uint16_t badGlyph = 65535; // larger than glyph count in font
+        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        SkDebugf("0x%04x %c= has glyph\n", goodGlyph, 
+                paint.containsText(&goodGlyph, 2) ? '=' : '!');
+        SkDebugf("0x%04x %c= has glyph\n", zeroGlyph,
+                paint.containsText(&zeroGlyph, 2) ? '=' : '!');
+        SkDebugf("0x%04x %c= has glyph\n", badGlyph,
+                paint.containsText(&badGlyph, 2) ? '=' : '!');
+}
+
+#include "SkDashPathEffect.h"
+
+DEF_SIMPLE_GM(moveconstructor, canvas, 256, 256) {
+        SkPaint paint;
+        float intervals[] = { 5, 5 };
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+        SkPaint dashed(std::move(paint));
+        SkDebugf("path effect unique: %s\n", dashed.getPathEffect()->unique() ? "true" : "false");
+}
+
+DEF_SIMPLE_GM(textmetrics, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setTextSize(32);
+    SkPaint::FontMetrics metrics1, metrics2, metrics3;
+    SkScalar lineHeight = paint.getFontMetrics(&metrics1);
+    canvas->drawText("line 1", 6, 10, 40, paint);
+    canvas->drawText("line 2", 6, 10, 40 + lineHeight, paint);
+    paint.setTextScaleX(2);
+    lineHeight = paint.getFontMetrics(&metrics2);
+    canvas->drawText("line 5", 6, 230, 40, paint);
+    canvas->drawText("line 6", 6, 230, 40 + lineHeight, paint);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(10);
+    lineHeight = paint.getFontMetrics(&metrics3, 1.10f);  // account for stroke height
+    canvas->drawText("line 3", 6, 120, 40, paint);
+    canvas->drawText("line 4", 6, 120, 40 + lineHeight, paint);
+}
