@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ae85834_31b37a22",
+        "filename": "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-08T15:42:13Z",
+      "side": 1,
+      "message": "Yeah, I always have to fix this locally on Windows (where we pass kPreferCompat...). I briefly experimented with detecting RenderDoc and forcing a core profile when it\u0027s attached.  It advertises the following extension: https://renderdoc.org/debug_tool.txt\n\nMay not be worth the trouble, but something else to consider.",
+      "revId": "893bb692d731c563ea1991299a5ee00311255a18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
