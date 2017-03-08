@@ -10,7 +10,6 @@
 #include "SkImage.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
-#include "SkPictureUtils.h"
 #include "SkRecorder.h"
 #include "SkSurface.h"
 
@@ -301,7 +300,7 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, const SkPaint* paint) {
     if (fDrawPictureMode == Record_DrawPictureMode) {
-        fApproxBytesUsedBySubPictures += SkPictureUtils::ApproximateBytesUsed(pic);
+        fApproxBytesUsedBySubPictures += pic->approximateBytesUsed();
         APPEND(DrawPicture, this->copy(paint), sk_ref_sp(pic), matrix ? *matrix : SkMatrix::I());
     } else {
         SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
@@ -313,7 +312,7 @@ void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, con
 void SkRecorder::onDrawShadowedPicture(const SkPicture* pic, const SkMatrix* matrix,
                                        const SkPaint* paint, const SkShadowParams& params) {
     if (fDrawPictureMode == Record_DrawPictureMode) {
-        fApproxBytesUsedBySubPictures += SkPictureUtils::ApproximateBytesUsed(pic);
+        fApproxBytesUsedBySubPictures += pic->approximateBytesUsed();
         APPEND(DrawShadowedPicture, this->copy(paint),
                                     sk_ref_sp(pic),
                                     matrix ? *matrix : SkMatrix::I(),
