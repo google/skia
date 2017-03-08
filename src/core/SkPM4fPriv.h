@@ -125,6 +125,11 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_mat
     analyze_3x4_matrix(scratch_matrix_3x4, &needs_clamp_0, &needs_clamp_a);
 
     p->append(SkRasterPipeline::matrix_3x4, scratch_matrix_3x4);
+
+    if (as_CSB(dst)->nonLinearBlending() && dst->gammaCloseToSRGB()) {
+        p->append(SkRasterPipeline::to_srgb);
+    }
+
     if (needs_clamp_0) { p->append(SkRasterPipeline::clamp_0); }
     if (needs_clamp_a) { p->append(SkRasterPipeline::clamp_a); }
     return true;
