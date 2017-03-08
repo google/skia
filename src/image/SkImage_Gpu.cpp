@@ -22,6 +22,7 @@
 #include "GrTextureAdjuster.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
+#include "GrTextureToYUVPlanes.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
 #include "SkCrossContextImageData.h"
@@ -132,6 +133,18 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
             row[x] = SkPreMultiplyColor(row[x]);
         }
     }
+}
+
+bool SkImage_Gpu::onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
+                                   const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
+    if (sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef()) {
+        if (GrTextureToYUVPlanes(fTexture->getContext(), std::move(proxy), sizes, planes,
+                                 rowBytes, colorSpace)) {
+            return true;
+        }
+    }
+
+    return INHERITED::onReadYUV8Planes(sizes, planes, rowBytes, colorSpace);
 }
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
