@@ -55,63 +55,96 @@ public:
      */
     class FragmentProcessorAnalysis {
     public:
-        FragmentProcessorAnalysis() = default;
-        // This version is used by a unit test that assumes no clip and no fragment processors.
+        FragmentProcessorAnalysis(GrColor initialColor) : FragmentProcessorAnalysis() {
+            fInputColor = initialColor;
+            fValidInputColor = true;
+        }
+
+        FragmentProcessorAnalysis()
+                : fIsInitializedWithProcessorSet(false)
+                , fCompatibleWithCoverageAsAlpha(true)
+                , fValidInputColor(false)
+                , fOutputCoverageType(CoverageType::kNone)
+                , fOutputColorType(ColorType::kUnknown)
+                , fInitialColorProcessorsToEliminate(0) {}
+
+        // This version is used by a unit test that assumes no clip, no processors, and no PLS.
         FragmentProcessorAnalysis(const GrPipelineInput& colorInput,
                                   const GrPipelineInput coverageInput, const GrCaps&);
 
-        void reset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
-                   const GrProcessorSet&, const GrAppliedClip&, const GrCaps&);
+        void init(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+                  const GrProcessorSet&, const GrAppliedClip*, const GrCaps&);
+
+        bool isInitializedWithProcessorSet() const { return fIsInitializedWithProcessorSet; }
 
         int initialColorProcessorsToEliminate(GrColor* newInputColor) const {
             if (fInitialColorProcessorsToEliminate > 0) {
-                *newInputColor = fOverrideInputColor;
+                SkASSERT(fValidInputColor);
+                *newInputColor = fInputColor;
             }
             return fInitialColorProcessorsToEliminate;
+        }
+
+        /**
+         * Valid if initialProcessorsToEliminate returns true or this analysis was initialized with
+         * a known color.
+         */
+        GrColor inputColor() const {
+            SkASSERT(fValidInputColor);
+            return fInputColor;
         }
 
         bool usesLocalCoords() const { return fUsesLocalCoords; }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
         bool isOutputColorOpaque() const {
-            return ColorType::kOpaque == fColorType || ColorType::kOpaqueConstant == fColorType;
+            return ColorType::kOpaque == fOutputColorType ||
+                   ColorType::kOpaqueConstant == fOutputColorType;
         }
         bool hasKnownOutputColor(GrColor* color = nullptr) const {
-            bool constant =
-                    ColorType::kConstant == fColorType || ColorType::kOpaqueConstant == fColorType;
+            bool constant = ColorType::kConstant == fOutputColorType ||
+                            ColorType::kOpaqueConstant == fOutputColorType;
             if (constant && color) {
                 *color = fKnownOutputColor;
             }
             return constant;
         }
-        bool hasCoverage() const { return CoverageType::kNone != fCoverageType; }
-        bool hasLCDCoverage() const { return CoverageType::kLCD == fCoverageType; }
+        bool hasCoverage() const { return CoverageType::kNone != fOutputCoverageType; }
+        bool hasLCDCoverage() const { return CoverageType::kLCD == fOutputCoverageType; }
 
     private:
-        void internalReset(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
-                           const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
+        void internalInit(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+                          const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
 
-        enum class ColorType { kUnknown, kOpaqueConstant, kConstant, kOpaque };
-        enum class CoverageType { kNone, kSingleChannel, kLCD };
+        enum class ColorType : uint32_t { kUnknown, kOpaqueConstant, kConstant, kOpaque };
+        enum class CoverageType : uint32_t { kNone, kSingleChannel, kLCD };
 
-        bool fCompatibleWithCoverageAsAlpha = true;
-        bool fUsesLocalCoords = false;
-        CoverageType fCoverageType = CoverageType::kNone;
-        ColorType fColorType = ColorType::kUnknown;
-        int fInitialColorProcessorsToEliminate = 0;
-        GrColor fOverrideInputColor;
+        bool fIsInitializedWithProcessorSet : 1;
+        bool fUsesLocalCoords : 1;
+        bool fCompatibleWithCoverageAsAlpha : 1;
+        bool fValidInputColor : 1;
+        CoverageType fOutputCoverageType : 2;
+        ColorType fOutputColorType : 2;
+        unsigned fInitialColorProcessorsToEliminate : 32 - 8;
+
+        GrColor fInputColor;
         GrColor fKnownOutputColor;
     };
+    GR_STATIC_ASSERT(sizeof(FragmentProcessorAnalysis) == 2 * sizeof(GrColor) + sizeof(uint32_t));
 
 private:
-    const GrXPFactory* fXPFactory = nullptr;
-    SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
-    int fColorFragmentProcessorCnt;
-    enum Flags : uint32_t {
+    // This absurdly large limit allows FragmentProcessorAnalysis and this to pack fields together.
+    static constexpr int kMaxColorProcessors = SK_MaxU16;
+
+    enum Flags : uint16_t {
         kUseDistanceVectorField_Flag = 0x1,
         kDisableOutputConversionToSRGB_Flag = 0x2,
         kAllowSRGBInputs_Flag = 0x4
     };
-    uint32_t fFlags;
+
+    const GrXPFactory* fXPFactory = nullptr;
+    SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
+    uint16_t fColorFragmentProcessorCnt;
+    uint16_t fFlags;
 };
 
 #endif

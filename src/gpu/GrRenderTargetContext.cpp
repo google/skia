@@ -1705,7 +1705,7 @@ void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, 
     }
 
     GrProcessorSet::FragmentProcessorAnalysis analysis;
-    op->analyzeProcessors(&analysis, pipelineBuilder.processors(), appliedClip, *this->caps());
+    op->analyzeProcessors(&analysis, pipelineBuilder.processors(), &appliedClip, *this->caps());
 
     GrPipeline::InitArgs args;
     pipelineBuilder.getPipelineInitArgs(&args);
