@@ -145,6 +145,11 @@ static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkC
         SkRasterPipeline p;
         p.append(SkRasterPipeline::constant_color, color4f_ptr);
         append_gamut_transform(&p, scratch_matrix_3x4, src, dst);
+
+        if (as_CSB(dst)->nonLinearBlending() && dst->gammaCloseToSRGB()) {
+            p.append(SkRasterPipeline::to_srgb);
+        }
+
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
         p.run(0,1);
