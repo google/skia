@@ -108,11 +108,11 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    void testingOnly_addDrawOp(GrPaint&&,
-                               GrAAType,
-                               std::unique_ptr<GrDrawOp>,
-                               const GrUserStencilSettings* = nullptr,
-                               bool snapToCenters = false);
+    uint32_t testingOnly_addDrawOp(GrPaint&&,
+                                   GrAAType,
+                                   std::unique_ptr<GrDrawOp>,
+                                   const GrUserStencilSettings* = nullptr,
+                                   bool snapToCenters = false);
 
     bool refsWrappedObjects() const {
         return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();
