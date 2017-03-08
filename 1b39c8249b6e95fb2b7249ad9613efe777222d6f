@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69daaaef_f8461706",
+        "filename": "src/core/SkImageCacherator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-08T19:53:16Z",
+      "side": 1,
+      "message": "why tex2?",
+      "range": {
+        "startLine": 588,
+        "startChar": 23,
+        "endLine": 588,
+        "endChar": 27
+      },
+      "revId": "1b39c8249b6e95fb2b7249ad9613efe777222d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
