@@ -358,5 +358,5 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
         p->append(SkRasterPipeline::clamp_0);
         p->append(SkRasterPipeline::clamp_a);
     }
-    return append_gamut_transform(p, scratch, info.colorSpace(), dst);
+    return append_gamut_transform(p, scratch, info.colorSpace(), dst, kPremul_SkAlphaType);
 }

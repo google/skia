@@ -101,7 +101,8 @@ static inline void analyze_3x4_matrix(const float matrix[12],
 
 // N.B. scratch_matrix_3x4 must live at least as long as p.
 static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_matrix_3x4[12],
-                                          SkColorSpace* src, SkColorSpace* dst) {
+                                          SkColorSpace* src, SkColorSpace* dst,
+                                          SkAlphaType alphaType) {
     if (src == dst) { return true; }
     if (!dst)       { return true; }   // Legacy modes intentionally ignore color gamut.
     if (!src)       { return true; }   // A null src color space means linear gamma, dst gamut.
@@ -126,13 +127,17 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_mat
 
     p->append(SkRasterPipeline::matrix_3x4, scratch_matrix_3x4);
     if (needs_clamp_0) { p->append(SkRasterPipeline::clamp_0); }
-    if (needs_clamp_a) { p->append(SkRasterPipeline::clamp_a); }
+    if (needs_clamp_a) {
+        (kPremul_SkAlphaType == alphaType) ? p->append(SkRasterPipeline::clamp_a)
+                                           : p->append(SkRasterPipeline::clamp_1);
+    }
     return true;
 }
 
 static inline bool append_gamut_transform(SkRasterPipeline* p, SkArenaAlloc* scratch,
-                                          SkColorSpace* src, SkColorSpace* dst) {
-    return append_gamut_transform(p, scratch->makeArrayDefault<float>(12), src, dst);
+                                          SkColorSpace* src, SkColorSpace* dst,
+                                          SkAlphaType alphaType) {
+    return append_gamut_transform(p, scratch->makeArrayDefault<float>(12), src, dst, alphaType);
 }
 
 static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
@@ -144,7 +149,7 @@ static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkC
 
         SkRasterPipeline p;
         p.append(SkRasterPipeline::constant_color, color4f_ptr);
-        append_gamut_transform(&p, scratch_matrix_3x4, src, dst);
+        append_gamut_transform(&p, scratch_matrix_3x4, src, dst, kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
         p.run(0,1);
