@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb1fc778_5ad09041",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T16:10:59Z",
+      "side": 1,
+      "message": "This sort of change is considerably less readable.",
+      "revId": "01f49c6652c7b8037a012a46088fee55086f747d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43d06111_fc745f31",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T16:10:59Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "01f49c6652c7b8037a012a46088fee55086f747d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
