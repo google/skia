@@ -46,6 +46,30 @@
       "revId": "a2c22cd8bc40bdc4e8271f1bfb9a3a12a0724888",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66d2d05c_9d488f16",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T16:05:59Z",
+      "side": 1,
+      "message": "I think {} or { draw_nothing(); } are good ways to express that.  The self-contradictory nature of writing { unused(); } is a little confusing...",
+      "parentUuid": "dd8fa6e2_9d69f156",
+      "range": {
+        "startLine": 80,
+        "startChar": 50,
+        "endLine": 80,
+        "endChar": 63
+      },
+      "revId": "a2c22cd8bc40bdc4e8271f1bfb9a3a12a0724888",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
