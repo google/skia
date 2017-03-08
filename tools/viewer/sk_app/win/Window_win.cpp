@@ -19,6 +19,11 @@
 
 namespace sk_app {
 
+static int gWindowX = CW_USEDEFAULT;
+static int gWindowY = 0;
+static int gWindowWidth = CW_USEDEFAULT;
+static int gWindowHeight = 0;
+
 Window* Window::CreateNativeWindow(void* platformData) {
     HINSTANCE hInstance = (HINSTANCE)platformData;
 
@@ -29,6 +34,17 @@ Window* Window::CreateNativeWindow(void* platformData) {
     }
 
     return window;
+}
+
+Window_win::~Window_win() {
+    RECT r;
+    if (GetWindowRect(fHWnd, &r)) {
+        gWindowX = r.left;
+        gWindowY = r.top;
+        gWindowWidth = r.right - r.left;
+        gWindowHeight = r.bottom - r.top;
+    }
+    DestroyWindow(fHWnd);
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -85,7 +101,8 @@ bool Window_win::init(HINSTANCE hInstance) {
  //   gIsFullscreen = fullscreen;
 
     fHWnd = CreateWindow(gSZWindowClass, nullptr, WS_OVERLAPPEDWINDOW,
-                         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, fHInstance, nullptr);
+                         gWindowX, gWindowY, gWindowWidth, gWindowHeight,
+                         nullptr, nullptr, fHInstance, nullptr);
     if (!fHWnd)
     {
         return false;
