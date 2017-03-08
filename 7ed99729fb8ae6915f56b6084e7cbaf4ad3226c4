@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b1890b4_a8bd9bd6",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T14:29:27Z",
+      "side": 1,
+      "message": "funky indent?",
+      "range": {
+        "startLine": 328,
+        "startChar": 26,
+        "endLine": 328,
+        "endChar": 38
+      },
+      "revId": "7ed99729fb8ae6915f56b6084e7cbaf4ad3226c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
