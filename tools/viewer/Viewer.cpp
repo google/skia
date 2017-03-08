@@ -1013,6 +1013,46 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                     paramsChanged = true;
                 }
 
+                if (ctx) {
+                    int sampleCount = fWindow->sampleCount();
+                    ImGui::Text("MSAA: "); ImGui::SameLine();
+                    ImGui::RadioButton("0", &sampleCount, 0); ImGui::SameLine();
+                    ImGui::RadioButton("4", &sampleCount, 4); ImGui::SameLine();
+                    ImGui::RadioButton("8", &sampleCount, 8); ImGui::SameLine();
+                    ImGui::RadioButton("16", &sampleCount, 16);
+
+                    if (sampleCount != params.fMSAASampleCount) {
+                        params.fMSAASampleCount = sampleCount;
+                        fDeferredActions.push_back([=]() {
+#if defined(SK_BUILD_FOR_WIN)
+                            // GL on Windows doesn't let us change MSAA after the window is created
+                            fWindow->detach();
+                            delete fWindow;
+                            fWindow = Window::CreateNativeWindow(nullptr);
+#endif
+
+                            fWindow->setRequestedDisplayParams(params);
+
+#if defined(SK_BUILD_FOR_WIN)
+                            // re-register callbacks
+                            fCommands.attach(fWindow);
+                            fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
+                            fWindow->registerPaintFunc(on_paint_handler, this);
+                            fWindow->registerTouchFunc(on_touch_handler, this);
+                            fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
+                            fWindow->registerMouseFunc(on_mouse_handler, this);
+                            fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
+                            fWindow->registerKeyFunc(on_key_handler, this);
+                            fWindow->registerCharFunc(on_char_handler, this);
+                            fWindow->attach(fBackendType);
+#endif
+
+                            fWindow->inval();
+                            this->updateTitle();
+                        });
+                    }
+                }
+
                 if (ImGui::TreeNode("Path Renderers")) {
                     GpuPathRenderers prevPr = params.fGrContextOptions.fGpuPathRenderers;
                     auto prButton = [&](GpuPathRenderers x) {
