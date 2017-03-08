@@ -15,7 +15,7 @@
 
 #include <stdarg.h>
 
-class GrGLSLColorSpaceXformHelper;
+struct GrGLSLColorSpaceXformHelper;
 
 /**
   base class for all shaders builders

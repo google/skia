@@ -13,7 +13,7 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLProgramBuilder;
-class GrGLSLColorSpaceXformHelper;
+struct GrGLSLColorSpaceXformHelper;
 class GrGLSLShaderBuilder;
 class GrInvariantOutput;
 class GrGLSLUniformHandler;
