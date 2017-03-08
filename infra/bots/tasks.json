@@ -216,6 +216,18 @@
         "Build-Ubuntu-Clang-x86_64-Release-Vulkan"
       ]
     },
+    "Build-Ubuntu-GCC-arm-Debug-Chromecast": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-arm-Debug-Chromecast"
+      ]
+    },
+    "Build-Ubuntu-GCC-arm-Release-Chromecast": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-arm-Release-Chromecast"
+      ]
+    },
     "Build-Ubuntu-GCC-x86-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -2802,6 +2814,70 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-GCC-arm-Debug-Chromecast": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/cast_toolchain",
+          "path": "cast_toolchain",
+          "version": "version:2"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-arm-Debug-Chromecast",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-GCC-arm-Release-Chromecast": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/cast_toolchain",
+          "path": "cast_toolchain",
+          "version": "version:2"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-arm-Release-Chromecast",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
