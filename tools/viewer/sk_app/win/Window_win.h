@@ -27,9 +27,16 @@ public:
 
     void onInval() override;
 
+    void setRequestedDisplayParams(const DisplayParams&) override;
+
 private:
+    void closeWindow();
+
     HINSTANCE fHInstance;
     HWND      fHWnd;
+    BackendType fBackend;
+
+    typedef Window INHERITED;
 };
 
 }   // namespace sk_app

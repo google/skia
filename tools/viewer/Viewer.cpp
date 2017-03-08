@@ -1013,6 +1013,20 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                     paramsChanged = true;
                 }
 
+                if (ctx) {
+                    int sampleCount = fWindow->sampleCount();
+                    ImGui::Text("MSAA: "); ImGui::SameLine();
+                    ImGui::RadioButton("0", &sampleCount, 0); ImGui::SameLine();
+                    ImGui::RadioButton("4", &sampleCount, 4); ImGui::SameLine();
+                    ImGui::RadioButton("8", &sampleCount, 8); ImGui::SameLine();
+                    ImGui::RadioButton("16", &sampleCount, 16);
+
+                    if (sampleCount != params.fMSAASampleCount) {
+                        params.fMSAASampleCount = sampleCount;
+                        paramsChanged = true;
+                    }
+                }
+
                 if (ImGui::TreeNode("Path Renderers")) {
                     GpuPathRenderers prevPr = params.fGrContextOptions.fGpuPathRenderers;
                     auto prButton = [&](GpuPathRenderers x) {
