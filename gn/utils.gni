@@ -22,7 +22,6 @@ skia_utils_sources = [
   "$_include/utils/SkPaintFilterCanvas.h",
   "$_include/utils/SkParse.h",
   "$_include/utils/SkParsePath.h",
-  "$_include/utils/SkPictureUtils.h",
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
   "$_include/utils/SkTextBox.h",
