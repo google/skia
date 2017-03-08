@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "97a7be1d_ad50bb38",
+        "filename": "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-08T16:00:00Z",
+      "side": 1,
+      "message": "Yeah, I think I looked into doing a 2nd context very briefly, and then decided that it was unlikely to work, so I didn\u0027t really spend any time. I guess we could go the other way (try to create a core profile, and if no tool is attached, re-create the compat profile). Meh. It\u0027s a one-liner to change when we need to debug (or we could make it a command line option).",
+      "parentUuid": "15f08ed9_cc37b27a",
+      "revId": "893bb692d731c563ea1991299a5ee00311255a18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c4387ba9_c205df1a",
         "filename": "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
         "patchSetId": 2
