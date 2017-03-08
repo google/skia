@@ -123,6 +123,24 @@
       "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f944fc5_52c4a066",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-08T15:11:06Z",
+      "side": 1,
+      "message": "I\u0027m open to that idea, but let\u0027s not attach that policy change as a rider on a bug fix CL...",
+      "parentUuid": "ff2f5b3c_e2afa9be",
+      "revId": "ba5dee0a3fbc65c2e907e52abc5fd79aea0a6aaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
