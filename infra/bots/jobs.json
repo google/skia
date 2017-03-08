@@ -35,6 +35,8 @@
   "Build-Ubuntu-Clang-x86_64-Release-Mini",
   "Build-Ubuntu-Clang-x86_64-Release-TSAN",
   "Build-Ubuntu-Clang-x86_64-Release-Vulkan",
+  "Build-Ubuntu-GCC-arm-Debug-Chromecast",
+  "Build-Ubuntu-GCC-arm-Release-Chromecast",
   "Build-Ubuntu-GCC-x86-Debug",
   "Build-Ubuntu-GCC-x86-Release",
   "Build-Ubuntu-GCC-x86_64-Debug",
