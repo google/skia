@@ -280,6 +280,8 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrRectOpFactory.cpp",
   "$_src/gpu/ops/GrRegionOp.cpp",
   "$_src/gpu/ops/GrRegionOp.h",
+  "$_src/gpu/ops/GrSemaphoreOp.cpp",
+  "$_src/gpu/ops/GrSemaphoreOp.h",
   "$_src/gpu/ops/GrShadowRRectOp.cpp",
   "$_src/gpu/ops/GrShadowRRectOp.h",
   "$_src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
