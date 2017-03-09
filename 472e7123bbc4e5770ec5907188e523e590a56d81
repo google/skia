@@ -22,6 +22,30 @@
       "revId": "472e7123bbc4e5770ec5907188e523e590a56d81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dc2ea7c_f28358bb",
+        "filename": ".clang-format",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-09T14:02:34Z",
+      "side": 1,
+      "message": "Actually it seems like only Gr code commonly puts these last. Undoing this.",
+      "parentUuid": "7fd1b9b6_5e46a4fd",
+      "range": {
+        "startLine": 64,
+        "startChar": 22,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "472e7123bbc4e5770ec5907188e523e590a56d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
