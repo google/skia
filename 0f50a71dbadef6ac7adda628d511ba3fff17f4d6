@@ -70,6 +70,30 @@
       "revId": "0f50a71dbadef6ac7adda628d511ba3fff17f4d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8048dd1f_5bb1c702",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-03-09T19:35:18Z",
+      "side": 1,
+      "message": "The asserts in freeAll() validate that the content of fBlobIDCache, fBlobList and fPool doesn\u0027t get out of sync.  I thought it would be useful to check these invariants in debug mode.",
+      "parentUuid": "9af71e3a_89304545",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 15
+      },
+      "revId": "0f50a71dbadef6ac7adda628d511ba3fff17f4d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
