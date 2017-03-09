@@ -53,7 +53,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override {
+    void onExecute(GrOpFlushState* state, const GrAppliedClip*, GrRenderTarget*) override {
         state->commandBuffer()->clearStencilClip(fRenderTarget.get(), fClip, fInsideStencilMask);
     }
 
