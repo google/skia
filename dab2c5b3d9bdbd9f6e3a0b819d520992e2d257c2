@@ -16,6 +16,24 @@
       "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "998c4689_f161c4d9",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-09T21:54:50Z",
+      "side": 1,
+      "message": "I\u0027m okay with never adopting both render targets and textures! Brian?",
+      "parentUuid": "10ad1536_6d2b9b19",
+      "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
