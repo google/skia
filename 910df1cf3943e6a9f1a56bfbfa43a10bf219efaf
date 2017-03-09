@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b10151e4_0c9a80a6",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T21:54:52Z",
+      "side": 1,
+      "message": "I would have preferred isUsingPrealloc() (with inversion on the test in swap), but whatever. lgtm.",
+      "revId": "910df1cf3943e6a9f1a56bfbfa43a10bf219efaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
