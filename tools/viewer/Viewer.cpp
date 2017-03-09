@@ -831,7 +831,7 @@ void Viewer::onPaint(SkCanvas* canvas) {
     drawImGui(canvas);
 
     // Update the FPS
-    updateUIState();
+//    updateUIState();
 }
 
 bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
@@ -1220,7 +1220,7 @@ void Viewer::onIdle() {
     fAnimateTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
 
     ImGuiIO& io = ImGui::GetIO();
-    if (animateWantsInval || fDisplayStats || fRefresh || io.MetricsActiveWindows) {
+    if (animateWantsInval || fDisplayStats || fRefresh || io.MetricsActiveWindows || true) {
         fWindow->inval();
     }
 }
