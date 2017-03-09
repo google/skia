@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10ad1536_6d2b9b19",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T21:27:57Z",
+      "side": 1,
+      "message": "As it stands now, render targets are only ever wrapped in Borrowed mode. If we removed the plumbing of ownership in that case, then we wouldn\u0027t need any of these checks. We\u0027d be losing that flexibility - are we ever going to adopt someone else\u0027s render target?",
+      "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
