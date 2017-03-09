@@ -107,9 +107,10 @@ def dm_flags(bot):
   args.extend(configs)
 
   # Run tests, gms, and image decoding tests everywhere.
-  args.extend('--src tests gm image colorImage'.split(' '))
-  if 'Vulkan' not in bot or 'NexusPlayer' not in bot:
-    args.append('svg')
+  args.extend('--src tests gm image colorImage svg'.split(' '))
+  if 'Vulkan' in bot and 'NexusPlayer' in bot:
+    args.remove('svg')
+    args.remove('image')
 
   blacklisted = []
   def blacklist(quad):
