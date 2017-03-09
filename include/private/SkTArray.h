@@ -435,9 +435,17 @@ private:
     /** In the following move and copy methods, 'dst' is assumed to be uninitialized raw storage.
      *  In the following move methods, 'src' is destroyed leaving behind uninitialized raw storage.
      */
-    template <bool E = MEM_COPY> SK_WHEN(E, void) copy(const T* src) {
-        sk_careful_memcpy(fMemArray, src, fCount * sizeof(T));
+    void copy(const T* src) {
+        // copy() is only used in copy constructors.
+        // Some types may be trivially copyable, in which case we *could* use memcopy; but
+        // MEM_COPY == true implies that the type is trivially movable, and not necessarily
+        // trivially copyable (think sk_sp<>).  So short of adding another template arg, we
+        // must be conservative and use copy construction.
+        for (int i = 0; i < fCount; ++i) {
+            new (fItemArray + i) T(src[i]);
+        }
     }
+
     template <bool E = MEM_COPY> SK_WHEN(E, void) move(int dst, int src) {
         memcpy(&fItemArray[dst], &fItemArray[src], sizeof(T));
     }
@@ -445,11 +453,6 @@ private:
         sk_careful_memcpy(dst, fMemArray, fCount * sizeof(T));
     }
 
-    template <bool E = MEM_COPY> SK_WHEN(!E, void) copy(const T* src) {
-        for (int i = 0; i < fCount; ++i) {
-            new (fItemArray + i) T(src[i]);
-        }
-    }
     template <bool E = MEM_COPY> SK_WHEN(!E, void) move(int dst, int src) {
         new (&fItemArray[dst]) T(std::move(fItemArray[src]));
         fItemArray[src].~T();
