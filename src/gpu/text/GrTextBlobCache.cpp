@@ -8,14 +8,13 @@
 #include "GrTextBlobCache.h"
 
 GrTextBlobCache::~GrTextBlobCache() {
-    this->freeAll();
+    SkDEBUGCODE(this->freeAll();)
 }
 
 void GrTextBlobCache::freeAll() {
     fBlobIDCache.foreach([this](uint32_t, BlobIDCacheEntry* entry) {
-        for (auto* blob : entry->fBlobs) {
-            fBlobList.remove(blob);
-            blob->unref();
+        for (const auto& blob : entry->fBlobs) {
+            fBlobList.remove(blob.get());
         }
     });
 
