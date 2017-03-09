@@ -16,6 +16,7 @@
 #include "GrClipStackClip.h"
 #include "GrReducedClip.h"
 #include "GrResourceCache.h"
+#include "GrTextureProxy.h"
 typedef GrReducedClip::ElementList ElementList;
 typedef GrReducedClip::InitialState InitialState;
 #endif

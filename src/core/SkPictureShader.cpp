@@ -22,6 +22,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrCaps.h"
+#include "GrFragmentProcessor.h"
 #endif
 
 namespace {

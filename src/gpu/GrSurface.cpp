@@ -9,6 +9,7 @@
 #include "GrContext.h"
 #include "GrOpList.h"
 #include "GrSurfacePriv.h"
+#include "GrTexture.h"
 
 #include "SkGr.h"
 #include "SkMathPriv.h"
