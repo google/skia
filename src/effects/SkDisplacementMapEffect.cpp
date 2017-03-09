@@ -14,11 +14,11 @@
 #include "SkUnPreMultiply.h"
 #include "SkColorPriv.h"
 #if SK_SUPPORT_GPU
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
-
 #include "SkGr.h"
 #include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"

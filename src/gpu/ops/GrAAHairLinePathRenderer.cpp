@@ -6,9 +6,9 @@
  */
 
 #include "GrAAHairLinePathRenderer.h"
-
 #include "GrBuffer.h"
 #include "GrCaps.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
@@ -20,10 +20,8 @@
 #include "SkGeometry.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
-
-#include "ops/GrMeshDrawOp.h"
-
 #include "effects/GrBezierEffect.h"
+#include "ops/GrMeshDrawOp.h"
 
 #define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
 

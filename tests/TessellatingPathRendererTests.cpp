@@ -10,9 +10,10 @@
 #include "SkPath.h"
 
 #if SK_SUPPORT_GPU
+#include "GrClip.h"
 #include "GrContext.h"
-#include "ops/GrTessellatingPathRenderer.h"
 #include "SkGradientShader.h"
+#include "ops/GrTessellatingPathRenderer.h"
 
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.

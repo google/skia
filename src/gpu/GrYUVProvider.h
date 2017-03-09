@@ -14,6 +14,7 @@
 
 class GrContext;
 class GrTexture;
+class GrTextureProxy;
 
 /**
  *  There are at least 2 different ways to extract/retrieve YUV planar data...

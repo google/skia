@@ -61,8 +61,10 @@ IncludeCategories:
     Priority:        1
   - Regex:           '^<.*'
     Priority:        2
-  - Regex:           '.*'
+  - Regex:           '^["<][^.]{2}.*'
     Priority:        3
+  - Regex:           '.*'
+    Priority:        4
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IndentCaseLabels: true
 IndentWidth:     4
