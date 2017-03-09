@@ -17,13 +17,14 @@
 
 #if SK_SUPPORT_GPU
 #include "GrCircleBlurFragmentProcessor.h"
+#include "GrClip.h"
 #include "GrContext.h"
+#include "GrFragmentProcessor.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
-#include "GrTexture.h"
-#include "GrFragmentProcessor.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
