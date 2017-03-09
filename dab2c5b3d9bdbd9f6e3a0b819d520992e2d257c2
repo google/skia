@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cf97b7a5_f30611e1",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-09T22:56:55Z",
+      "side": 1,
+      "message": "That seems like it\u0027s documenting the use case of the current caller. This is the implementation of kAdoptAndCache and it it is just doing exactly what it is documented to do. Seems to me that if we want a comment of this nature that it should go where we specify this flag when importing cross context texture.",
+      "parentUuid": "2fae9e4b_9c24b3a1",
+      "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "10ad1536_6d2b9b19",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "I\u0027m okay with never adopting both render targets and textures! Brian?",
       "parentUuid": "10ad1536_6d2b9b19",
+      "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3498b26b_1af71052",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-09T22:56:55Z",
+      "side": 1,
+      "message": "yes, I\u0027m definitely ok with that.",
+      "parentUuid": "998c4689_f161c4d9",
       "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
