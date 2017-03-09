@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "Test.h"
 
@@ -117,8 +118,35 @@ static void test_swap(skiatest::Reporter* reporter) {
     test_swap(reporter, arraysMoi, sizes);
 }
 
+template <typename T, bool MEM_MOVE>
+void test_copy_ctor(skiatest::Reporter* reporter, SkTArray<T, MEM_MOVE>&& array) {
+    SkASSERT(array.empty());
+    for (int i = 0; i < 5; ++i) {
+        array.emplace_back(new SkRefCnt);
+        REPORTER_ASSERT(reporter, array.back()->unique());
+    }
+
+    {
+        SkTArray<T, MEM_MOVE> copy(array);
+        for (const auto& ref : array)
+            REPORTER_ASSERT(reporter, !ref->unique());
+        for (const auto& ref : copy)
+            REPORTER_ASSERT(reporter, !ref->unique());
+    }
+
+    for (const auto& ref : array)
+        REPORTER_ASSERT(reporter, ref->unique());
+}
+
 DEF_TEST(TArray, reporter) {
     TestTSet_basic<true>(reporter);
     TestTSet_basic<false>(reporter);
     test_swap(reporter);
+
+    test_copy_ctor(reporter, SkTArray<sk_sp<SkRefCnt>, false>());
+    test_copy_ctor(reporter, SkTArray<sk_sp<SkRefCnt>,  true>());
+    test_copy_ctor(reporter, SkSTArray< 1, sk_sp<SkRefCnt>, false>());
+    test_copy_ctor(reporter, SkSTArray< 1, sk_sp<SkRefCnt>,  true>());
+    test_copy_ctor(reporter, SkSTArray<10, sk_sp<SkRefCnt>, false>());
+    test_copy_ctor(reporter, SkSTArray<10, sk_sp<SkRefCnt>,  true>());
 }
