@@ -184,8 +184,7 @@ public:
 
     static sk_sp<GrSurfaceProxy> MakeWrappedBackend(
                                             GrContext*,
-                                            GrBackendTextureDesc&,
-                                            GrWrapOwnership ownership = kBorrow_GrWrapOwnership);
+                                            GrBackendTextureDesc&);
 
     const GrSurfaceDesc& desc() const { return fDesc; }
 

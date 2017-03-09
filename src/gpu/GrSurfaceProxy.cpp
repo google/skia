@@ -238,9 +238,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
-                                                         GrBackendTextureDesc& desc,
-                                                         GrWrapOwnership ownership) {
-    sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(desc, ownership));
+                                                         GrBackendTextureDesc& desc) {
+    sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(desc));
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
