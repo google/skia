@@ -11,19 +11,19 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrDrawOp;
+class GrMeshDrawOp;
 class SkMatrix;
 struct SkRect;
 
 namespace GrNonAAFillRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRect& rect,
                                const SkRect* localRect,
                                const SkMatrix* localMatrix);
 
-std::unique_ptr<GrDrawOp> MakeWithPerspective(GrColor color,
+std::unique_ptr<GrMeshDrawOp> MakeWithPerspective(GrColor color,
                                               const SkMatrix& viewMatrix,
                                               const SkRect& rect,
                                               const SkRect* localRect,

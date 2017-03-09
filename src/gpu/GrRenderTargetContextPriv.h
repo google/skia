@@ -109,10 +109,10 @@ public:
     }
 
     uint32_t testingOnly_addDrawOp(GrPaint&&,
-                                   GrAAType,
-                                   std::unique_ptr<GrDrawOp>,
-                                   const GrUserStencilSettings* = nullptr,
-                                   bool snapToCenters = false);
+                               GrAAType,
+                               std::unique_ptr<GrMeshDrawOp>,
+                               const GrUserStencilSettings* = nullptr,
+                               bool snapToCenters = false);
 
     bool refsWrappedObjects() const {
         return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();

@@ -144,7 +144,7 @@ private:
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     int numGlyphs() const { return fNumGlyphs; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override;
 
     // TODO just use class params
     // TODO trying to figure out why lcd is so whack
