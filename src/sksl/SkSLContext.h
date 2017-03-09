@@ -280,7 +280,11 @@ private:
         Defined(const Type& type)
         : INHERITED(Position(), kDefined_Kind, type) {}
 
-        virtual SkString description() const override {
+        bool hasSideEffects() const override {
+            return false;
+        }
+
+        SkString description() const override {
             return SkString("<defined>");
         }
 
