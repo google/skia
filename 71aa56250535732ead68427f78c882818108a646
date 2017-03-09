@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdfed701_ebfa36db",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-09T17:51:35Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand this very well, specifically why we ~T() here.",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 31
+      },
+      "revId": "71aa56250535732ead68427f78c882818108a646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
