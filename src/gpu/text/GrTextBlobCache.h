@@ -9,6 +9,7 @@
 #define GrTextBlobCache_DEFINED
 
 #include "GrAtlasTextContext.h"
+#include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTHash.h"
@@ -31,25 +32,22 @@ public:
     ~GrTextBlobCache();
 
     // creates an uncached blob
-    GrAtlasTextBlob* createBlob(int glyphCount, int runCount) {
-        return GrAtlasTextBlob::Create(&fPool, glyphCount, runCount);
-    }
-    GrAtlasTextBlob* createBlob(const SkTextBlob* blob) {
-        int glyphCount = 0;
-        int runCount = 0;
-        BlobGlyphCount(&glyphCount, &runCount, blob);
-        GrAtlasTextBlob* cacheBlob = GrAtlasTextBlob::Create(&fPool, glyphCount, runCount);
-        return cacheBlob;
+    sk_sp<GrAtlasTextBlob> makeBlob(int glyphCount, int runCount) {
+        return GrAtlasTextBlob::Make(&fPool, glyphCount, runCount);
     }
 
-    GrAtlasTextBlob* createCachedBlob(const SkTextBlob* blob,
-                                      const GrAtlasTextBlob::Key& key,
-                                      const SkMaskFilter::BlurRec& blurRec,
-                                      const SkPaint& paint) {
+    sk_sp<GrAtlasTextBlob> makeBlob(const SkTextBlob* blob) {
         int glyphCount = 0;
         int runCount = 0;
         BlobGlyphCount(&glyphCount, &runCount, blob);
-        GrAtlasTextBlob* cacheBlob = GrAtlasTextBlob::Create(&fPool, glyphCount, runCount);
+        return GrAtlasTextBlob::Make(&fPool, glyphCount, runCount);
+    }
+
+    sk_sp<GrAtlasTextBlob> makeCachedBlob(const SkTextBlob* blob,
+                                          const GrAtlasTextBlob::Key& key,
+                                          const SkMaskFilter::BlurRec& blurRec,
+                                          const SkPaint& paint) {
+        sk_sp<GrAtlasTextBlob> cacheBlob(this->makeBlob(blob));
         cacheBlob->setupKey(key, blurRec, paint);
         this->add(cacheBlob);
         return cacheBlob;
@@ -65,26 +63,11 @@ public:
         auto* idEntry = fBlobIDCache.find(id);
         SkASSERT(idEntry);
 
+        fBlobList.remove(blob);
         idEntry->removeBlob(blob);
         if (idEntry->fBlobs.empty()) {
             fBlobIDCache.remove(id);
         }
-
-        fBlobList.remove(blob);
-        blob->unref();
-    }
-
-    void add(GrAtlasTextBlob* blob) {
-        auto  id      = GrAtlasTextBlob::GetKey(*blob).fUniqueID;
-        auto* idEntry = fBlobIDCache.find(id);
-        if (!idEntry) {
-            idEntry = fBlobIDCache.set(id, BlobIDCacheEntry(id));
-        }
-
-        idEntry->addBlob(blob);
-        fBlobList.addToHead(blob);
-
-        this->checkPurge(blob);
     }
 
     void makeMRU(GrAtlasTextBlob* blob) {
@@ -122,12 +105,12 @@ private:
             return entry.fID;
         }
 
-        void addBlob(GrAtlasTextBlob* blob) {
+        void addBlob(sk_sp<GrAtlasTextBlob> blob) {
             SkASSERT(blob);
             SkASSERT(GrAtlasTextBlob::GetKey(*blob).fUniqueID == fID);
             SkASSERT(!this->find(GrAtlasTextBlob::GetKey(*blob)));
 
-            fBlobs.push_back(blob);
+            fBlobs.emplace_back(std::move(blob));
         }
 
         void removeBlob(GrAtlasTextBlob* blob) {
@@ -142,7 +125,7 @@ private:
 
         GrAtlasTextBlob* find(const GrAtlasTextBlob::Key& key) const {
             auto index = this->findBlobIndex(key);
-            return index < 0 ? nullptr : fBlobs[index];
+            return index < 0 ? nullptr : fBlobs[index].get();
         }
 
         int findBlobIndex(const GrAtlasTextBlob::Key& key) const{
@@ -157,8 +140,23 @@ private:
         uint32_t                             fID;
         // Current clients don't generate multiple GrAtlasTextBlobs per SkTextBlob, so an array w/
         // linear search is acceptable.  If usage changes, we should re-evaluate this structure.
-        SkSTArray<1, GrAtlasTextBlob*, true> fBlobs;
+        SkSTArray<1, sk_sp<GrAtlasTextBlob>, true> fBlobs;
     };
+
+    void add(sk_sp<GrAtlasTextBlob> blob) {
+        auto  id      = GrAtlasTextBlob::GetKey(*blob).fUniqueID;
+        auto* idEntry = fBlobIDCache.find(id);
+        if (!idEntry) {
+            idEntry = fBlobIDCache.set(id, BlobIDCacheEntry(id));
+        }
+
+        // Safe to retain a raw ptr temporarily here, because the cache will hold a ref.
+        GrAtlasTextBlob* rawBlobPtr = blob.get();
+        fBlobList.addToHead(rawBlobPtr);
+        idEntry->addBlob(std::move(blob));
+
+        this->checkPurge(rawBlobPtr);
+    }
 
     void checkPurge(GrAtlasTextBlob* blob = nullptr) {
         // If we are overbudget, then unref until we are below budget again
