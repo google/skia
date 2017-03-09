@@ -8,13 +8,14 @@
 #ifndef SkImage_Gpu_DEFINED
 #define SkImage_Gpu_DEFINED
 
-#include "SkAtomics.h"
-#include "GrTexture.h"
+#include "GrClip.h"
 #include "GrGpuResourcePriv.h"
+#include "GrTexture.h"
+#include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
-#include "SkImage_Base.h"
 #include "SkImagePriv.h"
+#include "SkImage_Base.h"
 #include "SkSurface.h"
 
 class SkImage_Gpu : public SkImage_Base {

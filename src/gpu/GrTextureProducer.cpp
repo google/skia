@@ -6,7 +6,7 @@
  */
 
 #include "GrTextureProducer.h"
-
+#include "GrClip.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "effects/GrBicubicEffect.h"

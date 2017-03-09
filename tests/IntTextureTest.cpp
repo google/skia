@@ -8,6 +8,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"

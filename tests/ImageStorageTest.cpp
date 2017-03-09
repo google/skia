@@ -9,6 +9,7 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrClip.h"
 #include "GrFragmentProcessor.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"

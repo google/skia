@@ -6,13 +6,14 @@
  */
 
 #include "GrConfigConversionEffect.h"
+#include "../private/GrGLSL.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "../private/GrGLSL.h"
 
 class GrGLConfigConversionEffect : public GrGLSLFragmentProcessor {
 public:

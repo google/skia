@@ -9,7 +9,6 @@
 #define GrContext_DEFINED
 
 #include "GrCaps.h"
-#include "GrClip.h"
 #include "GrColor.h"
 #include "GrPaint.h"
 #include "GrRenderTarget.h"

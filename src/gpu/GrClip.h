@@ -9,8 +9,8 @@
 #define GrClip_DEFINED
 
 #include "GrTypes.h"
-#include "SkRect.h"
 #include "SkRRect.h"
+#include "SkRect.h"
 
 class GrAppliedClip;
 class GrContext;
@@ -63,8 +63,8 @@ public:
      * @param innerClipBounds   device-space rect contained by the clip (SkRect or SkIRect).
      * @param queryBounds       device-space bounds of the query region.
      */
-    template<typename TRect> constexpr static bool IsInsideClip(const TRect& innerClipBounds,
-                                                                const SkRect& queryBounds) {
+    template <typename TRect>
+    constexpr static bool IsInsideClip(const TRect& innerClipBounds, const SkRect& queryBounds) {
         return innerClipBounds.fRight - innerClipBounds.fLeft > kBoundsTolerance &&
                innerClipBounds.fBottom - innerClipBounds.fTop > kBoundsTolerance &&
                innerClipBounds.fLeft < queryBounds.fLeft + kBoundsTolerance &&
@@ -79,8 +79,8 @@ public:
      * @param outerClipBounds   device-space rect that contains the clip (SkRect or SkIRect).
      * @param queryBounds       device-space bounds of the query region.
      */
-    template<typename TRect> constexpr static bool IsOutsideClip(const TRect& outerClipBounds,
-                                                                 const SkRect& queryBounds) {
+    template <typename TRect>
+    constexpr static bool IsOutsideClip(const TRect& outerClipBounds, const SkRect& queryBounds) {
         return outerClipBounds.fRight - outerClipBounds.fLeft <= kBoundsTolerance ||
                outerClipBounds.fBottom - outerClipBounds.fTop <= kBoundsTolerance ||
                outerClipBounds.fLeft >= queryBounds.fRight - kBoundsTolerance ||
@@ -125,12 +125,8 @@ public:
  */
 class GrNoClip final : public GrClip {
 private:
-    bool quickContains(const SkRect&) const final {
-        return true;
-    }
-    bool quickContains(const SkRRect&) const final {
-        return true;
-    }
+    bool quickContains(const SkRect&) const final { return true; }
+    bool quickContains(const SkRRect&) const final { return true; }
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final {
         devResult->setXYWH(0, 0, width, height);
