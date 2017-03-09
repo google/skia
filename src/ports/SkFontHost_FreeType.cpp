@@ -388,7 +388,8 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
 }
 
 // Caller must lock gFTMutex before calling this function.
-static void unref_ft_face(SkFaceRec* faceRec) {
+// Marked extern because vc++ does not support internal linkage template parameters.
+extern /*static*/ void unref_ft_face(SkFaceRec* faceRec) {
     gFTMutex.assertHeld();
 
     SkFaceRec*  rec = gFaceRecHead;
