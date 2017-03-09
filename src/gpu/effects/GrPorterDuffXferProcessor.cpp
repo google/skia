@@ -791,6 +791,11 @@ bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps,
     return formula.hasSecondaryOutput();
 }
 
+bool GrPorterDuffXPFactory::compatibleWithCoverageAsAlpha(bool colorIsOpaque) const {
+    // We assume we have coverage (or else this doesn't matter).
+    return gBlendTable[colorIsOpaque][1][(int)fBlendMode].canTweakAlphaForCoverage();
+}
+
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
 
 #if GR_TEST_UTILS
