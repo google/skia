@@ -197,6 +197,13 @@ bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& c
     return result;
 }
 
+bool GrXPFactory::CompatibleWithCoverageAsAlpha(const GrXPFactory* factory, bool colorIsOpaque) {
+    if (factory) {
+        return factory->compatibleWithCoverageAsAlpha(colorIsOpaque);
+    }
+    return GrPorterDuffXPFactory::SrcOverIsCompatibleWithCoverageAsAlpha();
+}
+
 GrXferProcessor* GrXPFactory::createXferProcessor(const FragmentProcessorAnalysis& analysis,
                                                   bool hasMixedSamples,
                                                   const DstTexture* dstTexture,
