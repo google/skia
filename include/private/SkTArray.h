@@ -403,6 +403,18 @@ protected:
     }
 
     /**
+     * Move another array, using preallocated storage if preAllocCount >=
+     * array.count(). Otherwise storage will only be used when array shrinks
+     * to fit.
+     */
+    template <int N>
+    SkTArray(SkTArray&& array, SkAlignedSTStorage<N,T>* storage) {
+        this->init(array.fCount, storage->get(), N);
+        array.move(fMemArray);
+        array.fCount = 0;
+    }
+
+    /**
      * Copy a C array, using preallocated storage if preAllocCount >=
      * count. Otherwise storage will only be used when array shrinks
      * to fit.
@@ -532,8 +544,16 @@ public:
         : INHERITED(array, &fStorage) {
     }
 
+    SkSTArray(SkSTArray&& array)
+        : INHERITED(std::move(array), &fStorage) {
+    }
+
     explicit SkSTArray(const INHERITED& array)
         : INHERITED(array, &fStorage) {
+    }
+
+    explicit SkSTArray(INHERITED&& array)
+        : INHERITED(std::move(array), &fStorage) {
     }
 
     explicit SkSTArray(int reserveCount)
