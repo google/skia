@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "004c4fce_26db08c8",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1679,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-09T18:50:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "082d5982_b5043a1b",
+      "revId": "5bba4d8069bfd921b9efe9babc1dc638654c1cbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e7d116ef_4131ba26",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "6d9436d3_264c9c21",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-09T18:50:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7d116ef_4131ba26",
+      "revId": "5bba4d8069bfd921b9efe9babc1dc638654c1cbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "05a92a17_03d5d9d1",
         "filename": "src/gpu/text/GrAtlasTextContext.cpp",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-09T18:20:53Z",
       "side": 1,
       "message": "do we need this here ?",
+      "revId": "5bba4d8069bfd921b9efe9babc1dc638654c1cbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0a8da10_ef1f5d33",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-09T18:50:57Z",
+      "side": 1,
+      "message": "Yep, this file has DRAW_OP_TEST_DEFINE(TextBlobOp) at the bottom which now requires GrMeshDrawOp.h to instantiate a sk_sp\u003cGrMeshDrawOp\u003e",
+      "parentUuid": "05a92a17_03d5d9d1",
       "revId": "5bba4d8069bfd921b9efe9babc1dc638654c1cbc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
