@@ -360,8 +360,7 @@ protected:
             return;
         }
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        sk_sp<SkImage> image(new SkImage_Gpu(cache->info().width(), cache->info().height(),
-                                             cache->uniqueID(), kPremul_SkAlphaType,
+        sk_sp<SkImage> image(new SkImage_Gpu(cache->uniqueID(), kPremul_SkAlphaType,
                                              std::move(texture), std::move(texColorSpace),
                                              SkBudgeted::kNo));
         canvas->drawImage(image.get(), x, y);

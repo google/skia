@@ -23,6 +23,18 @@ public:
     // Don't abuse this!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
 
+    // These next two are very specialized and wacky - don't use them!
+
+    // In the case where an unbudgeted, deferred SkSurface_Gpu has snapped a budgeted, deferred
+    // SkImage_Gpu, this serves to propagate the budgeting forward in time. For now, and
+    // presumably forever, this will not change any flushing decisions but may make Ganesh
+    // appear to have gone over budget. In the case of non-deferred proxies this will immediately
+    // propagate the budget decision to the resource, which in itself is dubious.
+    void makeBudgeted();
+    // In the case where a budgeted, deferred SkSurface_Gpu has snapped an unbudgeted, deferred
+    // SkImage_Gpu, this serves to propagate the lack of budgeting forward in time.
+    void makeUnbudgeted();
+
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
     GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) {} // unimpl

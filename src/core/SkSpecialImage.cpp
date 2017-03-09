@@ -353,10 +353,7 @@ static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, GrTextureProxy* pr
         return nullptr;
     }
 
-    // Note that we're explicitly using the GrTexture's width & height here b.c. SkImages
-    // must be tight.
-    return sk_make_sp<SkImage_Gpu>(tex->width(), tex->height(),
-                                   kNeedNewImageUniqueID, alphaType,
+    return sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID, alphaType,
                                    sk_ref_sp(tex),
                                    std::move(colorSpace), SkBudgeted::kYes);
 }
@@ -400,8 +397,7 @@ public:
         // instantiates itself it is going to have to either be okay with having a larger
         // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
         // to be tightened (if it is deferred).
-        auto img = sk_sp<SkImage>(new SkImage_Gpu(tex->width(), tex->height(),
-                                                  this->uniqueID(), fAlphaType,
+        auto img = sk_sp<SkImage>(new SkImage_Gpu(this->uniqueID(), fAlphaType,
                                                   sk_ref_sp(tex),
                                                   fColorSpace, SkBudgeted::kNo));
 
