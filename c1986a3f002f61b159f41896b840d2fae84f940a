@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59f42135_989e73c0",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-09T15:29:59Z",
+      "side": 1,
+      "message": "Idea, in _DumpCanvas mode, just print out that this would happen, but don\u0027t actually do it.  In real canvas fuzzes, actually perform the OR\u0027ing",
+      "range": {
+        "startLine": 867,
+        "startChar": 19,
+        "endLine": 867,
+        "endChar": 49
+      },
+      "revId": "c1986a3f002f61b159f41896b840d2fae84f940a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
