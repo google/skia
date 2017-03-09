@@ -6,6 +6,7 @@
  */
 
 #include "GrConfigConversionEffect.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrSimpleTextureEffect.h"

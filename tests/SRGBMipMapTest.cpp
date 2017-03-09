@@ -8,12 +8,13 @@
 #include "Test.h"
 #if SK_SUPPORT_GPU
 #include "GrCaps.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
-#include "gl/GrGLGpu.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
+#include "gl/GrGLGpu.h"
 
 // using anonymous namespace because these functions are used as template params.
 namespace {
