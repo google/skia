@@ -45,6 +45,8 @@ private:
         return false;
     }
 
+    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return false; }
+
     GR_DECLARE_XP_FACTORY_TEST;
 
     SkRegion::Op fRegionOp;
