@@ -32,6 +32,7 @@
 #include "ops/GrOvalOpFactory.h"
 #include "ops/GrRectOpFactory.h"
 #include "ops/GrRegionOp.h"
+#include "ops/GrSemaphoreOp.h"
 #include "ops/GrShadowRRectOp.h"
 #include "ops/GrStencilPathOp.h"
 #include "text/GrAtlasTextContext.h"
