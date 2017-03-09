@@ -10,7 +10,7 @@
 #include "GrOpFlushState.h"
 #include "SkGr.h"
 
-std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(
+std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(
         GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
         const SkPoint* positions, int vertexCount, const uint16_t* indices, int indexCount,
         const uint32_t* colors, const SkPoint* localCoords, const SkRect& bounds,
@@ -58,15 +58,15 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(
     if (!vertices) {
         return nullptr;
     }
-    return std::unique_ptr<GrDrawOp>(new GrDrawVerticesOp(std::move(vertices), primitiveType, color,
-                                                          colorArrayType, viewMatrix));
+    return std::unique_ptr<GrMeshDrawOp>(new GrDrawVerticesOp(std::move(vertices), primitiveType,
+                                                              color, colorArrayType, viewMatrix));
 }
 
-std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrColor color, sk_sp<SkVertices> vertices,
-                                                 const SkMatrix& viewMatrix, uint32_t flags) {
+std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(GrColor color, sk_sp<SkVertices> vertices,
+                                                     const SkMatrix& viewMatrix, uint32_t flags) {
     SkASSERT(vertices);
     GrPrimitiveType primType = SkVertexModeToGrPrimitiveType(vertices->mode());
-    return std::unique_ptr<GrDrawOp>(new GrDrawVerticesOp(
+    return std::unique_ptr<GrMeshDrawOp>(new GrDrawVerticesOp(
             std::move(vertices), primType, color, GrRenderTargetContext::ColorArrayType::kSkColor,
             viewMatrix, flags));
 }

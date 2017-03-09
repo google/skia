@@ -218,8 +218,8 @@ private:
 class MSAAPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkPath& path,
-                                          const SkMatrix& viewMatrix, const SkRect& devBounds) {
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkPath& path,
+                                              const SkMatrix& viewMatrix, const SkRect& devBounds) {
         int contourCount;
         int maxLineVertices;
         int maxQuadVertices;
@@ -230,7 +230,7 @@ public:
             return nullptr;
         }
 
-        return std::unique_ptr<GrDrawOp>(new MSAAPathOp(
+        return std::unique_ptr<GrMeshDrawOp>(new MSAAPathOp(
                 color, path, viewMatrix, devBounds, maxLineVertices, maxQuadVertices, isIndexed));
     }
 
@@ -620,7 +620,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
 
     SkASSERT(passes[0]);
     {  // First pass
-        std::unique_ptr<GrDrawOp> op =
+        std::unique_ptr<GrMeshDrawOp> op =
                 MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
         if (!op) {
             return false;
@@ -634,7 +634,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         }
         GrPipelineBuilder pipelineBuilder(std::move(firstPassPaint), aaType);
         pipelineBuilder.setUserStencil(passes[0]);
-        renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+        renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
     }
 
     if (passes[1]) {
@@ -657,13 +657,13 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         }
         const SkMatrix& viewM =
                 (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() : viewMatrix;
-        std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewM, bounds,
-                                                                    nullptr, &localMatrix));
+        std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                paint.getColor(), viewM, bounds, nullptr, &localMatrix));
 
         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
         pipelineBuilder.setUserStencil(passes[1]);
 
-        renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+        renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
     }
     return true;
 }

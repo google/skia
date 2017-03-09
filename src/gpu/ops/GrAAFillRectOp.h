@@ -11,31 +11,31 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrDrawOp;
+class GrMeshDrawOp;
 class SkMatrix;
 struct SkRect;
 
 namespace GrAAFillRectOp {
-std::unique_ptr<GrDrawOp> Make(GrColor color,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               const SkRect& devRect);
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkRect& devRect);
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
-                               const SkMatrix& viewMatrix,
-                               const SkMatrix& localMatrix,
-                               const SkRect& rect);
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkMatrix& localMatrix,
+                                   const SkRect& rect);
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
-                               const SkMatrix& viewMatrix,
-                               const SkMatrix& localMatrix,
-                               const SkRect& rect,
-                               const SkRect& devRect);
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkMatrix& localMatrix,
+                                   const SkRect& rect,
+                                   const SkRect& devRect);
 
-std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrColor color,
-                                            const SkMatrix& viewMatrix,
-                                            const SkRect& rect,
-                                            const SkRect& localRect);
+std::unique_ptr<GrMeshDrawOp> MakeWithLocalRect(GrColor color,
+                                                const SkMatrix& viewMatrix,
+                                                const SkRect& rect,
+                                                const SkRect& localRect);
 };
 
 #endif
