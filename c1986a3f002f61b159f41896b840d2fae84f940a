@@ -22,6 +22,30 @@
       "revId": "c1986a3f002f61b159f41896b840d2fae84f940a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74141cf0_f4bfe922",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-09T15:33:54Z",
+      "side": 1,
+      "message": "I\u0027m just going to fix the DebugCanvas in another CL, then re-enable.",
+      "parentUuid": "59f42135_989e73c0",
+      "range": {
+        "startLine": 867,
+        "startChar": 19,
+        "endLine": 867,
+        "endChar": 49
+      },
+      "revId": "c1986a3f002f61b159f41896b840d2fae84f940a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
