@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fd1b9b6_5e46a4fd",
+        "filename": ".clang-format",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-09T13:56:26Z",
+      "side": 1,
+      "message": "Open to suggestions here. My regex foo is not very good. AFAICT this doesn\u0027t support negative lookahead. I tried ^[\"\u003c](?!\\.\\.)",
+      "range": {
+        "startLine": 64,
+        "startChar": 22,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "472e7123bbc4e5770ec5907188e523e590a56d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
