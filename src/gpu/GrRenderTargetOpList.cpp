@@ -70,6 +70,22 @@ void GrRenderTargetOpList::dump() const {
         }
     }
 }
+
+// For rendering to an atlas, all the ops need to target a single GrRenderTarget
+void GrRenderTargetOpList::validateForAtlas() const {
+    GrRenderTarget* rt = nullptr;
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        if (!fRecordedOps[i].fOp) {
+            continue;       // combined forward
+        }
+
+        if (!rt) {
+            rt = fRecordedOps[i].fRenderTarget.get();
+        } else {
+            SkASSERT(fRecordedOps[i].fRenderTarget.get() == rt);
+        }
+    }
+}
 #endif
 
 void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
