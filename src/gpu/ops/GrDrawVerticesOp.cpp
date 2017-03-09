@@ -65,7 +65,7 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrColor color, sk_sp<SkVertices> vertices,
                                                  const SkMatrix& viewMatrix, uint32_t flags) {
     SkASSERT(vertices);
-    GrPrimitiveType primType = SkVertexModeToGrPrimitiveType(vertices->mode());
+    GrPrimitiveType primType = SkVertexModeToGrPrimitiveType2(vertices->mode());
     return std::unique_ptr<GrDrawOp>(new GrDrawVerticesOp(
             std::move(vertices), primType, color, GrRenderTargetContext::ColorArrayType::kSkColor,
             viewMatrix, flags));

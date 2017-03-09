@@ -164,7 +164,7 @@ GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
 
 //////////////////////////////////////////////////////////////////////////////
 
-static inline GrPrimitiveType SkVertexModeToGrPrimitiveType(const SkCanvas::VertexMode mode) {
+static inline GrPrimitiveType SkVertexModeToGrPrimitiveType2(const SkCanvas::VertexMode mode) {
     switch (mode) {
         case SkCanvas::kTriangles_VertexMode:
             return kTriangles_GrPrimitiveType;
@@ -203,32 +203,33 @@ GR_STATIC_ASSERT(SkXfermode::kCoeffCount == 10);
  *  performed on the absolute texture coordinates (e.g., if the texture is resized out to
  *  the next power of two). It can be null if the caller is sure the bitmap won't be resized.
  */
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
-                                    const GrSamplerParams&, SkScalar scaleAdjust[2]);
+class GrTextureProxy;
+sk_sp<GrTextureProxy> GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
+                                               const GrSamplerParams&, SkScalar scaleAdjust[2]);
 
 /**
  * Creates a new texture for the bitmap. Does not concern itself with cache keys or texture params.
  * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
  * compressed textures and yuv planes.
  */
-GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
+sk_sp<GrTextureProxy> GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
-GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&,
-                                               SkColorSpace* dstColorSpace);
+sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&,
+                                                          SkColorSpace* dstColorSpace);
 
 /**
  * Creates a new texture for the pixmap.
  */
-GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
+sk_sp<GrTextureProxy> GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
 
 /**
  * Creates a new texture populated with the mipmap levels.
  */
-GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
-                                   int mipLevelCount);
+sk_sp<GrTextureProxy> GrUploadMipMapToTexture(GrContext*, const SkImageInfo&,
+                                              const GrMipLevel* texels, int mipLevelCount);
 
-sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
-                                           const GrSamplerParams&, SkScalar scaleAdjust[2]);
+sk_sp<GrTextureProxy> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
+                                                const GrSamplerParams&, SkScalar scaleAdjust[2]);
 
 // This is intended to replace:
 //    SkAutoLockPixels alp(bitmap, true);
@@ -241,7 +242,7 @@ sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
 //    if (!texture) {
 //        return nullptr;
 //    }
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap);
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext*, const SkBitmap&);
 
 
 /**

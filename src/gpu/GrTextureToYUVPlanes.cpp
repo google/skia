@@ -22,7 +22,6 @@ namespace {
 static bool convert_proxy(GrContext* context, sk_sp<GrTextureProxy> src,
                           GrRenderTargetContext* dst, int dstW, int dstH,
                           SkYUVColorSpace colorSpace, MakeFPProc proc) {
-
     SkScalar xScale = SkIntToScalar(src->width()) / dstW;
     SkScalar yScale = SkIntToScalar(src->height()) / dstH;
     GrSamplerParams::FilterMode filter;
