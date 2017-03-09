@@ -522,6 +522,10 @@ public:
 private:
     friend class Iter;
 
+    enum {
+        kPreallocCount = 16
+    };
+    intptr_t fStorage[kPreallocCount * sizeof(Element) / sizeof(intptr_t)];
     SkDeque fDeque;
     int     fSaveCount;
 
