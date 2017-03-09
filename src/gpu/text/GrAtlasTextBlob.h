@@ -51,7 +51,7 @@ class GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrAtlasTextBlob);
 
-    static sk_sp<GrAtlasTextBlob> Make(GrMemoryPool* pool, int glyphCount, int runCount);
+    static GrAtlasTextBlob* Create(GrMemoryPool* pool, int glyphCount, int runCount);
 
     struct Key {
         Key() {
