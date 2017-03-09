@@ -98,10 +98,10 @@ class DefaultPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
                                           uint8_t coverage, const SkMatrix& viewMatrix,
                                           bool isHairline, const SkRect& devBounds) {
-        return std::unique_ptr<GrDrawOp>(new DefaultPathOp(color, path, tolerance, coverage,
+        return std::unique_ptr<GrMeshDrawOp>(new DefaultPathOp(color, path, tolerance, coverage,
                                                            viewMatrix, isHairline, devBounds));
     }
 
@@ -261,7 +261,7 @@ private:
         target->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         DefaultPathOp* that = t->cast<DefaultPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -546,16 +546,16 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+            std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                     paint.getColor(), viewM, bounds, nullptr, &localMatrix));
 
             SkASSERT(GrDrawFace::kBoth == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+            renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
-            std::unique_ptr<GrDrawOp> op =
+            std::unique_ptr<GrMeshDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
                                         viewMatrix, isHairline, devBounds);
             bool stencilPass = stencilOnly || passCount > 1;
@@ -566,7 +566,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             GrPipelineBuilder pipelineBuilder(std::move(passPaint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+            renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
         }
     }
     return true;

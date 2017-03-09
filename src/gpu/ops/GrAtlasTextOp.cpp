@@ -154,7 +154,7 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     flushInfo->fGlyphsToFlush = 0;
 }
 
-bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                 that->bounds(), caps)) {

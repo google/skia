@@ -234,9 +234,10 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
 
+
 uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
                                                           GrAAType aaType,
-                                                          std::unique_ptr<GrDrawOp> op,
+                                                          std::unique_ptr<GrMeshDrawOp> op,
                                                           const GrUserStencilSettings* uss,
                                                           bool snapToCenters) {
     ASSERT_SINGLE_OWNER
@@ -253,7 +254,7 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
     }
     pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
-    return fRenderTargetContext->addDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
+    return fRenderTargetContext->addMeshDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER

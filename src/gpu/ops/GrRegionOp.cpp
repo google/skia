@@ -120,7 +120,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         RegionOp* that = t->cast<RegionOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -149,7 +149,7 @@ private:
 
 namespace GrRegionOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region) {
-    return std::unique_ptr<GrDrawOp>(new RegionOp(color, viewMatrix, region));
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region) {
+    return std::unique_ptr<GrMeshDrawOp>(new RegionOp(color, viewMatrix, region));
 }
 }

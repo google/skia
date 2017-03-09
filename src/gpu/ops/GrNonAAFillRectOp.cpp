@@ -150,7 +150,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         NonAAFillRectOp* that = t->cast<NonAAFillRectOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -176,12 +176,12 @@ private:
 
 namespace GrNonAAFillRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRect& rect,
                                const SkRect* localRect,
                                const SkMatrix* localMatrix) {
-    return std::unique_ptr<GrDrawOp>(
+    return std::unique_ptr<GrMeshDrawOp>(
             new NonAAFillRectOp(color, viewMatrix, rect, localRect, localMatrix));
 }
 };

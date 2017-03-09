@@ -678,7 +678,7 @@ class AAHairlineOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color,
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
                                           const GrStyle& style,
@@ -689,7 +689,7 @@ public:
             newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
         }
 
-        return std::unique_ptr<GrDrawOp>(
+        return std::unique_ptr<GrMeshDrawOp>(
                 new AAHairlineOp(color, newCoverage, viewMatrix, path, devClipBounds));
     }
 
@@ -732,7 +732,7 @@ private:
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         AAHairlineOp* that = t->cast<AAHairlineOp>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -951,11 +951,11 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                       &devClipBounds);
     SkPath path;
     args.fShape->asPath(&path);
-    std::unique_ptr<GrDrawOp> op = AAHairlineOp::Make(args.fPaint.getColor(), *args.fViewMatrix,
+    std::unique_ptr<GrMeshDrawOp> op = AAHairlineOp::Make(args.fPaint.getColor(), *args.fViewMatrix,
                                                       path, args.fShape->style(), devClipBounds);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;
 }
 
