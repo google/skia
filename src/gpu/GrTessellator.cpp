@@ -792,7 +792,7 @@ void insert_edge(Edge* edge, Edge* prev, EdgeList* edges) {
 }
 
 void find_enclosing_edges(Vertex* v, EdgeList* edges, Edge** left, Edge** right) {
-    if (v->fFirstEdgeAbove) {
+    if (v->fFirstEdgeAbove && v->fLastEdgeAbove) {
         *left = v->fFirstEdgeAbove->fLeft;
         *right = v->fLastEdgeAbove->fRight;
         return;
