@@ -46,6 +46,30 @@
       "revId": "0f50a71dbadef6ac7adda628d511ba3fff17f4d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9af71e3a_89304545",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-09T19:26:32Z",
+      "side": 1,
+      "message": "I\u0027m ok with it. I trust our valgrind/*san bots to catch this kind of thing. But maybe we should just get rid of the explicit destructor on this class unless you think it buys us something to explicitly empty the cache in debug mode.",
+      "parentUuid": "62c1825a_f2d77926",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 15
+      },
+      "revId": "0f50a71dbadef6ac7adda628d511ba3fff17f4d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
