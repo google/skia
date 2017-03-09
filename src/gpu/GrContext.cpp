@@ -632,11 +632,10 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeBackendSurfaceContext(const GrBackendTextureDesc& desc,
-                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                 GrWrapOwnership ownership) {
+                                                                 sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(desc, ownership));
+    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(desc));
     if (!surface) {
         return nullptr;
     }
@@ -652,12 +651,11 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeBackendSurfaceContext(const GrBackend
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(
                                                                    const GrBackendTextureDesc& desc,
                                                                    sk_sp<SkColorSpace> colorSpace,
-                                                                   const SkSurfaceProps* props,
-                                                                   GrWrapOwnership ownership) {
+                                                                   const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
     SkASSERT(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(desc, ownership));
+    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(desc));
     if (!surface) {
         return nullptr;
     }
