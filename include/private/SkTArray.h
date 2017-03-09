@@ -15,12 +15,12 @@
 #include <new>
 #include <utility>
 
-/** When MEM_COPY is true T will be bit copied when moved.
-    When MEM_COPY is false, T will be copy constructed / destructed.
+/** When MEM_MOVE is true T will be bit copied when moved.
+    When MEM_MOVE is false, T will be copy constructed / destructed.
     In all cases T will be default-initialized on allocation,
     and its destructor will be called from this object's destructor.
 */
-template <typename T, bool MEM_COPY = false> class SkTArray {
+template <typename T, bool MEM_MOVE = false> class SkTArray {
 public:
     /**
      * Creates an empty array with no initial storage
@@ -364,7 +364,7 @@ public:
         return fItemArray[fCount - i - 1];
     }
 
-    bool operator==(const SkTArray<T, MEM_COPY>& right) const {
+    bool operator==(const SkTArray<T, MEM_MOVE>& right) const {
         int leftCount = this->count();
         if (leftCount != right.count()) {
             return false;
@@ -377,7 +377,7 @@ public:
         return true;
     }
 
-    bool operator!=(const SkTArray<T, MEM_COPY>& right) const {
+    bool operator!=(const SkTArray<T, MEM_MOVE>& right) const {
         return !(*this == right);
     }
 
@@ -447,26 +447,28 @@ private:
     /** In the following move and copy methods, 'dst' is assumed to be uninitialized raw storage.
      *  In the following move methods, 'src' is destroyed leaving behind uninitialized raw storage.
      */
-    template <bool E = MEM_COPY> SK_WHEN(E, void) copy(const T* src) {
-        sk_careful_memcpy(fMemArray, src, fCount * sizeof(T));
-    }
-    template <bool E = MEM_COPY> SK_WHEN(E, void) move(int dst, int src) {
-        memcpy(&fItemArray[dst], &fItemArray[src], sizeof(T));
-    }
-    template <bool E = MEM_COPY> SK_WHEN(E, void) move(void* dst) {
-        sk_careful_memcpy(dst, fMemArray, fCount * sizeof(T));
-    }
-
-    template <bool E = MEM_COPY> SK_WHEN(!E, void) copy(const T* src) {
+    void copy(const T* src) {
+        // Some types may be trivially copyable, in which case we *could* use memcopy; but
+        // MEM_MOVE == true implies that the type is trivially movable, and not necessarily
+        // trivially copyable (think sk_sp<>).  So short of adding another template arg, we
+        // must be conservative and use copy construction.
         for (int i = 0; i < fCount; ++i) {
             new (fItemArray + i) T(src[i]);
         }
     }
-    template <bool E = MEM_COPY> SK_WHEN(!E, void) move(int dst, int src) {
+
+    template <bool E = MEM_MOVE> SK_WHEN(E, void) move(int dst, int src) {
+        memcpy(&fItemArray[dst], &fItemArray[src], sizeof(T));
+    }
+    template <bool E = MEM_MOVE> SK_WHEN(E, void) move(void* dst) {
+        sk_careful_memcpy(dst, fMemArray, fCount * sizeof(T));
+    }
+
+    template <bool E = MEM_MOVE> SK_WHEN(!E, void) move(int dst, int src) {
         new (&fItemArray[dst]) T(std::move(fItemArray[src]));
         fItemArray[src].~T();
     }
-    template <bool E = MEM_COPY> SK_WHEN(!E, void) move(void* dst) {
+    template <bool E = MEM_MOVE> SK_WHEN(!E, void) move(void* dst) {
         for (int i = 0; i < fCount; ++i) {
             new (static_cast<char*>(dst) + sizeof(T) * i) T(std::move(fItemArray[i]));
             fItemArray[i].~T();
@@ -531,10 +533,10 @@ private:
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
  */
-template <int N, typename T, bool MEM_COPY = false>
-class SkSTArray : public SkTArray<T, MEM_COPY> {
+template <int N, typename T, bool MEM_MOVE= false>
+class SkSTArray : public SkTArray<T, MEM_MOVE> {
 private:
-    typedef SkTArray<T, MEM_COPY> INHERITED;
+    typedef SkTArray<T, MEM_MOVE> INHERITED;
 
 public:
     SkSTArray() : INHERITED(&fStorage) {
