@@ -532,6 +532,10 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kNoPerspective_Flag) {
         this->write("noperspective ");
     }
+    SkString layout = modifiers.fLayout.description();
+    if (layout.size()) {
+        this->write(layout + " ");
+    }
     if (modifiers.fFlags & Modifiers::kReadOnly_Flag) {
         this->write("readonly ");
     }
@@ -546,10 +550,6 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     }
     if (modifiers.fFlags & Modifiers::kRestrict_Flag) {
         this->write("restrict ");
-    }
-    SkString layout = modifiers.fLayout.description();
-    if (layout.size()) {
-        this->write(layout + " ");
     }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
         (modifiers.fFlags & Modifiers::kOut_Flag)) {
