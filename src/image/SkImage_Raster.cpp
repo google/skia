@@ -86,9 +86,15 @@ public:
     bool onPeekPixels(SkPixmap*) const override;
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
-    bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
+#if SK_SUPPORT_GPU
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&,
+                                            SkColorSpace*, sk_sp<SkColorSpace>*,
+                                            SkScalar scaleAdjust[2]) const override;
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                             sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
+#endif
+
+    bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
@@ -170,11 +176,21 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, Cac
     return true;
 }
 
+#if SK_SUPPORT_GPU
+sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrContext* context,
+                                                        const GrSamplerParams& params,
+                                                        SkColorSpace* dstColorSpace,
+                                                        sk_sp<SkColorSpace>* texColorSpace,
+                                                        SkScalar scaleAdjust[2]) const {
+    sk_sp<GrTexture> tex(this->asTextureRef(context, params, dstColorSpace, texColorSpace,
+                                            scaleAdjust));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
 GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
                                         SkColorSpace* dstColorSpace,
                                         sk_sp<SkColorSpace>* texColorSpace,
                                         SkScalar scaleAdjust[2]) const {
-#if SK_SUPPORT_GPU
     if (!ctx) {
         return nullptr;
     }
@@ -192,10 +208,8 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& p
     }
 
     return GrRefCachedBitmapTexture(ctx, fBitmap, params, scaleAdjust);
-#endif
-
-    return nullptr;
 }
+#endif
 
 #if SK_SUPPORT_GPU
 
