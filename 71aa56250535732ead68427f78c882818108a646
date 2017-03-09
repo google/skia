@@ -70,6 +70,30 @@
       "revId": "71aa56250535732ead68427f78c882818108a646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "372e1412_7d4adaeb",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-03-09T18:11:33Z",
+      "side": 1,
+      "message": "The move ctors always reset the count to 0 after calling move().  IIUC we don\u0027t do that in move() itself because of removeShuffle()?",
+      "parentUuid": "bbcbd2dd_02cfa18e",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 31
+      },
+      "revId": "71aa56250535732ead68427f78c882818108a646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
