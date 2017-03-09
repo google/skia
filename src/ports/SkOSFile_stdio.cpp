@@ -123,21 +123,21 @@ bool sk_frewind(FILE* f) {
 size_t sk_fread(void* buffer, size_t byteCount, FILE* f) {
     SkASSERT(f);
     if (buffer == nullptr) {
-        size_t curr = ftell(f);
-        if ((long)curr == -1) {
-            SkDEBUGF(("sk_fread: ftell(%p) returned -1 feof:%d ferror:%d\n", f, feof(f), ferror(f)));
-            return 0;
-        }
         int err = fseek(f, (long)byteCount, SEEK_CUR);
         if (err != 0) {
+            size_t curr = ftell(f);
+            if ((long)curr == -1) {
+                SkDEBUGF(("sk_fread: ftell(%p) returned -1 feof:%d ferror:%d\n", f, feof(f), ferror(f)));
+                return 0;
+            }
             SkDEBUGF(("sk_fread: fseek(%d) tell:%d failed with feof:%d ferror:%d returned:%d\n",
                         byteCount, curr, feof(f), ferror(f), err));
             return 0;
         }
         return byteCount;
-    }
-    else
+    } else {
         return fread(buffer, 1, byteCount, f);
+    }
 }
 
 size_t sk_fwrite(const void* buffer, size_t byteCount, FILE* f) {
@@ -177,8 +177,9 @@ size_t sk_ftell(FILE* f) {
 }
 
 void sk_fclose(FILE* f) {
-    SkASSERT(f);
-    fclose(f);
+    if (f) {
+        fclose(f);
+    }
 }
 
 bool sk_isdir(const char *path) {
