@@ -6,24 +6,23 @@
  */
 
 #include "GrContext.h"
-#include "GrContextPriv.h"
+#include "GrClip.h"
 #include "GrContextOptions.h"
+#include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrRenderTargetContext.h"
+#include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
-#include "GrRenderTargetProxy.h"
 #include "GrSemaphore.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfacePriv.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureContext.h"
-
 #include "SkConvertPixels.h"
 #include "SkGr.h"
 #include "SkUnPreMultiplyPriv.h"
-
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
 

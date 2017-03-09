@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "GrYUVProvider.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
-#include "GrYUVProvider.h"
-#include "effects/GrSRGBEffect.h"
-#include "effects/GrYUVEffect.h"
-
 #include "SkAutoMalloc.h"
 #include "SkCachedData.h"
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
 #include "SkYUVPlanesCache.h"
+#include "effects/GrSRGBEffect.h"
+#include "effects/GrYUVEffect.h"
 
 namespace {
 /**
