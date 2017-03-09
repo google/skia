@@ -7,11 +7,11 @@
 #ifndef SkOpSpan_DEFINED
 #define SkOpSpan_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkPathOpsDebug.h"
 #include "SkPathOpsTypes.h"
 #include "SkPoint.h"
 
-class SkArenaAlloc;
 class SkOpAngle;
 class SkOpContour;
 class SkOpGlobalState;

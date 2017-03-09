@@ -8,9 +8,9 @@
 #ifndef SkPictureShader_DEFINED
 #define SkPictureShader_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkShader.h"
 
-class SkArenaAlloc;
 class SkBitmap;
 class SkPicture;
 

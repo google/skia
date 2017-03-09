@@ -8,6 +8,7 @@
 #ifndef SkShader_DEFINED
 #define SkShader_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkFilterQuality.h"
 #include "SkFlattenable.h"
@@ -17,7 +18,6 @@
 #include "SkPaint.h"
 #include "../gpu/GrColor.h"
 
-class SkArenaAlloc;
 class SkColorFilter;
 class SkColorSpace;
 class SkImage;

@@ -9,6 +9,7 @@
 
 #include <float.h>  // for FLT_EPSILON
 
+#include "SkArenaAlloc.h"
 #include "SkFloatingPoint.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
@@ -22,7 +23,6 @@ enum SkPathOpsMask {
     kEvenOdd_PathOpsMask = 1
 };
 
-class SkArenaAlloc;
 class SkOpCoincidence;
 class SkOpContour;
 class SkOpContourHead;

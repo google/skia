@@ -10,12 +10,12 @@
 #ifndef SkDrawLooper_DEFINED
 #define SkDrawLooper_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkBlurTypes.h"
 #include "SkFlattenable.h"
 #include "SkPoint.h"
 #include "SkColor.h"
 
-class  SkArenaAlloc;
 class  SkCanvas;
 class  SkPaint;
 struct SkRect;

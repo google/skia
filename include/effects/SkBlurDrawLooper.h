@@ -9,10 +9,10 @@
 #ifndef SkBlurDrawLooper_DEFINED
 #define SkBlurDrawLooper_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkDrawLooper.h"
 #include "SkColor.h"
 
-class SkArenaAlloc;
 class SkMaskFilter;
 class SkColorFilter;
 
