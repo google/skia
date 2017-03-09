@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "2fae9e4b_9c24b3a1",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-09T22:28:52Z",
+      "side": 1,
+      "message": "// In this case we know that this texture was created by Ganesh on another thread. We want to treat it as our own.\n\n?",
+      "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "10ad1536_6d2b9b19",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 1
@@ -31,6 +48,23 @@
       "side": 1,
       "message": "I\u0027m okay with never adopting both render targets and textures! Brian?",
       "parentUuid": "10ad1536_6d2b9b19",
+      "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4a9124b_ac8e755c",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-09T22:28:52Z",
+      "side": 1,
+      "message": "// similar comment here ?",
       "revId": "dab2c5b3d9bdbd9f6e3a0b819d520992e2d257c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
