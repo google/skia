@@ -1187,7 +1187,7 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
         SkPaint paint;
         SkMatrix matrix;
         unsigned drawCommand;
-        fuzz->nextRange(&drawCommand, 0, 54);
+        fuzz->nextRange(&drawCommand, 0, 53);
         switch (drawCommand) {
             case 0:
                 canvas->flush();
@@ -1713,12 +1713,10 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             case 53: {
                 FuzzPaint(fuzz, &paint, depth - 1);
                 SkCanvas::VertexMode vertexMode;
-                SkBlendMode mode;
-                uint8_t vm, bm;
-                fuzz->nextRange(&vm, 0, (uint8_t)SkCanvas::kTriangleFan_VertexMode);
-                fuzz->nextRange(&bm, 0, (uint8_t)SkBlendMode::kLastMode);
-                vertexMode = (SkCanvas::VertexMode)vm;
-                mode = (SkBlendMode)bm;
+                SkBlendMode blendMode;
+                using U = skstd::underlying_type_t<SkCanvas::VertexMode>;
+                fuzz->nextRange((U*)(&vertexMode), (U)0, (U)SkCanvas::kTriangleFan_VertexMode);
+                fuzz->next(&blendMode);
                 constexpr int kMaxCount = 100;
                 int vertexCount;
                 SkPoint vertices[kMaxCount];
@@ -1742,14 +1740,75 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                         fuzz->nextRange(&indices[i], 0, vertexCount - 1);
                     }
                 }
-                canvas->drawVertices(vertexMode, vertexCount, vertices, useTexs ? texs : nullptr,
-                                     useColors ? colors : nullptr, mode,
-                                     indexCount > 0 ? indices : nullptr, indexCount, paint);
-                break;
-            }
-            case 54: {
-                // canvas->drawVertices(...);
-                // TODO
+                if (make_bool(fuzz)) {
+                    canvas->drawVertices(vertexMode, vertexCount, vertices,
+                                         useTexs ? texs : nullptr, useColors ? colors : nullptr,
+                                         blendMode, indexCount > 0 ? indices : nullptr, indexCount,
+                                         paint);
+                } else {
+                    std::unique_ptr<SkPoint[]> verticesUp(new SkPoint[vertexCount]);
+                    memcpy(verticesUp.get(), vertices, sizeof(SkPoint) * vertexCount);
+                    std::unique_ptr<SkColor[]> colorsUp;
+                    if (useColors) {
+                        colorsUp.reset(new SkColor[vertexCount]);
+                        memcpy(colorsUp.get(), colors, sizeof(SkColor) * vertexCount);
+                    }
+                    std::unique_ptr<SkPoint[]> texsUp;
+                    if (useTexs) {
+                        texsUp.reset(new SkPoint[vertexCount]);
+                        memcpy(texsUp.get(), texs, sizeof(SkPoint) * vertexCount);
+                    }
+                    std::unique_ptr<uint16_t[]> indicesUp;
+                    if (indexCount > 0) {
+                        indicesUp.reset(new uint16_t[indexCount]);
+                        memcpy(indicesUp.get(), indices, sizeof(uint16_t) * indexCount);
+                    }
+                    SkRect bounds;
+                    bool useBounds = false;
+                    fuzz->next(&useBounds);
+                    if (useBounds) {
+                        bounds.setBounds(vertices, vertexCount);
+                    }
+                    sk_sp<SkVertices> verticesObj;
+                    if (indexCount == 0) {
+                        if (useBounds) {
+                            verticesObj = SkVertices::Make(vertexMode,
+                                                           std::move(verticesUp),
+                                                           std::move(colorsUp),
+                                                           std::move(texsUp),
+                                                           vertexCount,
+                                                           bounds);
+                        } else {
+                            verticesObj = SkVertices::Make(vertexMode,
+                                                           std::move(verticesUp),
+                                                           std::move(colorsUp),
+                                                           std::move(texsUp),
+                                                           vertexCount);
+                        }
+                    } else {
+                        if (useBounds) {
+                            verticesObj = SkVertices::MakeIndexed(vertexMode,
+                                                                  std::move(verticesUp),
+                                                                  std::move(colorsUp),
+                                                                  std::move(texsUp),
+                                                                  vertexCount,
+                                                                  std::move(indicesUp),
+                                                                  indexCount,
+                                                                  bounds);
+                        } else {
+                            verticesObj = SkVertices::MakeIndexed(vertexMode,
+                                                                  std::move(verticesUp),
+                                                                  std::move(colorsUp),
+                                                                  std::move(texsUp),
+                                                                  vertexCount,
+                                                                  std::move(indicesUp),
+                                                                  indexCount);
+                        }
+                    }
+                    uint32_t flags;
+                    fuzz->nextRange(&flags, 0, 3);
+                    canvas->drawVertices(std::move(verticesObj), blendMode, paint, flags);
+                }
                 break;
             }
             default:
