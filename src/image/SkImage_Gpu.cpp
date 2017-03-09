@@ -38,14 +38,28 @@
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, sk_sp<GrTexture> tex,
                          sk_sp<SkColorSpace> colorSpace, SkBudgeted budgeted)
     : INHERITED(w, h, uniqueID)
-    , fTexture(std::move(tex))
+    , fContext(tex->getContext())
+    , fProxy(GrSurfaceProxy::MakeWrapped(std::move(tex)))
     , fAlphaType(at)
     , fBudgeted(budgeted)
     , fColorSpace(std::move(colorSpace))
-    , fAddedRasterVersionToCache(false)
-{
-    SkASSERT(fTexture->width() == w);
-    SkASSERT(fTexture->height() == h);
+    , fAddedRasterVersionToCache(false) {
+    SkASSERT(fProxy->width() == w);
+    SkASSERT(fProxy->height() == h);
+}
+
+SkImage_Gpu::SkImage_Gpu(GrContext* context, int w, int h, uint32_t uniqueID, SkAlphaType at,
+                         sk_sp<GrTextureProxy> proxy,
+                         sk_sp<SkColorSpace> colorSpace, SkBudgeted budgeted)
+    : INHERITED(w, h, uniqueID)
+    , fContext(context)
+    , fProxy(std::move(proxy))
+    , fAlphaType(at)
+    , fBudgeted(budgeted)
+    , fColorSpace(std::move(colorSpace))
+    , fAddedRasterVersionToCache(false) {
+    SkASSERT(fProxy->width() == w);
+    SkASSERT(fProxy->height() == h);
 }
 
 SkImage_Gpu::~SkImage_Gpu() {
@@ -62,10 +76,11 @@ extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
 
 SkImageInfo SkImage_Gpu::onImageInfo() const {
     SkColorType ct;
-    if (!GrPixelConfigToColorType(fTexture->config(), &ct)) {
+    if (!GrPixelConfigToColorType(fProxy->config(), &ct)) {
         ct = kUnknown_SkColorType;
     }
-    return SkImageInfo::Make(fTexture->width(), fTexture->height(), ct, fAlphaType, fColorSpace);
+    // $$!!
+    return SkImageInfo::Make(fProxy->width(), fProxy->height(), ct, fAlphaType, fColorSpace);
 }
 
 static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> colorSpace) {
@@ -81,12 +96,20 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
         return true;
     }
 
-    if (!dst->tryAllocPixels(make_info(this->width(), this->height(), this->alphaType(),
-                                       this->fColorSpace))) {
+    SkImageInfo ii = make_info(this->width(), this->height(), this->alphaType(),
+                               sk_ref_sp(dstColorSpace));
+    if (!dst->tryAllocPixels(ii)) {
         return false;
     }
-    if (!fTexture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
-                              dst->getPixels(), dst->rowBytes())) {
+
+    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+                                                                                    fProxy,
+                                                                                    fColorSpace);
+    if (!sContext) {
+        return false;
+    }
+
+    if (!sContext->readPixels(dst->info(), dst->getPixels(), dst->rowBytes(), 0, 0)) {
         return false;
     }
 
@@ -98,18 +121,35 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
     return true;
 }
 
-sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef() const {
-    return GrSurfaceProxy::MakeWrapped(fTexture);
+sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
+                                                     const GrSamplerParams& params,
+                                                     SkColorSpace* dstColorSpace,
+                                                     sk_sp<SkColorSpace>* texColorSpace,
+                                                     SkScalar scaleAdjust[2]) const {
+    sk_sp<GrTexture> tex(this->asTextureRef(context, params, dstColorSpace, 
+                                            texColorSpace, scaleAdjust));
+
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
                                      SkColorSpace* dstColorSpace,
                                      sk_sp<SkColorSpace>* texColorSpace,
                                      SkScalar scaleAdjust[2]) const {
+    if (ctx != fContext) {
+        SkASSERT(0);
+        return nullptr;
+    }
+
     if (texColorSpace) {
         *texColorSpace = this->fColorSpace;
     }
-    GrTextureAdjuster adjuster(fTexture.get(), this->alphaType(), this->bounds(),
+    GrTexture* texture = fProxy->instantiate(fContext->resourceProvider());
+    if (!texture) {
+        return nullptr;
+    }
+
+    GrTextureAdjuster adjuster(texture, this->alphaType(), this->bounds(),
                                this->uniqueID(), this->fColorSpace.get());
     return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
 }
@@ -137,11 +177,8 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 
 bool SkImage_Gpu::onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
                                    const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
-    if (sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef()) {
-        if (GrTextureToYUVPlanes(fTexture->getContext(), std::move(proxy), sizes, planes,
-                                 rowBytes, colorSpace)) {
-            return true;
-        }
+    if (GrTextureToYUVPlanes(fContext, fProxy, sizes, planes, rowBytes, colorSpace)) {
+        return true;
     }
 
     return INHERITED::onReadYUV8Planes(sizes, planes, rowBytes, colorSpace);
@@ -158,17 +195,25 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
         return false;
     }
 
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(rec.fInfo, *fTexture->getContext()->caps());
+    // TODO: this seems to duplicate code in GrTextureContext::onReadPixels and
+    // GrRenderTargetContext::onReadPixels
     uint32_t flags = 0;
     if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() && kPremul_SkAlphaType == fAlphaType) {
         // let the GPU perform this transformation for us
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    if (!fTexture->readPixels(fColorSpace.get(), rec.fX, rec.fY, rec.fInfo.width(),
-                              rec.fInfo.height(), config, rec.fInfo.colorSpace(), rec.fPixels,
-                              rec.fRowBytes, flags)) {
+
+    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+                                                                                    fProxy,
+                                                                                    fColorSpace);
+    if (!sContext) {
         return false;
     }
+
+    if (!sContext->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY, flags)) {
+        return false;
+    }
+
     // do we have to manually fix-up the alpha channel?
     //      src         dst
     //      unpremul    premul      fix manually
@@ -184,12 +229,11 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
 }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
-    GrContext* ctx = fTexture->getContext();
-    GrSurfaceDesc desc = fTexture->desc();
+    GrSurfaceDesc desc = fProxy->desc();
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
 
-    sk_sp<GrSurfaceContext> sContext(ctx->contextPriv().makeDeferredSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
                                                                         desc,
                                                                         SkBackingFit::kExact,
                                                                         fBudgeted));
@@ -197,24 +241,12 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
         return nullptr;
     }
 
-    // TODO: make gpu images be proxy-backed so we don't need to do this
-    sk_sp<GrSurfaceProxy> tmpSrc(GrSurfaceProxy::MakeWrapped(fTexture));
-    if (!tmpSrc) {
+    if (!sContext->copy(fProxy.get(), subset, SkIPoint::Make(0, 0))) {
         return nullptr;
     }
 
-    if (!sContext->copy(tmpSrc.get(), subset, SkIPoint::Make(0, 0))) {
-        return nullptr;
-    }
-
-    // TODO: make gpu images be proxy-backed so we don't need to do this
-    GrSurface* subTx = sContext->asSurfaceProxy()->instantiate(ctx->resourceProvider());
-    if (!subTx) {
-        return nullptr;
-    }
-
-    return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                   fAlphaType, sk_ref_sp(subTx->asTexture()),
+    return sk_make_sp<SkImage_Gpu>(fContext, desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
+                                   fAlphaType, sContext->asTextureProxyRef(),
                                    fColorSpace, fBudgeted);
 }
 
