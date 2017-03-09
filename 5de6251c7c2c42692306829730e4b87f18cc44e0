@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31dfae31_19224890",
+        "filename": "src/gpu/ops/GrSemaphoreOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "std::move(semaphore)",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6eb5b29_af98a6ee",
+        "filename": "src/gpu/ops/GrSemaphoreOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d922eb36_41398a9a",
+        "filename": "src/gpu/ops/GrSemaphoreOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f55067c9_592519ef",
+        "filename": "src/gpu/ops/GrSemaphoreOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2699c720_3697df11",
+        "filename": "src/gpu/ops/GrSemaphoreOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "here too",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de12ce27_85f6a799",
+        "filename": "src/gpu/ops/GrSemaphoreOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "and here",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5615b2cd_138be1c9",
+        "filename": "src/gpu/ops/GrSemaphoreOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "Does this need a class ID? It\u0027s still abstract, right?",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a205defb_5ecb8345",
+        "filename": "src/gpu/ops/GrSemaphoreOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "As written, this seems unnecessary. Just remove it?",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd60240c_e801794c",
+        "filename": "src/gpu/ops/GrSemaphoreOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-09T15:28:05Z",
+      "side": 1,
+      "message": "std::move(semaphore)",
+      "revId": "5de6251c7c2c42692306829730e4b87f18cc44e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
