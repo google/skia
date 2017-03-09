@@ -11,6 +11,7 @@
 
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
+#include "GrTextureProxy.h"
 
 void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],

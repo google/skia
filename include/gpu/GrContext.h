@@ -10,7 +10,6 @@
 
 #include "GrCaps.h"
 #include "GrColor.h"
-#include "GrPaint.h"
 #include "GrRenderTarget.h"
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
@@ -34,12 +33,16 @@ class GrPipelineBuilder;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
+class GrSamplerParams;
 class GrTextBlobCache;
 class GrTextContext;
-class GrSamplerParams;
+class GrTextureProxy;
 class GrVertexBuffer;
 class GrSwizzle;
 class SkTraceMemoryDump;
+
+class SkImage;
+class SkSurfaceProps;
 
 class SK_API GrContext : public SkRefCnt {
 public:

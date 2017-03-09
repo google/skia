@@ -12,6 +12,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkDrawFilter.h"
 #include "SkPaint.h"
+#include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkTLazy.h"
