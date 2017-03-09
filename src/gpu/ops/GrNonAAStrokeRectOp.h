@@ -11,18 +11,18 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrDrawOp;
+class GrMeshDrawOp;
 struct SkRect;
 class SkStrokeRec;
 class SkMatrix;
 
 namespace GrNonAAStrokeRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor color,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               const SkStrokeRec&,
-                               bool snapToPixelCenters);
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRect& rect,
+                                   const SkStrokeRec&,
+                                   bool snapToPixelCenters);
 }
 
 #endif

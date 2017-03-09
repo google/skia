@@ -33,12 +33,12 @@ public:
      * as local coords. 'colorArrayType' specifies whether the colors are premul GrColors or
      * unpremul SkColors.
      */
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
-                                          const SkMatrix& viewMatrix, const SkPoint* positions,
-                                          int vertexCount, const uint16_t* indices, int indexCount,
-                                          const uint32_t* colors, const SkPoint* localCoords,
-                                          const SkRect& bounds,
-                                          GrRenderTargetContext::ColorArrayType colorArrayType);
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
+                                              const SkMatrix& viewMatrix, const SkPoint* positions,
+                                              int vertexCount, const uint16_t* indices,
+                                              int indexCount, const uint32_t* colors,
+                                              const SkPoint* localCoords, const SkRect& bounds,
+                                              GrRenderTargetContext::ColorArrayType colorArrayType);
 
     /**
      * Draw a SkVertices. The GrColor param is used if the vertices lack per-vertex color or 'flags'
@@ -46,8 +46,8 @@ public:
      * specified by SkCanvas::VerticesFlags. If the vertices lack local coords or 'flags' indicates
      * that they should be ignored then the vertex positions are used as local coords.
      */
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, sk_sp<SkVertices>,
-                                          const SkMatrix& viewMatrix, uint32_t flags);
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, sk_sp<SkVertices>,
+                                              const SkMatrix& viewMatrix, uint32_t flags);
 
     const char* name() const override { return "DrawVerticesOp"; }
 

@@ -149,7 +149,8 @@ private:
 
 namespace GrRegionOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region) {
-    return std::unique_ptr<GrDrawOp>(new RegionOp(color, viewMatrix, region));
+std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                   const SkRegion& region) {
+    return std::unique_ptr<GrMeshDrawOp>(new RegionOp(color, viewMatrix, region));
 }
 }

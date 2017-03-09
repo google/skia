@@ -77,12 +77,12 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix, rect,
-                                                                nullptr, &localMatrix));
+    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix,
+                                                                    rect, nullptr, &localMatrix));
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);
-    renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+    renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,

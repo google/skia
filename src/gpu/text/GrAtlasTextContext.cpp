@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 #include "GrAtlasTextContext.h"
-
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextBlobCache.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkGr.h"
+#include "ops/GrMeshDrawOp.h"
 
 GrAtlasTextContext::GrAtlasTextContext()
     : fDistanceAdjustTable(new GrDistanceFieldAdjustTable) {

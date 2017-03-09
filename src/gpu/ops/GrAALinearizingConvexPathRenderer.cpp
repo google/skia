@@ -120,14 +120,14 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
 class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrColor color,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPath& path,
-                                          SkScalar strokeWidth,
-                                          SkStrokeRec::Style style,
-                                          SkPaint::Join join,
-                                          SkScalar miterLimit) {
-        return std::unique_ptr<GrDrawOp>(new AAFlatteningConvexPathOp(
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
+                                              const SkMatrix& viewMatrix,
+                                              const SkPath& path,
+                                              SkScalar strokeWidth,
+                                              SkStrokeRec::Style style,
+                                              SkPaint::Join join,
+                                              SkScalar miterLimit) {
+        return std::unique_ptr<GrMeshDrawOp>(new AAFlatteningConvexPathOp(
                 color, viewMatrix, path, strokeWidth, style, join, miterLimit));
     }
 
@@ -335,14 +335,14 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    std::unique_ptr<GrDrawOp> op =
+    std::unique_ptr<GrMeshDrawOp> op =
             AAFlatteningConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path,
                                            strokeWidth, stroke.getStyle(), join, miterLimit);
 
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
 
     return true;
 }

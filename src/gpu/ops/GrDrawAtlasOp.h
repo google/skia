@@ -16,10 +16,10 @@ class GrDrawAtlasOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                          int spriteCount, const SkRSXform* xforms,
-                                          const SkRect* rects, const SkColor* colors) {
-        return std::unique_ptr<GrDrawOp>(
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                              int spriteCount, const SkRSXform* xforms,
+                                              const SkRect* rects, const SkColor* colors) {
+        return std::unique_ptr<GrMeshDrawOp>(
                 new GrDrawAtlasOp(color, viewMatrix, spriteCount, xforms, rects, colors));
     }
 
