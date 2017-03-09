@@ -224,8 +224,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeBackendTextureRenderTargetContext(
                                                                     desc,
                                                                     std::move(colorSpace),
-                                                                    props,
-                                                                    kBorrow_GrWrapOwnership));
+                                                                    props));
     if (!rtc) {
         return nullptr;
     }
