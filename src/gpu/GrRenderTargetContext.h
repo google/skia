@@ -23,6 +23,7 @@ class GrDrawingManager;
 class GrDrawOp;
 class GrFixedClip;
 class GrPipelineBuilder;
+class GrMeshDrawOp;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
 class GrRenderTargetOpList;
@@ -414,24 +415,24 @@ private:
         return GrAAType::kCoverage;
     }
 
-    friend class GrAtlasTextBlob; // for access to addDrawOp
-    friend class GrStencilAndCoverTextContext; // for access to addDrawOp
+    friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
+    friend class GrStencilAndCoverTextContext;  // for access to add[Mesh]DrawOp
 
     friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
-    friend class GrSWMaskHelper;                 // for access to addDrawOp
+    friend class GrSWMaskHelper;  // for access to add[Mesh]DrawOp
 
     // All the path renderers currently make their own ops
-    friend class GrSoftwarePathRenderer;         // for access to addDrawOp
-    friend class GrAAConvexPathRenderer;         // for access to addDrawOp
-    friend class GrDashLinePathRenderer;         // for access to addDrawOp
-    friend class GrAAHairLinePathRenderer;       // for access to addDrawOp
-    friend class GrAALinearizingConvexPathRenderer;  // for access to addDrawOp
-    friend class GrAADistanceFieldPathRenderer;  // for access to addDrawOp
-    friend class GrDefaultPathRenderer;          // for access to addDrawOp
-    friend class GrMSAAPathRenderer;             // for access to addDrawOp
-    friend class GrStencilAndCoverPathRenderer;  // for access to addDrawOp
-    friend class GrTessellatingPathRenderer;     // for access to addDrawOp
+    friend class GrSoftwarePathRenderer;             // for access to add[Mesh]DrawOp
+    friend class GrAAConvexPathRenderer;             // for access to add[Mesh]DrawOp
+    friend class GrDashLinePathRenderer;             // for access to add[Mesh]DrawOp
+    friend class GrAAHairLinePathRenderer;           // for access to add[Mesh]DrawOp
+    friend class GrAALinearizingConvexPathRenderer;  // for access to add[Mesh]DrawOp
+    friend class GrAADistanceFieldPathRenderer;      // for access to add[Mesh]DrawOp
+    friend class GrDefaultPathRenderer;              // for access to add[Mesh]DrawOp
+    friend class GrMSAAPathRenderer;                 // for access to add[Mesh]DrawOp
+    friend class GrStencilAndCoverPathRenderer;      // for access to add[Mesh]DrawOp
+    friend class GrTessellatingPathRenderer;         // for access to add[Mesh]DrawOp
     // for a unit test
     friend void test_draw_op(GrContext*, GrRenderTargetContext*,
                              sk_sp<GrFragmentProcessor>, sk_sp<GrTextureProxy>);
@@ -472,10 +473,12 @@ private:
     bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
                        size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
-    // This performs processing specific to GrDrawOp-derived ops before recording them into the
-    // op list. It returns the id of the opList to which the op was added, or 0, if it was
+    // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
+    // the op list. They return the id of the opList to which the op was added, or 0, if it was
     // dropped (e.g., due to clipping).
     uint32_t addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
+    uint32_t addMeshDrawOp(const GrPipelineBuilder&, const GrClip&,
+                           std::unique_ptr<GrMeshDrawOp> op);
 
     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
     // be used by GrXferProcessor to access the destination color. If the texture is nullptr then

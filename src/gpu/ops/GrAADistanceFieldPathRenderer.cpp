@@ -141,11 +141,11 @@ public:
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeData::Key>;
     using ShapeDataList = GrAADistanceFieldPathRenderer::ShapeDataList;
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, const GrShape& shape,
-                                          const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas,
-                                          ShapeCache* shapeCache, ShapeDataList* shapeList,
-                                          bool gammaCorrect) {
-        return std::unique_ptr<GrDrawOp>(new AADistanceFieldPathOp(
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const GrShape& shape,
+                                              const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas,
+                                              ShapeCache* shapeCache, ShapeDataList* shapeList,
+                                              bool gammaCorrect) {
+        return std::unique_ptr<GrMeshDrawOp>(new AADistanceFieldPathOp(
                 color, shape, viewMatrix, atlas, shapeCache, shapeList, gammaCorrect));
     }
 
@@ -757,13 +757,13 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    std::unique_ptr<GrDrawOp> op = AADistanceFieldPathOp::Make(
+    std::unique_ptr<GrMeshDrawOp> op = AADistanceFieldPathOp::Make(
             args.fPaint.getColor(), *args.fShape, *args.fViewMatrix, fAtlas.get(), &fShapeCache,
             &fShapeList, args.fGammaCorrect);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
 
     return true;
 }

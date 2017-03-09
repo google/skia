@@ -31,8 +31,8 @@ public:
 
     const char* name() const override { return "Dummy Op"; }
 
-    static std::unique_ptr<GrDrawOp> Make(int numAttribs) {
-        return std::unique_ptr<GrDrawOp>(new Op(numAttribs));
+    static std::unique_ptr<GrMeshDrawOp> Make(int numAttribs) {
+        return std::unique_ptr<GrMeshDrawOp>(new Op(numAttribs));
     }
 
 private:
@@ -125,16 +125,16 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
 #endif
     GrPaint grPaint;
     // This one should succeed.
-    renderTargetContext->priv().testingOnly_addDrawOp(GrPaint(grPaint), GrAAType::kNone,
-                                                      Op::Make(attribCnt));
+    renderTargetContext->priv().testingOnly_addMeshDrawOp(GrPaint(grPaint), GrAAType::kNone,
+                                                          Op::Make(attribCnt));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
     context->resetGpuStats();
-    renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint), GrAAType::kNone,
-                                                      Op::Make(attribCnt + 1));
+    renderTargetContext->priv().testingOnly_addMeshDrawOp(std::move(grPaint), GrAAType::kNone,
+                                                          Op::Make(attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
