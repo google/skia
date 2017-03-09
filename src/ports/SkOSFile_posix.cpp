@@ -95,6 +95,18 @@ void* sk_fmmap(FILE* f, size_t* size) {
     return sk_fdmmap(fd, size);
 }
 
+size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
+    int fd = sk_fileno(file);
+    if (fd < 0) {
+        return 0;
+    }
+    ssize_t bytesRead = pread(fd, buffer, count, offset);
+    if (bytesRead < 0) {
+        return -1;
+    }
+    return bytesRead;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 struct SkOSFileIterData {
