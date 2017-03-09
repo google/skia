@@ -38,6 +38,15 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
     }
 }
 
+void GrProcessorSet::makePendingExecution() {
+    SkASSERT(!(kPendingExecution_Flag & fFlags));
+    fFlags |= kPendingExecution_Flag;
+    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+        fFragmentProcessors[i]->addPendingExecution();
+        fFragmentProcessors[i]->unref();
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 void GrProcessorSet::FragmentProcessorAnalysis::internalInit(const GrPipelineInput& colorInput,

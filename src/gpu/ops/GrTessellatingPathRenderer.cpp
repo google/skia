@@ -316,7 +316,7 @@ private:
         target->draw(gp, mesh);
     }
 
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
+    bool onCombineIfPossible(GrOp*, const GrCaps&, const GrAppliedClip*) override { return false; }
 
     TessellatingPathOp(const GrColor& color,
                        const GrShape& shape,

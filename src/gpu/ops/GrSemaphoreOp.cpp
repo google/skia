@@ -24,7 +24,7 @@ private:
     explicit GrSignalSemaphoreOp(sk_sp<GrSemaphore> semaphore)
             : INHERITED(ClassID(), std::move(semaphore)) {}
 
-    void onExecute(GrOpFlushState* state) override {
+    void onExecute(GrOpFlushState* state, const GrAppliedClip*, GrRenderTarget*) override {
         state->gpu()->insertSemaphore(fSemaphore);
     }
 
@@ -45,7 +45,7 @@ private:
     explicit GrWaitSemaphoreOp(sk_sp<GrSemaphore> semaphore)
             : INHERITED(ClassID(), std::move(semaphore)) {}
 
-    void onExecute(GrOpFlushState* state) override {
+    void onExecute(GrOpFlushState* state, const GrAppliedClip*, GrRenderTarget*) override {
         state->gpu()->waitSemaphore(fSemaphore);
     }
 

@@ -22,31 +22,31 @@ InstancedRendering::InstancedRendering(GrGpu* gpu)
 }
 
 std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
-                                                         const SkMatrix& viewMatrix, GrColor color,
+                                                         const SkMatrix& viewMatrix, GrPaint&& paint,
                                                          GrAA aa,
                                                          const GrInstancedPipelineInfo& info,
                                                          GrAAType* aaType) {
-    return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa, info, aaType);
+    return this->recordShape(ShapeType::kRect, rect, viewMatrix, std::move(paint), rect, aa, info, aaType);
 }
 
 std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
-                                                         const SkMatrix& viewMatrix, GrColor color,
+                                                         const SkMatrix& viewMatrix, GrPaint&& paint,
                                                          const SkRect& localRect, GrAA aa,
                                                          const GrInstancedPipelineInfo& info,
                                                          GrAAType* aaType) {
-    return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, localRect, aa, info,
+    return this->recordShape(ShapeType::kRect, rect, viewMatrix, std::move(paint), localRect, aa, info,
                              aaType);
 }
 
 std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
-                                                         const SkMatrix& viewMatrix, GrColor color,
+                                                         const SkMatrix& viewMatrix, GrPaint&& paint,
                                                          const SkMatrix& localMatrix, GrAA aa,
                                                          const GrInstancedPipelineInfo& info,
                                                          GrAAType* aaType) {
     if (localMatrix.hasPerspective()) {
         return nullptr; // Perspective is not yet supported in the local matrix.
     }
-    if (std::unique_ptr<Op> op = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect,
+    if (std::unique_ptr<Op> op = this->recordShape(ShapeType::kRect, rect, viewMatrix, std::move(paint), rect,
                                                    aa, info, aaType)) {
         op->getSingleInstance().fInfo |= kLocalMatrix_InfoFlag;
         op->appendParamsTexel(localMatrix.getScaleX(), localMatrix.getSkewX(),
@@ -60,20 +60,20 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
 }
 
 std::unique_ptr<GrDrawOp> InstancedRendering::recordOval(const SkRect& oval,
-                                                         const SkMatrix& viewMatrix, GrColor color,
+                                                         const SkMatrix& viewMatrix, GrPaint&& paint,
                                                          GrAA aa,
                                                          const GrInstancedPipelineInfo& info,
                                                          GrAAType* aaType) {
-    return this->recordShape(ShapeType::kOval, oval, viewMatrix, color, oval, aa, info, aaType);
+    return this->recordShape(ShapeType::kOval, oval, viewMatrix, std::move(paint), oval, aa, info, aaType);
 }
 
 std::unique_ptr<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect,
-                                                          const SkMatrix& viewMatrix, GrColor color,
+                                                          const SkMatrix& viewMatrix,  GrPaint&& paint,
                                                           GrAA aa,
                                                           const GrInstancedPipelineInfo& info,
                                                           GrAAType* aaType) {
     if (std::unique_ptr<Op> op =
-                this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, color,
+                this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, std::move(paint),
                                   rrect.rect(), aa, info, aaType)) {
         op->appendRRectParams(rrect);
         return std::move(op);
@@ -82,16 +82,16 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect,
 }
 
 std::unique_ptr<GrDrawOp> InstancedRendering::recordDRRect(
-        const SkRRect& outer, const SkRRect& inner, const SkMatrix& viewMatrix, GrColor color,
+        const SkRRect& outer, const SkRRect& inner, const SkMatrix& viewMatrix, GrPaint&& paint,
         GrAA aa, const GrInstancedPipelineInfo& info, GrAAType* aaType) {
     if (inner.getType() > SkRRect::kSimple_Type) {
        return nullptr; // Complex inner round rects are not yet supported.
     }
     if (SkRRect::kEmpty_Type == inner.getType()) {
-        return this->recordRRect(outer, viewMatrix, color, aa, info, aaType);
+        return this->recordRRect(outer, viewMatrix, std::move(paint), aa, info, aaType);
     }
     if (std::unique_ptr<Op> op =
-                this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, color,
+                this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, std::move(paint),
                                   outer.rect(), aa, info, aaType)) {
         op->appendRRectParams(outer);
         ShapeType innerShapeType = GetRRectShapeType(inner);
@@ -105,7 +105,7 @@ std::unique_ptr<GrDrawOp> InstancedRendering::recordDRRect(
 }
 
 std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
-        ShapeType type, const SkRect& bounds, const SkMatrix& viewMatrix, GrColor color,
+        ShapeType type, const SkRect& bounds, const SkMatrix& viewMatrix, GrPaint&& paint,
         const SkRect& localRect, GrAA aa, const GrInstancedPipelineInfo& info, GrAAType* aaType) {
     SkASSERT(State::kRecordingDraws == fState);
 
@@ -117,11 +117,13 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
         return nullptr;
     }
 
-    std::unique_ptr<Op> op = this->makeOp();
+    GrColor color = paint.getColor();
+    std::unique_ptr<Op> op = this->makeOp(std::move(paint));
     op->fInfo.setAAType(*aaType);
     op->fInfo.fShapeTypes = GetShapeFlag(type);
     op->fInfo.fCannotDiscard = true;
-
+    op->fDrawColorsAreOpaque = GrColorIsOpaque(color);
+    op->fDrawColorsAreSame = true;
     Instance& instance = op->getSingleInstance();
     instance.fInfo = (int)type << kShapeType_InfoBit;
 
@@ -229,9 +231,10 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
     return false;
 }
 
-InstancedRendering::Op::Op(uint32_t classID, InstancedRendering* ir)
+InstancedRendering::Op::Op(uint32_t classID, GrPaint&& paint, InstancedRendering* ir)
         : INHERITED(classID)
         , fInstancedRendering(ir)
+        , fProcessors(std::move(paint))
         , fIsTracked(false)
         , fNumDraws(1)
         , fNumChangesInGeometry(0) {
@@ -329,20 +332,17 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Op::getFragmentProcessorAnalysisInputs(
-        FragmentProcessorAnalysisInputs* input) const {
-    input->colorInput()->setToConstant(this->getSingleInstance().fColor);
-
+bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) {
+    GrProcessorSet::FragmentProcessorAnalysis analysis;
+    GrPipelineInput coverageInput;
     if (GrAAType::kCoverage == fInfo.aaType() ||
         (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        input->coverageInput()->setToUnknown();
+        coverageInput = GrPipelineInput();
     } else {
-        input->coverageInput()->setToSolidCoverage();
+        coverageInput = GrColor_WHITE;
     }
-}
+    analysis.init(this->getSingleInstance().fColor, coverageInput, fProcessors, clip, caps);
 
-void InstancedRendering::Op::applyPipelineOptimizations(
-        const GrPipelineOptimizations& optimizations) {
     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());
     SkASSERT(SkIsPow2(fInfo.fShapeTypes));
@@ -356,36 +356,39 @@ void InstancedRendering::Op::applyPipelineOptimizations(
         draw.fGeometry = InstanceProcessor::GetIndexRangeForRRect(fInfo.aaType());
     }
 
+    GrColor overrideColor;
+    if (analysis.initialColorProcessorsToEliminate(&overrideColor)) {
+        SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
+        this->getSingleDraw().fInstance.fColor = overrideColor;
+    }
+
     if (!fParams.empty()) {
         SkASSERT(fInstancedRendering->fParams.count() < (int)kParamsIdx_InfoMask); // TODO: cleaner.
         this->getSingleInstance().fInfo |= fInstancedRendering->fParams.count();
         fInstancedRendering->fParams.push_back_n(fParams.count(), fParams.begin());
     }
+    fInfo.fCannotTweakAlphaForCoverage = !analysis.isCompatibleWithCoverageAsAlpha() ||
+            !GrXPFactory::CompatibleWithCoverageAsAlpha(fProcessors.xpFactory(),
+                                                        analysis.isOutputColorOpaque());
 
-    GrColor overrideColor;
-    if (optimizations.getOverrideColorIfSet(&overrideColor)) {
-        SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
-        this->getSingleInstance().fColor = overrideColor;
-    }
-    fInfo.fUsesLocalCoords = optimizations.readsLocalCoords();
-    fInfo.fCannotTweakAlphaForCoverage = !optimizations.canTweakAlphaForCoverage();
+    fInfo.fUsesLocalCoords = analysis.usesLocalCoords();
+    return GrXPFactory::WillNeedDstTexture(fProcessors.xpFactory(), caps, analysis);
 }
 
 void InstancedRendering::Op::wasRecorded() {
     SkASSERT(!fIsTracked);
     fInstancedRendering->fTrackedOps.addToTail(this);
+    fProcessors.makePendingExecution();
     fIsTracked = true;
 }
 
-bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
+bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps, const GrAppliedClip*) {
     Op* that = static_cast<Op*>(other);
     SkASSERT(fInstancedRendering == that->fInstancedRendering);
     SkASSERT(fTailDraw);
     SkASSERT(that->fTailDraw);
 
-    if (!OpInfo::CanCombine(fInfo, that->fInfo) ||
-        !GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+    if (!OpInfo::CanCombine(fInfo, that->fInfo) || fProcessors != that->fProcessors) {
         return false;
     }
 
@@ -406,7 +409,9 @@ bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps
     this->joinBounds(*that);
     fInfo = combinedInfo;
     fPixelLoad += that->fPixelLoad;
-
+    fDrawColorsAreOpaque = fDrawColorsAreOpaque && that->fDrawColorsAreOpaque;
+    fDrawColorsAreSame = fDrawColorsAreSame && that->fDrawColorsAreSame &&
+            fHeadDraw->fInstance.fColor == that->fHeadDraw->fInstance.fColor;
     // Adopt the other op's draws.
     fNumDraws += that->fNumDraws;
     fNumChangesInGeometry += that->fNumChangesInGeometry;
@@ -457,17 +462,43 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     this->onBeginFlush(rp);
 }
 
-void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
+void InstancedRendering::Op::onExecute(GrOpFlushState* state, const GrAppliedClip* clip, GrRenderTarget* renderTarget) {
     SkASSERT(State::kFlushing == fInstancedRendering->fState);
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 
     state->gpu()->handleDirtyContext();
-    if (GrXferBarrierType barrierType = this->pipeline()->xferBarrierType(*state->gpu()->caps())) {
-        state->gpu()->xferBarrier(this->pipeline()->getRenderTarget(), barrierType);
-    }
 
+    GrProcessorSet::FragmentProcessorAnalysis analysis;
+    GrPipelineInput coverageInput;
+    if (GrAAType::kCoverage == fInfo.aaType() ||
+        (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
+        coverageInput = GrPipelineInput();
+    } else {
+        coverageInput = GrColor_WHITE;
+    }
+    GrPipelineInput colorInput;
+    if (fDrawColorsAreSame) {
+        colorInput = fHeadDraw->fInstance.fColor;
+    } else if (fDrawColorsAreOpaque) {
+        colorInput = GrPipelineInput::Opaque::kYes;
+    }
+    analysis.init(colorInput, coverageInput, fProcessors, clip, state->caps());
+
+    GrPipeline pipeline;
+    GrPipeline::InitArgs args;
+    args.fAnalysis = &analysis;
+    args.fAppliedClip = clip;
+    args.fCaps = &state->caps();
+    args.fProcessors = &fProcessors;
+    args.fFlags = GrAATypeIsHW(fInfo.aaType()) ? GrPipeline::kHWAntialias_Flag : 0;
+    args.fRenderTarget = renderTarget;
+    /*GrPipelineOptimizations optimizations = */ pipeline.init(args);
+
+    if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*state->gpu()->caps())) {
+        state->gpu()->xferBarrier(pipeline.getRenderTarget(), barrierType);
+    }
     InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer.get());
-    fInstancedRendering->onDraw(*this->pipeline(), instProc, this);
+    fInstancedRendering->onDraw(pipeline, instProc, this);
 }
 
 void InstancedRendering::endFlush() {
