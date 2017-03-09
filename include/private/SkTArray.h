@@ -293,9 +293,7 @@ public:
         if (this == that) {
             return;
         }
-        if (this->fPreAllocMemArray != this->fItemArray &&
-            that->fPreAllocMemArray != that->fItemArray) {
-            // If neither is using a preallocated array then just swap.
+        if (this->isNotUsingPreAlloc() && that->isNotUsingPreAlloc()) {
             SkTSwap(fItemArray, that->fItemArray);
             SkTSwap(fCount, that->fCount);
             SkTSwap(fAllocCount, that->fAllocCount);
@@ -476,6 +474,10 @@ private:
     }
 
     static const int gMIN_ALLOC_COUNT = 8;
+
+    inline bool isNotUsingPreAlloc() const {
+        return !fItemArray || fPreAllocMemArray != fItemArray;
+    }
 
     // Helper function that makes space for n objects, adjusts the count, but does not initialize
     // the new objects.
