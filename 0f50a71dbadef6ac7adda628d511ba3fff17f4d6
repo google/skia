@@ -22,6 +22,30 @@
       "revId": "0f50a71dbadef6ac7adda628d511ba3fff17f4d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62c1825a_f2d77926",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-03-09T19:17:20Z",
+      "side": 1,
+      "message": "fBlobIDCache should release all the sk_sp blob refs, and fBlobList uses raw ptrs for linked list impl (doesn\u0027t retain anything and doesn\u0027t tear down anything in dtor).\n\nI\u0027m glad you brought this up though, because a local valgrind run revealed a problem with destructor order: the GrMemoryPool needs to be destructed after the cache.  Fixed in patch set #2.\n\nIf you feel implicit freeing is too fragile, I\u0027m fine with adding the explicit call back.",
+      "parentUuid": "ed714cde_019e90f8",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 15
+      },
+      "revId": "0f50a71dbadef6ac7adda628d511ba3fff17f4d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
