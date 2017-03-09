@@ -160,12 +160,12 @@ class TessellatingPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(const GrColor& color,
-                                          const GrShape& shape,
-                                          const SkMatrix& viewMatrix,
-                                          SkIRect devClipBounds,
-                                          bool antiAlias) {
-        return std::unique_ptr<GrDrawOp>(
+    static std::unique_ptr<GrMeshDrawOp> Make(const GrColor& color,
+                                              const GrShape& shape,
+                                              const SkMatrix& viewMatrix,
+                                              SkIRect devClipBounds,
+                                              bool antiAlias) {
+        return std::unique_ptr<GrMeshDrawOp>(
                 new TessellatingPathOp(color, shape, viewMatrix, devClipBounds, antiAlias));
     }
 
@@ -357,14 +357,15 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    std::unique_ptr<GrDrawOp> op = TessellatingPathOp::Make(args.fPaint.getColor(),
-                                                            *args.fShape,
-                                                            *args.fViewMatrix,
-                                                            clipBoundsI,
-                                                            GrAAType::kCoverage == args.fAAType);
+    std::unique_ptr<GrMeshDrawOp> op =
+            TessellatingPathOp::Make(args.fPaint.getColor(),
+                                     *args.fShape,
+                                     *args.fViewMatrix,
+                                     clipBoundsI,
+                                     GrAAType::kCoverage == args.fAAType);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;
 }
 

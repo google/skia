@@ -86,9 +86,9 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addDrawOp(
+                    renderTargetContext->priv().testingOnly_addMeshDrawOp(
                             std::move(grPaint), GrAAType::kNone, std::move(op));
                 }
             canvas->restore();
