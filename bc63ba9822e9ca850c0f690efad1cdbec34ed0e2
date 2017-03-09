@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50b0813e_04ef18bb",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-09T17:44:07Z",
+      "side": 1,
+      "message": "Maybe we can just inline this into them now that it\u0027s not interesting like move() ?",
+      "range": {
+        "startLine": 439,
+        "startChar": 11,
+        "endLine": 439,
+        "endChar": 51
+      },
+      "revId": "bc63ba9822e9ca850c0f690efad1cdbec34ed0e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
