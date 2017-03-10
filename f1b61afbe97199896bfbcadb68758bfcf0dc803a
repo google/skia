@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae9e025b_13a8a4f5",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-10T03:23:31Z",
+      "side": 1,
+      "message": "extern is kind of implicit... I think you can either drop the comment or the extern?",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 392,
+        "endChar": 7
+      },
+      "revId": "f1b61afbe97199896bfbcadb68758bfcf0dc803a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
