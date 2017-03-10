@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "dbd75af5_0109d2ef",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T17:43:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e8795227_3749d8af",
+      "range": {
+        "startLine": 249,
+        "startChar": 8,
+        "endLine": 249,
+        "endChar": 31
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "359282eb_6bb354e4",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 3
@@ -144,6 +168,30 @@
     },
     {
       "key": {
+        "uuid": "b81157fc_8394973d",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T17:43:14Z",
+      "side": 1,
+      "message": "This new isAtEnd is quite aggressive. fOffset can never be greater than fSize (the size of the file when the SkFILEStream was created). Since that is checked first, isAtEnd will just always return false if we\u0027ve tried to read or skip past the original end of the file. This second check is just a paranoid check in case someone shortened the underlying file out from under us. There\u0027s no point in checking the size of the file at any other time, it could just as easily race in other ways. It\u0027s theoretically possible that a debugger could notice that isAtEnd is being called, lengthen the file, then shorten the file afterword and end up causing something to loop, but that seems less likely.",
+      "parentUuid": "47aff0e2_2ba68cbf",
+      "range": {
+        "startLine": 210,
+        "startChar": 22,
+        "endLine": 210,
+        "endChar": 33
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "feaf5acc_36599eb2",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 3
@@ -203,6 +251,30 @@
       "side": 1,
       "message": "My vote is for rewind() and duplicate() being consistent, though if that\u0027s a behavior change, I think it\u0027s fine to leave it alone.",
       "parentUuid": "cf614ce1_feb08257",
+      "range": {
+        "startLine": 219,
+        "startChar": 42,
+        "endLine": 219,
+        "endChar": 57
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03cba8d3_15ddf77a",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T17:43:14Z",
+      "side": 1,
+      "message": "I\u0027ll keep them the same for now.",
+      "parentUuid": "3773f8b8_d81e725a",
       "range": {
         "startLine": 219,
         "startChar": 42,
