@@ -80,6 +80,9 @@ public:
      */
     SkDEBUGCODE(virtual void dump() const;)
 
+protected:
+    GrAuditTrail*        fAuditTrail;
+
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
 
@@ -136,9 +139,6 @@ private:
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkTDArray<GrOpList*> fDependencies;
-
-protected:
-    GrAuditTrail*        fAuditTrail;
 
     typedef SkRefCnt INHERITED;
 };
