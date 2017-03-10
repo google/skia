@@ -6,12 +6,15 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
+#include "SkAnimTimer.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
+#include "SkCamera.h"
 #include "SkCanvas.h"
 #include "SkGaussianEdgeShader.h"
 #include "SkPath.h"
+#include "SkPathOps.h"
 #include "SkPoint3.h"
 #include "SkShadowUtils.h"
 #include "SkUtils.h"
@@ -28,8 +31,12 @@ class ShadowsView : public SampleView {
     SkPath    fCirclePath;
     SkPath    fFunkyRRPath;
     SkPath    fCubicPath;
+    SkPath    fSquareRRectPath;
+    SkPath    fWideRectPath;
+    SkPath    fWideOvalPath;
     SkPoint3  fLightPos;
     SkScalar  fZDelta;
+    SkScalar  fAnimTranslate;
 
     bool      fShowAmbient;
     bool      fShowSpot;
@@ -39,7 +46,8 @@ class ShadowsView : public SampleView {
 
 public:
     ShadowsView()
-        : fZDelta(0.0f)
+        : fZDelta(0)
+        , fAnimTranslate(0)
         , fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(true)
@@ -57,6 +65,10 @@ protected:
         fCubicPath.cubicTo(100 * SK_Scalar1, 50 * SK_Scalar1,
                            20 * SK_Scalar1, 100 * SK_Scalar1,
                            0 * SK_Scalar1, 0 * SK_Scalar1);
+        fSquareRRectPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-50, -50, 100, 100),
+                                                      10, 10));
+        fWideRectPath.addRect(SkRect::MakeXYWH(0, 0, 630, 70));
+        fWideOvalPath.addOval(SkRect::MakeXYWH(0, 0, 630, 70));
 
         fLightPos = SkPoint3::Make(-700, -700, 2800);
     }
@@ -490,6 +502,59 @@ protected:
         lightPos.fX += 250;
         this->drawShadowedPath(canvas, fCubicPath, 16, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
+
+        // circular reveal
+        SkPath tmpPath;
+        SkPath tmpClipPath;
+        tmpClipPath.addCircle(fAnimTranslate, 0, 60);
+        Op(fSquareRRectPath, tmpClipPath, kIntersect_SkPathOp, &tmpPath);
+
+        paint.setColor(SK_ColorMAGENTA);
+        canvas->translate(-125, 60);
+        lightPos.fX -= 125;
+        lightPos.fY += 60;
+        this->drawShadowedPath(canvas, tmpPath, 32, paint, .1f,
+                               lightPos, kLightWidth, .5f);
+
+        // perspective paths
+        SkPoint pivot = SkPoint::Make(fWideRectPath.getBounds().width()/2,
+                                      fWideRectPath.getBounds().height()/2);
+        SkPoint translate = SkPoint::Make(50, 450);
+        paint.setColor(SK_ColorWHITE);
+        Sk3DView view;
+        view.save();
+        view.rotateX(10);
+        SkMatrix persp;
+        view.getMatrix(&persp);
+        persp.preTranslate(-pivot.fX, -pivot.fY);
+        persp.postTranslate(pivot.fX + translate.fX, pivot.fY + translate.fY);
+        canvas->setMatrix(persp);
+        lightPos = fLightPos;
+        lightPos.fX += pivot.fX + translate.fX;
+        lightPos.fY += pivot.fY + translate.fY;
+        this->drawShadowedPath(canvas, fWideRectPath, 16, paint, .1f,
+                               lightPos, kLightWidth, .5f);
+
+        pivot = SkPoint::Make(fWideOvalPath.getBounds().width() / 2,
+                              fWideOvalPath.getBounds().height() / 2);
+        translate = SkPoint::Make(50, 600);
+        view.restore();
+        view.rotateY(10);
+        view.getMatrix(&persp);
+        persp.preTranslate(-pivot.fX, -pivot.fY);
+        persp.postTranslate(pivot.fX + translate.fX, pivot.fY + translate.fY);
+        canvas->setMatrix(persp);
+        lightPos = fLightPos;
+        lightPos.fX += pivot.fX + translate.fX;
+        lightPos.fY += pivot.fY + translate.fY;
+        this->drawShadowedPath(canvas, fWideOvalPath, 32, paint, .1f,
+                               lightPos, kLightWidth, .5f);
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        fAnimTranslate = timer.pingPong(10, 0, 200, -200);
+
+        return true;
     }
 
 protected:
