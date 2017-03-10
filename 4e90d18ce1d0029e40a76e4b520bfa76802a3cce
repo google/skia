@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58f96ea7_a468f08e",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-10T17:58:42Z",
+      "side": 1,
+      "message": "I imagine there will usually only a few. Maybe this could be an SkSTArray so we avoid mallocs in the normal usecase.",
+      "range": {
+        "startLine": 92,
+        "startChar": 47,
+        "endLine": 92,
+        "endChar": 67
+      },
+      "revId": "4e90d18ce1d0029e40a76e4b520bfa76802a3cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
