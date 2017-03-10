@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd48d1c3_abd51f49",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-10T17:58:09Z",
+      "side": 1,
+      "message": "I don\u0027t believe this is correct, and I feel like in theory both gems and the paper do agree on the test",
+      "range": {
+        "startLine": 661,
+        "startChar": 6,
+        "endLine": 661,
+        "endChar": 16
+      },
+      "revId": "90f02194d59904ab42d5ca4f4dc6fedd14815f6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
