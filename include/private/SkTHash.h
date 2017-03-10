@@ -95,7 +95,6 @@ public:
         for (;;) {
             Slot& emptySlot = fSlots[index];
             int emptyIndex = index;
-            emptySlot.markEmpty();
             int originalIndex;
             // Look for an element that can be moved into the empty slot.
             // If the empty slot is in between where an element landed, and its native slot, then
@@ -106,7 +105,11 @@ public:
             do {
                 index = this->next(index);
                 Slot& s = fSlots[index];
-                if (s.empty()) { return; }
+                if (s.empty()) {
+                    // We're done shuffling elements around.  Clear the last empty slot.
+                    emptySlot = Slot();
+                    return;
+                }
                 originalIndex = s.hash & (fCapacity - 1);
             } while ((index <= originalIndex && originalIndex < emptyIndex)
                      || (originalIndex < emptyIndex && emptyIndex < index)
@@ -204,8 +207,6 @@ private:
         }
 
         bool empty() const { return this->hash == 0; }
-
-        void markEmpty() { this->hash = 0; }
 
         T        val;
         uint32_t hash;
