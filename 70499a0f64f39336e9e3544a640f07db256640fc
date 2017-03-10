@@ -222,6 +222,30 @@
       "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afb8113a_001a92c7",
+        "filename": "src/gpu/GrPerFlushResourceProvider.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-10T16:31:58Z",
+      "side": 1,
+      "message": "Oh I see you brought up multiple atlases to!\n\nThis is something we ought to to address now. It\u0027s very easy to overflow GL_MAX_TEXTURE_SIZE even with normal content.",
+      "parentUuid": "98583e9c_f5ade984",
+      "range": {
+        "startLine": 41,
+        "startChar": 18,
+        "endLine": 41,
+        "endChar": 38
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
