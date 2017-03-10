@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f044f253_8f389b00",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-10T15:40:05Z",
+      "side": 1,
+      "message": "I think we can probably kill this. It wasn\u0027t a good idea on my part.",
+      "range": {
+        "startLine": 93,
+        "startChar": 84,
+        "endLine": 93,
+        "endChar": 88
+      },
+      "revId": "df5e16ccf1585a4aa9210a5be127d16882d756bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "799ca51d_1b830984",
+        "filename": "src/gpu/GrPreFlushResourceProvider.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-10T15:40:05Z",
+      "side": 1,
+      "message": "could/should this be the unique ids rather than the op lists? or if it has to be oplists should they const?",
+      "range": {
+        "startLine": 46,
+        "startChar": 66,
+        "endLine": 46,
+        "endChar": 74
+      },
+      "revId": "df5e16ccf1585a4aa9210a5be127d16882d756bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d81063ce_f379806d",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-10T15:40:05Z",
+      "side": 1,
+      "message": "We may be using this initially just for atlas building but it seems like we may wind up using it for more things. Could we call this something less specific to the atlas use case? e.g. validateSinlgeRenderTarget(), validateForPreFlush, ...",
+      "range": {
+        "startLine": 75,
+        "startChar": 27,
+        "endLine": 75,
+        "endChar": 43
+      },
+      "revId": "df5e16ccf1585a4aa9210a5be127d16882d756bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
