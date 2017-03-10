@@ -98,6 +98,8 @@ DEF_TEST(canvas_clipbounds, reporter) {
     {
         SkCanvas c(-10, -20);
         REPORTER_ASSERT(reporter, c.getBaseLayerSize() == SkISize::MakeEmpty());
+
+        SkPictureRecorder().beginRecording({ 5, 5, 4, 4 });
     }
 }
 
