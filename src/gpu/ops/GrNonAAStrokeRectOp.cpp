@@ -165,7 +165,7 @@ private:
         fNeedsLocalCoords = optimizations.readsLocalCoords();
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps&, const GrAppliedClip*) override {
         // NonAA stroke rects cannot combine right now
         // TODO make these combinable.
         return false;

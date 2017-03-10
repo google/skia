@@ -693,7 +693,7 @@ private:
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     bool usesDistanceField() const { return fUsesDistanceField; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         AADistanceFieldPathOp* that = t->cast<AADistanceFieldPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

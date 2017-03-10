@@ -54,6 +54,7 @@ void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
     // Loop over the ops that haven't yet generated their geometry
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i]) {
+            // We do not create DrawOpArgs because this op list does not support GrDrawOps.
             fRecordedOps[i]->prepare(flushState);
         }
     }
@@ -64,7 +65,9 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
         return false;
     }
 
+    GrXferProcessor::DstTexture dummyDstTexture;
     for (int i = 0; i < fRecordedOps.count(); ++i) {
+        // We do not create DrawOpArgs because this op list does not support GrDrawOps.
         fRecordedOps[i]->execute(flushState);
     }
 

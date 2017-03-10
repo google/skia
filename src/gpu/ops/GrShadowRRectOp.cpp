@@ -355,7 +355,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         ShadowCircleOp* that = t->cast<ShadowCircleOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -769,7 +769,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

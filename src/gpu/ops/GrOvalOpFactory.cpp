@@ -1100,7 +1100,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         CircleOp* that = t->cast<CircleOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
@@ -1335,7 +1335,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         EllipseOp* that = t->cast<EllipseOp>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -1536,7 +1536,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         DIEllipseOp* that = t->cast<DIEllipseOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -1997,7 +1997,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         CircularRRectOp* that = t->cast<CircularRRectOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
@@ -2244,7 +2244,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         EllipticalRRectOp* that = t->cast<EllipticalRRectOp>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),

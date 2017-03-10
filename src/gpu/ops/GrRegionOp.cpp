@@ -120,7 +120,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         RegionOp* that = t->cast<RegionOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

@@ -730,7 +730,7 @@ private:
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         AAHairlineOp* that = t->cast<AAHairlineOp>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
