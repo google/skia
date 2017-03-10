@@ -65,15 +65,18 @@ public:
         }
 
         DstTexture(GrTexture* texture, const SkIPoint& offset)
-            : fTexture(SkSafeRef(texture))
-            , fOffset(offset) {
-        }
+                : fTexture(SkSafeRef(texture)), fOffset(texture ? offset : SkIPoint{0, 0}) {}
 
         DstTexture& operator=(const DstTexture& other) {
             fTexture = other.fTexture;
             fOffset = other.fOffset;
             return *this;
         }
+
+        bool operator==(const DstTexture& that) const {
+            return fTexture == that.fTexture && fOffset == that.fOffset;
+        }
+        bool operator!=(const DstTexture& that) const { return !(*this == that); }
 
         const SkIPoint& offset() const { return fOffset; }
 
@@ -84,6 +87,9 @@ public:
 
         void setTexture(sk_sp<GrTexture> texture) {
             fTexture = std::move(texture);
+            if (!fTexture) {
+                fOffset = {0, 0};
+            }
         }
 
     private:
