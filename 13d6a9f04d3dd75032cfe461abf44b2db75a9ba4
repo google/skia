@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0546b6ed_d1f8b825",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-10T18:48:30Z",
+      "side": 1,
+      "message": "Speaking of combining, there is the backwards combining that happens as ops are added and the forward combining that happens during flush. This is definitely after the former but is it before the latter? It seems like it ought to be either after both or before both and making it before both would have some serious implications/",
+      "parentUuid": "130d43f1_f08b18b8",
+      "range": {
+        "startLine": 86,
+        "startChar": 19,
+        "endLine": 86,
+        "endChar": 20
+      },
+      "revId": "13d6a9f04d3dd75032cfe461abf44b2db75a9ba4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c86c6b6_3e702165",
         "filename": "src/gpu/GrDrawingManager.h",
         "patchSetId": 23
