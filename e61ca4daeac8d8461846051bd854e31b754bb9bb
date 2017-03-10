@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e8795227_3749d8af",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T17:04:59Z",
+      "side": 1,
+      "message": "I sent you a review to update Android. https://googleplex-android-review.git.corp.google.com/#/c/1973059/",
+      "parentUuid": "e7a10de2_8cbf3911",
+      "range": {
+        "startLine": 249,
+        "startChar": 8,
+        "endLine": 249,
+        "endChar": 31
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "359282eb_6bb354e4",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 3
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "47aff0e2_2ba68cbf",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T17:04:59Z",
+      "side": 1,
+      "message": "Why do we only respect that sometimes? Why don\u0027t we check always or never?\n\nOne weird behavior we will get (AFAICT) is that a client could see isAtEnd() return false, but read fails (because it thinks it is at the end based on fSize, which did not get updated) - and isAtEnd() continues to return false.",
+      "parentUuid": "37cee114_6114d14b",
+      "range": {
+        "startLine": 210,
+        "startChar": 22,
+        "endLine": 210,
+        "endChar": 33
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "feaf5acc_36599eb2",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 3
@@ -131,6 +179,30 @@
       "side": 1,
       "message": "I\u0027m actually in favor of changing rewind. The reality is that there is one caller who wants a SkFILEStream which starts at a non-0 location, and they would prefer that rewind go back to the original offset. I could leave this alone for now to avoid changing behavior.",
       "parentUuid": "feaf5acc_36599eb2",
+      "range": {
+        "startLine": 219,
+        "startChar": 42,
+        "endLine": 219,
+        "endChar": 57
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3773f8b8_d81e725a",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T17:04:59Z",
+      "side": 1,
+      "message": "My vote is for rewind() and duplicate() being consistent, though if that\u0027s a behavior change, I think it\u0027s fine to leave it alone.",
+      "parentUuid": "cf614ce1_feb08257",
       "range": {
         "startLine": 219,
         "startChar": 42,
@@ -225,6 +297,30 @@
       "side": 1,
       "message": "Probably should be removed now.",
       "parentUuid": "83194fef_1a9f135b",
+      "range": {
+        "startLine": 123,
+        "startChar": 7,
+        "endLine": 123,
+        "endChar": 15
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "895c27f0_46ce8e8e",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T17:04:59Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "1a840e1f_fe3e8ed1",
       "range": {
         "startLine": 123,
         "startChar": 7,
@@ -378,6 +474,29 @@
     },
     {
       "key": {
+        "uuid": "32d3d03b_bf2b47a6",
+        "filename": "tests/PathOpsExtendedTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T17:04:59Z",
+      "side": 1,
+      "message": "Cary, do you need this method? It looks like it is unused?",
+      "range": {
+        "startLine": 608,
+        "startChar": 5,
+        "endLine": 608,
+        "endChar": 20
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "09dbb449_b99b20df",
         "filename": "tests/PathOpsExtendedTest.cpp",
         "patchSetId": 3
@@ -413,6 +532,30 @@
       "side": 1,
       "message": "Yeah, I have no idea what this is for. It did seem nice to have a close for the case where the user knows they\u0027re done but would like to free up the resource before the end of the current scope.",
       "parentUuid": "09dbb449_b99b20df",
+      "range": {
+        "startLine": 619,
+        "startChar": 19,
+        "endLine": 619,
+        "endChar": 24
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "961ede94_17cdfc73",
+        "filename": "tests/PathOpsExtendedTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T17:04:59Z",
+      "side": 1,
+      "message": "Somewhat nice, but then we have to consider the case where the file is closed. I think it would be simple for clients (though it\u0027s not clear anyone but this maybe out of date code wants to?) to rearrange their code to let their file go out of scope. (I guess then they\u0027d have to new and delete though.)",
+      "parentUuid": "f828eccb_ec02fe39",
       "range": {
         "startLine": 619,
         "startChar": 19,
