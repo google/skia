@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e7a10de2_8cbf3911",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "No one used kCallerRetains_Ownership. If we really want it back we can add a SkFILEStream(std::shared_ptr\u003cFILE\u003e) constructor so that the caller can manage the ownership however they want. I\u0027d just remove kCallerPasses_Ownership but Android currently mentions it (I suppose I could go and remove it before making this change).",
+      "parentUuid": "2884cf71_0bd07975",
+      "range": {
+        "startLine": 249,
+        "startChar": 8,
+        "endLine": 249,
+        "endChar": 31
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "359282eb_6bb354e4",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-10T16:27:45Z",
       "side": 1,
       "message": "Why do you need to call sk_fgetsize again?",
+      "range": {
+        "startLine": 210,
+        "startChar": 22,
+        "endLine": 210,
+        "endChar": 33
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37cee114_6114d14b",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "Because the actual size may have changed.",
+      "parentUuid": "359282eb_6bb354e4",
       "range": {
         "startLine": 210,
         "startChar": 22,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "cf614ce1_feb08257",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "I\u0027m actually in favor of changing rewind. The reality is that there is one caller who wants a SkFILEStream which starts at a non-0 location, and they would prefer that rewind go back to the original offset. I could leave this alone for now to avoid changing behavior.",
+      "parentUuid": "feaf5acc_36599eb2",
+      "range": {
+        "startLine": 219,
+        "startChar": 42,
+        "endLine": 219,
+        "endChar": 57
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d1e79f0_3473cd78",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2017-03-10T16:27:45Z",
       "side": 1,
       "message": "Is it possible this will break existing clients?",
+      "range": {
+        "startLine": 244,
+        "startChar": 4,
+        "endLine": 244,
+        "endChar": 18
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6408afd_825606f4",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "It better not, it was almost always nullptr before. In fact, it was difficult to ever get this not to be nullptr, and the old code was probably not worth it.",
+      "parentUuid": "1d1e79f0_3473cd78",
       "range": {
         "startLine": 244,
         "startChar": 4,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "1a840e1f_fe3e8ed1",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "Probably should be removed now.",
+      "parentUuid": "83194fef_1a9f135b",
+      "range": {
+        "startLine": 123,
+        "startChar": 7,
+        "endLine": 123,
+        "endChar": 15
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b966b812_fe138a96",
         "filename": "src/ports/SkOSFile_stdio.cpp",
         "patchSetId": 3
@@ -128,6 +248,30 @@
       "writtenOn": "2017-03-10T16:27:45Z",
       "side": 1,
       "message": "Maybe handle the simple case first?\n\nif (buffer !\u003d nullptr) {\n    return fread(...);\n}\n\n// else case",
+      "range": {
+        "startLine": 125,
+        "startChar": 4,
+        "endLine": 125,
+        "endChar": 24
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03390be1_48f0891e",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "The wonders of putting skip and read into the same virtual, causing this to make no sense.",
+      "parentUuid": "b966b812_fe138a96",
       "range": {
         "startLine": 125,
         "startChar": 4,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "eb077cfe_9fe74d58",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "It was before too.",
+      "parentUuid": "cc76506f_e738ac77",
+      "range": {
+        "startLine": 130,
+        "startChar": 16,
+        "endLine": 130,
+        "endChar": 24
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "074cf91d_e737de55",
         "filename": "src/ports/SkOSFile_stdio.cpp",
         "patchSetId": 3
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "1603df84_d8fde3a3",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "On the other hand, the structure here is so ugly I\u0027d prefer it.",
+      "parentUuid": "074cf91d_e737de55",
+      "range": {
+        "startLine": 138,
+        "startChar": 6,
+        "endLine": 138,
+        "endChar": 10
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "09dbb449_b99b20df",
         "filename": "tests/PathOpsExtendedTest.cpp",
         "patchSetId": 3
@@ -197,6 +389,30 @@
       "writtenOn": "2017-03-10T16:27:45Z",
       "side": 1,
       "message": "Is this the only reason SkFILEStream::close() exists? Maybe change this method so it doesn\u0027t need it, and then there\u0027s no need for the method?\n\nLooking closer, it looks like the file it references does not exist (maybe Cary creates it locally?), and no one calls this method. Maybe delete this method entirely?",
+      "range": {
+        "startLine": 619,
+        "startChar": 19,
+        "endLine": 619,
+        "endChar": 24
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f828eccb_ec02fe39",
+        "filename": "tests/PathOpsExtendedTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-10T16:48:47Z",
+      "side": 1,
+      "message": "Yeah, I have no idea what this is for. It did seem nice to have a close for the case where the user knows they\u0027re done but would like to free up the resource before the end of the current scope.",
+      "parentUuid": "09dbb449_b99b20df",
       "range": {
         "startLine": 619,
         "startChar": 19,
