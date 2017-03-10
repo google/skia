@@ -13,6 +13,7 @@
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace.h"
 #include "SkColorSpaceXform.h"
+#include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
@@ -1836,6 +1837,18 @@ Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         }
         dl.draw(canvas);
         return check_against_reference(bitmap, src, fSink.get());
+    });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+ViaCSXform::ViaCSXform(Sink* sink, sk_sp<SkColorSpace> cs) : Via(sink), fCS(std::move(cs)) {}
+
+Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(),
+                          [&](SkCanvas* canvas) -> Error {
+        auto proxy = SkCreateColorSpaceXformCanvas(canvas, fCS);
+        return src.draw(proxy.get());
     });
 }
 
