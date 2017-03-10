@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "57e6abc0_5a178434",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-10T16:03:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f044f253_8f389b00",
+      "range": {
+        "startLine": 93,
+        "startChar": 84,
+        "endLine": 93,
+        "endChar": 88
+      },
+      "revId": "df5e16ccf1585a4aa9210a5be127d16882d756bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "799ca51d_1b830984",
         "filename": "src/gpu/GrPreFlushResourceProvider.h",
         "patchSetId": 22
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-10T15:40:05Z",
       "side": 1,
       "message": "could/should this be the unique ids rather than the op lists? or if it has to be oplists should they const?",
+      "range": {
+        "startLine": 46,
+        "startChar": 66,
+        "endLine": 46,
+        "endChar": 74
+      },
+      "revId": "df5e16ccf1585a4aa9210a5be127d16882d756bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09d30b7b_6e5ef028",
+        "filename": "src/gpu/GrPreFlushResourceProvider.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-10T16:03:23Z",
+      "side": 1,
+      "message": "I didn\u0027t want to go with an array of ids since allocating it and filling it in seemed redundant. Even if I made the opLists const, it would be somewhat of a lie since this callback exists to monkey with their contents.",
+      "parentUuid": "799ca51d_1b830984",
       "range": {
         "startLine": 46,
         "startChar": 66,
@@ -68,6 +116,30 @@
       "revId": "df5e16ccf1585a4aa9210a5be127d16882d756bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69345191_9d9d6d24",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-10T16:03:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d81063ce_f379806d",
+      "range": {
+        "startLine": 75,
+        "startChar": 27,
+        "endLine": 75,
+        "endChar": 43
+      },
+      "revId": "df5e16ccf1585a4aa9210a5be127d16882d756bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
