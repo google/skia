@@ -331,6 +331,8 @@ private:
 
     bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
 
+    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return true; }
+
     GR_DECLARE_XP_FACTORY_TEST;
 
     SkBlendMode     fMode;
