@@ -18,7 +18,7 @@ public:
         , fClipStack(fStorage, sizeof(fStorage))
     {}
 
-    const SkClipStack& cs() const { return fClipStack; }
+    SkClipStack& cs() { return fClipStack; }
 
     SkIRect devClipBounds() const;
 

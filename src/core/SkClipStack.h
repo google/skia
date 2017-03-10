@@ -341,6 +341,27 @@ public:
     void save();
     void restore();
 
+    class AutoRestore {
+    public:
+        AutoRestore(SkClipStack* cs, bool doSave)
+            : fCS(cs), fSaveCount(cs->getSaveCount())
+        {
+            if (doSave) {
+                fCS->save();
+            }
+        }
+        ~AutoRestore() {
+            SkASSERT(fCS->getSaveCount() >= fSaveCount);  // no underflow
+            while (fCS->getSaveCount() > fSaveCount) {
+                fCS->restore();
+            }
+        }
+
+    private:
+        SkClipStack* fCS;
+        const int    fSaveCount;
+    };
+
     /**
      * getBounds places the current finite bound in its first parameter. In its
      * second, it indicates which kind of bound is being returned. If
