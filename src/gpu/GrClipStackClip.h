@@ -26,7 +26,7 @@ public:
 
     void reset(const SkClipStack* stack = nullptr, const SkIPoint* origin = nullptr) {
         fOrigin = origin ? *origin : SkIPoint::Make(0, 0);
-        fStack.reset(SkSafeRef(stack));
+        fStack = stack;
     }
 
     bool quickContains(const SkRect&) const final;
@@ -62,8 +62,8 @@ private:
                               const GrRenderTargetContext*,
                               const GrReducedClip&);
 
-    SkIPoint                 fOrigin;
-    sk_sp<const SkClipStack> fStack;
+    SkIPoint            fOrigin;
+    const SkClipStack*  fStack;
 };
 
 #endif // GrClipStackClip_DEFINED
