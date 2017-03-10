@@ -331,8 +331,7 @@ protected:
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
     const GrSurfaceDesc  fDesc;
     const SkBackingFit   fFit;      // always exact for wrapped resources
-    mutable SkBudgeted   fBudgeted; // set from the backing resource for wrapped resources
-                                    // mutable bc of SkSurface/SkImage wishy-washiness
+    const SkBudgeted     fBudgeted; // set from the backing resource for wrapped resources
     const uint32_t       fFlags;
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 

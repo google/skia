@@ -18,16 +18,14 @@
 
 SkPictureRecorder::SkPictureRecorder() {
     fActivelyRecording = false;
-    fRecorder.reset(new SkRecorder(nullptr, SkRect::MakeEmpty(), &fMiniRecorder));
+    fRecorder.reset(new SkRecorder(nullptr, SkRect::MakeWH(0, 0), &fMiniRecorder));
 }
 
 SkPictureRecorder::~SkPictureRecorder() {}
 
-SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
+SkCanvas* SkPictureRecorder::beginRecording(const SkRect& cullRect,
                                             SkBBHFactory* bbhFactory /* = nullptr */,
                                             uint32_t recordFlags /* = 0 */) {
-    const SkRect cullRect = userCullRect.isEmpty() ? SkRect::MakeEmpty() : userCullRect;
-
     fCullRect = cullRect;
     fFlags = recordFlags;
 

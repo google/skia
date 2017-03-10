@@ -499,11 +499,6 @@ SkClipStack::SkClipStack()
     , fSaveCount(0) {
 }
 
-SkClipStack::SkClipStack(void* storage, size_t size)
-    : fDeque(sizeof(Element), storage, size, kDefaultElementAllocCnt)
-    , fSaveCount(0) {
-}
-
 SkClipStack::SkClipStack(const SkClipStack& b)
     : fDeque(sizeof(Element), kDefaultElementAllocCnt) {
     *this = b;

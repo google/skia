@@ -21,12 +21,24 @@ public:
     GrProcessorSet(GrPaint&& paint);
 
     ~GrProcessorSet() {
-        // We are deliberately not using sk_sp here because this will be updated to work with
-        // "pending execution" refs.
-        for (auto fp : fFragmentProcessors) {
-            fp->unref();
+        if (this->isPendingExecution()) {
+            for (auto fp : fFragmentProcessors) {
+                fp->completedExecution();
+            }
+        } else {
+            for (auto fp : fFragmentProcessors) {
+                fp->unref();
+            }
         }
     }
+
+    /**
+     * If an op is recorded with this processor set then this must be called to ensure pending
+     * reads and writes are propogated to resources referred to by the processors. Otherwise,
+     * data hazards may occur.
+     */
+    void makePendingExecution();
+    bool isPendingExecution() const { return SkToBool(kPendingExecution_Flag & fFlags); }
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
     int numCoverageFragmentProcessors() const {
@@ -50,6 +62,24 @@ public:
     }
     bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
 
+    bool operator==(const GrProcessorSet& that) const {
+        if (((fFlags ^ that.fFlags) & ~kPendingExecution_Flag) ||
+            fFragmentProcessors.count() != that.fFragmentProcessors.count() ||
+            fColorFragmentProcessorCnt != that.fColorFragmentProcessorCnt) {
+            return false;
+        }
+        for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+            if (!fFragmentProcessors[i]->isEqual(*that.fFragmentProcessors[i])) {
+                return false;
+            }
+        }
+        if (fXPFactory != that.fXPFactory) {
+            return false;
+        }
+        return true;
+    }
+    bool operator!=(const GrProcessorSet& that) const { return !(*this == that); }
+
     /**
      * This is used to track analysis of color and coverage values through the fragment processors.
      */
@@ -72,8 +102,8 @@ public:
                 : fIsInitializedWithProcessorSet(false)
                 , fCompatibleWithCoverageAsAlpha(true)
                 , fValidInputColor(false)
-                , fOutputCoverageType(static_cast<unsigned>(CoverageType::kNone))
-                , fOutputColorType(static_cast<unsigned>(ColorType::kUnknown))
+                , fOutputCoverageType(CoverageType::kNone)
+                , fOutputColorType(ColorType::kUnknown)
                 , fInitialColorProcessorsToEliminate(0) {}
 
         // This version is used by a unit test that assumes no clip, no processors, and no PLS.
@@ -107,38 +137,33 @@ public:
         bool usesLocalCoords() const { return fUsesLocalCoords; }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
         bool isOutputColorOpaque() const {
-            return ColorType::kOpaque == this->outputColorType() ||
-                   ColorType::kOpaqueConstant == this->outputColorType();
+            return ColorType::kOpaque == fOutputColorType ||
+                   ColorType::kOpaqueConstant == fOutputColorType;
         }
         bool hasKnownOutputColor(GrColor* color = nullptr) const {
-            bool constant = ColorType::kConstant == this->outputColorType() ||
-                            ColorType::kOpaqueConstant == this->outputColorType();
+            bool constant = ColorType::kConstant == fOutputColorType ||
+                            ColorType::kOpaqueConstant == fOutputColorType;
             if (constant && color) {
                 *color = fKnownOutputColor;
             }
             return constant;
         }
-        bool hasCoverage() const { return CoverageType::kNone != this->outputCoverageType(); }
-        bool hasLCDCoverage() const { return CoverageType::kLCD == this->outputCoverageType(); }
+        bool hasCoverage() const { return CoverageType::kNone != fOutputCoverageType; }
+        bool hasLCDCoverage() const { return CoverageType::kLCD == fOutputCoverageType; }
 
     private:
-        enum class ColorType : unsigned { kUnknown, kOpaqueConstant, kConstant, kOpaque };
-        enum class CoverageType : unsigned { kNone, kSingleChannel, kLCD };
-
-        CoverageType outputCoverageType() const {
-            return static_cast<CoverageType>(fOutputCoverageType);
-        }
-        ColorType outputColorType() const { return static_cast<ColorType>(fOutputColorType); }
-
         void internalInit(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
                           const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
+
+        enum class ColorType : unsigned { kUnknown, kOpaqueConstant, kConstant, kOpaque };
+        enum class CoverageType : unsigned { kNone, kSingleChannel, kLCD };
 
         bool fIsInitializedWithProcessorSet : 1;
         bool fUsesLocalCoords : 1;
         bool fCompatibleWithCoverageAsAlpha : 1;
         bool fValidInputColor : 1;
-        unsigned fOutputCoverageType : 2;
-        unsigned fOutputColorType : 2;
+        CoverageType fOutputCoverageType : 2;
+        ColorType fOutputColorType : 2;
         unsigned fInitialColorProcessorsToEliminate : 32 - 8;
 
         GrColor fInputColor;
@@ -153,7 +178,8 @@ private:
     enum Flags : uint16_t {
         kUseDistanceVectorField_Flag = 0x1,
         kDisableOutputConversionToSRGB_Flag = 0x2,
-        kAllowSRGBInputs_Flag = 0x4
+        kAllowSRGBInputs_Flag = 0x4,
+        kPendingExecution_Flag  = 0x8
     };
 
     const GrXPFactory* fXPFactory = nullptr;

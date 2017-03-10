@@ -130,9 +130,15 @@ sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
         return nullptr;
     }
 
-    SkASSERT(proxy->priv().isExact());
-    sk_sp<SkImage> image(new SkImage_Gpu(this, kNeedNewImageUniqueID, kPremul_SkAlphaType,
-                                         std::move(proxy), nullptr, SkBudgeted::kNo));
+    GrTexture* tex = proxy->instantiate(this->resourceProvider());
+    if (!tex) {
+        return nullptr;
+    }
+
+    // MDB TODO: add proxy-backed SkImage_Gpu's
+    sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
+                                         kNeedNewImageUniqueID, kPremul_SkAlphaType,
+                                         sk_ref_sp(tex), nullptr, SkBudgeted::kNo));
     return image;
 }
 
@@ -340,7 +346,8 @@ private:
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override {
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                                    GrWrapOwnership) override {
         return nullptr;
     }
 

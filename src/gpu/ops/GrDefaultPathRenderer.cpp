@@ -261,7 +261,7 @@ private:
         target->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override {
         DefaultPathOp* that = t->cast<DefaultPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

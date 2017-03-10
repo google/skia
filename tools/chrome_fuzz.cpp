@@ -8,8 +8,6 @@
 #include "SkOSFile.h"
 #include "SkString.h"
 
-#include <stdio.h>
-
 static const int kBitmapSize = 24;
 
 static bool read_test_case(const char* filename, SkString* testdata) {
@@ -24,7 +22,7 @@ static bool read_test_case(const char* filename, SkString* testdata) {
     return false;
   }
   testdata->resize(len);
-  (void) fread(testdata->writable_str(), len, file);
+  (void) sk_fread(testdata->writable_str(), len, file);
   return true;
 }
 

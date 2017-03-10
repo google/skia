@@ -120,7 +120,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
     if (tex) {
-        image = sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
+        image = sk_make_sp<SkImage_Gpu>(info.width(), info.height(), kNeedNewImageUniqueID,
                                         info.alphaType(), sk_ref_sp(tex),
                                         sk_ref_sp(info.colorSpace()), budgeted);
     }
@@ -224,7 +224,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeBackendTextureRenderTargetContext(
                                                                     desc,
                                                                     std::move(colorSpace),
-                                                                    props));
+                                                                    props,
+                                                                    kBorrow_GrWrapOwnership));
     if (!rtc) {
         return nullptr;
     }

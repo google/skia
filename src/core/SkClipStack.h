@@ -29,7 +29,7 @@ class SkCanvasClipVisitor;
 // (i.e., the fSaveCount in force when it was added). Restores are thus
 // implemented by removing clips from fDeque that have an fSaveCount larger
 // then the freshly decremented count.
-class SkClipStack {
+class SK_API SkClipStack : public SkNVRefCnt<SkClipStack> {
 public:
     enum BoundsType {
         // The bounding box contains all the pixels that can be written to
@@ -327,7 +327,6 @@ public:
     };
 
     SkClipStack();
-    SkClipStack(void* storage, size_t size);
     SkClipStack(const SkClipStack& b);
     ~SkClipStack();
 

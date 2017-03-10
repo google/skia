@@ -39,12 +39,14 @@ public:
     // TODO: Maybe add a 'surfaceProps' param (that is ignored for non-RTs) and remove
     // makeBackendTextureRenderTargetContext & makeBackendTextureAsRenderTargetRenderTargetContext
     sk_sp<GrSurfaceContext> makeBackendSurfaceContext(const GrBackendTextureDesc& desc,
-                                                      sk_sp<SkColorSpace> colorSpace);
+                                                      sk_sp<SkColorSpace> colorSpace,
+                                                      GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
                                                          const GrBackendTextureDesc& desc,
                                                          sk_sp<SkColorSpace> colorSpace,
-                                                         const SkSurfaceProps* = nullptr);
+                                                         const SkSurfaceProps* = nullptr,
+                                                         GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     sk_sp<GrRenderTargetContext> makeBackendRenderTargetRenderTargetContext(
                                                               const GrBackendRenderTargetDesc& desc,

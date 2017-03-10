@@ -155,95 +155,105 @@ bool SkWStream::writeStream(SkStream* stream, size_t length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t size,
-                           size_t offset, size_t originalOffset)
-    : fFILE(std::move(file))
-    , fSize(size)
-    , fOffset(SkTMin(offset, fSize))
-    , fOriginalOffset(SkTMin(originalOffset, fSize))
-{ }
-
-SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t size, size_t offset)
-    : SkFILEStream(std::move(file), size, offset, offset)
-{ }
-
-SkFILEStream::SkFILEStream(FILE* file)
-    : SkFILEStream(std::shared_ptr<FILE>(file, sk_fclose),
-                   file ? sk_fgetsize(file) : 0,
-                   file ? sk_ftell(file) : 0)
-{ }
-
-
-SkFILEStream::SkFILEStream(const char path[])
-    : SkFILEStream(path ? sk_fopen(path, kRead_SkFILE_Flag) : nullptr)
-{ }
-
-SkFILEStream::~SkFILEStream() {
-    this->close();
+SkFILEStream::SkFILEStream(const char file[]) : fName(file), fOwnership(kCallerPasses_Ownership) {
+    fFILE = file ? sk_fopen(fName.c_str(), kRead_SkFILE_Flag) : nullptr;
 }
 
-void SkFILEStream::close() {
-    fFILE.reset();
-    fSize = 0;
-    fOffset = 0;
+SkFILEStream::SkFILEStream(FILE* file, Ownership ownership)
+    : fFILE(file)
+    , fOwnership(ownership) {
+}
+
+SkFILEStream::~SkFILEStream() {
+    if (fFILE && fOwnership != kCallerRetains_Ownership) {
+        sk_fclose(fFILE);
+    }
+}
+
+void SkFILEStream::setPath(const char path[]) {
+    fName.set(path);
+    if (fFILE) {
+        sk_fclose(fFILE);
+        fFILE = nullptr;
+    }
+    if (path) {
+        fFILE = sk_fopen(fName.c_str(), kRead_SkFILE_Flag);
+    }
 }
 
 size_t SkFILEStream::read(void* buffer, size_t size) {
-    if (size > fSize - fOffset) {
-        size = fSize - fOffset;
+    if (fFILE) {
+        return sk_fread(buffer, size, fFILE);
     }
-    size_t bytesRead = size;
-    if (buffer) {
-        bytesRead = sk_qread(fFILE.get(), buffer, size, fOffset);
-    }
-    if (bytesRead == SIZE_MAX) {
-        return 0;
-    }
-    fOffset += bytesRead;
-    return bytesRead;
+    return 0;
 }
 
 bool SkFILEStream::isAtEnd() const {
-    if (fOffset == fSize) {
-        return true;
-    }
-    return fOffset >= sk_fgetsize(fFILE.get());
+    return sk_feof(fFILE);
 }
 
 bool SkFILEStream::rewind() {
-    // TODO: fOriginalOffset instead of 0.
-    fOffset = 0;
-    return true;
+    if (fFILE) {
+        if (sk_frewind(fFILE)) {
+            return true;
+        }
+        // we hit an error
+        sk_fclose(fFILE);
+        fFILE = nullptr;
+    }
+    return false;
 }
 
 SkStreamAsset* SkFILEStream::duplicate() const {
-    // TODO: fOriginalOffset instead of 0.
-    return new SkFILEStream(fFILE, fSize, 0, fOriginalOffset);
+    if (nullptr == fFILE) {
+        return new SkMemoryStream();
+    }
+
+    if (fData.get()) {
+        return new SkMemoryStream(fData);
+    }
+
+    if (!fName.isEmpty()) {
+        std::unique_ptr<SkFILEStream> that(new SkFILEStream(fName.c_str()));
+        if (sk_fidentical(that->fFILE, this->fFILE)) {
+            return that.release();
+        }
+    }
+
+    fData = SkData::MakeFromFILE(fFILE);
+    if (nullptr == fData) {
+        return nullptr;
+    }
+    return new SkMemoryStream(fData);
 }
 
 size_t SkFILEStream::getPosition() const {
-    return fOffset;
+    return sk_ftell(fFILE);
 }
 
 bool SkFILEStream::seek(size_t position) {
-    fOffset = position > fSize ? fSize : position;
-    return true;
+    return sk_fseek(fFILE, position);
 }
 
 bool SkFILEStream::move(long offset) {
-    return this->seek(fOffset + offset);
+    return sk_fmove(fFILE, offset);
 }
 
 SkStreamAsset* SkFILEStream::fork() const {
-    return new SkFILEStream(fFILE, fSize, fOffset, fOriginalOffset);
+    std::unique_ptr<SkStreamAsset> that(this->duplicate());
+    that->seek(this->getPosition());
+    return that.release();
 }
 
 size_t SkFILEStream::getLength() const {
-    return fSize;
+    return sk_fgetsize(fFILE);
 }
 
 const void* SkFILEStream::getMemoryBase() {
-    return nullptr;
+    if (nullptr == fData.get()) {
+        return nullptr;
+    }
+    return fData->data();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

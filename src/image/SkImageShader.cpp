@@ -154,14 +154,11 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     GrSamplerParams params(tm, textureFilterMode);
     sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(args.fContext, params,
-                                                                 args.fDstColorSpace,
-                                                                 &texColorSpace, scaleAdjust));
-    if (!proxy) {
+    sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params, args.fDstColorSpace,
+                                                         &texColorSpace, scaleAdjust));
+    if (!texture) {
         return nullptr;
     }
-
-    bool isAlphaOnly = GrPixelConfigIsAlphaOnly(proxy->config());
 
     lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
 
@@ -169,14 +166,13 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner = GrBicubicEffect::Make(args.fContext, std::move(proxy), std::move(colorSpaceXform),
-                                      lmInverse, tm);
+        inner = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), lmInverse, tm);
     } else {
-        inner = GrSimpleTextureEffect::Make(args.fContext, std::move(proxy),
-                                            std::move(colorSpaceXform), lmInverse, params);
+        inner = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform),
+                                            lmInverse, params);
     }
 
-    if (isAlphaOnly) {
+    if (GrPixelConfigIsAlphaOnly(texture->config())) {
         return inner;
     }
     return sk_sp<GrFragmentProcessor>(GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner)));

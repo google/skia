@@ -578,12 +578,17 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
 }
 
-sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc){
+sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
+                                                         GrWrapOwnership ownership) {
     GrGLRenderTarget::IDDesc idDesc;
     idDesc.fRTFBOID = static_cast<GrGLuint>(wrapDesc.fRenderTargetHandle);
     idDesc.fMSColorRenderbufferID = 0;
     idDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
-    idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
+    if (kAdopt_GrWrapOwnership == ownership) {
+        idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
+    } else {
+        idDesc.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
+    }
     idDesc.fIsMixedSampled = false;
 
     GrSurfaceDesc desc;

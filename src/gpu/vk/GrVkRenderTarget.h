@@ -35,6 +35,7 @@ public:
                                                    const GrVkImage::ImageDesc&);
 
     static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
+                                                           GrWrapOwnership,
                                                            const GrVkImageInfo*);
 
     ~GrVkRenderTarget() override;

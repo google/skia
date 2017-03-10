@@ -11,15 +11,18 @@
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
+#include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkString.h"
 
 #include <new>
 
+class GrAppliedClip;
 class GrCaps;
 class GrGpuCommandBuffer;
 class GrOpFlushState;
+class GrRenderTarget;
 
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
@@ -63,12 +66,12 @@ public:
 
     virtual const char* name() const = 0;
 
-    bool combineIfPossible(GrOp* that, const GrCaps& caps) {
+    bool combineIfPossible(GrOp* that, const GrCaps& caps, const GrAppliedClip* clip) {
         if (this->classID() != that->classID()) {
             return false;
         }
 
-        return this->onCombineIfPossible(that, caps);
+        return this->onCombineIfPossible(that, caps, clip);
     }
 
     const SkRect& bounds() const {
@@ -139,8 +142,15 @@ public:
      */
     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
 
-    /** Issues the op's commands to GrGpu. */
-    void execute(GrOpFlushState* state) { this->onExecute(state); }
+    /**
+     * Issues the op's commands to GrGpu. The clip and dst will be null for ops not derived from
+     * GrDrawOp. The dst texture will be null if the op is not a GrDrawOp or if the op's
+     * GrXferProcessor does not require a dst texture for blending. The clip may also be null
+     * if the op is a GrDrawOp that is unclipped.
+     */
+    void execute(GrOpFlushState* state) {
+        this->onExecute(state);
+    }
 
     /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {
@@ -196,7 +206,7 @@ protected:
     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
 
 private:
-    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps) = 0;
+    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps, const GrAppliedClip*) = 0;
 
     virtual void onPrepare(GrOpFlushState*) = 0;
     virtual void onExecute(GrOpFlushState*) = 0;

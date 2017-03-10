@@ -225,12 +225,13 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc,
     return tex;
 }
 
-sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
+sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc,
+                                                     GrWrapOwnership ownership) {
     if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
     this->handleDirtyContext();
-    return this->onWrapBackendRenderTarget(desc);
+    return this->onWrapBackendRenderTarget(desc, ownership);
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {

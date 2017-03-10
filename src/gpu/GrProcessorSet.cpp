@@ -38,6 +38,15 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
     }
 }
 
+void GrProcessorSet::makePendingExecution() {
+    SkASSERT(!(kPendingExecution_Flag & fFlags));
+    fFlags |= kPendingExecution_Flag;
+    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+        fFragmentProcessors[i]->addPendingExecution();
+        fFragmentProcessors[i]->unref();
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 void GrProcessorSet::FragmentProcessorAnalysis::internalInit(const GrPipelineInput& colorInput,
@@ -76,20 +85,19 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(const GrPipelineInp
 
     bool opaque = colorInfo.isOpaque();
     if (colorInfo.hasKnownOutputColor(&fKnownOutputColor)) {
-        fOutputColorType = static_cast<unsigned>(opaque ? ColorType::kOpaqueConstant
-                                                        : ColorType::kConstant);
+        fOutputColorType = opaque ? ColorType::kOpaqueConstant : ColorType::kConstant;
     } else if (opaque) {
-        fOutputColorType = static_cast<unsigned>(ColorType::kOpaque);
+        fOutputColorType = ColorType::kOpaque;
     } else {
-        fOutputColorType = static_cast<unsigned>(ColorType::kUnknown);
+        fOutputColorType = ColorType::kUnknown;
     }
 
     if (coverageInput.isLCDCoverage()) {
-        fOutputCoverageType = static_cast<unsigned>(CoverageType::kLCD);
+        fOutputCoverageType = CoverageType::kLCD;
     } else {
         fOutputCoverageType = hasCoverageFP || !coverageInput.isSolidWhite()
-                                      ? static_cast<unsigned>(CoverageType::kSingleChannel)
-                                      : static_cast<unsigned>(CoverageType::kNone);
+                                      ? CoverageType::kSingleChannel
+                                      : CoverageType::kNone;
     }
 }
 

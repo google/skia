@@ -2111,7 +2111,6 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkString.h"
 #include "SkStringUtils.h"
 #include "SkStream.h"
 
