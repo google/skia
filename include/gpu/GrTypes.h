@@ -676,9 +676,6 @@ enum GrWrapOwnership {
 
     /** Skia will assume ownership of the resource and free it. */
     kAdopt_GrWrapOwnership,
-
-    /** Skia will assume ownership of the resource, free it, and reuse it within the cache. */
-    kAdoptAndCache_GrWrapOwnership,
 };
 
 /**

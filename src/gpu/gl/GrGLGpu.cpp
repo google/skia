@@ -520,7 +520,6 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
 
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
-    SkASSERT(!renderTarget || kAdoptAndCache_GrWrapOwnership != ownership);  // Not supported
 
     GrGLTexture::IDDesc idDesc;
     idDesc.fInfo = *info;
@@ -547,10 +546,10 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         return nullptr;
     }
 
-    if (kBorrow_GrWrapOwnership == ownership) {
-        idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
-    } else {
+    if (kAdopt_GrWrapOwnership == ownership) {
         idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
+    } else {
+        idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     }
 
     GrSurfaceDesc surfDesc;
@@ -576,12 +575,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         }
         return GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc);
     }
-
-    if (kAdoptAndCache_GrWrapOwnership == ownership) {
-        return sk_sp<GrTexture>(new GrGLTexture(this, SkBudgeted::kYes, surfDesc, idDesc));
-    } else {
-        return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
-    }
+    return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc){

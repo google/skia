@@ -96,13 +96,10 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
         return nullptr;
     }
 
-    if (kAdoptAndCache_GrWrapOwnership == ownership) {
-        return sk_sp<GrVkTexture>(new GrVkTexture(gpu, SkBudgeted::kYes, desc, *info, imageView));
-    } else {
-        GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership
-                ? GrVkImage::kBorrowed_Wrapped : GrVkImage::kAdopted_Wrapped;
-        return sk_sp<GrVkTexture>(new GrVkTexture(gpu, kWrapped, desc, *info, imageView, wrapped));
-    }
+    GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership ? GrVkImage::kBorrowed_Wrapped
+                                                                      : GrVkImage::kAdopted_Wrapped;
+
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, kWrapped, desc, *info, imageView, wrapped));
 }
 
 GrVkTexture::~GrVkTexture() {
