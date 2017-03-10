@@ -890,8 +890,14 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
     return nullptr;
 }
 
+static sk_sp<SkColorSpace> adobe_rgb() {
+    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                 SkColorSpace::kAdobeRGB_Gamut);
+}
+
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
+    VIA("adobe",     ViaCSXform,           wrapped, adobe_rgb());
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);

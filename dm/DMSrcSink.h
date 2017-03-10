@@ -349,7 +349,7 @@ public:
 class PipeSink : public Sink {
 public:
     PipeSink();
-    
+
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "skpipe"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
@@ -492,6 +492,14 @@ class ViaLite : public Via {
 public:
     explicit ViaLite(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
+class ViaCSXform : public Via {
+public:
+    explicit ViaCSXform(Sink*, sk_sp<SkColorSpace>);
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+private:
+    sk_sp<SkColorSpace> fCS;
 };
 
 }  // namespace DM
