@@ -10,6 +10,7 @@
 #include "SkCodec.h"
 #include "SkImageInfo.h"
 #include "SkStream.h"
+#include "SkTArray.h"
 #include "SkTypes.h"
 
 /*

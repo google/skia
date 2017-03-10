@@ -24,20 +24,12 @@ FILE* sk_fopen(const char path[], SkFILE_Flags);
 void    sk_fclose(FILE*);
 
 size_t  sk_fgetsize(FILE*);
-/** Return true if the file could seek back to the beginning
-*/
-bool    sk_frewind(FILE*);
 
-size_t  sk_fread(void* buffer, size_t byteCount, FILE*);
 size_t  sk_fwrite(const void* buffer, size_t byteCount, FILE*);
-
-char*   sk_fgets(char* str, int size, FILE* f);
 
 void    sk_fflush(FILE*);
 void    sk_fsync(FILE*);
 
-bool    sk_fseek(FILE*, size_t);
-bool    sk_fmove(FILE*, long);
 size_t  sk_ftell(FILE*);
 
 /** Maps a file into memory. Returns the address and length on success, NULL otherwise.
@@ -73,8 +65,9 @@ bool    sk_exists(const char *path, SkFILE_Flags = (SkFILE_Flags)0);
 // Returns true if a directory exists at this path.
 bool    sk_isdir(const char *path);
 
-// Have we reached the end of the file?
-int sk_feof(FILE *);
+// Like pread, but may affect the file position marker.
+// Returns the number of bytes read or SIZE_MAX if failed.
+size_t sk_qread(FILE*, void* buffer, size_t count, size_t offset);
 
 
 // Create a new directory at this path; returns true if successful.

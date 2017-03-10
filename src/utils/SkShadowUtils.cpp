@@ -12,6 +12,7 @@
 #include "SkRandom.h"
 #include "SkResourceCache.h"
 #include "SkShadowTessellator.h"
+#include "SkString.h"
 #include "SkTLazy.h"
 #include "SkVertices.h"
 #if SK_SUPPORT_GPU
