@@ -575,6 +575,12 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
 
 ////////////////////////////////////////////////////////////////////////////////
 
+static SkScalar cross(const SkPoint& pt1, const SkPoint& pt2, const SkPoint& pt3) {
+    SkPoint a = pt2 - pt1;
+    SkPoint b = pt3 - pt1;
+    return a.x() * b.y() - a.y() * b.x();
+}
+
 // Solves linear system to extract klm
 // P.K = k (similarly for l, m)
 // Where P is matrix of control points
@@ -584,17 +590,33 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
 static void calc_cubic_klm(const SkPoint p[4], const SkScalar controlK[4],
                            const SkScalar controlL[4], const SkScalar controlM[4],
                            SkScalar k[3], SkScalar l[3], SkScalar m[3]) {
-    SkMatrix matrix;
-    matrix.setAll(p[0].fX, p[0].fY, 1.f,
-                  p[1].fX, p[1].fY, 1.f,
-                  p[2].fX, p[2].fY, 1.f);
-    SkMatrix inverse;
-    if (matrix.invert(&inverse)) {
-       inverse.mapHomogeneousPoints(k, controlK, 1);
-       inverse.mapHomogeneousPoints(l, controlL, 1);
-       inverse.mapHomogeneousPoints(m, controlM, 1);
-    }
 
+    SkMatrix matrix, inverse;
+    if (SkScalarAbs(cross(p[0], p[1], p[2])) >= SkScalarAbs(cross(p[0], p[2], p[3]))) {
+        matrix.setAll(p[0].fX, p[0].fY, 1.f,
+                      p[1].fX, p[1].fY, 1.f,
+                      p[2].fX, p[2].fY, 1.f);
+        if (matrix.invert(&inverse)) {
+            inverse.mapHomogeneousPoints(k, controlK, 1);
+            inverse.mapHomogeneousPoints(l, controlL, 1);
+            inverse.mapHomogeneousPoints(m, controlM, 1);
+            return;
+        }
+    } else {
+        matrix.setAll(p[0].fX, p[0].fY, 1.f,
+                      p[2].fX, p[2].fY, 1.f,
+                      p[3].fX, p[3].fY, 1.f);
+        if (matrix.invert(&inverse)) {
+            float K023[] = {controlK[0], controlK[2], controlK[3]};
+            inverse.mapHomogeneousPoints(k, K023, 1);
+            float L023[] = {controlL[0], controlL[2], controlL[3]};
+            inverse.mapHomogeneousPoints(l, L023, 1);
+            float M023[] = {controlM[0], controlM[2], controlM[3]};
+            inverse.mapHomogeneousPoints(m, M023, 1);
+            return;
+        }
+    }
+    SkDebugf("WARNING: failed to calc cubic klm due to non-invertible matrix\n");
 }
 
 static void set_serp_klm(const SkScalar d[3], SkScalar k[4], SkScalar l[4], SkScalar m[4]) {
