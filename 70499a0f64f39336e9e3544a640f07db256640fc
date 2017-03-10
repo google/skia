@@ -246,6 +246,30 @@
       "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dedc9220_493d5705",
+        "filename": "src/gpu/GrPerFlushResourceProvider.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-10T17:09:04Z",
+      "side": 1,
+      "message": "I\u0027ve updated the callback to be able to return multiple RTCs. PTAL.",
+      "parentUuid": "afb8113a_001a92c7",
+      "range": {
+        "startLine": 41,
+        "startChar": 18,
+        "endLine": 41,
+        "endChar": 38
+      },
+      "revId": "70499a0f64f39336e9e3544a640f07db256640fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
