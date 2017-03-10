@@ -67,7 +67,6 @@
 // TODO:
 //   SkTextBlob with Unicode
 //   Cleanup function names
-//   Fuzz::nextRangeEnum()
 
 template <typename T, void (SkPaint::*S)(T)>
 inline void fuzz_input(Fuzz* fuzz, SkPaint* paint) {
@@ -76,12 +75,17 @@ inline void fuzz_input(Fuzz* fuzz, SkPaint* paint) {
     (paint->*S)(value);
 }
 
-template <typename T, void (SkPaint::*S)(T)>
-inline void fuzz_enum_input(Fuzz* fuzz, SkPaint* paint, T rmin, T rmax) {
+template <typename T, typename Min, typename Max>
+inline void fuzz_enum_range(Fuzz* fuzz, T* value, Min rmin, Max rmax) {
     using U = skstd::underlying_type_t<T>;
-    U value;
-    fuzz->nextRange(&value, (U)rmin, (U)rmax);
-    (paint->*S)((T)value);
+    fuzz->nextRange((U*)value, (U)rmin, (U)rmax);
+}
+
+template <typename T, void (SkPaint::*S)(T), typename Min, typename Max>
+inline void fuzz_enum_input(Fuzz* fuzz, SkPaint* paint, Min rmin, Max rmax) {
+    T value;
+    fuzz_enum_range<T, Min, Max>(fuzz, &value, rmin, rmax);
+    (paint->*S)(value);
 }
 
 // be careful: `foo(make_bool(f), make_bool(f))` is undefined.
@@ -170,16 +174,13 @@ inline void Fuzz::next(SkRegion* region) {
 
 template <>
 inline void Fuzz::next(SkShader::TileMode* m) {
-    using U = skstd::underlying_type_t<SkShader::TileMode>;
-    this->nextRange((U*)m, (U)0, (U)(SkShader::kTileModeCount - 1));
+    fuzz_enum_range(this, m, 0, SkShader::kTileModeCount - 1);
 }
 
 template <>
 inline void Fuzz::next(SkFilterQuality* q) {
-    using U = skstd::underlying_type_t<SkFilterQuality>;
-    this->nextRange((U*)q,
-                    (U)SkFilterQuality::kNone_SkFilterQuality,
-                    (U)SkFilterQuality::kLast_SkFilterQuality);
+    fuzz_enum_range(this, q, SkFilterQuality::kNone_SkFilterQuality,
+                    SkFilterQuality::kLast_SkFilterQuality);
 }
 
 template <>
@@ -235,8 +236,7 @@ inline void Fuzz::next(SkRRect* rr) {
 
 template <>
 inline void Fuzz::next(SkBlendMode* mode) {
-    using U = skstd::underlying_type_t<SkBlendMode>;
-    this->nextRange((U*)mode, (U)0, (U)SkBlendMode::kLastMode);
+    fuzz_enum_range(this, mode, 0, SkBlendMode::kLastMode);
 }
 
 sk_sp<SkImage> MakeFuzzImage(Fuzz*);
@@ -520,10 +520,9 @@ sk_sp<SkPathEffect> MakeFuzzPathEffect(Fuzz* fuzz, int depth) {
             fuzz_path(fuzz, &path, 20);
             SkScalar advance, phase;
             fuzz->next(&advance, &phase);
-            using U = skstd::underlying_type_t<SkPath1DPathEffect::Style>;
-            U style;
-            fuzz->nextRange(&style, (U)0, (U)SkPath1DPathEffect::kLastEnum_Style);
-            return SkPath1DPathEffect::Make(path, advance, phase, (SkPath1DPathEffect::Style)style);
+            SkPath1DPathEffect::Style style;
+            fuzz_enum_range(fuzz, &style, 0, SkPath1DPathEffect::kLastEnum_Style);
+            return SkPath1DPathEffect::Make(path, advance, phase, style);
         }
         case 4: {
             SkScalar width;
@@ -576,9 +575,8 @@ sk_sp<SkMaskFilter> MakeFuzzMaskFilter(Fuzz* fuzz) {
         case 0:
             return nullptr;
         case 1: {
-            using U = skstd::underlying_type_t<SkBlurStyle>;
-            U style;
-            fuzz->nextRange(&style, (U)0, (U)kLastEnum_SkBlurStyle);
+            SkBlurStyle blurStyle;
+            fuzz_enum_range(fuzz, &blurStyle, 0, kLastEnum_SkBlurStyle);
             SkScalar sigma;
             fuzz->next(&sigma);
             SkRect occluder{0.0f, 0.0f, 0.0f, 0.0f};
@@ -587,7 +585,7 @@ sk_sp<SkMaskFilter> MakeFuzzMaskFilter(Fuzz* fuzz) {
             }
             uint32_t flags;
             fuzz->nextRange(&flags, 0, 3);
-            return SkBlurMaskFilter::Make((SkBlurStyle)style, sigma, occluder, flags);
+            return SkBlurMaskFilter::Make(blurStyle, sigma, occluder, flags);
         }
         case 2: {
             SkRRect first, second;
@@ -764,9 +762,8 @@ static sk_sp<SkImageFilter> MakeFuzzImageFilter(Fuzz* fuzz, int depth) {
         }
         case 7: {
             SkDisplacementMapEffect::ChannelSelectorType xChannelSelector, yChannelSelector;
-            using U = skstd::underlying_type_t<SkDisplacementMapEffect::ChannelSelectorType>;
-            fuzz->nextRange((U*)(&xChannelSelector), 0, 4);
-            fuzz->nextRange((U*)(&yChannelSelector), 0, 4);
+            fuzz_enum_range(fuzz, &xChannelSelector, 0, 4);
+            fuzz_enum_range(fuzz, &yChannelSelector, 0, 4);
             SkScalar scale;
             bool useCropRect;
             fuzz->next(&scale, &useCropRect);
@@ -784,8 +781,7 @@ static sk_sp<SkImageFilter> MakeFuzzImageFilter(Fuzz* fuzz, int depth) {
             SkScalar dx, dy, sigmaX, sigmaY;
             SkColor color;
             SkDropShadowImageFilter::ShadowMode shadowMode;
-            using U = skstd::underlying_type_t<SkDropShadowImageFilter::ShadowMode>;
-            fuzz->nextRange((U*)(&shadowMode), (U)0, (U)1);
+            fuzz_enum_range(fuzz, &shadowMode, 0, 1);
             bool useCropRect;
             fuzz->next(&dx, &dy, &sigmaX, &sigmaY, &color, &useCropRect);
             SkImageFilter::CropRect cropRect;
@@ -835,8 +831,7 @@ static sk_sp<SkImageFilter> MakeFuzzImageFilter(Fuzz* fuzz, int depth) {
             bool convolveAlpha, useCropRect;
             fuzz->next(&gain, &bias, &convolveAlpha, &useCropRect);
             SkMatrixConvolutionImageFilter::TileMode tileMode;
-            using U = skstd::underlying_type_t<SkMatrixConvolutionImageFilter::TileMode>;
-            fuzz->nextRange((U*)(&tileMode), (U)0, (U)2);
+            fuzz_enum_range(fuzz, &tileMode, 0, 2);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
                 fuzz->next(&useCropRect);
@@ -1013,13 +1008,12 @@ void FuzzPaint(Fuzz* fuzz, SkPaint* paint, int depth) {
     fuzz_input<bool, &SkPaint::setAntiAlias>(fuzz, paint);
     fuzz_input<bool, &SkPaint::setDither>(fuzz, paint);
     fuzz_input<SkColor, &SkPaint::setColor>(fuzz, paint);
-    fuzz_enum_input<SkBlendMode, &SkPaint::setBlendMode>(fuzz, paint, (SkBlendMode)0,
-                                                         SkBlendMode::kLastMode);
+    fuzz_enum_input<SkBlendMode, &SkPaint::setBlendMode>(fuzz, paint, 0, SkBlendMode::kLastMode);
     fuzz_enum_input<SkFilterQuality, &SkPaint::setFilterQuality>(
             fuzz, paint, SkFilterQuality::kNone_SkFilterQuality,
             SkFilterQuality::kLast_SkFilterQuality);
-    fuzz_enum_input<SkPaint::Style, &SkPaint::setStyle>(fuzz, paint, SkPaint::kFill_Style,
-                                                        SkPaint::kStrokeAndFill_Style);
+    fuzz_enum_input<SkPaint::Style, &SkPaint::setStyle>(fuzz, paint, 0, 2);
+
     paint->setShader(MakeFuzzShader(fuzz, depth - 1));
     paint->setPathEffect(MakeFuzzPathEffect(fuzz, depth - 1));
     paint->setMaskFilter(MakeFuzzMaskFilter(fuzz));
@@ -1029,9 +1023,8 @@ void FuzzPaint(Fuzz* fuzz, SkPaint* paint, int depth) {
     if (paint->getStyle() != SkPaint::kFill_Style) {
         fuzz_input<SkScalar, &SkPaint::setStrokeWidth>(fuzz, paint);
         fuzz_input<SkScalar, &SkPaint::setStrokeMiter>(fuzz, paint);
-        fuzz_enum_input<SkPaint::Cap, &SkPaint::setStrokeCap>(fuzz, paint, SkPaint::kButt_Cap,
-                                                              SkPaint::kLast_Cap);
-        fuzz_enum_input<SkPaint::Join, &SkPaint::setStrokeJoin>(fuzz, paint, SkPaint::kMiter_Join,
+        fuzz_enum_input<SkPaint::Cap, &SkPaint::setStrokeCap>(fuzz, paint, 0, SkPaint::kLast_Cap);
+        fuzz_enum_input<SkPaint::Join, &SkPaint::setStrokeJoin>(fuzz, paint, 0,
                                                                 SkPaint::kLast_Join);
     }
 }
@@ -1714,8 +1707,7 @@ void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 FuzzPaint(fuzz, &paint, depth - 1);
                 SkCanvas::VertexMode vertexMode;
                 SkBlendMode blendMode;
-                using U = skstd::underlying_type_t<SkCanvas::VertexMode>;
-                fuzz->nextRange((U*)(&vertexMode), (U)0, (U)SkCanvas::kTriangleFan_VertexMode);
+                fuzz_enum_range(fuzz, &vertexMode, 0, SkCanvas::kTriangleFan_VertexMode);
                 fuzz->next(&blendMode);
                 constexpr int kMaxCount = 100;
                 int vertexCount;
