@@ -15,6 +15,7 @@
 
 #include "SkTLList.h"
 
+class GrCaps;
 class GrOpFlushState;
 
 /**
@@ -24,9 +25,39 @@ class GrMeshDrawOp : public GrDrawOp {
 public:
     class Target;
 
-    GrMeshDrawOp(uint32_t classID);
+    /**
+     * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
+     * initial color and coverage from this op's geometry processor.
+     */
+    void analyzeProcessors(GrProcessorSet::FragmentProcessorAnalysis* analysis,
+                           const GrProcessorSet& processors,
+                           const GrAppliedClip* appliedClip,
+                           const GrCaps& caps) const {
+        FragmentProcessorAnalysisInputs input;
+        this->getFragmentProcessorAnalysisInputs(&input);
+        analysis->init(*input.colorInput(), *input.coverageInput(), processors, appliedClip, caps);
+    }
+
+    void initPipeline(const GrPipeline::InitArgs& args) {
+        this->applyPipelineOptimizations(fPipeline.init(args));
+    }
+
+    /**
+     * Mesh draw ops use a legacy system in GrRenderTargetContext where the pipeline is created when
+     * the op is recorded. These methods are unnecessary as this information is in the pipeline.
+     */
+    FixedFunctionFlags fixedFunctionFlags() const override {
+        SkFAIL("This should never be called for mesh draw ops.");
+        return FixedFunctionFlags::kNone;
+    }
+    bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) override {
+        SkFAIL("Should never be called for mesh draw ops.");
+        return false;
+    }
 
 protected:
+    GrMeshDrawOp(uint32_t classID);
+
     /** Helper for rendering instances using an instanced index index buffer. This class creates the
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
     class InstancedHelper {
@@ -62,7 +93,39 @@ protected:
         typedef InstancedHelper INHERITED;
     };
 
+    const GrPipeline* pipeline() const {
+        SkASSERT(fPipeline.isInitialized());
+        return &fPipeline;
+    }
+
+    /**
+     * This describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
+     * pipeline analysis.
+     */
+    class FragmentProcessorAnalysisInputs {
+    public:
+        FragmentProcessorAnalysisInputs() = default;
+        GrPipelineInput* colorInput() { return &fColorInput; }
+        GrPipelineInput* coverageInput() { return &fCoverageInput; }
+
+    private:
+        GrPipelineInput fColorInput;
+        GrPipelineInput fCoverageInput;
+    };
+
 private:
+    /**
+     * Provides information about the GrPrimitiveProccesor color and coverage outputs which become
+     * inputs to the first color and coverage fragment processors.
+     */
+    virtual void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs*) const = 0;
+
+    /**
+     * After GrPipeline analysis is complete this is called so that the op can use the analysis
+     * results when constructing its GrPrimitiveProcessor.
+     */
+    virtual void applyPipelineOptimizations(const GrPipelineOptimizations&) = 0;
+
     void onPrepare(GrOpFlushState* state) final;
     void onExecute(GrOpFlushState* state) final;
 
@@ -82,7 +145,7 @@ private:
     // globally across all ops. This is the offset of the first entry in fQueuedDraws.
     // fQueuedDraws[i]'s token is fBaseDrawToken + i.
     GrDrawOpUploadToken fBaseDrawToken;
-
+    GrPipeline fPipeline;
     SkSTArray<4, GrMesh> fMeshes;
     SkSTArray<4, QueuedDraw, true> fQueuedDraws;
 
