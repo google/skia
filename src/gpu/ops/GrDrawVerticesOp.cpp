@@ -276,7 +276,7 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
     target->draw(gp.get(), mesh);
 }
 
-bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) {
     GrDrawVerticesOp* that = t->cast<GrDrawVerticesOp>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
