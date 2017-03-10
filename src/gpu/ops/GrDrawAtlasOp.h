@@ -57,7 +57,7 @@ private:
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&, const GrAppliedClip*) override;
 
     struct Geometry {
         GrColor fColor;

@@ -17,7 +17,8 @@ GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
     , fVertexPool(gpu)
     , fIndexPool(gpu)
     , fLastIssuedToken(GrDrawOpUploadToken::AlreadyFlushedToken())
-    , fLastFlushedToken(0) {}
+    , fLastFlushedToken(0)
+    , fOpArgs(nullptr) {}
 
 void* GrOpFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
                                          const GrBuffer** buffer, int* startVertex) {

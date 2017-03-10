@@ -961,7 +961,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         }
 
         void applyPipelineOptimizations(const GrPipelineOptimizations&) override {}
-        bool onCombineIfPossible(GrOp*, const GrCaps&) override  { return false; }
+        bool onCombineIfPossible(GrOp*, const GrCaps&, const GrAppliedClip*) override  { return false; }
         void onPrepareDraws(Target*) const override {}
 
         typedef GrMeshDrawOp INHERITED;

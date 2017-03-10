@@ -62,7 +62,7 @@ private:
         this->setBounds(path->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, const GrAppliedClip*) override { return false; }
 
     void onPrepare(GrOpFlushState*) override {}
 
