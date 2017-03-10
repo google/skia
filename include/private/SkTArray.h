@@ -27,10 +27,9 @@ public:
      */
     SkTArray() {
         fCount = 0;
-        fReserveCount = gMIN_ALLOC_COUNT;
         fAllocCount = 0;
-        fMemArray = NULL;
-        fPreAllocMemArray = NULL;
+        fMemArray = nullptr;
+        fPreAllocMemArray = nullptr;
     }
 
     /**
@@ -38,18 +37,18 @@ public:
      * elements.
      */
     explicit SkTArray(int reserveCount) {
-        this->init(0, NULL, reserveCount);
+        this->init(0, nullptr, reserveCount);
     }
 
     /**
      * Copies one array to another. The new array will be heap allocated.
      */
     explicit SkTArray(const SkTArray& that) {
-        this->init(that.fCount, NULL, 0);
+        this->init(that.fCount, nullptr, 0);
         this->copy(that.fItemArray);
     }
     explicit SkTArray(SkTArray&& that) {
-        this->init(that.fCount, NULL, 0);
+        this->init(that.fCount, nullptr, 0);
         that.move(fMemArray);
         that.fCount = 0;
     }
@@ -426,17 +425,23 @@ protected:
     void init(int count, void* preAllocStorage, int preAllocOrReserveCount) {
         SkASSERT(count >= 0);
         SkASSERT(preAllocOrReserveCount >= 0);
-        fCount              = count;
-        fReserveCount       = (preAllocOrReserveCount > 0) ?
-                                    preAllocOrReserveCount :
-                                    gMIN_ALLOC_COUNT;
-        fPreAllocMemArray   = preAllocStorage;
-        if (fReserveCount >= fCount &&
-            preAllocStorage) {
-            fAllocCount = fReserveCount;
-            fMemArray = preAllocStorage;
-        } else {
-            fAllocCount = SkMax32(fCount, fReserveCount);
+        fCount = count;
+        fPreAllocMemArray  = preAllocStorage;
+        fAllocCount = 0;
+        fMemArray = nullptr;
+        if (preAllocStorage) {
+            if (count >= preAllocOrReserveCount) {
+                fAllocCount = SkTMax(count, kMinHeapAllocCnt);
+            } else {
+                fAllocCount = preAllocOrReserveCount;
+                fMemArray = preAllocStorage;
+            }
+        } else if (preAllocOrReserveCount > 0) {
+            fAllocCount = SkTMax(count, SkTMax(kMinHeapAllocCnt, preAllocOrReserveCount));
+        } else if (count > 0) {
+            fAllocCount = SkTMax(count, kMinHeapAllocCnt);
+        }
+        if (fAllocCount && !fMemArray) {
             fMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
         }
     }
@@ -473,7 +478,7 @@ private:
         }
     }
 
-    static const int gMIN_ALLOC_COUNT = 8;
+    static constexpr int kMinHeapAllocCnt = 8;
 
     inline bool isNotUsingPreAlloc() const {
         return !fItemArray || fPreAllocMemArray != fItemArray;
@@ -495,34 +500,34 @@ private:
         SkASSERT(-delta <= fCount);
 
         int newCount = fCount + delta;
-        int newAllocCount = fAllocCount;
 
-        if (newCount > fAllocCount || newCount < (fAllocCount / 3)) {
-            // whether we're growing or shrinking, we leave at least 50% extra space for future
-            // growth (clamped to the reserve count).
-            newAllocCount = SkMax32(newCount + ((newCount + 1) >> 1), fReserveCount);
+        // We allow fAllocCount to be in the range [newCount, 3*newCount]. We also never shrink
+        // when we're currently using preallocated memory or would allocate less than
+        // kMinHeapAllocCnt.
+        bool mustGrow = newCount > fAllocCount;
+        bool shouldShrink = fAllocCount > 3 * newCount && fMemArray != fPreAllocMemArray;
+        if (!mustGrow && !shouldShrink) {
+            return;
         }
-        if (newAllocCount != fAllocCount) {
 
-            fAllocCount = newAllocCount;
-            void* newMemArray;
-
-            if (fAllocCount == fReserveCount && fPreAllocMemArray) {
-                newMemArray = fPreAllocMemArray;
-            } else {
-                newMemArray = sk_malloc_throw(fAllocCount*sizeof(T));
+        // Whether we're growing or shrinking, we leave at least 50% extra space for future
+        // growth (clamped to the reserve count).
+        int newAllocCount = newCount + ((newCount + 1) >> 1);
+        if (newAllocCount < kMinHeapAllocCnt) {
+            if (shouldShrink) {
+                return;
             }
-
-            this->move(newMemArray);
-
-            if (fMemArray != fPreAllocMemArray) {
-                sk_free(fMemArray);
-            }
-            fMemArray = newMemArray;
+            newAllocCount = kMinHeapAllocCnt;
         }
+        fAllocCount = newAllocCount;
+        void* newMemArray = sk_malloc_throw(fAllocCount*sizeof(T));
+        this->move(newMemArray);
+        if (fMemArray != fPreAllocMemArray) {
+            sk_free(fMemArray);
+        }
+        fMemArray = newMemArray;
     }
 
-    int     fReserveCount;
     int     fCount;
     int     fAllocCount;
     void*   fPreAllocMemArray;
@@ -531,6 +536,8 @@ private:
         void*    fMemArray;
     };
 };
+
+template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHeapAllocCnt;
 
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
