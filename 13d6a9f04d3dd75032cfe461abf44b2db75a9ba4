@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "130d43f1_f08b18b8",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-10T16:27:51Z",
+      "side": 1,
+      "message": "This looks nice. So is the idea that your callback object can be a friend class of GrRenderTargetContext and call addDrawOp directly?\n\nAlso, there may be more than one render target if the desired atlas is larger than GL_MAX_TEXTURE_SIZE. Do you think we could work that in? It would also be nice if we don\u0027t actually allocate the texture memory for the subsequent atlases until we are done with the first. Could we flush the first atlas render target, but hold onto the subsequent ones and only flush them on demand?\n\nDoes this happen before or after reordering and combining? It would be nice to build a single shared atlas in this callback, for all render targets being flushed (as opposed to separate atlases per render target), but then we would have to defer combining and reordering until after this point",
+      "range": {
+        "startLine": 86,
+        "startChar": 19,
+        "endLine": 86,
+        "endChar": 20
+      },
+      "revId": "13d6a9f04d3dd75032cfe461abf44b2db75a9ba4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c86c6b6_3e702165",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-10T16:27:51Z",
+      "side": 1,
+      "message": "Looks like we don\u0027t need this header",
+      "range": {
+        "startLine": 14,
+        "startChar": 39,
+        "endLine": 14,
+        "endChar": 0
+      },
+      "revId": "13d6a9f04d3dd75032cfe461abf44b2db75a9ba4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
