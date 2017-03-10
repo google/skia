@@ -85,6 +85,7 @@ protected:
         Builder(GrResourceKey* key, uint32_t domain, int data32Count) : fKey(key) {
             SkASSERT(data32Count >= 0);
             SkASSERT(domain != kInvalidDomain);
+
             key->fKey.reset(kMetaDataCnt + data32Count);
             int size = (data32Count + kMetaDataCnt) * sizeof(uint32_t);
             SkASSERT(SkToU16(size) == size);
@@ -139,8 +140,9 @@ private:
 
     friend class TestResource; // For unit test to access kMetaDataCnt.
 
-    // bmp textures require 5 uint32_t values.
-    SkAutoSTMalloc<kMetaDataCnt + 5, uint32_t> fKey;
+    // bmp textures require 7 uint32_t values (5 for the base key, and two more for image
+    // cacherator's decode format.
+    SkAutoSTMalloc<kMetaDataCnt + 7, uint32_t> fKey;
 };
 
 /**
