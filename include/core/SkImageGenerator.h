@@ -14,6 +14,8 @@
 #include "SkImageInfo.h"
 #include "SkYUVSizeInfo.h"
 
+#include "GrTextureProxy.h"  // Oh yeah!
+
 class GrContext;
 class GrContextThreadSafeProxy;
 class GrTextureProxy;
