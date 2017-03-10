@@ -45,6 +45,30 @@
       "revId": "0d0be5d1d2710c2d75b4207d690ae7ee23bccd04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3afa69ef_3305ba00",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-10T15:12:42Z",
+      "side": 1,
+      "message": "We could. I started to do so, but I wasn\u0027t sure I liked the lack of symmetry at all levels of the API:\nwrapBackendTexture\nborrowBackendRenderTarget\nborrowBackendTextureAsRenderTarget\n\n... of course, then I wanted to delete #3 above, and convinced myself it was possible, until I realized the scenario where it matters. Seems like we could eliminate that third set of functions with an extra flag (fRenderTargetOnly) in the GrBackendTextureDesc. Functionally, that could bypass the isTexturable check, the TEXTURE_RECTANGLE check, and then call the existing helpers in the per-backend GPU code. But we could eliminate functions from GrContext, GrResourceProvider, and GrGpu.",
+      "parentUuid": "f91403c9_558d464e",
+      "range": {
+        "startLine": 581,
+        "startChar": 31,
+        "endLine": 581,
+        "endChar": 56
+      },
+      "revId": "0d0be5d1d2710c2d75b4207d690ae7ee23bccd04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
