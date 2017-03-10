@@ -76,6 +76,10 @@ bool    sk_isdir(const char *path);
 // Have we reached the end of the file?
 int sk_feof(FILE *);
 
+// Like pread, but may affect the file position marker.
+// Returns the number of bytes read or SIZE_MAX if failed.
+size_t sk_qread(FILE*, void* buffer, size_t count, size_t offset);
+
 
 // Create a new directory at this path; returns true if successful.
 // If the directory already existed, this will return true.

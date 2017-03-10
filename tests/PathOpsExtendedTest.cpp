@@ -616,7 +616,7 @@ void initializeTests(skiatest::Reporter* reporter, const char* test) {
             inData.setCount((int) inFile.getLength());
             size_t inLen = inData.count();
             inFile.read(inData.begin(), inLen);
-            inFile.setPath(nullptr);
+            inFile.close();
             char* insert = strstr(inData.begin(), marker);
             if (insert) {
                 insert += sizeof(marker) - 1;
