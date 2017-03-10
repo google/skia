@@ -53,17 +53,20 @@
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
+static SkIRect pin_neg_to_empty(const SkIRect& r) {
+    return r.isEmpty() ? SkIRect::MakeEmpty() : r;
+}
+
 class SkNoPixelsDevice : public SkBaseDevice {
 public:
     SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props)
         : SkBaseDevice(SkImageInfo::MakeUnknown(bounds.width(), bounds.height()), props)
     {
-        // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
-        //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
+        SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
     }
 
     void resetForNextPicture(const SkIRect& bounds) {
-        //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
+        SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
         this->privateResize(bounds.width(), bounds.height());
     }
 
@@ -628,7 +631,9 @@ static inline SkRect qr_clip_bounds(const SkIRect& bounds) {
     return dst;
 }
 
-void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
+void SkCanvas::resetForNextPicture(const SkIRect& userBounds) {
+    const SkIRect bounds = pin_neg_to_empty(userBounds);
+
     this->restoreToCount(1);
     fMCRec->reset(bounds);
 
