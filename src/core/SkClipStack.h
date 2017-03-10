@@ -327,6 +327,7 @@ public:
     };
 
     SkClipStack();
+    SkClipStack(void* storage, size_t size);
     SkClipStack(const SkClipStack& b);
     ~SkClipStack();
 
