@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "426a358d_81f55b76",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-10T16:07:24Z",
+      "side": 1,
+      "message": "For some reason even if i keep this as const rather than constexpr the new code requires me to have an external definition even thought gMIN_ALLOC_COUNT in the old code didn\u0027t have one.",
+      "range": {
+        "startLine": 540,
+        "startChar": 73,
+        "endLine": 540,
+        "endChar": 89
+      },
+      "revId": "5c3c2ecee8772766efc43dbda7ce305ecc230802",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
