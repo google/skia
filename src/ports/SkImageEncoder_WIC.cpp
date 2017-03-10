@@ -36,6 +36,7 @@
 #include "SkImageEncoder.h"
 #include "SkStream.h"
 #include "SkTScopedComPtr.h"
+#include "SkTemplates.h"
 #include "SkUnPreMultiply.h"
 #include <wincodec.h>
 
