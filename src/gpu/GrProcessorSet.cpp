@@ -38,6 +38,44 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
     }
 }
 
+GrProcessorSet::~GrProcessorSet() {
+    if (this->isPendingExecution()) {
+        for (auto fp : fFragmentProcessors) {
+            fp->completedExecution();
+        }
+    } else {
+        for (auto fp : fFragmentProcessors) {
+            fp->unref();
+        }
+    }
+}
+
+void GrProcessorSet::makePendingExecution() {
+    SkASSERT(!(kPendingExecution_Flag & fFlags));
+    fFlags |= kPendingExecution_Flag;
+    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+        fFragmentProcessors[i]->addPendingExecution();
+        fFragmentProcessors[i]->unref();
+    }
+}
+
+bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
+    if (((fFlags ^ that.fFlags) & ~kPendingExecution_Flag) ||
+        fFragmentProcessors.count() != that.fFragmentProcessors.count() ||
+        fColorFragmentProcessorCnt != that.fColorFragmentProcessorCnt) {
+        return false;
+    }
+    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+        if (!fFragmentProcessors[i]->isEqual(*that.fFragmentProcessors[i])) {
+            return false;
+        }
+    }
+    if (fXPFactory != that.fXPFactory) {
+        return false;
+    }
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 void GrProcessorSet::FragmentProcessorAnalysis::internalInit(const GrPipelineInput& colorInput,
