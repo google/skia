@@ -124,6 +124,33 @@ void* sk_fmmap(FILE* f, size_t* length) {
     return sk_fdmmap(fileno, length);
 }
 
+size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
+    int fileno = sk_fileno(file);
+    HANDLE fileHandle = (HANDLE)_get_osfhandle(fileno);
+    if (INVALID_HANDLE_VALUE == file) {
+        return SIZE_MAX;
+    }
+
+    OVERLAPPED overlapped = {0};
+    ULARGE_INTEGER winOffset;
+    winOffset.QuadPart = offset;
+    overlapped.Offset = winOffset.LowPart;
+    overlapped.OffsetHigh = winOffset.HighPart;
+
+    if (!SkTFitsIn<DWORD>(count)) {
+        count = std::numeric_limits<DWORD>::max();
+    }
+
+    DWORD bytesRead;
+    if (ReadFile(fileHandle, buffer, static_cast<DWORD>(count), &bytesRead, &overlapped)) {
+        return bytesRead;
+    }
+    if (GetLastError() == ERROR_HANDLE_EOF) {
+        return 0;
+    }
+    return SIZE_MAX;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 struct SkOSFileIterData {
