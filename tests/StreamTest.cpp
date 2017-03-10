@@ -69,7 +69,7 @@ static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
 
     {
         FILE* file = ::fopen(path.c_str(), "rb");
-        SkFILEStream stream(file, SkFILEStream::kCallerPasses_Ownership);
+        SkFILEStream stream(file);
         REPORTER_ASSERT(reporter, stream.isValid());
         test_loop_stream(reporter, &stream, s, 26, 100);
 
