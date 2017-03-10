@@ -106,7 +106,12 @@ public:
             do {
                 index = this->next(index);
                 Slot& s = fSlots[index];
-                if (s.empty()) { return; }
+                if (s.empty()) {
+                    // The last empty slot is marked as empty, but its value is still set.
+                    // Reset to ensure we don't leave dangling values in empty slots.
+                    emptySlot = Slot();
+                    return;
+                }
                 originalIndex = s.hash & (fCapacity - 1);
             } while ((index <= originalIndex && originalIndex < emptyIndex)
                      || (originalIndex < emptyIndex && emptyIndex < index)
