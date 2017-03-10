@@ -93,6 +93,12 @@ DEF_TEST(canvas_clipbounds, reporter) {
     REPORTER_ASSERT(reporter, rect == SkRect::MakeEmpty());
     REPORTER_ASSERT(reporter, !canvas.getLocalClipBounds(&rect2));
     REPORTER_ASSERT(reporter, rect == rect2);
+
+    // Test for wacky sizes that we (historically) have guarded against
+    {
+        SkCanvas c(-10, -20);
+        REPORTER_ASSERT(reporter, c.getBaseLayerSize() == SkISize::MakeEmpty());
+    }
 }
 
 static const int kWidth = 2, kHeight = 2;

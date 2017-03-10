@@ -21,6 +21,10 @@ template <typename T> struct SkTSize {
         return s;
     }
 
+    static SkTSize MakeEmpty() {
+        return {0, 0};
+    }
+
     void set(T w, T h) {
         fWidth = w;
         fHeight = h;

@@ -57,9 +57,12 @@ class SkNoPixelsDevice : public SkBaseDevice {
 public:
     SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props)
         : SkBaseDevice(SkImageInfo::MakeUnknown(bounds.width(), bounds.height()), props)
-    {}
+    {
+        SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
+    }
 
     void resetForNextPicture(const SkIRect& bounds) {
+        SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
         this->privateResize(bounds.width(), bounds.height());
     }
 
@@ -688,7 +691,7 @@ SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
 {
     inc_canvas();
 
-    this->init(new SkNoPixelsDevice(SkIRect::MakeWH(width, height), fProps),
+    this->init(new SkNoPixelsDevice(SkIRect::MakeWH(SkTMax(width, 0), SkTMax(height, 0)), fProps),
                kDefault_InitFlags)->unref();
 }
 
@@ -698,7 +701,8 @@ SkCanvas::SkCanvas(const SkIRect& bounds, InitFlags flags)
 {
     inc_canvas();
 
-    this->init(new SkNoPixelsDevice(bounds, fProps), flags)->unref();
+    SkIRect r = bounds.isEmpty() ? SkIRect::MakeEmpty() : bounds;
+    this->init(new SkNoPixelsDevice(r, fProps), flags)->unref();
 }
 
 SkCanvas::SkCanvas(SkBaseDevice* device)
