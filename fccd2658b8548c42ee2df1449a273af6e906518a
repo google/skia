@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4f79c0c_79217821",
+        "filename": "src/ports/SkOSFile_posix.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "Add a test? (Or was this caught by a test?)",
+      "range": {
+        "startLine": 101,
+        "startChar": 15,
+        "endLine": 101,
+        "endChar": 23
+      },
+      "revId": "fccd2658b8548c42ee2df1449a273af6e906518a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

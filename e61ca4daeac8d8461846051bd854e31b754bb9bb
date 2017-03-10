@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2884cf71_0bd07975",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "I only see one caller that specifies this. Can we mark this as legacy, or go ahead and update that callsite so we can delete this? (I have uploaded a change to update the client here: https://googleplex-android-review.git.corp.google.com/#/c/1973059/)\n\nAlso, what was the motivation for removing kCallerRetains_Ownership? (Unused? Causes problems?) Maybe add that to the commit message?",
+      "range": {
+        "startLine": 249,
+        "startChar": 8,
+        "endLine": 249,
+        "endChar": 31
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "359282eb_6bb354e4",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "Why do you need to call sk_fgetsize again?",
+      "range": {
+        "startLine": 210,
+        "startChar": 22,
+        "endLine": 210,
+        "endChar": 33
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "feaf5acc_36599eb2",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "The dox for duplicate say \"The returned stream will be positioned at the beginning of its data.\" Wouldn\u0027t that be 0 (rather than fOriginalOffset)? rewind() rewinds to 0, so it seems like we are treating that as the beginning of data.",
+      "range": {
+        "startLine": 219,
+        "startChar": 42,
+        "endLine": 219,
+        "endChar": 57
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d1e79f0_3473cd78",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "Is it possible this will break existing clients?",
+      "range": {
+        "startLine": 244,
+        "startChar": 4,
+        "endLine": 244,
+        "endChar": 18
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83194fef_1a9f135b",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "Now that SkFILEStream does not call it, the only caller I see is tools/chrome_fuzz.cpp. Should we update that caller and remove this method?\n\n(If so, ignore the rest of my comments in this file.)",
+      "range": {
+        "startLine": 123,
+        "startChar": 7,
+        "endLine": 123,
+        "endChar": 15
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b966b812_fe138a96",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "Maybe handle the simple case first?\n\nif (buffer !\u003d nullptr) {\n    return fread(...);\n}\n\n// else case",
+      "range": {
+        "startLine": 125,
+        "startChar": 4,
+        "endLine": 125,
+        "endChar": 24
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc76506f_e738ac77",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "I think this line is over 100 chars?",
+      "range": {
+        "startLine": 130,
+        "startChar": 16,
+        "endLine": 130,
+        "endChar": 24
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "074cf91d_e737de55",
+        "filename": "src/ports/SkOSFile_stdio.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "Nit: no need for else, since the if case returns.",
+      "range": {
+        "startLine": 138,
+        "startChar": 6,
+        "endLine": 138,
+        "endChar": 10
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09dbb449_b99b20df",
+        "filename": "tests/PathOpsExtendedTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-10T16:27:45Z",
+      "side": 1,
+      "message": "Is this the only reason SkFILEStream::close() exists? Maybe change this method so it doesn\u0027t need it, and then there\u0027s no need for the method?\n\nLooking closer, it looks like the file it references does not exist (maybe Cary creates it locally?), and no one calls this method. Maybe delete this method entirely?",
+      "range": {
+        "startLine": 619,
+        "startChar": 19,
+        "endLine": 619,
+        "endChar": 24
+      },
+      "revId": "e61ca4daeac8d8461846051bd854e31b754bb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
