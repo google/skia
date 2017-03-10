@@ -621,10 +621,10 @@ static void set_serp_klm(const SkScalar d[3], SkScalar k[4], SkScalar l[4], SkSc
     m[2] = mt_ms * mt_ms * ms;
     m[3] = -1.f * mt_ms * mt_ms * mt_ms;
 
-    // If d0 < 0 we need to flip the orientation of our curve
+    // If d0 > 0 we need to flip the orientation of our curve
     // This is done by negating the k and l values
     // We want negative distance values to be on the inside
-    if ( d[0] > 0) {
+    if (d[0] > 0) {
         for (int i = 0; i < 4; ++i) {
             k[i] = -k[i];
             l[i] = -l[i];
@@ -654,11 +654,11 @@ static void set_loop_klm(const SkScalar d[3], SkScalar k[4], SkScalar l[4], SkSc
     m[2] = ((mt - ms) * (ls * (mt - 3.f * ms) + 2.f * lt * ms))/3.f;
     m[3] = -1.f * (lt - ls) * (mt - ms) * (mt - ms);
 
-
-    // If (d0 < 0 && sign(k1) > 0) || (d0 > 0 && sign(k1) < 0),
-    // we need to flip the orientation of our curve.
+    // If d0 > 0 we need to flip the orientation of our curve
     // This is done by negating the k and l values
-    if ( (d[0] < 0 && k[1] > 0) || (d[0] > 0 && k[1] < 0)) {
+    // We orient KLM so that negative distance values are on the "inside" at t=infinity. The caller
+    // is responsible to chop the curve at the double point and reverse KLM inside the loop.
+    if (d[0] > 0) {
         for (int i = 0; i < 4; ++i) {
             k[i] = -k[i];
             l[i] = -l[i];
