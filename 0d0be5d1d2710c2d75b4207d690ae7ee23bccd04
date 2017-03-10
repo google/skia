@@ -69,6 +69,30 @@
       "revId": "0d0be5d1d2710c2d75b4207d690ae7ee23bccd04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e4a077e_d0721ea2",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-10T15:33:37Z",
+      "side": 1,
+      "message": "I leave it up to you whether you want to pursue that or not. It is ok to punt and we can revisit that API when we rethink GrRenderTarget.",
+      "parentUuid": "3afa69ef_3305ba00",
+      "range": {
+        "startLine": 581,
+        "startChar": 31,
+        "endLine": 581,
+        "endChar": 56
+      },
+      "revId": "0d0be5d1d2710c2d75b4207d690ae7ee23bccd04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
