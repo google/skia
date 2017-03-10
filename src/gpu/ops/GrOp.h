@@ -11,15 +11,18 @@
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
+#include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkString.h"
 
 #include <new>
 
+class GrAppliedClip;
 class GrCaps;
 class GrGpuCommandBuffer;
 class GrOpFlushState;
+class GrRenderTarget;
 
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
@@ -139,7 +142,8 @@ public:
      */
     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
 
-    /** Issues the op's commands to GrGpu. */
+    /**
+     * Issues the op's commands to GrGpu. */
     void execute(GrOpFlushState* state) { this->onExecute(state); }
 
     /** Used for spewing information about ops when debugging. */

@@ -53,7 +53,9 @@ private:
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
+        return false;
+    }
 
     void onPrepare(GrOpFlushState*) override {}
 
