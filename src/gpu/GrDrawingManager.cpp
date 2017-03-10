@@ -79,6 +79,40 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
 
+    GrPreFlushResourceProvider preFlushProvider(this);
+
+    if (fPreFlushCBObjects.count()) {
+        // MDB TODO: pre-MDB '1' is the correct pre-allocated size. Post-MDB it will need
+        // to be larger.
+        SkAutoSTArray<1, uint32_t> opListIds(fOpLists.count());
+        for (int i = 0; i < fOpLists.count(); ++i) {
+            opListIds[i] = fOpLists[i]->uniqueID();
+        }
+
+        SkTArray<sk_sp<GrRenderTargetContext>> renderTargetContexts;
+        for (int i = 0; i < fPreFlushCBObjects.count(); ++i) {
+            fPreFlushCBObjects[i]->preFlush(&preFlushProvider,
+                                            opListIds.get(), opListIds.count(),
+                                            &renderTargetContexts);
+            if (!renderTargetContexts.count()) {
+                continue;       // This is fine. No atlases of this type are required for this flush
+            }
+
+            for (int j = 0; j < renderTargetContexts.count(); ++j) {
+                GrRenderTargetOpList* opList = renderTargetContexts[j]->getOpList();
+                if (!opList) {
+                    continue;   // Odd - but not a big deal
+                }
+                SkDEBUGCODE(opList->validateTargetsSingleRenderTarget());
+                opList->prepareOps(&fFlushState);
+                if (!opList->executeOps(&fFlushState)) {
+                    continue;         // This is bad
+                }
+            }
+            renderTargetContexts.reset();
+        }
+    }
+
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareOps(&fFlushState);
     }
@@ -143,6 +177,10 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
     if (fContext->getGpu() && rt) {
         fContext->getGpu()->resolveRenderTarget(rt);
     }
+}
+
+void GrDrawingManager::addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject> preFlushCBObject) {
+    fPreFlushCBObjects.push_back(preFlushCBObject);
 }
 
 GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
