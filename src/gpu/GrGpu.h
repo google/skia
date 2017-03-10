@@ -129,7 +129,7 @@ public:
     /**
      * Implements GrResourceProvider::wrapBackendRenderTarget
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&,GrWrapOwnership);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&);
 
     /**
      * Implements GrResourceProvider::wrapBackendTextureAsRenderTarget
@@ -542,8 +542,7 @@ private:
                                                  const SkTArray<GrMipLevel>& texels) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
-    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                                            GrWrapOwnership) = 0;
+    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&)=0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;

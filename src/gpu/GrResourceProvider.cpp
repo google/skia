@@ -180,8 +180,7 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(
         const GrBackendRenderTargetDesc& desc)
 {
     ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr
-                               : fGpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);
+    return this->isAbandoned() ? nullptr : fGpu->wrapBackendRenderTarget(desc);
 }
 
 void GrResourceProvider::assignUniqueKeyToResource(const GrUniqueKey& key,

@@ -789,13 +789,11 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership, info);
 }
 
-sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
-                                                         GrWrapOwnership ownership) {
+sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc){
 
     const GrVkImageInfo* info =
         reinterpret_cast<const GrVkImageInfo*>(wrapDesc.fRenderTargetHandle);
-    if (VK_NULL_HANDLE == info->fImage ||
-        (VK_NULL_HANDLE == info->fAlloc.fMemory && kAdopt_GrWrapOwnership == ownership)) {
+    if (VK_NULL_HANDLE == info->fImage) {
         return nullptr;
     }
 
@@ -808,8 +806,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
 
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin);
 
-    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc,
-                                                                            ownership, info);
+    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
     if (tgt && wrapDesc.fStencilBits) {
         if (!createStencilAttachmentForRenderTarget(tgt.get(), desc.fWidth, desc.fHeight)) {
             return nullptr;

@@ -83,31 +83,21 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     desc.fSampleCnt = 0;
     desc.fStencilBits = 0;
     desc.fRenderTargetHandle = backendObj;
-    sk_sp<GrRenderTarget> rt = gpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);
+    sk_sp<GrRenderTarget> rt = gpu->wrapBackendRenderTarget(desc);
     REPORTER_ASSERT(reporter, rt);
 
     // image is null
     GrVkImageInfo backendCopy = *backendTex;
     backendCopy.fImage = VK_NULL_HANDLE;
     desc.fRenderTargetHandle = (GrBackendObject)&backendCopy;
-    rt = gpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);
-    REPORTER_ASSERT(reporter, !rt);
-    rt = gpu->wrapBackendRenderTarget(desc, kAdopt_GrWrapOwnership);
+    rt = gpu->wrapBackendRenderTarget(desc);
     REPORTER_ASSERT(reporter, !rt);
 
     // alloc is null
     backendCopy.fImage = backendTex->fImage;
     backendCopy.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
-    // can wrap null alloc if borrowing
-    rt = gpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);
-    REPORTER_ASSERT(reporter, rt);
-    // but not if adopting
-    rt = gpu->wrapBackendRenderTarget(desc, kAdopt_GrWrapOwnership);
-    REPORTER_ASSERT(reporter, !rt);
-
-    // check adopt creation
-    backendCopy.fAlloc = backendTex->fAlloc;
-    rt = gpu->wrapBackendRenderTarget(desc, kAdopt_GrWrapOwnership);
+    // can wrap null alloc
+    rt = gpu->wrapBackendRenderTarget(desc);
     REPORTER_ASSERT(reporter, rt);
 
     gpu->deleteTestingOnlyBackendTexture(backendObj, true);

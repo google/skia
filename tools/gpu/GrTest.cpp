@@ -340,8 +340,7 @@ private:
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                                    GrWrapOwnership) override {
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override {
         return nullptr;
     }
 
