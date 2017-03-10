@@ -29,6 +29,12 @@ declare_args() {
 
   cc_wrapper = ""
   malloc = ""
+
+  # Default to warnings as errors for default workflow, where we catch
+  # warnings with known toolchains. Allow overriding this e.g. for builds
+  # on various Linux distributions that could use a different version of
+  # the compiler.
+  treat_warnings_as_errors = true
 }
 
 if (host_os == "win") {
@@ -66,9 +72,11 @@ config("default") {
     cflags += [
       "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
-      "/WX",  # Treat warnings as errors.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
+    if (treat_warnings_as_errors) {
+      cflags += [ "/WX" ]
+    }
     defines += [
       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
       "_HAS_EXCEPTIONS=0",  # Disables exceptions in MSVC STL.
@@ -109,13 +117,15 @@ config("default") {
       "-fstrict-aliasing",
       "-fPIC",
       "-fvisibility=hidden",
-      "-Werror",
     ]
     cflags_cc += [
       "-std=c++11",
       "-fno-threadsafe-statics",
       "-fvisibility-inlines-hidden",
     ]
+    if (treat_warnings_as_errors) {
+      cflags += [ "-Werror" ]
+    }
   }
 
   if (current_cpu == "arm") {
