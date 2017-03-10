@@ -495,13 +495,12 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
 static const int kDefaultElementAllocCnt = 8;
 
 SkClipStack::SkClipStack()
-    : fDeque(sizeof(Element), fStorage, sizeof(fStorage), kDefaultElementAllocCnt)
+    : fDeque(sizeof(Element), kDefaultElementAllocCnt)
     , fSaveCount(0) {
 }
 
 SkClipStack::SkClipStack(const SkClipStack& b)
-    : fDeque(sizeof(Element), fStorage, sizeof(fStorage), kDefaultElementAllocCnt)
-{
+    : fDeque(sizeof(Element), kDefaultElementAllocCnt) {
     *this = b;
 }
 
