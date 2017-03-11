@@ -194,9 +194,97 @@ sk_sp<SkColorFilter> SkColorFilter::MakeComposeFilter(sk_sp<SkColorFilter> outer
     return sk_sp<SkColorFilter>(new SkComposeColorFilter(std::move(outer), std::move(inner),count));
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkMixerColorFilter : public SkColorFilter {
+public:
+    SkMixerColorFilter(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float weight)
+        : fCF0(std::move(cf0)), fCF1(std::move(cf1)), fWeight(weight)
+    {
+        SkASSERT(fCF0 || fCF1);
+        SkASSERT(fWeight >= 0 && fWeight <= 1);
+    }
+
+    uint32_t getFlags() const override {
+        return fCF0->getFlags() & fCF1->getFlags();
+    }
+
+    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
+        for (int i = 0; i < count; ++i) {
+            SkPMColor r0, r1;
+            fCF0->filterSpan(&shader[i], 1, &r0);
+            fCF1->filterSpan(&shader[i], 1, &r1);
+            result[i] = SkFastFourByteInterp256(r0, r1, (unsigned)(fWeight * 256));
+        }
+    }
+
+    void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override {
+        Sk4f w(fWeight);
+        for (int i = 0; i < count; ++i) {
+            SkPM4f r0, r1;
+            fCF0->filterSpan4f(&shader[i], 1, &r0);
+            fCF1->filterSpan4f(&shader[i], 1, &r1);
+            result[i] = SkPM4f::From4f(r0.to4f() * w + r1.to4f() * (Sk4f(1) - w));
+        }
+    }
+
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const override { str->append("mixer"); }
+#endif
+
+#if SK_SUPPORT_GPU
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context,
+                                                   SkColorSpace* dstColorSpace) const override {
+        return nullptr;
+    }
+#endif
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMixerColorFilter)
+
+protected:
+    void flatten(SkWriteBuffer& buffer) const override {
+        buffer.writeFlattenable(fCF0.get());
+        buffer.writeFlattenable(fCF1.get());
+        buffer.writeScalar(fWeight);
+    }
+
+private:
+    sk_sp<SkColorFilter> fCF0;
+    sk_sp<SkColorFilter> fCF1;
+    const float          fWeight;
+
+    friend class SkColorFilter;
+
+    typedef SkColorFilter INHERITED;
+};
+
+sk_sp<SkFlattenable> SkMixerColorFilter::CreateProc(SkReadBuffer& buffer) {
+    sk_sp<SkColorFilter> cf0(buffer.readColorFilter());
+    sk_sp<SkColorFilter> cf1(buffer.readColorFilter());
+    const float weight = buffer.readScalar();
+    return MakeMixer(std::move(cf0), std::move(cf1), weight);
+}
+
+sk_sp<SkColorFilter> SkColorFilter::MakeMixer(sk_sp<SkColorFilter> cf0,
+                                              sk_sp<SkColorFilter> cf1,
+                                              float weight) {
+    if (!cf0 && !cf1) {
+        return nullptr;
+    }
+    if (!SkScalarIsFinite(weight)) {
+        return nullptr;
+    }
+
+    weight = SkTMin(SkTMax(weight, 0.f), 1.f);
+    return sk_sp<SkColorFilter>(new SkMixerColorFilter(std::move(cf0), std::move(cf1), weight));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "SkModeColorFilter.h"
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeColorFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMixerColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
