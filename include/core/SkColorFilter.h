@@ -134,6 +134,15 @@ public:
      */
     static sk_sp<SkColorFilter> MakeMatrixFilterRowMajor255(const SkScalar array[20]);
 
+    /**
+     *  Returns a new filter that returns the weighted average between the outputs of
+     *  two other filters. If either is null, then the input color value is used.
+     *
+     *  result = cf0(color) * weight + cf1(color) * (1 - weight)
+     */
+    static sk_sp<SkColorFilter> MakeMixer(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
+                                          float weight);
+
 #if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
