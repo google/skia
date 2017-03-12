@@ -138,6 +138,87 @@ void test_copy_ctor(skiatest::Reporter* reporter, SkTArray<T, MEM_MOVE>&& array)
         REPORTER_ASSERT(reporter, ref->unique());
 }
 
+static void test_move(skiatest::Reporter* reporter) {
+#define TEST_MOVE do {                                 \
+    SRC_T src;                                         \
+    src.emplace_back(sk_make_sp<SkRefCnt>());          \
+    {                                                  \
+        /* copy ctor */                                \
+        DST_T copy(src);                               \
+        REPORTER_ASSERT(reporter, !copy[0]->unique()); \
+    }                                                  \
+    {                                                  \
+        /* move ctor */                                \
+        DST_T move(std::move(src));                    \
+        REPORTER_ASSERT(reporter, move[0]->unique());  \
+    }                                                  \
+    REPORTER_ASSERT(reporter, src.empty());            \
+    src.emplace_back(sk_make_sp<SkRefCnt>());          \
+    {                                                  \
+        /* copy assignment */                          \
+        DST_T copy;                                    \
+        copy = src;                                    \
+        REPORTER_ASSERT(reporter, !copy[0]->unique()); \
+    }                                                  \
+    {                                                  \
+        /* move assignment */                          \
+        DST_T move;                                    \
+        move = std::move(src);                         \
+        REPORTER_ASSERT(reporter, move[0]->unique());  \
+    }                                                  \
+    REPORTER_ASSERT(reporter, src.empty());            \
+} while (false)
+
+    {
+        using SRC_T = SkTArray<sk_sp<SkRefCnt>, false>;
+        using DST_T = SkTArray<sk_sp<SkRefCnt>, false>;
+        TEST_MOVE;
+    }
+
+    {
+        using SRC_T = SkTArray<sk_sp<SkRefCnt>, true>;
+        using DST_T = SkTArray<sk_sp<SkRefCnt>, true>;
+        TEST_MOVE;
+    }
+
+    {
+        using SRC_T = SkSTArray<1, sk_sp<SkRefCnt>, false>;
+        using DST_T = SkSTArray<1, sk_sp<SkRefCnt>, false>;
+        TEST_MOVE;
+    }
+
+    {
+        using SRC_T = SkSTArray<1, sk_sp<SkRefCnt>, true>;
+        using DST_T = SkSTArray<1, sk_sp<SkRefCnt>, true>;
+        TEST_MOVE;
+    }
+
+    {
+        using SRC_T = SkTArray<sk_sp<SkRefCnt>, false>;
+        using DST_T = SkSTArray<1, sk_sp<SkRefCnt>, false>;
+        TEST_MOVE;
+    }
+
+    {
+        using SRC_T = SkTArray<sk_sp<SkRefCnt>, true>;
+        using DST_T = SkSTArray<1, sk_sp<SkRefCnt>, true>;
+        TEST_MOVE;
+    }
+
+    {
+        using SRC_T = SkSTArray<1, sk_sp<SkRefCnt>, false>;
+        using DST_T = SkTArray<sk_sp<SkRefCnt>, false>;
+        TEST_MOVE;
+    }
+
+    {
+        using SRC_T = SkSTArray<1, sk_sp<SkRefCnt>, true>;
+        using DST_T = SkTArray<sk_sp<SkRefCnt>, true>;
+        TEST_MOVE;
+    }
+#undef TEST_MOVE
+}
+
 DEF_TEST(TArray, reporter) {
     TestTSet_basic<true>(reporter);
     TestTSet_basic<false>(reporter);
@@ -149,4 +230,6 @@ DEF_TEST(TArray, reporter) {
     test_copy_ctor(reporter, SkSTArray< 1, sk_sp<SkRefCnt>,  true>());
     test_copy_ctor(reporter, SkSTArray<10, sk_sp<SkRefCnt>, false>());
     test_copy_ctor(reporter, SkSTArray<10, sk_sp<SkRefCnt>,  true>());
+
+    test_move(reporter);
 }
