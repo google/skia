@@ -16,7 +16,7 @@
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 SK_C_API void sk_bitmap_destructor(sk_bitmap_t* cbitmap);
-SK_C_API sk_bitmap_t* sk_bitmap_new();
+SK_C_API sk_bitmap_t* sk_bitmap_new(void);
 SK_C_API void sk_bitmap_get_info(sk_bitmap_t* cbitmap, sk_imageinfo_t* info);
 SK_C_API void* sk_bitmap_get_pixels(sk_bitmap_t* cbitmap, size_t* length);
 SK_C_API size_t sk_bitmap_get_row_bytes(sk_bitmap_t* cbitmap);

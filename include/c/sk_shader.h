@@ -135,7 +135,7 @@ SK_C_API sk_shader_t* sk_shader_new_two_point_conical_gradient(
 /**
     Call this to create a new "empty" shader, that will not draw anything.
 */
-SK_C_API sk_shader_t* sk_shader_new_empty();
+SK_C_API sk_shader_t* sk_shader_new_empty(void);
 /**
     Call this to create a new shader that just draws the specified color. This should always
     draw the same as a paint with this color (and no shader).

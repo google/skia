@@ -15,7 +15,7 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-SK_C_API size_t sk_codec_min_buffered_bytes_needed();
+SK_C_API size_t sk_codec_min_buffered_bytes_needed(void);
 
 SK_C_API sk_codec_t* sk_codec_new_from_stream(sk_stream_t* stream);
 SK_C_API sk_codec_t* sk_codec_new_from_data(sk_data_t* data);

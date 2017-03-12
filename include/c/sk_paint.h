@@ -28,7 +28,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
         maskfilter : NULL
         xfermode_mode : SRCOVER_SK_XFERMODE_MODE
 */
-SK_C_API sk_paint_t* sk_paint_new();
+SK_C_API sk_paint_t* sk_paint_new(void);
 SK_C_API sk_paint_t* sk_paint_clone(sk_paint_t*);
 /**
     Release the memory storing the sk_paint_t and unref() all

@@ -114,7 +114,7 @@ SK_C_API void sk_matrix_map_vector (sk_matrix_t *matrix, float x, float y, sk_po
 SK_C_API float sk_matrix_map_radius (sk_matrix_t *matrix, float radius);
 
 
-SK_C_API sk_3dview_t* sk_3dview_new ();
+SK_C_API sk_3dview_t* sk_3dview_new (void);
 SK_C_API void sk_3dview_destroy (sk_3dview_t* cview);
 SK_C_API void sk_3dview_save (sk_3dview_t* cview);
 SK_C_API void sk_3dview_restore (sk_3dview_t* cview);
@@ -131,8 +131,8 @@ SK_C_API float sk_3dview_dot_with_normal (sk_3dview_t* cview, float dx, float dy
 
 
 SK_C_API void sk_matrix44_destroy (sk_matrix44_t* matrix);
-SK_C_API sk_matrix44_t* sk_matrix44_new ();
-SK_C_API sk_matrix44_t* sk_matrix44_new_identity ();
+SK_C_API sk_matrix44_t* sk_matrix44_new (void);
+SK_C_API sk_matrix44_t* sk_matrix44_new_identity (void);
 SK_C_API sk_matrix44_t* sk_matrix44_new_copy (const sk_matrix44_t* src);
 SK_C_API sk_matrix44_t* sk_matrix44_new_concat (const sk_matrix44_t* a, const sk_matrix44_t* b);
 SK_C_API sk_matrix44_t* sk_matrix44_new_matrix (const sk_matrix_t* src);
