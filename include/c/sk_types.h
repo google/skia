@@ -90,6 +90,8 @@ typedef struct {
     sk_alphatype_t  alphaType;
 } sk_imageinfo_t;
 
+SK_API sk_imageinfo_t sk_imageinfo_make_n32_premul(int width, int height);
+
 typedef struct {
     sk_pixelgeometry_t pixelGeometry;
 } sk_surfaceprops_t;

@@ -140,6 +140,12 @@ SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
  */
 SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
 
+SK_API void sk_paint_set_text_size(sk_paint_t *, float text_size);
+SK_API void sk_paint_measure_text(const sk_paint_t *, const char *text, size_t text_len, sk_rect_t *bounds);
+SK_API float sk_paint_get_font_spacing(const sk_paint_t *);
+SK_API void sk_paint_set_dash_effect(sk_paint_t *, float value1, float value2);
+SK_API void sk_paint_reset_dash_effect(sk_paint_t *);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
