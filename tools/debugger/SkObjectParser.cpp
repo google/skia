@@ -16,6 +16,7 @@
 #include "SkStringUtils.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
+#include "SkClipOpPriv.h"
 
 /* TODO(chudy): Replace all std::strings with char */
 
@@ -313,19 +314,19 @@ SkString* SkObjectParser::RRectToString(const SkRRect& rrect, const char* title)
     return mRRect;
 }
 
-SkString* SkObjectParser::ClipOpToString(SkCanvas::ClipOp op) {
+SkString* SkObjectParser::ClipOpToString(SkClipOp op) {
     SkString* mOp = new SkString("SkRegion::Op: ");
-    if (op == SkCanvas::kDifference_Op) {
+    if (op == kDifference_SkClipOp) {
         mOp->append("kDifference_Op");
-    } else if (op == SkCanvas::kIntersect_Op) {
+    } else if (op == kIntersect_SkClipOp) {
         mOp->append("kIntersect_Op");
-    } else if (op == SkCanvas::kUnion_Op) {
+    } else if (op == kUnion_SkClipOp) {
         mOp->append("kUnion_Op");
-    } else if (op == SkCanvas::kXOR_Op) {
+    } else if (op == kXOR_SkClipOp) {
         mOp->append("kXOR_Op");
-    } else if (op == SkCanvas::kReverseDifference_Op) {
+    } else if (op == kReverseDifference_SkClipOp) {
         mOp->append("kReverseDifference_Op");
-    } else if (op == SkCanvas::kReplace_Op) {
+    } else if (op == kReplace_SkClipOp) {
         mOp->append("kReplace_Op");
     } else {
         mOp->append("Unknown Type");
@@ -402,4 +403,21 @@ SkString* SkObjectParser::TextToString(const void* text, size_t byteLength,
     }
 
     return decodedText;
+}
+
+SkString* SkObjectParser::LatticeToString(const SkCanvas::Lattice& lattice) {
+    SkString* mLattice = new SkString;
+    mLattice->append("Lattice: ");
+    mLattice->append("(X: ");
+    mLattice->appendS32(lattice.fXCount);
+    mLattice->append(", Y:");
+    mLattice->appendS32(lattice.fYCount);
+    mLattice->append(", Bounds:");
+    if (nullptr != lattice.fBounds) {
+        mLattice->append(*IRectToString(*lattice.fBounds));
+    } else {
+        mLattice->append("null");
+    }
+    mLattice->append(")");
+    return mLattice;
 }

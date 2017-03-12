@@ -85,6 +85,7 @@ public:
     SkColorType colorType() const { return fInfo.colorType(); }
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fInfo.refColorSpace(); }
 
     /**
      *  Return the number of bytes per pixel based on the colortype. If the colortype is
@@ -117,7 +118,7 @@ public:
      *  dimensions of the bitmap are > 0 (see empty()).
      *  Hey!  Before you use this, see if you really want to know drawsNothing() instead.
      */
-    bool isNull() const { return NULL == fPixelRef; }
+    bool isNull() const { return nullptr == fPixelRef; }
 
     /** Return true iff drawing this bitmap has no effect.
      */
@@ -215,7 +216,10 @@ public:
      *  this (isOpaque). Only call this if you need to compute this value from
      *  "unknown" pixels.
      */
-    static bool ComputeIsOpaque(const SkBitmap&);
+    static bool ComputeIsOpaque(const SkBitmap& bm) {
+        SkAutoPixmapUnlock result;
+        return bm.requestLock(&result) && result.pixmap().computeIsOpaque();
+    }
 
     /**
      *  Return the bitmap's bounds [0, 0, width, height] as an SkRect
@@ -404,7 +408,7 @@ public:
      *  Return the current pixelref object or NULL if there is none. This does
      *  not affect the refcount of the pixelref.
      */
-    SkPixelRef* pixelRef() const { return fPixelRef; }
+    SkPixelRef* pixelRef() const { return fPixelRef.get(); }
 
     /**
      *  A bitmap can reference a subset of a pixelref's pixels. That means the
@@ -419,6 +423,15 @@ public:
      */
     SkIPoint pixelRefOrigin() const { return fPixelRefOrigin; }
 
+    /**
+     * Assign a pixelref and origin to the bitmap.  (dx,dy) specify the offset
+     * within the pixelref's pixels for the top/left corner of the bitmap. For
+     * a bitmap that encompases the entire pixels of the pixelref, these will
+     * be (0,0).
+     */
+    void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
+
+#ifdef SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF
     /**
      *  Assign a pixelref and origin to the bitmap. Pixelrefs are reference,
      *  so the existing one (if any) will be unref'd and the new one will be
@@ -435,6 +448,7 @@ public:
     SkPixelRef* setPixelRef(SkPixelRef* pr) {
         return this->setPixelRef(pr, 0, 0);
     }
+#endif
 
     /** Call this to ensure that the bitmap points to the current pixel address
         in the pixelref. Balance it with a call to unlockPixels(). These calls
@@ -631,6 +645,21 @@ public:
      */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY) const;
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
+    bool readPixels(const SkPixmap& dst) const {
+        return this->readPixels(dst, 0, 0);
+    }
+
+    /**
+     *  Copy the src pixmap's pixels into this bitmap, offset by dstX, dstY.
+     *
+     *  This is logically the same as creating a bitmap around src, and calling readPixels on it
+     *  with this bitmap as the dst.
+     */
+    bool writePixels(const SkPixmap& src, int dstX, int dstY);
+    bool writePixels(const SkPixmap& src) {
+        return this->writePixels(src, 0, 0);
+    }
 
     /**
      *  Returns true if this bitmap's pixels can be converted into the requested
@@ -745,13 +774,13 @@ public:
     SK_TO_STRING_NONVIRT()
 
 private:
-    mutable SkPixelRef* fPixelRef;
-    mutable int         fPixelLockCount;
+    mutable sk_sp<SkPixelRef> fPixelRef;
+    mutable int               fPixelLockCount;
     // These are just caches from the locked pixelref
-    mutable void*       fPixels;
-    mutable SkColorTable* fColorTable;    // only meaningful for kIndex8
+    mutable void*             fPixels;
+    mutable SkColorTable*     fColorTable;    // only meaningful for kIndex8
 
-    SkIPoint    fPixelRefOrigin;
+    SkIPoint                  fPixelRefOrigin;
 
     enum Flags {
         kImageIsVolatile_Flag   = 0x02,
@@ -764,9 +793,9 @@ private:
 #endif
     };
 
-    SkImageInfo fInfo;
-    uint32_t    fRowBytes;
-    uint8_t     fFlags;
+    SkImageInfo               fInfo;
+    uint32_t                  fRowBytes;
+    uint8_t                   fFlags;
 
     /*  Unreference any pixelrefs or colortables
     */

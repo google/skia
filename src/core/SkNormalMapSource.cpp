@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
@@ -73,7 +73,7 @@ public:
             fragBuilder->codeAppend( "}");
         }
 
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+        static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
             b->add32(0x0);
         }
 
@@ -96,7 +96,7 @@ public:
         GrGLSLProgramDataManager::UniformHandle fXformUni;
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLNormalMapFP::GenKey(*this, caps, b);
     }
 
@@ -157,7 +157,7 @@ SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::Cont
     SkPaint* overridePaint = new (paintStorage) SkPaint(*(rec.fPaint));
     overridePaint->setAlpha(0xFF);
     SkShader::ContextRec overrideRec(*overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
-                                     rec.fPreferredDstType);
+                                     rec.fPreferredDstType, rec.fDstColorSpace);
 
     void* mapContextStorage = (char*) paintStorage + sizeof(SkPaint);
     SkShader::Context* context = fMapShader->createContext(overrideRec, mapContextStorage);

@@ -10,6 +10,7 @@
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "Test.h"
 
 #include "png.h"
@@ -111,6 +112,17 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
             SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, srgbToxyzD50);
     REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 
+    SkColorSpaceTransferFn srgbFn;
+    srgbFn.fA = (1.0f / 1.055f);
+    srgbFn.fB = (0.055f / 1.055f);
+    srgbFn.fC = (1.0f / 12.92f);
+    srgbFn.fD = 0.04045f;
+    srgbFn.fE = 0.0f;
+    srgbFn.fF = 0.0f;
+    srgbFn.fG = 2.4f;
+    sk_sp<SkColorSpace> rgbColorSpace2 = SkColorSpace::MakeRGB(srgbFn, srgbToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace2 == namedColorSpace);
+
     // Change a single value from the sRGB matrix
     srgbToxyzD50.set(2, 2, 0.5f);
     sk_sp<SkColorSpace> strangeColorSpace =
@@ -135,6 +147,28 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
         SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, srgbToxyzD50);
     REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 
+    SkColorSpaceTransferFn linearExpFn;
+    linearExpFn.fA = 1.0f;
+    linearExpFn.fB = 0.0f;
+    linearExpFn.fC = 0.0f;
+    linearExpFn.fD = 0.0f;
+    linearExpFn.fE = 0.0f;
+    linearExpFn.fF = 0.0f;
+    linearExpFn.fG = 1.0f;
+    sk_sp<SkColorSpace> rgbColorSpace2 = SkColorSpace::MakeRGB(linearExpFn, srgbToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace2 == namedColorSpace);
+
+    SkColorSpaceTransferFn linearFn;
+    linearFn.fA = 0.0f;
+    linearFn.fB = 0.0f;
+    linearFn.fC = 1.0f;
+    linearFn.fD = 1.0f;
+    linearFn.fE = 0.0f;
+    linearFn.fF = 0.0f;
+    linearFn.fG = 0.0f;
+    sk_sp<SkColorSpace> rgbColorSpace3 = SkColorSpace::MakeRGB(linearFn, srgbToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace3 == namedColorSpace);
+
     // Change a single value from the sRGB matrix
     srgbToxyzD50.set(2, 2, 0.5f);
     sk_sp<SkColorSpace> strangeColorSpace =
@@ -142,41 +176,24 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 
-class ColorSpaceTest {
-public:
-    static sk_sp<SkData> WriteToICC(SkColorSpace* space) {
-        return as_CSB(space)->writeToICC();
-    }
-};
+DEF_TEST(ColorSpaceAdobeCompare, r) {
+    // Create an sRGB color space by name
+    sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
 
-DEF_TEST(ColorSpaceWriteICC, r) {
-    // Test writing a new ICC profile
-    sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-    sk_sp<SkData> namedData = ColorSpaceTest::WriteToICC(namedColorSpace.get());
-    sk_sp<SkColorSpace> iccColorSpace = SkColorSpace::MakeICC(namedData->data(), namedData->size());
-    test_space(r, iccColorSpace.get(), g_sRGB_R, g_sRGB_G, g_sRGB_B, k2Dot2Curve_SkGammaNamed);
-    // FIXME (msarett): Test disabled.  sRGB profiles are written approximately as 2.2f curves.
-    // REPORTER_ASSERT(r, iccColorSpace == namedColorSpace);
+    // Create an sRGB color space by value
+    SkMatrix44 adobeToxyzD50(SkMatrix44::kUninitialized_Constructor);
+    adobeToxyzD50.set3x3RowMajorf(gAdobeRGB_toXYZD50);
 
-    // Test saving the original ICC data
-    sk_sp<SkData> monitorData = SkData::MakeFromFileName(
-            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
-    REPORTER_ASSERT(r, monitorData);
-    if (!monitorData) {
-        return;
-    }
-    sk_sp<SkColorSpace> monitorSpace = SkColorSpace::MakeICC(monitorData->data(),
-                                                             monitorData->size());
-    sk_sp<SkData> newMonitorData = ColorSpaceTest::WriteToICC(monitorSpace.get());
-    sk_sp<SkColorSpace> newMonitorSpace = SkColorSpace::MakeICC(newMonitorData->data(),
-                                                                newMonitorData->size());
-    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(monitorSpace)->type());
-    SkColorSpace_XYZ* monitorSpaceXYZ = static_cast<SkColorSpace_XYZ*>(monitorSpace.get());
-    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(newMonitorSpace)->type());
-    SkColorSpace_XYZ* newMonitorSpaceXYZ = static_cast<SkColorSpace_XYZ*>(newMonitorSpace.get());
-    REPORTER_ASSERT(r, *monitorSpaceXYZ->toXYZD50() == *newMonitorSpaceXYZ->toXYZD50());
-    REPORTER_ASSERT(r, monitorSpaceXYZ->toXYZD50Hash() == newMonitorSpaceXYZ->toXYZD50Hash());
-    REPORTER_ASSERT(r, monitorSpaceXYZ->gammaNamed() == newMonitorSpaceXYZ->gammaNamed());
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.0f;
+    fn.fE = 0.0f;
+    fn.fF = 0.0f;
+    fn.fG = 2.2f;
+    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::MakeRGB(fn, adobeToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 }
 
 DEF_TEST(ColorSpace_Named, r) {
@@ -401,4 +418,24 @@ DEF_TEST(ColorSpace_InvalidICC, r) {
             GetResourcePath("icc_profiles/SM2333SW.icc").c_str());
     sk_sp<SkColorSpace> cs = SkColorSpace::MakeICC(data->data(), data->size());
     REPORTER_ASSERT(r, !cs);
+}
+
+DEF_TEST(ColorSpace_MatrixHash, r) {
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.0f;
+    fn.fE = 0.0f;
+    fn.fF = 0.0f;
+    fn.fG = 3.0f;
+
+    SkMatrix44 srgbMat(SkMatrix44::kUninitialized_Constructor);
+    srgbMat.set3x3RowMajorf(gSRGB_toXYZD50);
+    sk_sp<SkColorSpace> strange = SkColorSpace::MakeRGB(fn, srgbMat);
+
+    REPORTER_ASSERT(r, *as_CSB(srgb)->toXYZD50() == *as_CSB(strange)->toXYZD50());
+    REPORTER_ASSERT(r, as_CSB(srgb)->toXYZD50Hash() == as_CSB(strange)->toXYZD50Hash());
 }

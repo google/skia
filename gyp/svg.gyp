@@ -50,6 +50,8 @@
         '../experimental/svg/model/SkSVGAttributeParser.cpp',
         '../experimental/svg/model/SkSVGCircle.h',
         '../experimental/svg/model/SkSVGCircle.cpp',
+        '../experimental/svg/model/SkSVGClipPath.h',
+        '../experimental/svg/model/SkSVGClipPath.cpp',
         '../experimental/svg/model/SkSVGContainer.h',
         '../experimental/svg/model/SkSVGContainer.cpp',
         '../experimental/svg/model/SkSVGDefs.h',

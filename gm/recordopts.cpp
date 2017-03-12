@@ -39,11 +39,8 @@ static void install_detector_color_filter(SkPaint* drawPaint) {
 
 // This detector detects that image filter phase of the pixel pipeline receives the correct value.
 static void install_detector_image_filter(SkPaint* drawPaint) {
-    sk_sp<SkColorFilter> colorFilter(make_detector_color_filter());
-    sk_sp<SkImageFilter> imageFilter(
-        SkColorFilterImageFilter::Make(std::move(colorFilter),
-                                       sk_ref_sp(drawPaint->getImageFilter())));
-    drawPaint->setImageFilter(std::move(imageFilter));
+    drawPaint->setImageFilter(SkColorFilterImageFilter::Make(make_detector_color_filter(),
+                                                             drawPaint->refImageFilter()));
 }
 
 static void no_detector_install(SkPaint*) {

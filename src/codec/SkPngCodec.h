@@ -9,7 +9,7 @@
 #include "SkColorSpaceXform.h"
 #include "SkColorTable.h"
 #include "SkPngChunkReader.h"
-#include "SkEncodedFormat.h"
+#include "SkEncodedImageFormat.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkSwizzler.h"
@@ -51,7 +51,7 @@ protected:
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;
-    SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
+    SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kPNG; }
     bool onRewind() override;
     uint64_t onGetFillValue(const SkImageInfo&) const override;
 
@@ -99,7 +99,7 @@ protected:
     sk_sp<SkColorTable>         fColorTable;    // May be unpremul.
     std::unique_ptr<SkSwizzler> fSwizzler;
     SkAutoTMalloc<uint8_t>      fStorage;
-    uint32_t*                   fColorXformSrcRow;
+    void*                       fColorXformSrcRow;
     const int                   fBitDepth;
 
 private:
@@ -119,7 +119,7 @@ private:
     // Helper to set up swizzler, color xforms, and color table. Also calls png_read_update_info.
     bool initializeXforms(const SkImageInfo& dstInfo, const Options&, SkPMColor* colorPtr,
                           int* colorCount);
-    void initializeSwizzler(const SkImageInfo& dstInfo, const Options&);
+    void initializeSwizzler(const SkImageInfo& dstInfo, const Options&, bool skipFormatConversion);
     void allocateStorage(const SkImageInfo& dstInfo);
     void destroyReadStruct();
 

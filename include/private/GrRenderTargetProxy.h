@@ -53,11 +53,8 @@ public:
 
     GrRenderTarget::Flags testingOnly_getFlags() const;
 
-    GrRenderTargetOpList* getLastRenderTargetOpList() {
-        return (GrRenderTargetOpList*) this->getLastOpList();
-    }
-
-    SkDEBUGCODE(void validate(GrContext*) const;)
+    // TODO: move this to a priv class!
+    bool refsWrappedObjects() const;
 
 protected:
     friend class GrSurfaceProxy;  // for ctors

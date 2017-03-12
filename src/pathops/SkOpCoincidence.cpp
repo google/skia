@@ -16,6 +16,16 @@ bool SkCoincidentSpans::collapsed(const SkOpPtT* test) const {
         || (fOppPtTEnd == test && fOppPtTStart->contains(test));
 }
 
+// out of line since this function is referenced by address
+const SkOpPtT* SkCoincidentSpans::coinPtTEnd() const {
+    return fCoinPtTEnd;
+}
+
+// out of line since this function is referenced by address
+const SkOpPtT* SkCoincidentSpans::coinPtTStart() const {
+    return fCoinPtTStart;
+}
+
 // sets the span's end to the ptT referenced by the previous-next
 void SkCoincidentSpans::correctOneEnd(
         const SkOpPtT* (SkCoincidentSpans::* getEnd)() const,
@@ -125,6 +135,16 @@ bool SkCoincidentSpans::contains(const SkOpPtT* s, const SkOpPtT* e) const {
     }
 }
 
+// out of line since this function is referenced by address
+const SkOpPtT* SkCoincidentSpans::oppPtTStart() const {
+    return fOppPtTStart;
+}
+
+// out of line since this function is referenced by address
+const SkOpPtT* SkCoincidentSpans::oppPtTEnd() const {
+    return fOppPtTEnd;
+}
+
 // A coincident span is unordered if the pairs of points in the main and opposite curves'
 // t values do not ascend or descend. For instance, if a tightly arced quadratic is
 // coincident with another curve, it may intersect it out of order.
@@ -142,7 +162,7 @@ bool SkCoincidentSpans::ordered(bool* result) const {
     do {
         const SkOpPtT* opp = next->contains(oppSeg);
         if (!opp) {
-            SkOPOBJASSERT(start, 0);  // may assert if coincident span isn't fully processed
+//            SkOPOBJASSERT(start, 0);  // may assert if coincident span isn't fully processed
             return false;
         }
         if ((oppLastT > opp->fT) != flipped) {
@@ -976,7 +996,9 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         return true;
     }
     do {
-        SkOpSpan* start = coin->coinPtTStartWritable()->span()->upCast();
+        SkOpSpanBase* startSpan = coin->coinPtTStartWritable()->span();
+        FAIL_IF(!startSpan->upCastable());
+        SkOpSpan* start = startSpan->upCast();
         if (start->deleted()) {
             continue;
         }
@@ -1004,6 +1026,7 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
                 if (oNext == oEnd) {
                     break;
                 }
+                FAIL_IF(!oNext->upCastable());
                 oStart = oNext->upCast();
             } while (true);
         }
@@ -1303,6 +1326,7 @@ bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         }
         /* coin and opp spans may not match up. Mark the ends, and then let the interior
            get marked as many times as the spans allow */
+        FAIL_IF(!oStart->upCastable());
         start->insertCoincidence(oStart->upCast());
         end->insertCoinEnd(oEnd);
         const SkOpSegment* segment = start->segment();
@@ -1313,7 +1337,7 @@ bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         FAIL_IF(!coin->ordered(&ordered));
         while ((next = next->upCast()->next()) != end) {
             FAIL_IF(!next->upCastable());
-            SkAssertResult(next->upCast()->insertCoincidence(oSegment, flipped, ordered));
+            FAIL_IF(!next->upCast()->insertCoincidence(oSegment, flipped, ordered));
         }
         while ((oNext = oNext->upCast()->next()) != oEnd) {
             FAIL_IF(!oNext->upCastable());

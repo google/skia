@@ -5,13 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkConfig8888.h"
 #include "SkData.h"
+#include "SkImageInfoPriv.h"
+#include "SkHalf.h"
 #include "SkMask.h"
-#include "SkPixmap.h"
-#include "SkUtils.h"
+#include "SkNx.h"
 #include "SkPM4f.h"
+#include "SkPixmap.h"
+#include "SkSurface.h"
+#include "SkUtils.h"
 
 void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* ctx) {
     SkASSERT(pm.addr() != nullptr);
@@ -79,13 +85,11 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
 
 bool SkPixmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
                           int x, int y) const {
-    if (kUnknown_SkColorType == requestedDstInfo.colorType()) {
+    if (!SkImageInfoValidConversion(requestedDstInfo, fInfo)) {
         return false;
     }
+
     if (nullptr == dstPixels || dstRB < requestedDstInfo.minRowBytes()) {
-        return false;
-    }
-    if (0 == requestedDstInfo.width() || 0 == requestedDstInfo.height()) {
         return false;
     }
 
@@ -206,14 +210,18 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
             }
             break;
         }
+        case kRGBA_F16_SkColorType:
+            // The colorspace is unspecified, so assume linear just like getColor().
+            this->erase(SkColor4f{(1 / 255.0f) * r,
+                                  (1 / 255.0f) * g,
+                                  (1 / 255.0f) * b,
+                                  (1 / 255.0f) * a}, &area);
+            break;
         default:
             return false; // no change, so don't call notifyPixelsChanged()
     }
     return true;
 }
-
-#include "SkNx.h"
-#include "SkHalf.h"
 
 bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     SkPixmap pm;
@@ -237,11 +245,6 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     }
     return true;
 }
-
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkXfermode.h"
 
 bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     // Can't do anthing with empty src or dst
@@ -327,4 +330,83 @@ SkColor SkPixmap::getColor(int x, int y) const {
             SkDEBUGFAIL("");
             return SkColorSetARGB(0, 0, 0, 0);
     }
+}
+
+bool SkPixmap::computeIsOpaque() const {
+    const int height = this->height();
+    const int width = this->width();
+
+    switch (this->colorType()) {
+        case kAlpha_8_SkColorType: {
+            unsigned a = 0xFF;
+            for (int y = 0; y < height; ++y) {
+                const uint8_t* row = this->addr8(0, y);
+                for (int x = 0; x < width; ++x) {
+                    a &= row[x];
+                }
+                if (0xFF != a) {
+                    return false;
+                }
+            }
+            return true;
+        } break;
+        case kIndex_8_SkColorType: {
+            const SkColorTable* ctable = this->ctable();
+            if (nullptr == ctable) {
+                return false;
+            }
+            const SkPMColor* table = ctable->readColors();
+            SkPMColor c = (SkPMColor)~0;
+            for (int i = ctable->count() - 1; i >= 0; --i) {
+                c &= table[i];
+            }
+            return 0xFF == SkGetPackedA32(c);
+        } break;
+        case kRGB_565_SkColorType:
+        case kGray_8_SkColorType:
+            return true;
+            break;
+        case kARGB_4444_SkColorType: {
+            unsigned c = 0xFFFF;
+            for (int y = 0; y < height; ++y) {
+                const SkPMColor16* row = this->addr16(0, y);
+                for (int x = 0; x < width; ++x) {
+                    c &= row[x];
+                }
+                if (0xF != SkGetPackedA4444(c)) {
+                    return false;
+                }
+            }
+            return true;
+        } break;
+        case kBGRA_8888_SkColorType:
+        case kRGBA_8888_SkColorType: {
+            SkPMColor c = (SkPMColor)~0;
+            for (int y = 0; y < height; ++y) {
+                const SkPMColor* row = this->addr32(0, y);
+                for (int x = 0; x < width; ++x) {
+                    c &= row[x];
+                }
+                if (0xFF != SkGetPackedA32(c)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        case kRGBA_F16_SkColorType: {
+            const SkHalf* row = (const SkHalf*)this->addr();
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    if (row[4 * x + 3] < SK_Half1) {
+                        return false;
+                    }
+                }
+                row += this->rowBytes() >> 1;
+            }
+            return true;
+        }
+        default:
+            break;
+    }
+    return false;
 }

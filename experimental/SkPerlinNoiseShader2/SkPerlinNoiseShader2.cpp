@@ -614,7 +614,7 @@ class GrGLPerlinNoise2 : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -657,7 +657,7 @@ private:
         return new GrGLPerlinNoise2;
     }
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override {
         GrGLPerlinNoise2::GenKey(*this, caps, b);
     }
@@ -683,25 +683,25 @@ private:
       : fType(type)
       , fNumOctaves(numOctaves)
       , fStitchTiles(stitchTiles)
-      , fPermutationsAccess(permutationsTexture)
-      , fNoiseAccess(noiseTexture)
+      , fPermutationsSampler(permutationsTexture)
+      , fNoiseSampler(noiseTexture)
       , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoise2Effect>();
-        this->addTextureAccess(&fPermutationsAccess);
-        this->addTextureAccess(&fNoiseAccess);
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fNoiseSampler);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    SkPerlinNoiseShader2::Type       fType;
-    GrCoordTransform                fCoordTransform;
-    int                             fNumOctaves;
-    bool                            fStitchTiles;
-    GrTextureAccess                 fPermutationsAccess;
-    GrTextureAccess                 fNoiseAccess;
-    SkPerlinNoiseShader2::PaintingData *fPaintingData;
+    SkPerlinNoiseShader2::Type          fType;
+    GrCoordTransform                    fCoordTransform;
+    int                                 fNumOctaves;
+    bool                                fStitchTiles;
+    TextureSampler                      fPermutationsSampler;
+    TextureSampler                      fNoiseSampler;
+    SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
 private:
     typedef GrFragmentProcessor INHERITED;
@@ -774,15 +774,15 @@ void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
     const char* dotLattice  = "dot(((%s.ga + %s.rb * vec2(%s)) * vec2(2.0) - vec2(1.0)), %s);";
 
     // Add noise function
-    static const GrGLSLShaderVar gPerlinNoiseArgs[] =  {
-        GrGLSLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLSLShaderVar(noiseVec, kVec2f_GrSLType)
+    static const GrShaderVar gPerlinNoiseArgs[] =  {
+        GrShaderVar(chanCoord, kFloat_GrSLType),
+        GrShaderVar(noiseVec, kVec2f_GrSLType)
     };
 
-    static const GrGLSLShaderVar gPerlinNoiseStitchArgs[] =  {
-        GrGLSLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLSLShaderVar(noiseVec, kVec2f_GrSLType),
-        GrGLSLShaderVar(stitchData, kVec2f_GrSLType)
+    static const GrShaderVar gPerlinNoiseStitchArgs[] =  {
+        GrShaderVar(chanCoord, kFloat_GrSLType),
+        GrShaderVar(noiseVec, kVec2f_GrSLType),
+        GrShaderVar(stitchData, kVec2f_GrSLType)
     };
 
     SkString noiseCode;
@@ -983,7 +983,7 @@ void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
                            args.fOutputColor, args.fOutputColor);
 }
 
-void GrGLPerlinNoise2::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GrGLPerlinNoise2::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
     const GrPerlinNoise2Effect& turbulence = processor.cast<GrPerlinNoise2Effect>();
 
@@ -1032,7 +1032,7 @@ class GrGLImprovedPerlinNoise : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -1073,7 +1073,7 @@ private:
         return new GrGLImprovedPerlinNoise;
     }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GrGLImprovedPerlinNoise::GenKey(*this, caps, b);
     }
 
@@ -1093,24 +1093,24 @@ private:
                                 const SkMatrix& matrix)
       : fOctaves(octaves)
       , fZ(z)
-      , fPermutationsAccess(permutationsTexture)
-      , fGradientAccess(gradientTexture)
+      , fPermutationsSampler(permutationsTexture)
+      , fGradientSampler(gradientTexture)
       , fPaintingData(paintingData) {
         this->initClassID<GrImprovedPerlinNoiseEffect>();
-        this->addTextureAccess(&fPermutationsAccess);
-        this->addTextureAccess(&fGradientAccess);
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fGradientSampler);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    GrCoordTransform                  fCoordTransform;
-    int                               fOctaves;
-    SkScalar                          fZ;
-    GrTextureAccess                   fPermutationsAccess;
-    GrTextureAccess                   fGradientAccess;
-    SkPerlinNoiseShader2::PaintingData *fPaintingData;
+    GrCoordTransform                    fCoordTransform;
+    int                                 fOctaves;
+    SkScalar                            fZ;
+    TextureSampler                      fPermutationsSampler;
+    TextureSampler                      fGradientSampler;
+    SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
 private:
     typedef GrFragmentProcessor INHERITED;
@@ -1157,8 +1157,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     const char* zUni = uniformHandler->getUniformCStr(fZUni);
 
     // fade function
-    static const GrGLSLShaderVar fadeArgs[] =  {
-        GrGLSLShaderVar("t", kVec3f_GrSLType)
+    static const GrShaderVar fadeArgs[] =  {
+        GrShaderVar("t", kVec3f_GrSLType)
     };
     SkString fadeFuncName;
     fsBuilder->emitFunction(kVec3f_GrSLType, "fade", SK_ARRAY_COUNT(fadeArgs),
@@ -1167,8 +1167,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                             &fadeFuncName);
 
     // perm function
-    static const GrGLSLShaderVar permArgs[] =  {
-        GrGLSLShaderVar("x", kFloat_GrSLType)
+    static const GrShaderVar permArgs[] =  {
+        GrShaderVar("x", kFloat_GrSLType)
     };
     SkString permFuncName;
     SkString permCode("return ");
@@ -1181,9 +1181,9 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                             permCode.c_str(), &permFuncName);
 
     // grad function
-    static const GrGLSLShaderVar gradArgs[] =  {
-        GrGLSLShaderVar("x", kFloat_GrSLType),
-        GrGLSLShaderVar("p", kVec3f_GrSLType)
+    static const GrShaderVar gradArgs[] =  {
+        GrShaderVar("x", kFloat_GrSLType),
+        GrShaderVar("p", kVec3f_GrSLType)
     };
     SkString gradFuncName;
     SkString gradCode("return dot(");
@@ -1194,18 +1194,18 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                             gradCode.c_str(), &gradFuncName);
 
     // lerp function
-    static const GrGLSLShaderVar lerpArgs[] =  {
-        GrGLSLShaderVar("a", kFloat_GrSLType),
-        GrGLSLShaderVar("b", kFloat_GrSLType),
-        GrGLSLShaderVar("w", kFloat_GrSLType)
+    static const GrShaderVar lerpArgs[] =  {
+        GrShaderVar("a", kFloat_GrSLType),
+        GrShaderVar("b", kFloat_GrSLType),
+        GrShaderVar("w", kFloat_GrSLType)
     };
     SkString lerpFuncName;
     fsBuilder->emitFunction(kFloat_GrSLType, "lerp", SK_ARRAY_COUNT(lerpArgs), lerpArgs, 
                             "return a + w * (b - a);", &lerpFuncName);
 
     // noise function
-    static const GrGLSLShaderVar noiseArgs[] =  {
-        GrGLSLShaderVar("p", kVec3f_GrSLType),
+    static const GrShaderVar noiseArgs[] =  {
+        GrShaderVar("p", kVec3f_GrSLType),
     };
     SkString noiseFuncName;
     SkString noiseCode;
@@ -1241,9 +1241,9 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                             noiseCode.c_str(), &noiseFuncName);
     
     // noiseOctaves function
-    static const GrGLSLShaderVar noiseOctavesArgs[] =  {
-        GrGLSLShaderVar("p", kVec3f_GrSLType),
-        GrGLSLShaderVar("octaves", kFloat_GrSLType),
+    static const GrShaderVar noiseOctavesArgs[] =  {
+        GrShaderVar("p", kVec3f_GrSLType),
+        GrShaderVar("octaves", kFloat_GrSLType),
     };
     SkString noiseOctavesFuncName;
     SkString noiseOctavesCode;
@@ -1278,7 +1278,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                            args.fOutputColor, args.fOutputColor);
 }
 
-void GrGLImprovedPerlinNoise::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GrGLImprovedPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                      GrProcessorKeyBuilder* b) {
 }
 
@@ -1319,14 +1319,14 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
 
     if (fType == kImprovedNoise_Type) {
-        GrTextureParams textureParams(SkShader::TileMode::kRepeat_TileMode, 
-                                      GrTextureParams::FilterMode::kNone_FilterMode);
+        GrSamplerParams textureParams(SkShader::TileMode::kRepeat_TileMode,
+                                      GrSamplerParams::FilterMode::kNone_FilterMode);
         sk_sp<GrTexture> permutationsTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
-                                     textureParams, args.fColorMode));
+                                     textureParams));
         sk_sp<GrTexture> gradientTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getGradientBitmap(),
-                                     textureParams, args.fColorMode));
+                                     textureParams));
         return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, paintingData,
                                                  permutationsTexture.get(),
                                                  gradientTexture.get(), m);
@@ -1350,10 +1350,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
 
     sk_sp<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter()));
     sk_sp<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter()));
 
     if ((permutationsTexture) && (noiseTexture)) {
         sk_sp<GrFragmentProcessor> inner(

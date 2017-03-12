@@ -46,7 +46,7 @@ static void SkStringFromUTF16BE(const uint16_t* utf16be, size_t length, SkString
  *  In MacRoman the first 128 code points match ASCII code points.
  *  This maps the second 128 MacRoman code points to unicode code points.
  */
-static uint16_t UnicodeFromMacRoman[0x80] = {
+static const uint16_t UnicodeFromMacRoman[0x80] = {
     0x00C4, 0x00C5, 0x00C7, 0x00C9, 0x00D1, 0x00D6, 0x00DC, 0x00E1,
     0x00E0, 0x00E2, 0x00E4, 0x00E3, 0x00E5, 0x00E7, 0x00E9, 0x00E8,
     0x00EA, 0x00EB, 0x00ED, 0x00EC, 0x00EE, 0x00EF, 0x00F1, 0x00F3,
@@ -73,7 +73,7 @@ static void SkStringFromMacRoman(const uint8_t* macRoman, size_t length, SkStrin
     }
 }
 
-static struct BCP47FromLanguageId {
+static const struct BCP47FromLanguageId {
     uint16_t languageID;
     const char* bcp47;
 }

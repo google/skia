@@ -70,11 +70,6 @@ SkWStream::~SkWStream()
 {
 }
 
-void SkWStream::newline()
-{
-    this->write("\n", 1);
-}
-
 void SkWStream::flush()
 {
 }
@@ -105,20 +100,6 @@ bool SkWStream::writeScalarAsText(SkScalar value)
     char buffer[SkStrAppendScalar_MaxSize];
     char* stop = SkStrAppendScalar(buffer, value);
     return this->write(buffer, stop - buffer);
-}
-
-bool SkWStream::write8(U8CPU value) {
-    uint8_t v = SkToU8(value);
-    return this->write(&v, 1);
-}
-
-bool SkWStream::write16(U16CPU value) {
-    uint16_t v = SkToU16(value);
-    return this->write(&v, 2);
-}
-
-bool SkWStream::write32(uint32_t value) {
-    return this->write(&value, 4);
 }
 
 bool SkWStream::writeScalar(SkScalar value) {
@@ -450,24 +431,15 @@ void SkFILEWStream::fsync()
 
 ////////////////////////////////////////////////////////////////////////
 
-SkMemoryWStream::SkMemoryWStream(void* buffer, size_t size)
-    : fBuffer((char*)buffer), fMaxLength(size), fBytesWritten(0)
-{
-}
-
-bool SkMemoryWStream::write(const void* buffer, size_t size) {
-    size = SkTMin(size, fMaxLength - fBytesWritten);
-    if (size > 0) {
-        memcpy(fBuffer + fBytesWritten, buffer, size);
-        fBytesWritten += size;
-        return true;
+static inline void sk_memcpy_4bytes(void* dst, const void* src, size_t size) {
+    if (size == 4) {
+        memcpy(dst, src, 4);
+    } else {
+        memcpy(dst, src, size);
     }
-    return false;
 }
 
-////////////////////////////////////////////////////////////////////////
-
-#define SkDynamicMemoryWStream_MinBlockSize   256
+#define SkDynamicMemoryWStream_MinBlockSize   4096
 
 struct SkDynamicMemoryWStream::Block {
     Block*  fNext;
@@ -479,65 +451,69 @@ struct SkDynamicMemoryWStream::Block {
     size_t  avail() const { return fStop - fCurr; }
     size_t  written() const { return fCurr - this->start(); }
 
-    void init(size_t size)
-    {
+    void init(size_t size) {
         fNext = nullptr;
         fCurr = this->start();
         fStop = this->start() + size;
     }
 
-    const void* append(const void* data, size_t size)
-    {
+    const void* append(const void* data, size_t size) {
         SkASSERT((size_t)(fStop - fCurr) >= size);
-        memcpy(fCurr, data, size);
+        sk_memcpy_4bytes(fCurr, data, size);
         fCurr += size;
         return (const void*)((const char*)data + size);
     }
 };
 
 SkDynamicMemoryWStream::SkDynamicMemoryWStream()
-    : fHead(nullptr), fTail(nullptr), fBytesWritten(0)
+    : fHead(nullptr), fTail(nullptr), fBytesWrittenBeforeTail(0)
 {}
 
-SkDynamicMemoryWStream::~SkDynamicMemoryWStream()
-{
-    reset();
+SkDynamicMemoryWStream::~SkDynamicMemoryWStream() {
+    this->reset();
 }
 
-void SkDynamicMemoryWStream::reset()
-{
-    this->invalidateCopy();
-
+void SkDynamicMemoryWStream::reset() {
     Block*  block = fHead;
-
     while (block != nullptr) {
         Block*  next = block->fNext;
         sk_free(block);
         block = next;
     }
     fHead = fTail = nullptr;
-    fBytesWritten = 0;
+    fBytesWrittenBeforeTail = 0;
 }
 
-bool SkDynamicMemoryWStream::write(const void* buffer, size_t count)
-{
+size_t SkDynamicMemoryWStream::bytesWritten() const {
+    this->validate();
+
+    if (fTail) {
+        return fBytesWrittenBeforeTail + fTail->written();
+    }
+    return 0;
+}
+
+bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     if (count > 0) {
-        this->invalidateCopy();
-
-        fBytesWritten += count;
-
         size_t  size;
 
-        if (fTail != nullptr && fTail->avail() > 0) {
-            size = SkTMin(fTail->avail(), count);
-            buffer = fTail->append(buffer, size);
-            SkASSERT(count >= size);
-            count -= size;
-            if (count == 0)
-                return true;
+        if (fTail) {
+            if (fTail->avail() > 0) {
+                size = SkTMin(fTail->avail(), count);
+                buffer = fTail->append(buffer, size);
+                SkASSERT(count >= size);
+                count -= size;
+                if (count == 0) {
+                    return true;
+                }
+            }
+            // If we get here, we've just exhausted fTail, so update our tracker
+            fBytesWrittenBeforeTail += fTail->written();
         }
 
-        size = SkTMax<size_t>(count, SkDynamicMemoryWStream_MinBlockSize);
+        size = SkTMax<size_t>(count, SkDynamicMemoryWStream_MinBlockSize - sizeof(Block));
+        size = SkAlign4(size);  // ensure we're always a multiple of 4 (see padToAlign4())
+
         Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
         block->init(size);
         block->append(buffer, count);
@@ -547,39 +523,15 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count)
         else
             fHead = fTail = block;
         fTail = block;
+        this->validate();
     }
     return true;
 }
 
-bool SkDynamicMemoryWStream::write(const void* buffer, size_t offset, size_t count)
-{
-    if (offset + count > fBytesWritten) {
+bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count) {
+    if (offset + count > this->bytesWritten()) {
         return false; // test does not partially modify
     }
-
-    this->invalidateCopy();
-
-    Block* block = fHead;
-    while (block != nullptr) {
-        size_t size = block->written();
-        if (offset < size) {
-            size_t part = offset + count > size ? size - offset : count;
-            memcpy(block->start() + offset, buffer, part);
-            if (count <= part)
-                return true;
-            count -= part;
-            buffer = (const void*) ((char* ) buffer + part);
-        }
-        offset = offset > size ? offset - size : 0;
-        block = block->fNext;
-    }
-    return false;
-}
-
-bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count)
-{
-    if (offset + count > fBytesWritten)
-        return false; // test does not partially modify
     Block* block = fHead;
     while (block != nullptr) {
         size_t size = block->written();
@@ -597,19 +549,13 @@ bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count)
     return false;
 }
 
-void SkDynamicMemoryWStream::copyTo(void* dst) const
-{
-    if (fCopy) {
-        memcpy(dst, fCopy->data(), fBytesWritten);
-    } else {
-        Block* block = fHead;
-
-        while (block != nullptr) {
-            size_t size = block->written();
-            memcpy(dst, block->start(), size);
-            dst = (void*)((char*)dst + size);
-            block = block->fNext;
-        }
+void SkDynamicMemoryWStream::copyTo(void* dst) const {
+    Block* block = fHead;
+    while (block != nullptr) {
+        size_t size = block->written();
+        memcpy(dst, block->start(), size);
+        dst = (void*)((char*)dst + size);
+        block = block->fNext;
     }
 }
 
@@ -619,35 +565,57 @@ void SkDynamicMemoryWStream::writeToStream(SkWStream* dst) const {
     }
 }
 
-void SkDynamicMemoryWStream::padToAlign4()
-{
-    // cast to remove unary-minus warning
-    int padBytes = -(int)fBytesWritten & 0x03;
-    if (padBytes == 0)
-        return;
-    int zero = 0;
-    write(&zero, padBytes);
-}
+void SkDynamicMemoryWStream::padToAlign4() {
+    // The contract is to write zeros until the entire stream has written a multiple of 4 bytes.
+    // Our Blocks are guaranteed always be (a) full (except the tail) and (b) a multiple of 4
+    // so it is sufficient to just examine the tail (if present).
 
-sk_sp<SkData> SkDynamicMemoryWStream::snapshotAsData() const {
-    if (nullptr == fCopy) {
-        auto data = SkData::MakeUninitialized(fBytesWritten);
-        // be sure to call copyTo() before we assign to fCopy
-        this->copyTo(data->writable_data());
-        fCopy = std::move(data);
+    if (fTail) {
+        // cast to remove unary-minus warning
+        int padBytes = -(int)fTail->written() & 0x03;
+        if (padBytes) {
+            int zero = 0;
+            fTail->append(&zero, padBytes);
+        }
     }
-    return fCopy;
 }
 
 sk_sp<SkData> SkDynamicMemoryWStream::detachAsData() {
-    sk_sp<SkData> data = this->snapshotAsData();
-    this->reset();
+    const size_t size = this->bytesWritten();
+    if (0 == size) {
+        return SkData::MakeEmpty();
+    }
+
+    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    this->copyTo(data->writable_data());
+    this->reset(); // this is the "detach" part
     return data;
 }
 
-void SkDynamicMemoryWStream::invalidateCopy() {
-    fCopy = nullptr;
+#ifdef SK_DEBUG
+void SkDynamicMemoryWStream::validate() const {
+    if (!fHead) {
+        SkASSERT(!fTail);
+        SkASSERT(fBytesWrittenBeforeTail == 0);
+        return;
+    }
+    SkASSERT(fTail);
+
+    size_t bytes = 0;
+    const Block* block = fHead;
+    while (block) {
+        if (block->fNext) {
+            SkASSERT(block->avail() == 0);
+            bytes += block->written();
+            SkASSERT(bytes == SkAlign4(bytes)); // see padToAlign4()
+        }
+        block = block->fNext;
+    }
+    SkASSERT(bytes == fBytesWrittenBeforeTail);
 }
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkBlockMemoryRefCnt : public SkRefCnt {
 public:
@@ -667,15 +635,8 @@ public:
 
 class SkBlockMemoryStream : public SkStreamAsset {
 public:
-    SkBlockMemoryStream(SkDynamicMemoryWStream::Block* head, size_t size)
-        : fBlockMemory(new SkBlockMemoryRefCnt(head))
-        , fCurrent(head)
-        , fSize(size)
-        , fOffset(0)
-        , fCurrentOffset(0) {}
-
-    SkBlockMemoryStream(SkBlockMemoryRefCnt* headRef, size_t size)
-        : fBlockMemory(SkRef(headRef)), fCurrent(fBlockMemory->fHead)
+    SkBlockMemoryStream(sk_sp<SkBlockMemoryRefCnt> headRef, size_t size)
+        : fBlockMemory(std::move(headRef)), fCurrent(fBlockMemory->fHead)
         , fSize(size) , fOffset(0), fCurrentOffset(0) { }
 
     size_t read(void* buffer, size_t rawCount) override {
@@ -719,8 +680,7 @@ public:
         size_t currentOffset = fCurrentOffset;
         while (bytesLeftToPeek) {
             SkASSERT(current);
-            size_t bytesFromCurrent =
-                    SkTMin(current->written() - currentOffset, bytesLeftToPeek);
+            size_t bytesFromCurrent = SkTMin(current->written() - currentOffset, bytesLeftToPeek);
             memcpy(buffer, current->start() + currentOffset, bytesFromCurrent);
             bytesLeftToPeek -= bytesFromCurrent;
             buffer += bytesFromCurrent;
@@ -738,7 +698,7 @@ public:
     }
 
     SkBlockMemoryStream* duplicate() const override {
-        return new SkBlockMemoryStream(fBlockMemory.get(), fSize);
+        return new SkBlockMemoryStream(fBlockMemory, fSize);
     }
 
     size_t getPosition() const override {
@@ -779,8 +739,7 @@ public:
     }
 
     const void* getMemoryBase() override {
-        if (nullptr != fBlockMemory->fHead &&
-            nullptr == fBlockMemory->fHead->fNext) {
+        if (fBlockMemory->fHead && !fBlockMemory->fHead->fNext) {
             return fBlockMemory->fHead->start();
         }
         return nullptr;
@@ -795,43 +754,15 @@ private:
 };
 
 SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
-    if (fCopy) {
-        SkMemoryStream* stream = new SkMemoryStream(fCopy);
-        this->reset();
-        return stream;
-    }
-    SkBlockMemoryStream* stream = new SkBlockMemoryStream(fHead, fBytesWritten);
-    fHead = 0;
+    auto stream = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
+                                                          this->bytesWritten());
+    fHead = nullptr;    // signal reset() to not free anything
     this->reset();
-    return stream;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void SkDebugWStream::newline()
-{
-#if defined(SK_DEBUG)
-    SkDebugf("\n");
-    fBytesWritten++;
-#endif
-}
-
-bool SkDebugWStream::write(const void* buffer, size_t size)
-{
-#if defined(SK_DEBUG)
-    char* s = new char[size+1];
-    memcpy(s, buffer, size);
-    s[size] = 0;
-    SkDebugf("%s", s);
-    delete[] s;
-    fBytesWritten += size;
-#endif
-    return true;
+    return stream.release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
 
 static sk_sp<SkData> mmap_filename(const char path[]) {
     FILE* file = sk_fopen(path, kRead_SkFILE_Flag);

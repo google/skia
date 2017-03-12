@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "Resources.h"
+#include "SkCodec.h"
 
 namespace skiagm {
 
@@ -17,7 +18,7 @@ public:
 protected:
 
     SkString onShortName() override {
-        return SkString("bitmap-image-srgb-linear");
+        return SkString("bitmap-image-srgb-legacy");
     }
 
     SkISize onISize() override {
@@ -26,26 +27,29 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // Create image.
-        sk_sp<SkImage> image = GetResourceAsImage("mandrill_512_q075.jpg");
+        const char* path = "mandrill_512_q075.jpg";
+        sk_sp<SkImage> image = GetResourceAsImage(path);
         if (!image) {
             SkDebugf("Failure: Is the resource path set properly?");
             return;
         }
 
         // Create matching bitmap.
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(GetResourceAsStream(path)));
         SkBitmap bitmap;
-        SkAssertResult(image->asLegacyBitmap(&bitmap, SkImage::kRO_LegacyBitmapMode));
+        bitmap.allocPixels(codec->getInfo());
+        codec->getPixels(codec->getInfo(), bitmap.getPixels(), bitmap.rowBytes());
 
         // The GM will be displayed in a 2x2 grid.
-        // The top two squares show an sRGB image, then bitmap, drawn to a linear canvas.
+        // The top two squares show an sRGB image, then bitmap, drawn to a legacy canvas.
         SkImageInfo linearInfo = SkImageInfo::MakeN32(2*kSize, kSize, kOpaque_SkAlphaType);
-        SkBitmap linearBMCanvas;
-        linearBMCanvas.allocPixels(linearInfo);
-        SkCanvas linearCanvas(linearBMCanvas);
-        linearCanvas.drawImage(image, 0.0f, 0.0f, nullptr);
-        linearCanvas.translate(SkScalar(kSize), 0.0f);
-        linearCanvas.drawBitmap(bitmap, 0.0f, 0.0f, nullptr);
-        canvas->drawBitmap(linearBMCanvas, 0.0f, 0.0f, nullptr);
+        SkBitmap legacyBMCanvas;
+        legacyBMCanvas.allocPixels(linearInfo);
+        SkCanvas legacyCanvas(legacyBMCanvas);
+        legacyCanvas.drawImage(image, 0.0f, 0.0f, nullptr);
+        legacyCanvas.translate(SkScalar(kSize), 0.0f);
+        legacyCanvas.drawBitmap(bitmap, 0.0f, 0.0f, nullptr);
+        canvas->drawBitmap(legacyBMCanvas, 0.0f, 0.0f, nullptr);
         canvas->translate(0.0f, SkScalar(kSize));
 
         // The bottom two squares show an sRGB image, then bitmap, drawn to a srgb canvas.

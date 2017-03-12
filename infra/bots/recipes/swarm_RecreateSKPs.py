@@ -8,15 +8,15 @@
 
 DEPS = [
   'build/file',
-  'core',
   'depot_tools/gclient',
-  'infra',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
-  'vars',
+  'skia-recipes/core',
+  'skia-recipes/infra',
+  'skia-recipes/vars',
 ]
 
 
@@ -30,26 +30,24 @@ TEST_BUILDERS = {
 }
 
 
-DEPOT_TOOLS_AUTH_TOKEN_FILE = '.depot_tools_oauth2_tokens'
-DEPOT_TOOLS_AUTH_TOKEN_FILE_BACKUP = '.depot_tools_oauth2_tokens.old'
-UPDATE_SKPS_KEY = 'depot_tools_auth_update_skps'
+UPDATE_SKPS_GITCOOKIES_FILE = 'update_skps.git_cookies'
+UPDATE_SKPS_KEY = 'update_skps_git_cookies'
 
 
-class depot_tools_auth(object):
-  """Temporarily authenticate to depot_tools via GCE metadata."""
+class gitcookies_auth(object):
+  """Download update-skps@skia.org's .gitcookies."""
   def __init__(self, api, metadata_key):
     self.m = api
     self._key = metadata_key
 
   def __enter__(self):
     return self.m.python.inline(
-        'depot-tools-auth login',
+        'download update-skps.gitcookies',
         """
 import os
 import urllib2
 
 TOKEN_FILE = '%s'
-TOKEN_FILE_BACKUP = '%s'
 TOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/%s'
 
 req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})
@@ -57,37 +55,28 @@ contents = urllib2.urlopen(req).read()
 
 home = os.path.expanduser('~')
 token_file = os.path.join(home, TOKEN_FILE)
-if os.path.isfile(token_file):
-  os.rename(token_file, os.path.join(home, TOKEN_FILE_BACKUP))
 
 with open(token_file, 'w') as f:
   f.write(contents)
-        """ % (DEPOT_TOOLS_AUTH_TOKEN_FILE,
-               DEPOT_TOOLS_AUTH_TOKEN_FILE_BACKUP,
+        """ % (UPDATE_SKPS_GITCOOKIES_FILE,
                self._key),
     )
 
   def __exit__(self, t, v, tb):
     self.m.python.inline(
-        'depot-tools-auth logout',
+        'cleanup update-skps.gitcookies',
         """
 import os
 
 
 TOKEN_FILE = '%s'
-TOKEN_FILE_BACKUP = '%s'
 
 
 home = os.path.expanduser('~')
 token_file = os.path.join(home, TOKEN_FILE)
 if os.path.isfile(token_file):
   os.remove(token_file)
-
-backup_file = os.path.join(home, TOKEN_FILE_BACKUP)
-if os.path.isfile(backup_file):
-  os.rename(backup_file, token_file)
-        """ % (DEPOT_TOOLS_AUTH_TOKEN_FILE,
-               DEPOT_TOOLS_AUTH_TOKEN_FILE_BACKUP),
+        """ % (UPDATE_SKPS_GITCOOKIES_FILE),
     )
     return v is None
 
@@ -113,7 +102,7 @@ def RunSteps(api):
            cwd=src_dir)
 
   # Clean up the output dir.
-  output_dir = api.path['slave_build'].join('skp_output')
+  output_dir = api.path['start_dir'].join('skp_output')
   if api.path.exists(output_dir):
     api.file.rmtree('skp_output', output_dir)
   api.file.makedirs('skp_output', output_dir)
@@ -139,11 +128,14 @@ def RunSteps(api):
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
     api.infra.update_go_deps()
+    update_skps_gitcookies = api.path.join(api.path.expanduser('~'),
+                                           UPDATE_SKPS_GITCOOKIES_FILE)
     cmd = ['python',
            api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
-           '--target_dir', output_dir]
+           '--target_dir', output_dir,
+           '--gitcookies', str(update_skps_gitcookies)]
     env.update(api.infra.go_env)
-    with depot_tools_auth(api, UPDATE_SKPS_KEY):
+    with gitcookies_auth(api, UPDATE_SKPS_KEY):
       api.step('Upload SKPs',
                cmd=cmd,
                cwd=api.vars.skia_dir,
@@ -159,11 +151,12 @@ def GenTests(api):
       api.properties(buildername=builder,
                      mastername=mastername,
                      slavename=slavename,
+                     repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['slave_build'].join('skp_output'))
+      api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
   builder = 'Housekeeper-Weekly-RecreateSKPs'
@@ -172,11 +165,12 @@ def GenTests(api):
       api.properties(buildername=builder,
                      mastername=mastername,
                      slavename=slavename,
+                     repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['slave_build'].join('skp_output'))
+      api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
   yield (
@@ -184,10 +178,11 @@ def GenTests(api):
       api.properties(buildername=builder,
                      mastername=mastername,
                      slavename=slavename,
+                     repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['slave_build'].join('skp_output')) +
+      api.path.exists(api.path['start_dir'].join('skp_output')) +
       api.step_data('Upload SKPs', retcode=1)
   )

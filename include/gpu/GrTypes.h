@@ -149,6 +149,18 @@ typedef intptr_t GrBackendContext;
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Used to control antialiasing in draw calls.
+ */
+enum class GrAA {
+    kYes,
+    kNo
+};
+
+static inline GrAA GrBoolToAA(bool aa) { return aa ? GrAA::kYes : GrAA::kNo; }
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
 * Geometric primitives used for drawing.
 */
 enum GrPrimitiveType {
@@ -207,7 +219,7 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 enum GrPixelConfig {
     kUnknown_GrPixelConfig,
     kAlpha_8_GrPixelConfig,
-    kIndex_8_GrPixelConfig,
+    kGray_8_GrPixelConfig,
     kRGB_565_GrPixelConfig,
     /**
      * Premultiplied
@@ -294,7 +306,6 @@ static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 // representation.
 static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
     switch (config) {
-        case kIndex_8_GrPixelConfig:
         case kETC1_GrPixelConfig:
         case kLATC_GrPixelConfig:
         case kR11_EAC_GrPixelConfig:
@@ -308,7 +319,6 @@ static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
 /** If the pixel config is compressed, return an equivalent uncompressed format. */
 static inline GrPixelConfig GrMakePixelConfigUncompressed(GrPixelConfig config) {
     switch (config) {
-        case kIndex_8_GrPixelConfig:
         case kETC1_GrPixelConfig:
         case kASTC_12x12_GrPixelConfig:
             return kRGBA_8888_GrPixelConfig;
@@ -367,6 +377,7 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
     SkASSERT(!GrPixelConfigIsCompressed(config));
     switch (config) {
         case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -391,6 +402,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
     switch (config) {
         case kETC1_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
             return true;
         default:
             return false;
@@ -644,11 +656,8 @@ enum GrGLBackendState {
 static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
                                                 int width, int height) {
     SkASSERT(GrPixelConfigIsCompressed(config));
-    static const int kGrIndex8TableSize = 256 * 4; // 4 == sizeof(GrColor)
 
     switch (config) {
-        case kIndex_8_GrPixelConfig:
-            return width * height + kGrIndex8TableSize;
         case kR11_EAC_GrPixelConfig:
         case kLATC_GrPixelConfig:
         case kETC1_GrPixelConfig:

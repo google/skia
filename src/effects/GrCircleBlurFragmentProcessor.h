@@ -51,7 +51,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const GrCircleBlurFragmentProcessor& cbfp = other.cast<GrCircleBlurFragmentProcessor>();
@@ -64,7 +64,7 @@ private:
     SkRect              fCircle;
     SkScalar            fSolidRadius;
     float               fTextureRadius;
-    GrTextureAccess     fBlurProfileAccess;
+    TextureSampler      fBlurProfileSampler;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

@@ -12,6 +12,7 @@
 #include "SkRWBuffer.h"
 #include "SkString.h"
 
+#include "FakeStreams.h"
 #include "Resources.h"
 #include "Test.h"
 
@@ -50,47 +51,7 @@ static void compare_bitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const Sk
     }
 }
 
-/*
- *  Represents a stream without all of its data.
- */
-class HaltingStream : public SkStream {
-public:
-    HaltingStream(sk_sp<SkData> data, size_t initialLimit)
-        : fTotalSize(data->size())
-        , fLimit(initialLimit)
-        , fStream(std::move(data))
-    {}
-
-    void addNewData(size_t extra) {
-        fLimit = SkTMin(fTotalSize, fLimit + extra);
-    }
-
-    size_t read(void* buffer, size_t size) override {
-        if (fStream.getPosition() + size > fLimit) {
-            size = fLimit - fStream.getPosition();
-        }
-
-        return fStream.read(buffer, size);
-    }
-
-    bool isAtEnd() const override {
-        return fStream.isAtEnd();
-    }
-
-    bool hasPosition() const override { return true; }
-    size_t getPosition() const override { return fStream.getPosition(); }
-    bool rewind() override { return fStream.rewind(); }
-    bool move(long offset) override { return fStream.move(offset); }
-
-    bool isAllDataReceived() const { return fLimit == fTotalSize; }
-
-private:
-    const size_t    fTotalSize;
-    size_t          fLimit;
-    SkMemoryStream  fStream;
-};
-
-static void test_partial(skiatest::Reporter* r, const char* name) {
+static void test_partial(skiatest::Reporter* r, const char* name, size_t minBytes = 0) {
     sk_sp<SkData> file = make_from_resource(name);
     if (!file) {
         SkDebugf("missing resource %s\n", name);
@@ -104,7 +65,7 @@ static void test_partial(skiatest::Reporter* r, const char* name) {
     }
 
     // Now decode part of the file
-    HaltingStream* stream = new HaltingStream(file, file->size() / 2);
+    HaltingStream* stream = new HaltingStream(file, SkTMax(file->size() / 2, minBytes));
 
     // Note that we cheat and hold on to a pointer to stream, though it is owned by
     // partialCodec.
@@ -174,7 +135,7 @@ DEF_TEST(Codec_partial, r) {
     test_partial(r, "baby_tux.png");
 
     test_partial(r, "box.gif");
-    test_partial(r, "randPixels.gif");
+    test_partial(r, "randPixels.gif", 215);
     test_partial(r, "color_wheel.gif");
 }
 
@@ -209,7 +170,7 @@ DEF_TEST(Codec_partialAnim, r) {
         const SkCodec::Result result = fullCodec->getPixels(info, frame.getPixels(),
                 frame.rowBytes(), &opts, nullptr, nullptr);
 
-        if (result == SkCodec::kIncompleteInput) {
+        if (result == SkCodec::kIncompleteInput || result == SkCodec::kInvalidInput) {
             frameByteCounts.push_back(stream->getPosition() - lastOffset);
 
             // We need to distinguish between a partial frame and no more frames.
@@ -247,6 +208,9 @@ DEF_TEST(Codec_partialAnim, r) {
         const size_t secondHalf = fullFrameBytes - firstHalf;
 
         haltingStream->addNewData(firstHalf);
+        auto frameInfo = partialCodec->getFrameInfo();
+        REPORTER_ASSERT(r, frameInfo.size() == i + 1);
+        REPORTER_ASSERT(r, !frameInfo[i].fFullyReceived);
 
         SkBitmap frame;
         frame.allocPixels(info);
@@ -267,6 +231,10 @@ DEF_TEST(Codec_partialAnim, r) {
         haltingStream->addNewData(secondHalf);
         result = partialCodec->incrementalDecode();
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+        frameInfo = partialCodec->getFrameInfo();
+        REPORTER_ASSERT(r, frameInfo.size() == i + 1);
+        REPORTER_ASSERT(r, frameInfo[i].fFullyReceived);
 
         // allocPixels locked the pixels for frame, but frames[i] was copied
         // from another bitmap, and did not retain the locked status.
@@ -319,4 +287,76 @@ DEF_TEST(Codec_rewind, r) {
     test_interleaved(r, "plane.png");
     test_interleaved(r, "plane_interlaced.png");
     test_interleaved(r, "box.gif");
+}
+
+// Modified version of the giflib logo, from
+// http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html
+// The global color map has been replaced with a local color map.
+static unsigned char gNoGlobalColorMap[] = {
+  // Header
+  0x47, 0x49, 0x46, 0x38, 0x39, 0x61,
+
+  // Logical screen descriptor
+  0x0A, 0x00, 0x0A, 0x00, 0x11, 0x00, 0x00,
+
+  // Image descriptor
+  0x2C, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x0A, 0x00, 0x81,
+
+  // Local color table
+  0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00,
+
+  // Image data
+  0x02, 0x16, 0x8C, 0x2D, 0x99, 0x87, 0x2A, 0x1C, 0xDC, 0x33, 0xA0, 0x02, 0x75,
+  0xEC, 0x95, 0xFA, 0xA8, 0xDE, 0x60, 0x8C, 0x04, 0x91, 0x4C, 0x01, 0x00,
+
+  // Trailer
+  0x3B,
+};
+
+// Test that a gif file truncated before its local color map behaves as expected.
+DEF_TEST(Codec_GifPreMap, r) {
+    sk_sp<SkData> data = SkData::MakeWithoutCopy(gNoGlobalColorMap, sizeof(gNoGlobalColorMap));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    if (!codec) {
+        ERRORF(r, "failed to create codec");
+        return;
+    }
+
+    SkBitmap truth;
+    auto info = standardize_info(codec.get());
+    truth.allocPixels(info);
+
+    auto result = codec->getPixels(info, truth.getPixels(), truth.rowBytes());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    // Truncate to 23 bytes, just before the color map. This should fail to decode.
+    codec.reset(SkCodec::NewFromData(SkData::MakeWithoutCopy(gNoGlobalColorMap, 23)));
+    REPORTER_ASSERT(r, codec);
+    if (codec) {
+        SkBitmap bm;
+        bm.allocPixels(info);
+        result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kInvalidInput);
+    }
+
+    // Again, truncate to 23 bytes, this time for an incremental decode. We
+    // cannot start an incremental decode until we have more data. If we did,
+    // we would be using the wrong color table.
+    HaltingStream* stream = new HaltingStream(data, 23);
+    codec.reset(SkCodec::NewFromStream(stream));
+    REPORTER_ASSERT(r, codec);
+    if (codec) {
+        SkBitmap bm;
+        bm.allocPixels(info);
+        result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
+
+        stream->addNewData(data->size());
+        result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+        result = codec->incrementalDecode();
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        compare_bitmaps(r, truth, bm);
+    }
 }

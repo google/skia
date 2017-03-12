@@ -26,12 +26,6 @@ public:
      *  SVG element).
      */
     static std::unique_ptr<SkCanvas> Make(const SkRect& bounds, SkXMLWriter*);
-
-#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
-    static SkCanvas* Create(const SkRect& bounds, SkXMLWriter* writer) {
-        return Make(bounds, writer).release();
-    }
-#endif
 };
 
 #endif

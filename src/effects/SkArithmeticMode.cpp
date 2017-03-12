@@ -6,17 +6,11 @@
  */
 
 #include "SkArithmeticModePriv.h"
-#include "SkColorPriv.h"
-#include "SkNx.h"
-#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkUnPreMultiply.h"
-#include "SkWriteBuffer.h"
-#if SK_SUPPORT_GPU
-#include "SkArithmeticMode_gpu.h"
-#endif
 
+// This class only exists to unflatten instances that were serialized into old pictures as part of
+// SkXfermodeImageFilter before the advent of SkBlendMode. Those image filters will now be
+// transformed to SkArithmeticImageFilter which does not use this class in its implementation.
 class SkArithmeticMode_scalar : public SkXfermode {
 public:
     SkArithmeticMode_scalar(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
@@ -28,17 +22,15 @@ public:
         fEnforcePMColor = enforcePMColor;
     }
 
-    void xfer32(SkPMColor[], const SkPMColor[], int count, const SkAlpha[]) const override;
+    void xfer32(SkPMColor[], const SkPMColor[], int count, const SkAlpha[]) const override {
+        SkFAIL("This should never be called.");
+    }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
 
-#if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
-                                                sk_sp<GrFragmentProcessor> dst) const override;
-    sk_sp<GrXPFactory> asXPFactory() const override;
-#endif
-
+    // This is used to extract the arithmetic params into an SkArithmeticImageFilter. Afterwards,
+    // this object is destroyed and arithemtic blending is implemented directly in the image filter.
     bool isArithmetic(SkArithmeticParams* params) const override {
         if (params) {
             memcpy(params->fK, fK, 4 * sizeof(float));
@@ -48,13 +40,7 @@ public:
     }
 
 private:
-    void flatten(SkWriteBuffer& buffer) const override {
-        buffer.writeScalar(fK[0]);
-        buffer.writeScalar(fK[1]);
-        buffer.writeScalar(fK[2]);
-        buffer.writeScalar(fK[3]);
-        buffer.writeBool(fEnforcePMColor);
-    }
+    void flatten(SkWriteBuffer& buffer) const override { SkFAIL("This shouild never be called."); }
 
     SkScalar fK[4];
     bool fEnforcePMColor;
@@ -73,48 +59,9 @@ sk_sp<SkFlattenable> SkArithmeticMode_scalar::CreateProc(SkReadBuffer& buffer) {
     return SkArithmeticMode::Make(k1, k2, k3, k4, enforcePMColor);
 }
 
-void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
-                                 int count, const SkAlpha aaCoverage[]) const {
-    const Sk4f k1 = fK[0] * (1/255.0f),
-               k2 = fK[1],
-               k3 = fK[2],
-               k4 = fK[3] * 255.0f + 0.5f;
-
-    auto pin = [](float min, const Sk4f& val, float max) {
-        return Sk4f::Max(min, Sk4f::Min(val, max));
-    };
-
-    for (int i = 0; i < count; i++) {
-        if (aaCoverage && aaCoverage[i] == 0) {
-            continue;
-        }
-
-        Sk4f s = SkNx_cast<float>(Sk4b::Load(src+i)),
-             d = SkNx_cast<float>(Sk4b::Load(dst+i)),
-             r = pin(0, k1*s*d + k2*s + k3*d + k4, 255);
-
-        if (fEnforcePMColor) {
-            Sk4f a = SkNx_shuffle<3,3,3,3>(r);
-            r = Sk4f::Min(a, r);
-        }
-
-        if (aaCoverage && aaCoverage[i] != 255) {
-            Sk4f c = aaCoverage[i] * (1/255.0f);
-            r = d + (r-d)*c;
-        }
-
-        SkNx_cast<uint8_t>(r).store(dst+i);
-    }
-}
-
 #ifndef SK_IGNORE_TO_STRING
 void SkArithmeticMode_scalar::toString(SkString* str) const {
-    str->append("SkArithmeticMode_scalar: ");
-    for (int i = 0; i < 4; ++i) {
-        str->appendScalar(fK[i]);
-        str->append(" ");
-    }
-    str->appendS32(fEnforcePMColor ? 1 : 0);
+    SkFAIL("This should never be called.");
 }
 #endif
 
@@ -131,30 +78,6 @@ sk_sp<SkXfermode> SkArithmeticMode::Make(SkScalar k1, SkScalar k2, SkScalar k3, 
     }
     return sk_make_sp<SkArithmeticMode_scalar>(k1, k2, k3, k4, enforcePMColor);
 }
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-#if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkArithmeticMode_scalar::makeFragmentProcessorForImageFilter(
-                                                            sk_sp<GrFragmentProcessor> dst) const {
-    return GrArithmeticFP::Make(SkScalarToFloat(fK[0]),
-                                SkScalarToFloat(fK[1]),
-                                SkScalarToFloat(fK[2]),
-                                SkScalarToFloat(fK[3]),
-                                fEnforcePMColor,
-                                std::move(dst));
-}
-
-sk_sp<GrXPFactory> SkArithmeticMode_scalar::asXPFactory() const {
-    return GrArithmeticXPFactory::Make(SkScalarToFloat(fK[0]),
-                                       SkScalarToFloat(fK[1]),
-                                       SkScalarToFloat(fK[2]),
-                                       SkScalarToFloat(fK[3]),
-                                       fEnforcePMColor);
-}
-
-#endif
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkArithmeticMode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkArithmeticMode_scalar)

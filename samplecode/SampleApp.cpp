@@ -18,8 +18,6 @@
 #include "SkDocument.h"
 #include "SkGammaColorFilter.h"
 #include "SkGraphics.h"
-#include "SkImage_Base.h"
-#include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPaint.h"
@@ -36,6 +34,7 @@
 #include "SkWindow.h"
 #include "sk_tool_utils.h"
 #include "SkScan.h"
+#include "SkClipOpPriv.h"
 
 #include "SkReadBuffer.h"
 #include "SkStream.h"
@@ -59,6 +58,7 @@ class GrContext;
 enum OutputColorSpace {
     kLegacy_OutputColorSpace,
     kSRGB_OutputColorSpace,
+    kNarrow_OutputColorSpace,
     kMonitor_OutputColorSpace,
 };
 
@@ -70,6 +70,7 @@ const struct {
     { kN32_SkColorType,      kLegacy_OutputColorSpace,  "L32" },
     { kN32_SkColorType,      kSRGB_OutputColorSpace,    "S32" },
     { kRGBA_F16_SkColorType, kSRGB_OutputColorSpace,    "F16" },
+    { kRGBA_F16_SkColorType, kNarrow_OutputColorSpace,  "F16 Narrow" },
     { kRGBA_F16_SkColorType, kMonitor_OutputColorSpace, "F16 Device" },
 };
 
@@ -325,26 +326,27 @@ public:
         if (!IsGpuDeviceType(dType) ||
             kRGBA_F16_SkColorType == win->info().colorType() ||
             fActualColorBits > 24) {
-            // We made/have an off-screen surface. Get the contents as an SkImage:
-            SkImageInfo offscreenInfo = win->info();
-            if (kMonitor_OutputColorSpace == gConfig[win->getColorConfigIndex()].fColorSpace) {
-                // This is a big hack. We want our final output to be color "correct". If we snap
-                // an image in the gamut of the monitor, and then render to FBO0 (which we've tagged
-                // as sRGB), then we end up doing round-trip gamut conversion, and still seeing the
-                // same colors on-screen as if we weren't color managed at all.
-                // Instead, we readPixels into a buffer that we claim is sRGB (readPixels doesn't
-                // do gamut conversion), so these pixels then get thrown directly at the monitor,
-                // giving us the expected results (the output is adapted to the monitor's gamut).
-                auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-                offscreenInfo = offscreenInfo.makeColorSpace(srgb);
+            // We made/have an off-screen surface. Extract the pixels exactly as we rendered them:
+            SkImageInfo info = win->info();
+            size_t rowBytes = info.minRowBytes();
+            size_t size = info.getSafeSize(rowBytes);
+            auto data = SkData::MakeUninitialized(size);
+            SkASSERT(data);
+
+            if (!renderingCanvas->readPixels(info, data->writable_data(), rowBytes, 0, 0)) {
+                SkDEBUGFAIL("Failed to read canvas pixels");
+                return;
             }
-            SkBitmap bm;
-            bm.allocPixels(offscreenInfo);
-            renderingCanvas->readPixels(&bm, 0, 0);
-            SkPixmap pm;
-            bm.peekPixels(&pm);
-            sk_sp<SkImage> image(SkImage::MakeTextureFromPixmap(fCurContext, pm,
-                                                                SkBudgeted::kNo));
+
+            // Now, re-interpret those pixels as sRGB, so they won't be color converted when we
+            // draw then to FBO0. This ensures that if we rendered in any strange gamut, we'll see
+            // the "correct" output (because we generated the pixel values we wanted in the
+            // offscreen canvas).
+            auto colorSpace = kRGBA_F16_SkColorType == info.colorType()
+                ? SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named)
+                : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+            auto offscreenImage = SkImage::MakeRasterData(info.makeColorSpace(colorSpace), data,
+                                                          rowBytes);
 
             SkCanvas* gpuCanvas = fGpuSurface->getCanvas();
 
@@ -359,7 +361,7 @@ public:
                 gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
             }
 
-            gpuCanvas->drawImage(image, 0, 0, &gammaPaint);
+            gpuCanvas->drawImage(offscreenImage, 0, 0, &gammaPaint);
         }
 
         fGpuSurface->prepareForExternalIO();
@@ -738,13 +740,10 @@ DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
 #endif
 
 #include "SkTaskGroup.h"
-#include "SkForceLinking.h"
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
     : INHERITED(hwnd)
     , fDevManager(nullptr) {
-
-    SkForceLinking(false);
 
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -912,6 +911,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                   gConfig[1].fName,
                                   gConfig[2].fName,
                                   gConfig[3].fName,
+                                  gConfig[4].fName,
                                   nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'C');
 
@@ -1369,7 +1369,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
 
     if (fUseClip) {
         canvas->drawColor(0xFFFF88FF);
-        canvas->clipPath(fClipPath, SkCanvas::kIntersect_Op, true);
+        canvas->clipPath(fClipPath, kIntersect_SkClipOp, true);
     }
 
     // Install a flags filter proxy canvas if needed
@@ -1407,8 +1407,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             static int gSampleGrabCounter;
             SkString name;
             name.printf("sample_grab_%d.png", gSampleGrabCounter++);
-            SkImageEncoder::EncodeFile(name.c_str(), bmp,
-                                       SkImageEncoder::kPNG_Type, 100);
+            sk_tool_utils::EncodeImageToFile(name.c_str(), bmp,
+                                       SkEncodedImageFormat::kPNG, 100);
         }
         this->inval(nullptr);
         return;
@@ -1662,6 +1662,21 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
             case kSRGB_OutputColorSpace:
                 colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
                 break;
+            case kNarrow_OutputColorSpace:
+                {
+                    // NarrowGamut RGB (an artifically smaller than sRGB gamut)
+                    SkColorSpacePrimaries primaries ={
+                        0.54f, 0.33f,     // Rx, Ry
+                        0.33f, 0.50f,     // Gx, Gy
+                        0.25f, 0.20f,     // Bx, By
+                        0.3127f, 0.3290f, // Wx, Wy
+                    };
+                    SkMatrix44 narrowGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
+                    primaries.toXYZD50(&narrowGamutRGBMatrix);
+                    colorSpace = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                       narrowGamutRGBMatrix);
+                }
+                break;
             case kMonitor_OutputColorSpace:
                 colorSpace = getMonitorColorSpace();
                 if (!colorSpace) {
@@ -1805,7 +1820,12 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             break;
         case 'A':
-            gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
+            if (gSkUseAnalyticAA.load() && !gSkForceAnalyticAA.load()) {
+                gSkForceAnalyticAA = true;
+            } else {
+                gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
+                gSkForceAnalyticAA = false;
+            }
             this->inval(nullptr);
             this->updateTitle();
             break;
@@ -2159,7 +2179,11 @@ void SampleWindow::updateTitle() {
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
     if (gSkUseAnalyticAA) {
-        title.prepend("<AAA> ");
+        if (gSkForceAnalyticAA) {
+            title.prepend("<FAAA> ");
+        } else {
+            title.prepend("<AAA> ");
+        }
     }
     if (fTilingMode != kNo_Tiling) {
         title.prependf("<T: %s> ", gTilingInfo[fTilingMode].label);

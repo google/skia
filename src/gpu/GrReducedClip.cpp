@@ -19,6 +19,7 @@
 #include "GrStencilSettings.h"
 #include "GrStyle.h"
 #include "GrUserStencilSettings.h"
+#include "SkClipOpPriv.h"
 
 typedef SkClipStack::Element Element;
 
@@ -75,7 +76,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         fHasIBounds = true;
 
         // Implement the clip with an AA rect element.
-        fElements.addToHead(stackBounds, SkCanvas::kReplace_Op, true/*doAA*/);
+        fElements.addToHead(stackBounds, kReplace_SkClipOp, true/*doAA*/);
         fElementsGenID = stack.getTopmostGenID();
         fRequiresAA = true;
 
@@ -147,7 +148,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         bool isFlip = false; // does this op just flip the in/out state of every point in the bounds
 
         switch (element->getOp()) {
-            case SkCanvas::kDifference_Op:
+            case kDifference_SkClipOp:
                 // check if the shape subtracted either contains the entire bounds (and makes
                 // the clip empty) or is outside the bounds and therefore can be skipped.
                 if (element->isInverseFilled()) {
@@ -173,7 +174,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = true;
                 }
                 break;
-            case SkCanvas::kIntersect_Op:
+            case kIntersect_SkClipOp:
                 // check if the shape intersected contains the entire bounds and therefore can
                 // be skipped or it is outside the entire bounds and therefore makes the clip
                 // empty.
@@ -206,7 +207,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = true;
                 }
                 break;
-            case SkCanvas::kUnion_Op:
+            case kUnion_SkClipOp:
                 // If the union-ed shape contains the entire bounds then after this element
                 // the bounds is entirely inside the clip. If the union-ed shape is outside the
                 // bounds then this op can be skipped.
@@ -229,7 +230,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     embiggens = true;
                 }
                 break;
-            case SkCanvas::kXOR_Op:
+            case kXOR_SkClipOp:
                 // If the bounds is entirely inside the shape being xor-ed then the effect is
                 // to flip the inside/outside state of every point in the bounds. We may be
                 // able to take advantage of this in the forward pass. If the xor-ed shape
@@ -251,7 +252,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = embiggens = true;
                 }
                 break;
-            case SkCanvas::kReverseDifference_Op:
+            case kReverseDifference_SkClipOp:
                 // When the bounds is entirely within the rev-diff shape then this behaves like xor
                 // and reverses every point inside the bounds. If the shape is completely outside
                 // the bounds then we know after this element is applied that the bounds will be
@@ -276,7 +277,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                 }
                 break;
 
-            case SkCanvas::kReplace_Op:
+            case kReplace_SkClipOp:
                 // Replace will always terminate our walk. We will either begin the forward walk
                 // at the replace op or detect here than the shape is either completely inside
                 // or completely outside the bounds. In this latter case it can be skipped by
@@ -326,9 +327,9 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
 
             // if it is a flip, change it to a bounds-filling rect
             if (isFlip) {
-                SkASSERT(SkCanvas::kXOR_Op == element->getOp() ||
-                         SkCanvas::kReverseDifference_Op == element->getOp());
-                fElements.addToHead(SkRect::Make(fIBounds), SkCanvas::kReverseDifference_Op, false);
+                SkASSERT(kXOR_SkClipOp == element->getOp() ||
+                         kReverseDifference_SkClipOp == element->getOp());
+                fElements.addToHead(SkRect::Make(fIBounds), kReverseDifference_SkClipOp, false);
             } else {
                 Element* newElement = fElements.addToHead(*element);
                 if (newElement->isAA()) {
@@ -337,11 +338,11 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                 // Intersecting an inverse shape is the same as differencing the non-inverse shape.
                 // Replacing with an inverse shape is the same as setting initialState=kAllIn and
                 // differencing the non-inverse shape.
-                bool isReplace = SkCanvas::kReplace_Op == newElement->getOp();
+                bool isReplace = kReplace_SkClipOp == newElement->getOp();
                 if (newElement->isInverseFilled() &&
-                    (SkCanvas::kIntersect_Op == newElement->getOp() || isReplace)) {
+                    (kIntersect_SkClipOp == newElement->getOp() || isReplace)) {
                     newElement->invertShapeFillType();
-                    newElement->setOp(SkCanvas::kDifference_Op);
+                    newElement->setOp(kDifference_SkClipOp);
                     if (isReplace) {
                         SkASSERT(InitialTriState::kAllOut == initialTriState);
                         initialTriState = InitialTriState::kAllIn;
@@ -360,36 +361,36 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         while (element) {
             bool skippable = false;
             switch (element->getOp()) {
-                case SkCanvas::kDifference_Op:
+                case kDifference_SkClipOp:
                     // subtracting from the empty set yields the empty set.
                     skippable = InitialTriState::kAllOut == initialTriState;
                     break;
-                case SkCanvas::kIntersect_Op:
+                case kIntersect_SkClipOp:
                     // intersecting with the empty set yields the empty set
                     if (InitialTriState::kAllOut == initialTriState) {
                         skippable = true;
                     } else {
                         // We can clear to zero and then simply draw the clip element.
                         initialTriState = InitialTriState::kAllOut;
-                        element->setOp(SkCanvas::kReplace_Op);
+                        element->setOp(kReplace_SkClipOp);
                     }
                     break;
-                case SkCanvas::kUnion_Op:
+                case kUnion_SkClipOp:
                     if (InitialTriState::kAllIn == initialTriState) {
                         // unioning the infinite plane with anything is a no-op.
                         skippable = true;
                     } else {
                         // unioning the empty set with a shape is the shape.
-                        element->setOp(SkCanvas::kReplace_Op);
+                        element->setOp(kReplace_SkClipOp);
                     }
                     break;
-                case SkCanvas::kXOR_Op:
+                case kXOR_SkClipOp:
                     if (InitialTriState::kAllOut == initialTriState) {
                         // xor could be changed to diff in the kAllIn case, not sure it's a win.
-                        element->setOp(SkCanvas::kReplace_Op);
+                        element->setOp(kReplace_SkClipOp);
                     }
                     break;
-                case SkCanvas::kReverseDifference_Op:
+                case kReverseDifference_SkClipOp:
                     if (InitialTriState::kAllIn == initialTriState) {
                         // subtracting the whole plane will yield the empty set.
                         skippable = true;
@@ -402,11 +403,11 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                         if (skippable) {
                             initialTriState = InitialTriState::kAllIn;
                         } else {
-                            element->setOp(SkCanvas::kReplace_Op);
+                            element->setOp(kReplace_SkClipOp);
                         }
                     }
                     break;
-                case SkCanvas::kReplace_Op:
+                case kReplace_SkClipOp:
                     skippable = false; // we would have skipped it in the backwards walk if we
                                        // could've.
                     break;
@@ -431,12 +432,12 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
     fInitialState = static_cast<GrReducedClip::InitialState>(initialTriState);
 }
 
-static bool element_is_pure_subtract(SkCanvas::ClipOp op) {
-    SkASSERT(op >= 0);
-    return op <= SkCanvas::kIntersect_Op;
+static bool element_is_pure_subtract(SkClipOp op) {
+    SkASSERT(static_cast<int>(op) >= 0);
+    return static_cast<int>(op) <= static_cast<int>(kIntersect_SkClipOp);
 
-    GR_STATIC_ASSERT(0 == SkCanvas::kDifference_Op);
-    GR_STATIC_ASSERT(1 == SkCanvas::kIntersect_Op);
+    GR_STATIC_ASSERT(0 == static_cast<int>(kDifference_SkClipOp));
+    GR_STATIC_ASSERT(1 == static_cast<int>(kIntersect_SkClipOp));
 }
 
 void GrReducedClip::addInteriorWindowRectangles(int maxWindowRectangles) {
@@ -446,7 +447,7 @@ void GrReducedClip::addInteriorWindowRectangles(int maxWindowRectangles) {
     ElementList::Iter iter(fElements, ElementList::Iter::kTail_IterStart);
     for (; iter.get() && element_is_pure_subtract(iter.get()->getOp()); iter.prev()) {
         const Element* element = iter.get();
-        if (SkCanvas::kDifference_Op != element->getOp()) {
+        if (kDifference_SkClipOp != element->getOp()) {
             continue;
         }
 
@@ -529,8 +530,7 @@ static bool stencil_element(GrRenderTargetContext* rtc,
                             const GrUserStencilSettings* ss,
                             const SkMatrix& viewMatrix,
                             const SkClipStack::Element* element) {
-
-    // TODO: Draw rrects directly here.
+    GrAA aa = GrBoolToAA(element->isAA());
     switch (element->getType()) {
         case Element::kEmpty_Type:
             SkDEBUGFAIL("Should never get here with an empty element.");
@@ -538,9 +538,7 @@ static bool stencil_element(GrRenderTargetContext* rtc,
         case Element::kRect_Type:
             return rtc->priv().drawAndStencilRect(clip, ss,
                                                   (SkRegion::Op)element->getOp(),
-                                                  element->isInverseFilled(),
-                                                  element->isAA(),
-                                                  viewMatrix,
+                                                  element->isInverseFilled(), aa, viewMatrix,
                                                   element->getRect());
             break;
         default: {
@@ -550,11 +548,8 @@ static bool stencil_element(GrRenderTargetContext* rtc,
                 path.toggleInverseFillType();
             }
 
-            return rtc->priv().drawAndStencilPath(clip, ss,
-                                                  (SkRegion::Op)element->getOp(),
-                                                  element->isInverseFilled(),
-                                                  element->isAA(), viewMatrix,
-                                                  path);
+            return rtc->priv().drawAndStencilPath(clip, ss, (SkRegion::Op)element->getOp(),
+                                                  element->isInverseFilled(), aa, viewMatrix, path);
             break;
         }
     }
@@ -563,18 +558,18 @@ static bool stencil_element(GrRenderTargetContext* rtc,
 }
 
 static void draw_element(GrRenderTargetContext* rtc,
-                         const GrClip& clip, // TODO: can this just always be WideOpen?
-                         const GrPaint &paint,
+                         const GrClip& clip,  // TODO: can this just always be WideOpen?
+                         GrPaint&& paint,
+                         GrAA aa,
                          const SkMatrix& viewMatrix,
                          const SkClipStack::Element* element) {
-
     // TODO: Draw rrects directly here.
     switch (element->getType()) {
         case Element::kEmpty_Type:
             SkDEBUGFAIL("Should never get here with an empty element.");
             break;
         case Element::kRect_Type:
-            rtc->drawRect(clip, paint, viewMatrix, element->getRect());
+            rtc->drawRect(clip, std::move(paint), aa, viewMatrix, element->getRect());
             break;
         default: {
             SkPath path;
@@ -583,7 +578,7 @@ static void draw_element(GrRenderTargetContext* rtc,
                 path.toggleInverseFillType();
             }
 
-            rtc->drawPath(clip, paint, viewMatrix, path, GrStyle::SimpleFill());
+            rtc->drawPath(clip, std::move(paint), aa, viewMatrix, path, GrStyle::SimpleFill());
             break;
         }
     }
@@ -612,6 +607,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
     for (ElementList::Iter iter(fElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
         SkRegion::Op op = (SkRegion::Op)element->getOp();
+        GrAA aa = GrBoolToAA(element->isAA());
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
             // draw directly into the result with the stencil set to make the pixels affected
@@ -639,17 +635,16 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
                      GrUserStencilOp::kZero,
                      0xffff>()
             );
-            if (!rtc->priv().drawAndStencilRect(clip, &kDrawOutsideElement, op, !invert, false,
+            if (!rtc->priv().drawAndStencilRect(clip, &kDrawOutsideElement, op, !invert, GrAA::kNo,
                                                 translate, SkRect::Make(fIBounds))) {
                 return false;
             }
         } else {
             // all the remaining ops can just be directly draw into the accumulation buffer
             GrPaint paint;
-            paint.setAntiAlias(element->isAA());
             paint.setCoverageSetOpXPFactory(op, false);
 
-            draw_element(rtc, clip, paint, translate, element);
+            draw_element(rtc, clip, std::move(paint), aa, translate, element);
         }
     }
 
@@ -676,7 +671,7 @@ private:
     void getConservativeBounds(int width, int height, SkIRect* bounds, bool* iior) const override {
         fFixedClip.getConservativeBounds(width, height, bounds, iior);
     }
-    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override {
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const override {
         return false;
     }
     bool apply(GrContext* context, GrRenderTargetContext* renderTargetContext, bool useHWAA,
@@ -711,11 +706,13 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
     SkMatrix viewMatrix;
     viewMatrix.setTranslate(SkIntToScalar(-clipOrigin.x()), SkIntToScalar(-clipOrigin.y()));
 
-    // walk through each clip element and perform its set op
-    // with the existing clip.
+    // walk through each clip element and perform its set op with the existing clip.
     for (ElementList::Iter iter(fElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
-        bool useHWAA = element->isAA() && renderTargetContext->isStencilBufferMultisampled();
+        GrAAType aaType = GrAAType::kNone;
+        if (element->isAA() && renderTargetContext->isStencilBufferMultisampled()) {
+            aaType = GrAAType::kMSAA;
+        }
 
         bool fillInverted = false;
 
@@ -742,13 +739,11 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
             canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
             canDrawArgs.fViewMatrix = &viewMatrix;
             canDrawArgs.fShape = &shape;
-            canDrawArgs.fAntiAlias = false;
+            canDrawArgs.fAAType = aaType;
             canDrawArgs.fHasUserStencilSettings = false;
-            canDrawArgs.fIsStencilBufferMSAA = renderTargetContext->isStencilBufferMultisampled();
 
             GrDrawingManager* dm = context->contextPriv().drawingManager();
-            pr = dm->getPathRenderer(canDrawArgs, false,
-                                     GrPathRendererChain::kStencilOnly_DrawType,
+            pr = dm->getPathRenderer(canDrawArgs, false, GrPathRendererChain::DrawType::kStencil,
                                      &stencilSupport);
             if (!pr) {
                 return false;
@@ -778,25 +773,23 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
             );
             if (Element::kRect_Type == element->getType()) {
                 renderTargetContext->priv().stencilRect(stencilClip.fixedClip(), &kDrawToStencil,
-                                                        useHWAA, viewMatrix, element->getRect());
+                                                        aaType, viewMatrix, element->getRect());
             } else {
                 if (!clipPath.isEmpty()) {
                     GrShape shape(clipPath, GrStyle::SimpleFill());
                     if (canRenderDirectToStencil) {
                         GrPaint paint;
-                        paint.setXPFactory(GrDisableColorXPFactory::Make());
-                        paint.setAntiAlias(element->isAA());
+                        paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-                        GrPathRenderer::DrawPathArgs args;
-                        args.fResourceProvider = context->resourceProvider();
-                        args.fPaint = &paint;
-                        args.fUserStencilSettings = &kDrawToStencil;
-                        args.fRenderTargetContext = renderTargetContext;
-                        args.fClip = &stencilClip.fixedClip();
-                        args.fViewMatrix = &viewMatrix;
-                        args.fShape = &shape;
-                        args.fAntiAlias = false;
-                        args.fGammaCorrect = false;
+                        GrPathRenderer::DrawPathArgs args{context->resourceProvider(),
+                                                          std::move(paint),
+                                                          &kDrawToStencil,
+                                                          renderTargetContext,
+                                                          &stencilClip.fixedClip(),
+                                                          &viewMatrix,
+                                                          &shape,
+                                                          aaType,
+                                                          false};
                         pr->drawPath(args);
                     } else {
                         GrPathRenderer::StencilPathArgs args;
@@ -804,7 +797,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                         args.fRenderTargetContext = renderTargetContext;
                         args.fClip = &stencilClip.fixedClip();
                         args.fViewMatrix = &viewMatrix;
-                        args.fIsAA = element->isAA();
+                        args.fAAType = aaType;
                         args.fShape = &shape;
                         pr->stencilPath(args);
                     }
@@ -817,29 +810,27 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
         for (GrUserStencilSettings const* const* pass = stencilPasses; *pass; ++pass) {
             if (drawDirectToClip) {
                 if (Element::kRect_Type == element->getType()) {
-                    renderTargetContext->priv().stencilRect(stencilClip, *pass, useHWAA, viewMatrix,
+                    renderTargetContext->priv().stencilRect(stencilClip, *pass, aaType, viewMatrix,
                                                             element->getRect());
                 } else {
                     GrShape shape(clipPath, GrStyle::SimpleFill());
                     GrPaint paint;
-                    paint.setXPFactory(GrDisableColorXPFactory::Make());
-                    paint.setAntiAlias(element->isAA());
-                    GrPathRenderer::DrawPathArgs args;
-                    args.fResourceProvider = context->resourceProvider();
-                    args.fPaint = &paint;
-                    args.fUserStencilSettings = *pass;
-                    args.fRenderTargetContext = renderTargetContext;
-                    args.fClip = &stencilClip;
-                    args.fViewMatrix = &viewMatrix;
-                    args.fShape = &shape;
-                    args.fAntiAlias = false;
-                    args.fGammaCorrect = false;
+                    paint.setXPFactory(GrDisableColorXPFactory::Get());
+                    GrPathRenderer::DrawPathArgs args{context->resourceProvider(),
+                                                      std::move(paint),
+                                                      *pass,
+                                                      renderTargetContext,
+                                                      &stencilClip,
+                                                      &viewMatrix,
+                                                      &shape,
+                                                      aaType,
+                                                      false};
                     pr->drawPath(args);
                 }
             } else {
                 // The view matrix is setup to do clip space -> stencil space translation, so
                 // draw rect in clip space.
-                renderTargetContext->priv().stencilRect(stencilClip, *pass, false, viewMatrix,
+                renderTargetContext->priv().stencilRect(stencilClip, *pass, aaType, viewMatrix,
                                                         SkRect::Make(fIBounds));
             }
         }

@@ -5,10 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 extern bool CheckChecksums();
 extern bool GenerateChecksums();

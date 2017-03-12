@@ -31,8 +31,8 @@ struct InterfaceBlock : public ProgramElement {
         ASSERT(fVariable.fType.kind() == Type::kStruct_Kind);
     }
 
-    std::string description() const override {
-        std::string result = fVariable.fModifiers.description() + fVariable.fName + " {\n";
+    SkString description() const override {
+        SkString result = fVariable.fModifiers.description() + fVariable.fName + " {\n";
         for (size_t i = 0; i < fVariable.fType.fields().size(); i++) {
             result += fVariable.fType.fields()[i].description() + "\n";
         }

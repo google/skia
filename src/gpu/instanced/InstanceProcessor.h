@@ -9,7 +9,6 @@
 #define gr_instanced_InstanceProcessor_DEFINED
 
 #include "GrCaps.h"
-#include "GrBufferAccess.h"
 #include "GrGeometryProcessor.h"
 #include "instanced/InstancedRenderingTypes.h"
 
@@ -23,15 +22,15 @@ namespace gr_instanced {
  */
 class InstanceProcessor : public GrGeometryProcessor {
 public:
-    InstanceProcessor(BatchInfo, GrBuffer* paramsBuffer);
+    InstanceProcessor(OpInfo, GrBuffer* paramsBuffer);
 
     const char* name() const override { return "Instance Processor"; }
-    BatchInfo batchInfo() const { return fBatchInfo; }
+    OpInfo opInfo() const { return fOpInfo; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder* b) const override {
-        b->add32(fBatchInfo.fData);
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+        b->add32(fOpInfo.fData);
     }
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
     /**
      * Returns a buffer of ShapeVertex that defines the canonical instanced geometry.
@@ -55,10 +54,10 @@ private:
      * Called by the platform-specific instanced rendering implementation to determine the level of
      * support this class can offer on the given GLSL platform.
      */
-    static GrCaps::InstancedSupport CheckSupport(const GrGLSLCaps&, const GrCaps&);
+    static GrCaps::InstancedSupport CheckSupport(const GrShaderCaps&, const GrCaps&);
 
-    const BatchInfo   fBatchInfo;
-    GrBufferAccess    fParamsAccess;
+    OpInfo fOpInfo;
+    BufferAccess fParamsAccess;
 
     friend class GLInstancedRendering; // For CheckSupport.
 

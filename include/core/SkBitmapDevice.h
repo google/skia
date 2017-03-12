@@ -14,6 +14,7 @@
 #include "SkColor.h"
 #include "SkDevice.h"
 #include "SkImageInfo.h"
+#include "SkPixelRef.h"
 #include "SkRect.h"
 #include "SkScalar.h"
 #include "SkSize.h"
@@ -27,9 +28,9 @@ class SkPaint;
 class SkPath;
 class SkPixelRef;
 class SkPixmap;
+class SkRasterHandleAllocator;
 class SkRRect;
 class SkSurface;
-class SkXfermode;
 struct SkPoint;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,12 +55,15 @@ public:
      *  valid for the bitmap to have no pixels associated with it. In that case,
      *  any drawing to this device will have no effect.
      */
-    SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps);
+    SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
+                   void* externalHandle = nullptr);
 
-    static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&);
+    static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
+                                  SkRasterHandleAllocator* = nullptr);
 
 protected:
     bool onShouldDisableLCD(const SkPaint&) const override;
+    void* getRasterHandle() const override { return fRasterHandle; }
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -141,10 +145,10 @@ protected:
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
     // just for subclasses, to assign a custom pixelref
-    SkPixelRef* setPixelRef(SkPixelRef* pr) {
-        fBitmap.setPixelRef(pr);
-        return pr;
-    }
+    void setPixelRef(sk_sp<SkPixelRef> pr) { fBitmap.setPixelRef(std::move(pr), 0, 0); }
+#ifdef SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF
+    SkPixelRef* setPixelRef(SkPixelRef* pr) { return fBitmap.setPixelRef(pr); }
+#endif
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) override;
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
@@ -172,6 +176,7 @@ private:
     SkImageFilterCache* getImageFilterCache() override;
 
     SkBitmap    fBitmap;
+    void*       fRasterHandle = nullptr;
 
     void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
 

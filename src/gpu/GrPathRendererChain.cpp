@@ -9,21 +9,21 @@
 #include "GrPathRendererChain.h"
 
 #include "GrCaps.h"
+#include "GrShaderCaps.h"
 #include "gl/GrGLCaps.h"
-#include "glsl/GrGLSLCaps.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 
-#include "batches/GrAAConvexPathRenderer.h"
-#include "batches/GrAADistanceFieldPathRenderer.h"
-#include "batches/GrAAHairLinePathRenderer.h"
-#include "batches/GrAALinearizingConvexPathRenderer.h"
-#include "batches/GrDashLinePathRenderer.h"
-#include "batches/GrDefaultPathRenderer.h"
-#include "batches/GrMSAAPathRenderer.h"
-#include "batches/GrPLSPathRenderer.h"
-#include "batches/GrStencilAndCoverPathRenderer.h"
-#include "batches/GrTessellatingPathRenderer.h"
+#include "ops/GrAAConvexPathRenderer.h"
+#include "ops/GrAADistanceFieldPathRenderer.h"
+#include "ops/GrAAHairLinePathRenderer.h"
+#include "ops/GrAALinearizingConvexPathRenderer.h"
+#include "ops/GrDashLinePathRenderer.h"
+#include "ops/GrDefaultPathRenderer.h"
+#include "ops/GrMSAAPathRenderer.h"
+#include "ops/GrPLSPathRenderer.h"
+#include "ops/GrStencilAndCoverPathRenderer.h"
+#include "ops/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
     if (!options.fDisableAllPathRenderers) {
@@ -75,10 +75,9 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
     GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <
                      GrPathRenderer::kNoRestriction_StencilSupport);
     GrPathRenderer::StencilSupport minStencilSupport;
-    if (kStencilOnly_DrawType == drawType) {
+    if (DrawType::kStencil == drawType) {
         minStencilSupport = GrPathRenderer::kStencilOnly_StencilSupport;
-    } else if (kStencilAndColor_DrawType == drawType ||
-               kStencilAndColorAntiAlias_DrawType == drawType) {
+    } else if (DrawType::kStencilAndColor == drawType) {
         minStencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         minStencilSupport = GrPathRenderer::kNoSupport_StencilSupport;

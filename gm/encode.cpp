@@ -28,8 +28,8 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkBitmap orig;
         GetResourceAsBitmap("mandrill_512_q075.jpg", &orig);
-        sk_sp<SkData> pngData(SkImageEncoder::EncodeData(orig, SkImageEncoder::kPNG_Type, 100));
-        sk_sp<SkData> jpegData(SkImageEncoder::EncodeData(orig, SkImageEncoder::kJPEG_Type, 100));
+        sk_sp<SkData> pngData(sk_tool_utils::EncodeImageToData(orig, SkEncodedImageFormat::kPNG, 100));
+        sk_sp<SkData> jpegData(sk_tool_utils::EncodeImageToData(orig, SkEncodedImageFormat::kJPEG, 100));
 
         sk_sp<SkImage> pngImage = SkImage::MakeFromEncoded(pngData);
         sk_sp<SkImage> jpegImage = SkImage::MakeFromEncoded(jpegData);

@@ -23,7 +23,7 @@ struct WhileStatement : public Statement {
     , fTest(std::move(test))
     , fStatement(std::move(statement)) {}
 
-    std::string description() const override {
+    SkString description() const override {
         return "while (" + fTest->description() + ") " + fStatement->description();
     }
 

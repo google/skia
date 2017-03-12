@@ -15,9 +15,9 @@
 #include "GrRenderTargetContextPriv.h"
 #include "SkGrPriv.h"
 #include "SkGradientShader.h"
-#include "batches/GrDrawBatch.h"
-#include "batches/GrRectBatchFactory.h"
 #include "effects/GrConstColorProcessor.h"
+#include "ops/GrDrawOp.h"
+#include "ops/GrRectOpFactory.h"
 
 namespace skiagm {
 /**
@@ -109,10 +109,10 @@ protected:
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    sk_sp<GrDrawBatch> batch(
-                            GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
-                                                                renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
+                    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                            grPaint.getColor(), viewMatrix, renderRect, nullptr, nullptr));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

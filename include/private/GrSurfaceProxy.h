@@ -10,14 +10,15 @@
 
 #include "GrGpuResource.h"
 #include "GrSurface.h"
+
 #include "SkRect.h"
 
 class GrCaps;
-class GrOpList;
+class GrRenderTargetOpList;
+class GrRenderTargetProxy;
+class GrTextureOpList;
 class GrTextureProvider;
 class GrTextureProxy;
-class GrRenderTargetProxy;
-class GrTextureProvider;
 
 // This class replicates the functionality GrIORef<GrSurface> but tracks the
 // utilitization for later resource allocation (for the deferred case) and
@@ -223,7 +224,10 @@ public:
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
     SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
-  
+
+    int worstCaseWidth(const GrCaps& caps) const;
+    int worstCaseHeight(const GrCaps& caps) const;
+
     /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
      */
@@ -244,6 +248,9 @@ public:
     void setLastOpList(GrOpList* opList);
     GrOpList* getLastOpList() { return fLastOpList; }
 
+    GrRenderTargetOpList* getLastRenderTargetOpList();
+    GrTextureOpList* getLastTextureOpList();
+
     /**
      * Retrieves the amount of GPU memory that will be or currently is used by this resource 
      * in bytes. It is approximate since we aren't aware of additional padding or copies made
@@ -259,7 +266,23 @@ public:
         return fGpuMemorySize;
     }
 
+    // Helper function that creates a temporary SurfaceContext to perform the copy
+    static sk_sp<GrSurfaceProxy> Copy(GrContext*, GrSurfaceProxy* src,
+                                      SkIRect srcRect, SkBudgeted);
+
+    // Copy the entire 'src'
+    static sk_sp<GrSurfaceProxy> Copy(GrContext* context, GrSurfaceProxy* src,
+                                      SkBudgeted budgeted) {
+        return Copy(context, src, SkIRect::MakeWH(src->width(), src->height()), budgeted);
+    }
+
+    // Test-only entry point - should decrease in use as proxies propagate
+    static sk_sp<GrSurfaceProxy> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+                                          GrTexture* srcTexture, SkBudgeted budgeted);
+
     bool isWrapped_ForTesting() const;
+
+    SkDEBUGCODE(void validate(GrContext*) const;)
 
 protected:
     // Deferred version

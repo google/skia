@@ -436,7 +436,7 @@ private:
 
         SkPoint findAndPositionGlyph(
             const char** text, SkPoint position, ProcessOneGlyph&& processOneGlyph) override {
-            SkPoint finalPosition = position;
+
             if (kTextAlignment != SkPaint::kLeft_Align) {
                 // Get the width of an un-sub-pixel positioned glyph for calculating the
                 // alignment. This is not needed for kLeftAlign because its adjustment is
@@ -447,26 +447,28 @@ private:
                 if (metricGlyph.fWidth <= 0) {
                     // Exiting early, be sure to update text pointer.
                     *text = tempText;
-                    return finalPosition + SkPoint{SkFloatToScalar(metricGlyph.fAdvanceX),
-                                                   SkFloatToScalar(metricGlyph.fAdvanceY)};
+                    return position + SkPoint{SkFloatToScalar(metricGlyph.fAdvanceX),
+                                              SkFloatToScalar(metricGlyph.fAdvanceY)};
                 }
 
                 // Adjust the final position by the alignment adjustment.
-                finalPosition -= TextAlignmentAdjustment(kTextAlignment, metricGlyph);
+                position -= TextAlignmentAdjustment(kTextAlignment, metricGlyph);
             }
 
             // Find the glyph.
-            SkIPoint lookupPosition = SubpixelAlignment(kAxisAlignment, finalPosition);
+            SkIPoint lookupPosition = SkScalarsAreFinite(position.fX, position.fY)
+                                      ? SubpixelAlignment(kAxisAlignment, position)
+                                      : SkIPoint{0, 0};
             const SkGlyph& renderGlyph =
                 fGlyphFinder->lookupGlyphXY(text, lookupPosition.fX, lookupPosition.fY);
 
             // If the glyph has no width (no pixels) then don't bother processing it.
             if (renderGlyph.fWidth > 0) {
-                processOneGlyph(renderGlyph, finalPosition,
+                processOneGlyph(renderGlyph, position,
                                 SubpixelPositionRounding(kAxisAlignment));
             }
-            return finalPosition + SkPoint{SkFloatToScalar(renderGlyph.fAdvanceX),
-                                           SkFloatToScalar(renderGlyph.fAdvanceY)};
+            return position + SkPoint{SkFloatToScalar(renderGlyph.fAdvanceX),
+                                      SkFloatToScalar(renderGlyph.fAdvanceY)};
         }
 
     private:

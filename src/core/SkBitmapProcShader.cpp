@@ -113,16 +113,15 @@ public:
         // Save things off in case we need to build a blitter pipeline.
         fSrcPixmap = info->fPixmap;
         fAlpha = SkColorGetA(info->fPaintColor) / 255.0f;
-        fXMode = info->fTileModeX;
-        fYMode = info->fTileModeY;
         fFilterQuality = info->fFilterQuality;
         fMatrixTypeMask = info->fRealInvMatrix.getType();
 
-        fShaderPipeline.init(
+        fShaderPipeline = fAllocator.make<SkLinearBitmapPipeline>(
             info->fRealInvMatrix, info->fFilterQuality,
             info->fTileModeX, info->fTileModeY,
             info->fPaintColor,
-            info->fPixmap);
+            info->fPixmap,
+            &fAllocator);
 
         // To implement the old shadeSpan entry-point, we need to efficiently convert our native
         // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
@@ -149,14 +148,13 @@ public:
     }
 
     bool onChooseBlitProcs(const SkImageInfo& dstInfo, BlitState* state) override {
-        if (SkLinearBitmapPipeline::ClonePipelineForBlitting(
-            &fBlitterPipeline, *fShaderPipeline,
+        if ((fBlitterPipeline = SkLinearBitmapPipeline::ClonePipelineForBlitting(
+            *fShaderPipeline,
             fMatrixTypeMask,
-            fXMode, fYMode,
             fFilterQuality, fSrcPixmap,
-            fAlpha, state->fMode, dstInfo))
+            fAlpha, state->fMode, dstInfo, &fAllocator)))
         {
-            state->fStorage[0] = fBlitterPipeline.get();
+            state->fStorage[0] = fBlitterPipeline;
             state->fBlitBW = &LinearPipelineContext::ForwardToPipeline;
 
             return true;
@@ -172,15 +170,15 @@ public:
     }
 
 private:
-    SkEmbeddableLinearPipeline fShaderPipeline;
-    SkEmbeddableLinearPipeline fBlitterPipeline;
-    SkXfermode::D32Proc        fSrcModeProc;
-    SkPixmap                   fSrcPixmap;
-    float                      fAlpha;
-    SkShader::TileMode         fXMode;
-    SkShader::TileMode         fYMode;
-    SkMatrix::TypeMask         fMatrixTypeMask;
-    SkFilterQuality            fFilterQuality;
+    char                    fStorage[512 + 96];
+    SkArenaAlloc            fAllocator {fStorage, sizeof(fStorage)};
+    SkLinearBitmapPipeline* fShaderPipeline;
+    SkLinearBitmapPipeline* fBlitterPipeline;
+    SkXfermode::D32Proc     fSrcModeProc;
+    SkPixmap                fSrcPixmap;
+    float                   fAlpha;
+    SkMatrix::TypeMask      fMatrixTypeMask;
+    SkFilterQuality         fFilterQuality;
 
     typedef BitmapProcInfoContext INHERITED;
 };
@@ -215,11 +213,10 @@ SkShader::Context* SkBitmapProcLegacyShader::MakeContext(const SkShader& shader,
 
     // Decide if we can/want to use the new linear pipeline
     bool useLinearPipeline = choose_linear_pipeline(rec, provider.info());
-    SkDestinationSurfaceColorMode colorMode = SkMipMap::DeduceColorMode(rec);
 
     if (useLinearPipeline) {
         void* infoStorage = (char*)storage + sizeof(LinearPipelineContext);
-        SkBitmapProcInfo* info = new (infoStorage) SkBitmapProcInfo(provider, tmx, tmy, colorMode);
+        SkBitmapProcInfo* info = new (infoStorage) SkBitmapProcInfo(provider, tmx, tmy);
         if (!info->init(totalInverse, *rec.fPaint)) {
             info->~SkBitmapProcInfo();
             return nullptr;
@@ -228,8 +225,7 @@ SkShader::Context* SkBitmapProcLegacyShader::MakeContext(const SkShader& shader,
         return new (storage) LinearPipelineContext(shader, rec, info);
     } else {
         void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
-        SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(provider, tmx, tmy,
-                                                                        colorMode);
+        SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(provider, tmx, tmy);
         if (!state->setup(totalInverse, *rec.fPaint)) {
             state->~SkBitmapProcState();
             return nullptr;

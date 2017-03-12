@@ -10,8 +10,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTest.h"
-#include "batches/GrAADistanceFieldPathRenderer.h"
 #include "SkPath.h"
+#include "ops/GrAADistanceFieldPathRenderer.h"
 
 // This test case including path coords and matrix taken from crbug.com/627443.
 // Because of inaccuracies in large floating point values this causes the
@@ -42,19 +42,18 @@ static void test_far_from_origin(GrRenderTargetContext* renderTargetContext, GrP
     shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, 1.f);
 
     GrPaint paint;
-    paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+    paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
     GrNoClip noClip;
-    GrPathRenderer::DrawPathArgs args;
-    args.fPaint = &paint;
-    args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
-    args.fRenderTargetContext = renderTargetContext;
-    args.fClip = &noClip;
-    args.fResourceProvider = rp;
-    args.fViewMatrix = &matrix;
-    args.fShape = &shape;
-    args.fAntiAlias = true;
-    args.fGammaCorrect = false;
+    GrPathRenderer::DrawPathArgs args{rp,
+                                      std::move(paint),
+                                      &GrUserStencilSettings::kUnused,
+                                      renderTargetContext,
+                                      &noClip,
+                                      &matrix,
+                                      &shape,
+                                      GrAAType::kCoverage,
+                                      false};
     pr->drawPath(args);
 }
 

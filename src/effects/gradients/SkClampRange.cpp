@@ -18,18 +18,23 @@ static int SkCLZ64(uint64_t value) {
     return count + SkCLZ(SkToU32(value));
 }
 
-static bool sk_64_smul_check(int64_t a, int64_t b, int64_t* result) {
+static bool sk_64_smul_check(int64_t count, int64_t dx, int64_t* result) {
     // Do it the slow way until we have some assembly.
-    int64_t ua = SkTAbs(a);
-    int64_t ub = SkTAbs(b);
-    int zeros = SkCLZ64(ua) + SkCLZ64(ub);
+    if (dx == std::numeric_limits<int64_t>::min()) {
+        return false; // SkTAbs overflow
+    }
+
+    SkASSERT(count >= 0);
+    uint64_t ucount = static_cast<uint64_t>(count);
+    uint64_t udx = static_cast<uint64_t>(SkTAbs(dx));
+    int zeros = SkCLZ64(ucount) + SkCLZ64(udx);
     // this is a conservative check: it may return false when in fact it would not have overflowed.
     // Hackers Delight uses 34 as its convervative check, but that is for 32x32 multiplies.
     // Since we are looking at 64x64 muls, we add 32 to the check.
     if (zeros < (32 + 34)) {
         return false;
     }
-    *result = a * b;
+    *result = count * dx;
     return true;
 }
 

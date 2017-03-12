@@ -24,7 +24,7 @@ android {
     }
     sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
     sourceSets.main.jniLibs.srcDir "src/main/libs"
-    productFlavors { arm {}; arm64 {}; x86 {}; x86_64 {}; mips {}; mips64 {}; arm64vulkan{}; }
+    productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; mipsel {}; mips64el {}; arm64vulkan{}; }
 
-    setupSkiaLibraryBuild(project, applicationVariants, "CopyViewerDeps", true)
+    setupSkiaLibraryBuild(project, applicationVariants, "libviewer")
 }

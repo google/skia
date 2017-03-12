@@ -7,13 +7,12 @@ function print_usage {
   echo " Options:         -f  Forces the package to be installed by removing any"
   echo "                      previously installed packages"
   echo "                  -h  Prints this help message"
-  echo "            --release Install the release build of Skia"
   echo "      -s [device_s/n] Serial number of the device to be used"
 }
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
 forceRemoval="false"
@@ -24,8 +23,6 @@ for arg in ${APP_ARGS[@]}; do
   elif [[ "${arg}" == "-h" ]]; then
     print_usage
     exit
-  elif [[ "${arg}" == "-r" ]]; then
-    echo "DEPRECATED: -r is now a no-op"
   elif [[ ${arg} == '-'* ]]; then
     echo "ERROR: unrecognized option ${arg}"
     print_usage
@@ -33,22 +30,14 @@ for arg in ${APP_ARGS[@]}; do
   fi
 done
 
+APP_LC=$(echo Viewer | tr "[:upper:]" "[:lower:]")
 
 if [[ "$forceRemoval" == "true" ]];
 then
     echo "Forcing removal of previously installed packages"
-    $ADB ${DEVICE_SERIAL} uninstall com.skia > /dev/null
+    $ADB ${DEVICE_SERIAL} uninstall org.skia.${APP_LC} > /dev/null
 fi
 
-if [[ "$BUILDTYPE" == "Release" ]];
-then
-    apk_suffix="release.apk"
-else
-    apk_suffix="debug.apk"
-fi
-
-APP_LC=$(echo Viewer | tr "[:upper:]" "[:lower:]")
-
-echo "Installing ${APP_LC} from ${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${apk_suffix}"
-$ADB ${DEVICE_SERIAL} install -r ${SCRIPT_DIR}/../apps/${APP_LC}/build/outputs/apk/${APP_LC}-${ANDROID_ARCH}-${apk_suffix}
+echo "Installing ${APP_LC} from ${SKIA_OUT}/${APP_LC}.apk"
+$ADB ${DEVICE_SERIAL} install -r ${SKIA_OUT}/${APP_LC}.apk
 

@@ -10,6 +10,7 @@ import("opts.gni")
 import("pdf.gni")
 import("sksl.gni")
 import("utils.gni")
+import("xps.gni")
 
 skia_opts = {
   none_sources = none
@@ -17,7 +18,7 @@ skia_opts = {
   neon_sources = neon
   arm64_sources = arm64
   crc32_sources = crc32
-  mips_dsp_sources = mips_dsp
+  mips_dsp_sources = none  # Chrome's src/skia/BUILD.gn uses this.
   sse2_sources = sse2
   ssse3_sources = ssse3
   sse41_sources = sse41

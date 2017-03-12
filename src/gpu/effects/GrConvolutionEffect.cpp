@@ -10,6 +10,7 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "../private/GrGLSL.h"
 
 // For brevity
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
@@ -18,7 +19,7 @@ class GrGLConvolutionEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor&) override;
@@ -58,7 +59,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
 
     fragBuilder->codeAppendf("%s = vec4(0, 0, 0, 0);", args.fOutputColor);
 
-    const GrGLSLShaderVar& kernel = uniformHandler->getUniformVariable(fKernelUni);
+    const GrShaderVar& kernel = uniformHandler->getUniformVariable(fKernelUni);
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
     fragBuilder->codeAppendf("vec2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
@@ -98,7 +99,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
 void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                       const GrProcessor& processor) {
     const GrConvolutionEffect& conv = processor.cast<GrConvolutionEffect>();
-    GrTexture& texture = *conv.texture(0);
+    GrTexture& texture = *conv.textureSampler(0).texture();
 
     float imageIncrement[2] = { 0 };
     float ySign = texture.origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
@@ -129,7 +130,7 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.set4fv(fKernelUni, arrayCount, conv.kernel());
 }
 
-void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                    GrProcessorKeyBuilder* b) {
     const GrConvolutionEffect& conv = processor.cast<GrConvolutionEffect>();
     uint32_t key = conv.radius();
@@ -191,7 +192,7 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
 GrConvolutionEffect::~GrConvolutionEffect() {
 }
 
-void GrConvolutionEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrConvolutionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                 GrProcessorKeyBuilder* b) const {
     GrGLConvolutionEffect::GenKey(*this, caps, b);
 }

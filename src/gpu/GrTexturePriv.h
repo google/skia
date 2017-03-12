@@ -49,10 +49,18 @@ public:
         return fTexture->fMaxMipMapLevel;
     }
 
+    GrSLType imageStorageType() const {
+        if (GrPixelConfigIsSint(fTexture->config())) {
+            return kIImageStorage2D_GrSLType;
+        } else {
+            return kImageStorage2D_GrSLType;
+        }
+    }
+
     GrSLType samplerType() const { return fTexture->fSamplerType; }
 
-    /** The filter used is clamped to this value in GrTextureAccess. */
-    GrTextureParams::FilterMode highestFilterMode() const { return fTexture->fHighestFilterMode; }
+    /** The filter used is clamped to this value in GrProcessor::TextureSampler. */
+    GrSamplerParams::FilterMode highestFilterMode() const { return fTexture->fHighestFilterMode; }
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode) const {
         fTexture->fMipColorMode = colorMode;

@@ -45,7 +45,7 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
                 pathStr.appendf("    testPathOp(reporter, path, pathB, %s, filename);\n",
                         SkPathOpsDebug::OpStr((SkPathOp) op));
                 pathStr.appendf("}\n");
-                outputProgress(state.fPathStr, pathStr.c_str(), (SkPathOp) op);
+                state.outputProgress(pathStr.c_str(), (SkPathOp) op);
             }
             if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "circles")) {
                 if (state.fReporter->verbose()) {

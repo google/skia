@@ -10,9 +10,9 @@
 #define SkDeferredCanvas_DEFINED
 
 #include "../private/SkTDArray.h"
-#include "SkCanvas.h"
+#include "SkNoDrawCanvas.h"
 
-class SK_API SkDeferredCanvas : public SkCanvas {
+class SK_API SkDeferredCanvas : public SkNoDrawCanvas {
 public:
     SkDeferredCanvas(SkCanvas* = nullptr);
     ~SkDeferredCanvas() override;
@@ -94,10 +94,10 @@ protected:
                      const SkRect rects[], const SkColor colors[],
                      int count, SkBlendMode, const SkRect* cull, const SkPaint* paint) override;
 
-    void onClipRect(const SkRect&, ClipOp, ClipEdgeStyle) override;
-    void onClipRRect(const SkRRect&, ClipOp, ClipEdgeStyle) override;
-    void onClipPath(const SkPath&, ClipOp, ClipEdgeStyle) override;
-    void onClipRegion(const SkRegion&, ClipOp) override;
+    void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
+    void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion&, SkClipOp) override;
 
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
@@ -149,7 +149,7 @@ private:
 
     void internal_flush_translate(SkScalar* x, SkScalar* y, const SkRect* boundsOrNull);
 
-    typedef SkCanvas INHERITED;
+    typedef SkNoDrawCanvas INHERITED;
 };
 
 

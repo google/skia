@@ -7,10 +7,16 @@
 
 #include "GrSurfaceProxy.h"
 
+#include "GrCaps.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
+#include "GrSurfaceContext.h"
 #include "GrTextureProvider.h"
 #include "GrTextureRenderTargetProxy.h"
+
+#include "SkMathPriv.h"
 
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
     : INHERITED(std::move(surface))
@@ -47,11 +53,43 @@ GrSurface* GrSurfaceProxy::instantiate(GrTextureProvider* texProvider) {
 
 #ifdef SK_DEBUG
     if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
-        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());    
+        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
 #endif
 
     return fTarget;
+}
+
+int GrSurfaceProxy::worstCaseWidth(const GrCaps& caps) const {
+    if (fTarget) {
+        return fTarget->width();
+    }
+
+    if (SkBackingFit::kExact == fFit) {
+        return fDesc.fWidth;
+    }
+
+    if (caps.reuseScratchTextures() || fDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
+        return SkTMax(GrTextureProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fWidth));
+    }
+
+    return fDesc.fWidth;
+}
+
+int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
+    if (fTarget) {
+        return fTarget->height();
+    }
+
+    if (SkBackingFit::kExact == fFit) {
+        return fDesc.fHeight;
+    }
+
+    if (caps.reuseScratchTextures() || fDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
+        return SkTMax(GrTextureProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fHeight));
+    }
+
+    return fDesc.fHeight;
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
@@ -64,6 +102,14 @@ void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
     }
 
     SkRefCnt_SafeAssign(fLastOpList, opList);
+}
+
+GrRenderTargetOpList* GrSurfaceProxy::getLastRenderTargetOpList() {
+    return fLastOpList ? fLastOpList->asRenderTargetOpList() : nullptr;
+}
+
+GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
+    return fLastOpList ? fLastOpList->asTextureOpList() : nullptr;
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {
@@ -109,3 +155,62 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
     return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);
 }
 
+#ifdef SK_DEBUG
+void GrSurfaceProxy::validate(GrContext* context) const {
+    if (fTarget) {
+        SkASSERT(fTarget->getContext() == context);
+    }
+
+    INHERITED::validate();
+}
+#endif
+
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrContext* context,
+                                           GrSurfaceProxy* src,
+                                           SkIRect srcRect,
+                                           SkBudgeted budgeted) {
+    if (!srcRect.intersect(SkIRect::MakeWH(src->width(), src->height()))) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc dstDesc = src->desc();
+    dstDesc.fWidth = srcRect.width();
+    dstDesc.fHeight = srcRect.height();
+
+    sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
+                                                                            dstDesc,
+                                                                            SkBackingFit::kExact,
+                                                                            budgeted));
+    if (!dstContext) {
+        return nullptr;
+    }
+
+    if (!dstContext->copy(src, srcRect, SkIPoint::Make(0, 0))) {
+        return nullptr;
+    }
+
+    return sk_ref_sp(dstContext->asDeferredSurface());
+}
+
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+                                               GrTexture* srcTexture, SkBudgeted budgeted) {
+
+    sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
+                                                                            dstDesc,
+                                                                            SkBackingFit::kExact,
+                                                                            budgeted));
+    if (!dstContext) {
+        return nullptr;
+    }
+
+    sk_sp<GrSurfaceProxy> srcProxy(GrSurfaceProxy::MakeWrapped(sk_ref_sp(srcTexture)));
+    if (!srcProxy) {
+        return nullptr;
+    }
+
+    if (!dstContext->copy(srcProxy.get())) {
+        return nullptr;
+    }
+
+    return sk_ref_sp(dstContext->asDeferredSurface());
+}

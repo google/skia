@@ -22,17 +22,17 @@ struct ASTPrecision : public ASTDeclaration {
     : INHERITED(position, kPrecision_Kind)
     , fPrecision(precision) {}
 
-    std::string description() const {
+    SkString description() const {
         switch (fPrecision) {
-            case Modifiers::kLowp_Flag: return "precision lowp float;";
-            case Modifiers::kMediump_Flag: return "precision mediump float;";
-            case Modifiers::kHighp_Flag: return "precision highp float;";
+            case Modifiers::kLowp_Flag: return SkString("precision lowp float;");
+            case Modifiers::kMediump_Flag: return SkString("precision mediump float;");
+            case Modifiers::kHighp_Flag: return SkString("precision highp float;");
             default: 
                 ASSERT(false); 
-                return "<error>";
+                return SkString("<error>");
         }
         ASSERT(false);
-        return "<error>";
+        return SkString("<error>");
     }
 
     const Modifiers::Flag fPrecision;

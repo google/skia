@@ -24,18 +24,26 @@ extern SkBitmap source;
 extern sk_sp<SkImage> image;
 
 struct DrawOptions {
-    DrawOptions(int w, int h, bool r, bool g, bool p, bool k, const char* s)
+    DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16, const char* s)
         : size(SkISize::Make(w, h))
         , raster(r)
         , gpu(g)
         , pdf(p)
         , skp(k)
-        , source(s) {}
+        , srgb(srgb)
+        , f16(f16)
+        , source(s)
+    {
+        // F16 mode is only valid for color correct backends.
+        SkASSERT(srgb || !f16);
+    }
     SkISize size;
     bool raster;
     bool gpu;
     bool pdf;
     bool skp;
+    bool srgb;
+    bool f16;
     const char* source;
 };
 

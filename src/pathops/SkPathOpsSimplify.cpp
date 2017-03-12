@@ -84,30 +84,25 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple) {
 
 // returns true if all edges were processed
 static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
-    SkOpSegment* current;
-    SkOpSpanBase* start;
-    SkOpSpanBase* end;
     bool unsortable = false;
-    while ((current = FindUndone(contourList, &start, &end))) {
+    do {
+        SkOpSpan* span = FindUndone(contourList);
+        if (!span) {
+            break;
+        }
+        SkOpSegment* current = span->segment();
+        SkOpSpanBase* start = span->next();
+        SkOpSpanBase* end = span;
         do {
             if (!unsortable && current->done()) {
-                SkPathOpsDebug::ShowActiveSpans(contourList);
+                break;
             }
             SkASSERT(unsortable || !current->done());
             SkOpSpanBase* nextStart = start;
             SkOpSpanBase* nextEnd = end;
-            SkOpSegment* next = current->findNextXor(&nextStart, &nextEnd, &unsortable);
+            SkOpSegment* next = current->findNextXor(&nextStart, &nextEnd,
+                    &unsortable);
             if (!next) {
-                if (!unsortable && simple->hasMove()
-                        && current->verb() != SkPath::kLine_Verb
-                        && !simple->isClosed()) {
-                    if (!current->addCurveTo(start, end, simple)) {
-                        return false;
-                    }
-                    if (!simple->isClosed()) {
-                        SkPathOpsDebug::ShowActiveSpans(contourList);
-                    }
-                }
                 break;
             }
         #if DEBUG_FLOW
@@ -123,7 +118,6 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
             end = nextEnd;
         } while (!simple->isClosed() && (!unsortable || !start->starter(end)->done()));
         if (!simple->isClosed()) {
-            SkASSERT(unsortable);
             SkOpSpan* spanStart = start->starter(end);
             if (!spanStart->done()) {
                 if (!current->addCurveTo(start, end, simple)) {
@@ -134,7 +128,7 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
         }
         simple->finishContour();
         SkPathOpsDebug::ShowActiveSpans(contourList);
-    }
+    } while (true);
     return true;
 }
 

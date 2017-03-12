@@ -11,8 +11,7 @@
 #define SkFloatingPoint_DEFINED
 
 #include "SkTypes.h"
-
-#include <math.h>
+#include "SkSafe_math.h"
 #include <float.h>
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1

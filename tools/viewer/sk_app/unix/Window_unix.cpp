@@ -26,6 +26,7 @@ SkTDynamicHash<Window_unix, XWindow> Window_unix::gWindowMap;
 
 Window* Window::CreateNativeWindow(void* platformData) {
     Display* display = (Display*)platformData;
+    SkASSERT(display);
 
     Window_unix* window = new Window_unix();
     if (!window->initWindow(display, nullptr)) {

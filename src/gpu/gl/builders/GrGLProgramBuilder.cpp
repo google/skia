@@ -11,18 +11,18 @@
 #include "GrCoordTransform.h"
 #include "GrGLProgramBuilder.h"
 #include "GrProgramDesc.h"
+#include "GrShaderCaps.h"
 #include "GrSwizzle.h"
 #include "GrTexture.h"
+#include "SkAutoMalloc.h"
 #include "SkTraceEvent.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/builders/GrGLShaderStringBuilder.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
@@ -67,14 +67,12 @@ const GrCaps* GrGLProgramBuilder::caps() const {
     return fGpu->caps();
 }
 
-const GrGLSLCaps* GrGLProgramBuilder::glslCaps() const {
-    return fGpu->ctxInfo().caps()->glslCaps();
-}
-
 bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                                  GrGLuint programId,
                                                  GrGLenum type,
-                                                 SkTDArray<GrGLuint>* shaderIds) {
+                                                 SkTDArray<GrGLuint>* shaderIds,
+                                                 const SkSL::Program::Settings& settings,
+                                                 SkSL::Program::Inputs* outInputs) {
     GrGLGpu* gpu = this->gpu();
     GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
                                                    programId,
@@ -82,7 +80,9 @@ bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                                    shader.fCompilerStrings.begin(),
                                                    shader.fCompilerStringLengths.begin(),
                                                    shader.fCompilerStrings.count(),
-                                                   gpu->stats());
+                                                   gpu->stats(),
+                                                   settings,
+                                                   outInputs);
 
     if (!shaderId) {
         return false;
@@ -105,26 +105,42 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     this->finalizeShaders();
 
     // compile shaders and bind attributes / uniforms
+    SkSL::Program::Settings settings;
+    settings.fCaps = this->gpu()->glCaps().shaderCaps();
+    settings.fFlipY = this->pipeline().getRenderTarget()->origin() != kTopLeft_GrSurfaceOrigin;
+    SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
-    if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete)) {
+    if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete,
+                                       settings, &inputs)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
     }
 
     // NVPR actually requires a vertex shader to compile
-    bool useNvpr = primitiveProcessor().isPathRendering();
+    const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
+    bool useNvpr = primProc.isPathRendering();
     if (!useNvpr) {
-        const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
-
         int vaCount = primProc.numAttribs();
         for (int i = 0; i < vaCount; i++) {
             GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).fName));
         }
     }
 
-    if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete)) {
+    if (primProc.willUseGeoShader() &&
+        !this->compileAndAttachShaders(fGS, programID, GR_GL_GEOMETRY_SHADER, &shadersToDelete,
+                                       settings, &inputs)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
+    }
+
+    if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete,
+                                       settings, &inputs)) {
+        this->cleanupProgram(programID, shadersToDelete);
+        return nullptr;
+    }
+
+    if (inputs.fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
 
     this->bindProgramResourceLocations(programID);
@@ -154,7 +170,7 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
         GL_CALL(BindFragDataLocation(programID, 0,
                                      GrGLSLFragmentShaderBuilder::DeclaredColorOutputName()));
     }
-    if (fFS.hasSecondaryOutput() && caps.glslCaps()->mustDeclareFragmentShaderOutput()) {
+    if (fFS.hasSecondaryOutput() && caps.shaderCaps()->mustDeclareFragmentShaderOutput()) {
         GL_CALL(BindFragDataLocationIndexed(programID, 0, 1,
                                   GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
     }
@@ -233,6 +249,7 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            programID,
                            fUniformHandler.fUniforms,
                            fUniformHandler.fSamplers,
+                           fUniformHandler.fImageStorages,
                            fVaryingHandler.fPathProcVaryingInfos,
                            fGeometryProcessor,
                            fXferProcessor,

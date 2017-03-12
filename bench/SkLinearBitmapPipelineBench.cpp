@@ -6,13 +6,14 @@
  */
 
 #include <memory>
-#include "SkColor.h"
-#include "SkLinearBitmapPipeline.h"
-#include "SkBitmapProcShader.h"
-#include "SkPM4f.h"
 #include "Benchmark.h"
-#include "SkShader.h"
+#include "SkBitmapProcShader.h"
+#include "SkColor.h"
+#include "SkArenaAlloc.h"
 #include "SkImage.h"
+#include "SkLinearBitmapPipeline.h"
+#include "SkPM4f.h"
+#include "SkShader.h"
 
 struct CommonBitmapFPBenchmark : public Benchmark {
     CommonBitmapFPBenchmark(
@@ -146,8 +147,11 @@ struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {
 
         SkPixmap srcPixmap{fInfo, fBitmap.get(), static_cast<size_t>(4 * width)};
 
+
+        char storage[600];
+        SkArenaAlloc allocator{storage, sizeof(storage), 512};
         SkLinearBitmapPipeline pipeline{
-            fInvert, filterQuality, fXTile, fYTile, SK_ColorBLACK, srcPixmap};
+            fInvert, filterQuality, fXTile, fYTile, SK_ColorBLACK, srcPixmap, &allocator};
 
         int count = 100;
 
@@ -197,7 +201,8 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
 
         uint32_t storage[kSkBlitterContextSize];
         const SkShader::ContextRec rec(fPaint, fM, nullptr,
-                                       SkShader::ContextRec::kPMColor_DstType);
+                                       SkShader::ContextRec::kPMColor_DstType,
+                                       nullptr);
         SkASSERT(fPaint.getShader()->contextSize(rec) <= sizeof(storage));
         SkShader::Context* ctx = fPaint.getShader()->createContext(rec, storage);
 

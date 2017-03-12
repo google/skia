@@ -11,6 +11,7 @@
 #include "effects/GrGammaEffect.h"
 #include "effects/GrYUVEffect.h"
 
+#include "SkAutoMalloc.h"
 #include "SkCachedData.h"
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
@@ -147,7 +148,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
             yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
-    renderTargetContext->drawRect(GrNoClip(), paint, SkMatrix::I(), r);
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
 
     return renderTargetContext->asTexture();
 }

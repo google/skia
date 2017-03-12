@@ -26,4 +26,9 @@ DEF_TEST(SkFixed15, r) {
     for (int x = 0; x < 256; x++) {
         REPORTER_ASSERT(r, SkFixed15::FromU8(x) == SkFixed15(x * (1/255.0f)));
     }
+
+    // to_u8() and FromU8() should roundtrip all bytes.
+    for (int x = 0; x < 256; x++) {
+        REPORTER_ASSERT(r, x == SkFixed15::FromU8(x).to_u8());
+    }
 }

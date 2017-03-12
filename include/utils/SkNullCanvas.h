@@ -8,19 +8,11 @@
 #ifndef SkNullCanvas_DEFINED
 #define SkNullCanvas_DEFINED
 
-#include "SkBitmap.h"
-
-class SkCanvas;
+#include "SkCanvas.h"
 
 /**
  * Creates a canvas that draws nothing. This is useful for performance testing.
  */
 SK_API std::unique_ptr<SkCanvas> SkMakeNullCanvas();
-
-#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
-static inline SkCanvas* SkCreateNullCanvas() {
-    return SkMakeNullCanvas().release();
-}
-#endif
 
 #endif

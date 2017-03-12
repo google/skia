@@ -26,22 +26,38 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-class GrBatch;
-class GrRenderTargetContext;
+class GrAppliedClip;
 class GrDeviceCoordTexture;
+class GrOp;
 class GrPipelineBuilder;
+class GrRenderTargetContext;
 
-struct GrBatchToXPOverrides {
-    GrBatchToXPOverrides()
-    : fUsePLSDstRead(false) {}
+/**
+ * This Describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
+ * pipeline analysis.
+ */
+class GrPipelineAnalysisDrawOpInput {
+public:
+    GrPipelineAnalysisDrawOpInput(GrPipelineInput* color, GrPipelineInput* coverage)
+            : fColorInput(color), fCoverageInput(coverage) {}
+    GrPipelineInput* pipelineColorInput() { return fColorInput; }
+    GrPipelineInput* pipelineCoverageInput() { return fCoverageInput; }
 
-    bool fUsePLSDstRead;
+    void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
+
+    bool usesPLSDstRead() const { return fUsesPLSDstRead; }
+
+private:
+    GrPipelineInput* fColorInput;
+    GrPipelineInput* fCoverageInput;
+    bool fUsesPLSDstRead = false;
 };
 
-struct GrPipelineOptimizations {
+/** This is used to track pipeline analysis through the color and coverage fragment processors. */
+struct GrPipelineAnalysis {
     GrProcOptInfo fColorPOI;
     GrProcOptInfo fCoveragePOI;
-    GrBatchToXPOverrides fOverrides;
+    bool fUsesPLSDstRead = false;
 };
 
 /**
@@ -54,18 +70,16 @@ public:
     /// @name Creation
 
     struct CreateArgs {
-        const GrPipelineBuilder*    fPipelineBuilder;
-        GrRenderTargetContext*      fRenderTargetContext;
-        const GrCaps*               fCaps;
-        GrPipelineOptimizations     fOpts;
-        const GrScissorState*       fScissor;
-        const GrWindowRectsState*   fWindowRectsState;
-        bool                        fHasStencilClip;
+        const GrPipelineBuilder* fPipelineBuilder;
+        GrAppliedClip* fAppliedClip;
+        GrRenderTargetContext* fRenderTargetContext;
+        const GrCaps* fCaps;
+        GrPipelineAnalysis fAnalysis;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
     /** Creates a pipeline into a pre-allocated buffer */
-    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrXPOverridesForBatch*);
+    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineOptimizations*);
 
     /// @}
 
@@ -81,9 +95,9 @@ public:
     static bool AreEqual(const GrPipeline& a, const GrPipeline& b);
 
     /**
-     * Allows a GrBatch subclass to determine whether two GrBatches can combine. This is a stricter
-     * test than isEqual because it also considers blend barriers when the two batches' bounds
-     * overlap
+     * Allows a GrOp subclass to determine whether two GrOp instances can combine. This is a
+     * stricter test than isEqual because it also considers blend barriers when the two ops'
+     * bounds overlap
      */
     static bool CanCombine(const GrPipeline& a, const SkRect& aBounds,
                            const GrPipeline& b, const SkRect& bBounds,
@@ -184,22 +198,8 @@ public:
     GrDrawFace getDrawFace() const { return fDrawFace; }
 
 
-    ///////////////////////////////////////////////////////////////////////////
-
-    bool ignoresCoverage() const { return fIgnoresCoverage; }
-
 private:
     GrPipeline() { /** Initialized in factory function*/ }
-
-    /**
-     * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
-     */
-    void adjustProgramFromOptimizations(const GrPipelineBuilder& ds,
-                                        GrXferProcessor::OptFlags,
-                                        const GrProcOptInfo& colorPOI,
-                                        const GrProcOptInfo& coveragePOI,
-                                        int* firstColorProcessorIdx,
-                                        int* firstCoverageProcessorIdx);
 
     /**
      * Calculates the primary and secondary output types of the shader. For certain output types
@@ -231,7 +231,6 @@ private:
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentProcessorArray              fFragmentProcessors;
-    bool                                fIgnoresCoverage;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int                                 fNumColorProcessors;

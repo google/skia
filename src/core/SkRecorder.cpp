@@ -37,14 +37,14 @@ void SkDrawableList::append(SkDrawable* drawable) {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 SkRecorder::SkRecorder(SkRecord* record, int width, int height, SkMiniRecorder* mr)
-    : SkCanvas(SkIRect::MakeWH(width, height), SkCanvas::kConservativeRasterClip_InitFlag)
+    : SkNoDrawCanvas(width, height)
     , fDrawPictureMode(Record_DrawPictureMode)
     , fApproxBytesUsedBySubPictures(0)
     , fRecord(record)
     , fMiniRecorder(mr) {}
 
 SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr)
-    : SkCanvas(bounds.roundOut(), SkCanvas::kConservativeRasterClip_InitFlag)
+    : SkNoDrawCanvas(bounds.roundOut())
     , fDrawPictureMode(Record_DrawPictureMode)
     , fApproxBytesUsedBySubPictures(0)
     , fRecord(record)
@@ -75,8 +75,8 @@ void SkRecorder::forgetRecord() {
 #define TRY_MINIRECORDER(method, ...)                       \
     if (fMiniRecorder && fMiniRecorder->method(__VA_ARGS__)) { return; }
 
-// For methods which must call back into SkCanvas.
-#define INHERITED(method, ...) this->SkCanvas::method(__VA_ARGS__)
+// For methods which must call back into SkNoDrawCanvas.
+#define INHERITED(method, ...) this->SkNoDrawCanvas::method(__VA_ARGS__)
 
 // Use copy() only for optional arguments, to be copied if present or skipped if not.
 // (For most types we just pass by value and let copy constructors do their thing.)
@@ -404,25 +404,25 @@ void SkRecorder::didTranslateZ(SkScalar z) {
 #endif
 }
 
-void SkRecorder::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkRecorder::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipRect, rect, op, edgeStyle);
     SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
     APPEND(ClipRect, this->devBounds(), rect, opAA);
 }
 
-void SkRecorder::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkRecorder::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipRRect, rrect, op, edgeStyle);
     SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
     APPEND(ClipRRect, this->devBounds(), rrect, opAA);
 }
 
-void SkRecorder::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkRecorder::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipPath, path, op, edgeStyle);
     SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
     APPEND(ClipPath, this->devBounds(), path, opAA);
 }
 
-void SkRecorder::onClipRegion(const SkRegion& deviceRgn, ClipOp op) {
+void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     INHERITED(onClipRegion, deviceRgn, op);
     APPEND(ClipRegion, this->devBounds(), deviceRgn, op);
 }

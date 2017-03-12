@@ -1,4 +1,4 @@
-/* NEON optimized code (C) COPYRIGHT 2009 Motorola
+/* Copyright 2009 Motorola
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -46,7 +46,7 @@ static inline int32x4_t sbpsm_clamp_tile4(int32x4_t f, unsigned max) {
     return res;
 }
 
-// TILEY_LOW_BITS(fy, max)         (((fy) >> 12) & 0xF)
+// EXTRACT_LOW_BITS(fy, max)         (((fy) >> 12) & 0xF)
 static inline int32x4_t sbpsm_clamp_tile4_low_bits(int32x4_t fx) {
     int32x4_t ret;
 
@@ -95,7 +95,7 @@ static inline int32x4_t sbpsm_repeat_tile4(int32x4_t f, unsigned max) {
     return vreinterpretq_s32_u32(tmp);
 }
 
-// TILEX_LOW_BITS(fx, max)         ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+// EXTRACT_LOW_BITS(fx, max)         ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
 static inline int32x4_t sbpsm_repeat_tile4_low_bits(int32x4_t fx, unsigned max) {
     uint16x4_t res;
     uint32x4_t tmp;
@@ -125,10 +125,8 @@ static inline int32x4_t sbpsm_repeat_tile4_low_bits(int32x4_t fx, unsigned max) 
 #define TILEY_PROCF_NEON8(l, h, max)    sbpsm_clamp_tile8(l, h, max)
 #define TILEX_PROCF_NEON4(fx, max)      sbpsm_clamp_tile4(fx, max)
 #define TILEY_PROCF_NEON4(fy, max)      sbpsm_clamp_tile4(fy, max)
-#define TILEX_LOW_BITS(fx, max)         (((fx) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max)         (((fy) >> 12) & 0xF)
-#define TILEX_LOW_BITS_NEON4(fx, max)   sbpsm_clamp_tile4_low_bits(fx)
-#define TILEY_LOW_BITS_NEON4(fy, max)   sbpsm_clamp_tile4_low_bits(fy)
+#define EXTRACT_LOW_BITS(v, max)        (((v) >> 12) & 0xF)
+#define EXTRACT_LOW_BITS_NEON4(v, max)  sbpsm_clamp_tile4_low_bits(v)
 #define CHECK_FOR_DECAL
 #include "SkBitmapProcState_matrix_neon.h"
 
@@ -139,10 +137,8 @@ static inline int32x4_t sbpsm_repeat_tile4_low_bits(int32x4_t fx, unsigned max) 
 #define TILEY_PROCF_NEON8(l, h, max)    sbpsm_repeat_tile8(l, h, max)
 #define TILEX_PROCF_NEON4(fx, max)      sbpsm_repeat_tile4(fx, max)
 #define TILEY_PROCF_NEON4(fy, max)      sbpsm_repeat_tile4(fy, max)
-#define TILEX_LOW_BITS(fx, max)         ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max)         ((((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#define TILEX_LOW_BITS_NEON4(fx, max)   sbpsm_repeat_tile4_low_bits(fx, max)
-#define TILEY_LOW_BITS_NEON4(fy, max)   sbpsm_repeat_tile4_low_bits(fy, max)
+#define EXTRACT_LOW_BITS(v, max)        ((((v) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+#define EXTRACT_LOW_BITS_NEON4(v, max)  sbpsm_repeat_tile4_low_bits(v, max)
 #include "SkBitmapProcState_matrix_neon.h"
 
 

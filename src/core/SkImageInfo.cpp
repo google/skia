@@ -98,17 +98,13 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 #include "SkReadPixelsRec.h"
 
 bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
-    switch (fInfo.colorType()) {
-        case kUnknown_SkColorType:
-        case kIndex_8_SkColorType:
-            return false;
-        default:
-            break;
+    if (kIndex_8_SkColorType == fInfo.colorType()) {
+        return false;
     }
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
         return false;
     }
-    if (0 == fInfo.width() || 0 == fInfo.height()) {
+    if (0 >= fInfo.width() || 0 >= fInfo.height()) {
         return false;
     }
 

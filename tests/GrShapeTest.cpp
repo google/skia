@@ -15,6 +15,7 @@
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkSurface.h"
+#include "SkClipOpPriv.h"
 
 using Key = SkTArray<uint32_t>;
 
@@ -52,7 +53,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     SkMatrix matrix;
     matrix.setRectToRect(bounds, clip, SkMatrix::kFill_ScaleToFit);
     clip.outset(SkIntToScalar(kTol), SkIntToScalar(kTol));
-    surface->getCanvas()->clipRect(clip, SkCanvas::kDifference_Op);
+    surface->getCanvas()->clipRect(clip, kDifference_SkClipOp);
     surface->getCanvas()->concat(matrix);
     SkPaint whitePaint;
     whitePaint.setColor(SK_ColorWHITE);
@@ -1405,10 +1406,10 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
             for (unsigned start = 0; start < 8; ++start) {
                 for (Style style : {kFill, kStroke, kHairline, kStrokeAndFill}) {
                     for (bool dash : {false, true}) {
-                        SkPathEffect* pe = dash ? dashEffect.get() : nullptr;
+                        sk_sp<SkPathEffect> pe = dash ? dashEffect : nullptr;
                         shapes[index(inverted, dir, start, style, dash)] =
                                 GrShape(rrect, dir, start, SkToBool(inverted),
-                                        GrStyle(strokeRecs[style], pe));
+                                        GrStyle(strokeRecs[style], std::move(pe)));
                     }
                 }
             }

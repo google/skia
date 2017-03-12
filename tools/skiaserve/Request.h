@@ -37,7 +37,7 @@ struct Request {
     Request(SkString rootUrl);
     ~Request();
 
-    // draws to skia draw op N, highlighting the Mth batch(-1 means no highlight)
+    // draws to canvas operation N, highlighting the Mth GrOp. m = -1 means no highlight.
     sk_sp<SkData> drawToPng(int n, int m = -1);
     sk_sp<SkData> writeOutSkp();
     SkCanvas* getCanvas();
@@ -53,8 +53,8 @@ struct Request {
     // Returns the json list of ops as an SkData
     sk_sp<SkData> getJsonOps(int n);
 
-    // Returns a json list of batches as an SkData
-    sk_sp<SkData> getJsonBatchList(int n);
+    // Returns a json list of ops as an SkData
+    sk_sp<SkData> getJsonOpList(int n);
 
     // Returns json with the viewMatrix and clipRect
     sk_sp<SkData> getJsonInfo(int n);

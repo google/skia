@@ -30,19 +30,13 @@ SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData> data)
     , fData(std::move(data))
 {}
 
-SkData* SkCodecImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
+SkData* SkCodecImageGenerator::onRefEncodedData(GrContext* ctx) {
     return SkRef(fData.get());
 }
 
 bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
         SkPMColor ctable[], int* ctableCount) {
-
-    // FIXME (msarett):
-    // We don't give the client the chance to request an SkColorSpace.  Until we improve
-    // the API, let's assume that they want legacy mode.
-    SkImageInfo decodeInfo = info.makeColorSpace(nullptr);
-
-    SkCodec::Result result = fCodec->getPixels(decodeInfo, pixels, rowBytes, nullptr, ctable,
+    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, nullptr, ctable,
             ctableCount);
     switch (result) {
         case SkCodec::kSuccess:
@@ -52,6 +46,30 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, s
             return false;
     }
 }
+
+bool SkCodecImageGenerator::onComputeScaledDimensions(SkScalar scale, SupportedSizes* sizes) {
+    SkASSERT(scale > 0 && scale <= 1);
+    const auto size = fCodec->getScaledDimensions(SkScalarToFloat(scale));
+    if (size == this->getInfo().dimensions()) {
+        return false;
+    }
+
+    // FIXME: Make SkCodec's API return two potential sizes, like this one. For now, set them both
+    // to be the same.
+    sizes->fSizes[0] = sizes->fSizes[1] = size;
+    return true;
+}
+
+bool SkCodecImageGenerator::onGenerateScaledPixels(const SkPixmap& pixmap) {
+    if (pixmap.colorType() == kIndex_8_SkColorType) {
+        // There is no way to tell the client about the color table with this API.
+        return false;
+    }
+
+    return this->onGetPixels(pixmap.info(), pixmap.writable_addr(), pixmap.rowBytes(),
+                             nullptr, nullptr);
+}
+
 
 bool SkCodecImageGenerator::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const
 {

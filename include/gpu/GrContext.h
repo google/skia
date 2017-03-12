@@ -19,14 +19,13 @@
 #include "SkTypes.h"
 #include "../private/GrAuditTrail.h"
 #include "../private/GrSingleOwner.h"
-#include "../private/SkMutex.h"
 
-struct GrBatchAtlasConfig;
-class GrBatchFontCache;
+class GrAtlasGlyphCache;
 struct GrContextOptions;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
+struct GrDrawOpAtlasConfig;
 class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrGpu;
@@ -40,7 +39,7 @@ class GrResourceProvider;
 class GrTestTarget;
 class GrTextBlobCache;
 class GrTextContext;
-class GrTextureParams;
+class GrSamplerParams;
 class GrVertexBuffer;
 class GrSwizzle;
 class SkTraceMemoryDump;
@@ -197,7 +196,8 @@ public:
 
     // Create a new render target context as above but have it backed by a deferred-style
     // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
-    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(SkBackingFit fit, 
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
+                                                 SkBackingFit fit, 
                                                  int width, int height,
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,
@@ -212,6 +212,18 @@ public:
      * SRGB-ness will be preserved.
      */
     sk_sp<GrRenderTargetContext> makeRenderTargetContextWithFallback(
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 0,
+                                                 GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted budgeted = SkBudgeted::kYes);
+
+    // Create a new render target context as above but have it backed by a deferred-style
+    // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
                                                  SkBackingFit fit,
                                                  int width, int height,
                                                  GrPixelConfig config,
@@ -248,11 +260,13 @@ public:
     /**
      * Reads a rectangle of pixels from a surface.
      * @param surface       the surface to read from.
+     * @param srcColorSpace color space of the surface
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
+     * @param dstColorSpace color space of the destination buffer
      * @param buffer        memory to read the rectangle into.
      * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
      *                      packed.
@@ -261,20 +275,22 @@ public:
      * @return true if the read succeeded, false if not. The read can fail because of an unsupported
      *         pixel configs
      */
-    bool readSurfacePixels(GrSurface* surface,
+    bool readSurfacePixels(GrSurface* surface, SkColorSpace* srcColorSpace,
                            int left, int top, int width, int height,
-                           GrPixelConfig config, void* buffer,
+                           GrPixelConfig config, SkColorSpace* dstColorSpace, void* buffer,
                            size_t rowBytes = 0,
                            uint32_t pixelOpsFlags = 0);
 
     /**
      * Writes a rectangle of pixels to a surface.
      * @param surface       the surface to write to.
+     * @param dstColorSpace color space of the surface
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
+     * @param srcColorSpace color space of the source buffer
      * @param buffer        memory to read pixels from
      * @param rowBytes      number of bytes between consecutive rows. Zero
      *                      means rows are tightly packed.
@@ -282,30 +298,11 @@ public:
      * @return true if the write succeeded, false if not. The write can fail because of an
      *         unsupported combination of surface and src configs.
      */
-    bool writeSurfacePixels(GrSurface* surface,
+    bool writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
                             int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer,
+                            GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
-
-    /**
-     * Copies a rectangle of texels from src to dst.
-     * @param dst           the surface to copy to.
-     * @param src           the surface to copy from.
-     * @param srcRect       the rectangle of the src that should be copied.
-     * @param dstPoint      the translation applied when writing the srcRect's pixels to the dst.
-     */
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
-                     const SkIRect& srcRect,
-                     const SkIPoint& dstPoint);
-
-    /** Helper that copies the whole surface but fails when the two surfaces are not identically
-        sized. */
-    bool copySurface(GrSurface* dst, GrSurface* src) {
-        return this->copySurface(dst, src, SkIRect::MakeWH(dst->width(), dst->height()),
-                                 SkIPoint::Make(0,0));
-    }
 
     /**
      * After this returns any pending writes to the surface will have been issued to the backend 3D API.
@@ -337,7 +334,7 @@ public:
     // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
-    GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
+    GrAtlasGlyphCache* getAtlasGlyphCache() { return fAtlasGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
@@ -366,13 +363,15 @@ public:
 
     /** Specify the sizes of the GrAtlasTextContext atlases.  The configs pointer below should be
         to an array of 3 entries */
-    void setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs);
+    void setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs);
 
     /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-    /** Get pointer to atlas texture for given mask format */
-    GrTexture* getFontAtlasTexture(GrMaskFormat format);
+    /** Get pointer to atlas texture for given mask format. Note that this wraps an
+        actively mutating texture in an SkImage. This could yield unexpected results
+        if it gets cached or used more generally. */
+    sk_sp<SkImage> getFontAtlasImage(GrMaskFormat format);
 
     GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
 
@@ -396,24 +395,12 @@ private:
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
-    GrBatchFontCache*                       fBatchFontCache;
+    GrAtlasGlyphCache*                      fAtlasGlyphCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDidTestPMConversions;
     int                                     fPMToUPMConversion;
     int                                     fUPMToPMConversion;
-    // The sw backend may call GrContext::readSurfacePixels on multiple threads
-    // We may transfer the responsibilty for using a mutex to the sw backend
-    // when there are fewer code paths that lead to a readSurfacePixels call
-    // from the sw backend. readSurfacePixels is reentrant in one case - when performing
-    // the PM conversions test. To handle this we do the PM conversions test outside
-    // of fReadPixelsMutex and use a separate mutex to guard it. When it re-enters
-    // readSurfacePixels it will grab fReadPixelsMutex and release it before the outer
-    // readSurfacePixels proceeds to grab it.
-    // TODO: Stop pretending to make GrContext thread-safe for sw rasterization and provide
-    // a mechanism to make a SkPicture safe for multithreaded sw rasterization.
-    SkMutex                                 fReadPixelsMutex;
-    SkMutex                                 fTestPMConversionsMutex;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
@@ -452,8 +439,7 @@ private:
     sk_sp<GrFragmentProcessor> createUPMToPMEffect(GrTexture*, const GrSwizzle&,
                                                    const SkMatrix&) const;
     /** Called before either of the above two functions to determine the appropriate fragment
-        processors for conversions. This must be called by readSurfacePixels before a mutex is
-        taken, since testingvPM conversions itself will call readSurfacePixels */
+        processors for conversions. */
     void testPMConversionsIfNecessary(uint32_t flags);
     /** Returns true if we've already determined that createPMtoUPMEffect and createUPMToPMEffect
         will fail. In such cases fall back to SW conversion. */

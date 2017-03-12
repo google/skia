@@ -10,10 +10,6 @@
 
 #include <arm_neon.h>
 
-#define SKNX_IS_FAST
-
-template <> struct SkNx_abi<4,float> { float32x4_t vec; };
-
 namespace {
 
 // ARMv8 has vrndmq_f32 to floor 4 floats.  Here we emulate it:
@@ -112,9 +108,6 @@ public:
     AI SkNx() {}
     AI SkNx(float val) : fVec(vdupq_n_f32(val)) {}
     AI SkNx(float a, float b, float c, float d) { fVec = (float32x4_t) { a, b, c, d }; }
-
-    AI SkNx(const SkNx_abi<4,float>& a) : fVec(a.vec) {}
-    AI operator SkNx_abi<4,float>() const { return { fVec }; }
 
     AI static SkNx Load(const void* ptr) { return vld1q_f32((const float*)ptr); }
     AI void store(void* ptr) const { vst1q_f32((float*)ptr, fVec); }
@@ -262,6 +255,8 @@ public:
     AI SkNx operator + (const SkNx& o) const { return vadd_u16(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return vsub_u16(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return vmul_u16(fVec, o.fVec); }
+    AI SkNx operator & (const SkNx& o) const { return vand_u16(fVec, o.fVec); }
+    AI SkNx operator | (const SkNx& o) const { return vorr_u16(fVec, o.fVec); }
 
     AI SkNx operator << (int bits) const { return fVec << SkNx(bits).fVec; }
     AI SkNx operator >> (int bits) const { return fVec >> SkNx(bits).fVec; }
@@ -300,6 +295,8 @@ public:
     AI SkNx operator + (const SkNx& o) const { return vaddq_u16(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return vsubq_u16(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return vmulq_u16(fVec, o.fVec); }
+    AI SkNx operator & (const SkNx& o) const { return vandq_u16(fVec, o.fVec); }
+    AI SkNx operator | (const SkNx& o) const { return vorrq_u16(fVec, o.fVec); }
 
     AI SkNx operator << (int bits) const { return fVec << SkNx(bits).fVec; }
     AI SkNx operator >> (int bits) const { return fVec >> SkNx(bits).fVec; }
@@ -514,10 +511,13 @@ template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
     return vqmovn_u16(vcombine_u16(_16, _16));
 }
 
+template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint8_t>(const Sk4b& src) {
+    uint16x8_t _16 = vmovl_u8(src.fVec);
+    return vreinterpretq_s32_u32(vmovl_u16(vget_low_u16(_16)));
+}
+
 template<> AI /*static*/ Sk4f SkNx_cast<float, uint8_t>(const Sk4b& src) {
-    uint16x8_t _16 = vmovl_u8 (src.fVec) ;
-    uint32x4_t _32 = vmovl_u16(vget_low_u16(_16));
-    return vcvtq_f32_u32(_32);
+    return vcvtq_f32_s32(SkNx_cast<int32_t>(src).fVec);
 }
 
 template<> AI /*static*/ Sk16b SkNx_cast<uint8_t, float>(const Sk16f& src) {

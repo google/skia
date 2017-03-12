@@ -140,32 +140,6 @@ private:
     int fMaxFilter;
 };
 
-typedef void (*SkConvolveVertically_pointer)(
-    const SkConvolutionFilter1D::ConvolutionFixed* filterValues,
-    int filterLength,
-    unsigned char* const* sourceDataRows,
-    int pixelWidth,
-    unsigned char* outRow,
-    bool hasAlpha);
-typedef void (*SkConvolve4RowsHorizontally_pointer)(
-    const unsigned char* srcData[4],
-    const SkConvolutionFilter1D& filter,
-    unsigned char* outRow[4],
-    size_t outRowBytes);
-typedef void (*SkConvolveHorizontally_pointer)(
-    const unsigned char* srcData,
-    const SkConvolutionFilter1D& filter,
-    unsigned char* outRow,
-    bool hasAlpha);
-
-struct SkConvolutionProcs {
-    SkConvolveVertically_pointer fConvolveVertically;
-    SkConvolve4RowsHorizontally_pointer fConvolve4RowsHorizontally;
-    SkConvolveHorizontally_pointer fConvolveHorizontally;
-};
-
-
-
 // Does a two-dimensional convolution on the given source image.
 //
 // It is assumed the source pixel offsets referenced in the input filters
@@ -194,8 +168,6 @@ SK_API bool BGRAConvolve2D(const unsigned char* sourceData,
     const SkConvolutionFilter1D& xfilter,
     const SkConvolutionFilter1D& yfilter,
     int outputByteRowStride,
-    unsigned char* output,
-    const SkConvolutionProcs&,
-    bool useSimdIfPossible);
+    unsigned char* output);
 
 #endif  // SK_CONVOLVER_H

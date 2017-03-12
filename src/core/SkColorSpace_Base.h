@@ -55,6 +55,10 @@ struct SkGammas : SkRefCnt {
                    this->fTable.fSize == that.fTable.fSize;
         }
 
+        inline bool operator!=(const Data& that) const {
+            return !(*this == that);
+        }
+
         SkGammaNamed             fNamed;
         float                    fValue;
         Table                    fTable;
@@ -83,22 +87,18 @@ struct SkGammas : SkRefCnt {
     }
 
     const Data& data(int i) const {
-        switch (i) {
-            case 0:
-                return fRedData;
-            case 1:
-                return fGreenData;
-            case 2:
-                return fBlueData;
-            default:
-                SkASSERT(false);
-                return fRedData;
-        }
+        SkASSERT(i >= 0 && i < fChannels);
+        return fData[i];
     }
 
     const float* table(int i) const {
         SkASSERT(isTable(i));
         return this->data(i).fTable.table(this);
+    }
+
+    int tableSize(int i) const {
+        SkASSERT(isTable(i));
+        return this->data(i).fTable.fSize;
     }
 
     const SkColorSpaceTransferFn& params(int i) const {
@@ -107,32 +107,24 @@ struct SkGammas : SkRefCnt {
     }
 
     Type type(int i) const {
-        switch (i) {
-            case 0:
-                return fRedType;
-            case 1:
-                return fGreenType;
-            case 2:
-                return fBlueType;
-            default:
-                SkASSERT(false);
-                return fRedType;
+        SkASSERT(i >= 0 && i < fChannels);
+        return fType[i];
+    }
+    
+    uint8_t channels() const { return fChannels; }
+
+    SkGammas(uint8_t channels)
+        : fChannels(channels) {
+        SkASSERT(channels <= kMaxColorChannels);
+        for (uint8_t i = 0; i < kMaxColorChannels; ++i) {
+            fType[i] = Type::kNone_Type;
         }
     }
 
-    SkGammas()
-        : fRedType(Type::kNone_Type)
-        , fGreenType(Type::kNone_Type)
-        , fBlueType(Type::kNone_Type)
-    {}
-
     // These fields should only be modified when initializing the struct.
-    Data fRedData;
-    Data fGreenData;
-    Data fBlueData;
-    Type fRedType;
-    Type fGreenType;
-    Type fBlueType;
+    uint8_t fChannels;
+    Data    fData[kMaxColorChannels];
+    Type    fType[kMaxColorChannels];
 
     // Objects of this type are sometimes created in a custom fashion using
     // sk_malloc_throw and therefore must be sk_freed.  We overload new to
@@ -165,11 +157,13 @@ public:
      *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
      */
     virtual const SkMatrix44* fromXYZD50() const = 0;
-    
+
     virtual bool onGammaCloseToSRGB() const = 0;
-    
+
     virtual bool onGammaIsLinear() const = 0;
-    
+
+    virtual bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const = 0;
+
     /**
      *  Returns a color space with the same gamut as this one, but with a linear gamma.
      *  For color spaces whose gamut can not be described in terms of XYZ D50, returns
@@ -188,25 +182,22 @@ public:
         kXYZ,
         kA2B
     };
-    
+
     virtual Type type() const = 0;
-    
+
+    typedef uint8_t ICCTypeFlag;
+    static constexpr ICCTypeFlag kRGB_ICCTypeFlag  = 1 << 0;
+    static constexpr ICCTypeFlag kCMYK_ICCTypeFlag = 1 << 1;
+    static constexpr ICCTypeFlag kGray_ICCTypeFlag = 1 << 2;
+
+    static sk_sp<SkColorSpace> MakeICC(const void* input, size_t len, ICCTypeFlag type);
+
+    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+
 protected:
     SkColorSpace_Base(sk_sp<SkData> profileData);
 
 private:
-
-    /**
-     *  FIXME (msarett):
-     *  Hiding this function until we can determine if we need it.  Known issues include:
-     *  Only writes 3x3 matrices
-     *  Only writes float gammas
-     *  Rejected by some parsers because the "profile description" is empty
-     */
-    sk_sp<SkData> writeToICC() const;
-
-    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
-
     SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 
     sk_sp<SkData> fProfileData;

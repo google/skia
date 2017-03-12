@@ -296,7 +296,7 @@ protected:
     }
 };
 
-SK_API SkFontMgr* SkFontMgr_New_FCI(sk_sp<SkFontConfigInterface> fci) {
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_FCI(sk_sp<SkFontConfigInterface> fci) {
     SkASSERT(fci);
-    return new SkFontMgr_FCI(std::move(fci));
+    return sk_make_sp<SkFontMgr_FCI>(std::move(fci));
 }

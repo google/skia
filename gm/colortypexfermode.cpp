@@ -8,7 +8,6 @@
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
-#include "SkXfermode.h"
 #include "../src/fonts/SkGScalerContext.h"
 
 namespace skiagm {

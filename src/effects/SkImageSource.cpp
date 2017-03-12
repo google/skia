@@ -87,7 +87,7 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
         // No regions cropped out or resized; return entire image.
         offset->fX = offset->fY = 0;
         return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                             fImage,
+                                             fImage, ctx.outputProperties().colorSpace(),
                                              &source->props());
     }
 

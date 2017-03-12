@@ -57,14 +57,14 @@ protected:
 
 class SkDefaultBitmapController : public SkBitmapController {
 public:
-    SkDefaultBitmapController(SkDestinationSurfaceColorMode colorMode) : fColorMode(colorMode) {}
+    enum class CanShadeHQ { kNo, kYes };
+    SkDefaultBitmapController(CanShadeHQ canShadeHQ)
+        : fCanShadeHQ(canShadeHQ == CanShadeHQ::kYes) {}
 
 protected:
     State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
                            void* storage, size_t storageSize) override;
-
-private:
-    const SkDestinationSurfaceColorMode fColorMode;
+    bool fCanShadeHQ;
 };
 
 #endif

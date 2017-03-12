@@ -22,6 +22,8 @@ protected:
 
     void onRender(const SkSVGRenderContext&) const override;
 
+    SkPath onAsPath(const SkSVGRenderContext&) const override;
+
     bool hasChildren() const final;
 
     // TODO: add some sort of child iterator, and hide the container.

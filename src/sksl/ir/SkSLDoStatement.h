@@ -23,7 +23,7 @@ struct DoStatement : public Statement {
     , fStatement(std::move(statement))
     , fTest(std::move(test)) {}
 
-    std::string description() const override {
+    SkString description() const override {
         return "do " + fStatement->description() + " while (" + fTest->description() + ");";
     }
 

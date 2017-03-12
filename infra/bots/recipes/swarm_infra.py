@@ -7,13 +7,13 @@
 
 
 DEPS = [
-  'core',
-  'infra',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
-  'run',
-  'vars',
+  'skia-recipes/core',
+  'skia-recipes/infra',
+  'skia-recipes/run',
+  'skia-recipes/vars',
 ]
 
 
@@ -38,6 +38,7 @@ def GenTests(api):
                      mastername='client.skia.fyi',
                      slavename='dummy-slave',
                      buildnumber=5,
+                     repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]')
@@ -49,6 +50,7 @@ def GenTests(api):
                      mastername='client.skia.fyi',
                      slavename='dummy-slave',
                      buildnumber=5,
+                     repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -61,6 +63,7 @@ def GenTests(api):
                      mastername='client.skia.fyi',
                      slavename='dummy-slave',
                      buildnumber=5,
+                     repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +

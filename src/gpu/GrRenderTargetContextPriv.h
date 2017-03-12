@@ -51,30 +51,48 @@ public:
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
+    /*
+     * Some portions of the code, which use approximate-match rendertargets (i.e., ImageFilters),
+     * rely on clears that lie outside of the content region to still have an effect.
+     * For example, when sampling a decimated blurred image back up to full size, the GaussianBlur
+     * code draws 1-pixel rects along the left and bottom edges to be able to use bilerp for
+     * upsampling. The "absClear" entry point ignores the content bounds but does use the
+     * worst case (instantiated) bounds.
+     *
+     * @param rect      if (!null) the rect to clear, otherwise it is a full screen clear
+     * @param color     the color to clear to
+     */
+    void absClear(const SkIRect* rect, const GrColor color);
+
     void stencilRect(const GrClip& clip,
                      const GrUserStencilSettings* ss,
-                     bool useHWAA,
+                     GrAAType,
                      const SkMatrix& viewMatrix,
                      const SkRect& rect);
 
-    void stencilPath(const GrClip&,
-                     bool useHWAA,
-                     const SkMatrix& viewMatrix,
-                     const GrPath*);
+    void stencilPath(const GrClip&, GrAAType, const SkMatrix& viewMatrix, const GrPath*);
 
+    /**
+     * Draws a rect, either AA or not, and touches the stencil buffer with the user stencil settings
+     * for each color sample written.
+     */
     bool drawAndStencilRect(const GrClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
-                            bool doAA,
+                            GrAA,
                             const SkMatrix& viewMatrix,
                             const SkRect&);
 
+    /**
+     * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
+     * for each color sample written.
+     */
     bool drawAndStencilPath(const GrClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
-                            bool doAA,
+                            GrAA,
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
@@ -90,10 +108,15 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    void testingOnly_drawBatch(const GrPaint&,
-                               GrDrawBatch* batch,
+    void testingOnly_addDrawOp(GrPaint&&,
+                               GrAAType,
+                               std::unique_ptr<GrDrawOp>,
                                const GrUserStencilSettings* = nullptr,
                                bool snapToCenters = false);
+
+    bool refsWrappedObjects() const {
+        return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();
+    }
 
 private:
     explicit GrRenderTargetContextPriv(GrRenderTargetContext* renderTargetContext)

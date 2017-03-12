@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include <cmath>
+#include "SkAutoMalloc.h"
 #include "SkCanvas.h"
 #include "SkGeometry.h"
 #include "SkPaint.h"
 #include "SkParse.h"
 #include "SkParsePath.h"
-#include "SkPathPriv.h"
 #include "SkPathEffect.h"
+#include "SkPathPriv.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
@@ -20,9 +20,9 @@
 #include "SkStream.h"
 #include "SkStrokeRec.h"
 #include "SkSurface.h"
-#include "SkTypes.h"
 #include "SkWriter32.h"
 #include "Test.h"
+#include <cmath>
 
 static void set_radii(SkVector radii[4], int index, float rad) {
     sk_bzero(radii, sizeof(SkVector) * 4);
@@ -216,6 +216,20 @@ static void test_mask_overflow() {
     canvas->drawPath(path, paint);
 }
 
+static void test_fuzz_crbug_668907() {
+    auto surface(SkSurface::MakeRasterN32Premul(400, 500));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPath path;
+    path.moveTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540));  // 11341.8f, 0.00196679f
+    path.quadTo(SkBits2Float(0x41410041), SkBits2Float(0xc1414141), SkBits2Float(0x41414141),
+            SkBits2Float(0x414100ff));  // 12.0626f, -12.0784f, 12.0784f, 12.0627f
+    path.lineTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540));  // 11341.8f, 0.00196679f
+    path.close();
+    canvas->drawPath(path, paint);
+}
+
 /**
  * In debug mode, this path was causing an assertion to fail in
  * SkPathStroker::preJoinTo() and, in Release, the use of an unitialized value.
@@ -240,6 +254,19 @@ static void test_path_crbugskia2820(skiatest::Reporter* reporter) {//GrContext* 
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
     stroke.applyToPath(&path, path);
+}
+
+static void test_path_crbugskia5995() {
+    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPath path;
+    path.moveTo(SkBits2Float(0x40303030), SkBits2Float(0x3e303030));  // 2.75294f, 0.172059f
+    path.quadTo(SkBits2Float(0x41d63030), SkBits2Float(0x30303030), SkBits2Float(0x41013030),
+            SkBits2Float(0x00000000));  // 26.7735f, 6.40969e-10f, 8.07426f, 0
+    path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+    canvas->drawPath(path, paint);
 }
 
 static void make_path0(SkPath* path) {
@@ -2505,6 +2532,69 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, origBounds == readBackBounds);
 }
 
+static void test_corrupt_flattening(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(1, 2);
+    path.lineTo(1, 2);
+    path.quadTo(1, 2, 3, 4);
+    path.conicTo(1, 2, 3, 4, 0.5f);
+    path.cubicTo(1, 2, 3, 4, 5, 6);
+    uint8_t buffer[1024];
+    SkDEBUGCODE(size_t size =) path.writeToMemory(buffer);
+    SkASSERT(size <= sizeof(buffer));
+    
+    // find where the counts and verbs are stored : from the impl in SkPathRef.cpp
+    int32_t* vCount = (int32_t*)&buffer[16];
+    SkASSERT(*vCount == 5);
+    int32_t* pCount = (int32_t*)&buffer[20];
+    SkASSERT(*pCount == 9);
+    int32_t* cCount = (int32_t*)&buffer[24];
+    SkASSERT(*cCount == 1);
+    uint8_t* verbs = &buffer[28];
+    
+    REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
+    
+    // check that we detect under/over-flow of counts
+    
+    *vCount += 1;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    *vCount -= 1;   // restore
+    
+    *pCount += 1;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    *pCount -= 2;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    *pCount += 1;   // restore
+    
+    *cCount += 1;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    *cCount -= 2;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    *cCount += 1;   // restore
+    
+    // Check that we detect when the verbs indicate more or fewer pts/conics
+    
+    uint8_t save = verbs[0];
+    SkASSERT(save == SkPath::kCubic_Verb);
+    verbs[0] = SkPath::kQuad_Verb;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    verbs[0] = save;
+    
+    save = verbs[1];
+    SkASSERT(save == SkPath::kConic_Verb);
+    verbs[1] = SkPath::kQuad_Verb;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    verbs[1] = SkPath::kCubic_Verb;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    verbs[1] = save;
+    
+    // Check that we detect invalid verbs
+    save = verbs[1];
+    verbs[1] = 17;
+    REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
+    verbs[1] = save;
+}
+
 static void test_flattening(skiatest::Reporter* reporter) {
     SkPath p;
 
@@ -2553,6 +2643,8 @@ static void test_flattening(skiatest::Reporter* reporter) {
 
         write_and_read_back(reporter, oval);
     }
+
+    test_corrupt_flattening(reporter);
 }
 
 static void test_transform(skiatest::Reporter* reporter) {
@@ -4157,41 +4249,52 @@ static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool 
 
 static void test_dump(skiatest::Reporter* reporter) {
     SkPath p;
-    compare_dump(reporter, p, false, false, "");
-    compare_dump(reporter, p, true, false, "");
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n");
+    compare_dump(reporter, p, true, false,  "path.setFillType(SkPath::kWinding_FillType);\n");
     p.moveTo(1, 2);
     p.lineTo(3, 4);
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n");
-    compare_dump(reporter, p, true, false,  "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, true, false,  "path.setFillType(SkPath::kWinding_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n"
                                             "path.lineTo(1, 2);\n"
                                             "path.close();\n");
     p.reset();
+    p.setFillType(SkPath::kEvenOdd_FillType);
     p.moveTo(1, 2);
     p.quadTo(3, 4, 5, 6);
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kEvenOdd_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.quadTo(3, 4, 5, 6);\n");
     p.reset();
+    p.setFillType(SkPath::kInverseWinding_FillType);
     p.moveTo(1, 2);
     p.conicTo(3, 4, 5, 6, 0.5f);
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kInverseWinding_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.conicTo(3, 4, 5, 6, 0.5f);\n");
     p.reset();
+    p.setFillType(SkPath::kInverseEvenOdd_FillType);
     p.moveTo(1, 2);
     p.cubicTo(3, 4, 5, 6, 7, 8);
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kInverseEvenOdd_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.cubicTo(3, 4, 5, 6, 7, 8);\n");
     p.reset();
+    p.setFillType(SkPath::kWinding_FillType);
     p.moveTo(1, 2);
     p.lineTo(3, 4);
     compare_dump(reporter, p, false, true,
+                 "path.setFillType(SkPath::kWinding_FillType);\n"
                  "path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));  // 1, 2\n"
                  "path.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));  // 3, 4\n");
     p.reset();
     p.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));
     p.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n");
 }
 
@@ -4306,6 +4409,29 @@ static void test_fuzz_crbug_662952(skiatest::Reporter* reporter) {
     surface->getCanvas()->drawRectCoords(0, 0, 100, 100, paint);
 }
 
+static void test_path_crbugskia6003() {
+    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPath path;
+    path.moveTo(SkBits2Float(0x4325e666), SkBits2Float(0x42a1999a));  // 165.9f, 80.8f
+    path.lineTo(SkBits2Float(0x4325e666), SkBits2Float(0x42a2999a));  // 165.9f, 81.3f
+    path.lineTo(SkBits2Float(0x4325b333), SkBits2Float(0x42a2999a));  // 165.7f, 81.3f
+    path.lineTo(SkBits2Float(0x4325b333), SkBits2Float(0x42a16666));  // 165.7f, 80.7f
+    path.lineTo(SkBits2Float(0x4325b333), SkBits2Float(0x429f6666));  // 165.7f, 79.7f
+    // 165.7f, 79.7f, 165.8f, 79.7f, 165.8f, 79.7f
+    path.cubicTo(SkBits2Float(0x4325b333), SkBits2Float(0x429f6666), SkBits2Float(0x4325cccc),
+            SkBits2Float(0x429f6666), SkBits2Float(0x4325cccc), SkBits2Float(0x429f6666));
+    // 165.8f, 79.7f, 165.8f, 79.7f, 165.9f, 79.7f
+    path.cubicTo(SkBits2Float(0x4325cccc), SkBits2Float(0x429f6666), SkBits2Float(0x4325cccc),
+            SkBits2Float(0x429f6666), SkBits2Float(0x4325e666), SkBits2Float(0x429f6666));
+    path.lineTo(SkBits2Float(0x4325e666), SkBits2Float(0x42a1999a));  // 165.9f, 80.8f
+    path.close();
+    canvas->clipPath(path, true);
+    canvas->drawRectCoords(0, 0, 500, 500, paint);
+}
+
 static void test_fuzz_crbug_662730(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
@@ -4378,6 +4504,8 @@ DEF_TEST(Paths, reporter) {
     test_fuzz_crbug_662730(reporter);
     test_fuzz_crbug_662780();
     test_mask_overflow();
+    test_path_crbugskia6003();
+    test_fuzz_crbug_668907();
 
     SkTSize<SkScalar>::Make(3,4);
 
@@ -4528,6 +4656,7 @@ DEF_TEST(Paths, reporter) {
     test_dump(reporter);
     test_path_crbug389050(reporter);
     test_path_crbugskia2820(reporter);
+    test_path_crbugskia5995();
     test_skbug_3469(reporter);
     test_skbug_3239(reporter);
     test_bounds_crbug_513799(reporter);

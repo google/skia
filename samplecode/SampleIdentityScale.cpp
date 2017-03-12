@@ -17,6 +17,7 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkTime.h"
+#include "SkClipOpPriv.h"
 
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145
@@ -65,7 +66,7 @@ protected:
           SkRect r = { 100, 100, 356, 356 };
           SkPath clipPath;
           clipPath.addRoundRect(r, SkIntToScalar(5), SkIntToScalar(5));
-          canvas->clipPath(clipPath, SkCanvas::kIntersect_Op, SkToBool(1));
+          canvas->clipPath(clipPath, kIntersect_SkClipOp, true);
           text = "Scaled = 0";
         }
         canvas->drawBitmap( fBM, 100, 100, &paint );

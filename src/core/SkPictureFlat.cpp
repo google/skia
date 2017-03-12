@@ -13,7 +13,6 @@
 #include "SkRasterizer.h"
 #include "SkShader.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

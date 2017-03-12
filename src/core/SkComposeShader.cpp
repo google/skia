@@ -11,7 +11,6 @@
 #include "SkColorShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkXfermode.h"
 #include "SkString.h"
 
 sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,

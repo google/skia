@@ -7,6 +7,7 @@
 
 #include "GrBezierEffect.h"
 
+#include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -22,7 +23,7 @@ public:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
@@ -83,9 +84,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
-    if (!gp.colorIgnored()) {
-        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
-    }
+    this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
     this->setupPosition(vertBuilder,
@@ -109,21 +108,21 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // Additionally we should assert that the upstream code only lets us get here if
     // either high or medium provides the required number of bits.
     GrSLPrecision precision = kHigh_GrSLPrecision;
-    const GrShaderCaps::PrecisionInfo& highP = args.fGLSLCaps->getFloatShaderPrecisionInfo(
+    const GrShaderCaps::PrecisionInfo& highP = args.fShaderCaps->getFloatShaderPrecisionInfo(
                                                              kFragment_GrShaderType,
                                                              kHigh_GrSLPrecision);
     if (!highP.supported()) {
         precision = kMedium_GrSLPrecision;
     }
 
-    GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, precision);
-    GrGLSLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, precision);
-    GrGLSLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, precision);
-    GrGLSLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, precision);
-    GrGLSLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, precision);
-    GrGLSLShaderVar gF("gF", kVec2f_GrSLType, 0, precision);
-    GrGLSLShaderVar gFM("gFM", kFloat_GrSLType, 0, precision);
-    GrGLSLShaderVar func("func", kFloat_GrSLType, 0, precision);
+    GrShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, precision);
+    GrShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, precision);
+    GrShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, precision);
+    GrShaderVar dfdx("dfdx", kFloat_GrSLType, 0, precision);
+    GrShaderVar dfdy("dfdy", kFloat_GrSLType, 0, precision);
+    GrShaderVar gF("gF", kVec2f_GrSLType, 0, precision);
+    GrShaderVar gFM("gFM", kFloat_GrSLType, 0, precision);
+    GrShaderVar func("func", kFloat_GrSLType, 0, precision);
 
     fragBuilder->declAppend(edgeAlpha);
     fragBuilder->declAppend(dklmdx);
@@ -217,11 +216,10 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
-                             const GrGLSLCaps&,
+                             const GrShaderCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrConicEffect& ce = gp.cast<GrConicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
-    key |= GrColor_ILLEGAL != ce.color() ? 0x4 : 0x0;
     key |= 0xff != ce.coverageScale() ? 0x8 : 0x0;
     key |= ce.usesLocalCoords() && ce.localMatrix().hasPerspective() ? 0x10 : 0x0;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
@@ -232,12 +230,12 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
 
 GrConicEffect::~GrConicEffect() {}
 
-void GrConicEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrConicEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
                                         GrProcessorKeyBuilder* b) const {
     GrGLConicEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLConicEffect(*this);
 }
 
@@ -284,7 +282,7 @@ public:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
@@ -345,9 +343,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
-    if (!gp.colorIgnored()) {
-        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
-    }
+    this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
     this->setupPosition(vertBuilder,
@@ -421,11 +417,10 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
-                            const GrGLSLCaps&,
+                            const GrShaderCaps&,
                             GrProcessorKeyBuilder* b) {
     const GrQuadEffect& ce = gp.cast<GrQuadEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
-    key |= ce.color() != GrColor_ILLEGAL ? 0x4 : 0x0;
     key |= ce.coverageScale() != 0xff ? 0x8 : 0x0;
     key |= ce.usesLocalCoords() && ce.localMatrix().hasPerspective() ? 0x10 : 0x0;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
@@ -436,12 +431,12 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
 
 GrQuadEffect::~GrQuadEffect() {}
 
-void GrQuadEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrQuadEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const {
     GrGLQuadEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLQuadEffect(*this);
 }
 
@@ -489,7 +484,7 @@ public:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
@@ -564,14 +559,14 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fFPCoordTransformHandler);
 
 
-    GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShaderVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShaderVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShaderVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShaderVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShaderVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
 
     fragBuilder->declAppend(edgeAlpha);
     fragBuilder->declAppend(dklmdx);
@@ -651,11 +646,10 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
-                             const GrGLSLCaps&,
+                             const GrShaderCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrCubicEffect& ce = gp.cast<GrCubicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
-    key |= ce.color() != GrColor_ILLEGAL ? 0x4 : 0x8;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }
@@ -664,11 +658,11 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
 
 GrCubicEffect::~GrCubicEffect() {}
 
-void GrCubicEffect::getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrCubicEffect::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLCubicEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrCubicEffect::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrCubicEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLCubicEffect(*this);
 }
 

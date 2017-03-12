@@ -4,11 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTINTERFACEBLOCK
 #define SKSL_ASTINTERFACEBLOCK
 
 #include "SkSLASTVarDeclaration.h"
+#include "../ir/SkSLModifiers.h"
 
 namespace SkSL {
 
@@ -23,9 +24,9 @@ namespace SkSL {
 struct ASTInterfaceBlock : public ASTDeclaration {
     // valueName is empty when it was not present in the source
     ASTInterfaceBlock(Position position,
-                      ASTModifiers modifiers, 
-                      std::string interfaceName, 
-                      std::string valueName, 
+                      Modifiers modifiers,
+                      SkString interfaceName,
+                      SkString valueName,
                       std::vector<std::unique_ptr<ASTVarDeclarations>> declarations)
     : INHERITED(position, kInterfaceBlock_Kind)
     , fModifiers(modifiers)
@@ -33,21 +34,21 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     , fValueName(std::move(valueName))
     , fDeclarations(std::move(declarations)) {}
 
-    std::string description() const override {
-        std::string result = fModifiers.description() + fInterfaceName + " {\n";
+    SkString description() const override {
+        SkString result = fModifiers.description() + fInterfaceName + " {\n";
         for (size_t i = 0; i < fDeclarations.size(); i++) {
             result += fDeclarations[i]->description() + "\n";
         }
         result += "}";
-        if (fValueName.length()) {
+        if (fValueName.size()) {
             result += " " + fValueName;
         }
         return result + ";";
     }
 
-    const ASTModifiers fModifiers;
-    const std::string fInterfaceName;
-    const std::string fValueName;
+    const Modifiers fModifiers;
+    const SkString fInterfaceName;
+    const SkString fValueName;
     const std::vector<std::unique_ptr<ASTVarDeclarations>> fDeclarations;
 
     typedef ASTDeclaration INHERITED;

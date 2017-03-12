@@ -10,7 +10,6 @@
 #include "SkBlurMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkXfermode.h"
 #include "SkMatrix.h"
 #include "SkColor.h"
 #include "SkRandom.h"

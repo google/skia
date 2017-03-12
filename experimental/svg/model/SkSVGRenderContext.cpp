@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkPath.h"
 #include "SkSVGAttribute.h"
 #include "SkSVGNode.h"
 #include "SkSVGRenderContext.h"
@@ -188,6 +189,13 @@ void commitToPaint<SkSVGAttribute::kStrokeWidth>(const SkSVGPresentationAttribut
     pctx->fStrokePaint.setStrokeWidth(strokeWidth);
 }
 
+template <>
+void commitToPaint<SkSVGAttribute::kFillRule>(const SkSVGPresentationAttributes&,
+                                              const SkSVGRenderContext&,
+                                              SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied to the path at render time.
+}
+
 } // anonymous ns
 
 SkSVGPresentationContext::SkSVGPresentationContext()
@@ -258,6 +266,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
+    ApplyLazyInheritedAttribute(FillRule);
     ApplyLazyInheritedAttribute(Stroke);
     ApplyLazyInheritedAttribute(StrokeLineCap);
     ApplyLazyInheritedAttribute(StrokeLineJoin);
@@ -270,6 +279,10 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
         this->applyOpacity(opacity->value(), flags);
+    }
+
+    if (auto* clip = attrs.fClipPath.getMaybeNull()) {
+        this->applyClip(*clip);
     }
 }
 
@@ -301,6 +314,34 @@ void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
         // Balanced in the destructor, via restoreToCount().
         fCanvas->saveLayer(nullptr, &opacityPaint);
     }
+}
+
+void SkSVGRenderContext::applyClip(const SkSVGClip& clip) {
+    if (clip.type() != SkSVGClip::Type::kIRI) {
+        return;
+    }
+
+    const SkSVGNode* clipNode = this->findNodeById(clip.iri());
+    if (!clipNode || clipNode->tag() != SkSVGTag::kClipPath) {
+        return;
+    }
+
+    const SkPath clipPath = clipNode->asPath(*this);
+
+    // We use the computed clip path in two ways:
+    //
+    //   - apply to the current canvas, for drawing
+    //   - track in the presentation context, for asPath() composition
+    //
+    // TODO: the two uses are exclusive, avoid canvas churn when non needed.
+
+    // Only save if needed
+    if (fCanvas->getSaveCount() == fCanvasSaveCount) {
+        fCanvas->save();
+    }
+
+    fCanvas->clipPath(clipPath, true);
+    fClipPath.set(clipPath);
 }
 
 const SkPaint* SkSVGRenderContext::fillPaint() const {

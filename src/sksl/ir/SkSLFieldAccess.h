@@ -31,7 +31,7 @@ struct FieldAccess : public Expression {
     , fFieldIndex(fieldIndex)
     , fOwnerKind(ownerKind) {}
 
-    virtual std::string description() const override {
+    virtual SkString description() const override {
         return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
     }
 

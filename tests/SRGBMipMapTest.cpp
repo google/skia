@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
+#include "gl/GrGLGpu.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
@@ -130,24 +131,38 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     GrNoClip noClip;
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    GrTextureParams mipMapParams(SkShader::kRepeat_TileMode, GrTextureParams::kMipMap_FilterMode);
+    GrSamplerParams mipMapParams(SkShader::kRepeat_TileMode, GrSamplerParams::kMipMap_FilterMode);
     paint.addColorTextureProcessor(texture.get(), nullptr, SkMatrix::MakeScale(0.5f), mipMapParams);
 
     // 1) Draw texture to S32 surface (should generate/use sRGB mips)
     paint.setGammaCorrect(true);
-    s32RenderTargetContext->drawRect(noClip, paint, SkMatrix::I(), rect);
+    s32RenderTargetContext->drawRect(noClip, GrPaint(paint), GrAA::kNo, SkMatrix::I(), rect);
     read_and_check_pixels(reporter, s32RenderTargetContext->asTexture().get(), expectedSRGB, error,
                           "first render of sRGB");
 
     // 2) Draw texture to L32 surface (should generate/use linear mips)
     paint.setGammaCorrect(false);
-    l32RenderTargetContext->drawRect(noClip, paint, SkMatrix::I(), rect);
-    read_and_check_pixels(reporter, l32RenderTargetContext->asTexture().get(), expectedLinear,
-                          error, "re-render as linear");
+    l32RenderTargetContext->drawRect(noClip, GrPaint(paint), GrAA::kNo, SkMatrix::I(), rect);
+
+    // Right now, this test only runs on GL (because Vulkan doesn't support legacy mip-mapping
+    // skbug.com/5048). On GL, we may not have sRGB decode support. In that case, rendering sRGB
+    // textures to a legacy surface produces nonsense, so this part of the test is meaningless.
+    //
+    // We also skip this part of the test on command buffer (via srgbDecodeDisableAffectsMipmaps),
+    // because that implementation of the extension doesn't ensure that mips respect the setting.
+    //
+    // TODO: Once Vulkan supports legacy mip-mapping, we can promote this to GrCaps. Right now,
+    // Vulkan has most of the functionality, but not the mip-mapping part that's being tested here.
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(context->getGpu());
+    if (glGpu->glCaps().srgbDecodeDisableSupport() &&
+        glGpu->glCaps().srgbDecodeDisableAffectsMipmaps()) {
+        read_and_check_pixels(reporter, l32RenderTargetContext->asTexture().get(), expectedLinear,
+                              error, "re-render as linear");
+    }
 
     // 3) Go back to sRGB
     paint.setGammaCorrect(true);
-    s32RenderTargetContext->drawRect(noClip, paint, SkMatrix::I(), rect);
+    s32RenderTargetContext->drawRect(noClip, std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
     read_and_check_pixels(reporter, s32RenderTargetContext->asTexture().get(), expectedSRGB, error,
                           "re-render as sRGB");
 }

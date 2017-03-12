@@ -164,7 +164,7 @@ public:
         stream->write(streamBegin, strlen(streamBegin));
         // Do not compress this.  The standard requires that a
         // program that does not understand PDF can grep for
-        // "<?xpacket" and extracť the entire XML.
+        // "<?xpacket" and extract the entire XML.
         stream->write(fXML.c_str(), fXML.size());
         static const char streamEnd[] = "\nendstream";
         stream->write(streamEnd, strlen(streamEnd));

@@ -10,7 +10,7 @@
 
 #include "../private/SkTemplates.h"
 #include "SkColor.h"
-#include "SkEncodedFormat.h"
+#include "SkEncodedImageFormat.h"
 #include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
@@ -35,7 +35,7 @@ class ColorCodecBench;
 /**
  *  Abstraction layer directly on top of an image codec.
  */
-class SkCodec : SkNoncopyable {
+class SK_API SkCodec : SkNoncopyable {
 public:
     /**
      *  Minimum number of bytes that must be buffered in SkStream input.
@@ -176,7 +176,7 @@ public:
     /**
      *  Format of the encoded data.
      */
-    SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
+    SkEncodedImageFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
 
     /**
      *  Used to describe the result of a call to getPixels().
@@ -255,7 +255,7 @@ public:
         /**
          *  If not NULL, represents a subset of the original image to decode.
          *  Must be within the bounds returned by getInfo().
-         *  If the EncodedFormat is kWEBP_SkEncodedFormat (the only one which
+         *  If the EncodedFormat is SkEncodedImageFormat::kWEBP (the only one which
          *  currently supports subsets), the top and left values must be even.
          *
          *  In getPixels and incremental decode, we will attempt to decode the
@@ -602,6 +602,14 @@ public:
          *  Number of milliseconds to show this frame.
          */
         size_t fDuration;
+
+        /**
+         *  Whether the end marker for this frame is contained in the stream.
+         *
+         *  Note: this does not guarantee that an attempt to decode will be complete.
+         *  There could be an error in the stream.
+         */
+        bool fFullyReceived;
     };
 
     /**
@@ -667,7 +675,7 @@ protected:
         return false;
     }
 
-    virtual SkEncodedFormat onGetEncodedFormat() const = 0;
+    virtual SkEncodedImageFormat onGetEncodedFormat() const = 0;
 
     /**
      * @param rowsDecoded When the encoded image stream is incomplete, this function
@@ -778,12 +786,14 @@ protected:
 
     virtual std::vector<FrameInfo> onGetFrameInfo() {
         // empty vector - this is not animated.
-        return {};
+        return std::vector<FrameInfo>{};
     }
 
     virtual int onGetRepetitionCount() {
         return 0;
     }
+
+    void setUnsupportedICC(bool SkDEBUGCODE(value)) { SkDEBUGCODE(fUnsupportedICC = value); }
 
 private:
     const SkEncodedInfo                fEncodedInfo;
@@ -800,6 +810,9 @@ private:
     int                                fCurrScanline;
 
     bool                               fStartedIncrementalDecode;
+#ifdef SK_DEBUG
+    bool                               fUnsupportedICC = false;
+#endif
 
     /**
      *  Return whether these dimensions are supported as a scale.
@@ -864,5 +877,7 @@ private:
     friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
+    friend struct Sniffer; // for fUnsupportedICC
+    friend class AutoCleanPng; // for setUnsupportedICC()
 };
 #endif // SkCodec_DEFINED

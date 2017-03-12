@@ -9,17 +9,15 @@
 #include "skdiff_utils.h"
 #include "SkBitmap.h"
 #include "SkData.h"
-#include "SkForceLinking.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
+#include "SkPixelRef.h"
 #include "../private/SkTDArray.h"
 #include "../private/SkTSearch.h"
 
 #include <stdlib.h>
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 /**
  * skdiff
@@ -332,10 +330,10 @@ public:
         SkASSERT(drp != nullptr);
     }
     ~AutoReleasePixels() {
-        fDrp->fBase.fBitmap.setPixelRef(nullptr);
-        fDrp->fComparison.fBitmap.setPixelRef(nullptr);
-        fDrp->fDifference.fBitmap.setPixelRef(nullptr);
-        fDrp->fWhite.fBitmap.setPixelRef(nullptr);
+        fDrp->fBase.fBitmap.setPixelRef(nullptr, 0, 0);
+        fDrp->fComparison.fBitmap.setPixelRef(nullptr, 0, 0);
+        fDrp->fDifference.fBitmap.setPixelRef(nullptr, 0, 0);
+        fDrp->fWhite.fBitmap.setPixelRef(nullptr, 0, 0);
     }
 
 private:

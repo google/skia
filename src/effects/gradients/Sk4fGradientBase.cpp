@@ -337,9 +337,19 @@ public:
     TSampler(const GradientShaderBase4fContext& ctx)
         : fFirstInterval(ctx.fIntervals.begin())
         , fLastInterval(ctx.fIntervals.end() - 1)
-        , fInterval(nullptr)
-        , fLargestLessThanTwo(nextafterf(2, 0)) {
+        , fInterval(nullptr) {
         SkASSERT(fLastInterval >= fFirstInterval);
+        switch (tileMode) {
+        case kClamp_TileMode:
+            fLargestIntervalValue = SK_ScalarInfinity;
+            break;
+        case kRepeat_TileMode:
+            fLargestIntervalValue = nextafterf(1, 0);
+            break;
+        case kMirror_TileMode:
+            fLargestIntervalValue = nextafterf(2.0f, 0);
+            break;
+        }
     }
 
     Sk4f sample(SkScalar t) {
@@ -368,11 +378,12 @@ private:
             return t;
         case kRepeat_TileMode:
             // t % 1  (intervals range: [0..1))
-            return t - SkScalarFloorToScalar(t);
+            // Due to the extra arithmetic, we must clamp to ensure the value remains less than 1.
+            return SkTMin(t - SkScalarFloorToScalar(t), fLargestIntervalValue);
         case kMirror_TileMode:
             // t % 2  (synthetic mirror intervals expand the range to [0..2)
             // Due to the extra arithmetic, we must clamp to ensure the value remains less than 2.
-            return SkTMin(t - SkScalarFloorToScalar(t / 2) * 2, fLargestLessThanTwo);
+            return SkTMin(t - SkScalarFloorToScalar(t / 2) * 2, fLargestIntervalValue);
         }
 
         SK_ABORT("Unhandled tile mode.");
@@ -442,7 +453,7 @@ private:
     const Interval* fLastInterval;
     const Interval* fInterval;
     SkScalar        fPrevT;
-    SkScalar        fLargestLessThanTwo;
+    SkScalar        fLargestIntervalValue;
     Sk4f            fCc;
     Sk4f            fDc;
 };

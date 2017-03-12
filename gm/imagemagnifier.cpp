@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkImageSource.h"
 #include "SkMagnifierImageFilter.h"
+#include "SkPixelRef.h"
 #include "SkRandom.h"
 #include "SkSurface.h"
 
@@ -43,23 +44,25 @@ DEF_SIMPLE_GM_BG(imagemagnifier, canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
 #define WIDTH_HEIGHT 256
 
 static sk_sp<SkImage> make_img() {
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(WIDTH_HEIGHT, WIDTH_HEIGHT);
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(WIDTH_HEIGHT, WIDTH_HEIGHT);
+    SkCanvas canvas(bitmap);
 
-    sk_sp<SkSurface> surf(SkSurface::MakeRaster(info));
-
-    SkCanvas* canvas = surf->getCanvas();
-
-    canvas->clear(0x0);
+    canvas.clear(0x0);
 
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
 
     for (float pos = 0; pos < WIDTH_HEIGHT; pos += 16) {
-        canvas->drawLine(0, pos, SkIntToScalar(WIDTH_HEIGHT), pos, paint);
-        canvas->drawLine(pos, 0, pos, SkIntToScalar(WIDTH_HEIGHT), paint);
+        canvas.drawLine(0, pos, SkIntToScalar(WIDTH_HEIGHT), pos, paint);
+        canvas.drawLine(pos, 0, pos, SkIntToScalar(WIDTH_HEIGHT), paint);
     }
 
-    return surf->makeImageSnapshot();
+    SkBitmap result;
+    result.setInfo(SkImageInfo::MakeS32(WIDTH_HEIGHT, WIDTH_HEIGHT, kPremul_SkAlphaType));
+    result.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
+
+    return SkImage::MakeFromBitmap(result);
 }
 
 DEF_SIMPLE_GM_BG(imagemagnifier_cropped, canvas, WIDTH_HEIGHT, WIDTH_HEIGHT, SK_ColorBLACK) {

@@ -15,14 +15,15 @@
 
 template <typename I>
 static SK_WHEN(std::is_integral<I>::value && 4 == sizeof(I), void)
-check_pixels(skiatest::Reporter* reporter, int w, int h,
-                         const I exepctedData[], const I actualData[]) {
+check_pixels(skiatest::Reporter* reporter, int w, int h, const I exepctedData[],
+             const I actualData[], const char* testName) {
     for (int j = 0; j < h; ++j) {
         for (int i = 0; i < w; ++i) {
             I expected = exepctedData[j * w + i];
             I actual = actualData[j * w + i];
             if (expected != actual) {
-                ERRORF(reporter, "Expected 0x08%x, got 0x%08x at %d, %d.", expected, actual, i, j);
+                ERRORF(reporter, "[%s] Expected 0x08%x, got 0x%08x at %d, %d.", testName, expected,
+                       actual, i, j);
                 return;
             }
         }
@@ -86,7 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
     REPORTER_ASSERT(reporter, success);
     if (success) {
-        check_pixels(reporter, kS, kS, testData.get(), readData.get());
+        check_pixels(reporter, kS, kS, testData.get(), readData.get(), "readPixels");
     }
 
     // readPixels should fail if we attempt to use the unpremul flag with an integer texture.
@@ -95,40 +96,48 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, !success);
 
     // Test that copying from one integer texture to another succeeds.
-    sk_sp<GrTexture> copy(context->textureProvider()->createTexture(desc, SkBudgeted::kYes));
-    REPORTER_ASSERT(reporter, copy);
-    if (!copy) {
-        return;
-    }
-    success = context->copySurface(copy.get(), texture.get());
-    REPORTER_ASSERT(reporter, success);
-    if (!success) {
-        return;
-    }
-    sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
-    success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
-    REPORTER_ASSERT(reporter, success);
-    if (success) {
-        check_pixels(reporter, kS, kS, testData.get(), readData.get());
+    {
+        sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy::TestCopy(context, desc,
+                                                            texture.get(), SkBudgeted::kYes));
+        REPORTER_ASSERT(reporter, copy);
+        if (!copy) {
+            return;
+        }
+
+        GrSurface* copySurface = copy->instantiate(context->textureProvider());
+        REPORTER_ASSERT(reporter, copySurface);
+        if (!copySurface) {
+            return;
+        }
+
+        sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
+        success = copySurface->readPixels(0, 0, kS, kS,
+                                          kRGBA_8888_sint_GrPixelConfig, readData.get());
+        REPORTER_ASSERT(reporter, success);
+        if (success) {
+            check_pixels(reporter, kS, kS, testData.get(), readData.get(), "copyIntegerToInteger");
+        }
     }
 
-    // Test that copying to a non-integer texture fails.
-    GrSurfaceDesc nonIntDesc = desc;
-    nonIntDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    copy.reset(context->textureProvider()->createTexture(nonIntDesc, SkBudgeted::kYes));
-    REPORTER_ASSERT(reporter, copy);
-    if (!copy) {
-        return;
+
+    // Test that copying to a non-integer (8888) texture fails.
+    {
+        GrSurfaceDesc nonIntDesc = desc;
+        nonIntDesc.fConfig = kRGBA_8888_GrPixelConfig;
+
+        sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy::TestCopy(context, nonIntDesc,
+                                                            texture.get(), SkBudgeted::kYes));
+        REPORTER_ASSERT(reporter, !copy);
     }
-    success = context->copySurface(copy.get(), texture.get());
-    REPORTER_ASSERT(reporter, !success);
-    nonIntDesc.fConfig = kRGBA_half_GrPixelConfig;
-    copy.reset(context->textureProvider()->createTexture(nonIntDesc, SkBudgeted::kYes));
-    REPORTER_ASSERT(reporter, copy ||
-                    !context->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig));
-    if (copy) {
-        success = context->copySurface(copy.get(), texture.get());
-        REPORTER_ASSERT(reporter, !success);
+
+    // Test that copying to a non-integer (RGBA_half) texture fails.
+    if (context->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+        GrSurfaceDesc nonIntDesc = desc;
+        nonIntDesc.fConfig = kRGBA_half_GrPixelConfig;
+
+        sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy::TestCopy(context, nonIntDesc,
+                                                            texture.get(), SkBudgeted::kYes));
+        REPORTER_ASSERT(reporter, !copy);
     }
 
     // We overwrite the top left quarter of the texture with the bottom right quarter of the
@@ -168,7 +177,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         dst += rowBytes;
         src += rowBytes;
     }
-    check_pixels(reporter, kS, kS, overwrittenTestData.get(), readData.get());
+    check_pixels(reporter, kS, kS, overwrittenTestData.get(), readData.get(), "overwrite");
 
     // Test drawing from the integer texture to a fixed point texture. To avoid any premul issues
     // we init the int texture with 0s and 1s and make alpha always be 1. We expect that 1s turn
@@ -188,13 +197,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     sk_sp<GrRenderTargetContext> rtContext = context->makeRenderTargetContext(
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
 
-    for (auto filter : {GrTextureParams::kNone_FilterMode,
-                        GrTextureParams::kBilerp_FilterMode,
-                        GrTextureParams::kMipMap_FilterMode}) {
+    struct {
+        GrSamplerParams::FilterMode fMode;
+        const char* fName;
+    } kNamedFilters[] ={
+        { GrSamplerParams::kNone_FilterMode, "filter-none" },
+        { GrSamplerParams::kBilerp_FilterMode, "filter-bilerp" },
+        { GrSamplerParams::kMipMap_FilterMode, "filter-mipmap" }
+    };
+
+    for (auto filter : kNamedFilters) {
         SkMatrix m;
         m.setIDiv(kS, kS);
         sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr, m,
-                                                                  filter));
+                                                                  filter.fMode));
         REPORTER_ASSERT(reporter, fp);
         if (!fp) {
             return;
@@ -203,11 +219,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(fp);
-        rtContext->drawPaint(GrNoClip(), paint, SkMatrix::I());
+        rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
         SkImageInfo readInfo = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
         rtContext->readPixels(readInfo, actualData.get(), 0, 0, 0);
-        check_pixels(reporter, kS, kS, expectedData.get(), actualData.get());
+        check_pixels(reporter, kS, kS, expectedData.get(), actualData.get(), filter.fName);
     }
 
     // No rendering to integer textures.

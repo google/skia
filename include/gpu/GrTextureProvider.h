@@ -112,6 +112,8 @@ public:
      */
      sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
 
+     static const int kMinScratchTextureSize;
+
 protected:
     GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* singleOwner);
 

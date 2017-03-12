@@ -39,19 +39,14 @@ struct GrContextOptions {
         immediately. Intended to ease debugging. */
     bool fImmediateMode = false;
 
-    /** For debugging purposes turn each GrBatch's bounds into a clip rect. This is used to
+    /** For debugging purposes turn each GrDrawOp's bounds into a clip rect. This is used to
         verify that the clip bounds are conservative. */
-    bool fClipBatchToBounds = false;
+    bool fClipDrawOpsToBounds = false;
 
-    /** For debugging purposes draw a wireframe device bounds rect for each GrBatch. The wire
-        frame rect is draw before the GrBatch in order to visualize batches that draw outside
-        of their dev bounds. */
-    bool fDrawBatchBounds = false;
-
-    /** For debugging, override the default maximum look-back or look-ahead window for GrBatch
+    /** For debugging, override the default maximum look-back or look-ahead window for GrOp
         combining. */
-    int fMaxBatchLookback = -1;
-    int fMaxBatchLookahead = -1;
+    int fMaxOpCombineLookback = -1;
+    int fMaxOpCombineLookahead = -1;
 
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
@@ -82,6 +77,14 @@ struct GrContextOptions {
      * purposes.
      */
     bool fForceSWPathMasks = false;
+
+    /**
+     * If true, sRGB support will not be enabled unless sRGB decoding can be disabled (via an
+     * extension). If mixed use of "legacy" mode and sRGB/color-correct mode is not required, this
+     * can be set to false, which will significantly expand the number of devices that qualify for
+     * sRGB support.
+     */
+    bool fRequireDecodeDisableForSRGB = true;
 };
 
 #endif

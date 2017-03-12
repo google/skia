@@ -121,9 +121,6 @@ public:
 
     bool onAccessPixels(SkPixmap*) override;
 
-    // for debugging purposes only
-    void drawTexture(GrTexture*, const SkRect& dst, const SkPaint&);
-
 protected:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) override;
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
@@ -169,7 +166,7 @@ private:
     bool shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
                            const SkMatrix& viewMatrix,
                            const SkMatrix& srcToDstRectMatrix,
-                           const GrTextureParams& params,
+                           const GrSamplerParams& params,
                            const SkRect* srcRectPtr,
                            int maxTileSize,
                            int* tileSize,
@@ -192,7 +189,7 @@ private:
                          const SkMatrix& srcToDstMatrix,
                          const SkRect& srcRect,
                          const SkIRect& clippedSrcRect,
-                         const GrTextureParams& params,
+                         const GrSamplerParams& params,
                          const SkPaint& paint,
                          SkCanvas::SrcRectConstraint,
                          int tileSize,
@@ -203,7 +200,7 @@ private:
                         const SkMatrix& viewMatrix,
                         const SkRect& dstRect,
                         const SkRect& srcRect,
-                        const GrTextureParams& params,
+                        const GrSamplerParams& params,
                         const SkPaint& paint,
                         SkCanvas::SrcRectConstraint,
                         bool bicubic,

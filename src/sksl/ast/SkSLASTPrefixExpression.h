@@ -22,7 +22,7 @@ struct ASTPrefixExpression : public ASTExpression {
     , fOperator(op.fKind)
     , fOperand(std::move(operand)) {}
 
-    std::string description() const override {
+    SkString description() const override {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 

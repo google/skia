@@ -42,8 +42,8 @@ public:
         fHandlers.push_back(new DownloadHandler);
         fHandlers.push_back(new DataHandler);
         fHandlers.push_back(new BreakHandler);
-        fHandlers.push_back(new BatchesHandler);
-        fHandlers.push_back(new BatchBoundsHandler);
+        fHandlers.push_back(new OpsHandler);
+        fHandlers.push_back(new OpBoundsHandler);
         fHandlers.push_back(new ColorModeHandler);
         fHandlers.push_back(new QuitHandler);
     }

@@ -36,6 +36,6 @@ size_t GrTextureRenderTargetProxy::onGpuMemorySize() const {
     }
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, true);
+    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, true, SkBackingFit::kApprox == fFit);
 }
 

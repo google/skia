@@ -17,6 +17,7 @@
         '../include/utils',
         '../src/core',
         '../src/gpu',
+        '../src/image',
         '../src/utils',
         '../tools/gpu',
       ],

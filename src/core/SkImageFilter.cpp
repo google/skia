@@ -8,6 +8,7 @@
 #include "SkImageFilter.h"
 
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkFuzzLogging.h"
 #include "SkImageFilterCache.h"
 #include "SkLocalMatrixImageFilter.h"
@@ -20,8 +21,9 @@
 #include "SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "GrFixedClip.h"
+#include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
 #include "SkGrPriv.h"
 #endif
 
@@ -285,7 +287,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
 
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
         SkBackingFit::kApprox, bounds.width(), bounds.height(), config, std::move(colorSpace)));
     if (!renderTargetContext) {
         return nullptr;
@@ -296,11 +298,13 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     SkRect srcRect = SkRect::Make(bounds);
     SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
     GrFixedClip clip(dstIRect);
-    renderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
+    renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
+                                        srcRect);
 
-    return SkSpecialImage::MakeFromGpu(dstIRect, kNeedNewImageUniqueID_SpecialImage,
-                                       renderTargetContext->asTexture(),
-                                       sk_ref_sp(renderTargetContext->getColorSpace()));
+    return SkSpecialImage::MakeDeferredFromGpu(context, dstIRect,
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                               renderTargetContext->refColorSpace());
 }
 #endif
 
@@ -341,6 +345,37 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
     // at the full crop rect size in every tile.
     return dstBounds->intersect(ctx.clipBounds());
 }
+
+#if SK_SUPPORT_GPU
+sk_sp<SkSpecialImage> SkImageFilter::ImageToColorSpace(SkSpecialImage* src,
+                                                       const OutputProperties& outProps) {
+    // There are several conditions that determine if we actually need to convert the source to the
+    // destination's color space. Rather than duplicate that logic here, just try to make an xform
+    // object. If that produces something, then both are tagged, and the source is in a different
+    // gamut than the dest. There is some overhead to making the xform, but those are cached, and
+    // if we get one back, that means we're about to use it during the conversion anyway.
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(src->getColorSpace(),
+                                                                       outProps.colorSpace());
+
+    if (!colorSpaceXform) {
+        // No xform needed, just return the original image
+        return sk_ref_sp(src);
+    }
+
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(outProps,
+                                                  SkISize::Make(src->width(), src->height())));
+    if (!surf) {
+        return sk_ref_sp(src);
+    }
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+    SkPaint p;
+    p.setBlendMode(SkBlendMode::kSrc);
+    src->draw(canvas, 0, 0, &p);
+    return surf->makeImageSnapshot();
+}
+#endif
 
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.

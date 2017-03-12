@@ -11,12 +11,12 @@
 
 #if SK_SUPPORT_GPU
 #include "GLBench.h"
+#include "GrShaderCaps.h"
+#include "GrShaderVar.h"
 #include "gl/GrGLContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
-#include "glsl/GrGLSL.h"
-#include "glsl/GrGLSLCaps.h"
-#include "glsl/GrGLSLShaderVar.h"
+#include "../private/GrGLSL.h"
 #include <stdio.h>
 
 /*
@@ -65,25 +65,25 @@ private:
 
 GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t attribs,
                                               uint32_t maxAttribs) {
-    const GrGLSLCaps* glslCaps = ctx->caps()->glslCaps();
-    const char* version = glslCaps->versionDeclString();
+    const GrShaderCaps* shaderCaps = ctx->caps()->shaderCaps();
+    const char* version = shaderCaps->versionDeclString();
 
     // setup vertex shader
-    GrGLSLShaderVar aPosition("a_position", kVec4f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    SkTArray<GrGLSLShaderVar> aVars;
-    SkTArray<GrGLSLShaderVar> oVars;
+    GrShaderVar aPosition("a_position", kVec4f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    SkTArray<GrShaderVar> aVars;
+    SkTArray<GrShaderVar> oVars;
 
     SkString vshaderTxt(version);
-    aPosition.appendDecl(glslCaps, &vshaderTxt);
+    aPosition.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
 
     for (uint32_t i = 0; i < attribs; i++) {
         SkString aname;
         aname.appendf("a_color_%d", i);
-        aVars.push_back(GrGLSLShaderVar(aname.c_str(),
-                                      kVec4f_GrSLType,
-                                      GrShaderVar::kAttribute_TypeModifier));
-        aVars.back().appendDecl(glslCaps, &vshaderTxt);
+        aVars.push_back(GrShaderVar(aname.c_str(),
+                                    kVec4f_GrSLType,
+                                    GrShaderVar::kIn_TypeModifier));
+        aVars.back().appendDecl(shaderCaps, &vshaderTxt);
         vshaderTxt.append(";\n");
 
     }
@@ -91,10 +91,10 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     for (uint32_t i = 0; i < maxAttribs; i++) {
         SkString oname;
         oname.appendf("o_color_%d", i);
-        oVars.push_back(GrGLSLShaderVar(oname.c_str(),
-                                      kVec4f_GrSLType,
-                                      GrShaderVar::kVaryingOut_TypeModifier));
-        oVars.back().appendDecl(glslCaps, &vshaderTxt);
+        oVars.push_back(GrShaderVar(oname.c_str(),
+                                    kVec4f_GrSLType,
+                                    GrShaderVar::kOut_TypeModifier));
+        oVars.back().appendDecl(shaderCaps, &vshaderTxt);
         vshaderTxt.append(";\n");
     }
 
@@ -115,13 +115,13 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     vshaderTxt.append("}\n");
 
     // setup fragment shader
-    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps, &fshaderTxt);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *shaderCaps, &fshaderTxt);
 
     const char* fsOutName;
-    if (glslCaps->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(glslCaps, &fshaderTxt);
+    if (shaderCaps->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(shaderCaps, &fshaderTxt);
         fshaderTxt.append(";\n");
         fsOutName = oFragColor.c_str();
     } else {
@@ -129,8 +129,8 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     }
 
     for (uint32_t i = 0; i < maxAttribs; i++) {
-        oVars[i].setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
-        oVars[i].appendDecl(glslCaps, &fshaderTxt);
+        oVars[i].setTypeModifier(GrShaderVar::kIn_TypeModifier);
+        oVars[i].appendDecl(shaderCaps, &fshaderTxt);
         fshaderTxt.append(";\n");
     }
 

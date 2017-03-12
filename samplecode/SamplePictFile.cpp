@@ -25,8 +25,6 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
-
 #include "SkStream.h"
 #include "SkSurface.h"
 

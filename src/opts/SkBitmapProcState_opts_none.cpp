@@ -22,6 +22,3 @@
 
 // empty implementation just uses default supplied function pointers
 void SkBitmapProcState::platformProcs() {}
-
-// empty implementation just uses default supplied function pointers
-void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs*) {}

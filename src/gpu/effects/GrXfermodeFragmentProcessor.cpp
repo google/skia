@@ -29,7 +29,7 @@ public:
 
     const char* name() const override { return "ComposeTwo"; }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->add32((int)fMode);
     }
 
@@ -163,7 +163,7 @@ public:
         return str;
     }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GR_STATIC_ASSERT(((int)SkBlendMode::kLastMode & SK_MaxU16) == (int)SkBlendMode::kLastMode);
         b->add32((int)fMode | (fChild << 16));
     }
@@ -182,7 +182,7 @@ protected:
         if (SkXfermode::ModeAsCoeff(fMode, &skSrcCoeff, &skDstCoeff)) {
             GrBlendCoeff srcCoeff = SkXfermodeCoeffToGrBlendCoeff(skSrcCoeff);
             GrBlendCoeff dstCoeff = SkXfermodeCoeffToGrBlendCoeff(skDstCoeff);
-            GrInvariantOutput childOutput(0xFFFFFFFF, kRGBA_GrColorComponentFlags, false);
+            GrInvariantOutput childOutput(0xFFFFFFFF, kRGBA_GrColorComponentFlags);
             this->childProcessor(0).computeInvariantOutput(&childOutput);
             GrColor blendColor;
             GrColorComponentFlags blendFlags;

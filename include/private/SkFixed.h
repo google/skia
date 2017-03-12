@@ -9,7 +9,7 @@
 #define SkFixed_DEFINED
 
 #include "SkScalar.h"
-#include "math.h"
+#include "SkSafe_math.h"
 
 #include "SkTypes.h"
 

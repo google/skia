@@ -11,12 +11,12 @@
 #include "SkDrawCommand.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkTextBlob.h"
+#include "SkClipOpPriv.h"
 
 #if SK_SUPPORT_GPU
 #include "GrAuditTrail.h"
 #include "GrContext.h"
-#include "GrRenderTarget.h"
-#include "SkGpuDevice.h"
+#include "GrRenderTargetContext.h"
 #endif
 
 #define SKDEBUGCANVAS_VERSION                     1
@@ -86,7 +86,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
         , fOverrideFilterQuality(false)
         , fFilterQuality(kNone_SkFilterQuality)
         , fClipVizColor(SK_ColorTRANSPARENT)
-        , fDrawGpuBatchBounds(false) {
+        , fDrawGpuOpBounds(false) {
     fUserMatrix.reset();
 
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
@@ -105,7 +105,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
     SkASSERT(!large.roundOut().isEmpty());
 #endif
     // call the base class' version to avoid adding a draw command
-    this->INHERITED::onClipRect(large, kReplace_Op, kHard_ClipEdgeStyle);
+    this->INHERITED::onClipRect(large, kReplace_SkClipOp, kHard_ClipEdgeStyle);
 }
 
 SkDebugCanvas::~SkDebugCanvas() {
@@ -153,21 +153,21 @@ class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
 public:
     SkDebugClipVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
 
-    void clipRect(const SkRect& r, SkCanvas::ClipOp, bool doAA) override {
+    void clipRect(const SkRect& r, SkClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
         fCanvas->drawRect(r, p);
     }
-    void clipRRect(const SkRRect& rr, SkCanvas::ClipOp, bool doAA) override {
+    void clipRRect(const SkRRect& rr, SkClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorGREEN);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
         fCanvas->drawRRect(rr, p);
     }
-    void clipPath(const SkPath& path, SkCanvas::ClipOp, bool doAA) override {
+    void clipPath(const SkPath& path, SkClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorBLUE);
         p.setStyle(SkPaint::kStroke_Style);
@@ -206,54 +206,54 @@ void SkDebugCanvas::markActiveCommands(int index) {
 
 }
 
-void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
+void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
 
-    int saveCount = canvas->save();
+    int saveCount = originalCanvas->save();
 
-    SkRect windowRect = SkRect::MakeWH(SkIntToScalar(canvas->getBaseLayerSize().width()),
-                                       SkIntToScalar(canvas->getBaseLayerSize().height()));
+    SkRect windowRect = SkRect::MakeWH(SkIntToScalar(originalCanvas->getBaseLayerSize().width()),
+                                       SkIntToScalar(originalCanvas->getBaseLayerSize().height()));
 
     bool pathOpsMode = getAllowSimplifyClip();
-    canvas->setAllowSimplifyClip(pathOpsMode);
-    canvas->clear(SK_ColorWHITE);
-    canvas->resetMatrix();
+    originalCanvas->setAllowSimplifyClip(pathOpsMode);
+    originalCanvas->clear(SK_ColorWHITE);
+    originalCanvas->resetMatrix();
     if (!windowRect.isEmpty()) {
-        canvas->clipRect(windowRect, SkCanvas::kReplace_Op);
+        originalCanvas->clipRect(windowRect, kReplace_SkClipOp);
     }
-    this->applyUserTransform(canvas);
+    this->applyUserTransform(originalCanvas);
 
-    DebugPaintFilterCanvas fPaintFilterCanvas(canvas, fOverdrawViz,
-                                              fOverrideFilterQuality, fFilterQuality);
-    canvas = &fPaintFilterCanvas;
+    DebugPaintFilterCanvas filterCanvas(originalCanvas, fOverdrawViz, fOverrideFilterQuality,
+                                        fFilterQuality);
 
     if (fMegaVizMode) {
         this->markActiveCommands(index);
     }
 
 #if SK_SUPPORT_GPU
-    // If we have a GPU backend we can also visualize the batching information
+    // If we have a GPU backend we can also visualize the op information
     GrAuditTrail* at = nullptr;
-    if (fDrawGpuBatchBounds || m != -1) {
-        at = this->getAuditTrail(canvas);
+    if (fDrawGpuOpBounds || m != -1) {
+        // The audit trail must be obtained from the original canvas.
+        at = this->getAuditTrail(originalCanvas);
     }
 #endif
 
     for (int i = 0; i <= index; i++) {
         if (i == index && fFilter) {
-            canvas->clear(0xAAFFFFFF);
+            filterCanvas.clear(0xAAFFFFFF);
         }
 
 #if SK_SUPPORT_GPU
-        // We need to flush any pending operations, or they might batch with commands below.
+        // We need to flush any pending operations, or they might combine with commands below.
         // Previous operations were not registered with the audit trail when they were
         // created, so if we allow them to combine, the audit trail will fail to find them.
-        canvas->flush();
+        filterCanvas.flush();
 
-        GrAuditTrail::AutoCollectBatches* acb = nullptr;
+        GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
-            acb = new GrAuditTrail::AutoCollectBatches(at, i);
+            acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
 #endif
 
@@ -263,10 +263,10 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
                 //     All active saveLayers get replaced with saves so all draws go to the
                 //     visible canvas.
                 //     All active culls draw their cull box
-                fCommandVector[i]->vizExecute(canvas);
+                fCommandVector[i]->vizExecute(&filterCanvas);
             } else {
                 fCommandVector[i]->setUserMatrix(fUserMatrix);
-                fCommandVector[i]->execute(canvas);
+                fCommandVector[i]->execute(&filterCanvas);
             }
         }
 #if SK_SUPPORT_GPU
@@ -277,36 +277,37 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
     }
 
     if (SkColorGetA(fClipVizColor) != 0) {
-        canvas->save();
+        filterCanvas.save();
         #define LARGE_COORD 1000000000
-        canvas->clipRect(SkRect::MakeLTRB(-LARGE_COORD, -LARGE_COORD, LARGE_COORD, LARGE_COORD),
-                       SkCanvas::kReverseDifference_Op);
+        filterCanvas.clipRect(
+                SkRect::MakeLTRB(-LARGE_COORD, -LARGE_COORD, LARGE_COORD, LARGE_COORD),
+                kReverseDifference_SkClipOp);
         SkPaint clipPaint;
         clipPaint.setColor(fClipVizColor);
-        canvas->drawPaint(clipPaint);
-        canvas->restore();
+        filterCanvas.drawPaint(clipPaint);
+        filterCanvas.restore();
     }
 
     if (fMegaVizMode) {
-        canvas->save();
+        filterCanvas.save();
         // nuke the CTM
-        canvas->resetMatrix();
+        filterCanvas.resetMatrix();
         // turn off clipping
         if (!windowRect.isEmpty()) {
             SkRect r = windowRect;
             r.outset(SK_Scalar1, SK_Scalar1);
-            canvas->clipRect(r, SkCanvas::kReplace_Op);
+            filterCanvas.clipRect(r, kReplace_SkClipOp);
         }
         // visualize existing clips
-        SkDebugClipVisitor visitor(canvas);
+        SkDebugClipVisitor visitor(&filterCanvas);
 
-        canvas->replayClips(&visitor);
+        filterCanvas.replayClips(&visitor);
 
-        canvas->restore();
+        filterCanvas.restore();
     }
     if (pathOpsMode) {
         this->resetClipStackData();
-        const SkClipStack* clipStack = canvas->getClipStack();
+        const SkClipStack* clipStack = filterCanvas.getClipStack();
         SkClipStack::Iter iter(*clipStack, SkClipStack::Iter::kBottom_IterStart);
         const SkClipStack::Element* element;
         SkPath devPath;
@@ -316,9 +317,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
             if (type != SkClipStack::Element::kEmpty_Type) {
                element->asPath(&operand);
             }
-            SkCanvas::ClipOp elementOp = element->getOp();
+            SkClipOp elementOp = element->getOp();
             this->addClipStackData(devPath, operand, elementOp);
-            if (elementOp == SkCanvas::kReplace_Op) {
+            if (elementOp == kReplace_SkClipOp) {
                 devPath = operand;
             } else {
                 Op(devPath, operand, (SkPathOp) elementOp, &devPath);
@@ -326,39 +327,39 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         }
         this->lastClipStackData(devPath);
     }
-    fMatrix = canvas->getTotalMatrix();
-    if (!canvas->getClipDeviceBounds(&fClip)) {
+    fMatrix = filterCanvas.getTotalMatrix();
+    if (!filterCanvas.getClipDeviceBounds(&fClip)) {
         fClip.setEmpty();
     }
 
-    canvas->restoreToCount(saveCount);
+    filterCanvas.restoreToCount(saveCount);
 
 #if SK_SUPPORT_GPU
-    // draw any batches if required and issue a full reset onto GrAuditTrail
+    // draw any ops if required and issue a full reset onto GrAuditTrail
     if (at) {
         // just in case there is global reordering, we flush the canvas before querying
         // GrAuditTrail
         GrAuditTrail::AutoEnable ae(at);
-        canvas->flush();
+        filterCanvas.flush();
 
         // we pick three colorblind-safe colors, 75% alpha
         static const SkColor kTotalBounds = SkColorSetARGB(0xC0, 0x6A, 0x3D, 0x9A);
-        static const SkColor kOpBatchBounds = SkColorSetARGB(0xC0, 0xE3, 0x1A, 0x1C);
-        static const SkColor kOtherBatchBounds = SkColorSetARGB(0xC0, 0xFF, 0x7F, 0x00);
+        static const SkColor kCommandOpBounds = SkColorSetARGB(0xC0, 0xE3, 0x1A, 0x1C);
+        static const SkColor kOtherOpBounds = SkColorSetARGB(0xC0, 0xFF, 0x7F, 0x00);
 
-        // get the render target of the top device so we can ignore batches drawn offscreen
-        SkBaseDevice* bd = canvas->getDevice_just_for_deprecated_compatibility_testing();
-        SkGpuDevice* gbd = reinterpret_cast<SkGpuDevice*>(bd);
-        GrGpuResource::UniqueID rtID = 
-                            gbd->accessRenderTargetContext()->accessRenderTarget()->uniqueID();
+        // get the render target of the top device (from the original canvas) so we can ignore ops
+        // drawn offscreen
+        GrRenderTargetContext* rtc =
+                originalCanvas->internal_private_accessTopLayerRenderTargetContext();
+        GrGpuResource::UniqueID rtID = rtc->accessRenderTarget()->uniqueID();
 
         // get the bounding boxes to draw
-        SkTArray<GrAuditTrail::BatchInfo> childrenBounds;
+        SkTArray<GrAuditTrail::OpInfo> childrenBounds;
         if (m == -1) {
             at->getBoundsByClientID(&childrenBounds, index);
         } else {
-            // the client wants us to draw the mth batch
-            at->getBoundsByBatchListID(&childrenBounds.push_back(), m);
+            // the client wants us to draw the mth op
+            at->getBoundsByOpListID(&childrenBounds.push_back(), m);
         }
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
@@ -369,20 +370,20 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
                 continue;
             }
             paint.setColor(kTotalBounds);
-            canvas->drawRect(childrenBounds[i].fBounds, paint);
-            for (int j = 0; j < childrenBounds[i].fBatches.count(); j++) {
-                const GrAuditTrail::BatchInfo::Batch& batch = childrenBounds[i].fBatches[j];
-                if (batch.fClientID != index) {
-                    paint.setColor(kOtherBatchBounds);
+            filterCanvas.drawRect(childrenBounds[i].fBounds, paint);
+            for (int j = 0; j < childrenBounds[i].fOps.count(); j++) {
+                const GrAuditTrail::OpInfo::Op& op = childrenBounds[i].fOps[j];
+                if (op.fClientID != index) {
+                    paint.setColor(kOtherOpBounds);
                 } else {
-                    paint.setColor(kOpBatchBounds);
+                    paint.setColor(kCommandOpBounds);
                 }
-                canvas->drawRect(batch.fBounds, paint);
+                filterCanvas.drawRect(op.fBounds, paint);
             }
         }
     }
 #endif
-    this->cleanupAuditTrail(canvas);
+    this->cleanupAuditTrail(originalCanvas);
 }
 
 void SkDebugCanvas::deleteDrawCommandAt(int index) {
@@ -431,14 +432,14 @@ GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
     return at;
 }
 
-void SkDebugCanvas::drawAndCollectBatches(int n, SkCanvas* canvas) {
+void SkDebugCanvas::drawAndCollectOps(int n, SkCanvas* canvas) {
 #if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         // loop over all of the commands and draw them, this is to collect reordering
         // information
         for (int i = 0; i < this->getSize() && i <= n; i++) {
-            GrAuditTrail::AutoCollectBatches enable(at, i);
+            GrAuditTrail::AutoCollectOps enable(at, i);
             fCommandVector[i]->execute(canvas);
         }
 
@@ -462,7 +463,7 @@ void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
 }
 
 Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanvas* canvas) {
-    this->drawAndCollectBatches(n, canvas);
+    this->drawAndCollectOps(n, canvas);
 
     // now collect json
 #if SK_SUPPORT_GPU
@@ -490,14 +491,14 @@ Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanva
     return result;
 }
 
-Json::Value SkDebugCanvas::toJSONBatchList(int n, SkCanvas* canvas) {
-    this->drawAndCollectBatches(n, canvas);
+Json::Value SkDebugCanvas::toJSONOpList(int n, SkCanvas* canvas) {
+    this->drawAndCollectOps(n, canvas);
 
     Json::Value parsedFromString;
 #if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
-        GrAuditTrail::AutoManageBatchList enable(at);
+        GrAuditTrail::AutoManageOpList enable(at);
         Json::Reader reader;
         SkAssertResult(reader.parse(at->toJson().c_str(), parsedFromString));
     }
@@ -515,19 +516,19 @@ void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkFilterQual
     fFilterQuality = quality;
 }
 
-void SkDebugCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkDebugCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     this->addDrawCommand(new SkClipPathCommand(path, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
-void SkDebugCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkDebugCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     this->addDrawCommand(new SkClipRectCommand(rect, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
-void SkDebugCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkDebugCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     this->addDrawCommand(new SkClipRRectCommand(rrect, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
-void SkDebugCanvas::onClipRegion(const SkRegion& region, ClipOp op) {
+void SkDebugCanvas::onClipRegion(const SkRegion& region, SkClipOp op) {
     this->addDrawCommand(new SkClipRegionCommand(region, op));
 }
 
@@ -559,6 +560,11 @@ void SkDebugCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& cent
 void SkDebugCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                 const SkPaint* paint) {
     this->addDrawCommand(new SkDrawImageCommand(image, left, top, paint));
+}
+
+void SkDebugCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
+                                       const SkRect& dst, const SkPaint* paint) {
+    this->addDrawCommand(new SkDrawImageLatticeCommand(image, lattice, dst, paint));
 }
 
 void SkDebugCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
@@ -800,8 +806,8 @@ void SkDebugCanvas::addPathData(const SkPath& path, const char* pathName) {
 }
 
 void SkDebugCanvas::addClipStackData(const SkPath& devPath, const SkPath& operand,
-                                     SkCanvas::ClipOp elementOp) {
-    if (elementOp == SkCanvas::kReplace_Op) {
+                                     SkClipOp elementOp) {
+    if (elementOp == kReplace_SkClipOp) {
         if (!lastClipStackData(devPath)) {
             fSaveDevPath = operand;
         }
@@ -812,7 +818,7 @@ void SkDebugCanvas::addClipStackData(const SkPath& devPath, const SkPath& operan
         addPathData(fCalledAddStackData ? devPath : fSaveDevPath, "path");
         addPathData(operand, "pathB");
         fClipStackData.appendf("%stestPathOp(reporter, path, pathB, %s, filename);<br>",
-            kHTML4SpaceIndent, gOpStrs[elementOp]);
+            kHTML4SpaceIndent, gOpStrs[static_cast<int>(elementOp)]);
         fClipStackData.appendf("}<br>");
         fCalledAddStackData = true;
     }

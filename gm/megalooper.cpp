@@ -91,8 +91,8 @@ private:
         outerClip.offset(x, y);
 
         canvas->save();
-        canvas->clipRect(outerClip, SkCanvas::kIntersect_Op);
-        canvas->clipRect(innerClip, SkCanvas::kDifference_Op);
+        canvas->clipRect(outerClip, kIntersect_SkClipOp);
+        canvas->clipRect(innerClip, kDifference_SkClipOp);
 
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -146,8 +146,8 @@ private:
             rect.offset(x, y);
 
             canvas->save();
-                canvas->clipRect(outerClip, SkCanvas::kIntersect_Op);
-                canvas->clipRect(rect, SkCanvas::kDifference_Op);
+                canvas->clipRect(outerClip, kIntersect_SkClipOp);
+                canvas->clipRect(rect, kDifference_SkClipOp);
 
                 // move the rect to where we want the blur to appear
                 rect.offset(gBlurOffsets[i]);
@@ -195,8 +195,8 @@ private:
         paint.setLooper(create4Looper(-kOffsetToOutsideClip-kHalfSquareSize, 0));
 
         canvas->save();
-            canvas->clipRect(outerClip, SkCanvas::kIntersect_Op);
-            canvas->clipRect(rect, SkCanvas::kDifference_Op);
+            canvas->clipRect(outerClip, kIntersect_SkClipOp);
+            canvas->clipRect(rect, kDifference_SkClipOp);
 
             rect.offset(SkIntToScalar(kOffsetToOutsideClip+kHalfSquareSize), 0);
             canvas->drawRect(rect, paint);

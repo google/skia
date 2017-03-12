@@ -730,7 +730,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
             // force our cache32pixelref to be built
             (void)cache->getCache32();
             bitmap->setInfo(SkImageInfo::MakeN32Premul(kCache32Count, 1));
-            bitmap->setPixelRef(cache->getCache32PixelRef());
+            bitmap->setPixelRef(sk_ref_sp(cache->getCache32PixelRef()), 0, 0);
         } else {
             // For these cases we use the bitmap cache, but not the GradientShaderCache. So just
             // allocate and populate the bitmap's data directly.
@@ -1110,6 +1110,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
+#include "GrShaderCaps.h"
 #include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -1376,7 +1377,7 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
 
 void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                                                 GrGLSLUniformHandler* uniformHandler,
-                                                const GrGLSLCaps* glslCaps,
+                                                const GrShaderCaps* shaderCaps,
                                                 const GrGradientEffect& ge,
                                                 const char* gradientTValue,
                                                 const char* outputColor,
@@ -1530,7 +1531,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * %s);", t);
             fragBuilder->codeAppendf("vec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
                                      colors);
-            if (!glslCaps->canUseMinAndAbsTogether()) {
+            if (!shaderCaps->canUseMinAndAbsTogether()) {
                 // The Tegra3 compiler will sometimes never return if we have
                 // min(abs(oneMinus2t), 1.0), or do the abs first in a separate expression.
                 fragBuilder->codeAppendf("float minAbs = abs(oneMinus2t);");
@@ -1651,28 +1652,26 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
 
             // We always filter the gradient table. Each table is one row of a texture, always
             // y-clamp.
-            GrTextureParams params;
-            params.setFilterMode(GrTextureParams::kBilerp_FilterMode);
+            GrSamplerParams params;
+            params.setFilterMode(GrSamplerParams::kBilerp_FilterMode);
             params.setTileModeX(args.fTileMode);
 
             fRow = fAtlas->lockRow(bitmap);
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
                 fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(), params.filterMode());
-                fTextureAccess.reset(fAtlas->getTexture(), params);
+                fTextureSampler.reset(fAtlas->getTexture(), params);
             } else {
-                sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(
-                                          args.fContext, bitmap, params,
-                                          SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+                sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(args.fContext, bitmap, params));
                 if (!texture) {
                     return;
                 }
                 fCoordTransform.reset(*args.fMatrix, texture.get(), params.filterMode());
-                fTextureAccess.reset(texture.get(), params);
+                fTextureSampler.reset(texture.get(), params);
                 fYCoord = SK_ScalarHalf;
             }
 
-            this->addTextureAccess(&fTextureAccess);
+            this->addTextureSampler(&fTextureSampler);
 
             break;
     }

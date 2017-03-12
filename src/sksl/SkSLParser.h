@@ -4,11 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_PARSER
 #define SKSL_PARSER
 
-#include <string>
 #include <vector>
 #include <memory>
 #include <unordered_set>
@@ -32,8 +31,6 @@ struct ASTExpressionStatement;
 struct ASTForStatement;
 struct ASTIfStatement;
 struct ASTInterfaceBlock;
-struct ASTLayout;
-struct ASTModifiers;
 struct ASTParameter;
 struct ASTPrecision;
 struct ASTReturnStatement;
@@ -42,6 +39,8 @@ struct ASTSuffix;
 struct ASTType;
 struct ASTWhileStatement;
 struct ASTVarDeclarations;
+struct Layout;
+struct Modifiers;
 class SymbolTable;
 
 /**
@@ -49,7 +48,7 @@ class SymbolTable;
  */
 class Parser {
 public:
-    Parser(std::string text, SymbolTable& types, ErrorReporter& errors);
+    Parser(SkString text, SymbolTable& types, ErrorReporter& errors);
 
     ~Parser();
 
@@ -74,7 +73,7 @@ private:
     void pushback(Token t);
 
     /**
-     * Returns the next token without consuming it from the stream. 
+     * Returns the next token without consuming it from the stream.
      */
     Token peek();
 
@@ -87,15 +86,17 @@ private:
      * If 'result' is non-null, it is set to point to the token that was read.
      * Returns true if the read token was as expected, false otherwise.
      */
-    bool expect(Token::Kind kind, std::string expected, Token* result = nullptr);
+    bool expect(Token::Kind kind, const char* expected, Token* result = nullptr);
+    bool expect(Token::Kind kind, SkString expected, Token* result = nullptr);
 
-    void error(Position p, std::string msg);
-    
+    void error(Position p, const char* msg);
+    void error(Position p, SkString msg);
+   
     /**
      * Returns true if the 'name' identifier refers to a type name. For instance, isType("int") will
      * always return true.
      */
-    bool isType(std::string name);
+    bool isType(SkString name);
 
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
@@ -111,27 +112,27 @@ private:
 
     std::unique_ptr<ASTType> structDeclaration();
 
-    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(ASTModifiers modifiers);
+    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(Modifiers modifiers);
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(ASTModifiers modifiers,
-                                                          std::unique_ptr<ASTType> type, 
-                                                          std::string name);
+    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(Modifiers modifiers,
+                                                          std::unique_ptr<ASTType> type,
+                                                          SkString name);
 
     std::unique_ptr<ASTParameter> parameter();
 
     int layoutInt();
-    
-    ASTLayout layout();
+   
+    Layout layout();
 
-    ASTModifiers modifiers();
+    Modifiers modifiers();
 
-    ASTModifiers modifiersWithDefaults(int defaultFlags);
+    Modifiers modifiersWithDefaults(int defaultFlags);
 
     std::unique_ptr<ASTStatement> statement();
 
     std::unique_ptr<ASTType> type();
 
-    std::unique_ptr<ASTDeclaration> interfaceBlock(ASTModifiers mods);
+    std::unique_ptr<ASTDeclaration> interfaceBlock(Modifiers mods);
 
     std::unique_ptr<ASTIfStatement> ifStatement();
 
@@ -156,7 +157,7 @@ private:
     std::unique_ptr<ASTExpression> expression();
 
     std::unique_ptr<ASTExpression> assignmentExpression();
-    
+   
     std::unique_ptr<ASTExpression> ternaryExpression();
 
     std::unique_ptr<ASTExpression> logicalOrExpression();
@@ -195,7 +196,7 @@ private:
 
     bool boolLiteral(bool* dest);
 
-    bool identifier(std::string* dest);
+    bool identifier(SkString* dest);
 
     void* fScanner;
     YY_BUFFER_STATE fBuffer;

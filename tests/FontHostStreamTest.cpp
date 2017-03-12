@@ -87,8 +87,8 @@ DEF_TEST(FontHostStream, reporter) {
         drawBG(&origCanvas);
         origCanvas.drawText("A", 1, point.fX, point.fY, paint);
 
-        sk_sp<SkTypeface> typeface(SkToBool(paint.getTypeface()) ? sk_ref_sp(paint.getTypeface())
-                                                                 : SkTypeface::MakeDefault());
+        sk_sp<SkTypeface> typeface(paint.getTypeface() ? paint.refTypeface()
+                                                       : SkTypeface::MakeDefault());
         int ttcIndex;
         std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
         sk_sp<SkTypeface> streamTypeface(SkTypeface::MakeFromStream(fontData.release()));

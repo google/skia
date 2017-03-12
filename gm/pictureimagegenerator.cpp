@@ -138,6 +138,7 @@ protected:
             { SkISize::Make(200, 100), -1, -1, 0.5f },
         };
 
+        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         const unsigned kDrawsPerRow = 4;
         const SkScalar kDrawSize = 250;
 
@@ -154,9 +155,13 @@ protected:
             }
             std::unique_ptr<SkImageGenerator> gen(
                 SkImageGenerator::NewFromPicture(configs[i].size, fPicture.get(), &m,
-                                                 p.getAlpha() != 255 ? &p : nullptr));
+                                                 p.getAlpha() != 255 ? &p : nullptr,
+                                                 SkImage::BitDepth::kU8, srgbColorSpace));
+
+            SkImageInfo bmInfo = gen->getInfo().makeColorSpace(canvas->imageInfo().refColorSpace());
+
             SkBitmap bm;
-            gen->generateBitmap(&bm);
+            SkAssertResult(gen->tryGenerateBitmap(&bm, bmInfo, nullptr));
 
             const SkScalar x = kDrawSize * (i % kDrawsPerRow);
             const SkScalar y = kDrawSize * (i / kDrawsPerRow);

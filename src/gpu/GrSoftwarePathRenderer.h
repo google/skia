@@ -23,14 +23,14 @@ public:
             , fAllowCaching(allowCaching) {}
 private:
     static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,
-                              const GrPaint& paint,
+                              GrPaint&& paint,
                               const GrUserStencilSettings& userStencilSettings,
                               const GrClip& clip,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkMatrix& localMatrix);
     static void DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
-                                  const GrPaint& paint,
+                                  GrPaint&& paint,
                                   const GrUserStencilSettings& userStencilSettings,
                                   const GrClip& clip,
                                   const SkMatrix& viewMatrix,

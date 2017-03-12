@@ -9,30 +9,43 @@
 
 #include "Test.h"
 
-#if SKIA_SUPPORT_GPU
+#if SK_SUPPORT_GPU
 
-static void test(skiatest::Reporter* r, const char* src, const GrGLSLCaps& caps, 
-                 const char* expected) {
+static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Settings& settings,
+                 const char* expected, SkSL::Program::Inputs* inputs) {
     SkSL::Compiler compiler;
-    std::string output;
-    bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind, src, caps, &output);
-    if (!result) {
+    SkString output;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
+                                                                     SkString(src),
+                                                                     settings);
+    if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
-    REPORTER_ASSERT(r, result);
-    if (result) {
-        if (output != expected) {
-            SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src, 
+    REPORTER_ASSERT(r, program);
+    *inputs = program->fInputs;
+    REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
+    if (program) {
+        SkString skExpected(expected);
+        if (output != skExpected) {
+            SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
                      expected, output.c_str());
         }
-        REPORTER_ASSERT(r, output == expected);
+        REPORTER_ASSERT(r, output == skExpected);
     }
+}
+
+static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
+                 const char* expected) {
+    SkSL::Program::Settings settings;
+    settings.fCaps = &caps;
+    SkSL::Program::Inputs inputs;
+    test(r, src, settings, expected, &inputs);
 }
 
 DEF_TEST(SkSLHelloWorld, r) {
     test(r,
          "void main() { sk_FragColor = vec4(0.75); }",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -46,13 +59,13 @@ DEF_TEST(SkSLControl, r) {
          "if (sqrt(2) > 5) { sk_FragColor = vec4(0.75); } else { discard; }"
          "int i = 0;"
          "while (i < 10) sk_FragColor *= 0.5;"
-         "do { sk_FragColor += 0.01; } while (sk_FragColor.x < 0.7);"
+         "do { sk_FragColor += 0.01; } while (sk_FragColor.x < 0.75);"
          "for (int i = 0; i < 10; i++) {"
          "if (i % 0 == 1) break; else continue;"
          "}"
          "return;"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -65,7 +78,7 @@ DEF_TEST(SkSLControl, r) {
          "    while (i < 10) sk_FragColor *= 0.5;\n"
          "    do {\n"
          "        sk_FragColor += 0.01;\n"
-         "    } while (sk_FragColor.x < 0.7);\n"
+         "    } while (sk_FragColor.x < 0.75);\n"
          "    for (int i = 0;i < 10; i++) {\n"
          "        if (i % 0 == 1) break; else continue;\n"
          "    }\n"
@@ -78,7 +91,7 @@ DEF_TEST(SkSLFunctions, r) {
          "float foo(float v[2]) { return v[0] * v[1]; }"
          "void bar(inout float x) { float y[2], z; y[0] = x; y[1] = x * 2; z = foo(y); x = z; }"
          "void main() { float x = 10; bar(x); sk_FragColor = vec4(x); }",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "float foo(in float v[2]) {\n"
@@ -120,7 +133,7 @@ DEF_TEST(SkSLOperators, r) {
          "z <<= 4;"
          "z %= 5;"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -154,7 +167,7 @@ DEF_TEST(SkSLMatrices, r) {
          "vec3 v1 = mat3(1) * vec3(1);"
          "vec3 v2 = vec3(1) * mat3(1);"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -176,7 +189,7 @@ DEF_TEST(SkSLInterfaceBlock, r) {
          "};"
          "void main() {"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "uniform testBlock {\n"
@@ -204,21 +217,19 @@ DEF_TEST(SkSLStructs, r) {
          "B b1, b2, b3;"
          "void main() {"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "struct A {\n"
          "    int x;\n"
          "    int y;\n"
-         "}\n"
-         " a1, a2;\n"
+         "} a1, a2;\n"
          "A a3;\n"
          "struct B {\n"
          "    float x;\n"
          "    float[2] y;\n"
          "    layout (binding = 1) A z;\n"
-         "}\n"
-         " b1, b2, b3;\n"
+         "} b1, b2, b3;\n"
          "void main() {\n"
          "}\n");
 }
@@ -226,7 +237,7 @@ DEF_TEST(SkSLStructs, r) {
 DEF_TEST(SkSLVersion, r) {
     test(r,
          "in float test; void main() { sk_FragColor = vec4(0.75); }",
-         *SkSL::GLSLCapsFactory::Version450Core(),
+         *SkSL::ShaderCapsFactory::Version450Core(),
          "#version 450 core\n"
          "out vec4 sk_FragColor;\n"
          "in float test;\n"
@@ -235,7 +246,7 @@ DEF_TEST(SkSLVersion, r) {
          "}\n");
     test(r,
          "in float test; void main() { sk_FragColor = vec4(0.75); }",
-         *SkSL::GLSLCapsFactory::Version110(),
+         *SkSL::ShaderCapsFactory::Version110(),
          "#version 110\n"
          "varying float test;\n"
          "void main() {\n"
@@ -246,7 +257,7 @@ DEF_TEST(SkSLVersion, r) {
 DEF_TEST(SkSLUsesPrecisionModifiers, r) {
     test(r,
          "void main() { float x = 0.75; highp float y = 1; }",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -255,7 +266,7 @@ DEF_TEST(SkSLUsesPrecisionModifiers, r) {
          "}\n");    
     test(r,
          "void main() { float x = 0.75; highp float y = 1; }",
-         *SkSL::GLSLCapsFactory::UsesPrecisionModifiers(),
+         *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
          "precision highp float;\n"
          "out mediump vec4 sk_FragColor;\n"
@@ -271,7 +282,7 @@ DEF_TEST(SkSLMinAbs, r) {
          "float x = -5;"
          "x = min(abs(x), 6);"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -284,7 +295,7 @@ DEF_TEST(SkSLMinAbs, r) {
          "float x = -5.0;"
          "x = min(abs(x), 6.0);"
          "}",
-         *SkSL::GLSLCapsFactory::CannotUseMinAndAbsTogether(),
+         *SkSL::ShaderCapsFactory::CannotUseMinAndAbsTogether(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -299,7 +310,7 @@ DEF_TEST(SkSLMinAbs, r) {
 DEF_TEST(SkSLNegatedAtan, r) {
     test(r,
          "void main() { vec2 x = vec2(1, 2); float y = atan(x.x, -(2 * x.y)); }",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -308,7 +319,7 @@ DEF_TEST(SkSLNegatedAtan, r) {
          "}\n");
     test(r,
          "void main() { vec2 x = vec2(1, 2); float y = atan(x.x, -(2 * x.y)); }",
-         *SkSL::GLSLCapsFactory::MustForceNegatedAtanParamToFloat(),
+         *SkSL::ShaderCapsFactory::MustForceNegatedAtanParamToFloat(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -321,7 +332,7 @@ DEF_TEST(SkSLModifiersDeclaration, r) {
     test(r,
          "layout(blend_support_all_equations) out;"
          "void main() { }",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "layout (blend_support_all_equations) out ;\n"
@@ -342,7 +353,7 @@ DEF_TEST(SkSLHex, r) {
          "uint u3 = 0x7fffffff;"
          "uint u4 = 0xffffffff;"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -369,7 +380,7 @@ DEF_TEST(SkSLVectorConstructors, r) {
          "ivec2 v7 = ivec2(1);"
          "ivec2 v8 = ivec2(vec2(1, 2));"
          "vec2 v9 = vec2(ivec2(1, 2));",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "vec2 v1 = vec2(1.0);\n"
@@ -388,7 +399,7 @@ DEF_TEST(SkSLArrayConstructors, r) {
          "float test1[] = float[](1, 2, 3, 4);"
          "vec2 test2[] = vec2[](vec2(1, 2), vec2(3, 4));"
          "mat4 test3[] = mat4[]();",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "float test1[] = float[](1.0, 2.0, 3.0, 4.0);\n"
@@ -399,7 +410,7 @@ DEF_TEST(SkSLArrayConstructors, r) {
 DEF_TEST(SkSLDerivatives, r) {
     test(r,
          "void main() { float x = dFdx(1); }",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -407,7 +418,7 @@ DEF_TEST(SkSLDerivatives, r) {
          "}\n");
     test(r,
          "void main() { float x = 1; }",
-         *SkSL::GLSLCapsFactory::ShaderDerivativeExtensionString(),
+         *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -415,7 +426,7 @@ DEF_TEST(SkSLDerivatives, r) {
          "}\n");
     test(r,
          "void main() { float x = dFdx(1); }",
-         *SkSL::GLSLCapsFactory::ShaderDerivativeExtensionString(),
+         *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
          "#version 400\n"
          "#extension GL_OES_standard_derivatives : require\n"
          "out vec4 sk_FragColor;\n"
@@ -461,7 +472,7 @@ DEF_TEST(SkSLConstantFolding, r) {
          "bool xor_f = 1 == 1 ^^ 1 == 1;"
          "int ternary = 10 > 5 ? 10 : 5;"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -510,7 +521,7 @@ DEF_TEST(SkSLStaticIf, r) {
          "if (1 > 2) x = 4; else x = 5;"
          "if (false) x = 6;"
          "}",
-         *SkSL::GLSLCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
@@ -521,6 +532,149 @@ DEF_TEST(SkSLStaticIf, r) {
          "    {\n"
          "    }\n"
          "}\n");
+}
+
+DEF_TEST(SkSLCaps, r) {
+    test(r,
+         "void main() {"
+         "int x;"
+         "if (sk_Caps.externalTextureSupport) x = 1;"
+         "if (sk_Caps.fbFetchSupport) x = 2;"
+         "if (sk_Caps.dropsTileOnZeroDivide && sk_Caps.texelFetchSupport) x = 3;"
+         "if (sk_Caps.dropsTileOnZeroDivide && sk_Caps.canUseAnyFunctionInShader) x = 4;"
+         "}",
+         *SkSL::ShaderCapsFactory::VariousCaps(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int x;\n"
+         "    x = 1;\n"
+         "    {\n"
+         "    }\n"
+         "    x = 3;\n"
+         "    {\n"
+         "    }\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLTexture, r) {
+    test(r,
+         "uniform sampler1D one;"
+         "uniform sampler2D two;"
+         "void main() {"
+         "vec4 a = texture(one, 0);"
+         "vec4 b = texture(two, vec2(0));"
+         "vec4 c = texture(one, vec2(0));"
+         "vec4 d = texture(two, vec3(0));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform sampler1D one;\n"
+         "uniform sampler2D two;\n"
+         "void main() {\n"
+         "    vec4 a = texture(one, 0.0);\n"
+         "    vec4 b = texture(two, vec2(0.0));\n"
+         "    vec4 c = textureProj(one, vec2(0.0));\n"
+         "    vec4 d = textureProj(two, vec3(0.0));\n"
+         "}\n");
+    test(r,
+         "uniform sampler1D one;"
+         "uniform sampler2D two;"
+         "void main() {"
+         "vec4 a = texture(one, 0);"
+         "vec4 b = texture(two, vec2(0));"
+         "vec4 c = texture(one, vec2(0));"
+         "vec4 d = texture(two, vec3(0));"
+         "}",
+         *SkSL::ShaderCapsFactory::Version110(),
+         "#version 110\n"
+         "uniform sampler1D one;\n"
+         "uniform sampler2D two;\n"
+         "void main() {\n"
+         "    vec4 a = texture1D(one, 0.0);\n"
+         "    vec4 b = texture2D(two, vec2(0.0));\n"
+         "    vec4 c = texture1DProj(one, vec2(0.0));\n"
+         "    vec4 d = texture2DProj(two, vec3(0.0));\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLOffset, r) {
+    test(r,
+         "struct Test {"
+         "layout(offset = 0) int x;"
+         "layout(offset = 4) int y;"
+         "int z;"
+         "} test;",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "struct Test {\n"
+         "    layout (offset = 0) int x;\n"
+         "    layout (offset = 4) int y;\n"
+         "    int z;\n"
+         "} test;\n");
+}
+
+DEF_TEST(SkSLFragCoord, r) {
+    SkSL::Program::Settings settings;
+    settings.fFlipY = true;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::FragCoordsOld();
+    settings.fCaps = caps.get();
+    SkSL::Program::Inputs inputs;
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         settings,
+         "#version 110\n"
+         "#extension GL_ARB_fragment_coord_conventions : require\n"
+         "layout(origin_upper_left) in vec4 gl_FragCoord;\n"
+         "void main() {\n"
+         "    gl_FragColor.xy = gl_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
+
+    caps = SkSL::ShaderCapsFactory::FragCoordsNew();
+    settings.fCaps = caps.get();
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         settings,
+         "#version 400\n"
+         "layout(origin_upper_left) in vec4 gl_FragCoord;\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor.xy = gl_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
+
+    caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         settings,
+         "#version 400\n"
+         "uniform float u_skRTHeight;\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    vec2 _sktmpCoord = gl_FragCoord.xy;\n"
+         "    vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skRTHeight - _sktmpCoord.y, 1.0, 1.0);\n"
+         "    sk_FragColor.xy = sk_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, inputs.fRTHeight);
+
+    settings.fFlipY = false;
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         settings,
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor.xy = gl_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
 }
 
 #endif

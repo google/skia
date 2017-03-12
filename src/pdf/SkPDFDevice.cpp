@@ -42,6 +42,7 @@
 #include "SkTextFormatParams.h"
 #include "SkUtils.h"
 #include "SkXfermodeInterpretation.h"
+#include "SkClipOpPriv.h"
 
 #define DPI_FOR_RASTER_SCALE_ONE 72
 
@@ -90,7 +91,7 @@ static SkImageSubset make_image_subset(const SkBitmap& bitmap) {
     SkASSERT(bitmap.pixelRef());
     SkBitmap tmp;
     tmp.setInfo(bitmap.pixelRef()->info(), bitmap.rowBytes());
-    tmp.setPixelRef(bitmap.pixelRef());
+    tmp.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
     tmp.lockPixels();
     auto img = SkImage::MakeFromBitmap(tmp);
     if (img) {
@@ -198,9 +199,9 @@ static_assert(SkRegion::kXOR_Op == (int)kXOR_SkPathOp, "region_pathop_mismatch")
 static_assert(SkRegion::kReverseDifference_Op == (int)kReverseDifference_SkPathOp,
               "region_pathop_mismatch");
 
-static SkPathOp region_op_to_pathops_op(SkCanvas::ClipOp op) {
-    SkASSERT(op >= 0);
-    SkASSERT(op <= SkCanvas::kReverseDifference_Op);
+static SkPathOp region_op_to_pathops_op(SkClipOp op) {
+    SkASSERT(static_cast<int>(op) >= 0);
+    SkASSERT(static_cast<int>(op) <= static_cast<int>(kReverseDifference_SkClipOp));
     return (SkPathOp)op;
 }
 
@@ -231,7 +232,7 @@ static bool get_clip_stack_path(const SkMatrix& transform,
         }
         entryPath.transform(transform);
 
-        if (SkCanvas::kReplace_Op == clipEntry->getOp()) {
+        if (kReplace_SkClipOp == clipEntry->getOp()) {
             *outClipPath = entryPath;
         } else {
             SkPathOp op = region_op_to_pathops_op(clipEntry->getOp());
@@ -1339,9 +1340,11 @@ void SkPDFDevice::internalDrawText(
         if (c.fUtf8Text) {  // real cluster
             // Check if `/ActualText` needed.
             const char* textPtr = c.fUtf8Text;
-            // TODO(halcanary): validate utf8 input.
-            SkUnichar unichar = SkUTF8_NextUnichar(&textPtr);
             const char* textEnd = c.fUtf8Text + c.fTextByteLength;
+            SkUnichar unichar = SkUTF8_NextUnicharWithError(&textPtr, textEnd);
+            if (unichar < 0) {
+                return;
+            }
             if (textPtr < textEnd ||                                  // more characters left
                 glyphLimit > index + 1 ||                             // toUnicode wouldn't work
                 unichar != map_glyph(glyphToUnicode, glyphs[index]))  // test single Unichar map
@@ -1352,7 +1355,10 @@ void SkPDFDevice::internalDrawText(
                 // the BOM marks this text as UTF-16BE, not PDFDocEncoding.
                 SkPDFUtils::WriteUTF16beHex(out, unichar);  // first char
                 while (textPtr < textEnd) {
-                    unichar = SkUTF8_NextUnichar(&textPtr);
+                    unichar = SkUTF8_NextUnicharWithError(&textPtr, textEnd);
+                    if (unichar < 0) {
+                        break;
+                    }
                     SkPDFUtils::WriteUTF16beHex(out, unichar);
                 }
                 out->writeText("> >> BDC\n");  // begin marked-content sequence
@@ -1762,7 +1768,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
             synthesizedClipStack = fExistingClipStack;
             SkPath clipPath;
             clipRegion.getBoundaryPath(&clipPath);
-            synthesizedClipStack.clipPath(clipPath, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+            synthesizedClipStack.clipPath(clipPath, SkMatrix::I(), kReplace_SkClipOp, false);
             clipStack = &synthesizedClipStack;
         }
     }
@@ -1799,7 +1805,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
     }
 
     SkPDFDevice::ContentEntry* entry;
-    if (fContentEntries.back() && fContentEntries.back()->fContent.getOffset() == 0) {
+    if (fContentEntries.back() && fContentEntries.back()->fContent.bytesWritten() == 0) {
         entry = fContentEntries.back();
     } else if (blendMode != SkBlendMode::kDstOver) {
         entry = fContentEntries.emplace_back();
@@ -1829,7 +1835,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
     }
     if (blendMode == SkBlendMode::kDstOver) {
         SkASSERT(!dst);
-        if (fContentEntries.front()->fContent.getOffset() == 0) {
+        if (fContentEntries.front()->fContent.bytesWritten() == 0) {
             // For DstOver, an empty content entry was inserted before the rest
             // of the content entries. If nothing was drawn, it needs to be
             // removed.
@@ -1973,7 +1979,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
 }
 
 bool SkPDFDevice::isContentEmpty() {
-    if (!fContentEntries.front() || fContentEntries.front()->fContent.getOffset() == 0) {
+    if (!fContentEntries.front() || fContentEntries.front()->fContent.bytesWritten() == 0) {
         SkASSERT(fContentEntries.count() <= 1);
         return true;
     }
@@ -2315,8 +2321,12 @@ sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkBitmap& bitmap) {
 }
 
 sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkImage* image) {
+    // TODO: See comment above in drawSpecial. The color mode we use for decode should be driven
+    // by the destination where we're going to draw thing thing (ie this device). But we don't have
+    // a color space, so we always decode in legacy mode for now.
+    SkColorSpace* legacyColorSpace = nullptr;
     return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(image->width(), image->height()),
-                                         image->makeNonTextureImage());
+                                         image->makeNonTextureImage(), legacyColorSpace);
 }
 
 sk_sp<SkSpecialImage> SkPDFDevice::snapSpecial() {

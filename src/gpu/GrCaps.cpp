@@ -9,83 +9,6 @@
 #include "GrContextOptions.h"
 #include "GrWindowRectangles.h"
 
-GrShaderCaps::GrShaderCaps() {
-    fShaderDerivativeSupport = false;
-    fGeometryShaderSupport = false;
-    fPathRenderingSupport = false;
-    fDstReadInShaderSupport = false;
-    fDualSourceBlendingSupport = false;
-    fIntegerSupport = false;
-    fTexelBufferSupport = false;
-    fImageLoadStoreSupport = false;
-    fShaderPrecisionVaries = false;
-    fPLSPathRenderingSupport = false;
-    fPixelLocalStorageSize = 0;
-}
-
-static const char* shader_type_to_string(GrShaderType type) {
-    switch (type) {
-    case kVertex_GrShaderType:
-        return "vertex";
-    case kGeometry_GrShaderType:
-        return "geometry";
-    case kFragment_GrShaderType:
-        return "fragment";
-    }
-    return "";
-}
-
-static const char* precision_to_string(GrSLPrecision p) {
-    switch (p) {
-    case kLow_GrSLPrecision:
-        return "low";
-    case kMedium_GrSLPrecision:
-        return "medium";
-    case kHigh_GrSLPrecision:
-        return "high";
-    }
-    return "";
-}
-
-SkString GrShaderCaps::dump() const {
-    SkString r;
-    static const char* gNY[] = { "NO", "YES" };
-    r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
-    r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
-    r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
-    r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
-    r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
-    r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
-    r.appendf("Texel Buffer Support               : %s\n", gNY[fTexelBufferSupport]);
-    r.appendf("Image Load Store Support           : %s\n", gNY[fImageLoadStoreSupport]);
-
-    r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
-
-    for (int s = 0; s < kGrShaderTypeCount; ++s) {
-        GrShaderType shaderType = static_cast<GrShaderType>(s);
-        r.appendf("\t%s:\n", shader_type_to_string(shaderType));
-        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-            if (fFloatPrecisions[s][p].supported()) {
-                GrSLPrecision precision = static_cast<GrSLPrecision>(p);
-                r.appendf("\t\t%s: log_low: %d log_high: %d bits: %d\n",
-                    precision_to_string(precision),
-                    fFloatPrecisions[s][p].fLogRangeLow,
-                    fFloatPrecisions[s][p].fLogRangeHigh,
-                    fFloatPrecisions[s][p].fBits);
-            }
-        }
-    }
-
-    return r;
-}
-
-void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
-    fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
-    this->onApplyOptionsOverrides(options);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
@@ -247,7 +170,7 @@ SkString GrCaps::dump() const {
     static const char* kConfigNames[] = {
         "Unknown",       // kUnknown_GrPixelConfig
         "Alpha8",        // kAlpha_8_GrPixelConfig,
-        "Index8",        // kIndex_8_GrPixelConfig,
+        "Gray8",         // kGray_8_GrPixelConfig,
         "RGB565",        // kRGB_565_GrPixelConfig,
         "RGBA444",       // kRGBA_4444_GrPixelConfig,
         "RGBA8888",      // kRGBA_8888_GrPixelConfig,
@@ -265,7 +188,7 @@ SkString GrCaps::dump() const {
     };
     GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
     GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
-    GR_STATIC_ASSERT(2  == kIndex_8_GrPixelConfig);
+    GR_STATIC_ASSERT(2  == kGray_8_GrPixelConfig);
     GR_STATIC_ASSERT(3  == kRGB_565_GrPixelConfig);
     GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
     GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);

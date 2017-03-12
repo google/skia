@@ -7,6 +7,7 @@
 
 #include "glsl/GrGLSLXferProcessor.h"
 
+#include "GrShaderCaps.h"
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -62,7 +63,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
         fragBuilder->codeAppend(";");
     } else {
-        needsLocalOutColor = args.fGLSLCaps->requiresLocalOutputColorForFBFetch();
+        needsLocalOutColor = args.fShaderCaps->requiresLocalOutputColorForFBFetch();
     }
 
     const char* outColor = "_localColorOut";

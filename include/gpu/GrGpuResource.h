@@ -94,6 +94,9 @@ protected:
 
 private:
     friend class GrIORefProxy; // needs to forward on wrapped IO calls
+    // This is for a unit test.
+    template <typename T>
+    friend void testingOnly_getIORefCnts(const T*, int* refCnt, int* readCnt, int* writeCnt);
 
     void addPendingRead() const {
         this->validate();

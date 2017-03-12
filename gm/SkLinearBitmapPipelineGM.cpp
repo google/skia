@@ -71,7 +71,8 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
     }
     paint.setShader(std::move(shader));
     const SkShader::ContextRec rec(paint, *mat, nullptr,
-                                   SkBlitter::PreferredShaderDest(pmsrc.info()));
+                                   SkBlitter::PreferredShaderDest(pmsrc.info()),
+                                   canvas->imageInfo().colorSpace());
     SkASSERT(paint.getShader()->contextSize(rec) <= sizeof(storage));
 
     SkShader::Context* ctx = paint.getShader()->createContext(rec, storage);
@@ -115,9 +116,12 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     uint32_t flags = 0;
     auto procN = SkXfermode::GetD32Proc(SkBlendMode::kSrcOver, flags);
 
+    char storage[512];
+    SkArenaAlloc allocator{storage, sizeof(storage)};
     SkLinearBitmapPipeline pipeline{
             inv, filterQuality,
-            SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, SK_ColorBLACK, pmsrc};
+            SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
+            SK_ColorBLACK, pmsrc, &allocator};
 
     for (int y = 0; y < ir.height(); y++) {
         pipeline.shadeSpan4f(0, y, dstBits, ir.width());

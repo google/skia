@@ -158,7 +158,7 @@ public:
     const SkOpSegment* debugSegment(int id) const;
 
 #if DEBUG_ACTIVE_SPANS
-    void debugShowActiveSpans() const;
+    void debugShowActiveSpans(SkString* str) const;
 #endif
 #if DEBUG_MARK_DONE
     void debugShowNewWinding(const char* fun, const SkOpSpan* span, int winding);
@@ -398,7 +398,7 @@ public:
     bool testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT, const SkOpSpanBase* prior,
             const SkOpSpanBase* spanBase, const SkOpSegment* opp) const;
 
-    void undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end);
+    SkOpSpan* undoneSpan();
     int updateOppWinding(const SkOpSpanBase* start, const SkOpSpanBase* end) const;
     int updateOppWinding(const SkOpAngle* angle) const;
     int updateOppWindingReverse(const SkOpAngle* angle) const;

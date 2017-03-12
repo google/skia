@@ -70,7 +70,7 @@ GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
 
 //////////////////////////////////////////////////////////////////////////////
 GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType,
-                     GrTextureParams::FilterMode highestFilterMode, bool wasMipMapDataProvided)
+                     GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided)
     : INHERITED(gpu, desc)
     , fSamplerType(samplerType)
     , fHighestFilterMode(highestFilterMode)

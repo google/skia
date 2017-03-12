@@ -9,6 +9,7 @@
 #include "SkBlurImageFilter.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
+#include "SkClipOpPriv.h"
 
 #define WIDTH 512
 #define HEIGHT 512
@@ -52,7 +53,7 @@ protected:
                 SkRect rect = SkRect::MakeWH(WIDTH, HEIGHT);
                 tileCanvas->saveLayer(&rect, &blurPaint);
                 SkRRect rrect = SkRRect::MakeRectXY(rect.makeInset(20, 20), 25, 25);
-                tileCanvas->clipRRect(rrect, SkCanvas::kDifference_Op, true);
+                tileCanvas->clipRRect(rrect, kDifference_SkClipOp, true);
                 SkPaint paint;
                 tileCanvas->drawRect(rect, paint);
                 tileCanvas->restore();

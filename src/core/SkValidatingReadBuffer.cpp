@@ -41,6 +41,7 @@ void SkValidatingReadBuffer::setMemory(const void* data, size_t size) {
 
 const void* SkValidatingReadBuffer::skip(size_t size) {
     size_t inc = SkAlign4(size);
+    this->validate(inc >= size);
     const void* addr = fReader.peek();
     this->validate(IsPtrAlign4(addr) && fReader.isAvailable(inc));
     if (fError) {
@@ -198,27 +199,27 @@ bool SkValidatingReadBuffer::readArray(void* value, size_t size, size_t elementS
 }
 
 bool SkValidatingReadBuffer::readByteArray(void* value, size_t size) {
-    return readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
+    return this->readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
 }
 
 bool SkValidatingReadBuffer::readColorArray(SkColor* colors, size_t size) {
-    return readArray(colors, size, sizeof(SkColor));
+    return this->readArray(colors, size, sizeof(SkColor));
 }
 
 bool SkValidatingReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
-    return readArray(colors, size, sizeof(SkColor4f));
+    return this->readArray(colors, size, sizeof(SkColor4f));
 }
 
 bool SkValidatingReadBuffer::readIntArray(int32_t* values, size_t size) {
-    return readArray(values, size, sizeof(int32_t));
+    return this->readArray(values, size, sizeof(int32_t));
 }
 
 bool SkValidatingReadBuffer::readPointArray(SkPoint* points, size_t size) {
-    return readArray(points, size, sizeof(SkPoint));
+    return this->readArray(points, size, sizeof(SkPoint));
 }
 
 bool SkValidatingReadBuffer::readScalarArray(SkScalar* values, size_t size) {
-    return readArray(values, size, sizeof(SkScalar));
+    return this->readArray(values, size, sizeof(SkScalar));
 }
 
 uint32_t SkValidatingReadBuffer::getArrayCount() {
@@ -253,7 +254,7 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
     } else {
         // Read the index.  We are guaranteed that the first byte
         // is zeroed, so we must shift down a byte.
-        uint32_t index = fReader.readU32() >> 8;
+        uint32_t index = this->readUInt() >> 8;
         if (0 == index) {
             return nullptr; // writer failed to give us the flattenable
         }

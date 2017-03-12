@@ -167,15 +167,15 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[], SkFontStyle
     return this->onLegacyCreateTypeface(familyName, style);
 }
 
-SkFontMgr* SkFontMgr::RefDefault() {
+sk_sp<SkFontMgr> SkFontMgr::RefDefault() {
     static SkOnce once;
-    static SkFontMgr* singleton;
+    static sk_sp<SkFontMgr> singleton;
 
     once([]{
-        SkFontMgr* fm = SkFontMgr::Factory();
-        singleton = fm ? fm : new SkEmptyFontMgr;
+        sk_sp<SkFontMgr> fm = SkFontMgr::Factory();
+        singleton = fm ? std::move(fm) : sk_make_sp<SkEmptyFontMgr>();
     });
-    return SkRef(singleton);
+    return singleton;
 }
 
 /**

@@ -9,17 +9,17 @@ import math
 DEPS = [
   'build/file',
   'build/gsutil',
-  'core',
-  'ct',
-  'flavor',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
-  'run',
-  'swarming',
-  'vars',
+  'skia-recipes/core',
+  'skia-recipes/ct',
+  'skia-recipes/flavor',
+  'skia-recipes/run',
+  'skia-recipes/swarming',
+  'skia-recipes/vars',
 ]
 
 
@@ -254,6 +254,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     )
   )
@@ -270,6 +271,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     )
   )
@@ -285,6 +287,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     )
   )
@@ -301,6 +304,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     )
   )
@@ -317,11 +321,12 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     ) +
     api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('src')
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('src')
     )
   )
 
@@ -337,11 +342,12 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     ) +
     api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('src')
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('src')
     )
   )
 
@@ -357,11 +363,12 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     ) +
     api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('src')
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('src')
     )
   )
 
@@ -376,6 +383,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     )
   )
@@ -392,6 +400,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     ) +
     api.expect_exception('Exception')
@@ -409,6 +418,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     ) +
     api.expect_exception('Exception')
@@ -426,6 +436,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     )
   )
@@ -443,6 +454,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     )
   )
@@ -462,6 +474,7 @@ def GenTests(api):
         rietveld='codereview.chromium.org',
         issue=1499623002,
         patchset=1,
+        repository='https://skia.googlesource.com/skia.git',
     )
   )
 
@@ -477,6 +490,7 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
+        repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
     )
   )

@@ -53,9 +53,7 @@ public:
 #endif
 
         // Setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-        }
+        varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
         this->setupPosition(vertBuilder,
@@ -85,8 +83,8 @@ public:
         vertBuilder->codeAppendf("%s = %s;", uv.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // compute numbers to be hardcoded to convert texture coordinates from float to int
-        SkASSERT(dfTexEffect.numTextures() == 1);
-        GrTexture* atlas = dfTexEffect.textureAccess(0).getTexture();
+        SkASSERT(dfTexEffect.numTextureSamplers() == 1);
+        GrTexture* atlas = dfTexEffect.textureSampler(0).texture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
@@ -96,8 +94,7 @@ public:
                                  dfTexEffect.inTextureCoords()->fName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppendf("highp vec2 uv = %s;\n", uv.fsIn());
 
         fragBuilder->codeAppend("\tfloat texColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0],
@@ -198,17 +195,16 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.colorIgnored() << 16;
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
-        SkASSERT(gp.numTextures() == 1);
-        GrTexture* atlas = gp.textureAccess(0).getTexture();
+        SkASSERT(gp.numTextureSamplers() == 1);
+        GrTexture* atlas = gp.textureSampler(0).texture();
         SkASSERT(atlas);
         b->add32(atlas->width());
         b->add32(atlas->height());
@@ -230,7 +226,7 @@ private:
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            const SkMatrix& viewMatrix,
                                                            GrTexture* texture,
-                                                           const GrTextureParams& params,
+                                                           const GrSamplerParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                            float distanceAdjust,
 #endif
@@ -238,7 +234,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureAccess(texture, params)
+    , fTextureSampler(texture, params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fDistanceAdjust(distanceAdjust)
 #endif
@@ -252,15 +248,16 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
-void GrDistanceFieldA8TextGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrDistanceFieldA8TextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                        GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldA8TextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrDistanceFieldA8TextGeoProc::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor*
+GrDistanceFieldA8TextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldA8TextGeoProc();
 }
 
@@ -280,8 +277,8 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
-                                                           GrTextureParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
+                                                             : GrSamplerParams::kNone_FilterMode);
 
     uint32_t flags = 0;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
@@ -323,9 +320,7 @@ public:
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
 
         // setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-        }
+        varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
         vertBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // Setup position
@@ -350,8 +345,7 @@ public:
                                                      "TextureSize", &textureSizeUniName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fragBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
+        fragBuilder->codeAppendf("highp vec2 uv = %s;", v.fsIn());
 
         fragBuilder->codeAppend("float texColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0],
@@ -361,8 +355,7 @@ public:
         fragBuilder->codeAppend("float distance = "
             SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fragBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
+        fragBuilder->codeAppendf("highp vec2 st = uv*%s;", textureSizeUniName);
         fragBuilder->codeAppend("float afwidth;");
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                                kUniformScale_DistanceFieldEffectMask;
@@ -433,7 +426,7 @@ public:
                  FPCoordTransformIter&& transformIter) override {
         SkASSERT(fTextureSizeUni.isValid());
 
-        GrTexture* texture = proc.texture(0);
+        GrTexture* texture = proc.textureSampler(0).texture();
         if (texture->width() != fTextureSize.width() ||
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
@@ -454,13 +447,12 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.colorIgnored() << 16;
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
     }
 
@@ -479,12 +471,12 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         GrColor color,
         const SkMatrix& viewMatrix,
         GrTexture* texture,
-        const GrTextureParams& params,
+        const GrSamplerParams& params,
         uint32_t flags,
         bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureAccess(texture, params)
+    , fTextureSampler(texture, params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(nullptr)
     , fUsesLocalCoords(usesLocalCoords) {
@@ -494,15 +486,16 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
                                          kHigh_GrSLPrecision);
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2f_GrVertexAttribType);
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
-void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldPathGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrDistanceFieldPathGeoProc::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor*
+GrDistanceFieldPathGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldPathGeoProc();
 }
 
@@ -522,8 +515,8 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode
-                                                             : GrTextureParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
+                                                             : GrSamplerParams::kNone_FilterMode);
 
     uint32_t flags = 0;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
@@ -562,9 +555,7 @@ public:
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-        }
+        varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
         this->setupPosition(vertBuilder,
@@ -594,8 +585,8 @@ public:
         vertBuilder->codeAppendf("%s = %s;", uv.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // compute numbers to be hardcoded to convert texture coordinates from float to int
-        SkASSERT(dfTexEffect.numTextures() == 1);
-        GrTexture* atlas = dfTexEffect.textureAccess(0).getTexture();
+        SkASSERT(dfTexEffect.numTextureSamplers() == 1);
+        GrTexture* atlas = dfTexEffect.textureSampler(0).texture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
@@ -608,15 +599,13 @@ public:
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
+        fragBuilder->codeAppendf("highp vec2 uv = %s;\n", uv.fsIn());
 
         SkScalar lcdDelta = 1.0f / (3.0f * atlas->width());
         if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
-            fragBuilder->codeAppendf("float delta = -%.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
+            fragBuilder->codeAppendf("highp float delta = -%.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
         } else {
-            fragBuilder->codeAppendf("float delta = %.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
+            fragBuilder->codeAppendf("highp float delta = %.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
         }
         if (isUniformScale) {
 #ifdef SK_VULKAN
@@ -750,18 +739,17 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldLCDTextGeoProc>();
 
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.colorIgnored() << 16;
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
-        SkASSERT(gp.numTextures() == 1);
-        GrTexture* atlas = gp.textureAccess(0).getTexture();
+        SkASSERT(gp.numTextureSamplers() == 1);
+        GrTexture* atlas = gp.textureSampler(0).texture();
         SkASSERT(atlas);
         b->add32(atlas->width());
         b->add32(atlas->height());
@@ -781,12 +769,12 @@ private:
 
 GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrColor color, const SkMatrix& viewMatrix,
-                                                  GrTexture* texture, const GrTextureParams& params,
+                                                  GrTexture* texture, const GrSamplerParams& params,
                                                   DistanceAdjust distanceAdjust,
                                                   uint32_t flags, bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureAccess(texture, params)
+    , fTextureSampler(texture, params)
     , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask)
     , fUsesLocalCoords(usesLocalCoords) {
@@ -797,15 +785,15 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
-void GrDistanceFieldLCDTextGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrDistanceFieldLCDTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                         GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldLCDTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldLCDTextGeoProc();
 }
 
@@ -825,8 +813,8 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
-                           GrTextureParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
+                                                             : GrSamplerParams::kNone_FilterMode);
     DistanceAdjust wa = { 0.0f, 0.1f, -0.1f };
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;

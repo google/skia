@@ -171,8 +171,8 @@ void SkTestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) 
 }
 
 int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
-                            uint16_t glyphs[], int glyphCount) const {
-    SkASSERT(encoding == kUTF16_Encoding);
+                                    uint16_t glyphs[], int glyphCount) const {
+    SkASSERT(encoding == kUTF32_Encoding);
     for (int index = 0; index < glyphCount; ++index) {
         SkUnichar ch = ((SkUnichar*) chars)[index];
         glyphs[index] = fTestFont->codeToIndex(ch);
@@ -214,7 +214,7 @@ protected:
     uint16_t generateCharToGlyph(SkUnichar uni) override {
         uint16_t glyph;
         (void) this->getTestTypeface()->onCharsToGlyphs((const void *) &uni,
-                                                        SkTypeface::kUTF16_Encoding, &glyph, 1);
+                                                        SkTypeface::kUTF32_Encoding, &glyph, 1);
         return glyph;
     }
 

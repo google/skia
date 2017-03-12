@@ -57,11 +57,11 @@ public:
 
     T *get() const { return fPtr; }
 
-    void reset() {
-        if (this->fPtr) {
-            this->fPtr->Release();
-            this->fPtr = nullptr;
+    void reset(T* ptr = nullptr) {
+        if (fPtr) {
+            fPtr->Release();
         }
+        fPtr = ptr;
     }
 
     void swap(SkTScopedComPtr<T>& that) {

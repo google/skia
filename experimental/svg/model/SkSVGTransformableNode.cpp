@@ -36,3 +36,16 @@ void SkSVGTransformableNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValu
         break;
     }
 }
+
+void SkSVGTransformableNode::mapToParent(SkPath* path) const {
+    if (fTransform.value().isIdentity()) {
+        return;
+    }
+
+    SkMatrix inv;
+    if (!fTransform.value().invert(&inv)) {
+        return;
+    }
+
+    path->transform(inv);
+}

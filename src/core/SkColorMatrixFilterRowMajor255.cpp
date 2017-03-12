@@ -233,7 +233,7 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
 
 bool SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
                                                     SkColorSpace* dst,
-                                                    SkFallbackAlloc* scratch,
+                                                    SkArenaAlloc* scratch,
                                                     bool shaderIsOpaque) const {
     bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
     bool needsClamp0 = false,
@@ -289,7 +289,7 @@ public:
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
         // this class always generates the same code.
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
+        static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
         void emitCode(EmitArgs& args) override {
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
@@ -356,7 +356,7 @@ private:
         return new GLSLProcessor;
     }
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }

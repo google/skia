@@ -164,10 +164,7 @@ static void r7(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p, SkScalar int
 
 typedef void (*raster_proc)(SkLayerRasterizer*, SkPaint&);
 
-#include "SkXfermode.h"
-
-static void apply_shader(SkPaint* paint, float scale)
-{
+static void apply_shader(SkPaint* paint, float scale) {
     SkPaint p;
     SkLayerRasterizer::Builder rastBuilder;
 

@@ -13,7 +13,7 @@
 #include "SkOpts.h"
 #include "SkTArray.h"
 
-class GrGLSLCaps;
+class GrShaderCaps;
 class GrPipeline;
 class GrPrimitiveProcessor;
 
@@ -34,14 +34,14 @@ public:
     *                        general draw information, as well as the specific color, geometry,
     *                        and coverage stages which will be used to generate the GL Program for
     *                        this optstate.
-    * @param GrGLSLCaps     Capabilities of the GLSL backend.
+    * @param GrShaderCaps   Capabilities of the shading language.
     * @param GrProgramDesc  The built and finalized descriptor
     **/
     static bool Build(GrProgramDesc*,
                       const GrPrimitiveProcessor&,
                       bool hasPointSize,
                       const GrPipeline&,
-                      const GrGLSLCaps&);
+                      const GrShaderCaps&);
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
@@ -103,10 +103,9 @@ public:
         uint8_t                     fCoverageFragmentProcessorCnt : 4;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
         uint8_t                     fSurfaceOriginKey : 2;
-        uint8_t                     fIgnoresCoverage : 1;
         uint8_t                     fSnapVerticesToPixelCenters : 1;
         uint8_t                     fHasPointSize : 1;
-        uint8_t                     fPad : 3;
+        uint8_t                     fPad : 4;
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
 

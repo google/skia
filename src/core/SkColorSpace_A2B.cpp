@@ -7,9 +7,12 @@
 
 #include "SkColorSpace_A2B.h"
 
-SkColorSpace_A2B::SkColorSpace_A2B(PCS pcs, sk_sp<SkData> profileData,
-                                   std::vector<Element> elements)
+SkColorSpace_A2B::SkColorSpace_A2B(ICCTypeFlag iccType, std::vector<Element> elements,
+                                   PCS pcs, sk_sp<SkData> profileData)
     : INHERITED(std::move(profileData))
-    , fPCS(pcs)
+    , fICCType(iccType)
     , fElements(std::move(elements))
-{}
+    , fPCS(pcs)
+{
+    SkASSERT(kRGB_ICCTypeFlag == iccType || kCMYK_ICCTypeFlag == iccType);
+}

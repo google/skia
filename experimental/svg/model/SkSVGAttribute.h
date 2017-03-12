@@ -14,11 +14,13 @@
 class SkSVGRenderContext;
 
 enum class SkSVGAttribute {
+    kClipPath,
     kCx, // <circle>,<ellipse>: center x position
     kCy, // <circle>,<ellipse>: center y position
     kD,
     kFill,
     kFillOpacity,
+    kFillRule,
     kGradientTransform,
     kHeight,
     kHref,
@@ -56,6 +58,7 @@ struct SkSVGPresentationAttributes {
 
     SkTLazy<SkSVGPaint>      fFill;
     SkTLazy<SkSVGNumberType> fFillOpacity;
+    SkTLazy<SkSVGFillRule>   fFillRule;
 
     SkTLazy<SkSVGPaint>      fStroke;
     SkTLazy<SkSVGLineCap>    fStrokeLineCap;
@@ -63,7 +66,9 @@ struct SkSVGPresentationAttributes {
     SkTLazy<SkSVGNumberType> fStrokeOpacity;
     SkTLazy<SkSVGLength>     fStrokeWidth;
 
+    // uninherited
     SkTLazy<SkSVGNumberType> fOpacity;
+    SkTLazy<SkSVGClip>       fClipPath;
 };
 
 #endif // SkSVGAttribute_DEFINED

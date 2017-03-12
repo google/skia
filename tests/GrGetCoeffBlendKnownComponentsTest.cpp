@@ -13,7 +13,6 @@
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "SkRandom.h"
-#include "SkXfermode.h"
 
 static GrColor make_baseline_color(GrColor src, GrColor dst, const SkXfermode* xm) {
     SkPMColor skSrc = GrColorToSkPMColor(src);

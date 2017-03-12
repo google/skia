@@ -64,7 +64,7 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
                 pathStr.appendf("    testPathOp(reporter, path, pathB, %s, filename);\n",
                         SkPathOpsDebug::OpStr((SkPathOp) op));
                 pathStr.appendf("}\n\n");
-                outputProgress(state.fPathStr, pathStr.c_str(), (SkPathOp) op);
+                state.outputProgress(pathStr.c_str(), (SkPathOp) op);
             }
             if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "rects")) {
                 if (state.fReporter->verbose()) {

@@ -55,12 +55,30 @@ void SkSVGLine::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     }
 }
 
-void SkSVGLine::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint) const {
-    const auto x1 = lctx.resolve(fX1, SkSVGLengthContext::LengthType::kHorizontal);
-    const auto y1 = lctx.resolve(fY1, SkSVGLengthContext::LengthType::kVertical);
-    const auto x2 = lctx.resolve(fX2, SkSVGLengthContext::LengthType::kHorizontal);
-    const auto y2 = lctx.resolve(fY2, SkSVGLengthContext::LengthType::kVertical);
+std::tuple<SkPoint, SkPoint> SkSVGLine::resolve(const SkSVGLengthContext& lctx) const {
+    return std::make_tuple(
+        SkPoint::Make(lctx.resolve(fX1, SkSVGLengthContext::LengthType::kHorizontal),
+                      lctx.resolve(fY1, SkSVGLengthContext::LengthType::kVertical)),
+        SkPoint::Make(lctx.resolve(fX2, SkSVGLengthContext::LengthType::kHorizontal),
+                      lctx.resolve(fY2, SkSVGLengthContext::LengthType::kVertical)));
+}
 
-    canvas->drawLine(x1, y1, x2, y2, paint);
+void SkSVGLine::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
+                       const SkPaint& paint, SkPath::FillType) const {
+    SkPoint p0, p1;
+    std::tie(p0, p1) = this->resolve(lctx);
+
+    canvas->drawLine(p0.x(), p0.y(), p1.x(), p1.y(), paint);
+}
+
+SkPath SkSVGLine::onAsPath(const SkSVGRenderContext& ctx) const {
+    SkPoint p0, p1;
+    std::tie(p0, p1) = this->resolve(ctx.lengthContext());
+
+    SkPath path;
+    path.moveTo(p0);
+    path.lineTo(p1);
+    this->mapToParent(&path);
+
+    return path;
 }

@@ -10,15 +10,17 @@
 
 #include "SkGradientBitmapCache.h"
 #include "SkGradientShader.h"
+
+#include "SkAutoMalloc.h"
 #include "SkClampRange.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkMallocPixelRef.h"
-#include "SkUtils.h"
-#include "SkShader.h"
 #include "SkOnce.h"
+#include "SkReadBuffer.h"
+#include "SkShader.h"
+#include "SkUtils.h"
+#include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
     #define GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS 1
@@ -439,7 +441,7 @@ private:
     SkShader::TileMode       fTileMode;
 
     GrCoordTransform fCoordTransform;
-    GrTextureAccess fTextureAccess;
+    TextureSampler fTextureSampler;
     SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;
@@ -481,7 +483,7 @@ protected:
     // of hard stop gradients
     void emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                    GrGLSLUniformHandler* uniformHandler,
-                   const GrGLSLCaps* caps,
+                   const GrShaderCaps* shaderCaps,
                    const GrGradientEffect&,
                    const char* gradientTValue,
                    const char* outputColor,

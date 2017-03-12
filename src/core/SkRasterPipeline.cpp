@@ -11,26 +11,35 @@
 SkRasterPipeline::SkRasterPipeline() {}
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
-    SkASSERT(fNum < (int)SK_ARRAY_COUNT(fStages));
-    fStages[fNum++] = { stage, ctx };
+    SkASSERT(stage != from_srgb);
+    fStages.push_back({stage, ctx});
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
-    for (int i = 0; i < src.fNum; i++) {
-        const Stage& s = src.fStages[i];
-        this->append(s.stage, s.ctx);
+    fStages.insert(fStages.end(),
+                   src.fStages.begin(), src.fStages.end());
+}
+
+void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
+    if (!fStages.empty()) {
+        SkOpts::run_pipeline(x,y,n, fStages.data(), SkToInt(fStages.size()));
     }
 }
 
 std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
-    return SkOpts::compile_pipeline(fStages, fNum);
+#ifdef SK_RASTER_PIPELINE_HAS_JIT
+    if (auto fn = this->jit()) {
+        return fn;
+    }
+#endif
+    return SkOpts::compile_pipeline(fStages.data(), SkToInt(fStages.size()));
 }
 
 void SkRasterPipeline::dump() const {
-    SkDebugf("SkRasterPipeline, %d stages\n", fNum);
-    for (int i = 0; i < fNum; i++) {
+    SkDebugf("SkRasterPipeline, %d stages\n", SkToInt(fStages.size()));
+    for (auto&& st : fStages) {
         const char* name = "";
-        switch (fStages[i].stage) {
+        switch (st.stage) {
         #define M(x) case x: name = #x; break;
             SK_RASTER_PIPELINE_STAGES(M)
         #undef M
@@ -38,4 +47,21 @@ void SkRasterPipeline::dump() const {
         SkDebugf("\t%s\n", name);
     }
     SkDebugf("\n");
+}
+
+// It's pretty easy to start with sound premultiplied linear floats, pack those
+// to sRGB encoded bytes, then read them back to linear floats and find them not
+// quite premultiplied, with a color channel just a smidge greater than the alpha
+// channel.  This can happen basically any time we have different transfer
+// functions for alpha and colors... sRGB being the only one we draw into.
+
+// This is an annoying problem with no known good solution.  So apply the clamp hammer.
+
+void SkRasterPipeline::append_from_srgb(SkAlphaType at) {
+    //this->append(from_srgb);
+    fStages.push_back({from_srgb, nullptr});
+
+    if (at == kPremul_SkAlphaType) {
+        this->append(SkRasterPipeline::clamp_a);
+    }
 }

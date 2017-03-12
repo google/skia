@@ -88,7 +88,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     // Test that draw restricts itself to the subset
     SkImageFilter::OutputProperties outProps(img->getColorSpace());
     sk_sp<SkSpecialSurface> surf(img->makeSurface(outProps, SkISize::Make(kFullSize, kFullSize),
-                                                  kOpaque_SkAlphaType));
+                                                  kPremul_SkAlphaType));
 
     SkCanvas* canvas = surf->getCanvas();
 
@@ -96,7 +96,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     img->draw(canvas, SkIntToScalar(kPad), SkIntToScalar(kPad), nullptr);
 
     SkBitmap bm;
-    bm.allocN32Pixels(kFullSize, kFullSize, true);
+    bm.allocN32Pixels(kFullSize, kFullSize, false);
 
     bool result = canvas->readPixels(bm.info(), bm.getPixels(), bm.rowBytes(), 0, 0);
     SkASSERT_RELEASE(result);
@@ -155,19 +155,20 @@ DEF_TEST(SpecialImage_Raster, reporter) {
     }
 }
 
-DEF_TEST(SpecialImage_Image, reporter) {
+static void test_specialimage_image(skiatest::Reporter* reporter, SkColorSpace* dstColorSpace) {
     SkBitmap bm = create_bm();
 
     sk_sp<SkImage> fullImage(SkImage::MakeFromBitmap(bm));
 
     sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromImage(
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            fullImage));
+                                                            fullImage, dstColorSpace));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(subset, fullImage));
+        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(subset, fullImage,
+                                                                     dstColorSpace));
         test_image(subSImg1, reporter, nullptr, false, kPad, kFullSize);
     }
 
@@ -175,6 +176,16 @@ DEF_TEST(SpecialImage_Image, reporter) {
         sk_sp<SkSpecialImage> subSImg2(fullSImage->makeSubset(subset));
         test_image(subSImg2, reporter, nullptr, false, 0, kSmallerSize);
     }
+}
+
+DEF_TEST(SpecialImage_Image_Legacy, reporter) {
+    SkColorSpace* legacyColorSpace = nullptr;
+    test_specialimage_image(reporter, legacyColorSpace);
+}
+
+DEF_TEST(SpecialImage_Image_ColorSpaceAware, reporter) {
+    sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    test_specialimage_image(reporter, srgbColorSpace.get());
 }
 
 #if SK_SUPPORT_GPU

@@ -386,6 +386,15 @@ protected:
      */
     Context mapContext(const Context& ctx) const;
 
+#if SK_SUPPORT_GPU
+    /**
+     *  Returns a version of the passed-in image (possibly the original), that is in a colorspace
+     *  with the same gamut as the one from the OutputProperties. This allows filters that do many
+     *  texture samples to guarantee that any color space conversion has happened before running.
+     */
+    static sk_sp<SkSpecialImage> ImageToColorSpace(SkSpecialImage* src, const OutputProperties&);
+#endif
+
 private:
     friend class SkGraphics;
     static void PurgeCache();

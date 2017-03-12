@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkScalerContext.h"
+
+#include "SkAutoMalloc.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"
@@ -16,13 +17,13 @@
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkPathEffect.h"
-#include "SkRasterizer.h"
 #include "SkRasterClip.h"
+#include "SkRasterizer.h"
+#include "SkReadBuffer.h"
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
+#include "SkWriteBuffer.h"
 
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 

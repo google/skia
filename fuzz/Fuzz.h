@@ -9,7 +9,7 @@
 #define Fuzz_DEFINED
 
 #include "SkData.h"
-#include "SkTRegistry.h"
+#include "../tools/Registry.h"
 #include "SkTypes.h"
 
 #include <cmath>
@@ -95,7 +95,11 @@ inline void Fuzz::nextRange(float* f, float min, float max) {
 template <typename T, typename Min, typename Max>
 inline void Fuzz::nextRange(T* n, Min min, Max max) {
     this->next<T>(n);
-    if (min >= max) {
+    if (min == max) {
+        *n = min;
+        return;
+    }
+    if (min > max) {
         // Avoid misuse of nextRange
         this->signalBug();
     }
@@ -122,9 +126,9 @@ struct Fuzzable {
     void (*fn)(Fuzz*);
 };
 
-#define DEF_FUZZ(name, f)                                        \
-    static void fuzz_##name(Fuzz*);                              \
-    SkTRegistry<Fuzzable> register_##name({#name, fuzz_##name}); \
+#define DEF_FUZZ(name, f)                                               \
+    static void fuzz_##name(Fuzz*);                                     \
+    sk_tools::Registry<Fuzzable> register_##name({#name, fuzz_##name}); \
     static void fuzz_##name(Fuzz* f)
 
 #endif//Fuzz_DEFINED

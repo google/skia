@@ -9,6 +9,7 @@
 #define SkSVGRenderContext_DEFINED
 
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkRect.h"
 #include "SkSize.h"
 #include "SkSVGAttribute.h"
@@ -65,6 +66,8 @@ public:
     const SkSVGLengthContext& lengthContext() const { return *fLengthContext; }
     SkSVGLengthContext* writableLengthContext() { return fLengthContext.writable(); }
 
+    const SkSVGPresentationContext& presentationContext() const { return *fPresentationContext; }
+
     SkCanvas* canvas() const { return fCanvas; }
 
     enum ApplyFlags {
@@ -77,6 +80,9 @@ public:
     const SkPaint* fillPaint() const;
     const SkPaint* strokePaint() const;
 
+    // The local computed clip path (not inherited).
+    const SkPath* clipPath() const { return fClipPath.getMaybeNull(); }
+
 private:
     // Stack-only
     void* operator new(size_t)                               = delete;
@@ -84,6 +90,7 @@ private:
     SkSVGRenderContext& operator=(const SkSVGRenderContext&) = delete;
 
     void applyOpacity(SkScalar opacity, uint32_t flags);
+    void applyClip(const SkSVGClip&);
 
     const SkSVGIDMapper&                          fIDMapper;
     SkTCopyOnFirstWrite<SkSVGLengthContext>       fLengthContext;
@@ -92,6 +99,9 @@ private:
     // The save count on 'fCanvas' at construction time.
     // A restoreToCount() will be issued on destruction.
     int                                           fCanvasSaveCount;
+
+    // clipPath, if present for the current context (not inherited).
+    SkTLazy<SkPath>                               fClipPath;
 };
 
 #endif // SkSVGRenderContext_DEFINED

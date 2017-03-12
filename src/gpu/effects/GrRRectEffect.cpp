@@ -11,6 +11,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrOvalEffect.h"
+#include "GrShaderCaps.h"
 #include "SkRRect.h"
 #include "SkTLazy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -63,7 +64,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
@@ -136,7 +137,7 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -169,7 +170,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
 
     // If we're on a device with a "real" mediump then the length calculation could overflow.
     SkString clampedCircleDistance;
-    if (args.fGLSLCaps->floatPrecisionVaries()) {
+    if (args.fShaderCaps->floatPrecisionVaries()) {
         clampedCircleDistance.printf("clamp(%s.x * (1.0 - length(dxy * %s.y)), 0.0, 1.0);",
                                      radiusPlusHalfName, radiusPlusHalfName);
     } else {
@@ -286,7 +287,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
                              (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                    GrProcessorKeyBuilder* b) {
     const CircularRRectEffect& crre = processor.cast<CircularRRectEffect>();
     GR_STATIC_ASSERT(kGrProcessorEdgeTypeCnt <= 8);
@@ -375,7 +376,7 @@ void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CircularRRectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void CircularRRectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                 GrProcessorKeyBuilder* b) const {
     GLCircularRRectEffect::GenKey(*this, caps, b);
 }
@@ -403,7 +404,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
@@ -491,7 +492,7 @@ public:
 
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -535,7 +536,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The
     // radii uniform values are already in this normalized space.
     const char* scaleName = nullptr;
-    if (args.fGLSLCaps->floatPrecisionVaries()) {
+    if (args.fShaderCaps->floatPrecisionVaries()) {
         fScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                    "scale", &scaleName);
@@ -602,7 +603,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
                              (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,
+void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,
                                      GrProcessorKeyBuilder* b) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
     GR_STATIC_ASSERT(kLast_GrProcessorEdgeType < (1 << 3));
@@ -670,7 +671,7 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EllipticalRRectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void EllipticalRRectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     GLEllipticalRRectEffect::GenKey(*this, caps, b);
 }

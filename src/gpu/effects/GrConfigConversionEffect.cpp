@@ -13,6 +13,7 @@
 #include "SkMatrix.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../private/GrGLSL.h"
 
 class GrGLConfigConversionEffect : public GrGLSLFragmentProcessor {
 public:
@@ -22,9 +23,9 @@ public:
         GrConfigConversionEffect::PMConversion pmConversion = cce.pmConversion();
 
         // Using highp for GLES here in order to avoid some precision issues on specific GPUs.
-        GrGLSLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
+        GrShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
         SkString tmpDecl;
-        tmpVar.appendDecl(args.fGLSLCaps, &tmpDecl);
+        tmpVar.appendDecl(args.fShaderCaps, &tmpDecl);
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
@@ -80,7 +81,7 @@ public:
         fragBuilder->codeAppend(modulate.c_str());
     }
 
-    static inline void GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+    static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrConfigConversionEffect& cce = processor.cast<GrConfigConversionEffect>();
         uint32_t key = (cce.swizzle().asKey()) | (cce.pmConversion() << 16);
@@ -149,7 +150,7 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestD
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GrGLConfigConversionEffect::GenKey(*this, caps, b);
 }
@@ -236,19 +237,22 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         paint1.addColorFragmentProcessor(std::move(pmToUPM1));
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readRTC->fillRectToRect(GrNoClip(), paint1, SkMatrix::I(), kDstRect, kSrcRect);
+        readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kDstRect,
+                                kSrcRect);
 
         readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
 
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        tempRTC->fillRectToRect(GrNoClip(), paint2, SkMatrix::I(), kDstRect, kSrcRect);
+        tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kDstRect,
+                                kSrcRect);
 
         paint3.addColorFragmentProcessor(std::move(pmToUPM2));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readRTC->fillRectToRect(GrNoClip(), paint3, SkMatrix::I(), kDstRect, kSrcRect);
+        readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kDstRect,
+                                kSrcRect);
 
         readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
 

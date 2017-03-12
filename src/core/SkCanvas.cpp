@@ -22,12 +22,14 @@
 #include "SkMakeUnique.h"
 #include "SkMatrixUtils.h"
 #include "SkMetaData.h"
+#include "SkNoDrawCanvas.h"
 #include "SkNx.h"
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkRadialShadowMapShader.h"
 #include "SkRasterClip.h"
+#include "SkRasterHandleAllocator.h"
 #include "SkReadPixelsRec.h"
 #include "SkRRect.h"
 #include "SkShadowPaintFilterCanvas.h"
@@ -47,6 +49,7 @@
 #include "SkGrPriv.h"
 
 #endif
+#include "SkClipOpPriv.h"
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
@@ -341,7 +344,7 @@ public:
     bool next() {
         if (fMultiDeviceCS && fDevice) {
             // remove the previous device's bounds
-            fMultiDeviceCS->clipDevRect(compute_device_bounds(fDevice), SkCanvas::kDifference_Op);
+            fMultiDeviceCS->clipDevRect(compute_device_bounds(fDevice), kDifference_SkClipOp);
         }
 
         // skip over recs with empty clips
@@ -482,7 +485,7 @@ public:
              *      draw onto the previous layer using the xfermode from the original paint.
              */
             SkPaint tmp;
-            tmp.setImageFilter(sk_ref_sp(fPaint->getImageFilter()));
+            tmp.setImageFilter(fPaint->refImageFilter());
             tmp.setBlendMode(fPaint->getBlendMode());
             SkRect storage;
             if (rawBounds) {
@@ -666,6 +669,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
+    fMCRec->fRasterClip.setDeviceClipRestriction(&fClipRestrictionRect);
     fIsScaleTranslate = true;
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
@@ -769,16 +773,20 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
     this->init(device.get(), kDefault_InitFlags);
 }
 
-SkCanvas::SkCanvas(const SkBitmap& bitmap)
+SkCanvas::SkCanvas(const SkBitmap& bitmap, std::unique_ptr<SkRasterHandleAllocator> alloc,
+                   SkRasterHandleAllocator::Handle hndl)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
+    , fAllocator(std::move(alloc))
     , fConservativeRasterClip(false)
 {
     inc_canvas();
 
-    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
+    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps, hndl));
     this->init(device.get(), kDefault_InitFlags);
 }
+
+SkCanvas::SkCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap, nullptr, nullptr) {}
 
 SkCanvas::~SkCanvas() {
     // free up the contents of our deque
@@ -845,10 +853,7 @@ SkBaseDevice* SkCanvas::getDevice() const {
     return rec->fLayer->fDevice;
 }
 
-SkBaseDevice* SkCanvas::getTopDevice(bool updateMatrixClip) const {
-    if (updateMatrixClip) {
-        const_cast<SkCanvas*>(this)->updateDeviceCMCache();
-    }
+SkBaseDevice* SkCanvas::getTopDevice() const {
     return fMCRec->fTopLayer->fDevice;
 }
 
@@ -874,7 +879,7 @@ bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
     }
 
     if (weAllocated) {
-        bitmap->setPixelRef(nullptr);
+        bitmap->setPixelRef(nullptr, 0, 0);
     }
     return false;
 }
@@ -1103,7 +1108,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 
     if (BoundsAffectsClip(saveLayerFlags)) {
         // Simplify the current clips since they will be applied properly during restore()
-        fClipStack->clipDevRect(ir, kReplace_Op);
+        fClipStack->clipDevRect(ir, kReplace_SkClipOp);
         fMCRec->fRasterClip.setRect(ir);
         fDeviceClipBounds = qr_clip_bounds(ir);
     }
@@ -1172,7 +1177,7 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool i
         return SkImageInfo::MakeN32(w, h, alphaType);
     } else {
         // keep the same characteristics as the prev
-        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, sk_ref_sp(prev.colorSpace()));
+        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, prev.refColorSpace());
     }
 }
 
@@ -1257,7 +1262,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                                      (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
         const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
         const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
-                                                                             preserveLCDText);
+                                                                             preserveLCDText,
+                                                                             fAllocator.get());
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
         if (!newDevice) {
             return;
@@ -1394,7 +1400,7 @@ void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoi
         *rowBytes = pmap.rowBytes();
     }
     if (origin) {
-        *origin = this->getTopDevice(false)->getOrigin();
+        *origin = this->getTopDevice()->getOrigin();
     }
     return pmap.writable_addr();
 }
@@ -1521,13 +1527,13 @@ sk_sp<SkLights> SkCanvas::getLights() const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::clipRect(const SkRect& rect, ClipOp op, bool doAA) {
+void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
 }
 
-void SkCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
     AutoValidateClip avc(this);
     fClipStack->clipRect(rect, fMCRec->fMatrix, op, isAA);
@@ -1537,7 +1543,20 @@ void SkCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
-void SkCanvas::clipRRect(const SkRRect& rrect, ClipOp op, bool doAA) {
+void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
+    fClipRestrictionRect = rect;
+    fClipStack->setDeviceClipRestriction(fClipRestrictionRect);
+    if (!fClipRestrictionRect.isEmpty()) {
+        this->checkForDeferredSave();
+        AutoValidateClip avc(this);
+        fClipStack->clipDevRect(fClipRestrictionRect, kIntersect_SkClipOp);
+        fMCRec->fRasterClip.op(fClipRestrictionRect, SkRegion::kIntersect_Op);
+        fDeviceCMDirty = true;
+        fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    }
+}
+
+void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     if (rrect.isRect()) {
@@ -1547,7 +1566,7 @@ void SkCanvas::clipRRect(const SkRRect& rrect, ClipOp op, bool doAA) {
     }
 }
 
-void SkCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -1560,7 +1579,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeSt
     return;
 }
 
-void SkCanvas::clipPath(const SkPath& path, ClipOp op, bool doAA) {
+void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
 
@@ -1585,7 +1604,7 @@ void SkCanvas::clipPath(const SkPath& path, ClipOp op, bool doAA) {
     this->onClipPath(path, op, edgeStyle);
 }
 
-void SkCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -1600,19 +1619,19 @@ void SkCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle
         isAA = getClipStack()->asPath(&tempPath);
         rasterClipPath = &tempPath;
         matrix = &SkMatrix::I();
-        op = kReplace_Op;
+        op = kReplace_SkClipOp;
     }
     fMCRec->fRasterClip.op(*rasterClipPath, *matrix, this->getTopLayerBounds(), (SkRegion::Op)op,
                            isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
-void SkCanvas::clipRegion(const SkRegion& rgn, ClipOp op) {
+void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
     this->checkForDeferredSave();
     this->onClipRegion(rgn, op);
 }
 
-void SkCanvas::onClipRegion(const SkRegion& rgn, ClipOp op) {
+void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -3367,14 +3386,20 @@ SkAutoCanvasMatrixPaint::~SkAutoCanvasMatrixPaint() {
     fCanvas->restoreToCount(fSaveCount);
 }
 
-/////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-const SkCanvas::ClipOp SkCanvas::kDifference_Op;
-const SkCanvas::ClipOp SkCanvas::kIntersect_Op;
-const SkCanvas::ClipOp SkCanvas::kUnion_Op;
-const SkCanvas::ClipOp SkCanvas::kXOR_Op;
-const SkCanvas::ClipOp SkCanvas::kReverseDifference_Op;
-const SkCanvas::ClipOp SkCanvas::kReplace_Op;
+SkNoDrawCanvas::SkNoDrawCanvas(int width, int height)
+    : INHERITED(SkIRect::MakeWH(width, height), kConservativeRasterClip_InitFlag) {}
+
+SkNoDrawCanvas::SkNoDrawCanvas(const SkIRect& bounds)
+    : INHERITED(bounds, kConservativeRasterClip_InitFlag) {}
+
+SkCanvas::SaveLayerStrategy SkNoDrawCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
+    (void)this->INHERITED::getSaveLayerStrategy(rec);
+    return kNoLayer_SaveLayerStrategy;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 static_assert((int)SkRegion::kDifference_Op         == (int)kDifference_SkClipOp, "");
 static_assert((int)SkRegion::kIntersect_Op          == (int)kIntersect_SkClipOp, "");
@@ -3382,3 +3407,58 @@ static_assert((int)SkRegion::kUnion_Op              == (int)kUnion_SkClipOp, "")
 static_assert((int)SkRegion::kXOR_Op                == (int)kXOR_SkClipOp, "");
 static_assert((int)SkRegion::kReverseDifference_Op  == (int)kReverseDifference_SkClipOp, "");
 static_assert((int)SkRegion::kReplace_Op            == (int)kReplace_SkClipOp, "");
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkRasterHandleAllocator::Handle SkCanvas::accessTopRasterHandle() const {
+    if (fAllocator && fMCRec->fTopLayer->fDevice) {
+        const SkBaseDevice* dev = fMCRec->fTopLayer->fDevice;
+        SkRasterHandleAllocator::Handle handle = dev->getRasterHandle();
+        SkIPoint origin = dev->getOrigin();
+        SkMatrix ctm = this->getTotalMatrix();
+        ctm.preTranslate(SkIntToScalar(-origin.x()), SkIntToScalar(-origin.y()));
+
+        SkIRect clip = fMCRec->fRasterClip.getBounds();
+        clip.offset(-origin.x(), -origin.y());
+        if (!clip.intersect(0, 0, dev->width(), dev->height())) {
+            clip.setEmpty();
+        }
+
+        fAllocator->updateHandle(handle, ctm, clip);
+        return handle;
+    }
+    return nullptr;
+}
+
+static bool install(SkBitmap* bm, const SkImageInfo& info,
+                    const SkRasterHandleAllocator::Rec& rec) {
+    return bm->installPixels(info, rec.fPixels, rec.fRowBytes, nullptr,
+                             rec.fReleaseProc, rec.fReleaseCtx);
+}
+
+SkRasterHandleAllocator::Handle SkRasterHandleAllocator::allocBitmap(const SkImageInfo& info,
+                                                                     SkBitmap* bm) {
+    SkRasterHandleAllocator::Rec rec;
+    if (!this->allocHandle(info, &rec) || !install(bm, info, rec)) {
+        return nullptr;
+    }
+    return rec.fHandle;
+}
+
+std::unique_ptr<SkCanvas>
+SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> alloc,
+                                    const SkImageInfo& info, const Rec* rec) {
+    if (!alloc || !supported_for_raster_canvas(info)) {
+        return nullptr;
+    }
+
+    SkBitmap bm;
+    Handle hndl;
+
+    if (rec) {
+        hndl = install(&bm, info, *rec) ? rec->fHandle : nullptr;
+    } else {
+        hndl = alloc->allocBitmap(info, &bm);
+    }
+    return hndl ? std::unique_ptr<SkCanvas>(new SkCanvas(bm, std::move(alloc), hndl)) : nullptr;
+}

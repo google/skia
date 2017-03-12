@@ -28,8 +28,7 @@ typedef SkFixed3232    SkFractionalInt;
 class SkPaint;
 
 struct SkBitmapProcInfo {
-    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy,
-                     SkDestinationSurfaceColorMode);
+    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
     ~SkBitmapProcInfo();
 
     const SkBitmapProvider        fProvider;
@@ -43,7 +42,6 @@ struct SkBitmapProcInfo {
     SkShader::TileMode            fTileModeY;
     SkFilterQuality               fFilterQuality;
     SkMatrix::TypeMask            fInvType;
-    SkDestinationSurfaceColorMode fColorMode;
 
     bool init(const SkMatrix& inverse, const SkPaint&);
 
@@ -56,9 +54,8 @@ private:
 };
 
 struct SkBitmapProcState : public SkBitmapProcInfo {
-    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy,
-                      SkDestinationSurfaceColorMode colorMode)
-        : SkBitmapProcInfo(prov, tmx, tmy, colorMode) {}
+    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy)
+        : SkBitmapProcInfo(prov, tmx, tmy) {}
 
     bool setup(const SkMatrix& inv, const SkPaint& paint) {
         return this->init(inv, paint) && this->chooseProcs();
@@ -79,7 +76,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
                                  SkPMColor colors[]);
 
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
-    typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
@@ -88,8 +84,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
 
     FixedTileProc       fTileProcX;         // chooseProcs
     FixedTileProc       fTileProcY;         // chooseProcs
-    FixedTileLowBitsProc fTileLowBitsProcX; // chooseProcs
-    FixedTileLowBitsProc fTileLowBitsProcY; // chooseProcs
     IntTileProc         fIntTileProcY;      // chooseProcs
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
@@ -239,8 +233,11 @@ public:
             biasY = s.fFilterOneY >> 1;
         }
 
-        fX = SkScalarToFractionalInt(pt.x()) - SkFixedToFractionalInt(biasX);
-        fY = SkScalarToFractionalInt(pt.y()) - SkFixedToFractionalInt(biasY);
+        // punt to unsigned for defined underflow behavior
+        fX = (SkFractionalInt)((uint64_t)SkScalarToFractionalInt(pt.x()) -
+                               (uint64_t)SkFixedToFractionalInt(biasX));
+        fY = (SkFractionalInt)((uint64_t)SkScalarToFractionalInt(pt.y()) -
+                               (uint64_t)SkFixedToFractionalInt(biasY));
 
         if (scalarPoint) {
             scalarPoint->set(pt.x() - SkFixedToScalar(biasX),

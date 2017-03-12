@@ -45,6 +45,8 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kImageStorage2D_GrSLType:
+        case kIImageStorage2D_GrSLType:
             break;
     }
     SkFAIL("Unexpected type");
@@ -86,6 +88,8 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kImageStorage2D_GrSLType:
+        case kIImageStorage2D_GrSLType:
             break;
     }
     SkFAIL("Unexpected type");
@@ -155,10 +159,10 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     uni.fVariable.setPrecision(precision);
     // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus
     // we set the modifier to none for all uniforms declared inside the block.
-    uni.fVariable.setTypeModifier(GrGLSLShaderVar::kNone_TypeModifier);
+    uni.fVariable.setTypeModifier(GrShaderVar::kNone_TypeModifier);
 
     uint32_t* currentOffset = kVertex_GrShaderFlag == visibility ? &fCurrentVertexUBOOffset
-                                                                   : &fCurrentFragmentUBOOffset;
+                                                                 : &fCurrentFragmentUBOOffset;
     get_ubo_aligned_offset(&uni.fUBOffset, currentOffset, type, arrayCount);
 
     if (outName) {
@@ -168,11 +172,11 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::internalAddSampler(uint32_t visibility,
-                                                                           GrPixelConfig config,
-                                                                           GrSLType type,
-                                                                           GrSLPrecision precision,
-                                                                           const char* name) {
+GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(uint32_t visibility,
+                                                                   GrSwizzle swizzle,
+                                                                   GrSLType type,
+                                                                   GrSLPrecision precision,
+                                                                   const char* name) {
     SkASSERT(name && strlen(name));
     SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
     SkASSERT(0 == (~kVisMask & visibility));
@@ -180,8 +184,20 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::internalAddSampler(uint3
     SkString mangleName;
     char prefix = 'u';
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
-    fSamplers.emplace_back(visibility, config, type, precision, mangleName.c_str(),
-                           (uint32_t)fSamplers.count(), kSamplerDescSet);
+
+    UniformInfo& info = fSamplers.push_back();
+    SkASSERT(GrSLTypeIsCombinedSamplerType(type));
+    info.fVariable.setType(type);
+    info.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
+    info.fVariable.setPrecision(precision);
+    info.fVariable.setName(mangleName);
+    SkString layoutQualifier;
+    layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count() - 1);
+    info.fVariable.addLayoutQualifier(layoutQualifier.c_str());
+    info.fVisibility = visibility;
+    info.fUBOffset = 0;
+    fSamplerSwizzles.push_back(swizzle);
+    SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
@@ -189,10 +205,10 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     SkASSERT(kVertex_GrShaderFlag == visibility || kFragment_GrShaderFlag == visibility);
 
     for (int i = 0; i < fSamplers.count(); ++i) {
-        const GrVkGLSLSampler& sampler = fSamplers[i];
-        SkASSERT(sampler.type() == kTexture2DSampler_GrSLType);
-        if (visibility == sampler.visibility()) {
-            sampler.fShaderVar.appendDecl(fProgramBuilder->glslCaps(), out);
+        const UniformInfo& sampler = fSamplers[i];
+        SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
+        if (visibility == sampler.fVisibility) {
+            sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
         }
     }
@@ -202,7 +218,7 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         const UniformInfo& localUniform = fUniforms[i];
         if (visibility == localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
-                localUniform.fVariable.appendDecl(fProgramBuilder->glslCaps(), &uniformsString);
+                localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }
         }

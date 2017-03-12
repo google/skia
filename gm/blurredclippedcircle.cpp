@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkBlurMaskFilter.h"
+#include "SkClipOpPriv.h"
 #include "SkColorFilter.h"
 #include "SkPaint.h"
 #include "SkRRect.h"
@@ -56,7 +57,7 @@ protected:
 
                     SkRect clipRect2 = SkRect::MakeLTRB(8, 8, 288, 288);
                     SkRRect clipRRect = SkRRect::MakeOval(clipRect2);
-                    canvas->clipRRect(clipRRect, SkCanvas::kDifference_Op, true);
+                    canvas->clipRRect(clipRRect, kDifference_SkClipOp, true);
 
                     SkRect r = SkRect::MakeLTRB(4, 4, 292, 292);
                     SkRRect rr = SkRRect::MakeOval(r);

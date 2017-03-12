@@ -34,13 +34,10 @@ public:
 
     /** Documents how the caller plans to use a GrPathRenderer to draw a path. It affects the PR
         returned by getPathRenderer */
-    enum DrawType {
-        kColor_DrawType,                    // draw to the color buffer, no AA
-        kColorAntiAlias_DrawType,           // draw to color buffer, with partial coverage AA
-        kStencilOnly_DrawType,              // draw just to the stencil buffer
-        kStencilAndColor_DrawType,          // draw the stencil and color buffer, no AA
-        kStencilAndColorAntiAlias_DrawType  // draw the stencil and color buffer, with partial
-                                            // coverage AA.
+    enum class DrawType {
+        kColor,            // draw to the color buffer, no AA
+        kStencil,          // draw just to the stencil buffer
+        kStencilAndColor,  // draw the stencil and color buffer, no AA
     };
 
     /** Returns a GrPathRenderer compatible with the request if one is available. If the caller

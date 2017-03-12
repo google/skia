@@ -45,7 +45,7 @@ void SkBitmapProvider::notifyAddedToCache() const {
 }
 
 bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
-    return as_IB(fImage)->getROPixels(bm, SkImage::kAllow_CachingHint);
+    return as_IB(fImage)->getROPixels(bm, fDstColorSpace, SkImage::kAllow_CachingHint);
 }
 
 bool SkBitmapProvider::accessScaledImage(const SkRect& srcRect,
@@ -71,7 +71,9 @@ bool SkBitmapProvider::accessScaledImage(const SkRect& srcRect,
 
     SkImageGenerator::ScaledImageRec rec;
     if (!cacherator->directAccessScaledImage(srcRect, m, fq, &rec) ||
-        !rec.fImage->asLegacyBitmap(scaledBitmap, SkImage::kRO_LegacyBitmapMode)) {
+        !scaledBitmap->installPixels(rec.fPixmap.info(), const_cast<void*>(rec.fPixmap.addr()),
+                                     rec.fPixmap.rowBytes(), rec.fPixmap.ctable(),
+                                     rec.fReleaseProc, rec.fReleaseCtx)) {
         return false;
     }
 

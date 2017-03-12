@@ -22,6 +22,7 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkXMLWriter.h"
+#include "SkClipOpPriv.h"
 
 namespace {
 
@@ -534,8 +535,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
 
     SkString familyName;
     SkTHashSet<SkString> familySet;
-    sk_sp<const SkTypeface> tface(paint.getTypeface() ?
-        sk_ref_sp(paint.getTypeface()) : SkTypeface::MakeDefault());
+    sk_sp<SkTypeface> tface(paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault());
 
     SkASSERT(tface);
     SkTypeface::Style style = tface->style();
@@ -659,10 +659,14 @@ void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint
     }
 }
 
+static sk_sp<SkData> encode(const SkBitmap& src) {
+    SkDynamicMemoryWStream buf;
+    return SkEncodeImage(&buf, src, SkEncodedImageFormat::kPNG, 80) ? buf.detachAsData() : nullptr;
+}
+
 void SkSVGDevice::drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm,
                                    const SkPaint& paint) {
-    sk_sp<const SkData> pngData(
-        SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, SkImageEncoder::kDefaultQuality));
+    sk_sp<SkData> pngData = encode(bm);
     if (!pngData) {
         return;
     }
@@ -727,7 +731,7 @@ void SkSVGDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bm, const S
     SkClipStack adjustedClipStack;
     if (srcOrNull && *srcOrNull != SkRect::Make(bm.bounds())) {
         adjustedClipStack = *draw.fClipStack;
-        adjustedClipStack.clipRect(dst, *draw.fMatrix, SkCanvas::kIntersect_Op,
+        adjustedClipStack.clipRect(dst, *draw.fMatrix, kIntersect_SkClipOp,
                                    paint.isAntiAlias());
         adjustedDraw.fClipStack = &adjustedClipStack;
     }

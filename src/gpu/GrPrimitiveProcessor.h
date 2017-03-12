@@ -18,31 +18,18 @@
  * responsible for providing a color and coverage input into the Ganesh rendering pipeline.  Through
  * optimization, Ganesh may decide a different color, no color, and / or no coverage are required
  * from the GrPrimitiveProcessor, so the GrPrimitiveProcessor must be able to support this
- * functionality.  We also use the GrPrimitiveProcessor to make batching decisions.
+ * functionality.
  *
  * There are two feedback loops between the GrFragmentProcessors, the GrXferProcessor, and the
  * GrPrimitiveProcessor.  These loops run on the CPU and compute any invariant components which
  * might be useful for correctness / optimization decisions.  The GrPrimitiveProcessor seeds these
  * loops, one with initial color and one with initial coverage, in its
  * onComputeInvariantColor / Coverage calls.  These seed values are processed by the subsequent
- * stages of the rendering pipeline and the output is then fed back into the GrPrimitiveProcessor in
- * the initBatchTracker call, where the GrPrimitiveProcessor can then initialize the GrBatchTracker
- * struct with the appropriate values.
- *
- * We are evolving this system to move towards generating geometric meshes and their associated
- * vertex data after we have batched and reordered draws.  This system, known as 'deferred geometry'
- * will allow the GrPrimitiveProcessor much greater control over how data is transmitted to shaders.
- *
- * In a deferred geometry world, the GrPrimitiveProcessor can always 'batch'  To do this, each
- * primitive type is associated with one GrPrimitiveProcessor, who has complete control of how
- * it draws.  Each primitive draw will bundle all required data to perform the draw, and these
- * bundles of data will be owned by an instance of the associated GrPrimitiveProcessor.  Bundles
- * can be updated alongside the GrBatchTracker struct itself, ultimately allowing the
- * GrPrimitiveProcessor complete control of how it gets data into the fragment shader as long as
- * it emits the appropriate color, or none at all, as directed.
+ * stages of the rendering pipeline and the output is then fed back into the GrDrawOp in
+ * the applyPipelineOptimizations call, where the op can use the information to inform decisions
+ * about GrPrimitiveProcessor creation.
  */
 
-class GrGLSLCaps;
 class GrGLSLPrimitiveProcessor;
 
 struct GrInitInvariantOutput;
@@ -58,23 +45,17 @@ enum GrPixelLocalStorageState {
 };
 
 /*
- * This class allows the GrPipeline to communicate information about the pipeline to a
- * GrBatch which should be forwarded to the GrPrimitiveProcessor(s) created by the batch.
- * These are not properly part of the pipeline because they assume the specific inputs
- * that the batch provided when it created the pipeline. Identical pipelines may be
- * created by different batches with different input assumptions and therefore different
- * computed optimizations. It is the batch-specific optimizations that allow the pipelines
- * to be equal.
+ * This class allows the GrPipeline to communicate information about the pipeline to a GrOp which
+ * inform its decisions for GrPrimitiveProcessor setup. These are not properly part of the pipeline
+ * because they reflect the specific inputs that the op provided to perform the analysis (e.g. that
+ * the GrGeometryProcessor would output an opaque color).
+ *
+ * The pipeline analysis that produced this may have decided to elide some GrProcessors. However,
+ * those elisions may depend upon changing the color output by the GrGeometryProcessor used by the
+ * GrDrawOp. The op must check getOverrideColorIfSet() for this.
  */
-class GrXPOverridesForBatch {
+class GrPipelineOptimizations {
 public:
-    /** Does the pipeline require the GrPrimitiveProcessor's color? */
-    bool readsColor() const { return SkToBool(kReadsColor_Flag & fFlags); }
-
-    /** Does the pipeline require the GrPrimitiveProcessor's coverage? */
-    bool readsCoverage() const { return
-        SkToBool(kReadsCoverage_Flag & fFlags); }
-
     /** Does the pipeline require access to (implicit or explicit) local coordinates? */
     bool readsLocalCoords() const {
         return SkToBool(kReadsLocalCoords_Flag & fFlags);
@@ -90,7 +71,6 @@ public:
         so get the color)? */
     bool getOverrideColorIfSet(GrColor* overrideColor) const {
         if (SkToBool(kUseOverrideColor_Flag & fFlags)) {
-            SkASSERT(SkToBool(kReadsColor_Flag & fFlags));
             if (overrideColor) {
                 *overrideColor = fOverrideColor;
             }
@@ -105,7 +85,7 @@ public:
      * can conflate coverage and color, so the destination color may still bleed into pixels that
      * have partial coverage, even if this function returns false.
      *
-     * The above comment seems incorrect for the use case. This funciton is used to turn two
+     * The above comment seems incorrect for the use case. This function is used to turn two
      * overlapping draws into a single draw (really to stencil multiple paths and do a single
      * cover). It seems that what really matters is whether the dst is read for color OR for
      * coverage.
@@ -114,24 +94,18 @@ public:
 
 private:
     enum {
-        // If this is not set the primitive processor need not produce a color output
-        kReadsColor_Flag                = 0x1,
-
-        // If this is not set the primitive processor need not produce a coverage output
-        kReadsCoverage_Flag             = 0x2,
-
         // If this is not set the primitive processor need not produce local coordinates
-        kReadsLocalCoords_Flag          = 0x4,
+        kReadsLocalCoords_Flag = 0x1,
 
         // If this flag is set then the primitive processor may produce color*coverage as
         // its color output (and not output a separate coverage).
-        kCanTweakAlphaForCoverage_Flag  = 0x8,
+        kCanTweakAlphaForCoverage_Flag = 0x2,
 
         // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
         // output color. If not set fOverrideColor is to be ignored.
-        kUseOverrideColor_Flag          = 0x10,
+        kUseOverrideColor_Flag = 0x4,
 
-        kWillColorBlendWithDst_Flag     = 0x20,
+        kWillColorBlendWithDst_Flag = 0x8,
     };
 
     uint32_t    fFlags;
@@ -190,14 +164,13 @@ public:
      *
      * TODO: A better name for this function  would be "compute" instead of "get".
      */
-    virtual void getGLSLProcessorKey(const GrGLSLCaps& caps,
-                                     GrProcessorKeyBuilder* b) const = 0;
+    virtual void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps& caps) const = 0;
+    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const = 0;
 
     virtual bool isPathRendering() const { return false; }
 

@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkMatrix.h"
+#include "SkPathOps.h"
 #include "SkSVGNode.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGValue.h"
@@ -30,6 +31,22 @@ bool SkSVGNode::asPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
     return this->onPrepareToRender(&localContext) && this->onAsPaint(localContext, paint);
 }
 
+SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
+    SkSVGRenderContext localContext(ctx);
+    if (!this->onPrepareToRender(&localContext)) {
+        return SkPath();
+    }
+
+    SkPath path = this->onAsPath(localContext);
+
+    if (const auto* clipPath = localContext.clipPath()) {
+        // There is a clip-path present on the current node.
+        Op(path, *clipPath, kIntersect_SkPathOp, &path);
+    }
+
+    return path;
+}
+
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     ctx->applyPresentationAttributes(fPresentationAttributes,
                                      this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
@@ -40,6 +57,10 @@ void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     this->onSetAttribute(attr, v);
 }
 
+void SkSVGNode::setClipPath(const SkSVGClip& clip) {
+    fPresentationAttributes.fClipPath.set(clip);
+}
+
 void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
     fPresentationAttributes.fFill.set(svgPaint);
 }
@@ -47,6 +68,10 @@ void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
 void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fFillOpacity.set(
         SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
+}
+
+void SkSVGNode::setFillRule(const SkSVGFillRule& fillRule) {
+    fPresentationAttributes.fFillRule.set(fillRule);
 }
 
 void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
@@ -69,6 +94,11 @@ void SkSVGNode::setStrokeWidth(const SkSVGLength& strokeWidth) {
 
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
+    case SkSVGAttribute::kClipPath:
+        if (const SkSVGClipValue* clip = v.as<SkSVGClipValue>()) {
+            this->setClipPath(*clip);
+        }
+        break;
     case SkSVGAttribute::kFill:
         if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
             this->setFill(*paint);
@@ -77,6 +107,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kFillOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setFillOpacity(*opacity);
+        }
+        break;
+    case SkSVGAttribute::kFillRule:
+        if (const SkSVGFillRuleValue* fillRule = v.as<SkSVGFillRuleValue>()) {
+            this->setFillRule(*fillRule);
         }
         break;
     case SkSVGAttribute::kOpacity:

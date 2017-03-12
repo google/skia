@@ -15,6 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrTextureProxy.h"
 #include "SkGr.h"
 #endif
 
@@ -110,8 +111,8 @@ static void get_box3_params(SkScalar s, int *kernelSize, int* kernelSize3, int *
 }
 
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                       const Context& ctx,
-                                                       SkIPoint* offset) const {
+                                                           const Context& ctx,
+                                                           SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
 
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
@@ -135,6 +136,11 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
         GrContext* context = source->getContext();
+
+        // Ensure the input is in the destination's gamut. This saves us from having to do the
+        // xform during the filter itself.
+        input = ImageToColorSpace(input.get(), ctx.outputProperties());
+
         sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
         if (!inputTexture) {
             return nullptr;
@@ -151,13 +157,14 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         offset->fY = dstBounds.fTop;
         inputBounds.offset(-inputOffset);
         dstBounds.offset(-inputOffset);
-        // We intentionally use the source's color space, not the destination's (from ctx). We
-        // always blur in the source's config, so we need a compatible color space. We also want to
-        // avoid doing gamut conversion on every fetch of the texture.
+        // Typically, we would create the RTC with the output's color space (from ctx), but we
+        // always blur in the PixelConfig of the *input*. Those might not be compatible (if they
+        // have different transfer functions). We've already guaranteed that those color spaces
+        // have the same gamut, so in this case, we do everything in the input's color space.
         sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
                                                                 context,
                                                                 inputTexture.get(),
-                                                                sk_ref_sp(source->getColorSpace()),
+                                                                sk_ref_sp(input->getColorSpace()),
                                                                 dstBounds,
                                                                 &inputBounds,
                                                                 sigma.x(),
@@ -166,11 +173,11 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
             return nullptr;
         }
 
-        // TODO: Get the colorSpace from the renderTargetContext (once it has one)
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
                                            renderTargetContext->asTexture(),
-                                           sk_ref_sp(input->getColorSpace()), &source->props());
+                                           renderTargetContext->refColorSpace(),
+                                           &source->props());
     }
 #endif
 

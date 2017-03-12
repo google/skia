@@ -14,6 +14,8 @@
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
+#include "GrTextureContext.h"
+#include "GrTextureOpList.h"
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
@@ -78,11 +80,11 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     SkASSERT(result);
 
     for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->prepareBatches(&fFlushState);
+        fOpLists[i]->prepareOps(&fFlushState);
     }
 
-    // Enable this to print out verbose batching information
 #if 0
+    // Enable this to print out verbose GrOp information
     for (int i = 0; i < fOpLists.count(); ++i) {
         SkDEBUGCODE(fOpLists[i]->dump();)
     }
@@ -92,7 +94,7 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     fFlushState.preIssueDraws();
 
     for (int i = 0; i < fOpLists.count(); ++i) {
-        if (fOpLists[i]->drawBatches(&fFlushState)) {
+        if (fOpLists[i]->executeOps(&fFlushState)) {
             flushed = true;
         }
     }
@@ -172,6 +174,24 @@ GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
     return SkRef(opList);
 }
 
+GrTextureOpList* GrDrawingManager::newOpList(GrTextureProxy* textureProxy) {
+    SkASSERT(fContext);
+
+    GrTextureOpList* opList = new GrTextureOpList(textureProxy, fContext->getGpu(),
+                                                  fContext->getAuditTrail());
+
+#ifndef ENABLE_MDB
+    // When MDB is disabled we still create a new GrOpList, but don't store or ref it - we rely
+    // on the caller to immediately execute and free it.
+    return opList;
+#else
+    *fOpLists.append() = opList;
+
+    // Drawing manager gets the creation ref - this ref is for the caller
+    return SkRef(opList);
+#endif
+}
+
 GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {
     if (!fAtlasTextContext) {
         fAtlasTextContext.reset(GrAtlasTextContext::Create());
@@ -202,7 +222,9 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
                     new GrSoftwarePathRenderer(fContext->textureProvider(),
                                                fOptionsForPathRendererChain.fAllowPathMaskCaching);
         }
-        pr = fSoftwarePathRenderer;
+        if (fSoftwarePathRenderer->canDrawPath(args)) {
+            pr = fSoftwarePathRenderer;
+        }
     }
 
     return pr;
@@ -216,15 +238,15 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
-
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage. We allow a null color space here, for read/write pixels and
     // other special code paths. If a color space is provided, though, enforce all other rules.
-    if (colorSpace && !SkSurface_Gpu::Valid(fContext, rtp->config(), colorSpace.get())) {
+    if (colorSpace && !SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
+
+    sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
     bool useDIF = false;
     if (surfaceProps) {
@@ -252,4 +274,29 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                                   surfaceProps,
                                                                   fContext->getAuditTrail(),
                                                                   fSingleOwner));
+}
+
+sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
+                                                             sk_sp<SkColorSpace> colorSpace) {
+    if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
+        return nullptr;
+    }
+
+    // SkSurface catches bad color space usage at creation. This check handles anything that slips
+    // by, including internal usage. We allow a null color space here, for read/write pixels and
+    // other special code paths. If a color space is provided, though, enforce all other rules.
+    if (colorSpace && !SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
+        SkDEBUGFAIL("Invalid config and colorspace combination");
+        return nullptr;
+    }
+
+    // GrTextureRenderTargets should always be using GrRenderTargetContext
+    SkASSERT(!sProxy->asRenderTargetProxy());
+
+    sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
+
+    return sk_sp<GrTextureContext>(new GrTextureContext(fContext, this, std::move(textureProxy),
+                                                        std::move(colorSpace),
+                                                        fContext->getAuditTrail(),
+                                                        fSingleOwner));
 }

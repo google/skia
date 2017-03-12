@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "SkBitmap.h"
 #include "SkShader.h"
-#include "SkXfermode.h"
 #include "SkPM4f.h"
 
 enum SrcType {

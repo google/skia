@@ -12,14 +12,13 @@
 #include "GrProgramDesc.h"
 #include "GrSwizzle.h"
 #include "GrAllocator.h"
-#include "GrTextureParamsAdjuster.h"
+#include "GrTextureProducer.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "SkPath.h"
 #include "SkTArray.h"
 #include <map>
 
-class GrBatchTracker;
 class GrBuffer;
 class GrContext;
 struct GrContextOptions;
@@ -367,9 +366,11 @@ public:
     }
 
     // Creates a GrGpuCommandBuffer in which the GrOpList can send draw commands to instead of
-    // directly to the Gpu object.
+    // directly to the Gpu object. This currently does not take a GrRenderTarget. The command buffer
+    // is expected to infer the render target from the first draw, clear, or discard. This is an
+    // awkward workaround that goes away after MDB is complete and the render target is known from
+    // the GrRenderTargetOpList.
     virtual GrGpuCommandBuffer* createCommandBuffer(
-            GrRenderTarget* target,
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) = 0;
 
@@ -469,16 +470,16 @@ public:
     virtual void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) = 0;
 
     // Determines whether a texture will need to be rescaled in order to be used with the
-    // GrTextureParams. This variation is called when the caller will create a new texture using the
+    // GrSamplerParams. This variation is called when the caller will create a new texture using the
     // texture provider from a non-texture src (cpu-backed image, ...).
-    bool makeCopyForTextureParams(int width, int height, const GrTextureParams&,
+    bool makeCopyForTextureParams(int width, int height, const GrSamplerParams&,
                                  GrTextureProducer::CopyParams*) const;
 
     // Like the above but this variation should be called when the caller is not creating the
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
     // GrTextureProvider::wrap methods.
-    bool makeCopyForTextureParams(GrTexture* texture, const GrTextureParams& params,
+    bool makeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& params,
                                   GrTextureProducer::CopyParams* copyParams) const {
         if (this->makeCopyForTextureParams(texture->width(), texture->height(), params,
                                            copyParams)) {
@@ -547,7 +548,7 @@ private:
 
     virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
 
-    virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrTextureParams&,
+    virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams&,
                                             GrTextureProducer::CopyParams*) const { return false; }
 
     virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight,
