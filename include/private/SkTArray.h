@@ -569,11 +569,22 @@ public:
     }
 
     SkSTArray& operator= (const SkSTArray& array) {
-        return *this = *(const INHERITED*)&array;
+        INHERITED::operator=(array);
+        return *this;
+    }
+
+    SkSTArray& operator= (SkSTArray&& array) {
+        INHERITED::operator=(std::move(array));
+        return *this;
     }
 
     SkSTArray& operator= (const INHERITED& array) {
         INHERITED::operator=(array);
+        return *this;
+    }
+
+    SkSTArray& operator= (INHERITED&& array) {
+        INHERITED::operator=(std::move(array));
         return *this;
     }
 
