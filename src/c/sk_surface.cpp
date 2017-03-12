@@ -78,6 +78,16 @@ static bool from_c_alphatype(sk_alphatype_t cAT, SkAlphaType* skAT) {
     return false;
 }
 
+static bool to_c_alphatype(SkAlphaType skAT, sk_alphatype_t &cAT) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlphaTypeMap); ++i) {
+        if (gAlphaTypeMap[i].fSK == skAT) {
+            cAT = gAlphaTypeMap[i].fC;
+            return true;
+        }
+    }
+    return false;
+}
+
 static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     SkColorType ct;
     SkAlphaType at;
@@ -92,6 +102,16 @@ static bool from_c_info(const sk_imageinfo_t& cinfo, SkImageInfo* info) {
     }
     if (info) {
         *info = SkImageInfo::Make(cinfo.width, cinfo.height, ct, at);
+    }
+    return true;
+}
+
+static bool to_c_info(const SkImageInfo &info, sk_imageinfo_t& cinfo) {
+    cinfo.width = info.width();
+    cinfo.height = info.height();
+    if (!to_c_colortype(info.colorType(), &cinfo.colorType) ||
+        !to_c_alphatype(info.alphaType(), cinfo.alphaType)) {
+        return false;
     }
     return true;
 }
@@ -214,6 +234,15 @@ sk_colortype_t sk_colortype_get_default_8888() {
         ct = UNKNOWN_SK_COLORTYPE;
     }
     return ct;
+}
+
+sk_imageinfo_t sk_imageinfo_make_n32_premul(int width, int height) {
+    auto info = SkImageInfo::MakeN32Premul(SkISize::Make(width, height));
+    sk_imageinfo_t ret;
+    const bool convert_res = to_c_info(info, ret);
+    SkASSERT(convert_res);
+    (void)convert_res;
+    return ret;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -417,6 +446,27 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
         matrixPtr = &matrix;
     }
     AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), matrixPtr, AsPaint(cpaint));
+}
+
+void sk_canvas_draw_color(sk_canvas_t *ccanvas, sk_color_t color)
+{
+    AsCanvas(ccanvas)->drawColor(color);
+}
+
+void sk_canvas_draw_text(sk_canvas_t *ccanvas, const void* text, size_t byteLength, float x, float y, const sk_paint_t *cpaint)
+{
+    AsCanvas(ccanvas)->drawText(text, byteLength, x, y, *AsPaint(cpaint));
+}
+
+void sk_canvas_draw_line(sk_canvas_t *ccanvas, float x0, float y0, float x1, float y1, const sk_paint_t *cpaint)
+{
+    AsCanvas(ccanvas)->drawLine(x0, y0, x1, y1, *AsPaint(cpaint));
+}
+
+void sk_canvas_draw_arc(sk_canvas_t *ccanvas, const sk_rect_t *coval, float start_angle,
+			float sweep_angle, bool use_center, const sk_paint_t *cpaint)
+{
+    AsCanvas(ccanvas)->drawArc(AsRect(*coval), start_angle, sweep_angle, use_center, *AsPaint(cpaint));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
