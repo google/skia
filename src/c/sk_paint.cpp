@@ -9,6 +9,7 @@
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkShader.h"
+#include "SkDashPathEffect.h"
 
 #include "sk_paint.h"
 #include "sk_types_priv.h"
@@ -170,4 +171,38 @@ void sk_paint_set_xfermode_mode(sk_paint_t* paint, sk_xfermode_mode_t mode) {
             return;
     }
     AsPaint(paint)->setBlendMode(skmode);
+}
+
+void sk_paint_set_text_size(sk_paint_t *paint, float ts)
+{
+    AsPaint(paint)->setTextSize(ts);
+}
+
+void sk_paint_measure_text(const sk_paint_t *paint, const char *text, size_t text_len, sk_rect_t *bounds)
+{
+   SkRect rect = SkRect::MakeEmpty();
+   AsPaint(paint)->measureText(text, text_len, &rect);
+   if (bounds != nullptr) {
+       bounds->left = rect.fLeft;
+       bounds->right = rect.fRight;
+       bounds->top = rect.fTop;
+       bounds->bottom = rect.fBottom;
+   }
+}
+
+float sk_paint_get_font_spacing(const sk_paint_t *paint)
+{
+    return AsPaint(paint)->getFontSpacing();
+}
+
+extern "C" void sk_paint_set_dash_effect(sk_paint_t *paint, float value1, float value2)
+{
+    const SkScalar intervals[] = { value1, value2 };
+    size_t count  = sizeof(intervals) / sizeof(intervals[0]);
+    AsPaint(paint)->setPathEffect(SkDashPathEffect::Make(intervals, count, 0.0f));
+}
+
+void sk_paint_reset_dash_effect(sk_paint_t *paint)
+{
+    AsPaint(paint)->setPathEffect(nullptr);
 }
