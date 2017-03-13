@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f4bea4a7_8e90c36b",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-13T20:43:16Z",
+      "side": 1,
+      "message": "Honestly, because I copied code from here.",
+      "revId": "3804a3361face2ca4abddbc8169e27bd92aa08af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "26281a8c_a153bb4c",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 5
