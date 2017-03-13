@@ -14,6 +14,64 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkPairShader::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeFlattenable(fShaderA.get());
+    buffer.writeFlattenable(fShaderB.get());
+}
+
+void SkPairShader::PairContext::shadeSpan(int x, int y, SkPMColor result[], int count) {
+    SkShader::Context* contextA = fContextA;
+    SkShader::Context* contextB = fContextB;
+
+    const int kTmpCount = 64;
+    SkPMColor tmp[kTmpCount];
+
+    do {
+        int n = count;
+        if (n > kTmpCount) {
+            n = kTmpCount;
+        }
+
+        contextA->shadeSpan(x, y, result, n);
+        contextB->shadeSpan(x, y, tmp, n);
+
+        ((SkPairShader*)&fShader)->mixSpans(result, tmp, n, this->getPaintAlpha());
+
+        result += n;
+        x += n;
+        count -= n;
+    } while (count > 0);
+}
+
+SkShader::Context* SkPairShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+    // we preconcat our localMatrix (if any) with the device matrix
+    // before calling our sub-shaders
+    SkMatrix tmpM;
+    tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
+
+    // Our sub-shaders need to see opaque, so by combining them we don't double-alphatize the
+    // result. The subclass itself will respect the alpha, and post-apply it after calling the
+    // sub-shaders.
+    SkPaint opaquePaint(*rec.fPaint);
+    opaquePaint.setAlpha(0xFF);
+
+    ContextRec newRec(rec);
+    newRec.fMatrix = &tmpM;
+    newRec.fPaint = &opaquePaint;
+
+    SkShader::Context* contextA = fShaderA->makeContext(newRec, alloc);
+    SkShader::Context* contextB = fShaderB->makeContext(newRec, alloc);
+    if (!contextA || !contextB) {
+        return nullptr;
+    }
+
+    return alloc->make<PairContext>(*this, rec, contextA, contextB);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
                                             SkBlendMode mode) {
     if (!src || !dst) {
@@ -29,23 +87,6 @@ sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader>
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-class SkAutoAlphaRestore {
-public:
-    SkAutoAlphaRestore(SkPaint* paint, uint8_t newAlpha) {
-        fAlpha = paint->getAlpha();
-        fPaint = paint;
-        paint->setAlpha(newAlpha);
-    }
-
-    ~SkAutoAlphaRestore() {
-        fPaint->setAlpha(fAlpha);
-    }
-private:
-    SkPaint*    fPaint;
-    uint8_t     fAlpha;
-};
-#define SkAutoAlphaRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoAlphaRestore)
 
 sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> shaderA(buffer.readShader());
@@ -64,44 +105,34 @@ sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeFlattenable(fShaderA.get());
-    buffer.writeFlattenable(fShaderB.get());
+    this->INHERITED::flatten(buffer);
     buffer.write32((int)fMode);
 }
 
-SkShader::Context* SkComposeShader::onMakeContext(
-    const ContextRec& rec, SkArenaAlloc* alloc) const
-{
-    // we preconcat our localMatrix (if any) with the device matrix
-    // before calling our sub-shaders
-    SkMatrix tmpM;
-    tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
+void SkComposeShader::mixSpans(SkPMColor result[], const SkPMColor spanB[], int count,
+                               uint8_t alpha) const {
+    unsigned scale = SkAlpha255To256(alpha);
 
-    // Our sub-shaders need to see opaque, so by combining them we don't double-alphatize the
-    // result. ComposeShader itself will respect the alpha, and post-apply it after calling the
-    // sub-shaders.
-    SkPaint opaquePaint(*rec.fPaint);
-    opaquePaint.setAlpha(0xFF);
-
-    ContextRec newRec(rec);
-    newRec.fMatrix = &tmpM;
-    newRec.fPaint = &opaquePaint;
-
-    SkShader::Context* contextA = fShaderA->makeContext(newRec, alloc);
-    SkShader::Context* contextB = fShaderB->makeContext(newRec, alloc);
-    if (!contextA || !contextB) {
-        return nullptr;
+    SkXfermode* xfer = SkXfermode::Peek(fMode);
+    if (nullptr == xfer) {   // implied SRC_OVER
+        if (256 == scale) {
+            for (int i = 0; i < count; i++) {
+                result[i] = SkPMSrcOver(spanB[i], result[i]);
+            }
+        } else {
+            for (int i = 0; i < count; i++) {
+                result[i] = SkAlphaMulQ(SkPMSrcOver(spanB[i], result[i]), scale);
+            }
+        }
+    } else {
+        xfer->xfer32(result, spanB, count, nullptr);
+        if (256 != scale) {
+            for (int i = 0; i < count; i++) {
+                result[i] = SkAlphaMulQ(result[i], scale);
+            }
+        }
     }
-
-    return alloc->make<ComposeShaderContext>(*this, rec, contextA, contextB);
 }
-
-SkComposeShader::ComposeShaderContext::ComposeShaderContext(
-        const SkComposeShader& shader, const ContextRec& rec,
-        SkShader::Context* contextA, SkShader::Context* contextB)
-    : INHERITED(shader, rec)
-    , fShaderContextA(contextA)
-    , fShaderContextB(contextB) {}
 
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (rec) {
@@ -112,70 +143,6 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
     return true;
 }
 
-
-// larger is better (fewer times we have to loop), but we shouldn't
-// take up too much stack-space (each element is 4 bytes)
-#define TMP_COLOR_COUNT     64
-
-void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor result[], int count) {
-    SkShader::Context* shaderContextA = fShaderContextA;
-    SkShader::Context* shaderContextB = fShaderContextB;
-    SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
-    unsigned           scale = SkAlpha255To256(this->getPaintAlpha());
-
-    SkPMColor   tmp[TMP_COLOR_COUNT];
-
-    SkXfermode* xfer = SkXfermode::Peek(mode);
-    if (nullptr == xfer) {   // implied SRC_OVER
-        // TODO: when we have a good test-case, should use SkBlitRow::Proc32
-        // for these loops
-        do {
-            int n = count;
-            if (n > TMP_COLOR_COUNT) {
-                n = TMP_COLOR_COUNT;
-            }
-
-            shaderContextA->shadeSpan(x, y, result, n);
-            shaderContextB->shadeSpan(x, y, tmp, n);
-
-            if (256 == scale) {
-                for (int i = 0; i < n; i++) {
-                    result[i] = SkPMSrcOver(tmp[i], result[i]);
-                }
-            } else {
-                for (int i = 0; i < n; i++) {
-                    result[i] = SkAlphaMulQ(SkPMSrcOver(tmp[i], result[i]),
-                                            scale);
-                }
-            }
-
-            result += n;
-            x += n;
-            count -= n;
-        } while (count > 0);
-    } else {    // use mode for the composition
-        do {
-            int n = count;
-            if (n > TMP_COLOR_COUNT) {
-                n = TMP_COLOR_COUNT;
-            }
-
-            shaderContextA->shadeSpan(x, y, result, n);
-            shaderContextB->shadeSpan(x, y, tmp, n);
-            xfer->xfer32(result, tmp, n, nullptr);
-
-            if (256 != scale) {
-                for (int i = 0; i < n; i++) {
-                    result[i] = SkAlphaMulQ(result[i], scale);
-                }
-            }
-
-            result += n;
-            x += n;
-            count -= n;
-        } while (count > 0);
-    }
-}
 
 #if SK_SUPPORT_GPU
 
@@ -226,5 +193,54 @@ void SkComposeShader::toString(SkString* str) const {
     this->INHERITED::toString(str);
 
     str->append(")");
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkMixerShader::mixSpans(SkPMColor result[], const SkPMColor spanB[], int count,
+                             uint8_t alpha) const {
+    const unsigned scale = SkAlpha255To256(alpha);
+    for (int i = 0; i < count; ++i) {
+        result[i] = SkFastFourByteInterp256(result[i], spanB[i], (unsigned)(fWeight * 256));
+        if (256 == scale) {
+            result[i] = SkAlphaMulQ(result[i], scale);
+        }
+    }
+}
+
+#ifndef SK_IGNORE_TO_STRING
+void SkMixerShader::toString(SkString* str) const {
+    str->appendf("SkMixerShader(%g)", fWeight);
+}
+#endif
+
+void SkMixerShader::flatten(SkWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
+    buffer.writeScalar(fWeight);
+}
+
+sk_sp<SkFlattenable> SkMixerShader::CreateProc(SkReadBuffer& buffer) {
+    sk_sp<SkShader> sh0(buffer.readShader());
+    sk_sp<SkShader> sh1(buffer.readShader());
+    const float weight = buffer.readScalar();
+    return MakeMixer(std::move(sh0), std::move(sh1), weight);
+}
+
+sk_sp<SkShader> SkShader::MakeMixer(sk_sp<SkShader> sh0, sk_sp<SkShader> sh1, float weight) {
+    if (!sh0 || !sh1) {
+        return nullptr;
+    }
+    if (!SkScalarIsFinite(weight)) {
+        return nullptr;
+    }
+    
+    weight = SkTMin(SkTMax(weight, 0.f), 1.f);
+    return sk_sp<SkShader>(new SkMixerShader(std::move(sh0), std::move(sh1), weight));
+}
+
+#if SK_SUPPORT_GPU
+sk_sp<GrFragmentProcessor> SkMixerShader::asFragmentProcessor(const AsFPArgs&) const {
+    return nullptr;
 }
 #endif

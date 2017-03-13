@@ -417,6 +417,8 @@ public:
 
     static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode);
 
+    static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> s0, sk_sp<SkShader> s1, float weight);
+
     /** Call this to create a new shader that will draw with the specified bitmap.
      *
      *  If the bitmap cannot be used (e.g. has no pixels, or its dimensions
