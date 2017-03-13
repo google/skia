@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fc8c96d_5a5f584f",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-13T17:22:47Z",
+      "side": 1,
+      "message": "I\u0027m somewhat concerned about this because what you\u0027re actually trying to do here is clean up after having performed an undefined operation. Casting a float to an int where the float value is out of range of the int is undefined behavior, so sufficiently advanced compilers may end up doing strange things to this (if the compiler knows that the caller always uses a large but positive value, isEmpty can be inferred never to return true, so you could get a negative value anyway). It just so happens that on Intel cvttsd2si and related instructions map out of range conversions of this sort to INT_MIN. So as long as the compiler doesn\u0027t propagate the undefined part of the behavior down here that\u0027s what you\u0027ll get on Intel. No idea on Arm.\n\nEither the calling code should sanitize the values, or the direct cast should be replaced with something safe like http://stackoverflow.com/questions/25857843/how-do-i-convert-an-arbitrary-double-to-an-integer-while-avoiding-undefined-beha#answer-26584177 . I don\u0027t really see the point of adding the asserts if we\u0027re relying on undefined behavior for them to work.",
+      "range": {
+        "startLine": 635,
+        "startChar": 4,
+        "endLine": 635,
+        "endChar": 56
+      },
+      "revId": "06c2a2845b3ddb8b7de9ff02523c3cfd7e73ff0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
