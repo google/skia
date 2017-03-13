@@ -48,11 +48,9 @@ public:
 
     /**
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
-     * inverse filled, or has too many edges, this will return nullptr. If offset is non-nullptr, then
-     * the path is translated by the vector.
+     * inverse filled, or has too many edges, this will return nullptr.
      */
-    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPath&,
-                                           const SkVector* offset = nullptr);
+    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPath&);
 
     /**
      * Creates an effect that fills inside the rect with AA edges..

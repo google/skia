@@ -135,8 +135,7 @@ private:
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
     int32_t fLastClipStackGenID;
-    SkIRect fLastClipStackRect;
-    SkIPoint fLastClipOrigin;
+    SkIRect fLastDevClipBounds;
 
     typedef GrOpList INHERITED;
 };

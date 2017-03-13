@@ -40,10 +40,9 @@ public:
         fWindowRectsState = windowState;
     }
 
-    void addWindowRectangles(const GrWindowRectangles& windows, const SkIPoint& origin,
-                             GrWindowRectsState::Mode mode) {
+    void addWindowRectangles(const GrWindowRectangles& windows, GrWindowRectsState::Mode mode) {
         SkASSERT(!fWindowRectsState.enabled());
-        fWindowRectsState.set(windows, origin, mode);
+        fWindowRectsState.set(windows, mode);
     }
 
     void addCoverageFP(sk_sp<GrFragmentProcessor> fp) {

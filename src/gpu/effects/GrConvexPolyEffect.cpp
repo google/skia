@@ -234,8 +234,7 @@ void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCa
 
 //////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, const SkPath& path,
-                                                    const SkVector* offset) {
+sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, const SkPath& path) {
     if (kHairlineAA_GrProcessorEdgeType == type) {
         return nullptr;
     }
@@ -259,13 +258,6 @@ sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, co
         // the print.
         return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                            GrConstColorProcessor::kModulateRGBA_InputMode);
-    }
-
-    SkVector t;
-    if (nullptr == offset) {
-        t.set(0, 0);
-    } else {
-        t = *offset;
     }
 
     SkScalar        edges[3 * kMaxEdges];
@@ -297,8 +289,7 @@ sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, co
                     edges[3 * n] = -v.fY;
                     edges[3 * n + 1] = v.fX;
                 }
-                SkPoint p = pts[1] + t;
-                edges[3 * n + 2] = -(edges[3 * n] * p.fX + edges[3 * n + 1] * p.fY);
+                edges[3 * n + 2] = -(edges[3 * n] * pts[1].fX + edges[3 * n + 1] * pts[1].fY);
                 ++n;
                 break;
             }

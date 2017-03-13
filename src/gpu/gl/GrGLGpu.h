@@ -451,7 +451,7 @@ private:
             if (fWindowState.numWindows() && (fRTOrigin != rtOrigin || fViewport != viewport)) {
                 return false;
             }
-            return fWindowState.cheapEqualTo(windowState);
+            return fWindowState == windowState;
         }
 
     private:

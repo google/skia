@@ -35,9 +35,8 @@ public:
 
     void disableWindowRectangles() { fWindowRectsState.setDisabled(); }
 
-    void setWindowRectangles(const GrWindowRectangles& windows, const SkIPoint& origin,
-                             GrWindowRectsState::Mode mode) {
-        fWindowRectsState.set(windows, origin, mode);
+    void setWindowRectangles(const GrWindowRectangles& windows, GrWindowRectsState::Mode mode) {
+        fWindowRectsState.set(windows, mode);
     }
 
     bool quickContains(const SkRect&) const override;
