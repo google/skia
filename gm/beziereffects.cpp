@@ -153,6 +153,12 @@ protected:
                     {x + baseControlPts[2].fX, y + baseControlPts[2].fY},
                     {x + baseControlPts[3].fX, y + baseControlPts[3].fY}
                 };
+                if (i == 1) {
+                controlPts[0] = {x + baseControlPts[3].fX, y + baseControlPts[3].fY};
+                controlPts[1] = {x + baseControlPts[2].fX, y + baseControlPts[2].fY};
+                controlPts[2] = {x + baseControlPts[1].fX, y + baseControlPts[1].fY};
+                controlPts[3] = {x + baseControlPts[0].fX, y + baseControlPts[0].fY};
+                }
                 SkPoint chopped[10];
                 SkScalar klmEqs[9];
                 SkScalar klmSigns[3];
@@ -163,7 +169,8 @@ protected:
 
                 SkPaint ctrlPtPaint;
                 ctrlPtPaint.setColor(rand.nextU() | 0xFF000000);
-                for (int i = 0; i < 4; ++i) {
+                canvas->drawCircle(controlPts[0].fX, controlPts[0].fY, 8.f, ctrlPtPaint);
+                for (int i = 1; i < 4; ++i) {
                     canvas->drawCircle(controlPts[i].fX, controlPts[i].fY, 6.f, ctrlPtPaint);
                 }
 

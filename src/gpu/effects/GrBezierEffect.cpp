@@ -183,7 +183,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                      func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("%s = %s / %s;",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
-            fragBuilder->codeAppendf("%s = clamp(1.0 - %s, 0.0, 1.0);",
+            fragBuilder->codeAppendf("%s = clamp(0.5 - %s, 0.0, 1.0);",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
             // Add line below for smooth cubic ramp
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
@@ -390,7 +390,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             fragBuilder->codeAppendf("edgeAlpha = (%s.x * %s.x - %s.y);",
                                      v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppend("edgeAlpha = edgeAlpha / sqrt(dot(gF, gF));");
-            fragBuilder->codeAppend("edgeAlpha = clamp(1.0 - edgeAlpha, 0.0, 1.0);");
+            fragBuilder->codeAppend("edgeAlpha = clamp(0.5 - edgeAlpha, 0.0, 1.0);");
             // Add line below for smooth cubic ramp
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
@@ -624,7 +624,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                      v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("%s = %s / %s;",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
-            fragBuilder->codeAppendf("%s = clamp(1.0 - %s, 0.0, 1.0);",
+            fragBuilder->codeAppendf("%s = clamp(0.5 - %s, 0.0, 1.0);",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
             // Add line below for smooth cubic ramp
             // fragBuilder->codeAppendf("%s = %s * %s * (3.0 - 2.0 * %s);",
