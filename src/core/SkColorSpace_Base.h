@@ -226,6 +226,8 @@ private:
     typedef SkColorSpace INHERITED;
 };
 
+SkColorSpaceTransferFn invertParametricTransferFn(const SkColorSpaceTransferFn& fn);
+
 static inline SkColorSpace_Base* as_CSB(SkColorSpace* colorSpace) {
     return static_cast<SkColorSpace_Base*>(colorSpace);
 }
