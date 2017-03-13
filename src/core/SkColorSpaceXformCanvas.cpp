@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorFilter.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkMakeUnique.h"
@@ -23,11 +24,15 @@ public:
         fFromSRGB = SkColorSpaceXform::New(SkColorSpace::MakeSRGB().get(), fTargetCS.get());
     }
 
+    void xform(SkColor* xformed, const SkColor* srgb, int n) const {
+        SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
+                                        SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
+                                        n, kUnpremul_SkAlphaType));
+    }
+
     SkColor xform(SkColor srgb) const {
         SkColor xformed;
-        SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, &xformed,
-                                        SkColorSpaceXform::kBGRA_8888_ColorFormat, &srgb,
-                                        1, kUnpremul_SkAlphaType));
+        this->xform(&xformed, &srgb, 1);
         return xformed;
     }
 
@@ -46,21 +51,29 @@ public:
             get_lazy()->setColor(this->xform(paint.getColor()));
         }
 
+        // As far as I know, SkModeColorFilter is the only color filter that holds a color.
+        if (auto cf = paint.getColorFilter()) {
+            SkColor color;
+            SkBlendMode mode;
+            if (cf->asColorMode(&color, &mode)) {
+                get_lazy()->setColorFilter(SkColorFilter::MakeModeFilter(this->xform(color), mode));
+            }
+        }
+
         // TODO:
         //    - shaders
-        //    - color filters
         //    - image filters?
 
         return *result;
     }
 
+    const SkPaint* xform(const SkPaint* paint, SkTLazy<SkPaint>* lazy) const {
+        return paint ? &this->xform(*paint, lazy) : nullptr;
+    }
+
     sk_sp<const SkImage> xform(const SkImage* img) const {
         // TODO: for real
         return sk_ref_sp(img);
-    }
-
-    const SkPaint* xform(const SkPaint* paint, SkTLazy<SkPaint>* lazy) const {
-        return paint ? &this->xform(*paint, lazy) : nullptr;
     }
 
     void onDrawPaint(const SkPaint& paint) override {
@@ -99,7 +112,12 @@ public:
     }
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texs[4],
                      SkBlendMode mode, const SkPaint& paint) override {
-        // TODO: colors
+        SkColor xformed[4];
+        if (colors) {
+            this->xform(xformed, colors, 4);
+            colors = xformed;
+        }
+
         SkTLazy<SkPaint> lazy;
         fTarget->drawPatch(cubics, colors, texs, mode, this->xform(paint, &lazy));
     }
@@ -112,7 +130,13 @@ public:
                         const SkPoint* verts, const SkPoint* texs, const SkColor* colors,
                         SkBlendMode mode,
                         const uint16_t* indices, int indexCount, const SkPaint& paint) override {
-        // TODO: colors
+        SkTArray<SkColor> xformed;
+        if (colors) {
+            xformed.reset(count);
+            this->xform(xformed.begin(), colors, count);
+            colors = xformed.begin();
+        }
+
         SkTLazy<SkPaint> lazy;
         fTarget->drawVertices(vmode, count, verts, texs, colors, mode, indices, indexCount,
                               this->xform(paint, &lazy));
@@ -190,7 +214,13 @@ public:
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
                      const SkRect* cull, const SkPaint* paint) override {
-        // TODO: colors
+        SkTArray<SkColor> xformed;
+        if (colors) {
+            xformed.reset(count);
+            this->xform(xformed.begin(), colors, count);
+            colors = xformed.begin();
+        }
+
         SkTLazy<SkPaint> lazy;
         fTarget->drawAtlas(this->xform(atlas).get(), xforms, tex, colors, count, mode, cull,
                            this->xform(paint, &lazy));
