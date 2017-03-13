@@ -16,8 +16,16 @@
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
  * create the final GrPipeline for a GrOp.
  */
-class GrAppliedClip : public SkNoncopyable {
+class GrAppliedClip {
 public:
+    GrAppliedClip() = delete;
+    GrAppliedClip(GrAppliedClip&& that)
+            : fScissorState(that.fScissorState)
+            , fWindowRectsState(that.fWindowRectsState)
+            , fClipCoverageFP(std::move(that.fClipCoverageFP))
+            , fHasStencilClip(that.fHasStencilClip)
+            , fClippedDrawBounds(that.fClippedDrawBounds) {}
+
     GrAppliedClip(const SkRect& drawBounds)
         : fHasStencilClip(false)
         , fClippedDrawBounds(drawBounds) {
@@ -55,6 +63,13 @@ public:
         SkASSERT(!fHasStencilClip);
         fHasStencilClip = true;
     }
+
+    bool doesClip() const {
+        return fScissorState.enabled() || fClipCoverageFP || fHasStencilClip ||
+               fWindowRectsState.enabled();
+    }
+
+    bool isCompatibleWith(const GrAppliedClip&) const { return false; }
 
     /**
      * Returns the device bounds of the draw after clip has been applied. TODO: Ideally this would
