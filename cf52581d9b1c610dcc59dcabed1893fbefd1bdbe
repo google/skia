@@ -78,6 +78,30 @@
     },
     {
       "key": {
+        "uuid": "90d55bc8_6c63a471",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T18:03:07Z",
+      "side": 1,
+      "message": "Actually, now that I think about it, this method could just tell the caller which segment is inside the loop.\n\nSo rather than setting an array of floats that guesses whether you want to reverse the corresponding segment, it just sets an int that says \"segment N is the one inside the loop\". Then the caller can do whatever it wants with that information.",
+      "parentUuid": "19b4b9ab_2d03ce7a",
+      "range": {
+        "startLine": 774,
+        "startChar": 12,
+        "endLine": 774,
+        "endChar": 29
+      },
+      "revId": "cf52581d9b1c610dcc59dcabed1893fbefd1bdbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ef30386_5de75eb3",
         "filename": "src/gpu/effects/GrBezierEffect.cpp",
         "patchSetId": 2
