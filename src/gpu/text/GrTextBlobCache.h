@@ -9,6 +9,7 @@
 #define GrTextBlobCache_DEFINED
 
 #include "GrAtlasTextContext.h"
+#include "SkMessageBus.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "SkTextBlobRunIterator.h"
@@ -50,6 +51,7 @@ public:
         sk_sp<GrAtlasTextBlob> cacheBlob(this->makeBlob(blob));
         cacheBlob->setupKey(key, blurRec, paint);
         this->add(cacheBlob);
+        blob->notifyAddedToCache();
         return cacheBlob;
     }
 
@@ -93,6 +95,12 @@ public:
         fBudget = budget;
         this->checkPurge();
     }
+
+    struct PurgeBlobMessage {
+        uint32_t fID;
+    };
+
+    static void PostPurgeBlobMessage(uint32_t);
 
 private:
     using BitmapBlobList = SkTInternalLList<GrAtlasTextBlob>;
@@ -159,7 +167,30 @@ private:
     }
 
     void checkPurge(GrAtlasTextBlob* blob = nullptr) {
-        // If we are overbudget, then unref until we are below budget again
+        // First, purge all stale blob IDs.
+        {
+            // TODO: tweak poll to allow mem-movable arrays, and update.
+            SkSTArray<128, PurgeBlobMessage, false> msgs;
+            fPurgeBlobInbox.poll(&msgs);
+
+            for (const auto& msg : msgs) {
+                auto* idEntry = fBlobIDCache.find(msg.fID);
+                if (!idEntry) {
+                    // no cache entries for id
+                    continue;
+                }
+
+                // remove all blob entries from the LRU list
+                for (const auto& blob : idEntry->fBlobs) {
+                    fBlobList.remove(blob.get());
+                }
+
+                // drop the idEntry itself (unrefs all blobs)
+                fBlobIDCache.remove(msg.fID);
+            }
+        }
+
+        // If we are still overbudget, then unref until we are below budget again
         if (fPool.size() > fBudget) {
             BitmapBlobList::Iter iter;
             iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
@@ -197,6 +228,7 @@ private:
     PFOverBudgetCB fCallback;
     void* fData;
     size_t fBudget;
+    SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox;
 };
 
 #endif

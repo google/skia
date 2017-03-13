@@ -7,6 +7,8 @@
 
 #include "GrTextBlobCache.h"
 
+DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage)
+
 GrTextBlobCache::~GrTextBlobCache() {
     SkDEBUGCODE(this->freeAll();)
 }
@@ -23,4 +25,9 @@ void GrTextBlobCache::freeAll() {
     // There should be no allocations in the memory pool at this point
     SkASSERT(fPool.isEmpty());
     SkASSERT(fBlobList.isEmpty());
+}
+
+void GrTextBlobCache::PostPurgeBlobMessage(uint32_t id) {
+    SkASSERT(id != SK_InvalidGenID);
+    SkMessageBus<PurgeBlobMessage>::Post(PurgeBlobMessage({id}));
 }
