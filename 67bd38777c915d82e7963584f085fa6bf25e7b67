@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b785b3f6_589da5aa",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-13T19:28:18Z",
+      "side": 1,
+      "message": "This is here to draw the same amount of checkerboard to the right/bottom of the cover rect in the alpha mask as before.",
+      "range": {
+        "startLine": 199,
+        "startChar": 14,
+        "endLine": 199,
+        "endChar": 22
+      },
+      "revId": "67bd38777c915d82e7963584f085fa6bf25e7b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9fcc3d1_570f4b77",
+        "filename": "src/gpu/GrWindowRectangles.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-13T19:28:18Z",
+      "side": 1,
+      "message": "This is needed for using the window rectangles when creating an alpha mask. Alternatively, we could leave the origin on GrWindowRectsState.",
+      "range": {
+        "startLine": 79,
+        "startChar": 27,
+        "endLine": 79,
+        "endChar": 45
+      },
+      "revId": "67bd38777c915d82e7963584f085fa6bf25e7b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
