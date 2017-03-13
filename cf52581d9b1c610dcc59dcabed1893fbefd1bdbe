@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "52574e07_604ebf23",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T16:38:20Z",
+      "side": 1,
+      "message": "Maybe say something about \"sign(H(infinity)) \u003d\u003d sign(d[0])\". Or did you come up with another justification?",
+      "revId": "cf52581d9b1c610dcc59dcabed1893fbefd1bdbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19b4b9ab_2d03ce7a",
         "filename": "src/gpu/GrPathUtils.cpp",
         "patchSetId": 2
@@ -18,6 +35,29 @@
         "startChar": 12,
         "endLine": 774,
         "endChar": 29
+      },
+      "revId": "cf52581d9b1c610dcc59dcabed1893fbefd1bdbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ef30386_5de75eb3",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T16:38:20Z",
+      "side": 1,
+      "message": "I\u0027m glad this fix finally got finished, in spite of my laziness.",
+      "range": {
+        "startLine": 186,
+        "startChar": 43,
+        "endLine": 186,
+        "endChar": 48
       },
       "revId": "cf52581d9b1c610dcc59dcabed1893fbefd1bdbe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
