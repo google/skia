@@ -12,18 +12,23 @@
 
 GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
     fXPFactory = paint.fXPFactory;
-    fColorFragmentProcessorCnt = paint.numColorFragmentProcessors();
-    fFragmentProcessors.reset(paint.numTotalFragmentProcessors());
-    int i = 0;
-    for (auto& fp : paint.fColorFragmentProcessors) {
-        fFragmentProcessors[i++] = fp.release();
-    }
-    for (auto& fp : paint.fCoverageFragmentProcessors) {
-        fFragmentProcessors[i++] = fp.release();
-    }
     fFlags = 0;
-    if (paint.usesDistanceVectorField()) {
-        fFlags |= kUseDistanceVectorField_Flag;
+    if (paint.numColorFragmentProcessors() <= kMaxColorProcessors) {
+        fColorFragmentProcessorCnt = paint.numColorFragmentProcessors();
+        fFragmentProcessors.reset(paint.numTotalFragmentProcessors());
+        int i = 0;
+        for (auto& fp : paint.fColorFragmentProcessors) {
+            fFragmentProcessors[i++] = fp.release();
+        }
+        for (auto& fp : paint.fCoverageFragmentProcessors) {
+            fFragmentProcessors[i++] = fp.release();
+        }
+        if (paint.usesDistanceVectorField()) {
+            fFlags |= kUseDistanceVectorField_Flag;
+        }
+    } else {
+        SkDebugf("Insane number of color fragment processors in paint. Dropping all processors.");
+        fColorFragmentProcessorCnt = 0;
     }
     if (paint.getDisableOutputConversionToSRGB()) {
         fFlags |= kDisableOutputConversionToSRGB_Flag;
@@ -35,13 +40,14 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GrProcessorSet::FragmentProcessorAnalysis::internalReset(const GrPipelineInput& colorInput,
-                                                              const GrPipelineInput coverageInput,
-                                                              const GrProcessorSet& processors,
-                                                              const GrFragmentProcessor* clipFP,
-                                                              const GrCaps& caps) {
+void GrProcessorSet::FragmentProcessorAnalysis::internalInit(const GrPipelineInput& colorInput,
+                                                             const GrPipelineInput coverageInput,
+                                                             const GrProcessorSet& processors,
+                                                             const GrFragmentProcessor* clipFP,
+                                                             const GrCaps& caps) {
     GrProcOptInfo colorInfo(colorInput);
     fCompatibleWithCoverageAsAlpha = !coverageInput.isLCDCoverage();
+    fValidInputColor = colorInput.isConstant(&fInputColor);
 
     const GrFragmentProcessor* const* fps = processors.fFragmentProcessors.get();
     colorInfo.analyzeProcessors(fps, processors.fColorFragmentProcessorCnt);
@@ -65,38 +71,41 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalReset(const GrPipelineIn
         fUsesLocalCoords |= clipFP->usesLocalCoords();
         hasCoverageFP = true;
     }
-    fInitialColorProcessorsToEliminate =
-            colorInfo.initialProcessorsToEliminate(&fOverrideInputColor);
+    fInitialColorProcessorsToEliminate = colorInfo.initialProcessorsToEliminate(&fInputColor);
+    fValidInputColor |= SkToBool(fInitialColorProcessorsToEliminate);
 
     bool opaque = colorInfo.isOpaque();
     if (colorInfo.hasKnownOutputColor(&fKnownOutputColor)) {
-        fColorType = opaque ? ColorType::kOpaqueConstant : ColorType::kConstant;
+        fOutputColorType = static_cast<unsigned>(opaque ? ColorType::kOpaqueConstant
+                                                        : ColorType::kConstant);
     } else if (opaque) {
-        fColorType = ColorType::kOpaque;
+        fOutputColorType = static_cast<unsigned>(ColorType::kOpaque);
     } else {
-        fColorType = ColorType::kUnknown;
+        fOutputColorType = static_cast<unsigned>(ColorType::kUnknown);
     }
 
     if (coverageInput.isLCDCoverage()) {
-        fCoverageType = CoverageType::kLCD;
+        fOutputCoverageType = static_cast<unsigned>(CoverageType::kLCD);
     } else {
-        fCoverageType = hasCoverageFP || !coverageInput.isSolidWhite()
-                                ? CoverageType::kSingleChannel
-                                : CoverageType::kNone;
+        fOutputCoverageType = hasCoverageFP || !coverageInput.isSolidWhite()
+                                      ? static_cast<unsigned>(CoverageType::kSingleChannel)
+                                      : static_cast<unsigned>(CoverageType::kNone);
     }
 }
 
-void GrProcessorSet::FragmentProcessorAnalysis::reset(const GrPipelineInput& colorInput,
-                                                      const GrPipelineInput coverageInput,
-                                                      const GrProcessorSet& processors,
-                                                      const GrAppliedClip& appliedClip,
-                                                      const GrCaps& caps) {
-    this->internalReset(colorInput, coverageInput, processors,
-                        appliedClip.clipCoverageFragmentProcessor(), caps);
+void GrProcessorSet::FragmentProcessorAnalysis::init(const GrPipelineInput& colorInput,
+                                                     const GrPipelineInput coverageInput,
+                                                     const GrProcessorSet& processors,
+                                                     const GrAppliedClip* appliedClip,
+                                                     const GrCaps& caps) {
+    const GrFragmentProcessor* clipFP =
+            appliedClip ? appliedClip->clipCoverageFragmentProcessor() : nullptr;
+    this->internalInit(colorInput, coverageInput, processors, clipFP, caps);
+    fIsInitializedWithProcessorSet = true;
 }
 
 GrProcessorSet::FragmentProcessorAnalysis::FragmentProcessorAnalysis(
         const GrPipelineInput& colorInput, const GrPipelineInput coverageInput, const GrCaps& caps)
         : FragmentProcessorAnalysis() {
-    this->internalReset(colorInput, coverageInput, GrProcessorSet(GrPaint()), nullptr, caps);
+    this->internalInit(colorInput, coverageInput, GrProcessorSet(GrPaint()), nullptr, caps);
 }
