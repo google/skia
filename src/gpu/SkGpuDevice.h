@@ -132,8 +132,6 @@ private:
     sk_sp<GrContext>             fContext;
     sk_sp<GrRenderTargetContext> fRenderTargetContext;
 
-    SkIPoint                     fClipOrigin;
-    GrClipStackClip              fClip;
     SkISize                      fSize;
     bool                         fOpaque;
 
@@ -155,8 +153,7 @@ private:
 
     bool forceConservativeRasterClip() const override { return true; }
 
-    // sets the render target and clip on context
-    void prepareDraw();
+    GrClipStackClip clip() const { return GrClipStackClip(&this->cs()); }
 
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's

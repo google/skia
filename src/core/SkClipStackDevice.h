@@ -19,6 +19,7 @@ public:
     {}
 
     SkClipStack& cs() { return fClipStack; }
+    const SkClipStack& cs() const { return fClipStack; }
 
     SkIRect devClipBounds() const;
 
