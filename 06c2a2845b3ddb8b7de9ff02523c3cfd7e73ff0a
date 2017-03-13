@@ -94,6 +94,30 @@
       "revId": "06c2a2845b3ddb8b7de9ff02523c3cfd7e73ff0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a017120a_d57a716c",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-13T18:42:03Z",
+      "side": 1,
+      "message": "I\u0027m fine saying we need other/different/more fixes in Skia, as we convert float rects to int rects in many places. Perhaps those need not block this CL.",
+      "parentUuid": "299fb748_ec76de82",
+      "range": {
+        "startLine": 635,
+        "startChar": 4,
+        "endLine": 635,
+        "endChar": 56
+      },
+      "revId": "06c2a2845b3ddb8b7de9ff02523c3cfd7e73ff0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
