@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "f3947841_a72097b3",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T17:48:56Z",
+      "side": 1,
+      "message": "\u003e Why do you want to flush the first RT before creating the following ones.\n\nFor memory reasons. Imagine if somebody draws a LOT if BIG atlas items. You don\u0027t want to allocate several 8k x 8k textures upfront. It would be better to create and draw them one at a time, reusing the same texture memory for each atlas. \n\n\u003e I\u0027ve fixed the re-ordering pattern so this should happen after all reordering has occurred.\n\nAwesome!",
+      "parentUuid": "52376ff3_542a745d",
+      "range": {
+        "startLine": 86,
+        "startChar": 19,
+        "endLine": 86,
+        "endChar": 20
+      },
+      "revId": "13d6a9f04d3dd75032cfe461abf44b2db75a9ba4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c86c6b6_3e702165",
         "filename": "src/gpu/GrDrawingManager.h",
         "patchSetId": 23
