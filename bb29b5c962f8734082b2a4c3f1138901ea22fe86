@@ -16,6 +16,24 @@
       "revId": "bb29b5c962f8734082b2a4c3f1138901ea22fe86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11463c5c_9b577890",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 900,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T15:35:52Z",
+      "side": 1,
+      "message": "Yes, I do plan to follow up with that.  Adobe RGB was just the easiest non-sRGB gamut to wire up.",
+      "parentUuid": "904b4dcc_d969fa29",
+      "revId": "bb29b5c962f8734082b2a4c3f1138901ea22fe86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
