@@ -842,3 +842,35 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
                                    info.alphaType(), std::move(texture),
                                    sk_ref_sp(info.colorSpace()), budgeted);
 }
+
+sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> colorSpace) {
+    if (SkColorSpace::Equals(fColorSpace.get(), colorSpace.get())) {
+        return sk_ref_sp(this);
+    }
+
+    sk_sp<GrRenderTargetContext> renderTargetContext(fContext->makeRenderTargetContext(
+        SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig, nullptr));
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    GrPaint paint;
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    // TODO: Add effect that implements complete color space conversion
+//    paint.addColorFragmentProcessor(GrColorSpaceConvertEffect::Make(...));
+
+    const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
+
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
+
+    if (!renderTargetContext->accessRenderTarget()) {
+        return nullptr;
+    }
+    fContext->flushSurfaceWrites(renderTargetContext->accessRenderTarget());
+
+    // MDB: this call is okay bc we know 'renderTargetContext' was exact
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
+                                   fAlphaType, renderTargetContext->asTextureProxyRef(),
+                                   std::move(colorSpace), fBudgeted);
+
+}
