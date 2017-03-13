@@ -20,8 +20,12 @@ public:
     // future when the proxy is actually used/instantiated.
     bool hasPendingIO() const { return fProxy->hasPendingIO(); }
 
-    // Don't abuse this!!!!!!!
+    // Don't abuse these two!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
+    bool isFunctionallyExact () const {
+        return (SkBackingFit::kExact == fProxy->fFit) ||
+                            (SkIsPow2(fProxy->width()) || SkIsPow2(fProxy->height()));
+    }
 
     // These next two are very specialized and wacky - don't use them!
 

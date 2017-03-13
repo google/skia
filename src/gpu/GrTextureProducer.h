@@ -13,6 +13,7 @@
 
 class GrColorSpaceXform;
 class GrTexture;
+class GrTextureProxy;
 
 /**
  * Different GPUs and API extensions have different requirements with respect to what texture
@@ -118,6 +119,9 @@ protected:
     static GrTexture* CopyOnGpu(GrTexture* inputTexture, const SkIRect* subset,
                                 const CopyParams& copyParams);
 
+    static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
+                                           const SkIRect* subset, const CopyParams& copyParams);
+
     static DomainMode DetermineDomainMode(
         const SkRect& constraintRect,
         FilterConstraint filterConstraint,
@@ -132,6 +136,15 @@ protected:
         sk_sp<GrColorSpaceXform> colorSpaceXform,
         const SkMatrix& textureMatrix,
         DomainMode domainMode,
+        const SkRect& domain,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic);
+
+    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
+        GrContext* context,
+        sk_sp<GrTextureProxy> proxy,
+        sk_sp<GrColorSpaceXform> colorSpaceXform,
+        const SkMatrix& textureMatrix,
+        DomainMode,
         const SkRect& domain,
         const GrSamplerParams::FilterMode* filterOrNullForBicubic);
 
