@@ -909,12 +909,8 @@ void S32_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
         vdst_wide = vmull_u8(vdst, vdup_n_u8(dst_scale));
 
         // Combine
-#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
-        vres = vshrn_n_u16(vdst_wide, 8) + vshrn_n_u16(vsrc_wide, 8);
-#else
         vdst_wide += vsrc_wide;
         vres = vshrn_n_u16(vdst_wide, 8);
-#endif
 
         // Store
         vst1_u32(dst, vreinterpret_u32_u8(vres));
@@ -936,12 +932,8 @@ void S32_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
         vsrc_wide = vmovl_u8(vsrc);
         vsrc_wide = vmulq_u16(vsrc_wide, vdupq_n_u16(src_scale));
         vdst_wide = vmull_u8(vdst, vdup_n_u8(dst_scale));
-#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
-        vres = vshrn_n_u16(vdst_wide, 8) + vshrn_n_u16(vsrc_wide, 8);
-#else
         vdst_wide += vsrc_wide;
         vres = vshrn_n_u16(vdst_wide, 8);
-#endif
 
         // Store
         vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);
@@ -984,12 +976,8 @@ void S32A_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
         vdst_wide = vmulq_n_u16(vdst_wide, dst_scale);
 
         // Combine
-#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
-        vres = vshrn_n_u16(vdst_wide, 8) + vshrn_n_u16(vsrc_wide, 8);
-#else
         vdst_wide += vsrc_wide;
         vres = vshrn_n_u16(vdst_wide, 8);
-#endif
 
         vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);
         dst++;
@@ -1020,11 +1008,6 @@ void S32A_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
             // Calc dst_scale
             vsrc_alphas = vtbl1_u8(vsrc, alpha_mask);
             vdst_scale = vmovl_u8(vsrc_alphas);
-#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
-            vdst_scale *= vsrc_scale;
-            vdst_scale = vshrq_n_u16(vdst_scale, 8);
-            vdst_scale = vsubq_u16(vdupq_n_u16(256), vdst_scale);
-#else
             // Calculate SkAlphaMulInv256(vdst_scale, vsrc_scale).
             // A 16-bit lane would overflow if we used 0xFFFF here,
             // so use an approximation with 0xFF00 that is off by 1,
@@ -1033,7 +1016,6 @@ void S32A_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
             vdst_scale = vmlsq_u16(vdupq_n_u16(0xFF00), vdst_scale, vsrc_scale);
             vdst_scale = vsraq_n_u16(vdst_scale, vdst_scale, 8);
             vdst_scale = vsraq_n_u16(vdupq_n_u16(1), vdst_scale, 8);
-#endif
 
             // Process src
             vsrc_wide = vmovl_u8(vsrc);
@@ -1044,12 +1026,8 @@ void S32A_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
             vdst_wide *= vdst_scale;
 
             // Combine
-#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
-            vres = vshrn_n_u16(vdst_wide, 8) + vshrn_n_u16(vsrc_wide, 8);
-#else
             vdst_wide += vsrc_wide;
             vres = vshrn_n_u16(vdst_wide, 8);
-#endif
 
             vst1_u32(dst, vreinterpret_u32_u8(vres));
 
