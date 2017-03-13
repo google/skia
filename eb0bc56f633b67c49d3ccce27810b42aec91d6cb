@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6b65243_c76e5d2a",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-13T20:56:04Z",
+      "side": 1,
+      "message": "We could mark onMakeColorSpace const instead (and eliminate this case). Just waiting for that API to settle down a bit (I think Matt and I both have CLs up that touch it). The only non-const operation we need to perform is sk_ref_sp(this), but fRefCnt is mutable, so should be fine?",
+      "revId": "eb0bc56f633b67c49d3ccce27810b42aec91d6cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
