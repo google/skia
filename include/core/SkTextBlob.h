@@ -60,7 +60,7 @@ private:
     friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
 
-    SkTextBlob(int runCount, const SkRect& bounds);
+    explicit SkTextBlob(const SkRect& bounds);
 
     ~SkTextBlob();
 
@@ -78,8 +78,7 @@ private:
     friend class SkTextBlobBuilder;
     friend class SkTextBlobRunIterator;
 
-    const int        fRunCount;
-    const SkRect     fBounds;
+    const SkRect   fBounds;
     const uint32_t fUniqueID;
 
     SkDEBUGCODE(size_t fStorageSize;)
@@ -101,8 +100,10 @@ public:
     ~SkTextBlobBuilder();
 
     /**
-     *  Returns an immutable SkTextBlob for the current runs/glyphs. The builder is reset and
-     *  can be reused.
+     *  Returns an immutable SkTextBlob for the current runs/glyphs,
+     *  or nullptr if no runs were allocated.
+     *
+     *  The builder is reset and can be reused.
      */
     sk_sp<SkTextBlob> make();
 
