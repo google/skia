@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e875d8c_2c7311a9",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T21:43:28Z",
+      "side": 1,
+      "message": "Not your change, but the name cs() isn\u0027t descriptive :-(",
+      "range": {
+        "startLine": 156,
+        "startChar": 42,
+        "endLine": 156,
+        "endChar": 57
+      },
+      "revId": "45a2d910032d83d7b1edec0539566fa618a3e679",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
