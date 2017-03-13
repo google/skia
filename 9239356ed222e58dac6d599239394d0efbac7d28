@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67335c1b_dbff3f67",
+        "filename": "src/gpu/GrTextureProducer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-13T16:47:38Z",
+      "side": 1,
+      "message": "This logic here is probably the only interesting part of the CL.",
+      "revId": "9239356ed222e58dac6d599239394d0efbac7d28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
