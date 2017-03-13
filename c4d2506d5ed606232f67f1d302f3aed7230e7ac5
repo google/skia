@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87db8f54_6a193582",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-13T14:16:28Z",
+      "side": 1,
+      "message": "what exactly is the use case for this query?",
+      "range": {
+        "startLine": 86,
+        "startChar": 13,
+        "endLine": 86,
+        "endChar": 44
+      },
+      "revId": "c4d2506d5ed606232f67f1d302f3aed7230e7ac5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
