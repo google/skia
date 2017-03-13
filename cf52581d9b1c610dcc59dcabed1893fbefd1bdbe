@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0d56e8ee_8275b40c",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-13T16:48:01Z",
+      "side": 1,
+      "message": "Well H(s,t) \u003d 36 * ((d2 * d0 - d2^2)*t^2 + (d0 * d1 * s * t) - (d0^2 *s^2)). So H(1,0) \u003d H(infinity) \u003d -36*d0^2. Thus the sign is always negative and not dependent on the sign of d0. This is what I mean when I say the Hessian is always negative outside the loop section. I can add more detail about the equation if you think it will be helpful, but I\u0027m not sure it is needed.",
+      "parentUuid": "52574e07_604ebf23",
+      "revId": "cf52581d9b1c610dcc59dcabed1893fbefd1bdbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19b4b9ab_2d03ce7a",
         "filename": "src/gpu/GrPathUtils.cpp",
         "patchSetId": 2
