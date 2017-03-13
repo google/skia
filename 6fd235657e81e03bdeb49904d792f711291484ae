@@ -16,6 +16,24 @@
       "revId": "6fd235657e81e03bdeb49904d792f711291484ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "549ae2c7_ce6ec61c",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T18:16:53Z",
+      "side": 1,
+      "message": "Indeed.  I\u0027ll take a look.  Might be that it defaults to unpacking into this call?  That\u0027d be (unfortunately) exactly what we want...",
+      "parentUuid": "2ce37149_2b4e68fb",
+      "revId": "6fd235657e81e03bdeb49904d792f711291484ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
