@@ -1877,8 +1877,8 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
     SkASSERT(windowState.numWindows() == numWindows);
 
     GrGLIRect glwindows[GrWindowRectangles::kMaxWindows];
-    const SkIRect* skwindows = windowState.windows().data();
     int dx = -windowState.origin().x(), dy = -windowState.origin().y();
+    const SkIRect* skwindows = windowState.windows().data();
     for (int i = 0; i < numWindows; ++i) {
         const SkIRect& skwindow = skwindows[i].makeOffset(dx, dy);
         glwindows[i].setRelativeTo(rt->getViewport(), skwindow, rt->origin());
