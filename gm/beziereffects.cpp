@@ -163,7 +163,8 @@ protected:
 
                 SkPaint ctrlPtPaint;
                 ctrlPtPaint.setColor(rand.nextU() | 0xFF000000);
-                for (int i = 0; i < 4; ++i) {
+                canvas->drawCircle(controlPts[0].fX, controlPts[0].fY, 8.f, ctrlPtPaint);
+                for (int i = 1; i < 4; ++i) {
                     canvas->drawCircle(controlPts[i].fX, controlPts[i].fY, 6.f, ctrlPtPaint);
                 }
 
