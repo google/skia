@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ce37149_2b4e68fb",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-13T18:11:46Z",
+      "side": 1,
+      "message": "onDrawVerticesObject (recently added by bsalomon@) is missing?",
+      "revId": "6fd235657e81e03bdeb49904d792f711291484ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
