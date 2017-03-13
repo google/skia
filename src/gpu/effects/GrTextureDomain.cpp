@@ -20,7 +20,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 static bool can_ignore_rect(GrSurfaceProxy* proxy, const SkRect& domain) {
-    if (proxy->priv().isExact()) {
+    if (proxy->priv().isFunctionallyExact()) {
         const SkIRect kFullRect = SkIRect::MakeWH(proxy->width(), proxy->height());
 
         return domain.contains(kFullRect);
