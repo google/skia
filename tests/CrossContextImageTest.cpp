@@ -140,8 +140,25 @@ DEF_GPUTEST(CrossContextImage_SharedContextSameThread, reporter, /*factory*/) {
             REPORTER_ASSERT(reporter, ccid != nullptr);
 
             ContextInfo info2 = factory.getSharedContextInfo(info.grContext());
-            auto image = SkImage::MakeFromCrossContextImageData(info2.grContext(), std::move(ccid));
+            GrContext* ctx2 = info2.grContext();
+            int resourceCountBefore = 0, resourceCountAfter = 0;
+            size_t resourceBytesBefore = 0, resourceBytesAfter = 0;
+            if (ctx2 && info.grContext()->caps()->crossContextTextureSupport()) {
+                ctx2->getResourceCacheUsage(&resourceCountBefore, &resourceBytesBefore);
+            }
+
+            auto image = SkImage::MakeFromCrossContextImageData(ctx2, std::move(ccid));
             REPORTER_ASSERT(reporter, image != nullptr);
+
+            if (ctx2 && info.grContext()->caps()->crossContextTextureSupport()) {
+                // MakeFromCrossContextImageData should have imported the texture back into our
+                // cache, so we should see an uptick. (If we have crossContextTextureSupport,
+                // otherwise we're just handing around a CPU or codec-backed image, so no cache
+                // impact will occur).
+                ctx2->getResourceCacheUsage(&resourceCountAfter, &resourceBytesAfter);
+                REPORTER_ASSERT(reporter, resourceCountAfter == resourceCountBefore + 1);
+                REPORTER_ASSERT(reporter, resourceBytesAfter > resourceBytesBefore);
+            }
 
             // JPEG encode -> decode won't round trip the image perfectly
             assert_equal(reporter, testImage.get(), image.get(),
