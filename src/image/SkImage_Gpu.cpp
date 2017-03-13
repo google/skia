@@ -121,16 +121,13 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* texColorSpace,
                                                      SkScalar scaleAdjust[2]) const {
-    sk_sp<GrTexture> tex(this->asTextureRef(context, params, dstColorSpace,
-                                            texColorSpace, scaleAdjust));
-
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return this->asTextureRef(context, params, dstColorSpace, texColorSpace, scaleAdjust);
 }
 
-GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                     SkColorSpace* dstColorSpace,
-                                     sk_sp<SkColorSpace>* texColorSpace,
-                                     SkScalar scaleAdjust[2]) const {
+sk_sp<GrTextureProxy> SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
+                                                SkColorSpace* dstColorSpace,
+                                                sk_sp<SkColorSpace>* texColorSpace,
+                                                SkScalar scaleAdjust[2]) const {
     if (ctx != fContext) {
         SkASSERT(0);
         return nullptr;
@@ -139,12 +136,8 @@ GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& para
     if (texColorSpace) {
         *texColorSpace = this->fColorSpace;
     }
-    GrTexture* texture = fProxy->instantiate(fContext->resourceProvider());
-    if (!texture) {
-        return nullptr;
-    }
 
-    GrTextureAdjuster adjuster(texture, this->alphaType(), this->bounds(),
+    GrTextureAdjuster adjuster(ctx, fProxy, this->alphaType(), this->bounds(),
                                this->uniqueID(), this->fColorSpace.get());
     return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
 }
@@ -393,16 +386,17 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                        std::move(imageColorSpace));
 }
 
-static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id,
+static sk_sp<SkImage> create_image_from_maker(GrContext* context, GrTextureMaker* maker,
+                                              SkAlphaType at, uint32_t id,
                                               SkColorSpace* dstColorSpace) {
     sk_sp<SkColorSpace> texColorSpace;
-    sk_sp<GrTexture> texture(maker->refTextureForParams(GrSamplerParams::ClampNoFilter(),
-                                                        dstColorSpace, &texColorSpace, nullptr));
-    if (!texture) {
+    sk_sp<GrTextureProxy> proxy(maker->refTextureForParams(GrSamplerParams::ClampNoFilter(),
+                                                           dstColorSpace, &texColorSpace, nullptr));
+    if (!proxy) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Gpu>(id, at, std::move(texture),
-                                   std::move(texColorSpace), SkBudgeted::kNo);
+    return sk_make_sp<SkImage_Gpu>(context, id, at,
+                                   std::move(proxy), std::move(texColorSpace), SkBudgeted::kNo);
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const {
@@ -415,12 +409,14 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
 
     if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
         GrImageTextureMaker maker(context, cacher, this, kDisallow_CachingHint);
-        return create_image_from_maker(&maker, this->alphaType(), this->uniqueID(), dstColorSpace);
+        return create_image_from_maker(context, &maker, this->alphaType(), this->uniqueID(),
+                                       dstColorSpace);
     }
 
     if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
         GrBitmapTextureMaker maker(context, *bmp);
-        return create_image_from_maker(&maker, this->alphaType(), this->uniqueID(), dstColorSpace);
+        return create_image_from_maker(context, &maker, this->alphaType(), this->uniqueID(),
+                                       dstColorSpace);
     }
     return nullptr;
 }
@@ -507,12 +503,13 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pi
     if (!ctx) {
         return nullptr;
     }
-    sk_sp<GrTexture> texture(GrUploadPixmapToTexture(ctx, pixmap, budgeted));
-    if (!texture) {
+    sk_sp<GrTextureProxy> proxy(GrUploadPixmapToTexture(ctx, pixmap, budgeted));
+    if (!proxy) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
-                                   pixmap.alphaType(), std::move(texture),
+
+    return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
+                                   pixmap.alphaType(), std::move(proxy),
                                    sk_ref_sp(pixmap.info().colorSpace()), budgeted);
 }
 
@@ -837,12 +834,12 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
     if (!ctx) {
         return nullptr;
     }
-    sk_sp<GrTexture> texture(GrUploadMipMapToTexture(ctx, info, texels, mipLevelCount));
-    if (!texture) {
+    sk_sp<GrTextureProxy> proxy(GrUploadMipMapToTexture(ctx, info, texels, mipLevelCount));
+    if (!proxy) {
         return nullptr;
     }
-    texture->texturePriv().setMipColorMode(colorMode);
-    return sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
-                                   info.alphaType(), std::move(texture),
+    //proxy->texturePriv().setMipColorMode(colorMode);
+    return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
+                                   info.alphaType(), std::move(proxy),
                                    sk_ref_sp(info.colorSpace()), budgeted);
 }
