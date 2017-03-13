@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "904b4dcc_d969fa29",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 900,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-13T15:27:21Z",
+      "side": 1,
+      "message": "Do you still think it would be interesting to add a test mode that is the sRGB matrix with swapped R, G, B (and then swap back later)?  I think you could start here and then rearrange the SkMatrix44.\nhttps://cs.chromium.org/chromium/src/third_party/skia/src/core/SkColorSpacePriv.h?l\u003d16",
+      "revId": "bb29b5c962f8734082b2a4c3f1138901ea22fe86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
