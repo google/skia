@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19b4b9ab_2d03ce7a",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-13T15:32:51Z",
+      "side": 1,
+      "message": "This is the one change that may or may not work well with your code. However, I\u0027d like code to always work with the idea that \"Negative computed values mean we are inside the curve\". If you find that you need to have this loop section flipped as well, it is easy enough for you to manually updated the klm_rev in the implantation specific code.",
+      "range": {
+        "startLine": 774,
+        "startChar": 12,
+        "endLine": 774,
+        "endChar": 29
+      },
+      "revId": "cf52581d9b1c610dcc59dcabed1893fbefd1bdbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
