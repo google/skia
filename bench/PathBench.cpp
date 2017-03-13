@@ -709,6 +709,52 @@ private:
     typedef Benchmark INHERITED;
 };
 
+class ArcBench : public Benchmark {
+protected:
+    SkString            fName;
+    SkPaint::Style      fStyle;
+
+public:
+    ArcBench(SkPaint::Style style) : fStyle(style) {
+        fName.printf("arcs_%s", style == SkPaint::kStroke_Style ? "stroke" : "fill");
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPaint paint;
+
+        SkRandom rand;
+        paint.setColor(SK_ColorBLACK);
+        paint.setAntiAlias(true);
+        paint.setStyle(fStyle);
+        if (SkPaint::kStroke_Style == fStyle) {
+            paint.setStrokeWidth(rand.nextUScalar1() * 20.0f);
+        }
+
+        SkPath path;
+        if (fStyle == SkPaint::kFill_Style) {
+            path.moveTo(50, 50);
+        }
+        path.arcTo(SkRect::MakeXYWH(20, 20, 60, 60), 0, 180, false);
+        path.arcTo(SkRect::MakeXYWH(20, 20, 60, 60), 180, 175, false);
+        if (fStyle == SkPaint::kFill_Style) {
+            path.lineTo(50, 50);
+        }
+        path.setIsVolatile(true);
+
+        for (int i = 0; i < loops; ++i) {
+            canvas->drawPath(path, paint);
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
 
 // Chrome creates its own round rects with each corner possibly being different.
 // In its "zero radius" incarnation it creates degenerate round rects.
@@ -1180,6 +1226,9 @@ DEF_BENCH( return new ArbRoundRectBench(true); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kOval_Type); )
+
+DEF_BENCH( return new ArcBench(SkPaint::kStroke_Style); )
+DEF_BENCH( return new ArcBench(SkPaint::kFill_Style); )
 
 #include "SkPathOps.h"
 #include "SkPathPriv.h"
