@@ -33,7 +33,6 @@ protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
-    bool xpReadsDst() const { return fXPReadsDst; }
 
 private:
     void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
@@ -43,7 +42,6 @@ private:
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
-        fXPReadsDst = optimizations.xpReadsDst();
     }
 
     void onPrepare(GrOpFlushState*) override;  // Initializes fStencilPassSettings.
@@ -52,7 +50,6 @@ private:
     GrColor fColor;
     GrPathRendering::FillType fFillType;
     GrStencilSettings fStencilPassSettings;
-    bool fXPReadsDst;
 
     typedef GrDrawOp INHERITED;
 };
@@ -170,7 +167,7 @@ private:
 
     TransformType transformType() const { return fDraws.head()->fInstanceData->transformType(); }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
     void onExecute(GrOpFlushState* state) override;
 

@@ -61,60 +61,6 @@ GrDrawPathRangeOp::GrDrawPathRangeOp(const SkMatrix& viewMatrix, SkScalar scale,
     this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
-    GrDrawPathRangeOp* that = t->cast<GrDrawPathRangeOp>();
-    if (this->fPathRange.get() != that->fPathRange.get() ||
-        this->transformType() != that->transformType() || this->fScale != that->fScale ||
-        this->color() != that->color() || !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-        return false;
-    }
-    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
-        return false;
-    }
-    switch (fDraws.head()->fInstanceData->transformType()) {
-        case GrPathRendering::kNone_PathTransformType:
-            if (this->fDraws.head()->fX != that->fDraws.head()->fX ||
-                this->fDraws.head()->fY != that->fDraws.head()->fY) {
-                return false;
-            }
-            break;
-        case GrPathRendering::kTranslateX_PathTransformType:
-            if (this->fDraws.head()->fY != that->fDraws.head()->fY) {
-                return false;
-            }
-            break;
-        case GrPathRendering::kTranslateY_PathTransformType:
-            if (this->fDraws.head()->fX != that->fDraws.head()->fX) {
-                return false;
-            }
-            break;
-        default:
-            break;
-    }
-    // TODO: Check some other things here. (winding, opaque, pathProc color, vm, ...)
-    // Try to combine this call with the previous DrawPaths. We do this by stenciling all the
-    // paths together and then covering them in a single pass. This is not equivalent to two
-    // separate draw calls, so we can only do it if there is no blending (no overlap would also
-    // work). Note that it's also possible for overlapping paths to cancel each other's winding
-    // numbers, and we only partially account for this by not allowing even/odd paths to be
-    // combined. (Glyphs in the same font tend to wind the same direction so it works out OK.)
-    if (GrPathRendering::kWinding_FillType != this->fillType() ||
-        GrPathRendering::kWinding_FillType != that->fillType() || this->xpReadsDst()) {
-        return false;
-    }
-    SkASSERT(!that->xpReadsDst());
-    fTotalPathCount += that->fTotalPathCount;
-    while (Draw* head = that->fDraws.head()) {
-        Draw* draw = fDraws.addToTail();
-        draw->fInstanceData.reset(head->fInstanceData.release());
-        draw->fX = head->fX;
-        draw->fY = head->fY;
-        that->fDraws.popHead();
-    }
-    this->joinBounds(*that);
-    return true;
-}
-
 void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
     const Draw& head = *fDraws.head();
 

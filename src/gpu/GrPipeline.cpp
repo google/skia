@@ -119,9 +119,6 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
         optimizations.fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
     }
 
-    if (GrXPFactory::WillReadDst(xpFactory, *args.fAnalysis)) {
-        optimizations.fFlags |= GrPipelineOptimizations::kXPReadsDst_Flag;
-    }
     return optimizations;
 }
 

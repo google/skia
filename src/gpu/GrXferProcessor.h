@@ -301,11 +301,6 @@ public:
                                          const GrCaps& caps) const;
 
     /**
-     * Is the destination color required either in the shader or fixed function blending.
-     */
-    static bool WillReadDst(const GrXPFactory*, const FragmentProcessorAnalysis&);
-
-    /**
     * This will return true if the xfer processor needs the dst color in the shader and the way
     * that the color will be made available to the xfer processor is by sampling a texture.
     */
@@ -319,9 +314,6 @@ protected:
     constexpr GrXPFactory() {}
 
 private:
-    /** Subclass-specific implementation of WillReadDst(). */
-    virtual bool willReadsDst(const FragmentProcessorAnalysis& pipelineAnalysis) const = 0;
-
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                                    const FragmentProcessorAnalysis&,
                                                    bool hasMixedSamples,

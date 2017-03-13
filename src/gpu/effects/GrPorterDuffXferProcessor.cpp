@@ -43,9 +43,8 @@ public:
 
     enum Properties {
         kModifiesDst_Property              = 1,
-        kUsesDstColor_Property             = 1 << 1,
-        kUsesInputColor_Property           = 1 << 2,
-        kCanTweakAlphaForCoverage_Property = 1 << 3,
+        kUsesInputColor_Property           = 1 << 1,
+        kCanTweakAlphaForCoverage_Property = 1 << 2,
 
         kLast_Property = kCanTweakAlphaForCoverage_Property
     };
@@ -61,7 +60,6 @@ public:
 
     bool hasSecondaryOutput() const { return kNone_OutputType != fSecondaryOutputType; }
     bool modifiesDst() const { return SkToBool(fProps & kModifiesDst_Property); }
-    bool usesDstColor() const { return SkToBool(fProps & kUsesDstColor_Property); }
     bool usesInputColor() const { return SkToBool(fProps & kUsesInputColor_Property); }
     bool canTweakAlphaForCoverage() const {
         return SkToBool(fProps & kCanTweakAlphaForCoverage_Property);
@@ -76,9 +74,6 @@ public:
 
         (GR_BLEND_MODIFIES_DST(BlendEquation, SrcCoeff, DstCoeff) ?
             kModifiesDst_Property : 0) |
-
-        (GR_BLEND_COEFFS_USE_DST_COLOR(SrcCoeff, DstCoeff) ?
-            kUsesDstColor_Property : 0) |
 
         ((PrimaryOut >= kModulate_OutputType && GR_BLEND_COEFFS_USE_SRC_COLOR(SrcCoeff,DstCoeff)) ||
          (SecondaryOut >= kModulate_OutputType && GR_BLEND_COEFF_REFS_SRC2(DstCoeff)) ?
@@ -759,12 +754,6 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(
     return new PorterDuffXferProcessor(blendFormula);
 }
 
-bool GrPorterDuffXPFactory::willReadsDst(const FragmentProcessorAnalysis& analysis) const {
-    BlendFormula colorFormula = gBlendTable[analysis.isOutputColorOpaque()][0][(int)fBlendMode];
-    SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
-    return (colorFormula.usesDstColor() || analysis.hasCoverage());
-}
-
 bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps,
                                                 const FragmentProcessorAnalysis& analysis) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
@@ -867,10 +856,6 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
 sk_sp<GrXferProcessor> GrPorterDuffXPFactory::CreateNoCoverageXP(SkBlendMode blendmode) {
     BlendFormula formula = get_blend_formula(false, false, false, blendmode);
     return sk_make_sp<PorterDuffXferProcessor>(formula);
-}
-
-bool GrPorterDuffXPFactory::WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis) {
-    return analysis.hasCoverage() || !analysis.isOutputColorOpaque();
 }
 
 bool GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(const GrCaps& caps,

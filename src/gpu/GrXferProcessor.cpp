@@ -176,14 +176,6 @@ SkString GrXferProcessor::BlendInfo::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrXPFactory::WillReadDst(const GrXPFactory* factory,
-                              const GrProcessorSet::FragmentProcessorAnalysis& analysis) {
-    if (factory) {
-        return factory->willReadsDst(analysis);
-    }
-    return GrPorterDuffXPFactory::WillSrcOverReadDst(analysis);
-}
-
 bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& caps,
                                      const GrProcessorSet::FragmentProcessorAnalysis& analysis) {
     bool result;
@@ -193,7 +185,6 @@ bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& c
     } else {
         result = GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(caps, analysis);
     }
-    SkASSERT(!(result && !WillReadDst(factory, analysis)));
     return result;
 }
 

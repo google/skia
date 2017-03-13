@@ -37,14 +37,11 @@ public:
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static bool WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis);
     static bool WillSrcOverNeedDstTexture(const GrCaps&, const FragmentProcessorAnalysis&);
     static bool SrcOverIsCompatibleWithCoverageAsAlpha() { return true; }
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
-
-    bool willReadsDst(const FragmentProcessorAnalysis&) const override;
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const FragmentProcessorAnalysis&,
