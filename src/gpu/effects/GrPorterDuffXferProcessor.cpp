@@ -791,6 +791,11 @@ bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps,
     return formula.hasSecondaryOutput();
 }
 
+bool GrPorterDuffXPFactory::compatibleWithCoverageAsAlpha(bool colorIsOpaque) const {
+    // We assume we have coverage (or else this doesn't matter).
+    return gBlendTable[colorIsOpaque][1][(int)fBlendMode].canTweakAlphaForCoverage();
+}
+
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
 
 #if GR_TEST_UTILS
@@ -866,14 +871,6 @@ sk_sp<GrXferProcessor> GrPorterDuffXPFactory::CreateNoCoverageXP(SkBlendMode ble
 
 bool GrPorterDuffXPFactory::WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis) {
     return analysis.hasCoverage() || !analysis.isOutputColorOpaque();
-}
-
-bool GrPorterDuffXPFactory::IsSrcOverPreCoverageBlendedColorConstant(
-        const GrProcOptInfo& colorInput, GrColor* color) {
-    if (!colorInput.isOpaque()) {
-        return false;
-    }
-    return colorInput.hasKnownOutputColor(color);
 }
 
 bool GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(const GrCaps& caps,

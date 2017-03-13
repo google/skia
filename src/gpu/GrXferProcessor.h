@@ -313,6 +313,8 @@ public:
                                    const GrCaps&,
                                    const FragmentProcessorAnalysis&);
 
+    static bool CompatibleWithCoverageAsAlpha(const GrXPFactory*, bool colorIsOpaque);
+
 protected:
     constexpr GrXPFactory() {}
 
@@ -330,6 +332,8 @@ private:
      *  shader.
      */
     virtual bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const = 0;
+
+    virtual bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const = 0;
 };
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic pop

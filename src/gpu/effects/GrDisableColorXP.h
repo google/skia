@@ -32,6 +32,8 @@ private:
         return false;
     }
 
+    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return true; }
+
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const FragmentProcessorAnalysis&,
                                            bool hasMixedSamples,
