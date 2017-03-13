@@ -30,16 +30,16 @@
  *
  * Run steps 1-5 above to produce polygons.
  * 5b) Apply fill rules to extract boundary contours from the polygons (extract_boundaries()).
- * 5c) Simplify boundaries to remove "pointy" vertices which cause inversions (simplify_boundary()).
+ * 5c) Simplify boundaries to remove "pointy" vertices that cause inversions (simplify_boundary()).
  * 5d) Displace edges by half a pixel inward and outward along their normals. Intersect to find
  *     new vertices, and set zero alpha on the exterior and one alpha on the interior. Build a new
- *     antialiased mesh from those vertices (boundary_to_aa_mesh()).
+ *     antialiased mesh from those vertices (stroke_boundary()).
  * Run steps 3-6 above on the new mesh, and produce antialiased triangles.
  *
  * The vertex sorting in step (3) is a merge sort, since it plays well with the linked list
  * of vertices (and the necessity of inserting new vertices on intersection).
  *
- * Stages (4) and (5) use an active edge list, which a list of all edges for which the
+ * Stages (4) and (5) use an active edge list -- a list of all edges for which the
  * sweep line has crossed the top vertex, but not the bottom vertex.  It's sorted
  * left-to-right based on the point where both edges are active (when both top vertices
  * have been seen, so the "lower" top vertex of the two). If the top vertices are equal
@@ -145,6 +145,7 @@ struct Vertex {
     : fPoint(point), fPrev(nullptr), fNext(nullptr)
     , fFirstEdgeAbove(nullptr), fLastEdgeAbove(nullptr)
     , fFirstEdgeBelow(nullptr), fLastEdgeBelow(nullptr)
+    , fPartner(nullptr)
     , fProcessed(false)
     , fAlpha(alpha)
 #if LOGGING_ENABLED
@@ -158,6 +159,7 @@ struct Vertex {
     Edge*   fLastEdgeAbove;   // "
     Edge*   fFirstEdgeBelow;  // Linked list of edges below this vertex.
     Edge*   fLastEdgeBelow;   // "
+    Vertex* fPartner;         // Corresponding inner or outer vertex (for AA).
     bool    fProcessed;       // Has this vertex been seen in simplify()?
     uint8_t fAlpha;
 #if LOGGING_ENABLED
@@ -242,6 +244,18 @@ struct VertexList {
     void append(Vertex* v) {
         insert(v, fTail, nullptr);
     }
+    void append(const VertexList& list) {
+        if (!list.fHead) {
+            return;
+        }
+        if (fTail) {
+            fTail->fNext = list.fHead;
+            list.fHead->fPrev = fTail;
+        } else {
+            fHead = list.fHead;
+        }
+        fTail = list.fTail;
+    }
     void prepend(Vertex* v) {
         insert(v, nullptr, fHead);
     }
@@ -297,7 +311,7 @@ struct Line {
  * An Edge joins a top Vertex to a bottom Vertex. Edge ordering for the list of "edges above" and
  * "edge below" a vertex as well as for the active edge list is handled by isLeftOf()/isRightOf().
  * Note that an Edge will give occasionally dist() != 0 for its own endpoints (because floating
- * point). For speed, that case is only tested by the callers which require it (e.g.,
+ * point). For speed, that case is only tested by the callers that require it (e.g.,
  * cleanup_active_edges()). Edges also handle checking for intersection with other edges.
  * Currently, this converts the edges to the parametric form, in order to avoid doing a division
  * until an intersection has been confirmed. This is slightly slower in the "found" case, but
@@ -418,6 +432,11 @@ struct EdgeList {
     }
     void remove(Edge* edge) {
         list_remove<Edge, &Edge::fLeft, &Edge::fRight>(edge, &fHead, &fTail);
+    }
+    void removeAll() {
+        while (fHead) {
+            this->remove(fHead);
+        }
     }
     void close() {
         if (fHead && fTail) {
@@ -1023,6 +1042,9 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
     LOG("found coincident verts at %g, %g; merging %g into %g\n", src->fPoint.fX, src->fPoint.fY,
         src->fID, dst->fID);
     dst->fAlpha = SkTMax(src->fAlpha, dst->fAlpha);
+    if (src->fPartner) {
+        src->fPartner->fPartner = dst;
+    }
     for (Edge* edge = src->fFirstEdgeAbove; edge;) {
         Edge* next = edge->fNextEdgeAbove;
         set_bottom(edge, dst, nullptr, c);
@@ -1127,6 +1149,9 @@ void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
 }
 
 void merge_coincident_vertices(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
+    if (!mesh->fHead) {
+        return;
+    }
     for (Vertex* v = mesh->fHead->fNext; v != nullptr; v = v->fNext) {
         if (c.sweep_lt(v->fPoint, v->fPrev->fPoint)) {
             v->fPoint = v->fPrev->fPoint;
@@ -1150,6 +1175,44 @@ void build_edges(VertexList* contours, int contourCnt, VertexList* mesh, Compara
             prev = v;
             v = next;
         }
+    }
+}
+
+void connect_partners(VertexList* outerVertices, Comparator& c, SkArenaAlloc& alloc) {
+    for (Vertex* outer = outerVertices->fHead; outer; outer = outer->fNext) {
+        if (Vertex* inner = outer->fPartner) {
+            // Connector edges get zero winding, since they're only structural (i.e., to ensure
+            // no 0-0-0 alpha triangles are produced), and shouldn't affect the poly winding number.
+            connect(outer, inner, Edge::Type::kConnector, c, alloc, 0);
+            inner->fPartner = outer->fPartner = nullptr;
+        }
+    }
+}
+
+template <CompareFunc sweep_lt>
+void sorted_merge(VertexList* front, VertexList* back, VertexList* result) {
+    Vertex* a = front->fHead;
+    Vertex* b = back->fHead;
+    while (a && b) {
+        if (sweep_lt(a->fPoint, b->fPoint)) {
+            front->remove(a);
+            result->append(a);
+            a = front->fHead;
+        } else {
+            back->remove(b);
+            result->append(b);
+            b = back->fHead;
+        }
+    }
+    result->append(*front);
+    result->append(*back);
+}
+
+void sorted_merge(VertexList* front, VertexList* back, VertexList* result, Comparator& c) {
+    if (c.fDirection == Comparator::Direction::kHorizontal) {
+        sorted_merge<sweep_lt_horiz>(front, back, result);
+    } else {
+        sorted_merge<sweep_lt_vert>(front, back, result);
     }
 }
 
@@ -1180,25 +1243,7 @@ void merge_sort(VertexList* vertices) {
     merge_sort<sweep_lt>(&back);
 
     vertices->fHead = vertices->fTail = nullptr;
-    Vertex* a = front.fHead;
-    Vertex* b = back.fHead;
-    while (a && b) {
-        if (sweep_lt(a->fPoint, b->fPoint)) {
-            Vertex* next = a->fNext;
-            vertices->append(a);
-            a = next;
-        } else {
-            Vertex* next = b->fNext;
-            vertices->append(b);
-            b = next;
-        }
-    }
-    if (a) {
-        vertices->insert(a, vertices->fTail, a->fNext);
-    }
-    if (b) {
-        vertices->insert(b, vertices->fTail, b->fNext);
-    }
+    sorted_merge<sweep_lt>(&front, &back, vertices);
 }
 
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
@@ -1257,6 +1302,48 @@ void simplify(const VertexList& vertices, Comparator& c, SkArenaAlloc& alloc) {
         }
         v->fProcessed = true;
     }
+}
+
+// This is a stripped-down version of simplify() (the Bentley-Ottmann algorithm) that
+// early-returns true on the first found intersection, false if none.
+bool is_complex(const VertexList& vertices) {
+    LOG("testing polygon complexity\n");
+    EdgeList activeEdges;
+    for (Vertex* v = vertices.fHead; v != nullptr; v = v->fNext) {
+        if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
+            continue;
+        }
+        Edge* leftEnclosingEdge;
+        Edge* rightEnclosingEdge;
+        find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+        SkPoint dummy;
+        if (v->fFirstEdgeBelow) {
+            for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
+                if (edge && leftEnclosingEdge && edge->intersect(*leftEnclosingEdge, &dummy)) {
+                    activeEdges.removeAll();
+                    return true;
+                }
+                if (edge && rightEnclosingEdge && edge->intersect(*rightEnclosingEdge, &dummy)) {
+                    activeEdges.removeAll();
+                    return true;
+                }
+            }
+        } else if (leftEnclosingEdge && rightEnclosingEdge &&
+                   leftEnclosingEdge->intersect(*rightEnclosingEdge, &dummy)) {
+            activeEdges.removeAll();
+            return true;
+        }
+        for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
+            remove_edge(e, &activeEdges);
+        }
+        Edge* leftEdge = leftEnclosingEdge;
+        for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
+            insert_edge(e, leftEdge, &activeEdges);
+            leftEdge = e;
+        }
+    }
+    activeEdges.removeAll();
+    return false;
 }
 
 // Stage 5: Tessellate the simplified mesh into monotone polygons.
@@ -1463,7 +1550,8 @@ void fix_inversions(Vertex* prev, Vertex* next, Edge* prevBisector, Edge* nextBi
 // find new vertices, and set zero alpha on the exterior and one alpha on the interior. Build a
 // new antialiased mesh from those vertices.
 
-void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
+void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* outerMesh,
+                     Comparator& c, SkArenaAlloc& alloc) {
     // A boundary with fewer than 3 edges is degenerate.
     if (!boundary->fHead || !boundary->fHead->fRight || !boundary->fHead->fRight->fRight) {
         return;
@@ -1492,6 +1580,8 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
             Edge* bisector = new_edge(outerVertex, innerVertex, Edge::Type::kConnector, c, alloc);
             fix_inversions(innerVertices.fTail, innerVertex, prevBisector, bisector, prevEdge, c);
             fix_inversions(outerVertices.fTail, outerVertex, prevBisector, bisector, prevEdge, c);
+            innerVertex->fPartner = outerVertex;
+            outerVertex->fPartner = innerVertex;
             innerVertices.append(innerVertex);
             outerVertices.append(outerVertex);
             prevBisector = bisector;
@@ -1500,8 +1590,6 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
         prevOuter = outer;
         prevEdge = e;
     }
-    innerVertices.close();
-    outerVertices.close();
 
     Vertex* innerVertex = innerVertices.fHead;
     Vertex* outerVertex = outerVertices.fHead;
@@ -1512,22 +1600,21 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
                               alloc);
     fix_inversions(innerVertices.fTail, innerVertices.fHead, prevBisector, bisector, prevEdge, c);
     fix_inversions(outerVertices.fTail, outerVertices.fHead, prevBisector, bisector, prevEdge, c);
-    do {
+    Vertex* prevInnerVertex = innerVertices.fTail;
+    Vertex* prevOuterVertex = outerVertices.fTail;
+    while (innerVertex && outerVertex) {
         // Connect vertices into a quad mesh. Outer edges get default (1) winding.
         // Inner edges get -2 winding. This ensures that the interior is always filled
         // (-1 winding number for normal cases, 3 for thin features where the interior inverts).
-        // Connector edges get zero winding, since they're only structural (i.e., to ensure
-        // no 0-0-0 alpha triangles are produced), and shouldn't affect the poly winding number.
-        connect(outerVertex->fPrev, outerVertex, Edge::Type::kOuter, c, alloc);
-        connect(innerVertex->fPrev, innerVertex, Edge::Type::kInner, c, alloc, -2);
-        connect(outerVertex, innerVertex, Edge::Type::kConnector, c, alloc, 0);
-        Vertex* innerNext = innerVertex->fNext;
-        Vertex* outerNext = outerVertex->fNext;
-        mesh->append(innerVertex);
-        mesh->append(outerVertex);
-        innerVertex = innerNext;
-        outerVertex = outerNext;
-    } while (innerVertex != innerVertices.fHead && outerVertex != outerVertices.fHead);
+        connect(prevOuterVertex, outerVertex, Edge::Type::kOuter, c, alloc);
+        connect(prevInnerVertex, innerVertex, Edge::Type::kInner, c, alloc, -2);
+        prevInnerVertex = innerVertex;
+        prevOuterVertex = outerVertex;
+        innerVertex = innerVertex->fNext;
+        outerVertex = outerVertex->fNext;
+    }
+    innerMesh->append(innerVertices);
+    outerMesh->append(outerVertices);
 }
 
 void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, SkArenaAlloc& alloc) {
@@ -1562,7 +1649,8 @@ void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, Sk
 
 // Stage 5b: Extract boundaries from mesh, simplify and stroke them into a new mesh.
 
-void extract_boundaries(const VertexList& inMesh, VertexList* outMesh, SkPath::FillType fillType,
+void extract_boundaries(const VertexList& inMesh, VertexList* innerVertices,
+                        VertexList* outerVertices, SkPath::FillType fillType,
                         Comparator& c, SkArenaAlloc& alloc) {
     remove_non_boundary_edges(inMesh, fillType, alloc);
     for (Vertex* v = inMesh.fHead; v; v = v->fNext) {
@@ -1570,12 +1658,12 @@ void extract_boundaries(const VertexList& inMesh, VertexList* outMesh, SkPath::F
             EdgeList boundary;
             extract_boundary(&boundary, v->fFirstEdgeBelow, fillType, alloc);
             simplify_boundary(&boundary, c, alloc);
-            boundary_to_aa_mesh(&boundary, outMesh, c, alloc);
+            stroke_boundary(&boundary, innerVertices, outerVertices, c, alloc);
         }
     }
 }
 
-// This is a driver function which calls stages 2-5 in turn.
+// This is a driver function that calls stages 2-5 in turn.
 
 void contours_to_mesh(VertexList* contours, int contourCnt, bool antialias,
                       VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
@@ -1593,7 +1681,7 @@ void contours_to_mesh(VertexList* contours, int contourCnt, bool antialias,
     build_edges(contours, contourCnt, mesh, c, alloc);
 }
 
-void sort_and_simplify(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc) {
+void sort_mesh(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc) {
     if (!vertices || !vertices->fHead) {
         return;
     }
@@ -1604,29 +1692,43 @@ void sort_and_simplify(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc)
     } else {
         merge_sort<sweep_lt_vert>(vertices);
     }
-    merge_coincident_vertices(vertices, c, alloc);
 #if LOGGING_ENABLED
     for (Vertex* v = vertices->fHead; v != nullptr; v = v->fNext) {
         static float gID = 0.0f;
         v->fID = gID++;
     }
 #endif
-    simplify(*vertices, c, alloc);
 }
 
 Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType fillType,
-                        const SkRect& pathBounds, bool antialias,
+                        const SkRect& pathBounds, bool antialias, VertexList* outerMesh,
                         SkArenaAlloc& alloc) {
     Comparator c(pathBounds.width() > pathBounds.height() ? Comparator::Direction::kHorizontal
                                                           : Comparator::Direction::kVertical);
     VertexList mesh;
     contours_to_mesh(contours, contourCnt, antialias, &mesh, c, alloc);
-    sort_and_simplify(&mesh, c, alloc);
+    sort_mesh(&mesh, c, alloc);
+    merge_coincident_vertices(&mesh, c, alloc);
+    simplify(mesh, c, alloc);
     if (antialias) {
-        VertexList aaMesh;
-        extract_boundaries(mesh, &aaMesh, fillType, c, alloc);
-        sort_and_simplify(&aaMesh, c, alloc);
-        return tessellate(aaMesh, alloc);
+        VertexList innerMesh;
+        extract_boundaries(mesh, &innerMesh, outerMesh, fillType, c, alloc);
+        sort_mesh(&innerMesh, c, alloc);
+        sort_mesh(outerMesh, c, alloc);
+        if (is_complex(innerMesh) || is_complex(*outerMesh)) {
+            LOG("found complex mesh; taking slow path\n");
+            VertexList aaMesh;
+            connect_partners(outerMesh, c, alloc);
+            sorted_merge(&innerMesh, outerMesh, &aaMesh, c);
+            merge_coincident_vertices(&aaMesh, c, alloc);
+            simplify(aaMesh, c, alloc);
+            outerMesh->fHead = outerMesh->fTail = nullptr;
+            return tessellate(aaMesh, alloc);
+        } else {
+            LOG("no complex polygons; taking fast path\n");
+            merge_coincident_vertices(&innerMesh, c, alloc);
+            return tessellate(innerMesh, alloc);
+        }
     } else {
         return tessellate(mesh, alloc);
     }
@@ -1644,7 +1746,8 @@ void* polys_to_triangles(Poly* polys, SkPath::FillType fillType, const AAParams*
 }
 
 Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    int contourCnt, SkArenaAlloc& alloc, bool antialias, bool* isLinear) {
+                    int contourCnt, SkArenaAlloc& alloc, bool antialias, bool* isLinear,
+                    VertexList* outerMesh) {
     SkPath::FillType fillType = path.getFillType();
     if (SkPath::IsInverseFillType(fillType)) {
         contourCnt++;
@@ -1653,7 +1756,7 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 
     path_to_contours(path, tolerance, clipBounds, contours.get(), alloc, isLinear);
     return contours_to_polys(contours.get(), contourCnt, path.getFillType(), path.getBounds(),
-                             antialias, alloc);
+                             antialias, outerMesh, alloc);
 }
 
 int get_contour_count(const SkPath& path, SkScalar tolerance) {
@@ -1679,6 +1782,30 @@ int count_points(Poly* polys, SkPath::FillType fillType) {
     return count;
 }
 
+int count_outer_mesh_points(const VertexList& outerMesh) {
+    int count = 0;
+    for (Vertex* v = outerMesh.fHead; v; v = v->fNext) {
+        for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
+            count += TESSELLATOR_WIREFRAME ? 12 : 6;
+        }
+    }
+    return count;
+}
+
+void* outer_mesh_to_triangles(const VertexList& outerMesh, const AAParams* aaParams, void* data) {
+    for (Vertex* v = outerMesh.fHead; v; v = v->fNext) {
+        for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
+            Vertex* v0 = e->fTop;
+            Vertex* v1 = e->fBottom;
+            Vertex* v2 = e->fBottom->fPartner;
+            Vertex* v3 = e->fTop->fPartner;
+            data = emit_triangle(v0, v1, v2, aaParams, data);
+            data = emit_triangle(v0, v2, v3, aaParams, data);
+        }
+    }
+    return data;
+}
+
 } // namespace
 
 namespace GrTessellator {
@@ -1694,12 +1821,16 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
         return 0;
     }
     SkArenaAlloc alloc(kArenaChunkSize);
+    VertexList outerMesh;
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, antialias,
-                                isLinear);
+                                isLinear, &outerMesh);
     SkPath::FillType fillType = antialias ? SkPath::kWinding_FillType : path.getFillType();
     int count = count_points(polys, fillType);
     if (0 == count) {
         return 0;
+    }
+    if (antialias) {
+        count += count_outer_mesh_points(outerMesh);
     }
 
     void* verts = vertexAllocator->lock(count);
@@ -1714,6 +1845,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     aaParams.fColor = color;
 
     void* end = polys_to_triangles(polys, fillType, antialias ? &aaParams : nullptr, verts);
+    end = outer_mesh_to_triangles(outerMesh, &aaParams, end);
     int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
                                        / vertexAllocator->stride());
     SkASSERT(actualCount <= count);
@@ -1729,7 +1861,8 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     }
     SkArenaAlloc alloc(kArenaChunkSize);
     bool isLinear;
-    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, false, &isLinear);
+    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, false, &isLinear,
+                                nullptr);
     SkPath::FillType fillType = path.getFillType();
     int count = count_points(polys, fillType);
     if (0 == count) {
