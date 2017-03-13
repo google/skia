@@ -17,6 +17,7 @@ public:
 
     GrWindowRectangles() : fCount(0) {}
     GrWindowRectangles(const GrWindowRectangles& that) : fCount(0) { *this = that; }
+    GrWindowRectangles(const GrWindowRectangles& that, int dx, int dy);
     ~GrWindowRectangles() { SkSafeUnref(this->rec()); }
 
     bool empty() const { return !fCount; }
@@ -50,6 +51,7 @@ struct GrWindowRectangles::Rec : public GrNonAtomicRef<Rec> {
         SkASSERT(numWindows < kMaxWindows);
         memcpy(fData, windows, sizeof(SkIRect) * numWindows);
     }
+    Rec() = default;
 
     SkIRect fData[kMaxWindows];
 };
@@ -72,6 +74,25 @@ inline GrWindowRectangles& GrWindowRectangles::operator=(const GrWindowRectangle
         fRec = SkRef(that.fRec);
     }
     return *this;
+}
+
+inline GrWindowRectangles::GrWindowRectangles(const GrWindowRectangles& that, int dx, int dy) {
+    if (!dx && !dy) {
+        fCount = 0;
+        *this = that;
+        return;
+    }
+    fCount = that.fCount;
+    SkIRect* windows;
+    if (fCount > kNumLocalWindows) {
+        fRec = new Rec();
+        windows = fRec->fData;
+    } else {
+        windows = fLocalWindows;
+    }
+    for (int i = 0; i < fCount; ++i) {
+        windows[i] = that.data()[i].makeOffset(dx, dy);
+    }
 }
 
 inline SkIRect& GrWindowRectangles::addWindow() {
