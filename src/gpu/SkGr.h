@@ -213,13 +213,17 @@ GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
  */
 GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
+sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrContext*, const SkBitmap&);
+
 GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&,
                                                SkColorSpace* dstColorSpace);
 
 /**
  * Creates a new texture for the pixmap.
  */
-GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budgeted);
+GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted);
+
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrContext*, const SkPixmap&, SkBudgeted);
 
 /**
  * Creates a new texture populated with the mipmap levels.
