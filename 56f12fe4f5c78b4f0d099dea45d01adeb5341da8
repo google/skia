@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f790a56c_2de55af7",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-03-13T19:53:50Z",
+      "side": 1,
+      "message": "ugh: private headers included in public header... what\u0027s a good way to untangle this?  maybe split SkTextBlob vs (hidden) SkTextBlobBase like SkImage?",
+      "revId": "56f12fe4f5c78b4f0d099dea45d01adeb5341da8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
