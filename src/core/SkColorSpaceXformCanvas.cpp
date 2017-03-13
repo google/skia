@@ -7,6 +7,7 @@
 
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformCanvas.h"
+#include "SkImage_Base.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
 #include "SkSurface.h"
@@ -54,9 +55,8 @@ public:
         return *result;
     }
 
-    sk_sp<const SkImage> xform(const SkImage* img) const {
-        // TODO: for real
-        return sk_ref_sp(img);
+    sk_sp<SkImage> xform(const SkImage* img) const {
+        return as_IB(img)->makeColorSpace(fTargetCS);
     }
 
     const SkPaint* xform(const SkPaint* paint, SkTLazy<SkPaint>* lazy) const {
