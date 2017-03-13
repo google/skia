@@ -66,11 +66,11 @@ public:
      */
     void analyzeProcessors(GrProcessorSet::FragmentProcessorAnalysis* analysis,
                            const GrProcessorSet& processors,
-                           const GrAppliedClip& appliedClip,
+                           const GrAppliedClip* appliedClip,
                            const GrCaps& caps) const {
         FragmentProcessorAnalysisInputs input;
         this->getFragmentProcessorAnalysisInputs(&input);
-        analysis->reset(*input.colorInput(), *input.coverageInput(), processors, appliedClip, caps);
+        analysis->init(*input.colorInput(), *input.coverageInput(), processors, appliedClip, caps);
     }
 
 protected:
