@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b695282_e51d59dd",
+        "filename": "src/gpu/ops/GrDrawPathOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T16:48:11Z",
+      "side": 0,
+      "message": "The ops must know something about their blend mode before the pipeline is created right?\n\nRather than a query on the XP that has to get plumbed so deeply, could this just look at the SkBlendMode and GrPaint?",
+      "range": {
+        "startLine": 102,
+        "startChar": 52,
+        "endLine": 102,
+        "endChar": 60
+      },
+      "revId": "81ab0d2d5d93448f4a57b71987ecd73794a9d10d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
