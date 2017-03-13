@@ -189,7 +189,7 @@ private:
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const SkTArray<GrMipLevel>& texels);
 
-    bool onMakeCopyForTextureParams(GrTexture*, const GrSamplerParams&,
+    bool onMakeCopyForTextureParams(GrTextureProxy*, const GrSamplerParams&,
                                     GrTextureProducer::CopyParams*,
                                     SkScalar scaleAdjust[2]) const override;
 
