@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a254ac3c_ac6f99d0",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T19:43:36Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "b785b3f6_589da5aa",
+      "range": {
+        "startLine": 199,
+        "startChar": 14,
+        "endLine": 199,
+        "endChar": 22
+      },
+      "revId": "67bd38777c915d82e7963584f085fa6bf25e7b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9fcc3d1_570f4b77",
         "filename": "src/gpu/GrWindowRectangles.h",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-13T19:28:18Z",
       "side": 1,
       "message": "This is needed for using the window rectangles when creating an alpha mask. Alternatively, we could leave the origin on GrWindowRectsState.",
+      "range": {
+        "startLine": 79,
+        "startChar": 27,
+        "endLine": 79,
+        "endChar": 45
+      },
+      "revId": "67bd38777c915d82e7963584f085fa6bf25e7b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc323e5f_b12166d3",
+        "filename": "src/gpu/GrWindowRectangles.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T19:43:36Z",
+      "side": 1,
+      "message": "I think I prefer leaving the origin on the GrWindowRectsState. This will potentially result in an extra malloc. What is the argument against that approach?\n\nMaybe we could rename it from \"origin\" to something more understandable, like \"offset\".",
+      "parentUuid": "b9fcc3d1_570f4b77",
       "range": {
         "startLine": 79,
         "startChar": 27,
