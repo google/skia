@@ -47,15 +47,9 @@ ZIP_BLACKLIST = ['.git', '.svn', '*.pyc', '.DS_STORE']
 class CIPDStore(object):
   """Wrapper object for CIPD."""
   def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL):
-    cipd = 'cipd'
-    platform = 'linux64'
-    if sys.platform == 'darwin':
-      platform = 'mac64'
-    elif sys.platform == 'win32':
-      platform = 'win64'
-      cipd = 'cipd.exe'
-    self._cipd_path = os.path.join(INFRA_BOTS_DIR, 'tools', 'luci-go', platform)
-    self._cipd = os.path.join(self._cipd_path, cipd)
+    self._cipd = 'cipd'
+    if sys.platform == 'win32':
+      self._cipd = 'cipd.exe'
     self._cipd_url = cipd_url
     self._check_setup()
 
@@ -64,10 +58,8 @@ class CIPDStore(object):
     try:
       subprocess.check_call([self._cipd, 'auth-info'])
     except OSError:
-      cipd_sha1_path = os.path.join(self._cipd_path, 'cipd.sha1')
-      raise Exception('CIPD binary not found in %s. You may need to run:\n\n'
-                      '$ download_from_google_storage -s %s'
-                      ' --bucket chromium-luci' % (self._cipd, cipd_sha1_path))
+      raise Exception('CIPD binary not found on your path (typically in '
+                      'depot_tools). You may need to update depot_tools.')
     except subprocess.CalledProcessError:
       raise Exception('CIPD not authenticated. You may need to run:\n\n'
                       '$ %s auth-login' % self._cipd)
@@ -123,6 +115,7 @@ class CIPDStore(object):
         '--in', target_dir,
         '--tag', TAG_PROJECT_SKIA,
         '--tag', TAG_VERSION_TMPL % version,
+        '--compression-level', '0',
     ])
 
   def download(self, name, version, target_dir):
