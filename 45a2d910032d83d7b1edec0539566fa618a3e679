@@ -45,6 +45,30 @@
       "revId": "45a2d910032d83d7b1edec0539566fa618a3e679",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0766f28a_eb9e5810",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-13T22:09:31Z",
+      "side": 1,
+      "message": "Yeah, agreed.",
+      "parentUuid": "6e875d8c_2c7311a9",
+      "range": {
+        "startLine": 156,
+        "startChar": 42,
+        "endLine": 156,
+        "endChar": 57
+      },
+      "revId": "45a2d910032d83d7b1edec0539566fa618a3e679",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
