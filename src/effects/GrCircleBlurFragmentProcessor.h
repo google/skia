@@ -34,7 +34,7 @@ public:
         return str;
     }
 
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, const SkRect& circle, float sigma);
+    static sk_sp<GrFragmentProcessor> Make(GrContext*, const SkRect& circle, float sigma);
 
 private:
     // This nested GLSL processor implementation is defined in the cpp file.

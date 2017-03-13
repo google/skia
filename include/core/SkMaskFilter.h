@@ -115,7 +115,7 @@ public:
      *  Try to directly render the mask filter into the target. Returns true if drawing was
      *  successful. If false is returned then paint is unmodified.
      */
-    virtual bool directFilterMaskGPU(GrResourceProvider* resourceProvider,
+    virtual bool directFilterMaskGPU(GrContext*,
                                      GrRenderTargetContext* renderTargetContext,
                                      GrPaint&& paint,
                                      const GrClip&,
