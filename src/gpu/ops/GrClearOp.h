@@ -86,7 +86,7 @@ private:
         // same color.
         GrClearOp* cb = t->cast<GrClearOp>();
         SkASSERT(cb->fRenderTarget == fRenderTarget);
-        if (!fClip.windowRectsState().cheapEqualTo(cb->fClip.windowRectsState())) {
+        if (fClip.windowRectsState() != cb->fClip.windowRectsState()) {
             return false;
         }
         if (cb->contains(this)) {
