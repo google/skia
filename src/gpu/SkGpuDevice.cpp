@@ -1669,7 +1669,7 @@ void SkGpuDevice::drawVertices(SkCanvas::VertexMode vmode,
                                        GrRenderTargetContext::ColorArrayType::kSkColor);
 }
 
-void SkGpuDevice::drawVerticesObject(sk_sp<SkVertices> vertices,
+void SkGpuDevice::drawVerticesObject(const SkVertices* vertices,
                                      SkBlendMode mode, const SkPaint& paint, uint32_t flags) {
     ASSERT_SINGLE_OWNER
     CHECK_SHOULD_DRAW();
@@ -1690,7 +1690,7 @@ void SkGpuDevice::drawVerticesObject(sk_sp<SkVertices> vertices,
         return;
     }
     fRenderTargetContext->drawVertices(fClip, std::move(grPaint), this->ctm(),
-                                       std::move(vertices), flags);
+                                       sk_ref_sp(const_cast<SkVertices*>(vertices)), flags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

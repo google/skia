@@ -778,6 +778,20 @@ void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+                                           const SkPaint& paint, uint32_t flags) {
+    // op + paint index + blob index + x/y
+    size_t size = 3 * kUInt32Size + 2 * sizeof(SkScalar);
+    size_t initialOffset = this->addDraw(DRAW_VERTICES_OBJECT, &size);
+
+    this->addPaint(paint);
+    this->addVertices(vertices);
+    this->addInt(static_cast<uint32_t>(mode));
+    this->addInt(flags);
+
+    this->validate(initialOffset, size);
+}
+
 void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                                   const SkPoint texCoords[4], SkBlendMode bmode,
                                   const SkPaint& paint) {
@@ -982,6 +996,11 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 void SkPictureRecord::addTextBlob(const SkTextBlob* blob) {
     // follow the convention of recording a 1-based index
     this->addInt(find_or_append_uniqueID(fTextBlobRefs, blob) + 1);
+}
+
+void SkPictureRecord::addVertices(const SkVertices* vertices) {
+    // follow the convention of recording a 1-based index
+    this->addInt(find_or_append_uniqueID(fVerticesRefs, vertices) + 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1788,7 +1788,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                     }
                     uint32_t flags;
                     fuzz->nextRange(&flags, 0, 3);
-                    canvas->drawVertices(std::move(verticesObj), blendMode, paint, flags);
+                    canvas->drawVertices(verticesObj, blendMode, paint, flags);
                 }
                 break;
             }
