@@ -19,6 +19,7 @@ TEST_BUILDERS = {
     'skiabot-linux-swarm-000': [
       'Build-Mac-Clang-arm64-Debug-iOS',
       'Build-Mac-Clang-mipsel-Debug-GN_Android',
+      'Build-Mac-Clang-x64-Release-iOS',
       'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
       'Build-Mac-Clang-x86_64-Release-GN',
       'Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot',
