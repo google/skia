@@ -109,11 +109,7 @@ static inline __m128i SkFastFourByteInterp256_SSE2(const __m128i& src, const __m
 
 // Portable version SkPMLerp is in SkColorPriv.h
 static inline __m128i SkPMLerp_SSE2(const __m128i& src, const __m128i& dst, const unsigned scale) {
-#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
-    return _mm_add_epi8(SkAlphaMulQ_SSE2(src, scale), SkAlphaMulQ_SSE2(dst, 256 - scale));
-#else
     return SkFastFourByteInterp256_SSE2(src, dst, scale);
-#endif
 }
 
 static inline __m128i SkGetPackedA32_SSE2(const __m128i& src) {
@@ -253,17 +249,6 @@ static inline __m128i SkPMSrcOver_SSE2(const __m128i& src, const __m128i& dst) {
 static inline __m128i SkBlendARGB32_SSE2(const __m128i& src, const __m128i& dst,
                                          const unsigned aa) {
     unsigned alpha = SkAlpha255To256(aa);
-#ifdef SK_SUPPORT_LEGACY_BROKEN_LERP
-     __m128i src_scale = _mm_set1_epi32(alpha);
-     // SkAlpha255To256(255 - SkAlphaMul(SkGetPackedA32(src), src_scale))
-     __m128i dst_scale = SkGetPackedA32_SSE2(src);
-     dst_scale = _mm_mullo_epi16(dst_scale, src_scale);
-     dst_scale = _mm_srli_epi16(dst_scale, 8);
-     dst_scale = _mm_sub_epi32(_mm_set1_epi32(256), dst_scale);
-
-     __m128i result = SkAlphaMulQ_SSE2(src, alpha);
-     return _mm_add_epi8(result, SkAlphaMulQ_SSE2(dst, dst_scale));
-#else
     __m128i src_scale = _mm_set1_epi16(alpha);
     // SkAlphaMulInv256(SkGetPackedA32(src), src_scale)
     __m128i dst_scale = SkGetPackedA32_SSE2(src);
@@ -298,7 +283,6 @@ static inline __m128i SkBlendARGB32_SSE2(const __m128i& src, const __m128i& dst,
     dst_rb = _mm_srli_epi16(dst_rb, 8);
     dst_ag = _mm_andnot_si128(mask, dst_ag);
     return _mm_or_si128(dst_rb, dst_ag);
-#endif
 }
 
 #undef ASSERT_EQ
