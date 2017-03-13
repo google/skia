@@ -20,7 +20,7 @@ declare_args() {
     }
   }
 
-  windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+  windk = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional"
 
   extra_cflags = []
   extra_cflags_c = []
@@ -76,13 +76,17 @@ config("default") {
       "NOMINMAX",
     ]
     include_dirs = [
-      "$windk/VC/include",
+      "$windk/VC/Tools/MSVC/14.10.25017/include",
 
       # For local builds.
-      "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
-      "$windk/../Windows Kits/8.1/Include/shared",
-      "$windk/../Windows Kits/8.1/Include/um",
-      "$windk/../Windows Kits/8.1/Include/winrt",
+      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/shared",
+      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/ucrt",
+      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/um",
+      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/winrt",
+
+      "$windk/../../../Windows Kits/8.1/Include/shared",
+      "$windk/../../../Windows Kits/8.1/Include/um",
+      "$windk/../../../Windows Kits/8.1/Include/winrt",
 
       # For builds using win_toolchain asset.
       "$windk/win_sdk/Include/10.0.14393.0/shared",
@@ -92,17 +96,18 @@ config("default") {
     ]
     lib_dirs = [
       # For local builds.
-      "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
-      "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
+      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/ucrt/$target_cpu",
+      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/um/$target_cpu",
+      "$windk/../../../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
 
       # For builds using win_toolchain asset.
       "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
       "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
     ]
     if (target_cpu == "x86") {
-      lib_dirs += [ "$windk/VC/lib" ]
+      lib_dirs += [ "$windk/VC/Tools/MSVC/14.10.25017/lib/x86" ]
     } else {
-      lib_dirs += [ "$windk/VC/lib/amd64" ]
+      lib_dirs += [ "$windk/VC/Tools/MSVC/14.10.25017/lib/x64" ]
     }
   } else {
     cflags += [
@@ -434,10 +439,10 @@ config("executable") {
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
-  bin = "$windk/VC/bin/amd64"
+  bin = "$windk/VC/Tools/MSVC/14.10.25017/bin/HostX64/x64"
   env_setup = ""
   if (target_cpu == "x86") {
-    bin += "_x86"
+    bin = "$windk/VC/Tools/MSVC/14.10.25017/bin/HostX64/x86"
     env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
   }
 
