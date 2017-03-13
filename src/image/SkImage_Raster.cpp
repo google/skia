@@ -120,6 +120,8 @@ public:
         return fBitmap.pixelRef() && fBitmap.pixelRef()->isLazyGenerated();
     }
 
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
+
 #if SK_SUPPORT_GPU
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override;
     bool onPinAsTexture(GrContext*) const override;
@@ -364,4 +366,22 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
         }
     }
     return this->INHERITED::onAsLegacyBitmap(bitmap, mode);
+}
+
+sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+    SkBitmap dst;
+    SkImageInfo dstInfo = fBitmap.info().makeColorSpace(target);
+    if (kIndex_8_SkColorType == dstInfo.colorType() ||
+        kGray_8_SkColorType == dstInfo.colorType())
+    {
+        dstInfo = dstInfo.makeColorType(kN32_SkColorType);
+    }
+    dst.allocPixels(dstInfo);
+
+    SkPixmap src;
+    SkAssertResult(this->onPeekPixels(&src));
+
+    SkAssertResult(dst.writePixels(src));
+    dst.setImmutable();
+    return SkImage::MakeFromBitmap(dst);
 }
