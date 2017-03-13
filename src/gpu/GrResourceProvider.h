@@ -78,6 +78,10 @@ public:
     /** Finds a texture by unique key. If the texture is found it is ref'ed and returned. */
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
 
+    void assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy*);
+
+    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey& key);
+
     /**
      * Finds a texture that approximately matches the descriptor. Will be at least as large in width
      * and height as desc specifies. If desc specifies that the texture should be a render target

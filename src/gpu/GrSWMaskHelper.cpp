@@ -97,8 +97,9 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds, const SkMatrix* matrix) {
     return true;
 }
 
-sk_sp<GrTextureProxy> GrSWMaskHelper::toTexture(GrContext* context, SkBackingFit fit) {
+sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBackingFit fit) {
     GrSurfaceDesc desc;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fPixels.width();
     desc.fHeight = fPixels.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
@@ -132,12 +133,12 @@ void GrSWMaskHelper::toSDF(unsigned char* sdf) {
  * Software rasterizes shape to A8 mask and uploads the result to a scratch texture. Returns the
  * resulting texture on success; nullptr on failure.
  */
-sk_sp<GrTexture> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
-                                                        const GrShape& shape,
-                                                        const SkIRect& resultBounds,
-                                                        GrAA aa,
-                                                        SkBackingFit fit,
-                                                        const SkMatrix* matrix) {
+sk_sp<GrTextureProxy> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
+                                                             const GrShape& shape,
+                                                             const SkIRect& resultBounds,
+                                                             GrAA aa,
+                                                             SkBackingFit fit,
+                                                             const SkMatrix* matrix) {
     GrSWMaskHelper helper;
 
     if (!helper.init(resultBounds, matrix)) {
@@ -146,15 +147,11 @@ sk_sp<GrTexture> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
 
     helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0xFF);
 
-    sk_sp<GrTextureProxy> tProxy = helper.toTexture(context, fit);
-    if (!tProxy) {
-        return nullptr;
-    }
-
-    return sk_ref_sp(tProxy->instantiate(context->resourceProvider()));
+    return helper.toTextureProxy(context, fit);
 }
 
-void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
+void GrSWMaskHelper::DrawToTargetWithShapeMask(GrContext* context,
+                                               sk_sp<GrTextureProxy> proxy,
                                                GrRenderTargetContext* renderTargetContext,
                                                GrPaint&& paint,
                                                const GrUserStencilSettings& userStencilSettings,
@@ -178,7 +175,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     std::unique_ptr<GrMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(
             paint.getColor(), SkMatrix::I(), dstRect, nullptr, &invert);
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
-            texture, nullptr, maskMatrix, GrSamplerParams::kNone_FilterMode));
+            context, std::move(proxy), nullptr, maskMatrix, GrSamplerParams::kNone_FilterMode));
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);
     renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
