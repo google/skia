@@ -264,7 +264,8 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx, const GrBackend
         tex->setRelease(releaseProc, releaseCtx);
     }
 
-    const SkBudgeted budgeted = SkBudgeted::kNo;
+    const SkBudgeted budgeted = (kAdoptAndCache_GrWrapOwnership == ownership)
+            ? SkBudgeted::kYes : SkBudgeted::kNo;
     return sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
                                    at, std::move(tex), std::move(colorSpace), budgeted);
 }
@@ -476,8 +477,11 @@ sk_sp<SkImage> SkImage::MakeFromCrossContextImageData(
         ccid->fTextureData->attachToContext(context);
     }
 
-    return MakeFromAdoptedTexture(context, ccid->fDesc, ccid->fAlphaType,
-                                  std::move(ccid->fColorSpace));
+    // This texture was created by Ganesh on another thread (see MakeFromEncoded, above).
+    // Thus, we can import it back into our cache and treat it as our own (again).
+    GrWrapOwnership ownership = kAdoptAndCache_GrWrapOwnership;
+    return new_wrapped_texture_common(context, ccid->fDesc, ccid->fAlphaType,
+                                      std::move(ccid->fColorSpace), ownership, nullptr, nullptr);
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
