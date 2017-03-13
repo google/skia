@@ -11,6 +11,10 @@
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
+#if SK_SUPPORT_GPU
+#include "text/GrTextBlobCache.h"
+#endif
+
 namespace {
 
 // TODO(fmalita): replace with SkFont.
@@ -286,10 +290,16 @@ static int32_t next_id() {
 
 SkTextBlob::SkTextBlob(const SkRect& bounds)
     : fBounds(bounds)
-    , fUniqueID(next_id()) {
-}
+    , fUniqueID(next_id())
+    , fAddedToCache(false) {}
 
 SkTextBlob::~SkTextBlob() {
+#if SK_SUPPORT_GPU
+    if (fAddedToCache.load()) {
+        GrTextBlobCache::PostPurgeBlobMessage(fUniqueID);
+    }
+#endif
+
     const auto* run = RunRecord::First(this);
     do {
         const auto* nextRun = RunRecord::Next(run);
