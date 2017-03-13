@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "558bdfc1_08d32070",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T18:15:34Z",
+      "side": 1,
+      "message": "What do you think of putting\n\nmsvc \u003d 2015\n\nhere, then add another declare_args() {} with\n\nif (msvc \u003d\u003d 2015) {\n   windk \u003d old path\n} else {\n   windk \u003d new path\n}\n\nsomething like that?",
+      "revId": "6b0af6024eb6fcf9cd38bcec6b6dc0690e4a730a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9322fdfe_4758b2c5",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T18:15:34Z",
+      "side": 1,
+      "message": "I think we should be able to keep the union of all the old and new include and lib paths.  Or did that screw things up?",
+      "revId": "6b0af6024eb6fcf9cd38bcec6b6dc0690e4a730a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d48f746_098e9ba0",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T18:15:34Z",
+      "side": 1,
+      "message": "$target_cpu here instead of conditional?",
+      "range": {
+        "startLine": 108,
+        "startChar": 58,
+        "endLine": 108,
+        "endChar": 61
+      },
+      "revId": "6b0af6024eb6fcf9cd38bcec6b6dc0690e4a730a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "702e20a8_3e9d5139",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T18:15:34Z",
+      "side": 1,
+      "message": "Ditto, $target_cpu?",
+      "range": {
+        "startLine": 442,
+        "startChar": 54,
+        "endLine": 442,
+        "endChar": 57
+      },
+      "revId": "6b0af6024eb6fcf9cd38bcec6b6dc0690e4a730a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5d11feb_a5e90bc2",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T18:15:34Z",
+      "side": 1,
+      "message": "Did you happen to test x86 works, or are we just assuming it does?  I don\u0027t think I ever actually got it working with installed toolchains, only the bots\u0027 toolchain.",
+      "revId": "6b0af6024eb6fcf9cd38bcec6b6dc0690e4a730a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
