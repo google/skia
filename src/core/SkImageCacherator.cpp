@@ -493,6 +493,13 @@ static GrTexture* set_key_and_return(GrResourceProvider* resourceProvider,
     return tex;
 }
 
+static void set_key_on_proxy(GrResourceProvider* resourceProvider,
+                             GrTextureProxy* proxy, const GrUniqueKey& key) {
+    if (key.isValid()) {
+        resourceProvider->assignUniqueKeyToProxy(key, proxy);
+    }
+}
+
 sk_sp<SkColorSpace> SkImageCacherator::getColorSpace(GrContext* ctx, SkColorSpace* dstColorSpace) {
     // TODO: This isn't always correct. Picture generator currently produces textures in N32,
     // and will (soon) emit them in an arbitrary (destination) space. We will need to stash that
