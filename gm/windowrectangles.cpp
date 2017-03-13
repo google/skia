@@ -21,7 +21,6 @@
 #endif
 
 constexpr static SkIRect kDeviceRect = {0, 0, 600, 600};
-constexpr static SkIRect kLayerRect = {25, 25, 575, 575};
 constexpr static SkIRect kCoverRect = {50, 50, 550, 550};
 
 namespace skiagm {
@@ -39,7 +38,6 @@ private:
 
 void WindowRectanglesBaseGM::onDraw(SkCanvas* canvas) {
     sk_tool_utils::draw_checkerboard(canvas, 0xffffffff, 0xffc6c3c6, 25);
-    canvas->saveLayer(SkRect::Make(kLayerRect), nullptr);
 
     SkClipStack stack;
     stack.clipRect(SkRect::MakeXYWH(370.75, 80.25, 149, 100), SkMatrix::I(),
@@ -59,8 +57,6 @@ void WindowRectanglesBaseGM::onDraw(SkCanvas* canvas) {
     stack.clipRRect(complx, SkMatrix::I(), kDifference_SkClipOp, false);
 
     this->onCoverClipStack(stack, canvas);
-
-    canvas->restore();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,8 +197,8 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
 void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetContext* rtc,
                                                 const GrReducedClip& reducedClip, GrPaint&& paint) {
     sk_sp<GrRenderTargetContext> maskRTC(
-        ctx->makeRenderTargetContextWithFallback(SkBackingFit::kExact, kLayerRect.width(),
-                                                 kLayerRect.height(), kAlpha_8_GrPixelConfig,
+        ctx->makeRenderTargetContextWithFallback(SkBackingFit::kExact, kDeviceRect.width(),
+                                                 kDeviceRect.height(), kAlpha_8_GrPixelConfig,
                                                  nullptr));
     if (!maskRTC ||
         !ctx->resourceProvider()->attachStencilAttachment(maskRTC->accessRenderTarget())) {
@@ -218,8 +214,8 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
                                        SkRect::MakeIWH(maskRTC->width(), maskRTC->height()));
     reducedClip.drawAlphaClipMask(maskRTC.get());
 
-    int x = kCoverRect.x() - kLayerRect.x(),
-        y = kCoverRect.y() - kLayerRect.y();
+    int x = kCoverRect.x() - kDeviceRect.x(),
+        y = kCoverRect.y() - kDeviceRect.y();
 
     // Now visualize the alpha mask by drawing a rect over the area where it is defined. The regions
     // inside window rectangles or outside the scissor should still have the initial checkerboard
@@ -239,7 +235,7 @@ void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTarget
     // Draw a checker pattern into the stencil buffer so we can visualize the regions left untouched
     // by the clip mask generation.
     this->stencilCheckerboard(rtc, false);
-    reducedClip.drawStencilClipMask(ctx, rtc, {kLayerRect.x(), kLayerRect.y()});
+    reducedClip.drawStencilClipMask(ctx, rtc);
 
     // Now visualize the stencil mask by covering the entire render target. The regions inside
     // window rectangless or outside the scissor should still have the initial checkerboard intact.
@@ -260,9 +256,9 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
 
     rtc->priv().clearStencilClip(GrFixedClip::Disabled(), false);
 
-    for (int y = 0; y < kLayerRect.height(); y += kMaskCheckerSize) {
+    for (int y = 0; y < kDeviceRect.height(); y += kMaskCheckerSize) {
         for (int x = (y & 1) == flip ? 0 : kMaskCheckerSize;
-             x < kLayerRect.width(); x += 2 * kMaskCheckerSize) {
+             x < kDeviceRect.width(); x += 2 * kMaskCheckerSize) {
             SkIRect checker = SkIRect::MakeXYWH(x, y, kMaskCheckerSize, kMaskCheckerSize);
             rtc->priv().stencilRect(GrNoClip(), &kSetClip, GrAAType::kNone, SkMatrix::I(),
                                     SkRect::Make(checker));
