@@ -189,6 +189,7 @@ protected:
                     }
                 }
                 canvas->drawRect(SkRect::MakeWH(fWidth, fHeight), fillPaint);
+                return;
                 canvas->restore();
             }
         }
