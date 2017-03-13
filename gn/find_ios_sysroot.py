@@ -6,5 +6,8 @@
 # found in the LICENSE file.
 
 import subprocess
+import sys
 
-print subprocess.check_output('xcrun --sdk iphoneos --show-sdk-path'.split())
+(sdk,) = sys.argv[1:]
+
+print subprocess.check_output(['xcrun', '--sdk', sdk, '--show-sdk-path'])

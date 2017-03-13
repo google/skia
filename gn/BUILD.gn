@@ -50,7 +50,11 @@ if (!is_clang && !is_win) {
 }
 
 if (is_ios) {
-  ios_sysroot = exec_script("find_ios_sysroot.py", [], "trim string")
+  sdk = "iphoneos"
+  if (target_cpu == "x86" || target_cpu == "x64") {
+    sdk = "iphonesimulator"
+  }
+  ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
 }
 
 config("default") {
@@ -190,6 +194,10 @@ config("default") {
     _target = target_cpu
     if (target_cpu == "arm") {
       _target = "armv7"
+    } else if (target_cpu == "x86") {
+      _target = "i386"
+    } else if (target_cpu == "x64") {
+      _target = "x86_64"
     }
     asmflags += [
       "-isysroot",
