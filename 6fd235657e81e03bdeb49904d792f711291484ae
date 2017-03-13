@@ -34,6 +34,24 @@
       "revId": "6fd235657e81e03bdeb49904d792f711291484ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3378cb00_fd758c9d",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T18:26:38Z",
+      "side": 1,
+      "message": "Right, I think it should be going through SkCanvas::onDrawVerticesObjectFallback() via SkNoDrawCanvas::onDrawVerticesObject().\n\nI don\u0027t see any simple way to not break apart the SkVertices if we want to change the colors.  Is it helpful to do something like:\n\nif (verts-\u003ehasColors()) {\n  // Fall back on our onDrawVertices() that\u0027ll fix the colors.\n  SkCanvas::onDrawVerticesObjectFallback(...);\n} else {\n   // Nothing to fix, so pass the object through.\n   fTarget-\u003edrawVerticesObject(...);\n}\n\n?",
+      "parentUuid": "549ae2c7_ce6ec61c",
+      "revId": "6fd235657e81e03bdeb49904d792f711291484ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
