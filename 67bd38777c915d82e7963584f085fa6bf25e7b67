@@ -117,6 +117,30 @@
       "revId": "67bd38777c915d82e7963584f085fa6bf25e7b67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4d2d518_f8186f87",
+        "filename": "src/gpu/GrWindowRectangles.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T20:07:28Z",
+      "side": 1,
+      "message": "That\u0027s really good point. Let\u0027s keep it the way you have it.\n\nBut instead of putting it in a constructor, what do you think of a dedicated method named something like \"makeOffset\"?",
+      "parentUuid": "ffb9a424_67b3e6bf",
+      "range": {
+        "startLine": 79,
+        "startChar": 27,
+        "endLine": 79,
+        "endChar": 45
+      },
+      "revId": "67bd38777c915d82e7963584f085fa6bf25e7b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
