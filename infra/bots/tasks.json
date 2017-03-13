@@ -866,6 +866,42 @@
         "Upload-Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release"
       ]
     },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug"
+      ]
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE"
+      ]
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan"
+      ]
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release"
+      ]
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE"
+      ]
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan"
+      ]
+    },
     "Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
@@ -1549,6 +1585,42 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release"
+      ]
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug"
+      ]
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE"
+      ]
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan"
+      ]
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release"
+      ]
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE"
+      ]
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan"
       ]
     },
     "Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
@@ -4341,7 +4413,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:22"
+          "version": "version:23"
         },
         {
           "name": "skia/bots/skp",
@@ -4351,7 +4423,7 @@
         {
           "name": "skia/bots/svg",
           "path": "svg",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -4391,7 +4463,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:22"
+          "version": "version:23"
         },
         {
           "name": "skia/bots/skp",
@@ -4401,7 +4473,7 @@
         {
           "name": "skia/bots/svg",
           "path": "svg",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -7522,6 +7594,300 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
       "cipd_packages": [
         {
@@ -9652,7 +10018,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:22"
+          "version": "version:23"
         },
         {
           "name": "skia/bots/skp",
@@ -9662,7 +10028,7 @@
         {
           "name": "skia/bots/svg",
           "path": "svg",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -9702,7 +10068,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:22"
+          "version": "version:23"
         },
         {
           "name": "skia/bots/skp",
@@ -9712,7 +10078,7 @@
         {
           "name": "skia/bots/svg",
           "path": "svg",
-          "version": "version:3"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -13186,6 +13552,300 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:1002:6646",
+        "os:Windows-10-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
       "cipd_packages": [
         {
@@ -15922,6 +16582,96 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release": {
+      "dependencies": [
+        "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE": {
+      "dependencies": [
+        "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan": {
+      "dependencies": [
+        "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
       "dependencies": [
         "Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release"
@@ -18398,6 +19148,186 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug": {
+      "dependencies": [
+        "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE": {
+      "dependencies": [
+        "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan": {
+      "dependencies": [
+        "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release": {
+      "dependencies": [
+        "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE": {
+      "dependencies": [
+        "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan": {
+      "dependencies": [
+        "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
