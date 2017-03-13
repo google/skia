@@ -18,15 +18,13 @@ public:
     };
 
     GrWindowRectsState() : fMode(Mode::kExclusive) {}
-    GrWindowRectsState(const GrWindowRectangles& windows, const SkIPoint& origin, Mode mode)
+    GrWindowRectsState(const GrWindowRectangles& windows, Mode mode)
         : fMode(mode)
-        , fOrigin(origin)
         , fWindows(windows) {
     }
 
     bool enabled() const { return Mode::kInclusive == fMode || !fWindows.empty(); }
     Mode mode() const { return fMode; }
-    const SkIPoint& origin() const { return fOrigin; }
     const GrWindowRectangles& windows() const { return fWindows; }
     int numWindows() const { return fWindows.count(); }
 
@@ -35,25 +33,21 @@ public:
         fWindows.reset();
     }
 
-    void set(const GrWindowRectangles& windows, const SkIPoint& origin, Mode mode) {
+    void set(const GrWindowRectangles& windows, Mode mode) {
         fMode = mode;
-        fOrigin = origin;
         fWindows = windows;
     }
 
-    bool cheapEqualTo(const GrWindowRectsState& that) const {
+    bool operator==(const GrWindowRectsState& that) const {
         if (fMode != that.fMode) {
-            return false;
-        }
-        if (!fWindows.empty() && fOrigin != that.fOrigin) {
             return false;
         }
         return fWindows == that.fWindows;
     }
+    bool operator!=(const GrWindowRectsState& that) const { return !(*this == that); }
 
 private:
     Mode                 fMode;
-    SkIPoint             fOrigin;
     GrWindowRectangles   fWindows;
 };
 

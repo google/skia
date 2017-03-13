@@ -168,7 +168,7 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
         a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
         a.fNumColorProcessors != b.fNumColorProcessors ||
         a.fScissorState != b.fScissorState ||
-        !a.fWindowRectsState.cheapEqualTo(b.fWindowRectsState) ||
+        a.fWindowRectsState != b.fWindowRectsState ||
         a.fFlags != b.fFlags ||
         a.fUserStencilSettings != b.fUserStencilSettings ||
         a.fDrawFace != b.fDrawFace) {
