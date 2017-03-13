@@ -38,9 +38,11 @@ public:
     static const GrXferProcessor& SimpleSrcOverXP();
 
     static bool WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis);
+    // DELETE THIS?
     static bool IsSrcOverPreCoverageBlendedColorConstant(const GrProcOptInfo& colorInput,
                                                          GrColor* color);
     static bool WillSrcOverNeedDstTexture(const GrCaps&, const FragmentProcessorAnalysis&);
+    static bool SrcOverIsCompatibleWithCoverageAsAlpha() { return true; }
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
@@ -53,6 +55,8 @@ private:
                                            const DstTexture*) const override;
 
     bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
+
+    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);
