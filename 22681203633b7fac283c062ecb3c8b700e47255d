@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f6cf10d_3fc5167c",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-03-13T12:08:36Z",
+      "side": 1,
+      "message": "These numbers seem a bit magical.  Can you use SKPaint::kFull_Hinting here?",
+      "range": {
+        "startLine": 1036,
+        "startChar": 78,
+        "endLine": 1036,
+        "endChar": 79
+      },
+      "revId": "22681203633b7fac283c062ecb3c8b700e47255d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
