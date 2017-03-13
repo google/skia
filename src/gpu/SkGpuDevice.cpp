@@ -233,8 +233,7 @@ bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
 // and not the state from some other canvas/device
 void SkGpuDevice::prepareDraw() {
     ASSERT_SINGLE_OWNER
-
-    fClip.reset(&this->cs(), nullptr);
+    fClip.reset(&this->cs());
 }
 
 GrRenderTargetContext* SkGpuDevice::accessRenderTargetContext() {
