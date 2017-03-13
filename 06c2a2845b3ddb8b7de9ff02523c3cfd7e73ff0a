@@ -70,6 +70,30 @@
       "revId": "06c2a2845b3ddb8b7de9ff02523c3cfd7e73ff0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "299fb748_ec76de82",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-13T18:32:01Z",
+      "side": 1,
+      "message": "Yeah, there\u0027s nothing wrong here.  It\u0027s just that in the case of rounding out a float, the compiler doesn\u0027t need to get here.  This should not make you feel protected from the original bug.  Think of an LTO build or something like that where there is no strict division between modules or between caller and callee.",
+      "parentUuid": "5400b933_6acc85c8",
+      "range": {
+        "startLine": 635,
+        "startChar": 4,
+        "endLine": 635,
+        "endChar": 56
+      },
+      "revId": "06c2a2845b3ddb8b7de9ff02523c3cfd7e73ff0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
