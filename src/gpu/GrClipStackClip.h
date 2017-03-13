@@ -20,14 +20,9 @@ class GrTextureProxy;
  */
 class GrClipStackClip final : public GrClip {
 public:
-    GrClipStackClip(const SkClipStack* stack = nullptr, const SkIPoint* origin = nullptr) {
-        this->reset(stack, origin);
-    }
+    GrClipStackClip(const SkClipStack* stack = nullptr) { this->reset(stack); }
 
-    void reset(const SkClipStack* stack = nullptr, const SkIPoint* origin = nullptr) {
-        fOrigin = origin ? *origin : SkIPoint::Make(0, 0);
-        fStack = stack;
-    }
+    void reset(const SkClipStack* stack) { fStack = stack; }
 
     bool quickContains(const SkRect&) const final;
     bool quickContains(const SkRRect&) const final;
@@ -62,7 +57,6 @@ private:
                               const GrRenderTargetContext*,
                               const GrReducedClip&);
 
-    SkIPoint            fOrigin;
     const SkClipStack*  fStack;
 };
 
