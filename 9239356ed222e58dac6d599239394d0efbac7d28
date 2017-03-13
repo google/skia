@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9557465b_b53a9c2a",
+        "filename": "src/gpu/GrSurfaceProxyPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-13T17:34:28Z",
+      "side": 1,
+      "message": "This seems a bit coupled with resource provider\u0027s implementation of scratch texture size rounding. Do you think you could try exposing that on resource provider as static member or something like that? It may be too ugly or cumbersome but this does seem a little bit brittle to me.",
+      "revId": "9239356ed222e58dac6d599239394d0efbac7d28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "67335c1b_dbff3f67",
         "filename": "src/gpu/GrTextureProducer.cpp",
         "patchSetId": 3
