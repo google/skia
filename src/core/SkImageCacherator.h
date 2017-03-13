@@ -70,6 +70,11 @@ public:
                              SkScalar scaleAdjust[2],
                              SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
+    sk_sp<GrTextureProxy> lockAsTextureProxy(
+                                    GrContext*, const GrSamplerParams&,
+                                    SkColorSpace* dstColorSpace, sk_sp<SkColorSpace>* texColorSpace,
+                                    const SkImage* client, SkScalar scaleAdjust[2],
+                                    SkImage::CachingHint chint = SkImage::kAllow_CachingHint);
     /**
      *  If the underlying src naturally is represented by an encoded blob (in SkData), this returns
      *  a ref to that data. If not, it returns null.

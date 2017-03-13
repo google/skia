@@ -233,3 +233,36 @@ sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAn
         }
     }
 }
+
+sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
+                                        GrContext* context,
+                                        sk_sp<GrTextureProxy> proxy,
+                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                        const SkMatrix& textureMatrix,
+                                        DomainMode domainMode,
+                                        const SkRect& domain,
+                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic) {
+    SkASSERT(kTightCopy_DomainMode != domainMode);
+    if (filterOrNullForBicubic) {
+        if (kDomain_DomainMode == domainMode) {
+            return GrTextureDomainEffect::Make(context, std::move(proxy),
+                                               std::move(colorSpaceXform), textureMatrix,
+                                               domain, GrTextureDomain::kClamp_Mode,
+                                               *filterOrNullForBicubic);
+        } else {
+            GrSamplerParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
+            return GrSimpleTextureEffect::Make(context, std::move(proxy),
+                                               std::move(colorSpaceXform), textureMatrix, params);
+        }
+    } else {
+        if (kDomain_DomainMode == domainMode) {
+            return GrBicubicEffect::Make(context, std::move(proxy), std::move(colorSpaceXform),
+                                         textureMatrix, domain);
+        } else {
+            static const SkShader::TileMode kClampClamp[] =
+                { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
+            return GrBicubicEffect::Make(context, std::move(proxy), std::move(colorSpaceXform),
+                                         textureMatrix, kClampClamp);
+        }
+    }
+}

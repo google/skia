@@ -35,17 +35,6 @@
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
 
-SkImage_Gpu::SkImage_Gpu(uint32_t uniqueID, SkAlphaType at, sk_sp<GrTexture> tex,
-                         sk_sp<SkColorSpace> colorSpace, SkBudgeted budgeted)
-    : INHERITED(tex->width(), tex->height(), uniqueID)
-    , fContext(tex->getContext())
-    , fProxy(GrSurfaceProxy::MakeWrapped(std::move(tex)))
-    , fAlphaType(at)
-    , fBudgeted(budgeted)
-    , fColorSpace(std::move(colorSpace))
-    , fAddedRasterVersionToCache(false) {
-}
-
 SkImage_Gpu::SkImage_Gpu(GrContext* context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy,
                          sk_sp<SkColorSpace> colorSpace, SkBudgeted budgeted)

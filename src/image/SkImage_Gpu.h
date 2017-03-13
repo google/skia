@@ -21,7 +21,6 @@
 
 class SkImage_Gpu : public SkImage_Base {
 public:
-    SkImage_Gpu(uint32_t uniqueID, SkAlphaType, sk_sp<GrTexture>, sk_sp<SkColorSpace>, SkBudgeted);
     SkImage_Gpu(GrContext*, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
                 sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_Gpu() override;

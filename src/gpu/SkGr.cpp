@@ -270,6 +270,14 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                                                  nullptr, scaleAdjust);
 }
 
+sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx, const SkBitmap& bitmap,
+                                                    const GrSamplerParams& params,
+                                                    SkScalar scaleAdjust[2]) {
+    // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, nullptr,
+                                                                      nullptr, scaleAdjust);
+}
+
 // MDB TODO (caching): For better or for worse, this method currently side-steps the issue of
 // caching an uninstantiated proxy via a key.
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap) {
@@ -312,6 +320,14 @@ sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitma
     GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr,
                                                                            nullptr, scaleAdjust);
     return sk_sp<GrTexture>(tex);
+}
+
+sk_sp<GrTextureProxy> GrMakeCachedBitmapTextureProxy(GrContext* ctx, const SkBitmap& bitmap,
+                                                     const GrSamplerParams& params,
+                                                     SkScalar scaleAdjust[2]) {
+    // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, nullptr,
+                                                                      nullptr, scaleAdjust);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -26,6 +26,11 @@ public:
     GrTexture* refTextureForParams(const GrSamplerParams&, SkColorSpace* dstColorSpace,
                                    sk_sp<SkColorSpace>* texColorSpace, SkScalar scaleAdjust[2]);
 
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams&,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* texColorSpace,
+                                                   SkScalar scaleAdjust[2]);
+
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
                                 const SkRect& constraintRect,

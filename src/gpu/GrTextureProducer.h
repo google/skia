@@ -135,6 +135,15 @@ protected:
         const SkRect& domain,
         const GrSamplerParams::FilterMode* filterOrNullForBicubic);
 
+    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
+        GrContext* context,
+        sk_sp<GrTextureProxy> proxy,
+        sk_sp<GrColorSpaceXform> colorSpaceXform,
+        const SkMatrix& textureMatrix,
+        DomainMode domainMode,
+        const SkRect& domain,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic);
+
 private:
     const int   fWidth;
     const int   fHeight;

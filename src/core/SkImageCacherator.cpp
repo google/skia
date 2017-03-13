@@ -629,6 +629,22 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParam
                                                                              scaleAdjust);
 }
 
+sk_sp<GrTextureProxy> SkImageCacherator::lockAsTextureProxy(GrContext* ctx,
+                                                            const GrSamplerParams& params,
+                                                            SkColorSpace* dstColorSpace,
+                                                            sk_sp<SkColorSpace>* texColorSpace,
+                                                            const SkImage* client,
+                                                            SkScalar scaleAdjust[2],
+                                                            SkImage::CachingHint chint) {
+    if (!ctx) {
+        return nullptr;
+    }
+
+    return GrImageTextureMaker(ctx, this, client, chint).refTextureProxyForParams(params,
+                                                                                  dstColorSpace,
+                                                                                  texColorSpace,
+                                                                                  scaleAdjust);
+}
 #else
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams&,
@@ -636,6 +652,15 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParam
                                             sk_sp<SkColorSpace>* texColorSpace,
                                             const SkImage* client,
                                             SkScalar scaleAdjust[2], SkImage::CachingHint) {
+    return nullptr;
+}
+
+sk_sp<GrTextureProxy> SkImageCacherator::lockAsProxy(GrContext* ctx, const GrSamplerParams& params,
+                                                     SkColorSpace* dstColorSpace,
+                                                     sk_sp<SkColorSpace>* texColorSpace,
+                                                     const SkImage* client,
+                                                     SkScalar scaleAdjust[2],
+                                                     SkImage::CachingHint chint) {
     return nullptr;
 }
 
