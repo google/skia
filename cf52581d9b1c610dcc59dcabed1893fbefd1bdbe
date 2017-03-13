@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "aacba639_ff8b281e",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-13T16:52:55Z",
+      "side": 1,
+      "message": "Duh. I should have said \"sign(H(inf) * d[0]) \u003d\u003d -sign(d[0]).\n\nI see, so H(inf) \u003c 0 therefore implies that the Hessian is always negative outside the loop, what you mention your comment. sgtm",
+      "parentUuid": "0d56e8ee_8275b40c",
+      "revId": "cf52581d9b1c610dcc59dcabed1893fbefd1bdbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19b4b9ab_2d03ce7a",
         "filename": "src/gpu/GrPathUtils.cpp",
         "patchSetId": 2
