@@ -16,6 +16,24 @@
       "revId": "eb0bc56f633b67c49d3ccce27810b42aec91d6cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9eb873cf_b38391c4",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-13T22:27:35Z",
+      "side": 1,
+      "message": "Yeah I went ahead and hooked this up in https://skia-review.googlesource.com/c/9622/, which makes the API change that you\u0027re suggesting.",
+      "parentUuid": "c6b65243_c76e5d2a",
+      "revId": "eb0bc56f633b67c49d3ccce27810b42aec91d6cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
