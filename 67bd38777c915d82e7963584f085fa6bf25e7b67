@@ -93,6 +93,30 @@
       "revId": "67bd38777c915d82e7963584f085fa6bf25e7b67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffb9a424_67b3e6bf",
+        "filename": "src/gpu/GrWindowRectangles.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-13T19:54:14Z",
+      "side": 1,
+      "message": "It just seemed less complex to me and I assume alpha mask clipping is already pretty rare and has enough overhead (e.g. creating a GrRenderTartgetContext and GrRenderTargetOpList) that this wouldn\u0027t matter. I\u0027m fine putting it back, though.",
+      "parentUuid": "fc323e5f_b12166d3",
+      "range": {
+        "startLine": 79,
+        "startChar": 27,
+        "endLine": 79,
+        "endChar": 45
+      },
+      "revId": "67bd38777c915d82e7963584f085fa6bf25e7b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
