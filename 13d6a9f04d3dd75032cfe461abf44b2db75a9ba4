@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "52376ff3_542a745d",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-13T13:58:49Z",
+      "side": 1,
+      "message": "It would be cool if the CBObjects could actually issue draw calls but, in practice, they will probably just call addDrawOp.\n\nWhy do you want to flush the first RT before creating the following ones. That interaction pattern seems pretty fine-grained.\n\nI\u0027ve fixed the re-ordering pattern so this should happen after all reordering has occurred.",
+      "parentUuid": "0546b6ed_d1f8b825",
+      "range": {
+        "startLine": 86,
+        "startChar": 19,
+        "endLine": 86,
+        "endChar": 20
+      },
+      "revId": "13d6a9f04d3dd75032cfe461abf44b2db75a9ba4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c86c6b6_3e702165",
         "filename": "src/gpu/GrDrawingManager.h",
         "patchSetId": 23
@@ -60,6 +84,30 @@
       "writtenOn": "2017-03-10T16:27:51Z",
       "side": 1,
       "message": "Looks like we don\u0027t need this header",
+      "range": {
+        "startLine": 14,
+        "startChar": 39,
+        "endLine": 14,
+        "endChar": 0
+      },
+      "revId": "13d6a9f04d3dd75032cfe461abf44b2db75a9ba4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "640d1ac3_2ef773a7",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-13T13:58:49Z",
+      "side": 1,
+      "message": "It holds the GrPreFlushCallbackObject which is needed for the SkTArray. Pre-declaring it doesn\u0027t work in this case.",
+      "parentUuid": "6c86c6b6_3e702165",
       "range": {
         "startLine": 14,
         "startChar": 39,
