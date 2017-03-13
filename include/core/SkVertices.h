@@ -19,7 +19,7 @@
  * encouraged to provide a bounds on the vertex positions if they can compute one more cheaply than
  * looping over the positions.
  */
-class SkVertices : public SkNVRefCnt<SkVertices> {
+class SkVertices : public SkRefCnt {
 public:
     static sk_sp<SkVertices> Make(SkCanvas::VertexMode mode,
                                   std::unique_ptr<const SkPoint[]> positions,
@@ -79,6 +79,7 @@ public:
 
     SkCanvas::VertexMode mode() const { return fMode; }
 
+    uint32_t uniqueID() const { return fUniqueID; }
     int vertexCount() const { return fVertexCnt; }
     bool hasColors() const { return SkToBool(fColors); }
     bool hasTexCoords() const { return SkToBool(fTexs); }
@@ -101,33 +102,9 @@ private:
     SkVertices(SkCanvas::VertexMode mode, std::unique_ptr<const SkPoint[]> positions,
                std::unique_ptr<const SkColor[]> colors, std::unique_ptr<const SkPoint[]> texs,
                int vertexCnt, std::unique_ptr<const uint16_t[]> indices, int indexCnt,
-               const SkRect* bounds)
-            : fMode(mode)
-            , fVertexCnt(vertexCnt)
-            , fIndexCnt(indexCnt)
-            , fPositions(std::move(positions))
-            , fColors(std::move(colors))
-            , fTexs(std::move(texs))
-            , fIndices(std::move(indices)) {
-        SkASSERT(SkToBool(fPositions) && SkToBool(fVertexCnt));
-        SkASSERT(SkToBool(fIndices) == SkToBool(fIndexCnt));
-        if (bounds) {
-#ifdef SK_DEBUG
-            fBounds.setBounds(fPositions.get(), fVertexCnt);
-            SkASSERT(bounds->fLeft <= fBounds.fLeft && bounds->fRight >= fBounds.fRight &&
-                     bounds->fTop <= fBounds.fTop && bounds->fBottom >= fBounds.fBottom);
-#endif
-            fBounds = *bounds;
-        } else {
-            fBounds.setBounds(fPositions.get(), fVertexCnt);
-        }
-#ifdef SK_DEBUG
-        for (int i = 0; i < fIndexCnt; ++i) {
-            SkASSERT(fIndices[i] < fVertexCnt);
-        }
-#endif
-    }
+               const SkRect* bounds);
 
+    uint32_t fUniqueID;
     SkCanvas::VertexMode fMode;
     int fVertexCnt;
     int fIndexCnt;
