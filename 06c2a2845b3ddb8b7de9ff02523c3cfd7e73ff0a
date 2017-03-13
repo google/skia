@@ -46,6 +46,30 @@
       "revId": "06c2a2845b3ddb8b7de9ff02523c3cfd7e73ff0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5400b933_6acc85c8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-13T18:27:50Z",
+      "side": 1,
+      "message": "At this module level, I\u0027m not sure I agree. The caller has given us an inverted integer rect, and I am sanitizing it. The fact that there may also be a float-\u003eint issue somewhere does not make this CL invalid or undefined.",
+      "parentUuid": "7c2eff76_0af83b66",
+      "range": {
+        "startLine": 635,
+        "startChar": 4,
+        "endLine": 635,
+        "endChar": 56
+      },
+      "revId": "06c2a2845b3ddb8b7de9ff02523c3cfd7e73ff0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
