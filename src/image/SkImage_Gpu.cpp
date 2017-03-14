@@ -23,6 +23,7 @@
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "GrTextureToYUVPlanes.h"
+#include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
 #include "SkCrossContextImageData.h"
@@ -845,4 +846,36 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
     return sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
                                    info.alphaType(), std::move(texture),
                                    sk_ref_sp(info.colorSpace()), budgeted);
+}
+
+sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> colorSpace) const {
+    auto xform = GrNonlinearColorSpaceXformEffect::Make(fColorSpace.get(), colorSpace.get());
+    if (!xform) {
+        return sk_ref_sp(const_cast<SkImage_Gpu*>(this));
+    }
+
+    sk_sp<GrRenderTargetContext> renderTargetContext(fContext->makeRenderTargetContext(
+        SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig, nullptr));
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    GrPaint paint;
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    paint.addColorTextureProcessor(fContext, fProxy, nullptr, SkMatrix::I());
+    paint.addColorFragmentProcessor(std::move(xform));
+
+    const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
+
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
+
+    if (!renderTargetContext->accessRenderTarget()) {
+        return nullptr;
+    }
+
+    // MDB: this call is okay bc we know 'renderTargetContext' was exact
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
+                                   fAlphaType, renderTargetContext->asTextureProxyRef(),
+                                   std::move(colorSpace), fBudgeted);
+
 }
