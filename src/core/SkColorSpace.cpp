@@ -632,3 +632,47 @@ bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
                                serializedSrcData->size());
     }
 }
+
+SkColorSpaceTransferFn SkColorSpaceTransferFn::invert() const {
+    // Original equation is:       y = (ax + b)^g + e   for x >= d
+    //                             y = cx + f           otherwise
+    //
+    // so 1st inverse is:          (y - e)^(1/g) = ax + b
+    //                             x = ((y - e)^(1/g) - b) / a
+    //
+    // which can be re-written as: x = (1/a)(y - e)^(1/g) - b/a
+    //                             x = ((1/a)^g)^(1/g) * (y - e)^(1/g) - b/a
+    //                             x = ([(1/a)^g]y + [-((1/a)^g)e]) ^ [1/g] + [-b/a]
+    //
+    // and 2nd inverse is:         x = (y - f) / c
+    // which can be re-written as: x = [1/c]y + [-f/c]
+    //
+    // and now both can be expressed in terms of the same parametric form as the
+    // original - parameters are enclosed in square brackets.
+    SkColorSpaceTransferFn inv = { 0, 0, 0, 0, 0, 0, 0 };
+
+    // find inverse for linear segment (if possible)
+    if (!transfer_fn_almost_equal(0.f, fC)) {
+        inv.fC = 1.f / fC;
+        inv.fF = -fF / fC;
+    } else {
+        // otherwise assume it should be 0 as it is the lower segment
+        // as y = f is a constant function
+    }
+
+    // find inverse for the other segment (if possible)
+    if (transfer_fn_almost_equal(0.f, fA) || transfer_fn_almost_equal(0.f, fG)) {
+        // otherwise assume it should be 1 as it is the top segment
+        // as you can't invert the constant functions y = b^g + c, or y = 1 + c
+        inv.fG = 1.f;
+        inv.fE = 1.f;
+    } else {
+        inv.fG = 1.f / fG;
+        inv.fA = powf(1.f / fA, fG);
+        inv.fB = -inv.fA * fE;
+        inv.fE = -fB / fA;
+    }
+    inv.fD = fC * fD + fF;
+
+    return inv;
+}
