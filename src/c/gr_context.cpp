@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h" // required to make sure SK_SUPPORT_GPU is defined
+
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
