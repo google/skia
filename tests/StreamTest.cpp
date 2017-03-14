@@ -410,6 +410,26 @@ static void stream_copy_test(skiatest::Reporter* reporter,
     }
 }
 
+DEF_TEST(DynamicMemoryWStream_detachAsData, r) {
+    const char az[] = "abcdefghijklmnopqrstuvwxyz";
+    const unsigned N = 40000;
+    SkDynamicMemoryWStream dmws;
+    for (unsigned i = 0; i < N; ++i) {
+        dmws.writeText(az);
+    }
+    REPORTER_ASSERT(r, dmws.bytesWritten() == N * strlen(az));
+    auto data = dmws.detachAsData();
+    REPORTER_ASSERT(r, data->size() == N * strlen(az));
+    const uint8_t* ptr = data->bytes();
+    for (unsigned i = 0; i < N; ++i) {
+        if (0 != memcmp(ptr, az, strlen(az))) {
+            ERRORF(r, "detachAsData() memcmp failed");
+            return;
+        }
+        ptr += strlen(az);
+    }
+}
+
 DEF_TEST(StreamCopy, reporter) {
     SkRandom random(123456);
     static const int N = 10000;
