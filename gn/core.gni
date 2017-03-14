@@ -354,6 +354,7 @@ skia_core_sources = [
   "$_src/core/SkValidatingReadBuffer.h",
   "$_src/core/SkValidationUtils.h",
   "$_src/core/SkVarAlloc.cpp",
+  "$_src/core/SkVertices.cpp",
   "$_src/core/SkVertState.cpp",
   "$_src/core/SkWriteBuffer.cpp",
   "$_src/core/SkWriter32.cpp",
