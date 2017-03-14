@@ -16,6 +16,24 @@
       "revId": "47e90aab8de73d6931f56ca763d6a3f1118d550c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f88b93e_4fff1d81",
+        "filename": "src/image/SkImage_Generator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-14T13:42:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2febb873_f3817806",
+      "revId": "47e90aab8de73d6931f56ca763d6a3f1118d550c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
