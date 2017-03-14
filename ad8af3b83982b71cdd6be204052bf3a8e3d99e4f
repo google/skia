@@ -22,6 +22,30 @@
       "revId": "ad8af3b83982b71cdd6be204052bf3a8e3d99e4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c854d1b8_6b9afb1f",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T13:45:53Z",
+      "side": 1,
+      "message": "From offline conversation the plan is:\nAllow GrCaps to be retrieved from GrResourceProvider\nMake GrSurfaceProxy::MakeDeferred only take GrResourceProvider (not GrCaps)\nAllow GrResourceProvider \u0026 GrCaps to be retrieved from GrRenderTargetContext (may GrSurfaceContext)",
+      "parentUuid": "12d6e777_abf13ddb",
+      "range": {
+        "startLine": 39,
+        "startChar": 29,
+        "endLine": 39,
+        "endChar": 50
+      },
+      "revId": "ad8af3b83982b71cdd6be204052bf3a8e3d99e4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
