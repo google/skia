@@ -6,6 +6,28 @@
  */
 
 #include "SkVertices.h"
+#include "SkData.h"
+#include "SkReader32.h"
+#include "SkWriter32.h"
+
+static size_t compute_arrays_size(int vertexCount, int indexCount, uint32_t builderFlags) {
+    if (vertexCount < 0 || indexCount < 0) {
+        return 0;   // signal error
+    }
+
+    uint64_t size = vertexCount * sizeof(SkPoint);
+    if (builderFlags & SkVertices::kHasTexs_Flag) {
+        size += vertexCount * sizeof(SkPoint);
+    }
+    if (builderFlags & SkVertices::kHasColors_Flag) {
+        size += vertexCount * sizeof(SkColor);
+    }
+    size += indexCount * sizeof(uint16_t);
+    if (!sk_64_isS32(size)) {
+        return 0;   // signal error
+    }
+    return (size_t)size;
+}
 
 SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
                              uint32_t flags) {
@@ -16,26 +38,8 @@ SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int ind
     fVertexCnt = 0;
     fIndexCnt = 0;
 
-    // If we public merge drawPoints and drawVertices to share this object, we can perform
-    // meaningful checks on counts based on mode.
-#if 0
-    if (vertexCount <= 2) {
-        return;
-    }
-    if (indexCount && indexCount <= 2) {
-        return;
-    }
-#endif
-
-    uint64_t size = vertexCount * sizeof(SkPoint);
-    if (flags & kHasTexs_Flag) {
-        size += vertexCount * sizeof(SkPoint);
-    }
-    if (flags & kHasColors_Flag) {
-        size += vertexCount * sizeof(SkColor);
-    }
-    size += indexCount * sizeof(uint16_t);
-    if (!sk_64_isS32(size)) {
+    size_t size = compute_arrays_size(vertexCount, indexCount, flags);
+    if (0 == size) {
         return;
     }
 
@@ -110,5 +114,97 @@ sk_sp<SkVertices> SkVertices::MakeCopy(SkCanvas::VertexMode mode, int vertexCoun
     if (indices) {
         memcpy(builder.indices(), indices, indexCount * sizeof(uint16_t));
     }
+    return builder.detach();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// storage = flags | vertex_count | index_count | pos[] | texs[] | colors[] | indices[]
+
+#define kMode_Mask          0x0FF
+#define kHasTexs_Mask       0x100
+#define kHasColors_Mask     0x200
+
+sk_sp<SkData> SkVertices::encode() const {
+    uint32_t flags = static_cast<uint32_t>(fMode);
+    SkASSERT((flags & ~kMode_Mask) == 0);
+    if (fTexs) {
+        flags |= kHasTexs_Mask;
+    }
+    if (fColors) {
+        flags |= kHasColors_Mask;
+    }
+
+    size_t size = sizeof(uint32_t) * 3; // flags | verts_count | indices_count
+    size += fVertexCnt * sizeof(SkPoint);
+    if (fTexs) {
+        size += fVertexCnt * sizeof(SkPoint);
+    }
+    if (fColors) {
+        size += fVertexCnt * sizeof(SkColor);
+    }
+    size += fIndexCnt * sizeof(uint16_t);
+
+    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    SkWriter32 writer(data->writable_data(), data->size());
+
+    writer.write32(flags);
+    writer.write32(fVertexCnt);
+    writer.write32(fIndexCnt);
+    writer.write(fPositions, fVertexCnt * sizeof(SkPoint));
+    if (fTexs) {
+        writer.write(fTexs, fVertexCnt * sizeof(SkPoint));
+    }
+    if (fColors) {
+        writer.write(fColors, fVertexCnt * sizeof(SkColor));
+    }
+    writer.write(fIndices, fIndexCnt * sizeof(uint16_t));
+
+    return data;
+}
+
+sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
+    if (length < 3 * sizeof(uint32_t)) {
+        return nullptr; // buffer too small
+    }
+
+    SkReader32 reader(data, length);
+
+    uint32_t storageFlags = reader.readInt();
+    SkCanvas::VertexMode mode = static_cast<SkCanvas::VertexMode>(storageFlags & kMode_Mask);
+    int vertexCount = reader.readInt();
+    int indexCount = reader.readInt();
+    uint32_t builderFlags = 0;
+    if (storageFlags & kHasTexs_Mask) {
+        builderFlags |= SkVertices::kHasTexs_Flag;
+    }
+    if (storageFlags & kHasColors_Mask) {
+        builderFlags |= SkVertices::kHasColors_Flag;
+    }
+
+    size_t size = compute_arrays_size(vertexCount, indexCount, builderFlags);
+    if (0 == size) {
+        return nullptr;
+    }
+
+    length -= 3 * sizeof(uint32_t); // already read the header
+    if (length < size) {    // buffer too small
+        return nullptr;
+    }
+
+    Builder builder(mode, vertexCount, indexCount, builderFlags);
+    if (!builder.isValid()) {
+        return nullptr;
+    }
+
+    reader.read(builder.positions(), vertexCount * sizeof(SkPoint));
+    if (builderFlags & SkVertices::kHasTexs_Flag) {
+        reader.read(builder.texCoords(), vertexCount * sizeof(SkPoint));
+    }
+    if (builderFlags & SkVertices::kHasColors_Flag) {
+        reader.read(builder.colors(), vertexCount * sizeof(SkColor));
+    }
+    reader.read(builder.indices(), indexCount * sizeof(uint16_t));
+    
     return builder.detach();
 }
