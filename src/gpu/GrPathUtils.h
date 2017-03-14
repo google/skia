@@ -146,16 +146,16 @@ namespace GrPathUtils {
     //          K = (klm[0], klm[1], klm[2])
     //          L = (klm[3], klm[4], klm[5])
     //          M = (klm[6], klm[7], klm[8])
-    // klm_rev: These values are flags for the corresponding sub cubic saying whether or not
-    //          the K and L values need to be flipped. A value of -1.f means flip K and L and
-    //          a value of 1.f means do nothing.
-    //          *****DO NOT FLIP M, JUST K AND L*****
+    // loopIndex: This value will tell the caller which of the chopped sections are the the actual
+    //            loop once we've chopped. A value of -1 means there is no loop section. The caller
+    //            can then use this value to decide how/if they want to flip the orientation of this
+    //            section. This flip should be done by negating the K and L values.
     //
     // Notice that the klm lines are calculated in the same space as the input control points.
     // If you transform the points the lines will also need to be transformed. This can be done
     // by mapping the lines with the inverse-transpose of the matrix used to map the points.
     int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10] = nullptr,
-                                    SkScalar klm[9] = nullptr, SkScalar klm_rev[3] = nullptr);
+                                    SkScalar klm[9] = nullptr, int* loopIndex = nullptr);
 
     // Input is p which holds the 4 control points of a non-rational cubic Bezier curve.
     // Output is the coefficients of the three linear functionals K, L, & M which
