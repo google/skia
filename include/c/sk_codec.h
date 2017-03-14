@@ -26,7 +26,7 @@ SK_C_API void sk_codec_get_encodedinfo(sk_codec_t* codec, sk_encodedinfo_t* info
 SK_C_API sk_codec_origin_t sk_codec_get_origin(sk_codec_t* codec);
 SK_C_API void sk_codec_get_scaled_dimensions(sk_codec_t* codec, float desiredScale, sk_isize_t* dimensions);
 SK_C_API bool sk_codec_get_valid_subset(sk_codec_t* codec, sk_irect_t* desiredSubset);
-SK_C_API sk_encoded_format_t sk_codec_get_encoded_format(sk_codec_t* codec);
+SK_C_API sk_encoded_image_format_t sk_codec_get_encoded_format(sk_codec_t* codec);
 SK_C_API sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes, const sk_codec_options_t* options, sk_pmcolor_t ctable[], int* ctableCount);
 SK_C_API sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes);
 SK_C_API sk_codec_result_t sk_codec_start_incremental_decode(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes, const sk_codec_options_t* options, sk_pmcolor_t ctable[], int* ctableCount);

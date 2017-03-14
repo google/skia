@@ -102,7 +102,7 @@ size_t sk_typeface_get_table_data(sk_typeface_t* typeface, sk_font_table_tag_t t
 
 sk_fontmgr_t* sk_fontmgr_ref_default()
 {
-    return ToFontMgr(SkFontMgr::RefDefault());
+    return ToFontMgr(SkFontMgr::RefDefault().release());
 }
 
 void sk_fontmgr_unref(sk_fontmgr_t* fontmgr)

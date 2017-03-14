@@ -128,16 +128,12 @@ sk_data_t* sk_image_encode(const sk_image_t* cimage) {
     return ToData(AsImage(cimage)->encode());
 }
 
-sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_image_encoder_type_t encoder, int quality) {
-    return ToData(AsImage(cimage)->encode((SkImageEncoder::Type)encoder, quality));
+sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_encoded_image_format_t encoder, int quality) {
+    return ToData(AsImage(cimage)->encode((SkEncodedImageFormat)encoder, quality));
 }
 
 sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* subset) {
     return ToImage(AsImage(cimage)->makeSubset(AsIRect(*subset)).release());
-}
-
-sk_image_t* sk_image_make_texture_image(const sk_image_t* cimage, gr_context_t* context) {
-    return ToImage(AsImage(cimage)->makeTextureImage(AsGrContext(context)).release());
 }
 
 sk_image_t* sk_image_make_non_texture_image(const sk_image_t* cimage) {

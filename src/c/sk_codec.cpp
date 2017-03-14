@@ -56,9 +56,9 @@ bool sk_codec_get_valid_subset(sk_codec_t* codec, sk_irect_t* desiredSubset)
     return AsCodec(codec)->getValidSubset(AsIRect(desiredSubset));
 }
 
-sk_encoded_format_t sk_codec_get_encoded_format(sk_codec_t* codec)
+sk_encoded_image_format_t sk_codec_get_encoded_format(sk_codec_t* codec)
 {
-    return (sk_encoded_format_t)AsCodec(codec)->getEncodedFormat();
+    return (sk_encoded_image_format_t)AsCodec(codec)->getEncodedFormat();
 }
 
 sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_codec_options_t* coptions, sk_pmcolor_t ctable[], int* ctableCount)
