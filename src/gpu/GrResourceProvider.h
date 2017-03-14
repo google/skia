@@ -243,13 +243,15 @@ public:
     void releaseOwnershipOfSemaphore(sk_sp<GrSemaphore>);
 
     void abandon() {
-        fCache = NULL;
-        fGpu = NULL;
+        fCache = nullptr;
+        fGpu = nullptr;
     }
 
     // 'Proxy' is about to be used as a texture src. This query can be used to determine if
     // it is going to need a texture domain.
     static bool IsFunctionallyExact(GrTextureProxy* proxy);
+
+    const GrCaps* caps() const;
 
 private:
     GrTexture* internalCreateApproxTexture(const GrSurfaceDesc& desc, uint32_t scratchTextureFlags);

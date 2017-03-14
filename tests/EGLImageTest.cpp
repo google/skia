@@ -167,12 +167,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         externalDesc.fSampleCnt = 0;
     }
 
-    test_read_pixels(reporter, context0, surfaceContext.get(), pixels.get(),
-                     "EGLImageTest-read");
+    test_read_pixels(reporter, surfaceContext.get(), pixels.get(), "EGLImageTest-read");
 
     // We should not be able to write to a EXTERNAL texture
-    test_write_pixels(reporter, context0, surfaceContext.get(), false,
-                      "EGLImageTest-write");
+    test_write_pixels(reporter, surfaceContext.get(), false, "EGLImageTest-write");
 
     // Only test RT-config
     // TODO: why do we always need to draw to copy from an external texture?

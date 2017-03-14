@@ -66,6 +66,14 @@ bool GrRenderTargetContext::wasAbandoned() const {
     return this->drawingManager()->wasAbandoned();
 }
 
+GrResourceProvider* GrRenderTargetContext::resourceProvider() {
+    ASSERT_SINGLE_OWNER
+    RETURN_NULL_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+
+    return fContext->resourceProvider();
+}
+
 // In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
