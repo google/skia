@@ -383,7 +383,7 @@ public:
     sk_sp<SkData> detachAsData();
 
     /** Reset, returning a reader stream with the current content. */
-    SkStreamAsset* detachAsStream();
+    std::unique_ptr<SkStreamAsset> detachAsStream();
 
     /** Reset the stream to its original, empty, state. */
     void reset();

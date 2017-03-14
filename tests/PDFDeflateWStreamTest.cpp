@@ -28,7 +28,7 @@ void skia_free_func(void*, void* address) { sk_free(address); }
  *  Use the un-deflate compression algorithm to decompress the data in src,
  *  returning the result.  Returns nullptr if an error occurs.
  */
-SkStreamAsset* stream_inflate(skiatest::Reporter* reporter, SkStream* src) {
+std::unique_ptr<SkStreamAsset> stream_inflate(skiatest::Reporter* reporter, SkStream* src) {
     SkDynamicMemoryWStream decompressedDynamicMemoryWStream;
     SkWStream* dst = &decompressedDynamicMemoryWStream;
 

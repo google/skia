@@ -759,12 +759,13 @@ private:
     size_t fCurrentOffset;
 };
 
-SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
-    auto stream = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
-                                                          this->bytesWritten());
+std::unique_ptr<SkStreamAsset> SkDynamicMemoryWStream::detachAsStream() {
+    std::unique_ptr<SkStreamAsset> stream
+            = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
+                                                      this->bytesWritten());
     fHead = nullptr;    // signal reset() to not free anything
     this->reset();
-    return stream.release();
+    return stream;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
