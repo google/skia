@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba0b2a84_63e35e03",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-14T14:48:00Z",
+      "side": 1,
+      "message": "Seems to me like this always unpremultiplies?  Because we always treat gpu images as premul?   If this is meant to be conditional, should the premultiply below also be conditional?",
+      "range": {
+        "startLine": 74,
+        "startChar": 45,
+        "endLine": 74,
+        "endChar": 59
+      },
+      "revId": "9d642ef5af7f375570a03b7fc53d817d886327c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
