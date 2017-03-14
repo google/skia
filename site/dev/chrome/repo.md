@@ -3,10 +3,8 @@ Working in a Chromium repo
 
 To work on Skia inside a Chromium checkout, run the following:
 
-~~~~
-$ cd chromium/src/third_party/skia
-$ tools/git-sync-deps
-~~~~
+    cd chromium/src/third_party/skia
+    python tools/git-sync-deps
 
 This command does a minimal "just sync the DEPS" emulation of gclient sync for
 Skia into chromium/src/third_party/skia/third_party.  After that, make dm or

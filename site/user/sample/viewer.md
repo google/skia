@@ -17,7 +17,7 @@ Linux, Macintosh and Windows
 
 The Viewer can be built using the regular GN build process, e.g.
 
-    gn gen out/Release --args='is_debug=false'
+    bin/gn gen out/Release --args='is_debug=false'
     ninja -C out/Release viewer
 
 Android
