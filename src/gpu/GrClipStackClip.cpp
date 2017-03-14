@@ -380,16 +380,15 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, int32_t clip
     SkDEBUGFAIL("Gen ID was not found in stack.");
 }
 
-// MDB TODO (caching): this side-steps the issue of texture proxies cached by unique ID
 sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTexture> texture(resourceProvider->findAndRefTextureByUniqueKey(key));
-    if (texture) {
-        return GrSurfaceProxy::MakeWrapped(std::move(texture));
+    sk_sp<GrTextureProxy> proxy(resourceProvider->findProxyByUniqueKey(key));
+    if (proxy) {
+        return proxy;
     }
 
     sk_sp<GrRenderTargetContext> rtc(context->makeRenderTargetContextWithFallback(
@@ -411,27 +410,22 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
         return nullptr;
     }
 
-    GrTexture* tex = result->instantiate(context->resourceProvider());
-    if (!tex) {
-        return nullptr;
-    }
-
-    context->resourceProvider()->assignUniqueKeyToTexture(key, tex);
+    resourceProvider->assignUniqueKeyToProxy(key, result.get());
+    // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
 
     return result;
 }
 
-// MDB TODO (caching): This side-steps the caching of texture proxies by unique ID
 sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
                                                           GrContext* context,
                                                           const GrReducedClip& reducedClip) const {
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTexture> texture(context->resourceProvider()->findAndRefTextureByUniqueKey(key));
-    if (texture) {
-        return GrSurfaceProxy::MakeWrapped(std::move(texture));
+    sk_sp<GrTextureProxy> proxy(context->resourceProvider()->findProxyByUniqueKey(key));
+    if (proxy) {
+        return proxy;
     }
 
     // The mask texture may be larger than necessary. We round out the clip bounds and pin the top
@@ -485,14 +479,10 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         }
     }
 
-    sk_sp<GrTextureProxy> result(helper.toTexture(context, SkBackingFit::kApprox));
+    sk_sp<GrTextureProxy> result(helper.toTextureProxy(context, SkBackingFit::kApprox));
 
-    GrTexture* tex = result->instantiate(context->resourceProvider());
-    if (!tex) {
-        return nullptr;
-    }
-
-    context->resourceProvider()->assignUniqueKeyToTexture(key, tex);
+    context->resourceProvider()->assignUniqueKeyToProxy(key, result.get());
+    // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
     return result;
 }
