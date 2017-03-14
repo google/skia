@@ -51,16 +51,16 @@ using K = const SkJumper_constants;
     using U16 = uint16_t;
     using U8  = uint8_t;
 
-    static F   mad(F f, F m, F a)  { return f*m+a; }
-    static F   min(F a, F b)       { return fminf(a,b); }
-    static F   max(F a, F b)       { return fmaxf(a,b); }
-    static F   abs_ (F v)          { return fabsf(v); }
-    static F   floor(F v)          { return floorf(v); }
-    static F   rcp  (F v)          { return 1.0f / v; }
-    static F   rsqrt(F v)          { return 1.0f / sqrtf(v); }
-    static U32 round(F v, F scale) { return (uint32_t)lrintf(v*scale); }
-    static U16 pack(U32 v)         { return (U16)v; }
-    static U8  pack(U16 v)         { return  (U8)v; }
+    static F   mad(F f, F m, F a)   { return f*m+a; }
+    static F   min(F a, F b)        { return fminf(a,b); }
+    static F   max(F a, F b)        { return fmaxf(a,b); }
+    static F   abs_  (F v)          { return fabsf(v); }
+    static F   floor_(F v)          { return floorf(v); }
+    static F   rcp   (F v)          { return 1.0f / v; }
+    static F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
+    static U32 round (F v, F scale) { return (uint32_t)lrintf(v*scale); }
+    static U16 pack(U32 v)          { return (U16)v; }
+    static U8  pack(U16 v)          { return  (U8)v; }
 
     static F if_then_else(I32 c, F t, F e) { return c ? t : e; }
 
@@ -79,16 +79,16 @@ using K = const SkJumper_constants;
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    static F   mad(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
-    static F   min(F a, F b)                        { return vminq_f32(a,b);          }
-    static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
-    static F   abs_ (F v)                           { return vabsq_f32(v);            }
-    static F   floor(F v)                           { return vrndmq_f32(v);           }
-    static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
-    static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
-    static U32 round(F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
-    static U16 pack(U32 v)                          { return __builtin_convertvector(v, U16); }
-    static U8  pack(U16 v)                          { return __builtin_convertvector(v,  U8); }
+    static F   mad(F f, F m, F a)                    { return vfmaq_f32(a,f,m);        }
+    static F   min(F a, F b)                         { return vminq_f32(a,b);          }
+    static F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
+    static F   abs_  (F v)                           { return vabsq_f32(v);            }
+    static F   floor_(F v)                           { return vrndmq_f32(v);           }
+    static F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
+    static F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+    static U32 round (F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
+    static U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
+    static U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
 
     static F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
@@ -121,7 +121,7 @@ using K = const SkJumper_constants;
 
     static F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
 
-    static F floor(F v) {
+    static F floor_(F v) {
         F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
         return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
     }
@@ -148,13 +148,13 @@ using K = const SkJumper_constants;
     #endif
     }
 
-    static F   min(F a, F b)       { return _mm256_min_ps(a,b);    }
-    static F   max(F a, F b)       { return _mm256_max_ps(a,b);    }
-    static F   abs_(F v)           { return _mm256_and_ps(v, 0-v); }
-    static F   floor(F v)          { return _mm256_floor_ps(v);    }
-    static F   rcp  (F v)          { return _mm256_rcp_ps  (v);    }
-    static F   rsqrt(F v)          { return _mm256_rsqrt_ps(v);    }
-    static U32 round(F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
+    static F   min(F a, F b)        { return _mm256_min_ps(a,b);    }
+    static F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
+    static F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
+    static F   floor_(F v)          { return _mm256_floor_ps(v);    }
+    static F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
+    static F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
+    static U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
 
     static U16 pack(U32 v) {
         return _mm_packus_epi32(_mm256_extractf128_si256(v, 0),
@@ -220,7 +220,7 @@ using K = const SkJumper_constants;
         return _mm_or_ps(_mm_and_ps(c, t), _mm_andnot_ps(c, e));
     }
 
-    static F floor(F v) {
+    static F floor_(F v) {
     #if defined(__SSE4_1__)
         return _mm_floor_ps(v);
     #else
@@ -1073,11 +1073,11 @@ static F clamp(F v, float limit) {
     return min(v, ulp_before(limit));
 }
 static F repeat(F v, float limit) {
-    v = v - floor(v/limit)*limit;
+    v = v - floor_(v/limit)*limit;
     return min(v, ulp_before(limit));
 }
 static F mirror(F v, float limit) {
-    v = abs_( (v-limit) - (limit+limit)*floor((v-limit)/(limit+limit)) - limit );
+    v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
     return min(v, ulp_before(limit));
 }
 STAGE(clamp_x)  { r = clamp (r, *(const float*)ctx); }
