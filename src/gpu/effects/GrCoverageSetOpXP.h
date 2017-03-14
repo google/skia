@@ -32,10 +32,6 @@ public:
 private:
     constexpr GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
-    bool willReadsDst(const FragmentProcessorAnalysis&) const override {
-        return fRegionOp != SkRegion::kReplace_Op;
-    }
-
     GrXferProcessor* onCreateXferProcessor(const GrCaps&,
                                            const FragmentProcessorAnalysis&,
                                            bool hasMixedSamples,
