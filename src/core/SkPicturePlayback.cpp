@@ -682,6 +682,18 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                                      bmode, indices, iCount, *paint);
             }
         } break;
+        case DRAW_VERTICES_OBJECT: {
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            const SkVertices* vertices = fPictureData->getVertices(reader);
+            SkBlendMode mode = static_cast<SkBlendMode>(reader->readInt());
+            uint32_t flags = reader->readInt();
+
+            BREAK_ON_READ_ERROR(reader);
+
+            if (paint && vertices) {
+                canvas->drawVertices(vertices, mode, *paint, flags);
+            }
+        } break;
         case RESTORE:
             canvas->restore();
             break;
