@@ -96,7 +96,7 @@ static void construct_dummy_pipeline(GrRenderTargetContext* dc, GrPipeline* pipe
     GrScissorState dummyScissor;
     GrWindowRectsState dummyWindows;
 
-    GrAppliedClip dummyAppliedClip(SkRect::MakeLargest());
+    GrAppliedClip dummyAppliedClip;
     GrProcessorSet::FragmentProcessorAnalysis analysis;
     GrPipeline::InitArgs args;
     dummyBuilder.getPipelineInitArgs(&args);
