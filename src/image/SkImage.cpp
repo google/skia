@@ -312,19 +312,6 @@ bool SkImage::isAlphaOnly() const {
     return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
 }
 
-sk_sp<SkImage> SkImage_Base::makeColorSpace(sk_sp<SkColorSpace> target) const {
-    SkColorSpaceTransferFn fn;
-    if (!target || !target->isNumericalTransferFn(&fn)) {
-        return nullptr;
-    }
-
-    if (SkColorSpace::Equals(this->colorSpace(), target.get())) {
-        return sk_ref_sp(const_cast<SkImage_Base*>(this));
-    }
-
-    return this->onMakeColorSpace(std::move(target));
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU

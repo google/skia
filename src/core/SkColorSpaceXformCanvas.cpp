@@ -8,7 +8,6 @@
 #include "SkColorFilter.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformCanvas.h"
-#include "SkImage_Base.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
 #include "SkSurface.h"
@@ -73,7 +72,8 @@ public:
     }
 
     sk_sp<const SkImage> xform(const SkImage* img) const {
-        return as_IB(img)->makeColorSpace(fTargetCS);
+        // TODO: for real
+        return sk_ref_sp(img);
     }
 
     void onDrawPaint(const SkPaint& paint) override {
