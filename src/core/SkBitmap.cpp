@@ -1053,17 +1053,6 @@ enum {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkBitmap::RLEPixels::RLEPixels(int width, int height) {
-    fHeight = height;
-    fYPtrs = (uint8_t**)sk_calloc_throw(height * sizeof(uint8_t*));
-}
-
-SkBitmap::RLEPixels::~RLEPixels() {
-    sk_free(fYPtrs);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 #ifdef SK_DEBUG
 void SkBitmap::validate() const {
     fInfo.validate();
