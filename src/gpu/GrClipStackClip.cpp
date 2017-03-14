@@ -247,14 +247,14 @@ static bool get_analytic_clip_processor(const ElementList& elements,
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                            bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out) const {
+                            bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
+                            SkRect* bounds) const {
     if (!fStack || fStack->isWideOpen()) {
         return true;
     }
 
-    SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(),
-                                       renderTargetContext->height());
-    if (!devBounds.intersect(out->clippedDrawBounds())) {
+    SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
+    if (!devBounds.intersect(*bounds)) {
         return false;
     }
 
@@ -262,7 +262,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
                                     renderTargetContext->priv().maxWindowRectangles());
 
     if (reducedClip.hasIBounds() && !GrClip::IsInsideClip(reducedClip.ibounds(), devBounds)) {
-        out->addScissor(reducedClip.ibounds());
+        out->addScissor(reducedClip.ibounds(), bounds);
     }
 
     if (!reducedClip.windowRectangles().empty()) {

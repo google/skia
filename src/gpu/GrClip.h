@@ -28,8 +28,17 @@ public:
     }
     virtual void getConservativeBounds(int width, int height, SkIRect* devResult,
                                        bool* isIntersectionOfRects = nullptr) const = 0;
+    /**
+     * This computes a GrAppliedClip from the clip which in turn can be used to build a GrPipeline.
+     * To determine the appropriate clipping implementation the GrClip subclass must know whether
+     * the draw will enable HW AA or uses the stencil buffer. On input 'bounds' is a conservative
+     * bounds of the draw that is to be clipped. After return 'bounds' has been intersected with a
+     * conservative bounds of the clip. A return value of false indicates that the draw can be
+     * skipped as it is fully clipped out.
+     */
     virtual bool apply(GrContext*, GrRenderTargetContext*, bool useHWAA,
-                       bool hasUserStencilSettings, GrAppliedClip* out) const = 0;
+                       bool hasUserStencilSettings, GrAppliedClip* result,
+                       SkRect* bounds) const = 0;
 
     virtual ~GrClip() {}
 
@@ -134,7 +143,8 @@ private:
             *isIntersectionOfRects = true;
         }
     }
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip*) const final {
+    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip*,
+               SkRect*) const final {
         return true;
     }
     bool isRRect(const SkRect&, SkRRect*, GrAA*) const override { return false; }

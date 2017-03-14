@@ -29,7 +29,7 @@ public:
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
     bool apply(GrContext*, GrRenderTargetContext*, bool useHWAA, bool hasUserStencilSettings,
-               GrAppliedClip* out) const final;
+               GrAppliedClip* out, SkRect* bounds) const final;
 
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const override;
 

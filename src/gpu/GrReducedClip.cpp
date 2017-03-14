@@ -674,8 +674,9 @@ private:
         return false;
     }
     bool apply(GrContext* context, GrRenderTargetContext* renderTargetContext, bool useHWAA,
-               bool hasUserStencilSettings, GrAppliedClip* out) const override {
-        if (!fFixedClip.apply(context, renderTargetContext, useHWAA, hasUserStencilSettings, out)) {
+               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
+        if (!fFixedClip.apply(context, renderTargetContext, useHWAA, hasUserStencilSettings, out,
+                              bounds)) {
             return false;
         }
         out->addStencilClip();

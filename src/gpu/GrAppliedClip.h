@@ -18,11 +18,6 @@
  */
 class GrAppliedClip : public SkNoncopyable {
 public:
-    GrAppliedClip(const SkRect& drawBounds)
-        : fHasStencilClip(false)
-        , fClippedDrawBounds(drawBounds) {
-    }
-
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP.get(); }
@@ -30,9 +25,11 @@ public:
 
     /**
      * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
+     * 'clippedDrawBounds' will be intersected with 'irect'. This returns false if the clip becomes
+     * empty or the draw no longer intersects the clip. In either case the draw can be skipped.
      */
-    bool addScissor(const SkIRect& irect) {
-        return fScissorState.intersect(irect) && fClippedDrawBounds.intersect(SkRect::Make(irect));
+    bool addScissor(const SkIRect& irect, SkRect* clippedDrawBounds) {
+        return fScissorState.intersect(irect) && clippedDrawBounds->intersect(SkRect::Make(irect));
     }
 
     void addWindowRectangles(const GrWindowRectsState& windowState) {
@@ -55,18 +52,11 @@ public:
         fHasStencilClip = true;
     }
 
-    /**
-     * Returns the device bounds of the draw after clip has been applied. TODO: Ideally this would
-     * consider the combined effect of all clipping techniques in play (scissor, stencil, fp, etc.).
-     */
-    const SkRect& clippedDrawBounds() const { return fClippedDrawBounds; }
-
 private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
-    bool                       fHasStencilClip;
-    SkRect                     fClippedDrawBounds;
+    bool                       fHasStencilClip = false;
     typedef SkNoncopyable INHERITED;
 };
 

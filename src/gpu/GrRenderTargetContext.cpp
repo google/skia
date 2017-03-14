@@ -712,9 +712,9 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
     SkRect bounds = SkRect::MakeIWH(fRenderTargetContext->width(), fRenderTargetContext->height());
 
     // Setup clip
-    GrAppliedClip appliedClip(bounds);
+    GrAppliedClip appliedClip;
     if (!clip.apply(fRenderTargetContext->fContext, fRenderTargetContext, useHWAA, true,
-                    &appliedClip)) {
+                    &appliedClip, &bounds)) {
         return;
     }
 
@@ -741,7 +741,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
                                                      appliedClip.scissorState(),
                                                      fRenderTargetContext->accessRenderTarget(),
                                                      path);
-    op->setClippedBounds(appliedClip.clippedDrawBounds());
+    op->setClippedBounds(bounds);
     fRenderTargetContext->getOpList()->recordOp(std::move(op), fRenderTargetContext);
 }
 
@@ -1692,9 +1692,9 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuild
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
-    GrAppliedClip appliedClip(bounds);
+    GrAppliedClip appliedClip;
     if (!clip.apply(fContext, this, pipelineBuilder.isHWAntialias(),
-                    pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
+                    pipelineBuilder.hasUserStencilSettings(), &appliedClip, &bounds)) {
         return SK_InvalidUniqueID;
     }
 
@@ -1731,7 +1731,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuild
     }
     op->initPipeline(args);
     // TODO: We need to add pipeline dependencies on textures, etc before recording this op.
-    op->setClippedBounds(appliedClip.clippedDrawBounds());
+    op->setClippedBounds(bounds);
     return this->getOpList()->addOp(std::move(op), this);
 }
 
