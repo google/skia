@@ -62,7 +62,8 @@ int PostHandler::handle(Request* request, MHD_Connection* connection,
     MHD_destroy_post_processor(uc->fPostProcessor);
     uc->fPostProcessor = nullptr;
 
-    if (!request->initPictureFromStream(request->fUploadContext->fStream.detachAsStream())) {
+    std::unique_ptr<SkStreamAsset> stream(request->fUploadContext->fStream.detachAsStream());
+    if (!request->initPictureFromStream(stream.get())) {
         fprintf(stderr, "Could not create picture from stream.\n");
         return MHD_NO;
     }
