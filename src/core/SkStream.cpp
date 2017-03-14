@@ -570,15 +570,31 @@ void SkDynamicMemoryWStream::padToAlign4() {
     }
 }
 
+
+void SkDynamicMemoryWStream::copyToAndReset(void* ptr) {
+    // By looping through the source and freeing as we copy, we
+    // can reduce real memory use with large streams.
+    char* dst = reinterpret_cast<char*>(ptr);
+    Block* block = fHead;
+    while (block != nullptr) {
+        size_t len = block->written();
+        memcpy(dst, block->start(), len);
+        dst += len;
+        Block* next = block->fNext;
+        sk_free(block);
+        block = next;
+    }
+    fHead = fTail = nullptr;
+    fBytesWrittenBeforeTail = 0;
+}
+
 sk_sp<SkData> SkDynamicMemoryWStream::detachAsData() {
     const size_t size = this->bytesWritten();
     if (0 == size) {
         return SkData::MakeEmpty();
     }
-
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
-    this->copyTo(data->writable_data());
-    this->reset(); // this is the "detach" part
+    this->copyToAndReset(data->writable_data());
     return data;
 }
 
