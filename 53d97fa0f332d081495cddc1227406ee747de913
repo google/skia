@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "030f7aa4_1293030a",
+        "filename": "include/core/SkF16.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-14T22:24:45Z",
+      "side": 1,
+      "message": "I don\u0027t think we want to do this for everyone.  Maybe sk_float16, but it\u0027s probably clearer to just write uint16_t.  (or int16_t... the sign bit is really the only bit we can interpret directly...)",
+      "revId": "53d97fa0f332d081495cddc1227406ee747de913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3abd3519_7890e197",
+        "filename": "include/core/SkF16.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-14T22:24:45Z",
+      "side": 1,
+      "message": "It doesn\u0027t seem like a good to me for Skia to provide this API, especially not with these caveats.  These are not constraints I want to have to maintain...  whatever happens to be written in SkHalf was specifically designed to help work with color component half floats.  E.g. we didn\u0027t flush denormal values to zero, we just _might_ flush denormal values to zero.",
+      "revId": "53d97fa0f332d081495cddc1227406ee747de913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "25e1f1c5_5f482f2a",
         "filename": "src/core/SkHalf.cpp",
         "patchSetId": 3
@@ -25,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "66745900_eb70a7d1",
+        "filename": "src/core/SkHalf.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-14T22:24:45Z",
+      "side": 1,
+      "message": "No way to get AVX2.",
+      "parentUuid": "25e1f1c5_5f482f2a",
+      "range": {
+        "startLine": 105,
+        "startChar": 8,
+        "endLine": 105,
+        "endChar": 32
+      },
+      "revId": "53d97fa0f332d081495cddc1227406ee747de913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3fa96da7_dd3c5c6f",
         "filename": "src/core/SkHalf.cpp",
         "patchSetId": 3
@@ -36,6 +94,30 @@
       "writtenOn": "2017-03-14T21:30:04Z",
       "side": 1,
       "message": "Will this behave differently than the finite_ftz?  Potentially I need to load the tail values into a vector...",
+      "range": {
+        "startLine": 112,
+        "startChar": 15,
+        "endLine": 112,
+        "endChar": 28
+      },
+      "revId": "53d97fa0f332d081495cddc1227406ee747de913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce03a034_8cabc223",
+        "filename": "src/core/SkHalf.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-14T22:24:45Z",
+      "side": 1,
+      "message": "Yes, very different.",
+      "parentUuid": "3fa96da7_dd3c5c6f",
       "range": {
         "startLine": 112,
         "startChar": 15,
