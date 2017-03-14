@@ -772,7 +772,8 @@ public:
 
     const char* name() const override { return "RectBlur"; }
 
-    static sk_sp<GrFragmentProcessor> Make(GrContext* context, const SkRect& rect, float sigma) {
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                           const SkRect& rect, float sigma) {
         int doubleProfileSize = SkScalarCeilToInt(12*sigma);
 
         if (doubleProfileSize >= rect.width() || doubleProfileSize >= rect.height()) {
@@ -781,7 +782,7 @@ public:
             return nullptr;
         }
 
-        sk_sp<GrTextureProxy> blurProfile(CreateBlurProfileTexture(context, sigma));
+        sk_sp<GrTextureProxy> blurProfile(CreateBlurProfileTexture(resourceProvider, sigma));
         if (!blurProfile) {
            return nullptr;
         }
@@ -805,7 +806,7 @@ public:
             precision = kDefault_GrSLPrecision;
         }
 
-        return sk_sp<GrFragmentProcessor>(new GrRectBlurEffect(context->resourceProvider(),
+        return sk_sp<GrFragmentProcessor>(new GrRectBlurEffect(resourceProvider,
                                                                rect, sigma,
                                                                std::move(blurProfile), precision));
     }
@@ -824,7 +825,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrContext*, float sigma);
+    static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrResourceProvider*, float sigma);
 
     SkRect          fRect;
     float           fSigma;
@@ -942,7 +943,9 @@ void GrGLRectBlurEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.set1f(fProfileSizeUniform, SkScalarCeilToScalar(6*rbe.getSigma()));
 }
 
-sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(GrContext* context, float sigma) {
+sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(
+                                                            GrResourceProvider* resourceProvider,
+                                                            float sigma) {
     GrSurfaceDesc texDesc;
 
     unsigned int profileSize = SkScalarCeilToInt(6*sigma);
@@ -958,17 +961,17 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(GrContext* cont
     builder[0] = profileSize;
     builder.finish();
 
-    sk_sp<GrTextureProxy> blurProfile(context->resourceProvider()->findProxyByUniqueKey(key));
+    sk_sp<GrTextureProxy> blurProfile(resourceProvider->findProxyByUniqueKey(key));
     if (!blurProfile) {
         std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
-        blurProfile = GrSurfaceProxy::MakeDeferred(*context->caps(), context->resourceProvider(),
+        blurProfile = GrSurfaceProxy::MakeDeferred(resourceProvider,
                                                    texDesc, SkBudgeted::kYes, profile.get(), 0);
         if (!blurProfile) {
             return nullptr;
         }
 
-        context->resourceProvider()->assignUniqueKeyToProxy(key, blurProfile.get());
+        resourceProvider->assignUniqueKeyToProxy(key, blurProfile.get());
     }
 
     return blurProfile;
@@ -1008,7 +1011,8 @@ sk_sp<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* d) 
     float sigma = d->fRandom->nextRangeF(3,8);
     float width = d->fRandom->nextRangeF(200,300);
     float height = d->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(d->context(), SkRect::MakeWH(width, height), sigma);
+    return GrRectBlurEffect::Make(d->context()->resourceProvider(),
+                                  SkRect::MakeWH(width, height), sigma);
 }
 #endif
 
@@ -1032,6 +1036,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
+    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
     sk_sp<GrFragmentProcessor> fp;
 
     SkRect rect;
@@ -1039,9 +1044,9 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         SkScalar pad = 3.0f * xformedSigma;
         rect.outset(pad, pad);
 
-        fp = GrRectBlurEffect::Make(context, rect, xformedSigma);
+        fp = GrRectBlurEffect::Make(resourceProvider, rect, xformedSigma);
     } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height())) {
-        fp = GrCircleBlurFragmentProcessor::Make(context, rect, xformedSigma);
+        fp = GrCircleBlurFragmentProcessor::Make(resourceProvider, rect, xformedSigma);
 
         // expand the rect for the coverage geometry
         int pad = SkScalarCeilToInt(6*xformedSigma)/2;
@@ -1354,6 +1359,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         return false;
     }
 
+    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
     if (devRRect.isRect() || devRRect.isCircle()) {
@@ -1366,9 +1372,10 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             SkScalar pad = 3.0f * xformedSigma;
             const SkRect dstCoverageRect = devRRect.rect().makeOutset(pad, pad);
 
-            fp = GrRectBlurEffect::Make(context, dstCoverageRect, xformedSigma);
+            fp = GrRectBlurEffect::Make(resourceProvider, dstCoverageRect, xformedSigma);
         } else {
-            fp = GrCircleBlurFragmentProcessor::Make(context, devRRect.rect(), xformedSigma);
+            fp = GrCircleBlurFragmentProcessor::Make(resourceProvider,
+                                                     devRRect.rect(), xformedSigma);
         }
 
         if (!fp) {

@@ -148,13 +148,15 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
 #include "GrResourceProvider.h"
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
-                                                   const GrCaps& caps,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
                                                    uint32_t flags) {
     SkASSERT(0 == flags || GrResourceProvider::kNoPendingIO_Flag == flags);
 
+    const GrCaps* caps = resourceProvider->caps();
+
+    // TODO: move this logic into GrResourceProvider!
     // TODO: share this testing code with check_texture_creation_params
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         if (SkBackingFit::kApprox == fit || kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
@@ -163,17 +165,17 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
             return nullptr;
         }
 
-        if (!caps.npotTextureTileSupport() && (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
+        if (!caps->npotTextureTileSupport() && (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
             return nullptr;
         }
     }
 
-    if (!caps.isConfigTexturable(desc.fConfig)) {
+    if (!caps->isConfigTexturable(desc.fConfig)) {
         return nullptr;
     }
 
     bool willBeRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (willBeRT && !caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+    if (willBeRT && !caps->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
 
@@ -184,9 +186,9 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
 
     int maxSize;
     if (willBeRT) {
-        maxSize = caps.maxRenderTargetSize();
+        maxSize = caps->maxRenderTargetSize();
     } else {
-        maxSize = caps.maxTextureSize();
+        maxSize = caps->maxTextureSize();
     }
 
     if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
@@ -194,20 +196,19 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     }
 
     GrSurfaceDesc copyDesc = desc;
-    copyDesc.fSampleCnt = SkTMin(desc.fSampleCnt, caps.maxSampleCount());
+    copyDesc.fSampleCnt = SkTMin(desc.fSampleCnt, caps->maxSampleCount());
 
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(caps, copyDesc, fit,
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*caps, copyDesc, fit,
                                                                     budgeted, flags));
     }
 
     return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
 }
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
-                                                   GrResourceProvider* resourceProvider,
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
                                                    const void* srcData,
@@ -218,8 +219,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
         return GrSurfaceProxy::MakeWrapped(std::move(tex));
     }
 
-    return GrSurfaceProxy::MakeDeferred(resourceProvider, caps, desc, SkBackingFit::kExact,
-                                        budgeted);
+    return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, SkBackingFit::kExact, budgeted);
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,

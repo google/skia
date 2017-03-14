@@ -37,13 +37,12 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
         rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
-        test_read_pixels(reporter, context, rtContext.get(), expectedPixelValues,
+        test_read_pixels(reporter, rtContext.get(), expectedPixelValues,
                          "RectangleTexture-basic-draw");
     }
 }
 
-static void test_clear(skiatest::Reporter* reporter, GrContext* context,
-                       GrSurfaceContext* rectContext) {
+static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectContext) {
     if (GrRenderTargetContext* rtc = rectContext->asRenderTargetContext()) {
         // Clear the whole thing.
         GrColor color0 = GrColorPackRGBA(0xA, 0xB, 0xC, 0xD);
@@ -83,7 +82,7 @@ static void test_clear(skiatest::Reporter* reporter, GrContext* context,
             }
         }
 
-        test_read_pixels(reporter, context, rtc, expectedPixels.get(), "RectangleTexture-clear");
+        test_read_pixels(reporter, rtc, expectedPixels.get(), "RectangleTexture-clear");
     }
 }
 
@@ -152,13 +151,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
                                                                     std::move(rectProxy), nullptr);
         SkASSERT(rectContext);
 
-        test_read_pixels(reporter, context, rectContext.get(), refPixels, "RectangleTexture-read");
+        test_read_pixels(reporter, rectContext.get(), refPixels, "RectangleTexture-read");
 
-        test_copy_to_surface(reporter, context, rectContext.get(), "RectangleTexture-copy-to");
+        test_copy_to_surface(reporter, context->resourceProvider(),
+                              rectContext.get(), "RectangleTexture-copy-to");
 
-        test_write_pixels(reporter, context, rectContext.get(), true, "RectangleTexture-write");
+        test_write_pixels(reporter, rectContext.get(), true, "RectangleTexture-write");
 
-        test_clear(reporter, context, rectContext.get());
+        test_clear(reporter, rectContext.get());
 
         GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
     }

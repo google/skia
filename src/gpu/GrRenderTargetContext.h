@@ -53,6 +53,8 @@ class SK_API GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
+    GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
+
     // We use SkPaint rather than GrPaint here for two reasons:
     //    * The SkPaint carries extra text settings. If these were extracted to a lighter object
     //      we could use GrPaint except that
