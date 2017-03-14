@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2561af95_adb47d94",
+        "filename": "include/gpu/GrProgramElement.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-14T19:49:11Z",
+      "side": 0,
+      "message": "This is no longer valid GrProcessorSet can uniquely own a GrFragmentProcessor as a \"pending execution\" and then another is added by the GrPipeline.",
+      "range": {
+        "startLine": 87,
+        "startChar": 8,
+        "endLine": 87,
+        "endChar": 30
+      },
+      "revId": "97180af7f5e577a451367aa0c15cfaff1b6076f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
