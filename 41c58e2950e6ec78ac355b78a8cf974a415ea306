@@ -22,6 +22,30 @@
       "revId": "41c58e2950e6ec78ac355b78a8cf974a415ea306",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3660958a_00cd55b7",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T13:06:03Z",
+      "side": 1,
+      "message": "From offline conversation: I originally had it as a GrSurfaceProxy but, given potential tightening of the predicate (e.g., including reuseScratchTextures information), I decided to switch it to GrTextureProxy.",
+      "parentUuid": "4b10ba3c_ceedafa4",
+      "range": {
+        "startLine": 248,
+        "startChar": 36,
+        "endLine": 248,
+        "endChar": 50
+      },
+      "revId": "41c58e2950e6ec78ac355b78a8cf974a415ea306",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
