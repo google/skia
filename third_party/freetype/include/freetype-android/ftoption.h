@@ -640,17 +640,21 @@ FT_BEGIN_HEADER
   /* [1] for a technical overview on what this means.  See `ttinterp.h'    */
   /* for more details on the LEAN option.                                  */
   /*                                                                       */
-  /* There are three options.                                              */
+  /* There are three possible values.                                      */
   /*                                                                       */
-  /* 1. This option is associated with the `Infinality' moniker.           */
-  /*    Contributed by an individual nicknamed Infinality with the goal of */
+  /* Value 1:                                                              */
+  /*    This value is associated with the `Infinality' moniker,            */
+  /*    contributed by an individual nicknamed Infinality with the goal of */
   /*    making TrueType fonts render better than on Windows.  A high       */
   /*    amount of configurability and flexibility, down to rules for       */
   /*    single glyphs in fonts, but also very slow.  Its experimental and  */
   /*    slow nature and the original developer losing interest meant that  */
   /*    this option was never enabled in default builds.                   */
   /*                                                                       */
-  /* 2. The new default mode for the TrueType driver.  The Infinality code */
+  /*    The corresponding interpreter version is v38.                      */
+  /*                                                                       */
+  /* Value 2:                                                              */
+  /*    The new default mode for the TrueType driver.  The Infinality code */
   /*    base was stripped to the bare minimum and all configurability      */
   /*    removed in the name of speed and simplicity.  The configurability  */
   /*    was mainly aimed at legacy fonts like Arial, Times New Roman, or   */
@@ -660,14 +664,19 @@ FT_BEGIN_HEADER
   /*    that modern and web fonts render well while legacy fonts render    */
   /*    okay.                                                              */
   /*                                                                       */
-  /* 3. Compile both.                                                      */
+  /*    The corresponding interpreter version is v40.                      */
+  /*                                                                       */
+  /* Value 3:                                                              */
+  /*    Compile both, making both v38 and v40 available (the latter is the */
+  /*    default).                                                          */
   /*                                                                       */
   /* By undefining these, you get rendering behavior like on Windows       */
   /* without ClearType, i.e., Windows XP without ClearType enabled and     */
   /* Win9x (interpreter version v35).  Or not, depending on how much       */
   /* hinting blood and testing tears the font designer put into a given    */
   /* font.  If you define one or both subpixel hinting options, you can    */
-  /* switch between between v35 and the ones you define.                   */
+  /* switch between between v35 and the ones you define (using             */
+  /* `FT_Property_Set').                                                   */
   /*                                                                       */
   /* This option requires TT_CONFIG_OPTION_BYTECODE_INTERPRETER to be      */
   /* defined.                                                              */
