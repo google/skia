@@ -116,8 +116,9 @@ protected:
         kTightCopy_DomainMode
     };
 
-    static GrTexture* CopyOnGpu(GrTexture* inputTexture, const SkIRect* subset,
-                                const CopyParams& copyParams);
+    static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, 
+                                           sk_sp<GrTextureProxy> inputProxy, const SkIRect* subset,
+                                           const CopyParams& copyParams);
 
     static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
                                            const SkIRect* subset, const CopyParams& copyParams);
@@ -132,7 +133,8 @@ protected:
         SkRect* domainRect);
 
     static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
-        GrTexture* texture,
+        GrContext* context,
+        sk_sp<GrTextureProxy> proxy,
         sk_sp<GrColorSpaceXform> colorSpaceXform,
         const SkMatrix& textureMatrix,
         DomainMode domainMode,

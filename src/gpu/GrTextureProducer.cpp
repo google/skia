@@ -16,13 +16,13 @@
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 
-GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* subset,
-                                        const CopyParams& copyParams) {
+sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
+                                                   sk_sp<GrTextureProxy> inputProxy,
+                                                   const SkIRect* subset,
+                                                   const CopyParams& copyParams) {
     SkASSERT(!subset || !subset->isEmpty());
-    GrContext* context = inputTexture->getContext();
-    SkASSERT(context);
 
-    GrPixelConfig config = GrMakePixelConfigUncompressed(inputTexture->config());
+    GrPixelConfig config = GrMakePixelConfigUncompressed(inputProxy->config());
 
     sk_sp<GrRenderTargetContext> copyRTC = context->makeRenderTargetContextWithFallback(
         SkBackingFit::kExact, copyParams.fWidth, copyParams.fHeight, config, nullptr);
@@ -32,6 +32,13 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
 
     GrPaint paint;
     paint.setGammaCorrect(true);
+
+    SkRect localRect;
+    if (subset) {
+        localRect = SkRect::Make(*subset);
+    } else {
+        localRect = SkRect::MakeWH(inputProxy->width(), inputProxy->height());
+    }
 
     if (copyParams.fFilter != GrSamplerParams::kNone_FilterMode && subset &&
         (subset->width() != copyParams.fWidth || subset->height() != copyParams.fHeight)) {
@@ -44,26 +51,19 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
         // better!
         SkASSERT(copyParams.fFilter != GrSamplerParams::kMipMap_FilterMode);
         paint.addColorFragmentProcessor(
-            GrTextureDomainEffect::Make(inputTexture, nullptr, SkMatrix::I(), domain,
-                                        GrTextureDomain::kClamp_Mode,
-                                        copyParams.fFilter));
+            GrTextureDomainEffect::Make(context, std::move(inputProxy), nullptr, SkMatrix::I(),
+                                        domain, GrTextureDomain::kClamp_Mode, copyParams.fFilter));
     } else {
         GrSamplerParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
-        paint.addColorTextureProcessor(inputTexture, nullptr, SkMatrix::I(), params);
+        paint.addColorTextureProcessor(context, std::move(inputProxy), nullptr,
+                                       SkMatrix::I(), params);
     }
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-
-    SkRect localRect;
-    if (subset) {
-        localRect = SkRect::Make(*subset);
-    } else {
-        localRect = SkRect::MakeWH(inputTexture->width(), inputTexture->height());
-    }
 
     SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
     copyRTC->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
                             localRect);
-    return copyRTC->asTexture().release();
+    return copyRTC->asTextureProxyRef();
 }
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
@@ -265,7 +265,8 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
 }
 
 sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
-                                        GrTexture* texture,
+                                        GrContext* context,
+                                        sk_sp<GrTextureProxy> proxy,
                                         sk_sp<GrColorSpaceXform> colorSpaceXform,
                                         const SkMatrix& textureMatrix,
                                         DomainMode domainMode,
@@ -274,23 +275,24 @@ sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAn
     SkASSERT(kTightCopy_DomainMode != domainMode);
     if (filterOrNullForBicubic) {
         if (kDomain_DomainMode == domainMode) {
-            return GrTextureDomainEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
+            return GrTextureDomainEffect::Make(context, std::move(proxy),
+                                               std::move(colorSpaceXform), textureMatrix,
                                                domain, GrTextureDomain::kClamp_Mode,
                                                *filterOrNullForBicubic);
         } else {
             GrSamplerParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
-            return GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
-                                               params);
+            return GrSimpleTextureEffect::Make(context, std::move(proxy),
+                                               std::move(colorSpaceXform), textureMatrix, params);
         }
     } else {
         if (kDomain_DomainMode == domainMode) {
-            return GrBicubicEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
-                                         domain);
+            return GrBicubicEffect::Make(context, std::move(proxy),
+                                         std::move(colorSpaceXform), textureMatrix, domain);
         } else {
             static const SkShader::TileMode kClampClamp[] =
                 { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
-            return GrBicubicEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
-                                         kClampClamp);
+            return GrBicubicEffect::Make(context, std::move(proxy), std::move(colorSpaceXform),
+                                         textureMatrix, kClampClamp);
         }
     }
 }
