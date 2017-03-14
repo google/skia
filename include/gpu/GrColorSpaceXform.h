@@ -21,7 +21,7 @@ class GrColorSpaceXform : public SkRefCnt {
 public:
     GrColorSpaceXform(const SkMatrix44& srcToDst);
 
-    static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkColorSpace* dst);
+    static sk_sp<GrColorSpaceXform> Make(const SkColorSpace* src, const SkColorSpace* dst);
 
     const SkMatrix44& srcToDst() const { return fSrcToDst; }
 
@@ -29,7 +29,7 @@ public:
      * GrGLSLFragmentProcessor::GenKey() must call this and include the returned value in its
      * computed key.
      */
-    static uint32_t XformKey(GrColorSpaceXform* xform) {
+    static uint32_t XformKey(const GrColorSpaceXform* xform) {
         // Code generation changes if there is an xform, but it otherwise constant
         return SkToBool(xform) ? 1 : 0;
     }
