@@ -1082,34 +1082,6 @@ DEF_TEST(Image_ColorSpace, r) {
     REPORTER_ASSERT(r, SkColorSpace::Equals(rec2020.get(), image->colorSpace()));
 }
 
-DEF_TEST(Image_makeColorSpace, r) {
-    sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                                   SkColorSpace::kDCIP3_D65_Gamut);
-
-    SkBitmap srgbBitmap;
-    srgbBitmap.allocPixels(SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType));
-    *srgbBitmap.getAddr32(0, 0) = 0xFF204060;
-    srgbBitmap.setImmutable();
-    sk_sp<SkImage> srgbImage = SkImage::MakeFromBitmap(srgbBitmap);
-    sk_sp<SkImage> p3Image = as_IB(srgbImage)->makeColorSpace(p3);
-    SkBitmap p3Bitmap;
-    bool success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
-    REPORTER_ASSERT(r, success);
-    p3Bitmap.lockPixels();
-    REPORTER_ASSERT(r, 0x28 == SkGetPackedR32(*p3Bitmap.getAddr32(0, 0)));
-    REPORTER_ASSERT(r, 0x40 == SkGetPackedG32(*p3Bitmap.getAddr32(0, 0)));
-    REPORTER_ASSERT(r, 0x5E == SkGetPackedB32(*p3Bitmap.getAddr32(0, 0)));
-
-    srgbImage = GetResourceAsImage("1x1.png");
-    p3Image = as_IB(srgbImage)->makeColorSpace(p3);
-    success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
-    REPORTER_ASSERT(r, success);
-    p3Bitmap.lockPixels();
-    REPORTER_ASSERT(r, 0x8B == SkGetPackedR32(*p3Bitmap.getAddr32(0, 0)));
-    REPORTER_ASSERT(r, 0x82 == SkGetPackedG32(*p3Bitmap.getAddr32(0, 0)));
-    REPORTER_ASSERT(r, 0x77 == SkGetPackedB32(*p3Bitmap.getAddr32(0, 0)));
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void make_all_premul(SkBitmap* bm) {
