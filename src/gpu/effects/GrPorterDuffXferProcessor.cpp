@@ -759,10 +759,11 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(
     return new PorterDuffXferProcessor(blendFormula);
 }
 
-bool GrPorterDuffXPFactory::willReadsDst(const FragmentProcessorAnalysis& analysis) const {
-    BlendFormula colorFormula = gBlendTable[analysis.isOutputColorOpaque()][0][(int)fBlendMode];
+bool GrPorterDuffXPFactory::canCombineOverlappedStencilAndCover(bool colorIsOpaque) const {
+    // Ignore the effect of coverage here.
+    BlendFormula colorFormula = gBlendTable[colorIsOpaque][0][(int)fBlendMode];
     SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
-    return (colorFormula.usesDstColor() || analysis.hasCoverage());
+    return !colorFormula.usesDstColor();
 }
 
 bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps,

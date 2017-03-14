@@ -40,11 +40,14 @@ public:
     static bool WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis);
     static bool WillSrcOverNeedDstTexture(const GrCaps&, const FragmentProcessorAnalysis&);
     static bool SrcOverIsCompatibleWithCoverageAsAlpha() { return true; }
+    static bool SrcOverCanCombineOverlappedStencilAndCover(bool colorIsOpaque) {
+        return colorIsOpaque;
+    }
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    bool willReadsDst(const FragmentProcessorAnalysis&) const override;
+    bool canCombineOverlappedStencilAndCover(bool colorIsOpaque) const override;
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const FragmentProcessorAnalysis&,
