@@ -4421,11 +4421,12 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
-bool GrGLGpu::onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& textureParams,
+bool GrGLGpu::onMakeCopyForTextureParams(GrTextureProxy* proxy, const GrSamplerParams& textureParams,
                                          GrTextureProducer::CopyParams* copyParams,
                                          SkScalar scaleAdjust[2]) const {
     if (textureParams.isTiled() ||
         GrSamplerParams::kMipMap_FilterMode == textureParams.filterMode()) {
+#if 0
         GrGLTexture* glTexture = static_cast<GrGLTexture*>(texture);
         if (GR_GL_TEXTURE_EXTERNAL == glTexture->target() ||
             GR_GL_TEXTURE_RECTANGLE == glTexture->target()) {
@@ -4434,6 +4435,7 @@ bool GrGLGpu::onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerPara
             copyParams->fHeight = texture->height();
             return true;
         }
+#endif
     }
     return false;
 }
