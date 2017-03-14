@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
@@ -474,7 +475,7 @@ public:
         if (subset) {
             // TODO: if this becomes a bottle neck we could base this logic on what the size
             // will be when it is finally instantiated - but that is more fraught.
-            if (fTextureProxy->priv().isExact() &&
+            if (GrResourceProvider::IsFunctionallyExact(fTextureProxy.get()) &&
                 0 == subset->fLeft && 0 == subset->fTop &&
                 fTextureProxy->width() == subset->width() &&
                 fTextureProxy->height() == subset->height()) {

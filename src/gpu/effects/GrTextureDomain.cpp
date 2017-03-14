@@ -8,6 +8,7 @@
 #include "GrTextureDomain.h"
 
 #include "GrContext.h"
+#include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "GrSimpleTextureEffect.h"
 #include "GrSurfaceProxyPriv.h"
@@ -19,8 +20,8 @@
 #include "glsl/GrGLSLShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
-static bool can_ignore_rect(GrSurfaceProxy* proxy, const SkRect& domain) {
-    if (proxy->priv().isExact()) {
+static bool can_ignore_rect(GrTextureProxy* proxy, const SkRect& domain) {
+    if (GrResourceProvider::IsFunctionallyExact(proxy)) {
         const SkIRect kFullRect = SkIRect::MakeWH(proxy->width(), proxy->height());
 
         return domain.contains(kFullRect);

@@ -646,8 +646,8 @@ private:
         // convert texcoords to unsigned short format
         sk_sp<GrTextureProxy> proxy = atlas->getProxy();
 
-        // The proxy must be exact for this normalization to work correctly
-        SkASSERT(proxy->priv().isExact());
+        // The proxy must be functionally exact for this normalization to work correctly
+        SkASSERT(GrResourceProvider::IsFunctionallyExact(proxy.get()));
         SkScalar uFactor = 65535.f / proxy->width();
         SkScalar vFactor = 65535.f / proxy->height();
         uint16_t l = (uint16_t)(texLeft*uFactor);
