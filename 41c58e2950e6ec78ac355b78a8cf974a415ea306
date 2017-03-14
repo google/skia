@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b10ba3c_ceedafa4",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-14T12:56:19Z",
+      "side": 1,
+      "message": "minor, but should this be a GrSurfaceProxy?",
+      "range": {
+        "startLine": 248,
+        "startChar": 36,
+        "endLine": 248,
+        "endChar": 50
+      },
+      "revId": "41c58e2950e6ec78ac355b78a8cf974a415ea306",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
