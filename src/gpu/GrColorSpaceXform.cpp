@@ -58,7 +58,7 @@ GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst)
 
 static SkSpinlock gColorSpaceXformCacheSpinlock;
 
-sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace* dst) {
+sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(const SkColorSpace* src, const SkColorSpace* dst) {
     if (!src || !dst) {
         // Invalid
         return nullptr;
