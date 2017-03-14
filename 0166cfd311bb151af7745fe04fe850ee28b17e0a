@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1c01cc0_516ffa32",
+        "filename": "tests/GpuSampleLocationsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-14T17:29:30Z",
+      "side": 0,
+      "message": "Glad hacks like that are gone",
+      "range": {
+        "startLine": 99,
+        "startChar": 58,
+        "endLine": 99,
+        "endChar": 0
+      },
+      "revId": "0166cfd311bb151af7745fe04fe850ee28b17e0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

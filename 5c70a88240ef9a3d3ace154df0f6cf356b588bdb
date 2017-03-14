@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb5874b3_96257ae8",
+        "filename": "src/gpu/GrAppliedClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-14T17:29:30Z",
+      "side": 1,
+      "message": "nit: can we just not define a constructor at all?",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 30
+      },
+      "revId": "5c70a88240ef9a3d3ace154df0f6cf356b588bdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
