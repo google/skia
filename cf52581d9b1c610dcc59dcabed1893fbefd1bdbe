@@ -102,6 +102,30 @@
     },
     {
       "key": {
+        "uuid": "1536bd35_cdd196da",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-14T14:08:50Z",
+      "side": 1,
+      "message": "Done, and I definitely like the loop of this much better.",
+      "parentUuid": "90d55bc8_6c63a471",
+      "range": {
+        "startLine": 774,
+        "startChar": 12,
+        "endLine": 774,
+        "endChar": 29
+      },
+      "revId": "cf52581d9b1c610dcc59dcabed1893fbefd1bdbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ef30386_5de75eb3",
         "filename": "src/gpu/effects/GrBezierEffect.cpp",
         "patchSetId": 2
