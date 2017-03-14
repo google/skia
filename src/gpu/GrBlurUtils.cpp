@@ -207,8 +207,7 @@ static void draw_path_with_mask_filter(GrContext* context,
             return;
         }
 
-        if (maskFilter->directFilterMaskGPU(context,
-                                            renderTargetContext,
+        if (maskFilter->directFilterMaskGPU(renderTargetContext,
                                             std::move(paint),
                                             clip,
                                             viewMatrix,

@@ -115,8 +115,7 @@ public:
      *  Try to directly render the mask filter into the target. Returns true if drawing was
      *  successful. If false is returned then paint is unmodified.
      */
-    virtual bool directFilterMaskGPU(GrContext*,
-                                     GrRenderTargetContext* renderTargetContext,
+    virtual bool directFilterMaskGPU(GrRenderTargetContext* renderTargetContext,
                                      GrPaint&& paint,
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
@@ -126,8 +125,7 @@ public:
      *  Try to directly render a rounded rect mask filter into the target.  Returns
      *  true if drawing was successful.  If false is returned then paint is unmodified.
      */
-    virtual bool directFilterRRectMaskGPU(GrContext*,
-                                          GrRenderTargetContext* renderTargetContext,
+    virtual bool directFilterRRectMaskGPU(GrRenderTargetContext* renderTargetContext,
                                           GrPaint&& paint,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,

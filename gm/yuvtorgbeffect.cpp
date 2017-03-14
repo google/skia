@@ -92,8 +92,7 @@ protected:
                 desc.fHeight = fBmp[i].height();
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
 
-                proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                        context->resourceProvider(),
+                proxy[i] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[i].getPixels(), fBmp[i].rowBytes());
                 if (!proxy[i]) {
@@ -225,8 +224,7 @@ protected:
                 desc.fHeight = fBmp[index].height();
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
 
-                proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                        context->resourceProvider(),
+                proxy[i] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[index].getPixels(),
                                                         fBmp[index].rowBytes());

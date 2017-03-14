@@ -35,15 +35,13 @@ public:
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
                           SkRect* maskRect) const override;
-    bool directFilterMaskGPU(GrContext*,
-                             GrRenderTargetContext* drawContext,
+    bool directFilterMaskGPU(GrRenderTargetContext* drawContext,
                              GrPaint&&,
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const SkStrokeRec& strokeRec,
                              const SkPath& path) const override;
-    bool directFilterRRectMaskGPU(GrContext*,
-                                  GrRenderTargetContext* drawContext,
+    bool directFilterRRectMaskGPU(GrRenderTargetContext* drawContext,
                                   GrPaint&&,
                                   const GrClip&,
                                   const SkMatrix& viewMatrix,
@@ -156,8 +154,7 @@ bool SkSpotShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
     return true;
 }
 
-bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrContext* context,
-                                                     GrRenderTargetContext* rtContext,
+bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrRenderTargetContext* rtContext,
                                                      GrPaint&& paint,
                                                      const GrClip& clip,
                                                      const SkMatrix& viewMatrix,
@@ -184,19 +181,18 @@ bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     // have our own GeometryProc.
     if (path.isOval(nullptr) && path.getBounds().width() == path.getBounds().height()) {
         SkRRect rrect = SkRRect::MakeOval(path.getBounds());
-        return this->directFilterRRectMaskGPU(context, rtContext, std::move(paint), clip,
+        return this->directFilterRRectMaskGPU(rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     } else if (path.isRect(nullptr)) {
         SkRRect rrect = SkRRect::MakeRect(path.getBounds());
-        return this->directFilterRRectMaskGPU(context, rtContext, std::move(paint), clip,
+        return this->directFilterRRectMaskGPU(rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     }
 
     return false;
 }
 
-bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
-                                                          GrRenderTargetContext* rtContext,
+bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrRenderTargetContext* rtContext,
                                                           GrPaint&& paint,
                                                           const GrClip& clip,
                                                           const SkMatrix& viewMatrix,
