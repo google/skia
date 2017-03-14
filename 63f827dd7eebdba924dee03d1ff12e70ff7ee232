@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83434438_e1fa34b3",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-14T14:34:53Z",
+      "side": 1,
+      "message": "nit: We should try to remove dependencies on this ordering.",
+      "range": {
+        "startLine": 680,
+        "startChar": 4,
+        "endLine": 680,
+        "endChar": 33
+      },
+      "revId": "63f827dd7eebdba924dee03d1ff12e70ff7ee232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
