@@ -29,24 +29,12 @@ public:
         if (!fSucceeded) {
             return nullptr;
         }
-        int vCount = this->vertexCount();
-        int iCount = this->indexCount();
-        // We copy here for two reasons: 1) To tighten up our arrays and 2) to get into memory
-        // allocated by new[] rather than malloc.
-        // TODO: If we know we're not caching then we should avoid this.
-        SkPoint* positions = new SkPoint[vCount];
-        SkColor* colors = new SkColor[vCount];
-        uint16_t* indices = new uint16_t[iCount];
-        memcpy(positions, fPositions.begin(), sizeof(SkPoint) * vCount);
-        memcpy(colors, fColors.begin(), sizeof(SkColor) * vCount);
-        memcpy(indices, fIndices.begin(), sizeof(uint16_t) * iCount);
-        return SkVertices::MakeIndexed(SkCanvas::kTriangles_VertexMode,
-                                       std::unique_ptr<const SkPoint[]>((const SkPoint*)positions),
-                                       std::unique_ptr<const SkColor[]>((const SkColor*)colors),
-                                       nullptr,
-                                       vCount,
-                                       std::unique_ptr<const uint16_t[]>((const uint16_t*)indices),
-                                       iCount);
+        auto v = SkVertices::MakeCopy(SkCanvas::kTriangles_VertexMode, this->vertexCount(),
+                                      fPositions.begin(), fColors.begin(), nullptr,
+                                      fIndices.begin(), nullptr);
+        SkASSERT(v->vertexCount() == this->vertexCount());
+        SkASSERT(v->indexCount() == this->indexCount());
+        return v;
     }
 
 protected:
