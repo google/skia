@@ -180,9 +180,7 @@ public:
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
-    static sk_sp<GrSurfaceProxy> MakeWrappedBackend(
-                                            GrContext*,
-                                            GrBackendTextureDesc&);
+    static sk_sp<GrSurfaceProxy> MakeWrappedBackend(GrContext*, GrBackendTextureDesc&);
 
     const GrSurfaceDesc& desc() const { return fDesc; }
 

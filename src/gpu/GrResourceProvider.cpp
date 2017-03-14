@@ -212,6 +212,34 @@ GrTexture* GrResourceProvider::findAndRefTextureByUniqueKey(const GrUniqueKey& k
     return NULL;
 }
 
+// MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
+void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(key.isValid());
+    if (this->isAbandoned() || !proxy) {
+        return;
+    }
+
+    GrTexture* texture = proxy->instantiate(this);
+    if (!texture) {
+        return;
+    }
+
+    this->assignUniqueKeyToResource(key, texture);
+}
+
+// MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
+sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key) {
+    ASSERT_SINGLE_OWNER
+
+    sk_sp<GrTexture> texture(this->findAndRefTextureByUniqueKey(key));
+    if (!texture) {
+        return nullptr;
+    }
+
+    return GrSurfaceProxy::MakeWrapped(std::move(texture));
+}
+
 const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* pattern,
                                                                int patternSize,
                                                                int reps,

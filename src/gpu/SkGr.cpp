@@ -105,25 +105,33 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
     return GrUploadPixmapToTexture(ctx, pixmap, SkBudgeted::kYes);
 }
 
-GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBudgeted budgeted) {
-    const SkPixmap* pmap = &pixmap;
-    SkPixmap tmpPixmap;
-    SkBitmap tmpBitmap;
 
-    if (!SkImageInfoIsValid(pixmap.info())) {
+sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrContext* ctx, const SkBitmap& bitmap) {
+    SkAutoLockPixels alp(bitmap);
+    if (!bitmap.readyToDraw()) {
         return nullptr;
     }
+    SkPixmap pixmap;
+    if (!bitmap.peekPixels(&pixmap)) {
+        return nullptr;
+    }
+    return GrUploadPixmapToTextureProxy(ctx, pixmap, SkBudgeted::kYes);
+}
 
-    const GrCaps* caps = ctx->caps();
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *caps);
+static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
+                                    GrSurfaceDesc* desc,
+                                    SkBitmap* tmpBitmap, SkPixmap* tmpPixmap) {
+    const SkPixmap* pmap = &pixmap;
+
+    *desc = GrImageInfoToSurfaceDesc(pixmap.info(), caps);
 
     // TODO: We're checking for srgbSupport, but we can then end up picking sBGRA as our pixel
     // config (which may not be supported). We need better fallback management here.
     SkColorSpace* colorSpace = pixmap.colorSpace();
 
-    if (caps->srgbSupport() &&
+    if (caps.srgbSupport() &&
         colorSpace && colorSpace->gammaCloseToSRGB() && !as_CSB(colorSpace)->nonLinearBlending() &&
-        !GrPixelConfigIsSRGB(desc.fConfig)) {
+        !GrPixelConfigIsSRGB(desc->fConfig)) {
         // We were supplied an sRGB-like color space, but we don't have a suitable pixel config.
         // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
         // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
@@ -136,36 +144,70 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
                                                 kN32_SkColorType, kPremul_SkAlphaType,
                                                 pixmap.info().refColorSpace());
 
-        tmpBitmap.allocPixels(dstInfo);
+        tmpBitmap->allocPixels(dstInfo);
 
         SkImageInfo linDstInfo = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
-        if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+        if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap->getPixels(), tmpBitmap->rowBytes())) {
             return nullptr;
         }
-        if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+        if (!tmpBitmap->peekPixels(tmpPixmap)) {
             return nullptr;
         }
-        pmap = &tmpPixmap;
+        pmap = tmpPixmap;
         // must rebuild desc, since we've forced the info to be N32
-        desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+        *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
     } else if (kIndex_8_SkColorType == pixmap.colorType()) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
-        tmpBitmap.allocPixels(info);
-        if (!pixmap.readPixels(info, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+        tmpBitmap->allocPixels(info);
+        if (!pixmap.readPixels(info, tmpBitmap->getPixels(), tmpBitmap->rowBytes())) {
             return nullptr;
         }
-        if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+        if (!tmpBitmap->peekPixels(tmpPixmap)) {
             return nullptr;
         }
-        pmap = &tmpPixmap;
+        pmap = tmpPixmap;
         // must rebuild desc, since we've forced the info to be N32
-        desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+        *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
     }
 
-    return ctx->resourceProvider()->createTexture(desc, budgeted, pmap->addr(),
-                                                 pmap->rowBytes());
+    return pmap;
 }
 
+GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBudgeted budgeted) {
+    if (!SkImageInfoIsValid(pixmap.info())) {
+        return nullptr;
+    }
+
+    SkBitmap tmpBitmap;
+    SkPixmap tmpPixmap;
+    GrSurfaceDesc desc;
+
+    if (const SkPixmap* pmap = compute_desc(*ctx->caps(), pixmap, &desc, &tmpBitmap, &tmpPixmap)) {
+        return ctx->resourceProvider()->createTexture(desc, budgeted, pmap->addr(),
+                                                      pmap->rowBytes());
+    }
+
+    return nullptr;
+}
+
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrContext* ctx,
+                                                   const SkPixmap& pixmap,
+                                                   SkBudgeted budgeted) {
+    if (!SkImageInfoIsValid(pixmap.info())) {
+        return nullptr;
+    }
+
+    SkBitmap tmpBitmap;
+    SkPixmap tmpPixmap;
+    GrSurfaceDesc desc;
+
+    if (const SkPixmap* pmap = compute_desc(*ctx->caps(), pixmap, &desc, &tmpBitmap, &tmpPixmap)) {
+        return GrSurfaceProxy::MakeDeferred(*ctx->caps(), ctx->resourceProvider(), desc,
+                                            budgeted, pmap->addr(), pmap->rowBytes());
+    }
+
+    return nullptr;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -270,8 +312,6 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                                                  nullptr, scaleAdjust);
 }
 
-// MDB TODO (caching): For better or for worse, this method currently side-steps the issue of
-// caching an uninstantiated proxy via a key.
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap) {
     GrUniqueKey originalKey;
 
@@ -281,29 +321,25 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap
         GrMakeKeyFromImageID(&originalKey, bitmap.pixelRef()->getGenerationID(), subset);
     }
 
-    sk_sp<GrTexture> tex;
+    sk_sp<GrTextureProxy> proxy;
 
     if (originalKey.isValid()) {
-        tex.reset(context->resourceProvider()->findAndRefTextureByUniqueKey(originalKey));
+        proxy = context->resourceProvider()->findProxyByUniqueKey(originalKey);
     }
-    if (!tex) {
-        tex.reset(GrUploadBitmapToTexture(context, bitmap));
-        if (tex && originalKey.isValid()) {
-            context->resourceProvider()->assignUniqueKeyToTexture(originalKey, tex.get());
+    if (!proxy) {
+        proxy = GrUploadBitmapToTextureProxy(context, bitmap);
+        if (proxy && originalKey.isValid()) {
+            context->resourceProvider()->assignUniqueKeyToProxy(originalKey, proxy.get());
+            // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
         }
     }
 
-    if (!tex) {
-        return nullptr;
-    }
-
-    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
     if (!proxy) {
         return nullptr;
     }
 
-    return sk_ref_sp(proxy->asTextureProxy());
+    return proxy;
 }
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
