@@ -751,27 +751,6 @@ public:
         bool allocPixelRef(SkBitmap*, SkColorTable*) override;
     };
 
-    class RLEPixels {
-    public:
-        RLEPixels(int width, int height);
-        virtual ~RLEPixels();
-
-        uint8_t* packedAtY(int y) const {
-            SkASSERT((unsigned)y < (unsigned)fHeight);
-            return fYPtrs[y];
-        }
-
-        // called by subclasses during creation
-        void setPackedAtY(int y, uint8_t* addr) {
-            SkASSERT((unsigned)y < (unsigned)fHeight);
-            fYPtrs[y] = addr;
-        }
-
-    private:
-        uint8_t** fYPtrs;
-        int       fHeight;
-    };
-
     SK_TO_STRING_NONVIRT()
 
 private:
