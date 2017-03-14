@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "fb91cffa_a89f235b",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-14T16:07:51Z",
+      "side": 1,
+      "message": "The matrix can push us out of [0, 1].  Perhaps I should be clamping multiple times? Ick.",
+      "parentUuid": "acdcc23d_2d413294",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6005775d_195bae34",
         "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
         "patchSetId": 6
@@ -81,6 +99,24 @@
       "writtenOn": "2017-03-14T12:16:05Z",
       "side": 1,
       "message": "Isn\u0027t there some fast compare method for matrices ?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd1fcbac_7cd20a0f",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-14T16:07:51Z",
+      "side": 1,
+      "message": "For SkMatrix, yes. SkMatrix44::operator\u003d\u003d has some optimizations, and I don\u0027t think we can do better.",
+      "parentUuid": "6005775d_195bae34",
       "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -104,6 +140,24 @@
     },
     {
       "key": {
+        "uuid": "b336c238_3b3fbbae",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-14T16:07:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a92fa43_f4167b6c",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c9d23f0_db9c7a87",
         "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
         "patchSetId": 6
@@ -118,6 +172,24 @@
       "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e7170fa_f95c194e",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-14T16:07:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c9d23f0_db9c7a87",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -138,6 +210,24 @@
     },
     {
       "key": {
+        "uuid": "32ee7d61_d5563461",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-14T16:07:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e23c2b08_03c04556",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9484496_cd4cffba",
         "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
         "patchSetId": 6
@@ -152,6 +242,24 @@
       "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a1770ea_015470b5",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-14T16:07:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9484496_cd4cffba",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

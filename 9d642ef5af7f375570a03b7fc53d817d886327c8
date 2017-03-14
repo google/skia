@@ -22,6 +22,30 @@
       "revId": "9d642ef5af7f375570a03b7fc53d817d886327c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bf978b6_d87dc24f",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-14T16:07:51Z",
+      "side": 1,
+      "message": "Yeah. This was a note to myself - I\u0027m thinking that I should make the unpremultiply \u0026 premultiply optional (with a single flag), as an optimization for opaque inputs.",
+      "parentUuid": "ba0b2a84_63e35e03",
+      "range": {
+        "startLine": 74,
+        "startChar": 45,
+        "endLine": 74,
+        "endChar": 59
+      },
+      "revId": "9d642ef5af7f375570a03b7fc53d817d886327c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
