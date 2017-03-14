@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ad476b2_f684b3e2",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-14T15:53:23Z",
+      "side": 1,
+      "message": "Is this comment right? I don\u0027t see it computed in MakeCopy. Or is it referring to the fact that the indices are implicitly 0,1,2...?",
+      "range": {
+        "startLine": 31,
+        "startChar": 71,
+        "endLine": 31,
+        "endChar": 90
+      },
+      "revId": "b8ebc2ada598b2d89a7db7a5cf82a4296bd954b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6965f8a1_7ec737e8",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-14T15:53:23Z",
+      "side": 1,
+      "message": "This seems wrong... \n    if (indexCount \u0026\u0026 indexCount \u003c\u003d 2) {\n?",
+      "range": {
+        "startLine": 25,
+        "startChar": 8,
+        "endLine": 25,
+        "endChar": 38
+      },
+      "revId": "b8ebc2ada598b2d89a7db7a5cf82a4296bd954b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b88b8fc7_ac472d56",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-14T15:53:23Z",
+      "side": 1,
+      "message": "Isn\u0027t it safe to pass null to sk_free?",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 15
+      },
+      "revId": "b8ebc2ada598b2d89a7db7a5cf82a4296bd954b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
