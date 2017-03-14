@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6f2dfc94_8a547eef",
+        "filename": "src/gpu/GrSurfaceProxyPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:45:03Z",
+      "side": 1,
+      "message": "Done. This will be useful since I believe this entry point will only become more convoluted and enmeshed with the GrResourceProvider\u0027s behavior over time.",
+      "parentUuid": "9557465b_b53a9c2a",
+      "revId": "9239356ed222e58dac6d599239394d0efbac7d28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "67335c1b_dbff3f67",
         "filename": "src/gpu/GrTextureProducer.cpp",
         "patchSetId": 3
