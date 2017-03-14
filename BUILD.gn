@@ -432,6 +432,11 @@ optional("gpu") {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
   }
+  if (is_debug) {
+    deps = [
+      "//third_party/spirv-tools",
+    ]
+  }
 }
 
 optional("jpeg") {

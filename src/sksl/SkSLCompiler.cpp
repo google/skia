@@ -21,6 +21,10 @@
 #include "ir/SkSLVarDeclarations.h"
 #include "SkMutex.h"
 
+#ifdef SK_DEBUG
+#include "spirv-tools/libspirv.hpp"
+#endif
+
 #define STRINGIFY(x) #x
 
 // include the built-in shader symbols as static strings
@@ -486,7 +490,6 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString t
     return result;
 }
 
-
 bool Compiler::toSPIRV(const Program& program, SkWStream& out) {
     SPIRVCodeGenerator cg(&fContext, &program, this, &out);
     bool result = cg.generateCode();
@@ -500,6 +503,15 @@ bool Compiler::toSPIRV(const Program& program, SkString* out) {
     if (result) {
         sk_sp<SkData> data(buffer.detachAsData());
         *out = SkString((const char*) data->data(), data->size());
+#ifdef SK_DEBUG
+        spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
+        SkASSERT(0 == out->size() % 4);
+        auto dumpmsg = [](spv_message_level_t, const char*, const spv_position_t&, const char* m) {
+            SkDebugf("SPIR-V validation error: %s\n", m);
+        };
+        tools.SetMessageConsumer(dumpmsg);
+        result &= tools.Validate((const uint32_t*) out->c_str(), out->size() / 4);
+#endif
     }
     return result;
 }
