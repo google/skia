@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkColor.h"
+#include "SkF16.h"
 #include "SkHalf.h"
 #include "SkOpts.h"
 #include "SkPixmap.h"
@@ -110,4 +111,15 @@ DEF_TEST(SkFloatToHalf_finite_ftz, r) {
         REPORTER_ASSERT(r, actual == expected  || actual == expected  - 1 ||
                            actual == alternate || actual == alternate - 1);
     }
+}
+
+DEF_TEST(SkF16, r) {
+    static constexpr int kCount = 5;
+    static const float kSrc[] = { 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, };
+    float16 scratch[5];
+    float result[5];
+
+    SkF32ToF16(scratch, kSrc, kCount);
+    SkF16ToF32(result, scratch, kCount);
+    REPORTER_ASSERT(r, 0 == memcmp(result, kSrc, sizeof(float) * kCount));
 }
