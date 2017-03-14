@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bbe4923_1101b803",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "Should this use a tolerance ?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce9eeaf5_bfb8bec1",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "Same here ?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a7a4557_548411be",
+        "filename": "src/core/SkColorSpace_Base.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this have a prefix of some sort ?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acdcc23d_2d413294",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "Why not clamp right after the switch to unpremul?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6005775d_195bae34",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "Isn\u0027t there some fast compare method for matrices ?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a92fa43_f4167b6c",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "Can src \u0026 dst be const ?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c9d23f0_db9c7a87",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "// A null \u0027src\u0027 or \u0027dst\u0027 means that colorspace is linear\n?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e23c2b08_03c04556",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "static const ?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9484496_cd4cffba",
+        "filename": "src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-14T12:16:05Z",
+      "side": 1,
+      "message": "// This enum specifies the ...\n?",
+      "revId": "46c49d5cb53baa7ea451260cc63fb1483f831047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
