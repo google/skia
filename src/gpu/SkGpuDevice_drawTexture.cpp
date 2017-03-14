@@ -231,8 +231,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         viewMatrix.mapRectScaleTranslate(&devClippedDstRect, clippedDstRect);
 
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-        if (mf->directFilterRRectMaskGPU(fContext.get(),
-                                         fRenderTargetContext.get(),
+        if (mf->directFilterRRectMaskGPU(this->context(), fRenderTargetContext.get(),
                                          std::move(grPaint),
                                          clip,
                                          viewMatrix,

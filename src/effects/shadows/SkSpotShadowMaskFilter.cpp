@@ -35,15 +35,13 @@ public:
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
                           SkRect* maskRect) const override;
-    bool directFilterMaskGPU(GrContext*,
-                             GrRenderTargetContext* drawContext,
+    bool directFilterMaskGPU(GrContext*, GrRenderTargetContext* drawContext,
                              GrPaint&&,
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const SkStrokeRec& strokeRec,
                              const SkPath& path) const override;
-    bool directFilterRRectMaskGPU(GrContext*,
-                                  GrRenderTargetContext* drawContext,
+    bool directFilterRRectMaskGPU(GrContext*, GrRenderTargetContext* drawContext,
                                   GrPaint&&,
                                   const GrClip&,
                                   const SkMatrix& viewMatrix,
@@ -195,7 +193,7 @@ bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     return false;
 }
 
-bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
+bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
                                                           GrRenderTargetContext* rtContext,
                                                           GrPaint&& paint,
                                                           const GrClip& clip,

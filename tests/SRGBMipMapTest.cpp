@@ -120,7 +120,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     desc.fHeight = texS;
 
     GrResourceProvider* resourceProvider = context->resourceProvider();
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(), resourceProvider,
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(resourceProvider,
                                                                desc, SkBudgeted::kNo,
                                                                texData, 0);
 
