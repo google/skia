@@ -50,7 +50,19 @@ if (!is_clang && !is_win) {
 }
 
 if (is_ios) {
-  ios_sysroot = exec_script("find_ios_sysroot.py", [], "trim string")
+  if (is_tvos) {
+    sdk = "appletvos"
+    if (target_cpu == "x86" || target_cpu == "x64") {
+      sdk = "appletvsimulator"
+    }
+    ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
+  } else {
+    sdk = "iphoneos"
+    if (target_cpu == "x86" || target_cpu == "x64") {
+      sdk = "iphonesimulator"
+    }
+    ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
+  }
 }
 
 config("default") {
@@ -186,18 +198,31 @@ config("default") {
   }
 
   if (is_ios) {
+    _target = target_cpu
+    if (target_cpu == "arm") {
+      _target = "armv7"
+    } else if (target_cpu == "x86") {
+      _target = "i386"
+    } else if (target_cpu == "x64") {
+      _target = "x86_64"
+    }
     cflags += [
       "-isysroot",
       ios_sysroot,
       "-arch",
-      target_cpu,
+      _target,
     ]
+    if (is_tvos) {
+      cflags += [
+        "-fembed-bitcode"
+      ]
+    }
     cflags_cc += [ "-stdlib=libc++" ]
     ldflags += [
       "-isysroot",
       ios_sysroot,
       "-arch",
-      target_cpu,
+      _target,
       "-stdlib=libc++",
     ]
     libs += [ "objc" ]
@@ -399,7 +424,7 @@ config("release") {
     ]
   } else {
     cflags = [
-      "-O3",
+      "-Os",
       "-momit-leaf-frame-pointer",
     ]
   }
