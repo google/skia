@@ -36,8 +36,8 @@ public:
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
-    GrTextureAdjuster(GrTexture*, SkAlphaType, const SkIRect& area, uint32_t uniqueID,
-                      SkColorSpace*);
+    GrTextureAdjuster(GrContext*, GrTexture*, SkAlphaType, const SkIRect& area,
+                      uint32_t uniqueID, SkColorSpace*);
 
 protected:
     SkAlphaType alphaType() const override { return fAlphaType; }
@@ -46,18 +46,21 @@ protected:
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
     GrTexture* originalTexture() const { return fOriginal; }
+    sk_sp<GrTextureProxy> originalProxyRef();
 
     /** Returns the content area or null for the whole original texture */
     const SkIRect* contentAreaOrNull() { return fContentArea.getMaybeNull(); }
 
 private:
     SkTLazy<SkIRect>    fContentArea;
+    GrContext*          fContext;
     GrTexture*          fOriginal;
     SkAlphaType         fAlphaType;
     SkColorSpace*       fColorSpace;
     uint32_t            fUniqueID;
 
     GrTexture* refCopy(const CopyParams &copyParams);
+    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams &copyParams);
 
     typedef GrTextureProducer INHERITED;
 };
