@@ -49,7 +49,13 @@ if (!is_clang && !is_win) {
                          "value")
 }
 
-if (is_ios) {
+if (is_tvos) {
+  sdk = "appletvos"
+  if (target_cpu == "x86" || target_cpu == "x64") {
+    sdk = "appletvsimulator"
+  }
+  ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
+} else if (is_ios) {
   sdk = "iphoneos"
   if (target_cpu == "x86" || target_cpu == "x64") {
     sdk = "iphonesimulator"
