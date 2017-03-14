@@ -141,8 +141,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(
-                                                                                provider,
-                                                                                caps, desc,
+                                                                                provider, desc,
                                                                                 fit, budgeted));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
@@ -175,10 +174,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(provider,
-                                                                                          caps,
-                                                                                          desc,
-                                                                                          fit,
-                                                                                          budgeted));
+                                                                                         desc,
+                                                                                         fit,
+                                                                                         budgeted));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     // This forces the proxy to compute and cache its pre-instantiation

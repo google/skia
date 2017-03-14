@@ -12,7 +12,6 @@
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
-#include "GrSurfaceContextPriv.h"
 #include "ops/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,11 +207,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (useCache) {
         proxy = fResourceProvider->findProxyByUniqueKey(maskKey);
     }
-    GrContext* context = args.fRenderTargetContext->surfPriv().getContext();
     if (!proxy) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
-        proxy = GrSWMaskHelper::DrawShapeMaskToTexture(context, *args.fShape,
+        proxy = GrSWMaskHelper::DrawShapeMaskToTexture(args.fContext, *args.fShape,
                                                        *boundsForMask, aa,
                                                        fit, args.fViewMatrix);
         if (!proxy) {
@@ -228,7 +226,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                           unclippedDevShapeBounds);
     }
     GrSWMaskHelper::DrawToTargetWithShapeMask(
-            context, std::move(proxy), args.fRenderTargetContext, std::move(args.fPaint),
+            args.fContext, std::move(proxy), args.fRenderTargetContext, std::move(args.fPaint),
             *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
             SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
 

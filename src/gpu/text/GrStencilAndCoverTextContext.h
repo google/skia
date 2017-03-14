@@ -89,7 +89,7 @@ private:
         typedef GrDrawPathRangeOp::InstanceData InstanceData;
 
         SkGlyphCache* getGlyphCache() const;
-        GrPathRange* createGlyphs(GrContext*) const;
+        GrPathRange* createGlyphs(GrResourceProvider*) const;
         void appendGlyph(const SkGlyph&, const SkPoint&, FallbackBlobBuilder*);
 
         GrStyle                         fStyle;

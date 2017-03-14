@@ -71,8 +71,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     }
 
     // Test that we can create an integer texture.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                               context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                                desc, SkBudgeted::kYes,
                                                                testData.get(),
                                                                kRowBytes);

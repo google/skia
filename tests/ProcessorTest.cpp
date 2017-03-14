@@ -142,7 +142,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
             bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
             sk_sp<GrTextureProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                      *context->caps(), desc,
+                                                                      desc,
                                                                       SkBackingFit::kExact,
                                                                       SkBudgeted::kYes));
             sk_sp<GrTexture> texture2(
@@ -315,8 +315,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     }
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                   context->resourceProvider(),
+    sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                                    desc, SkBudgeted::kYes,
                                                                    rgbaData.get(),
                                                                    256 * sizeof(GrColor));

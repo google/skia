@@ -106,7 +106,8 @@ GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
 }
 
 
-sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrContext* ctx, const SkBitmap& bitmap) {
+sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceProvider,
+                                                   const SkBitmap& bitmap) {
     SkAutoLockPixels alp(bitmap);
     if (!bitmap.readyToDraw()) {
         return nullptr;
@@ -115,7 +116,7 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrContext* ctx, const SkBitma
     if (!bitmap.peekPixels(&pixmap)) {
         return nullptr;
     }
-    return GrUploadPixmapToTextureProxy(ctx, pixmap, SkBudgeted::kYes);
+    return GrUploadPixmapToTextureProxy(resourceProvider, pixmap, SkBudgeted::kYes);
 }
 
 static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
@@ -190,7 +191,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
     return nullptr;
 }
 
-sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrContext* ctx,
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
                                                    const SkPixmap& pixmap,
                                                    SkBudgeted budgeted) {
     if (!SkImageInfoIsValid(pixmap.info())) {
@@ -201,8 +202,9 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrContext* ctx,
     SkPixmap tmpPixmap;
     GrSurfaceDesc desc;
 
-    if (const SkPixmap* pmap = compute_desc(*ctx->caps(), pixmap, &desc, &tmpBitmap, &tmpPixmap)) {
-        return GrSurfaceProxy::MakeDeferred(*ctx->caps(), ctx->resourceProvider(), desc,
+    if (const SkPixmap* pmap = compute_desc(*resourceProvider->caps(), pixmap, &desc,
+                                            &tmpBitmap, &tmpPixmap)) {
+        return GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
                                             budgeted, pmap->addr(), pmap->rowBytes());
     }
 
@@ -312,7 +314,8 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                                                  nullptr, scaleAdjust);
 }
 
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap) {
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvider,
+                                              const SkBitmap& bitmap) {
     GrUniqueKey originalKey;
 
     if (!bitmap.isVolatile()) {
@@ -324,12 +327,12 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap
     sk_sp<GrTextureProxy> proxy;
 
     if (originalKey.isValid()) {
-        proxy = context->resourceProvider()->findProxyByUniqueKey(originalKey);
+        proxy = resourceProvider->findProxyByUniqueKey(originalKey);
     }
     if (!proxy) {
-        proxy = GrUploadBitmapToTextureProxy(context, bitmap);
+        proxy = GrUploadBitmapToTextureProxy(resourceProvider, bitmap);
         if (proxy && originalKey.isValid()) {
-            context->resourceProvider()->assignUniqueKeyToProxy(originalKey, proxy.get());
+            resourceProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
             // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
         }

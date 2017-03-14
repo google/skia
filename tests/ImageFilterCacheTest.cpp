@@ -193,7 +193,7 @@ static GrTexture* create_texture(GrContext* context) {
     return context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
 }
 
-static sk_sp<GrTextureProxy> create_proxy(GrContext* context) {
+static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) {
     SkBitmap srcBM = create_bm();
 
     GrSurfaceDesc desc;
@@ -202,8 +202,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* context) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    return GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                        context->resourceProvider(),
+    return GrSurfaceProxy::MakeDeferred(resourceProvider,
                                         desc, SkBudgeted::kYes,
                                         srcBM.getPixels(),
                                         srcBM.rowBytes());
@@ -254,7 +253,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->resourceProvider()));
     if (!srcProxy) {
         return;
     }

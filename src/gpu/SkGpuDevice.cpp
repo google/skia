@@ -14,7 +14,6 @@
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrStyle.h"
-#include "GrSurfaceContextPriv.h"
 #include "GrTextureAdjuster.h"
 #include "GrTextureProxy.h"
 #include "GrTracing.h"
@@ -459,7 +458,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
                     // we used to test finalIRect for quickReject, but that seems unlikely
                     // given that the original shape was not rejected...
 
-                    if (mf->directFilterRRectMaskGPU(fContext.get(), fRenderTargetContext.get(),
+                    if (mf->directFilterRRectMaskGPU(this->context(), fRenderTargetContext.get(),
                                                      std::move(grPaint), this->clip(), this->ctm(),
                                                      style.strokeRec(), rrect, devRRect)) {
                         return;
@@ -1272,7 +1271,7 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
     // TODO: this makes a tight copy of 'bitmap' but it doesn't have to be (given SkSpecialImage's
     // semantics). Since this is cached we would have to bake the fit into the cache key though.
-    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(fContext.get(), bitmap);
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(fContext->resourceProvider(), bitmap);
     if (!proxy) {
         return nullptr;
     }
@@ -1547,10 +1546,10 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
     this->drawProducerLattice(&maker, lattice, dst, paint);
 }
 
-bool init_vertices_paint(const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
-                         bool hasTexs, bool hasColors, GrRenderTargetContext* rtc,
-                         GrPaint* grPaint) {
-    GrContext* context = rtc->surfPriv().getContext();
+static bool init_vertices_paint(GrContext* context, GrRenderTargetContext* rtc,
+                                const SkPaint& skPaint,
+                                const SkMatrix& matrix, SkBlendMode bmode,
+                                bool hasTexs, bool hasColors, GrPaint* grPaint) {
     if (hasTexs && skPaint.getShader()) {
         if (hasColors) {
             // When there are texs and colors the shader and colors are combined using bmode.
@@ -1643,8 +1642,9 @@ void SkGpuDevice::drawVertices(SkCanvas::VertexMode vmode,
     GrPrimitiveType primType = SkVertexModeToGrPrimitiveType(vmode);
 
     GrPaint grPaint;
-    if (!init_vertices_paint(paint, this->ctm(), bmode, SkToBool(texs), SkToBool(colors),
-                             fRenderTargetContext.get(), &grPaint)) {
+    if (!init_vertices_paint(fContext.get(), fRenderTargetContext.get(),
+                             paint, this->ctm(), bmode, SkToBool(texs),
+                             SkToBool(colors), &grPaint)) {
         return;
     }
     fRenderTargetContext->drawVertices(this->clip(),
@@ -1676,8 +1676,8 @@ void SkGpuDevice::drawVerticesObject(sk_sp<SkVertices> vertices,
                            nullptr, nullptr, mode, vertices->indices(), vertices->indexCount(),
                            paint);
     }
-    if (!init_vertices_paint(paint, this->ctm(), mode, hasTexs, hasColors,
-                             fRenderTargetContext.get(), &grPaint)) {
+    if (!init_vertices_paint(fContext.get(), fRenderTargetContext.get(), paint, this->ctm(),
+                             mode, hasTexs, hasColors, &grPaint)) {
         return;
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->ctm(),

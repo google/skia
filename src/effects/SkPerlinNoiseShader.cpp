@@ -915,9 +915,9 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader::asFragmentProcessor(const AsFPAr
     SkPerlinNoiseShader::PaintingData* paintingData =
             new PaintingData(fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, matrix);
     sk_sp<GrTextureProxy> permutationsProxy(GrMakeCachedBitmapProxy(
-                                                            args.fContext,
+                                                            args.fContext->resourceProvider(),
                                                             paintingData->getPermutationsBitmap()));
-    sk_sp<GrTextureProxy> noiseProxy(GrMakeCachedBitmapProxy(args.fContext,
+    sk_sp<GrTextureProxy> noiseProxy(GrMakeCachedBitmapProxy(args.fContext->resourceProvider(),
                                                              paintingData->getNoiseBitmap()));
 
     SkMatrix m = *args.fViewMatrix;

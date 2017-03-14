@@ -13,7 +13,6 @@
 #include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
-#include "GrSurfaceContextPriv.h"
 #include "GrTextUtils.h"
 #include "SkAutoKern.h"
 #include "SkDraw.h"
@@ -528,22 +527,23 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
     fFallbackTextBlob = fallback.makeIfNeeded(&fFallbackGlyphCount);
 }
 
-GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(GrContext* ctx) const {
+GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(
+                                                    GrResourceProvider* resourceProvider) const {
     GrPathRange* glyphs = static_cast<GrPathRange*>(
-            ctx->resourceProvider()->findAndRefResourceByUniqueKey(fGlyphPathsKey));
+            resourceProvider->findAndRefResourceByUniqueKey(fGlyphPathsKey));
     if (nullptr == glyphs) {
         if (fUsingRawGlyphPaths) {
             SkScalerContextEffects noeffects;
-            glyphs = ctx->resourceProvider()->createGlyphs(fFont.getTypeface(), noeffects,
-                                                           nullptr, fStyle);
+            glyphs = resourceProvider->createGlyphs(fFont.getTypeface(), noeffects,
+                                                    nullptr, fStyle);
         } else {
             SkGlyphCache* cache = this->getGlyphCache();
-            glyphs = ctx->resourceProvider()->createGlyphs(cache->getScalerContext()->getTypeface(),
-                                                           cache->getScalerContext()->getEffects(),
-                                                           &cache->getDescriptor(),
-                                                           fStyle);
+            glyphs = resourceProvider->createGlyphs(cache->getScalerContext()->getTypeface(),
+                                                    cache->getScalerContext()->getEffects(),
+                                                    &cache->getDescriptor(),
+                                                    fStyle);
         }
-        ctx->resourceProvider()->assignUniqueKeyToResource(fGlyphPathsKey, glyphs);
+        resourceProvider->assignUniqueKeyToResource(fGlyphPathsKey, glyphs);
     }
     return glyphs;
 }
@@ -585,7 +585,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                 0xffff>()
         );
 
-        sk_sp<GrPathRange> glyphs(this->createGlyphs(ctx));
+        sk_sp<GrPathRange> glyphs(this->createGlyphs(ctx->resourceProvider()));
         if (fLastDrawnGlyphsID != glyphs->uniqueID()) {
             // Either this is the first draw or the glyphs object was purged since last draw.
             glyphs->loadPathsIfNeeded(fInstanceData->indices(), fInstanceData->count());
@@ -593,9 +593,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         }
 
         GrPaint grPaint;
-        GrContext* context = renderTargetContext->surfPriv().getContext();
-        if (!SkPaintToGrPaint(context, renderTargetContext, originalSkPaint, viewMatrix,
-                              &grPaint)) {
+        if (!SkPaintToGrPaint(ctx, renderTargetContext, originalSkPaint, viewMatrix, &grPaint)) {
             return;
         }
 

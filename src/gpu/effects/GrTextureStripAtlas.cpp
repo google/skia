@@ -210,7 +210,7 @@ void GrTextureStripAtlas::lockTexture() {
     sk_sp<GrTextureProxy> proxy = fDesc.fContext->resourceProvider()->findProxyByUniqueKey(key);
     if (!proxy) {
         proxy = GrSurfaceProxy::MakeDeferred(fDesc.fContext->resourceProvider(),
-                                             *fDesc.fContext->caps(), texDesc, SkBackingFit::kExact,
+                                             texDesc, SkBackingFit::kExact,
                                              SkBudgeted::kYes,
                                              GrResourceProvider::kNoPendingIO_Flag);
         if (!proxy) {

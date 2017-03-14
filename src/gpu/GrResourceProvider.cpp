@@ -9,6 +9,7 @@
 
 #include "GrBuffer.h"
 #include "GrCaps.h"
+#include "GrContext.h"
 #include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
@@ -36,6 +37,8 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
         , fSingleOwner(owner)
 #endif
         {
+    fCaps = sk_ref_sp(fGpu->caps());
+
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
     fQuadIndexBufferKey = gQuadIndexBufferKey;
 }

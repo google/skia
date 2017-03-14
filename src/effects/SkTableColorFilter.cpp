@@ -388,7 +388,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    ColorTableEffect(GrContext* context, sk_sp<GrTextureProxy> proxy,
+    ColorTableEffect(GrResourceProvider* , sk_sp<GrTextureProxy> proxy,
                      GrTextureStripAtlas* atlas, int row, unsigned flags);
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -490,6 +490,8 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, const SkBi
     desc.fWidth  = bitmap.width();
     desc.fHeight = 128;
     desc.fRowHeight = bitmap.height();
+
+    // TODO: this seems a bit heavy handed (passing a GrContext as part of the desc)
     desc.fContext = context;
     desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *context->caps());
     GrTextureStripAtlas* atlas = GrTextureStripAtlas::GetAtlas(desc);
@@ -498,7 +500,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, const SkBi
     if (-1 == row) {
         atlas = nullptr;
 
-        proxy = GrMakeCachedBitmapProxy(context, bitmap);
+        proxy = GrMakeCachedBitmapProxy(context->resourceProvider(), bitmap);
     } else {
         proxy = atlas->asTextureProxyRef();
     }
@@ -507,14 +509,16 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, const SkBi
         return nullptr;
     }
 
-    return sk_sp<GrFragmentProcessor>(new ColorTableEffect(context, std::move(proxy),
+    return sk_sp<GrFragmentProcessor>(new ColorTableEffect(context->resourceProvider(),
+                                                           std::move(proxy),
                                                            atlas, row, flags));
 }
 
-ColorTableEffect::ColorTableEffect(GrContext* context, sk_sp<GrTextureProxy> proxy,
+ColorTableEffect::ColorTableEffect(GrResourceProvider* resourceProvider,
+                                   sk_sp<GrTextureProxy> proxy,
                                    GrTextureStripAtlas* atlas, int row, unsigned flags)
         : INHERITED(kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
-        , fTextureSampler(context->resourceProvider(), std::move(proxy))
+        , fTextureSampler(resourceProvider, std::move(proxy))
         , fAtlas(atlas)
         , fRow(row) {
     this->initClassID<ColorTableEffect>();

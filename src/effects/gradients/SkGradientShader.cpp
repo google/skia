@@ -1710,7 +1710,9 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                 // Only the x-tileMode is unknown. However, given all the other knowns we know
                 // that GrMakeCachedBitmapProxy is sufficient (i.e., it won't need to be
                 // extracted to a subset or mipmapped).
-                sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(args.fContext, bitmap);
+                sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
+                                                                args.fContext->resourceProvider(),
+                                                                bitmap);
                 if (!proxy) {
                     return;
                 }

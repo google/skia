@@ -41,6 +41,7 @@ static const int kLargeDFFontLimit = 2 * kLargeDFFontSize;
 
 bool GrTextUtils::Paint::toGrPaint(GrMaskFormat maskFormat, GrRenderTargetContext* rtc,
                                    const SkMatrix& viewMatrix, GrPaint* grPaint) const {
+    // TODO: this is the last use of GrSurfaceContextPriv
     GrContext* context = rtc->surfPriv().getContext();
     if (kARGB_GrMaskFormat == maskFormat) {
         return SkPaintToGrPaintWithPrimitiveColor(context, rtc, this->skPaint(), grPaint);
