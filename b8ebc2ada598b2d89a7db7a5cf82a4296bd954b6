@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3d7ed92e_b453ab10",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-14T16:04:30Z",
+      "side": 1,
+      "message": "left over comment -- fixed",
+      "parentUuid": "3ad476b2_f684b3e2",
+      "range": {
+        "startLine": 31,
+        "startChar": 71,
+        "endLine": 31,
+        "endChar": 90
+      },
+      "revId": "b8ebc2ada598b2d89a7db7a5cf82a4296bd954b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6965f8a1_7ec737e8",
         "filename": "src/core/SkVertices.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-14T15:53:23Z",
       "side": 1,
       "message": "This seems wrong... \n    if (indexCount \u0026\u0026 indexCount \u003c\u003d 2) {\n?",
+      "range": {
+        "startLine": 25,
+        "startChar": 8,
+        "endLine": 25,
+        "endChar": 38
+      },
+      "revId": "b8ebc2ada598b2d89a7db7a5cf82a4296bd954b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afc59a33_4633e7a0",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-14T16:04:30Z",
+      "side": 1,
+      "message": "doh\nDone",
+      "parentUuid": "6965f8a1_7ec737e8",
       "range": {
         "startLine": 25,
         "startChar": 8,
@@ -68,6 +116,30 @@
       "revId": "b8ebc2ada598b2d89a7db7a5cf82a4296bd954b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0048bac_1286ff4f",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-14T16:04:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b88b8fc7_ac472d56",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 15
+      },
+      "revId": "b8ebc2ada598b2d89a7db7a5cf82a4296bd954b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
