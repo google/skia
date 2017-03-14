@@ -10,6 +10,7 @@
 
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkData.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
@@ -90,6 +91,10 @@ public:
     }
 
     const SkRect& bounds() const { return fBounds; }
+
+
+    static sk_sp<SkVertices> Decode(const void*, size_t);
+    sk_sp<SkData> encode() const;
 
 private:
     SkVertices() {}
