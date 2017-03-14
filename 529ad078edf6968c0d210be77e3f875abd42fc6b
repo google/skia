@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a79d7bb7_0b2994ae",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-14T18:14:13Z",
+      "side": 1,
+      "message": "This slightly scares me. The resource provider itself checks for abandonment and returns nullptrs which I think we\u0027re decent about checking for. This would make each caller add an additional check for a null resource provider which seems redundant and error prone.",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 28
+      },
+      "revId": "529ad078edf6968c0d210be77e3f875abd42fc6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "175486b5_3c5f5dae",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-14T18:14:13Z",
+      "side": 1,
+      "message": "similar to above concern... Should we make GrRP take a ref to caps at creation so callers of this don\u0027t have to check for nullptr? GrContext does this.",
+      "range": {
+        "startLine": 49,
+        "startChar": 11,
+        "endLine": 49,
+        "endChar": 54
+      },
+      "revId": "529ad078edf6968c0d210be77e3f875abd42fc6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
