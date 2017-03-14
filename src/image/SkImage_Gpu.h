@@ -38,8 +38,8 @@ public:
     }
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
+    sk_sp<GrTextureProxy> asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+                                       sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override {
@@ -51,9 +51,9 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
-    sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
+    sk_sp<GrTextureProxy> refPinnedTexture(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
-        return sk_ref_sp(this->peekTexture());
+        return fProxy;
     }
 
     bool onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
