@@ -40,6 +40,7 @@ public:
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                             sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     bool onIsLazyGenerated() const override { return true; }
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
 private:
     mutable SkImageCacherator fCache;
@@ -113,6 +114,23 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     const SkIRect generatorSubset = subset.makeOffset(fCache.fOrigin.x(), fCache.fOrigin.y());
     SkImageCacherator::Validator validator(fCache.fSharedGenerator, &generatorSubset);
     return validator ? sk_sp<SkImage>(new SkImage_Generator(&validator)) : nullptr;
+}
+
+sk_sp<SkImage> SkImage_Generator::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+    SkBitmap dst;
+    SkImageInfo dstInfo = fCache.info().makeColorSpace(target);
+    if (kIndex_8_SkColorType == dstInfo.colorType() ||
+        kGray_8_SkColorType == dstInfo.colorType()) {
+        dstInfo = dstInfo.makeColorType(kN32_SkColorType);
+    }
+    dst.allocPixels(dstInfo);
+
+    if (!fCache.directGeneratePixels(dstInfo, dst.getPixels(), dst.rowBytes(), 0, 0)) {
+        return nullptr;
+    }
+
+    dst.setImmutable();
+    return SkImage::MakeFromBitmap(dst);
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator,
