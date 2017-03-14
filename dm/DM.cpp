@@ -1089,7 +1089,7 @@ struct Task {
             }
 
             // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
-            SkStreamAsset* data = stream.detachAsStream();
+            SkStreamAsset* data = stream.detachAsStream().release();
             gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
                 std::unique_ptr<SkStreamAsset> ownedData(data);
 
