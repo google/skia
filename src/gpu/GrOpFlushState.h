@@ -96,22 +96,30 @@ public:
         fIndexPool.reset();
     }
 
+    /** Additional data required on a per-op basis when executing GrDrawOps. */
+    struct DrawOpArgs {
+        GrRenderTarget* fRenderTarget;
+        const GrAppliedClip* fAppliedClip;
+        GrXferProcessor::DstTexture fDstTexture;
+    };
+
+    void setDrawOpArgs(DrawOpArgs* opArgs) { fOpArgs = opArgs; }
+
+    const DrawOpArgs& drawOpArgs() const {
+        SkASSERT(fOpArgs);
+        return *fOpArgs;
+    }
+
 private:
-
     GrGpu*                                      fGpu;
-
     GrResourceProvider*                         fResourceProvider;
-
     GrGpuCommandBuffer*                         fCommandBuffer;
-
     GrVertexBufferAllocPool                     fVertexPool;
     GrIndexBufferAllocPool                      fIndexPool;
-
     SkSTArray<4, GrDrawOp::DeferredUploadFn>    fAsapUploads;
-
     GrDrawOpUploadToken                         fLastIssuedToken;
-
     GrDrawOpUploadToken                         fLastFlushedToken;
+    DrawOpArgs*                                 fOpArgs;
 };
 
 /**
