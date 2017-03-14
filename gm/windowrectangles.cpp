@@ -155,7 +155,8 @@ public:
                                                                SkIRect::MakeWH(w, h), {x, y});
     }
 private:
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out) const override {
+    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
+               SkRect* bounds) const override {
         out->addCoverageFP(fFP);
         return true;
     }
@@ -167,7 +168,8 @@ private:
  */
 class StencilOnlyClip final : public MaskOnlyClipBase {
 private:
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out) const override {
+    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
+               SkRect* bounds) const override {
         out->addStencilClip();
         return true;
     }
