@@ -1799,10 +1799,16 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint ver
                          indexCount, paint);
 }
 
-void SkCanvas::drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
+void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
+                            const SkPaint& paint, uint32_t flags) {
+    RETURN_ON_NULL(vertices);
+    this->onDrawVerticesObject(vertices.get(), mode, paint, flags);
+}
+
+void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint,
                             uint32_t flags) {
     RETURN_ON_NULL(vertices);
-    this->onDrawVerticesObject(std::move(vertices), mode, paint, flags);
+    this->onDrawVerticesObject(vertices, mode, paint, flags);
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
@@ -2671,7 +2677,7 @@ void SkCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
     LOOPER_END
 }
 
-void SkCanvas::onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode bmode,
+void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
                                     const SkPaint& paint, uint32_t flags) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawVertices()");
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
@@ -2684,8 +2690,8 @@ void SkCanvas::onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode bmod
     LOOPER_END
 }
 
-void SkCanvas::onDrawVerticesObjectFallback(sk_sp<SkVertices> vertices, SkBlendMode mode,
-                                            const SkPaint& paint, uint32_t flags) {
+void SkCanvas::devolveSkVerticesToRaw(const SkVertices* vertices, SkBlendMode mode,
+                                      const SkPaint& paint, uint32_t flags) {
     const SkPoint* texs =
             (flags & SkCanvas::kIgnoreTexCoords_VerticesFlag) ? nullptr : vertices->texCoords();
     const SkColor* colors = (flags & kIgnoreColors_VerticesFlag) ? nullptr : vertices->colors();

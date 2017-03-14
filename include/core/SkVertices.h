@@ -20,7 +20,7 @@
  * encouraged to provide a bounds on the vertex positions if they can compute one more cheaply than
  * looping over the positions.
  */
-class SkVertices : public SkNVRefCnt<SkVertices> {
+class SkVertices : public SkRefCnt {
 public:
     ~SkVertices() { sk_free((void*)fPositions); }
 
@@ -74,6 +74,7 @@ public:
 
     SkCanvas::VertexMode mode() const { return fMode; }
 
+    uint32_t uniqueID() const { return fUniqueID; }
     int vertexCount() const { return fVertexCnt; }
     bool hasColors() const { return SkToBool(fColors); }
     bool hasTexCoords() const { return SkToBool(fTexs); }
@@ -92,7 +93,6 @@ public:
 
     const SkRect& bounds() const { return fBounds; }
 
-
     static sk_sp<SkVertices> Decode(const void*, size_t);
     sk_sp<SkData> encode() const;
 
@@ -104,6 +104,7 @@ private:
     const SkColor* fColors;
     const uint16_t* fIndices;
     SkRect fBounds;
+    uint32_t fUniqueID;
     int fVertexCnt;
     int fIndexCnt;
     SkCanvas::VertexMode fMode;
