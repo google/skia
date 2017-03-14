@@ -243,6 +243,10 @@ public:
         fGpu = NULL;
     }
 
+    // 'Proxy' is about to be used as a texture src. This query can be used to determine if
+    // it is going to need a texture domain.
+    static bool IsFunctionallyExact(GrTextureProxy* proxy);
+
 private:
     GrTexture* internalCreateApproxTexture(const GrSurfaceDesc& desc, uint32_t scratchTextureFlags);
 

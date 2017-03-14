@@ -17,6 +17,7 @@
 #include "GrResourceKey.h"
 #include "GrSemaphore.h"
 #include "GrStencilAttachment.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
 #include "../private/GrSingleOwner.h"
 #include "SkMathPriv.h"
@@ -39,6 +40,9 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     fQuadIndexBufferKey = gQuadIndexBufferKey;
 }
 
+bool GrResourceProvider::IsFunctionallyExact(GrTextureProxy* proxy) {
+    return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
+}
 
 GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
                                                       SkBudgeted budgeted, const GrMipLevel* texels,

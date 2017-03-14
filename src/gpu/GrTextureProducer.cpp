@@ -8,6 +8,9 @@
 #include "GrTextureProducer.h"
 #include "GrClip.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceProvider.h"
+#include "GrSurfaceProxy.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -61,6 +64,64 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
     copyRTC->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
                             localRect);
     return copyRTC->asTexture().release();
+}
+
+sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
+                                                   sk_sp<GrTextureProxy> inputProxy,
+                                                   const SkIRect* subset,
+                                                   const CopyParams& copyParams) {
+    SkASSERT(!subset || !subset->isEmpty());
+    SkASSERT(context);
+
+    GrPixelConfig config = GrMakePixelConfigUncompressed(inputProxy->config());
+
+    const SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
+
+    sk_sp<GrRenderTargetContext> copyRTC = context->makeRenderTargetContextWithFallback(
+        SkBackingFit::kExact, dstRect.width(), dstRect.height(), config, nullptr);
+    if (!copyRTC) {
+        return nullptr;
+    }
+
+    GrPaint paint;
+    paint.setGammaCorrect(true);
+
+    SkRect localRect;
+    if (subset) {
+        localRect = SkRect::Make(*subset);
+    } else {
+        localRect = SkRect::MakeWH(inputProxy->width(), inputProxy->height());
+    }
+
+    bool needsDomain = false;
+    if (copyParams.fFilter != GrSamplerParams::kNone_FilterMode) {
+        bool resizing = subset->width() != dstRect.width() || subset->height() != dstRect.height();
+
+        if (GrResourceProvider::IsFunctionallyExact(inputProxy.get())) {
+            needsDomain = subset && resizing;
+        } else {
+            needsDomain = resizing;
+        }
+    }
+
+    if (needsDomain) {
+        const SkRect domain = localRect.makeInset(0.5f, 0.5f);
+        // This would cause us to read values from outside the subset. Surely, the caller knows
+        // better!
+        SkASSERT(copyParams.fFilter != GrSamplerParams::kMipMap_FilterMode);
+        paint.addColorFragmentProcessor(
+            GrTextureDomainEffect::Make(context, std::move(inputProxy), nullptr, SkMatrix::I(),
+                                        domain, GrTextureDomain::kClamp_Mode, copyParams.fFilter));
+    } else {
+        GrSamplerParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
+        paint.addColorTextureProcessor(context, std::move(inputProxy),
+                                       nullptr, SkMatrix::I(), params);
+    }
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+
+    copyRTC->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
+                            localRect);
+    return copyRTC->asTextureProxyRef();
 }
 
 /** Determines whether a texture domain is necessary and if so what domain to use. There are two
@@ -230,6 +291,40 @@ sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAn
                 { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
             return GrBicubicEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
                                          kClampClamp);
+        }
+    }
+}
+
+sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
+                                        GrContext* context,
+                                        sk_sp<GrTextureProxy> proxy,
+                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                        const SkMatrix& textureMatrix,
+                                        DomainMode domainMode,
+                                        const SkRect& domain,
+                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic) {
+    SkASSERT(kTightCopy_DomainMode != domainMode);
+    if (filterOrNullForBicubic) {
+        if (kDomain_DomainMode == domainMode) {
+            return GrTextureDomainEffect::Make(context, std::move(proxy),
+                                               std::move(colorSpaceXform), textureMatrix,
+                                               domain, GrTextureDomain::kClamp_Mode,
+                                               *filterOrNullForBicubic);
+        } else {
+            GrSamplerParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
+            return GrSimpleTextureEffect::Make(context, std::move(proxy),
+                                               std::move(colorSpaceXform), textureMatrix,
+                                               params);
+        }
+    } else {
+        if (kDomain_DomainMode == domainMode) {
+            return GrBicubicEffect::Make(context, std::move(proxy), std::move(colorSpaceXform),
+                                         textureMatrix, domain);
+        } else {
+            static const SkShader::TileMode kClampClamp[] =
+                { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
+            return GrBicubicEffect::Make(context, std::move(proxy), std::move(colorSpaceXform),
+                                         textureMatrix, kClampClamp);
         }
     }
 }
