@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75966bdf_b01644c3",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1093,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-14T19:16:52Z",
+      "side": 1,
+      "message": "With generalized lambda capture we could just write \u0027data\u003dstd::move(data)\u0027 here and forget the \u0027.release()\u0027 and \u0027ownedData\u0027. It looks like there is support in gcc 4.5/4.9, clang 3.4, and msvc 14.0 (2015). So in theory we could probably use it. Unfortunately we probably can\u0027t because of Chromium\u0027s build. Ah well, this is the best we\u0027re going to do for now then.",
+      "range": {
+        "startLine": 1093,
+        "startChar": 60,
+        "endLine": 1093,
+        "endChar": 64
+      },
+      "revId": "5788c32abcf63c565529e8a5b4c139f4b954dd58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
