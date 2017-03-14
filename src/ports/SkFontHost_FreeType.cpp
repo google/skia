@@ -1713,7 +1713,7 @@ FT_Face SkTypeface_FreeType::Scanner::openFace(SkStreamAsset* stream, int ttcInd
         args.stream = ftStream;
     }
 
-    FT_Face face;
+    FT_Face face = nullptr;
     if (FT_Open_Face(fLibrary, &args, ttcIndex, &face)) {
         return nullptr;
     }
