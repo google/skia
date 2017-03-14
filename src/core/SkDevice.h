@@ -264,6 +264,12 @@ protected:
     virtual void drawTextRSXform(const void* text, size_t len, const SkRSXform[],
                                  const SkPaint&);
 
+    // Returns whether the specific SkDrawable passed in is supported to be drawn by the SkDevice.
+    virtual bool isDrawableSupported(SkDrawable*) const { return false; }
+    // Currently we are passing in the clip stack from canvas. However, once each device tracks its
+    // own clip, this parameter should be removed.
+    virtual void drawDrawable(SkDrawable*, const SkMatrix&, const SkClipStack*) {}
+
     virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);

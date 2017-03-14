@@ -1760,6 +1760,18 @@ void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkGpuDevice::isDrawableSupported(SkDrawable* drawable) const {
+    return kVulkan_GrBackend == this->context()->getBackend() && drawable->isDrawVulkanSupported();
+}
+
+void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix& matrix,
+                               const SkClipStack* clip) {
+    SkASSERT(this->isDrawableSupported(drawable));
+    // TODO: Create a drawable Op here
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
     return GrTextUtils::ShouldDisableLCD(paint);
 }

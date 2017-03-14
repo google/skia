@@ -76,6 +76,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
     ASSERT_SINGLE_OWNER
     SkASSERT(!fGpu);
 
+    fBackend = backend;
+
     fGpu = GrGpu::Create(backend, backendContext, options, this);
     if (!fGpu) {
         return false;

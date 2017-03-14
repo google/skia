@@ -112,6 +112,9 @@ public:
     void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&,
                            const SkRect& dst, const SkPaint&) override;
 
+    bool isDrawableSupported(SkDrawable*) const override;
+    void drawDrawable(SkDrawable*, const SkMatrix&, const SkClipStack*) override;
+
     void drawSpecial(SkSpecialImage*,
                      int left, int top, const SkPaint& paint) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
