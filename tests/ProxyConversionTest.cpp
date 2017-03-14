@@ -118,7 +118,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyConversionTest, reporter, ctxInfo
 // Test converting between RenderTargetProxies and TextureProxies for deferred
 // Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxInfo) {
-    const GrCaps& caps = *ctxInfo.grContext()->caps();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->resourceProvider();
 
     GrSurfaceDesc desc;
@@ -128,7 +127,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     {
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, caps, desc,
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
                                                                  SkBackingFit::kApprox,
                                                                  SkBudgeted::kYes));
 
@@ -140,9 +139,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
         REPORTER_ASSERT(reporter, tProxy->asRenderTargetProxy() == rtProxy);
         REPORTER_ASSERT(reporter, rtProxy->asRenderTargetProxy() == rtProxy);
     }
-    
+
     {
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, caps, desc,
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
                                                                  SkBackingFit::kApprox,
                                                                  SkBudgeted::kYes));
 
@@ -158,7 +157,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     {
         desc.fFlags = kNone_GrSurfaceFlags; // force no-RT
 
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, caps, desc,
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
                                                                  SkBackingFit::kApprox,
                                                                  SkBudgeted::kYes));
 

@@ -9,6 +9,7 @@
 
 #include "GrBuffer.h"
 #include "GrCaps.h"
+#include "GrContext.h"
 #include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
@@ -42,6 +43,10 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 
 bool GrResourceProvider::IsFunctionallyExact(GrTextureProxy* proxy) {
     return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
+}
+
+const GrCaps* GrResourceProvider::caps() const {
+    return fGpu ? fGpu->getContext()->caps() : nullptr;
 }
 
 GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
