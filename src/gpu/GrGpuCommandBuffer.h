@@ -18,6 +18,7 @@ class GrMesh;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
+class SkDrawable;
 struct SkIRect;
 struct SkRect;
 
@@ -88,6 +89,8 @@ public:
      */
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard(GrRenderTarget*) = 0;
+
+    virtual void executeDrawable(SkDrawable*, const SkMatrix&) {}
 
 private:
     virtual GrGpu* gpu() = 0;

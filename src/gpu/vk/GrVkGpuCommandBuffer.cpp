@@ -20,6 +20,7 @@
 #include "GrVkRenderTarget.h"
 #include "GrVkResourceProvider.h"
 #include "GrVkTexture.h"
+#include "SkDrawable.h"
 #include "SkRect.h"
 
 void get_vk_load_store_ops(const GrGpuCommandBuffer::LoadAndStoreInfo& info,
@@ -177,6 +178,8 @@ void GrVkGpuCommandBuffer::onSubmit() {
         }
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpuCommandBuffer::discard(GrRenderTarget* rt) {
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
@@ -365,6 +368,8 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* rt, const GrFixedClip& clip, 
     }
     return;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpuCommandBuffer::addAdditionalCommandBuffer() {
     fCommandBufferInfos[fCurrentCmdBuffer].fCommandBuffer->end(fGpu);
@@ -572,4 +577,17 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     // pipelineState sits in a cache for a while.
     pipelineState->freeTempResources(fGpu);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrVkGpuCommandBuffer::executeDrawable(SkDrawable* drawable, const SkMatrix& matrix) {
+    SkASSERT(drawable->isDrawVulkanSupported());
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdBuffer];
+    drawable->drawVulkan(fGpu->device(),
+                         fGpu->queue(),
+                         fRenderTarget->image(),
+                         cbInfo.fRenderPass->vkRenderPass(),
+                         cbInfo.fCommandBuffer->);
+}
+
 

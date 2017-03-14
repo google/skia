@@ -1768,13 +1768,14 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix& matrix,
                                const SkClipStack* clip) {
     SkASSERT(this->isDrawableSupported(drawable));
     // TODO: Create a drawable Op here
+    fRenderTargetContext->drawDrawable(drawable, matrix);
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
-    return GrTextUtils::ShouldDisableLCD(paint);
-}
+    return GrTextUtils::ShouldDisableLCD(paint);}
 
 void SkGpuDevice::flush() {
     ASSERT_SINGLE_OWNER

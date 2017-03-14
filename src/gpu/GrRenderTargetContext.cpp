@@ -24,14 +24,16 @@
 #include "effects/GrRRectEffect.h"
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
-#include "ops/GrDrawOp.h"
+#include "ops/GrDrawableOp.h"
 #include "ops/GrDrawAtlasOp.h"
+#include "ops/GrDrawOp.h"
 #include "ops/GrDrawVerticesOp.h"
 #include "ops/GrLatticeOp.h"
 #include "ops/GrOp.h"
 #include "ops/GrOvalOpFactory.h"
 #include "ops/GrRectOpFactory.h"
 #include "ops/GrRegionOp.h"
+#include "ops/GrSemaphoreOp.h"
 #include "ops/GrShadowRRectOp.h"
 #include "ops/GrStencilPathOp.h"
 #include "text/GrAtlasTextContext.h"
@@ -1345,6 +1347,33 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+}
+
+void GrRenderTargetContext::drawDrawable(SkDrawable* drawable, const SkMatrix& matrix) {
+
+    sk_sp<GrSemaphore> ganeshWork;
+    sk_sp<GrSemaphore> clientWork;
+
+    if (drawable->requiresFlushBeforeDraw()) {
+        ganeshWork = fContext->resourceProvider()->makeSemaphore();
+        clientWork = fContext->resourceProvider()->makeSemaphore();
+
+        std::unique_ptr<GrOp> signalop(GrSemaphoreOp::MakeInsert(ganeshWork));
+        SkASSERT(signalOp);
+        this->getOpList()->addOp(std::move(signalOp), this);
+        this->getOpList()->makeClosed();
+    }
+
+    std::unique_ptr<GrOp> op(GrDrawableOp::Make(drawable, matrix, ganeshWork, clientWork));
+    SkASSERT(op);
+    this->getOpList()->addOp(std::move(op), this);
+
+    if (drawable->requiresFlushBeforeDraw()) {
+        this->getOpList()->makeClosed();
+        std::unique_ptr<GrOp> waitop(GrSemaphoreOp::MakeWait(clientWork));
+        SkASSERT(waitOp);
+        this->getOpList()->addOp(std::move(waitOp), this);
+    }
 }
 
 void GrRenderTargetContext::prepareForExternalIO() {
