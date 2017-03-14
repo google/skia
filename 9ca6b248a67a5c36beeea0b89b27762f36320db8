@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c672067_fd5fd855",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-14T21:02:56Z",
+      "side": 1,
+      "message": "Equivalent",
+      "range": {
+        "startLine": 379,
+        "startChar": 8,
+        "endLine": 379,
+        "endChar": 18
+      },
+      "revId": "9ca6b248a67a5c36beeea0b89b27762f36320db8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4aa04a63_51020fc9",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-14T21:02:56Z",
+      "side": 1,
+      "message": "I\u0027m not thrilled about the name, but I can\u0027t really come up with anything unambiguously better.",
+      "range": {
+        "startLine": 380,
+        "startChar": 9,
+        "endLine": 380,
+        "endChar": 23
+      },
+      "revId": "9ca6b248a67a5c36beeea0b89b27762f36320db8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
