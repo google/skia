@@ -95,3 +95,97 @@ float SkHalfToFloat(SkHalf h) {
     o.fUInt |= (halfSign(h) << 31);
     return o.fFloat;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkF16.h"
+
+void SkF16ToF32(float* dst, const float16* src, int count) {
+    while (count >= 4) {
+        SkHalfToFloat_finite_ftz(Sk4h::Load(src)).store(dst);
+        dst += 4;
+        src += 4;
+        count -= 4;
+    }
+
+    while (count > 0) {
+        *dst = SkHalfToFloat(*src);
+        dst++;
+        src++;
+        count--;
+    }
+}
+
+void SkF32ToF16(float16* dst, const float* src, int count) {
+    while (count >= 4) {
+        SkFloatToHalf_finite_ftz(Sk4f::Load(src)).store(dst);
+        dst += 4;
+        src += 4;
+        count -= 4;
+    }
+
+    while (count > 0) {
+        *dst = SkFloatToHalf(*src);
+        dst++;
+        src++;
+        count--;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
