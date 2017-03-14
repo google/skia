@@ -687,11 +687,11 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         case 1: {
             SkScalar sigmaX, sigmaY;
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
-            SkImageFilter::CropRect cropRect;
             bool useCropRect;
             fuzz->next(&sigmaX, &sigmaY, &useCropRect);
+            SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             return SkImageFilter::MakeBlur(sigmaX, sigmaY, std::move(input),
                                            useCropRect ? &cropRect : nullptr);
@@ -707,11 +707,11 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             SkRegion region;
             SkScalar innerMin, outerMax;
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
-            SkImageFilter::CropRect cropRect;
             bool useCropRect;
             fuzz->next(&region, &innerMin, &outerMax, &useCropRect);
+            SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             return SkAlphaThresholdFilter::Make(region, innerMin, outerMax, std::move(input),
                                                 useCropRect ? &cropRect : nullptr);
@@ -725,7 +725,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             sk_sp<SkImageFilter> foreground = make_fuzz_imageFilter(fuzz, depth - 1);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             return SkArithmeticImageFilter::Make(k1, k2, k3, k4, enforcePMColor,
                                                  std::move(background), std::move(foreground),
@@ -738,7 +738,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             SkImageFilter::CropRect cropRect;
             fuzz->next(&useCropRect);
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             return SkColorFilterImageFilter::Make(std::move(cf), std::move(input),
                                                   useCropRect ? &cropRect : nullptr);
@@ -757,7 +757,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&scale, &useCropRect);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             sk_sp<SkImageFilter> displacement = make_fuzz_imageFilter(fuzz, depth - 1);
             sk_sp<SkImageFilter> color = make_fuzz_imageFilter(fuzz, depth - 1);
@@ -774,7 +774,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&dx, &dy, &sigmaX, &sigmaY, &color, &useCropRect);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkDropShadowImageFilter::Make(dx, dy, sigmaX, sigmaY, color, shadowMode,
@@ -799,7 +799,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             SkImageFilter::CropRect cropRect;
             fuzz->next(&srcRect, &inset, &useCropRect);
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkMagnifierImageFilter::Make(srcRect, inset, std::move(input),
@@ -822,7 +822,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz_enum_range(fuzz, &tileMode, 0, 2);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkMatrixConvolutionImageFilter::Make(
@@ -837,7 +837,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&useCropRect, &blendMode);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             return SkMergeImageFilter::Make(std::move(first), std::move(second), blendMode,
                                             useCropRect ? &cropRect : nullptr);
@@ -856,7 +856,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&useCropRect);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             return SkMergeImageFilter::MakeN(ifs, count, blendModes,
                                              useCropRect ? &cropRect : nullptr);
@@ -868,7 +868,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&useCropRect);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkDilateImageFilter::Make(rx, ry, std::move(input),
@@ -881,7 +881,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&useCropRect);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkErodeImageFilter::Make(rx, ry, std::move(input),
@@ -894,7 +894,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&useCropRect);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkOffsetImageFilter::Make(dx, dy, std::move(input),
@@ -907,7 +907,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&useCropRect);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             return SkPaintImageFilter::Make(paint, useCropRect ? &cropRect : nullptr);
         }
@@ -941,7 +941,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             fuzz->next(&useCropRect, &blendMode);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
-                fuzz->next(&useCropRect);
+                fuzz->next(&cropRect);
             }
             sk_sp<SkImageFilter> bg = make_fuzz_imageFilter(fuzz, depth - 1);
             sk_sp<SkImageFilter> fg = make_fuzz_imageFilter(fuzz, depth - 1);
