@@ -155,15 +155,16 @@ protected:
                 };
                 SkPoint chopped[10];
                 SkScalar klmEqs[9];
-                SkScalar klmSigns[3];
+                int loopIndex;
                 int cnt = GrPathUtils::chopCubicAtLoopIntersection(controlPts,
                                                                    chopped,
                                                                    klmEqs,
-                                                                   klmSigns);
+                                                                   &loopIndex);
 
                 SkPaint ctrlPtPaint;
                 ctrlPtPaint.setColor(rand.nextU() | 0xFF000000);
-                for (int i = 0; i < 4; ++i) {
+                canvas->drawCircle(controlPts[0].fX, controlPts[0].fY, 8.f, ctrlPtPaint);
+                for (int i = 1; i < 4; ++i) {
                     canvas->drawCircle(controlPts[i].fX, controlPts[i].fY, 6.f, ctrlPtPaint);
                 }
 
@@ -195,8 +196,13 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
+                    SkScalar sign = 1.0f;
+                    if (c == loopIndex && cnt != 3) {
+                        sign = -1.0f;
+                    }
+
                     std::unique_ptr<GrDrawOp> op =
-                            BezierCubicOrConicTestOp::Make(gp, bounds, color, klmEqs, klmSigns[c]);
+                            BezierCubicOrConicTestOp::Make(gp, bounds, color, klmEqs, sign);
 
                     renderTargetContext->priv().testingOnly_addDrawOp(
                             std::move(grPaint), GrAAType::kNone, std::move(op));
