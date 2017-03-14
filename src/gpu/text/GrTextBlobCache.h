@@ -169,8 +169,7 @@ private:
     void checkPurge(GrAtlasTextBlob* blob = nullptr) {
         // First, purge all stale blob IDs.
         {
-            // TODO: tweak poll to allow mem-movable arrays, and update.
-            SkSTArray<128, PurgeBlobMessage, false> msgs;
+            SkTArray<PurgeBlobMessage> msgs;
             fPurgeBlobInbox.poll(&msgs);
 
             for (const auto& msg : msgs) {
