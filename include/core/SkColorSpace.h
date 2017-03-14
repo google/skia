@@ -48,6 +48,12 @@ struct SK_API SkColorSpaceTransferFn {
     float fD;
     float fE;
     float fF;
+
+    /**
+     * Produces a new parametric transfer function equation that is the mathematical inverse of
+     * this one.
+     */
+    SkColorSpaceTransferFn invert() const;
 };
 
 class SK_API SkColorSpace : public SkRefCnt {
