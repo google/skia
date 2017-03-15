@@ -96,14 +96,12 @@ static void construct_dummy_pipeline(GrRenderTargetContext* dc, GrPipeline* pipe
     GrScissorState dummyScissor;
     GrWindowRectsState dummyWindows;
 
-    GrAppliedClip dummyAppliedClip;
     GrProcessorSet::FragmentProcessorAnalysis analysis;
     GrPipeline::InitArgs args;
     dummyBuilder.getPipelineInitArgs(&args);
     args.fRenderTarget = dc->accessRenderTarget();
     args.fAnalysis = &analysis;
     args.fCaps = dc->caps();
-    args.fAppliedClip = &dummyAppliedClip;
     args.fDstTexture = GrXferProcessor::DstTexture();
     pipeline->init(args);
 }

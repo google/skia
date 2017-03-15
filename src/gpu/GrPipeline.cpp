@@ -24,20 +24,17 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     SkASSERT(args.fRenderTarget);
 
     fRenderTarget.reset(args.fRenderTarget);
-    fScissorState = args.fAppliedClip->scissorState();
-    fWindowRectsState = args.fAppliedClip->windowRectsState();
-    fUserStencilSettings = args.fUserStencil;
-    fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
     fFlags = args.fFlags;
+    if (args.fAppliedClip) {
+        fScissorState = args.fAppliedClip->scissorState();
+        if (args.fAppliedClip->hasStencilClip()) {
+            fFlags |= kHasStencilClip_Flag;
+        }
+        fWindowRectsState = args.fAppliedClip->windowRectsState();
+    }
     if (args.fProcessors->usesDistanceVectorField()) {
         fFlags |= kUsesDistanceVectorField_Flag;
-    }
-    if (args.fAppliedClip->hasStencilClip()) {
-        fFlags |= kHasStencilClip_Flag;
-    }
-    if (!args.fUserStencil->isDisabled(args.fAppliedClip->hasStencilClip())) {
-        fFlags |= kStencilEnabled_Flag;
     }
     if (args.fProcessors->disableOutputConversionToSRGB()) {
         fFlags |= kDisableOutputConversionToSRGB_Flag;
@@ -45,6 +42,13 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     if (args.fProcessors->allowSRGBInputs()) {
         fFlags |= kAllowSRGBInputs_Flag;
     }
+    if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
+        fFlags |= kStencilEnabled_Flag;
+    }
+
+    fUserStencilSettings = args.fUserStencil;
+
+    fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
     bool isHWAA = kHWAntialias_Flag & args.fFlags;
 
@@ -86,7 +90,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     fNumColorProcessors = args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
     int numTotalProcessors =
             fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
-    if (args.fAppliedClip->clipCoverageFragmentProcessor()) {
+    if (args.fAppliedClip && args.fAppliedClip->clipCoverageFragmentProcessor()) {
         ++numTotalProcessors;
     }
     fFragmentProcessors.reset(numTotalProcessors);
@@ -101,8 +105,10 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
     }
-    if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
-        fFragmentProcessors[currFPIdx].reset(fp);
+    if (args.fAppliedClip) {
+        if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
+            fFragmentProcessors[currFPIdx].reset(fp);
+        }
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
@@ -117,10 +123,6 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     }
     if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
         optimizations.fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
-    }
-
-    if (GrXPFactory::WillReadDst(xpFactory, *args.fAnalysis)) {
-        optimizations.fFlags |= GrPipelineOptimizations::kXPReadsDst_Flag;
     }
     return optimizations;
 }

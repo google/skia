@@ -11,13 +11,14 @@
 #include "GrPipeline.h"
 
 GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
-    : fGpu(gpu)
-    , fResourceProvider(resourceProvider)
-    , fCommandBuffer(nullptr)
-    , fVertexPool(gpu)
-    , fIndexPool(gpu)
-    , fLastIssuedToken(GrDrawOpUploadToken::AlreadyFlushedToken())
-    , fLastFlushedToken(0) {}
+        : fGpu(gpu)
+        , fResourceProvider(resourceProvider)
+        , fCommandBuffer(nullptr)
+        , fVertexPool(gpu)
+        , fIndexPool(gpu)
+        , fLastIssuedToken(GrDrawOpUploadToken::AlreadyFlushedToken())
+        , fLastFlushedToken(0)
+        , fOpArgs(nullptr) {}
 
 void* GrOpFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
                                          const GrBuffer** buffer, int* startVertex) {
