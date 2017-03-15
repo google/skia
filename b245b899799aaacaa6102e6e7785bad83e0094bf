@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "02ed83c1_616c4192",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-15T18:33:55Z",
+      "side": 1,
+      "message": "I think I\u0027d rather control it at this level right now. If I or Joel can fix up the SDF generation code so that the quality is good enough for desktop then it can be turned on again there, but it feels like that decision should be contained in this class.",
+      "parentUuid": "1505dff3_d057bdee",
+      "range": {
+        "startLine": 174,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 26
+      },
+      "revId": "b245b899799aaacaa6102e6e7785bad83e0094bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a7e6fb79_33779ba9",
         "filename": "tools/viewer/Viewer.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "b245b899799aaacaa6102e6e7785bad83e0094bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "560db8fe_01e8ded2",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-15T18:33:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7e6fb79_33779ba9",
+      "range": {
+        "startLine": 259,
+        "startChar": 68,
+        "endLine": 259,
+        "endChar": 72
+      },
+      "revId": "b245b899799aaacaa6102e6e7785bad83e0094bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
