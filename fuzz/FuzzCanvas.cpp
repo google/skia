@@ -755,8 +755,8 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         }
         case 7: {
             SkDisplacementMapEffect::ChannelSelectorType xChannelSelector, yChannelSelector;
-            fuzz_enum_range(fuzz, &xChannelSelector, 0, 4);
-            fuzz_enum_range(fuzz, &yChannelSelector, 0, 4);
+            fuzz_enum_range(fuzz, &xChannelSelector, 1, 4);
+            fuzz_enum_range(fuzz, &yChannelSelector, 1, 4);
             SkScalar scale;
             bool useCropRect;
             fuzz->next(&scale, &useCropRect);
