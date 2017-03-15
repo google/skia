@@ -9,6 +9,7 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 
 namespace skiagm {
 
@@ -17,9 +18,7 @@ namespace skiagm {
  */
 class DstReadShuffle : public GM {
 public:
-    DstReadShuffle() {
-       this->setBGColor(SkColorSetARGB(0xff, 0xff, 0, 0xff));
-    }
+    DstReadShuffle() { this->setBGColor(SK_ColorLTGRAY); }
 
 protected:
     enum ShapeType {
@@ -40,17 +39,15 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void drawShape(SkCanvas* canvas,
-                   SkPaint* paint,
-                   ShapeType type) {
-        const SkRect kRect = SkRect::MakeXYWH(SkIntToScalar(-50), SkIntToScalar(-50),
-                                              SkIntToScalar(75), SkIntToScalar(105));
+    void drawShape(SkCanvas* canvas, SkPaint* paint, ShapeType type) {
+        const SkRect kRect = SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
+                                              SkIntToScalar(45), SkIntToScalar(55));
         switch (type) {
             case kCircle_ShapeType:
-                canvas->drawCircle(0, 0, 50, *paint);
+                canvas->drawCircle(kRect.centerX(), kRect.centerY(), 25, *paint);
                 break;
             case kRoundRect_ShapeType:
-                canvas->drawRoundRect(kRect, SkIntToScalar(10), SkIntToScalar(20), *paint);
+                canvas->drawRoundRect(kRect, SkIntToScalar(14), SkIntToScalar(14), *paint);
                 break;
             case kRect_ShapeType:
                 canvas->drawRect(kRect, *paint);
@@ -68,9 +65,9 @@ protected:
                 break;
             case kConcavePath_ShapeType:
                 if (fConcavePath.isEmpty()) {
-                    SkPoint points[5] = {{0, SkIntToScalar(-50)} };
+                    SkPoint points[5] = {{0, 0} };
                     SkMatrix rot;
-                    rot.setRotate(SkIntToScalar(360) / 5);
+                    rot.setRotate(SkIntToScalar(360) / 5, 0, 40);
                     for (int i = 1; i < 5; ++i) {
                         rot.mapPoints(points + i, points + i - 1, 1);
                     }
@@ -84,102 +81,91 @@ protected:
                 canvas->drawPath(fConcavePath, *paint);
                 break;
             case kText_ShapeType: {
-                const char* text = "Hello!";
-                paint->setTextSize(30);
+                const char* text = "N";
+                paint->setTextSize(50);
+                paint->setFakeBoldText(true);
                 sk_tool_utils::set_portable_typeface(paint);
-                canvas->drawText(text, strlen(text), 0, 0, *paint);
+                canvas->drawText(text, strlen(text), 0, 50, *paint);
             }
             default:
                 break;
         }
     }
 
-    static SkColor GetColor(SkRandom* random, int i, int nextColor) {
-        static SkColor colors[] = { SK_ColorRED,
-                                    sk_tool_utils::color_to_565(0xFFFF7F00), // Orange
-                                    SK_ColorYELLOW,
-                                    SK_ColorGREEN,
-                                    SK_ColorBLUE,
-                                    sk_tool_utils::color_to_565(0xFF4B0082), // indigo
-                                    sk_tool_utils::color_to_565(0xFF7F00FF) }; // violet
-        SkColor color;
-        int index = nextColor % SK_ARRAY_COUNT(colors);
-        switch (i) {
-            case 0:
-                color = SK_ColorTRANSPARENT;
-                break;
-            case 1:
-                color = SkColorSetARGB(0xff,
-                                       SkColorGetR(colors[index]),
-                                       SkColorGetG(colors[index]),
-                                       SkColorGetB(colors[index]));
-                break;
-            default:
-                uint8_t alpha = 0x80;
-                color = SkColorSetARGB(alpha,
-                                       SkColorGetR(colors[index]),
-                                       SkColorGetG(colors[index]),
-                                       SkColorGetB(colors[index]));
-                break;
-        }
-        return color;
+    static SkColor GetColor(SkRandom* random, uint8_t alpha) {
+        int rgb[3];
+        rgb[0] = random->nextULessThan(256);
+        rgb[1] = random->nextULessThan(256);
+        rgb[2] = random->nextULessThan(256);
+        SkColor color = sk_tool_utils::color_to_565(SkColorSetRGB(rgb[0], rgb[1], rgb[2]));
+        return SkColorSetA(color, alpha);
     }
 
-    static void SetStyle(SkPaint* p, int style, int width) {
-        switch (style) {
-            case 0:
-                p->setStyle(SkPaint::kStroke_Style);
-                p->setStrokeWidth((SkScalar)width);
-                break;
-            case 1:
-                p->setStyle(SkPaint::kStrokeAndFill_Style);
-                p->setStrokeWidth((SkScalar)width);
-                break;
-            default:
-                p->setStyle(SkPaint::kFill_Style);
-                break;
+    static void DrawHairlines(SkCanvas* canvas) {
+        canvas->clear(SK_ColorTRANSPARENT);
+        SkPaint hairPaint;
+        hairPaint.setAlpha(0x80);
+        hairPaint.setStyle(SkPaint::kStroke_Style);
+        hairPaint.setStrokeWidth(0);
+        hairPaint.setAntiAlias(true);
+        static constexpr int kNumHairlines = 12;
+        SkPoint pts[] = {{3.f, 7.f}, {29.f, 7.f}};
+        SkRandom colorRandom;
+        SkMatrix rot;
+        rot.setRotate(360.f / kNumHairlines, 15.5, 12.f);
+        rot.postTranslate(3.f, 0);
+        for (int i = 0; i < 12; ++i) {
+            hairPaint.setColor(GetColor(&colorRandom, 0xFF));
+            canvas->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, hairPaint);
+            rot.mapPoints(pts, 2);
         }
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom random;
-        SkScalar y = 100;
+        //sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorDKGRAY, 12);
+        SkScalar y = 5;
         for (int i = 0; i < kNumShapeTypes; i++) {
+            SkRandom colorRandom;
             ShapeType shapeType = static_cast<ShapeType>(i);
-            SkScalar x = 25;
+            SkScalar x = 5;
             for (int style = 0; style < 3; style++) {
-                for (int width = 0; width <= 1; width++) {
-                    for (int alpha = 0; alpha <= 2; alpha++) {
-                        for (int r = 0; r <= 5; r++) {
-                            SkColor color = GetColor(&random, alpha, style + width + alpha + r);
-
-                            SkPaint p;
-                            p.setAntiAlias(true);
-                            p.setColor(color);
-                            // In order to get some op combining on the GPU backend we do 2 src over
-                            // for each xfer mode which requires a dst read
-                            p.setBlendMode(r % 3 == 0 ? SkBlendMode::kLighten :
-                                                        SkBlendMode::kSrcOver);
-                            SetStyle(&p, style, width);
-                            canvas->save();
-                            canvas->translate(x, y);
-                            canvas->rotate((SkScalar)(r < 3 ? 10 : 0));
-                            this->drawShape(canvas, &p, shapeType);
-                            canvas->restore();
-                            x += 8;
-                        }
+                for (int r = 0; r <= 5; r++) {
+                    for (uint8_t alpha : {0x00, 0x60, 0xA0, 0xFF}) {
+                        SkPaint p;
+                        p.setAntiAlias(true);
+                        p.setColor(GetColor(&colorRandom, alpha));
+                        // In order to get some op combining on the GPU backend we do 2 src over
+                        // for each xfer mode which requires a dst read
+                        p.setBlendMode(r % 3 == 0 ? SkBlendMode::kLighten : SkBlendMode::kSrcOver);
+                        canvas->save();
+                        canvas->translate(x, y);
+                        this->drawShape(canvas, &p, shapeType);
+                        canvas->restore();
+                        x += 5;
                     }
                 }
             }
-            y += 50;
+            y += 70;
         }
+        // Draw hairlines to a surface and then draw that to the main canvas with a zoom so that
+        // it is easier to see how they blend.
+        SkImageInfo info;
+        if (SkColorType::kUnknown_SkColorType != canvas->imageInfo().colorType()) {
+            info = SkImageInfo::Make(35, 35,
+                                     canvas->imageInfo().colorType(),
+                                     canvas->imageInfo().alphaType(),
+                                     canvas->imageInfo().refColorSpace());
+        } else {
+            info = SkImageInfo::MakeN32Premul(20, 20);
+        }
+        auto surf = canvas->makeSurface(info);
+        canvas->scale(5.f, 5.f);
+        canvas->translate(100, 5);
+        DrawHairlines(surf->getCanvas());
+        canvas->drawImage(surf->makeImageSnapshot(), 0, 0);
     }
 
 private:
-    enum {
-        kNumShapes = 100,
-    };
-    sk_sp<SkShader>      fBG;
     SkPath               fConcavePath;
     SkPath               fConvexPath;
     static constexpr int kWidth = 900;
