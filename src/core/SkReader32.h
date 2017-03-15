@@ -96,7 +96,7 @@ public:
     void read(void* dst, size_t size) {
         SkASSERT(0 == size || dst != nullptr);
         SkASSERT(ptr_align_4(fCurr));
-        memcpy(dst, fCurr, size);
+        sk_careful_memcpy(dst, fCurr, size);
         fCurr += SkAlign4(size);
         SkASSERT(fCurr <= fStop);
     }
