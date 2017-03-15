@@ -49,7 +49,8 @@ bool GrResourceProvider::IsFunctionallyExact(GrTextureProxy* proxy) {
 
 GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
                                                       SkBudgeted budgeted, const GrMipLevel* texels,
-                                                      int mipLevelCount, uint32_t flags) {
+                                                      int mipLevelCount, uint32_t flags,
+                                                      SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
     if (this->isAbandoned()) {
@@ -80,6 +81,7 @@ GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
                     if (SkBudgeted::kNo == budgeted) {
                         texture->resourcePriv().makeUnbudgeted();
                     }
+                    texture->texturePriv().setMipColorMode(mipColorMode);
                     return texture;
                 }
                 texture->unref();
@@ -91,7 +93,11 @@ GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
     for (int i = 0; i < mipLevelCount; ++i) {
         texelsShallowCopy.push_back(texels[i]);
     }
-    return fGpu->createTexture(desc, budgeted, texelsShallowCopy);
+    GrTexture* texture = fGpu->createTexture(desc, budgeted, texelsShallowCopy);
+    if (texture) {
+        texture->texturePriv().setMipColorMode(mipColorMode);
+    }
+    return texture;
 }
 
 GrTexture* GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,

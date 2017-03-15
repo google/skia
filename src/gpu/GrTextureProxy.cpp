@@ -8,6 +8,7 @@
 #include "GrTextureProxy.h"
 
 #include "GrResourceProvider.h"
+#include "GrTexturePriv.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
@@ -26,6 +27,16 @@ GrTexture* GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
     }
 
     return fTarget->asTexture();
+}
+
+void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
+    SkASSERT(fTarget || fTarget->asTexture());
+
+    if (fTarget) {
+        fTarget->asTexture()->texturePriv().setMipColorMode(colorMode);
+    }
+
+    fMipColorMode = colorMode;
 }
 
 size_t GrTextureProxy::onGpuMemorySize() const {

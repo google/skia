@@ -307,6 +307,8 @@ protected:
         , fFit(fit)
         , fBudgeted(budgeted)
         , fFlags(flags)
+        // fMipColorMode is only valid for texturable proxies
+        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
@@ -330,6 +332,9 @@ protected:
     mutable SkBudgeted   fBudgeted; // set from the backing resource for wrapped resources
                                     // mutable bc of SkSurface/SkImage wishy-washiness
     const uint32_t       fFlags;
+
+    SkDestinationSurfaceColorMode fMipColorMode;
+
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);

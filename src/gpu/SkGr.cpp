@@ -13,7 +13,6 @@
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
-#include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
@@ -283,20 +282,16 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
     }
 
-    {
-        GrTexture* texture = ctx->resourceProvider()->createMipMappedTexture(desc,
-                                                                             SkBudgeted::kYes,
-                                                                             texels.get(),
-                                                                             mipLevelCount);
-        if (texture) {
-            texture->texturePriv().setMipColorMode(colorMode);
-        }
-        return texture;
-    }
+    return ctx->resourceProvider()->createMipMappedTexture(desc,
+                                                           SkBudgeted::kYes,
+                                                           texels.get(),
+                                                           mipLevelCount,
+                                                           0, colorMode);
 }
 
 GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
-                                   const GrMipLevel* texels, int mipLevelCount) {
+                                   const GrMipLevel* texels, int mipLevelCount,
+                                   SkDestinationSurfaceColorMode colorMode) {
     if (!SkImageInfoIsValid(info)) {
         return nullptr;
     }
@@ -304,7 +299,7 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
     const GrCaps* caps = ctx->caps();
     return ctx->resourceProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
                                                            SkBudgeted::kYes, texels,
-                                                          mipLevelCount);
+                                                           mipLevelCount, 0, colorMode);
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
