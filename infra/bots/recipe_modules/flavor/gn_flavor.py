@@ -95,6 +95,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if extra_config == 'Shared':
       args['is_component_build'] = 'true'
     if extra_config == 'Vulkan':
+      args['skia_enable_vulkan_debug_layers'] = 'false'
       if os == 'Ubuntu':
         args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
       if 'Win' in os:
