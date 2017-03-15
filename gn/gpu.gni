@@ -131,8 +131,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrPathUtils.cpp",
   "$_src/gpu/GrPathUtils.h",
   "$_src/gpu/GrPendingProgramElement.h",
-  "$_src/gpu/GrPreFlushResourceProvider.cpp",
-  "$_src/gpu/GrPreFlushResourceProvider.h",
   "$_src/gpu/GrPipeline.cpp",
   "$_src/gpu/GrPipeline.h",
   "$_src/gpu/GrPipelineBuilder.h",

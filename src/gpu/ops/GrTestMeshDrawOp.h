@@ -19,7 +19,7 @@
  */
 class GrTestMeshDrawOp : public GrMeshDrawOp {
 public:
-    const char* name() const override = 0;
+    virtual const char* name() const override = 0;
 
 protected:
     GrTestMeshDrawOp(uint32_t classID, const SkRect& bounds, GrColor color)

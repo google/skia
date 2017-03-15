@@ -11,10 +11,9 @@
 #include "GrOpFlushState.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
-#include "GrPreFlushResourceProvider.h"
 #include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
-#include "SkTArray.h"
+#include "SkTDArray.h"
 #include "text/GrAtlasTextContext.h"
 
 class GrContext;
@@ -68,8 +67,6 @@ public:
 
     void prepareSurfaceForExternalIO(GrSurface*);
 
-    void addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject> preFlushCBObject);
-
 private:
     GrDrawingManager(GrContext* context,
                      const GrRenderTargetOpList::Options& optionsForOpLists,
@@ -95,7 +92,6 @@ private:
     void internalFlush(GrResourceCache::FlushType);
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
-    friend class GrPreFlushResourceProvider; // this is just a shallow wrapper around this class
 
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
@@ -119,8 +115,6 @@ private:
     bool                              fFlushing;
 
     bool                              fIsImmediateMode;
-
-    SkTArray<sk_sp<GrPreFlushCallbackObject>> fPreFlushCBObjects;
 };
 
 #endif

@@ -45,7 +45,11 @@ void GrTextureOpList::dump() const {
 #endif
 
 void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
-    // MDB TODO: add SkASSERT(this->isClosed());
+    // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
+    // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
+    // but need to be flushed anyway. Closing such GrOpLists here will mean new
+    // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
+    this->makeClosed();
 
     // Loop over the ops that haven't yet generated their geometry
     for (int i = 0; i < fRecordedOps.count(); ++i) {
