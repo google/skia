@@ -838,11 +838,10 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
     if (!ctx) {
         return nullptr;
     }
-    sk_sp<GrTexture> texture(GrUploadMipMapToTexture(ctx, info, texels, mipLevelCount));
+    sk_sp<GrTexture> texture(GrUploadMipMapToTexture(ctx, info, texels, mipLevelCount, colorMode));
     if (!texture) {
         return nullptr;
     }
-    texture->texturePriv().setMipColorMode(colorMode);
     return sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
                                    info.alphaType(), std::move(texture),
                                    sk_ref_sp(info.colorSpace()), budgeted);
