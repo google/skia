@@ -226,7 +226,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                           unclippedDevShapeBounds);
     }
     GrSWMaskHelper::DrawToTargetWithShapeMask(
-            args.fContext, std::move(proxy), args.fRenderTargetContext, std::move(args.fPaint),
+            std::move(proxy), args.fRenderTargetContext, std::move(args.fPaint),
             *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
             SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
 

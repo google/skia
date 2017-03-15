@@ -27,7 +27,7 @@ inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor:
 }
 
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
-                                                           GrContext* context,
+                                                           GrResourceProvider* resourceProvider,
                                                            sk_sp<GrTextureProxy> proxy,
                                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                            sk_sp<GrTextureProxy> maskProxy,
@@ -37,16 +37,16 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         : INHERITED(OptFlags(outerThreshold))
         , fInnerThreshold(innerThreshold)
         , fOuterThreshold(outerThreshold)
-        , fImageCoordTransform(context, SkMatrix::I(), proxy.get(),
+        , fImageCoordTransform(resourceProvider, SkMatrix::I(), proxy.get(),
                                GrSamplerParams::kNone_FilterMode)
-        , fImageTextureSampler(context->resourceProvider(), std::move(proxy))
+        , fImageTextureSampler(resourceProvider, std::move(proxy))
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fMaskCoordTransform(
-                  context,
+                  resourceProvider,
                   SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
                   maskProxy.get(),
                   GrSamplerParams::kNone_FilterMode)
-        , fMaskTextureSampler(context->resourceProvider(), maskProxy) {
+        , fMaskTextureSampler(resourceProvider, maskProxy) {
     this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addCoordTransform(&fImageCoordTransform);
     this->addTextureSampler(&fImageTextureSampler);
@@ -162,7 +162,7 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProce
     uint32_t y = d->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrAlphaThresholdFragmentProcessor::Make(d->context(),
+    return GrAlphaThresholdFragmentProcessor::Make(d->resourceProvider(),
                                                    std::move(bmpProxy),
                                                    std::move(colorSpaceXform),
                                                    std::move(maskProxy),

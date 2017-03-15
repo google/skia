@@ -41,11 +41,11 @@ public:
         this->reset(SkMatrix::I(), texture, filter);
     }
 
-    GrCoordTransform(GrContext* context, GrTextureProxy* proxy,
+    GrCoordTransform(GrResourceProvider* resourceProvider, GrTextureProxy* proxy,
                      GrSamplerParams::FilterMode filter) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(context, SkMatrix::I(), proxy, filter);
+        this->reset(resourceProvider, SkMatrix::I(), proxy, filter);
     }
 
     /**
@@ -59,11 +59,11 @@ public:
         this->reset(m, texture, filter);
     }
 
-    GrCoordTransform(GrContext* context, const SkMatrix& m, GrTextureProxy* proxy,
-                     GrSamplerParams::FilterMode filter) {
+    GrCoordTransform(GrResourceProvider* resourceProvider, const SkMatrix& m,
+                     GrTextureProxy* proxy, GrSamplerParams::FilterMode filter) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(context, m, proxy, filter);
+        this->reset(resourceProvider, m, proxy, filter);
     }
 
     /**
@@ -78,7 +78,7 @@ public:
     void reset(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter,
                bool normalize = true);
 
-    void reset(GrContext* context, const SkMatrix&, GrTextureProxy*,
+    void reset(GrResourceProvider*, const SkMatrix&, GrTextureProxy*,
                GrSamplerParams::FilterMode filter, bool normalize = true);
 
     void reset(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision) {
