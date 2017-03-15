@@ -70,6 +70,30 @@
       "revId": "66b52ece2aefea6079f572ff9b468b664729ae5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fc5e3c2_29f83a87",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1775,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-15T17:55:41Z",
+      "side": 1,
+      "message": "sure.",
+      "parentUuid": "56e3f3b1_24e12fb8",
+      "range": {
+        "startLine": 1775,
+        "startChar": 30,
+        "endLine": 1775,
+        "endChar": 38
+      },
+      "revId": "66b52ece2aefea6079f572ff9b468b664729ae5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
