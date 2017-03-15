@@ -126,7 +126,7 @@ static bool do_encode(SkWStream* stream, const SkPixmap& srcPixmap, const SkEnco
             srcPixmap.colorSpace()->gammaIsLinear());
 
     SkPixmap pixmap = srcPixmap;
-    if (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior) {
+    if (SkEncodeOptions::ColorBehavior::kLegacy == opts.fColorBehavior) {
         pixmap.setColorSpace(nullptr);
     } else {
         if (!pixmap.colorSpace()) {

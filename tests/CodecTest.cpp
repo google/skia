@@ -13,9 +13,11 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "SkData.h"
 #include "SkFrontBufferedStream.h"
 #include "SkImageEncoder.h"
+#include "SkImageEncoderPriv.h"
 #include "SkMD5.h"
 #include "SkOSPath.h"
 #include "SkPngChunkReader.h"
@@ -1525,5 +1527,44 @@ DEF_TEST(Codec_InvalidAnimated, r) {
         }
 
         codec->incrementalDecode();
+    }
+}
+
+DEF_TEST(Codec_EncodeICC, r) {
+    // Test with sRGB color space.
+    SkBitmap srgbBitmap;
+    SkImageInfo srgbInfo = SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType);
+    srgbBitmap.allocPixels(srgbInfo);
+    *srgbBitmap.getAddr32(0, 0) = 0;
+    SkPixmap pixmap;
+    srgbBitmap.peekPixels(&pixmap);
+    SkDynamicMemoryWStream srgbBuf;
+    SkEncodeOptions opts;
+    opts.fColorBehavior = SkEncodeOptions::ColorBehavior::kCorrect;
+    SkEncodeImageAsPNG(&srgbBuf, pixmap, opts);
+    sk_sp<SkData> srgbData = srgbBuf.detachAsData();
+    std::unique_ptr<SkCodec> srgbCodec(SkCodec::NewFromData(srgbData));
+    REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
+
+    // Test with P3 color space.
+    SkDynamicMemoryWStream p3Buf;
+    sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                   SkColorSpace::kDCIP3_D65_Gamut);
+    pixmap.setColorSpace(p3);
+    SkEncodeImageAsPNG(&p3Buf, pixmap, opts);
+    sk_sp<SkData> p3Data = p3Buf.detachAsData();
+    std::unique_ptr<SkCodec> p3Codec(SkCodec::NewFromData(p3Data));
+    REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
+    SkMatrix44 mat0(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 mat1(SkMatrix44::kUninitialized_Constructor);
+    bool success = p3->toXYZD50(&mat0);
+    REPORTER_ASSERT(r, success);
+    success = p3Codec->getInfo().colorSpace()->toXYZD50(&mat1);
+    REPORTER_ASSERT(r, success);
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            REPORTER_ASSERT(r, color_space_almost_equal(mat0.get(0, 0), mat1.get(0, 0)));
+        }
     }
 }

@@ -12,6 +12,7 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
+#include "SkICC.h"
 #include "SkMath.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -168,7 +169,7 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& src, const SkEncodeOp
              src.colorSpace()->gammaIsLinear());
 
     SkPixmap pixmap = src;
-    if (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior) {
+    if (SkEncodeOptions::ColorBehavior::kLegacy == opts.fColorBehavior) {
         pixmap.setColorSpace(nullptr);
     } else {
         if (!pixmap.colorSpace()) {
@@ -332,6 +333,21 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
         if (numTrans > 0) {
             png_set_tRNS(png_ptr, info_ptr, trans, numTrans, nullptr);
         }
+    }
+
+    if (pixmap.colorSpace()) {
+        SkColorSpaceTransferFn fn;
+        SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+        if (pixmap.colorSpace()->isSRGB()) {
+            png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_PERCEPTUAL);
+        } else if (pixmap.colorSpace()->isNumericalTransferFn(&fn) &&
+                   pixmap.colorSpace()->toXYZD50(&toXYZD50))
+        {
+            sk_sp<SkData> icc = SkICC::WriteToICC(fn, toXYZD50);
+            png_set_iCCP(png_ptr, info_ptr, "Skia", 0, icc->bytes(), icc->size());
+        }
+
+        // TODO: Should we support writing ICC profiles for additional color spaces?
     }
 
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
