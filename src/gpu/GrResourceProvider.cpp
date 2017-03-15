@@ -419,5 +419,3 @@ void GrResourceProvider::takeOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) 
 void GrResourceProvider::releaseOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {
     semaphore->resetGpu(nullptr);
 }
-
-

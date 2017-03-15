@@ -207,7 +207,8 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& p
     uint32_t uniqueID;
     sk_sp<GrTexture> tex = this->refPinnedTexture(&uniqueID);
     if (tex) {
-        GrTextureAdjuster adjuster(fPinnedTexture.get(), fBitmap.alphaType(), fBitmap.bounds(),
+        GrTextureAdjuster adjuster(ctx, fPinnedTexture.get(),
+                                   fBitmap.alphaType(), fBitmap.bounds(),
                                    fPinnedUniqueID, fBitmap.colorSpace());
         return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
     }

@@ -36,6 +36,14 @@ GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped, SkColorSpa
                                 dstColorSpace);
 }
 
+sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
+                                                                   SkColorSpace* dstColorSpace) {
+    sk_sp<GrTexture> tex(fCacher->lockTexture(this->context(), fOriginalKey, fClient, fCachingHint,
+                                              willBeMipped, dstColorSpace));
+
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
                                       SkColorSpace* dstColorSpace) {
     if (fOriginalKey.isValid() && SkImage::kAllow_CachingHint == fCachingHint) {
