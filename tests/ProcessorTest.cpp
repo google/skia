@@ -377,7 +377,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         if (!legalColorModulation && !legalAlphaModulation) {
                             ERRORF(reporter,
                                    "\"Modulating\" processor %s made color/alpha value larger. "
-                                   "Input: 0x%0x8, Output: 0x%08x.",
+                                   "Input: 0x%08x, Output: 0x%08x.",
                                    fp->name(), input, output);
                             passing = false;
                         }
@@ -408,7 +408,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         !GrColorIsOpaque(output)) {
                         ERRORF(reporter,
                                "Processor %s claimed opaqueness is preserved but it is not. Input: "
-                               "0x%0x8, Output: 0x%08x.",
+                               "0x%08x, Output: 0x%08x.",
                                fp->name(), input, output);
                         passing = false;
                     }
