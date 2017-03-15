@@ -234,7 +234,8 @@ private:
             flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
-            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(atlas->context(),
+            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
+                atlas->context()->resourceProvider(),
                 this->color(), this->viewMatrix(), atlas->getProxy(), params, flags,
                 this->usesLocalCoords());
         } else {
@@ -251,7 +252,8 @@ private:
                 invert.preTranslate(-fShapes[0].fTranslate.fX, -fShapes[0].fTranslate.fY);
             }
 
-            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(atlas->context(),
+            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+                atlas->context()->resourceProvider(),
                 this->color(), atlas->getProxy(), params, kA8_GrMaskFormat, invert,
                 this->usesLocalCoords());
         }

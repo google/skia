@@ -15,8 +15,17 @@
 #include "GrXferProcessor.h"
 #include "SkSpinlock.h"
 
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 #if GR_TEST_UTILS
+
+GrResourceProvider* GrProcessorTestData::resourceProvider() {
+    return fContext->resourceProvider();
+}
+
+const GrCaps* GrProcessorTestData::caps() {
+    return fContext->caps();
+}
+
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 class GrFragmentProcessor;
 class GrGeometryProcessor;
 

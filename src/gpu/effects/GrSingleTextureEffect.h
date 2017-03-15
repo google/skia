@@ -44,13 +44,13 @@ protected:
                           OptimizationFlags optFlags);
 
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrContext*, OptimizationFlags, sk_sp<GrTextureProxy>,
+    GrSingleTextureEffect(GrResourceProvider*, OptimizationFlags, sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix&);
     /** clamp mode */
-    GrSingleTextureEffect(GrContext*, OptimizationFlags, sk_sp<GrTextureProxy>,
+    GrSingleTextureEffect(GrResourceProvider*, OptimizationFlags, sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix&,
                           GrSamplerParams::FilterMode filterMode);
-    GrSingleTextureEffect(GrContext*, OptimizationFlags, sk_sp<GrTextureProxy>,
+    GrSingleTextureEffect(GrResourceProvider*, OptimizationFlags, sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix&, const GrSamplerParams&);
 
     /**

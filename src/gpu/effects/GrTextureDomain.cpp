@@ -7,7 +7,6 @@
 
 #include "GrTextureDomain.h"
 
-#include "GrContext.h"
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "GrSimpleTextureEffect.h"
@@ -273,7 +272,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
     this->initClassID<GrTextureDomainEffect>();
 }
 
-sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrContext* context,
+sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrResourceProvider* resourceProvider,
                                                        sk_sp<GrTextureProxy> proxy,
                                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                        const SkMatrix& matrix,
@@ -282,23 +281,24 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrContext* context,
                                                        GrSamplerParams::FilterMode filterMode) {
     if (GrTextureDomain::kIgnore_Mode == mode ||
         (GrTextureDomain::kClamp_Mode == mode && can_ignore_rect(proxy.get(), domain))) {
-        return GrSimpleTextureEffect::Make(context, std::move(proxy), std::move(colorSpaceXform),
-                                           matrix, filterMode);
+        return GrSimpleTextureEffect::Make(resourceProvider, std::move(proxy),
+                                           std::move(colorSpaceXform), matrix, filterMode);
     } else {
         return sk_sp<GrFragmentProcessor>(
-            new GrTextureDomainEffect(context, std::move(proxy), std::move(colorSpaceXform),
+            new GrTextureDomainEffect(resourceProvider, std::move(proxy),
+                                      std::move(colorSpaceXform),
                                       matrix, domain, mode, filterMode));
     }
 }
 
-GrTextureDomainEffect::GrTextureDomainEffect(GrContext* context,
+GrTextureDomainEffect::GrTextureDomainEffect(GrResourceProvider* resourceProvider,
                                              sk_sp<GrTextureProxy> proxy,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& matrix,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
                                              GrSamplerParams::FilterMode filterMode)
-    : GrSingleTextureEffect(context, OptFlags(proxy->config(), mode), proxy,
+    : GrSingleTextureEffect(resourceProvider, OptFlags(proxy->config(), mode), proxy,
                             std::move(colorSpaceXform), matrix, filterMode)
     , fTextureDomain(proxy.get(), domain, mode) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
@@ -376,7 +376,7 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? d->fRandom->nextBool() : false;
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrTextureDomainEffect::Make(d->context(),
+    return GrTextureDomainEffect::Make(d->resourceProvider(),
                                        std::move(proxy),
                                        std::move(colorSpaceXform),
                                        matrix,
@@ -408,21 +408,21 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
 }
 
 sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(
-        GrContext* context,
+        GrResourceProvider* resourceProvider,
         sk_sp<GrTextureProxy> proxy,
         const SkIRect& subset,
         const SkIPoint& deviceSpaceOffset) {
     return sk_sp<GrFragmentProcessor>(new GrDeviceSpaceTextureDecalFragmentProcessor(
-            context, std::move(proxy), subset, deviceSpaceOffset));
+            resourceProvider, std::move(proxy), subset, deviceSpaceOffset));
 }
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
-        GrContext* context,
+        GrResourceProvider* resourceProvider,
         sk_sp<GrTextureProxy> proxy,
         const SkIRect& subset,
         const SkIPoint& deviceSpaceOffset)
         : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-        , fTextureSampler(context->resourceProvider(), proxy, GrSamplerParams::ClampNoFilter())
+        , fTextureSampler(resourceProvider, proxy, GrSamplerParams::ClampNoFilter())
         , fTextureDomain(proxy.get(), GrTextureDomain::MakeTexelDomain(subset),
                          GrTextureDomain::kDecal_Mode) {
     this->addTextureSampler(&fTextureSampler);
@@ -508,7 +508,7 @@ sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::TestCreat
     SkIPoint pt;
     pt.fX = d->fRandom->nextULessThan(2048);
     pt.fY = d->fRandom->nextULessThan(2048);
-    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(d->context(),
+    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(d->resourceProvider(),
                                                             std::move(proxy), subset, pt);
 }
 #endif

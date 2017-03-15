@@ -29,7 +29,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
                         GrSamplerParams::kMipMap_FilterMode}) {
         rtContext->clear(nullptr, 0xDDCCBBAA, true);
         sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(
-                                                        context,
+                                                        context->resourceProvider(),
                                                         sk_ref_sp(rectProxy->asTextureProxy()),
                                                         nullptr,
                                                         SkMatrix::I(), filter));

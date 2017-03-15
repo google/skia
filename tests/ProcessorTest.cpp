@@ -256,10 +256,13 @@ static GrColor texel_color(int i, int j) {
 
 static GrColor4f texel_color4f(int i, int j) { return GrColor4f::FromGrColor(texel_color(i, j)); }
 
-void test_draw_op(GrContext* context, GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
+void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
                   sk_sp<GrTextureProxy> inputDataProxy) {
+    GrResourceProvider* resourceProvider = rtc->resourceProvider();
+
     GrPaint paint;
-    paint.addColorTextureProcessor(context, std::move(inputDataProxy), nullptr, SkMatrix::I());
+    paint.addColorTextureProcessor(resourceProvider, std::move(inputDataProxy),
+                                   nullptr, SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     GrPipelineBuilder pb(std::move(paint), GrAAType::kNone);
@@ -337,7 +340,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 !fp->compatibleWithCoverageAsAlpha()) {
                 continue;
             }
-            test_draw_op(context, rtc.get(), fp, dataProxy);
+            test_draw_op(rtc.get(), fp, dataProxy);
             memset(rgbaData.get(), 0x0, sizeof(GrColor) * 256 * 256);
             rtc->readPixels(
                     SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType),

@@ -111,13 +111,13 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
     SkASSERT(swizzle != GrSwizzle::RGBA() || kNone_PMConversion != pmConversion);
 }
 
-GrConfigConversionEffect::GrConfigConversionEffect(GrContext* context,
+GrConfigConversionEffect::GrConfigConversionEffect(GrResourceProvider* resourceProvider,
                                                    sk_sp<GrTextureProxy>
                                                            proxy,
                                                    const GrSwizzle& swizzle,
                                                    PMConversion pmConversion,
                                                    const SkMatrix& matrix)
-        : INHERITED(context, kNone_OptimizationFlags, proxy, nullptr, matrix)
+        : INHERITED(resourceProvider, kNone_OptimizationFlags, proxy, nullptr, matrix)
         , fSwizzle(swizzle)
         , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
@@ -154,7 +154,7 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestD
         swizzle = GrSwizzle::CreateRandom(d->fRandom);
     } while (pmConv == kNone_PMConversion && swizzle == GrSwizzle::RGBA());
     return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(
-                            d->context(),
+                            d->resourceProvider(),
                             d->textureProxy(GrProcessorUnitTest::kSkiaPMTextureIdx),
                             swizzle, pmConv, GrTest::TestMatrix(d->fRandom)));
 }
@@ -249,13 +249,13 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         GrPaint paint2;
         GrPaint paint3;
         sk_sp<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
-                context, dataProxy, GrSwizzle::RGBA(),
+                context->resourceProvider(), dataProxy, GrSwizzle::RGBA(),
                 *pmToUPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
-                context, readRTC->asTextureProxyRef(), GrSwizzle::RGBA(),
+                context->resourceProvider(), readRTC->asTextureProxyRef(), GrSwizzle::RGBA(),
                 *upmToPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(
-                context, tempRTC->asTextureProxyRef(), GrSwizzle::RGBA(),
+                context->resourceProvider(), tempRTC->asTextureProxyRef(), GrSwizzle::RGBA(),
                 *pmToUPMRule, SkMatrix::I()));
 
         paint1.addColorFragmentProcessor(std::move(pmToUPM1));
@@ -321,7 +321,7 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrTexture* texture,
     }
 }
 
-sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrContext* context,
+sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrResourceProvider* resourceProvider,
                                                           sk_sp<GrTextureProxy> proxy,
                                                           const GrSwizzle& swizzle,
                                                           PMConversion pmConversion,
@@ -330,7 +330,7 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrContext* context,
         // If we returned a GrConfigConversionEffect that was equivalent to a GrSimpleTextureEffect
         // then we may pollute our texture cache with redundant shaders. So in the case that no
         // conversions were requested we instead return a GrSimpleTextureEffect.
-        return GrSimpleTextureEffect::Make(context, std::move(proxy), nullptr, matrix);
+        return GrSimpleTextureEffect::Make(resourceProvider, std::move(proxy), nullptr, matrix);
     } else {
         if (kRGBA_8888_GrPixelConfig != proxy->config() &&
             kBGRA_8888_GrPixelConfig != proxy->config() &&
@@ -338,7 +338,8 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrContext* context,
             // The PM conversions assume colors are 0..255
             return nullptr;
         }
-        return sk_sp<GrFragmentProcessor>(
-            new GrConfigConversionEffect(context, std::move(proxy), swizzle, pmConversion, matrix));
+        return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(resourceProvider,
+                                                                       std::move(proxy), swizzle,
+                                                                       pmConversion, matrix));
     }
 }

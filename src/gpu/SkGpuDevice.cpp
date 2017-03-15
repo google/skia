@@ -1161,7 +1161,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1,
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
 
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(this->context(),
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(this->context()->resourceProvider(),
                                                               std::move(proxy),
                                                               std::move(colorSpaceXform),
                                                               SkMatrix::I()));

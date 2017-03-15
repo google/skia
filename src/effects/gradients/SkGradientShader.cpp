@@ -1697,7 +1697,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
                 // This is 1/2 places where auto-normalization is disabled
-                fCoordTransform.reset(args.fContext, *args.fMatrix,
+                fCoordTransform.reset(args.fContext->resourceProvider(), *args.fMatrix,
                                       fAtlas->asTextureProxyRef().get(),
                                       params.filterMode(), false);
                 fTextureSampler.reset(args.fContext->resourceProvider(),
@@ -1717,7 +1717,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                     return;
                 }
                 // This is 2/2 places where auto-normalization is disabled
-                fCoordTransform.reset(args.fContext, *args.fMatrix,
+                fCoordTransform.reset(args.fContext->resourceProvider(), *args.fMatrix,
                                       proxy.get(), params.filterMode(), false);
                 fTextureSampler.reset(args.fContext->resourceProvider(),
                                       std::move(proxy), params);

@@ -10,7 +10,7 @@
 
 #include "SkImageInfo.h"
 
-class GrContext;
+class GrResourceProvider;
 class GrFragmentProcessor;
 class GrTextureProxy;
 
@@ -19,7 +19,7 @@ namespace GrYUVEffect {
      * Creates an effect that performs color conversion from YUV to RGB. The input textures are
      * assumed to be kA8_GrPixelConfig.
      */
-    sk_sp<GrFragmentProcessor> MakeYUVToRGB(GrContext* context,
+    sk_sp<GrFragmentProcessor> MakeYUVToRGB(GrResourceProvider* resourceProvider,
                                             sk_sp<GrTextureProxy> yProxy,
                                             sk_sp<GrTextureProxy> uProxy,
                                             sk_sp<GrTextureProxy> vProxy, const SkISize sizes[3],

@@ -123,6 +123,7 @@ void SkImageShader::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
+#include "GrContext.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -169,10 +170,10 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner = GrBicubicEffect::Make(args.fContext, std::move(proxy), std::move(colorSpaceXform),
-                                      lmInverse, tm);
+        inner = GrBicubicEffect::Make(args.fContext->resourceProvider(), std::move(proxy),
+                                      std::move(colorSpaceXform), lmInverse, tm);
     } else {
-        inner = GrSimpleTextureEffect::Make(args.fContext, std::move(proxy),
+        inner = GrSimpleTextureEffect::Make(args.fContext->resourceProvider(), std::move(proxy),
                                             std::move(colorSpaceXform), lmInverse, params);
     }
 

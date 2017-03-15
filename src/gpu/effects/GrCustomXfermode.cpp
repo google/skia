@@ -7,8 +7,8 @@
 
 #include "effects/GrCustomXfermode.h"
 
+#include "GrCaps.h"
 #include "GrCoordTransform.h"
-#include "GrContext.h"
 #include "GrFragmentProcessor.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"

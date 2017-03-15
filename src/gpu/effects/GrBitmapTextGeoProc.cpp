@@ -7,7 +7,6 @@
 
 #include "GrBitmapTextGeoProc.h"
 
-#include "GrContext.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -120,14 +119,14 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrContext* context, GrColor color,
+GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrResourceProvider* resourceProvider, GrColor color,
                                          sk_sp<GrTextureProxy> proxy,
                                          const GrSamplerParams& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix, bool usesLocalCoords)
     : fColor(color)
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
-    , fTextureSampler(context->resourceProvider(), std::move(proxy), params)
+    , fTextureSampler(resourceProvider, std::move(proxy), params)
     , fInColor(nullptr)
     , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();
@@ -187,7 +186,8 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
             break;
     }
 
-    return GrBitmapTextGeoProc::Make(d->context(), GrRandomColor(d->fRandom), std::move(proxy),
+    return GrBitmapTextGeoProc::Make(d->resourceProvider(), GrRandomColor(d->fRandom),
+                                     std::move(proxy),
                                      params, format, GrTest::TestMatrix(d->fRandom),
                                      d->fRandom->nextBool());
 }

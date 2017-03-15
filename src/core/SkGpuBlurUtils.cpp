@@ -66,8 +66,7 @@ static float adjust_sigma(float sigma, int maxTextureSize, int *scaleFactor, int
     return sigma;
 }
 
-static void convolve_gaussian_1d(GrContext* context,
-                                 GrRenderTargetContext* renderTargetContext,
+static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  const GrClip& clip,
                                  const SkIRect& dstRect,
                                  const SkIPoint& srcOffset,
@@ -79,8 +78,11 @@ static void convolve_gaussian_1d(GrContext* context,
                                  int bounds[2]) {
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
+
+    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
+
     sk_sp<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
-            context, std::move(proxy), direction, radius, sigma, useBounds, bounds));
+            resourceProvider, std::move(proxy), direction, radius, sigma, useBounds, bounds));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
@@ -89,8 +91,7 @@ static void convolve_gaussian_1d(GrContext* context,
                                                  SkRect::Make(dstRect), localMatrix);
 }
 
-static void convolve_gaussian_2d(GrContext* context,
-                                 GrRenderTargetContext* renderTargetContext,
+static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
                                  const GrClip& clip,
                                  const SkIRect& dstRect,
                                  const SkIPoint& srcOffset,
@@ -108,8 +109,10 @@ static void convolve_gaussian_2d(GrContext* context,
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
     SkIRect bounds = srcBounds ? *srcBounds : SkIRect::EmptyIRect();
 
+    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
+
     sk_sp<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::MakeGaussian(
-            context, std::move(proxy), bounds, size, 1.0, 0.0, kernelOffset,
+            resourceProvider, std::move(proxy), bounds, size, 1.0, 0.0, kernelOffset,
             srcBounds ? GrTextureDomain::kDecal_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(std::move(conv));
@@ -118,8 +121,7 @@ static void convolve_gaussian_2d(GrContext* context,
                                                  SkRect::Make(dstRect), localMatrix);
 }
 
-static void convolve_gaussian(GrContext* context,
-                              GrRenderTargetContext* renderTargetContext,
+static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
                               const GrClip& clip,
                               const SkIRect& srcRect,
                               sk_sp<GrTextureProxy> proxy,
@@ -131,7 +133,7 @@ static void convolve_gaussian(GrContext* context,
     int bounds[2] = { 0, 0 };
     SkIRect dstRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
     if (!srcBounds) {
-        convolve_gaussian_1d(context, renderTargetContext, clip, dstRect, srcOffset,
+        convolve_gaussian_1d(renderTargetContext, clip, dstRect, srcOffset,
                              std::move(proxy), direction, radius, sigma, false, bounds);
         return;
     }
@@ -170,15 +172,15 @@ static void convolve_gaussian(GrContext* context,
     }
     if (midRect.isEmpty()) {
         // Blur radius covers srcBounds; use bounds over entire draw
-        convolve_gaussian_1d(context, renderTargetContext, clip, dstRect, srcOffset,
+        convolve_gaussian_1d(renderTargetContext, clip, dstRect, srcOffset,
                              std::move(proxy), direction, radius, sigma, true, bounds);
     } else {
         // Draw right and left margins with bounds; middle without.
-        convolve_gaussian_1d(context, renderTargetContext, clip, leftRect, srcOffset,
+        convolve_gaussian_1d(renderTargetContext, clip, leftRect, srcOffset,
                              proxy, direction, radius, sigma, true, bounds);
-        convolve_gaussian_1d(context, renderTargetContext, clip, rightRect, srcOffset,
+        convolve_gaussian_1d(renderTargetContext, clip, rightRect, srcOffset,
                              proxy, direction, radius, sigma, true, bounds);
-        convolve_gaussian_1d(context, renderTargetContext, clip, midRect, srcOffset,
+        convolve_gaussian_1d(renderTargetContext, clip, midRect, srcOffset,
                              std::move(proxy), direction, radius, sigma, false, bounds);
     }
 }
@@ -253,7 +255,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         // We shouldn't be scaling because this is a small size blur
         SkASSERT((1 == scaleFactorX) && (1 == scaleFactorY));
 
-        convolve_gaussian_2d(context, dstRenderTargetContext.get(), clip, localDstBounds, srcOffset,
+        convolve_gaussian_2d(dstRenderTargetContext.get(), clip, localDstBounds, srcOffset,
                              std::move(srcProxy), radiusX, radiusY, sigmaX, sigmaY, srcBounds);
 
         return dstRenderTargetContext;
@@ -278,7 +280,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             domain.inset((i < scaleFactorX) ? SK_ScalarHalf : 0.0f,
                          (i < scaleFactorY) ? SK_ScalarHalf : 0.0f);
             sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
-                                                        context,
+                                                        context->resourceProvider(),
                                                         std::move(srcProxy),
                                                         nullptr,
                                                         SkMatrix::I(),
@@ -290,8 +292,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             srcOffset.set(0, 0);
         } else {
             GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
-            paint.addColorTextureProcessor(context, std::move(srcProxy), nullptr,
-                                           SkMatrix::I(), params);
+            paint.addColorTextureProcessor(context->resourceProvider(), std::move(srcProxy),
+                                           nullptr, SkMatrix::I(), params);
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
@@ -322,7 +324,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             srcRenderTargetContext->priv().absClear(&clearRect, 0x0);
         }
 
-        convolve_gaussian(context, dstRenderTargetContext.get(), clip, srcRect,
+        convolve_gaussian(dstRenderTargetContext.get(), clip, srcRect,
                           std::move(srcProxy), Gr1DKernelEffect::kX_Direction, radiusX, sigmaX,
                           srcBounds, srcOffset);
         srcRenderTargetContext = dstRenderTargetContext;
@@ -347,7 +349,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             srcRenderTargetContext->priv().absClear(&clearRect, 0x0);
         }
 
-        convolve_gaussian(context, dstRenderTargetContext.get(), clip, srcRect,
+        convolve_gaussian(dstRenderTargetContext.get(), clip, srcRect,
                           std::move(srcProxy), Gr1DKernelEffect::kY_Direction, radiusY, sigmaY,
                           srcBounds, srcOffset);
 
@@ -377,7 +379,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             return nullptr;
         }
 
-        paint.addColorTextureProcessor(context, std::move(proxy), nullptr, SkMatrix::I(), params);
+        paint.addColorTextureProcessor(context->resourceProvider(), std::move(proxy),
+                                       nullptr, SkMatrix::I(), params);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         SkIRect dstRect(srcRect);

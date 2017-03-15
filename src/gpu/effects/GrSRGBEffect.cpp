@@ -7,7 +7,6 @@
 
 #include "GrSRGBEffect.h"
 
-#include "GrContext.h"
 #include "GrFragmentProcessor.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
