@@ -20,199 +20,202 @@ static int32_t next_id() {
     return id;
 }
 
-struct SkVertices::Sizes {
-    Sizes(int vertexCount, int indexCount, bool hasTexs, bool hasColors) {
-        int64_t vSize = (int64_t)vertexCount * sizeof(SkPoint);
-        int64_t tSize = hasTexs ? (int64_t)vertexCount * sizeof(SkPoint) : 0;
-        int64_t cSize = hasColors ? (int64_t)vertexCount * sizeof(SkColor) : 0;
-        int64_t iSize = (int64_t)indexCount * sizeof(uint16_t);
-
-        int64_t total = sizeof(SkVertices) + vSize + tSize + cSize + iSize;
-        if (!sk_64_isS32(total)) {
-            sk_bzero(this, sizeof(*this));
-        } else {
-            fTotal = SkToSizeT(total);
-            fVSize = SkToSizeT(vSize);
-            fTSize = SkToSizeT(tSize);
-            fCSize = SkToSizeT(cSize);
-            fISize = SkToSizeT(iSize);
-            fArrays = fTotal - sizeof(SkVertices);  // just the sum of the arrays
-        }
+static size_t compute_arrays_size(int vertexCount, int indexCount, uint32_t builderFlags) {
+    if (vertexCount < 0 || indexCount < 0) {
+        return 0;   // signal error
     }
 
-    bool isValid() const { return fTotal != 0; }
-
-    size_t fTotal;  // size of entire SkVertices allocation (obj + arrays)
-    size_t fArrays; // size of all the arrays (V + T + C + I)
-    size_t fVSize;
-    size_t fTSize;
-    size_t fCSize;
-    size_t fISize;
-};
-
-SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
-                             uint32_t builderFlags) {
-    bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
-    bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
-    this->init(mode, vertexCount, indexCount,
-               SkVertices::Sizes(vertexCount, indexCount, hasTexs, hasColors));
+    uint64_t size = vertexCount * sizeof(SkPoint);
+    if (builderFlags & SkVertices::kHasTexs_Flag) {
+        size += vertexCount * sizeof(SkPoint);
+    }
+    if (builderFlags & SkVertices::kHasColors_Flag) {
+        size += vertexCount * sizeof(SkColor);
+    }
+    size += indexCount * sizeof(uint16_t);
+    if (!sk_64_isS32(size)) {
+        return 0;   // signal error
+    }
+    return (size_t)size;
 }
 
 SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
-                             const SkVertices::Sizes& sizes) {
-    this->init(mode, vertexCount, indexCount, sizes);
-}
+                             uint32_t flags) {
+    fPositions = nullptr;   // signal that we have nothing to cleanup
+    fColors = nullptr;
+    fTexs = nullptr;
+    fIndices = nullptr;
+    fVertexCnt = 0;
+    fIndexCnt = 0;
 
-void SkVertices::Builder::init(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
-                               const SkVertices::Sizes& sizes) {
-    if (!sizes.isValid()) {
-        return; // fVertices will already be null
+    size_t size = compute_arrays_size(vertexCount, indexCount, flags);
+    if (0 == size) {
+        return;
     }
 
-    void* storage = ::operator new (sizes.fTotal);
-    fVertices.reset(new (storage) SkVertices);
+    char* ptr = (char*)sk_malloc_throw(sk_64_asS32(size));
 
-    // need to point past the object to store the arrays
-    char* ptr = (char*)fVertices.get() + sizeof(SkVertices);
+    fMode = mode;
+    fVertexCnt = vertexCount;
+    fIndexCnt = indexCount;
+    fPositions = (SkPoint*)ptr;  // owner
+    ptr += vertexCount * sizeof(SkPoint);
 
-    fVertices->fPositions = (SkPoint*)ptr;                          ptr += sizes.fVSize;
-    fVertices->fTexs = sizes.fTSize ? (SkPoint*)ptr : nullptr;      ptr += sizes.fTSize;
-    fVertices->fColors = sizes.fCSize ? (SkColor*)ptr : nullptr;    ptr += sizes.fCSize;
-    fVertices->fIndices = sizes.fISize ? (uint16_t*)ptr : nullptr;
-    fVertices->fVertexCnt = vertexCount;
-    fVertices->fIndexCnt = indexCount;
-    fVertices->fMode = mode;
-    // We defer assigning fBounds and fUniqueID until detach() is called
+    if (flags & kHasTexs_Flag) {
+        fTexs = (SkPoint*)ptr;
+        ptr += vertexCount * sizeof(SkPoint);
+    }
+    if (flags & kHasColors_Flag) {
+        fColors = (SkColor*)ptr;
+        ptr += vertexCount * sizeof(SkColor);
+    }
+    if (indexCount) {
+        fIndices = (uint16_t*)ptr;
+    }
+}
+
+SkVertices::Builder::~Builder() {
+    sk_free(fPositions);
 }
 
 sk_sp<SkVertices> SkVertices::Builder::detach() {
-    if (fVertices) {
-        fVertices->fBounds.set(fVertices->fPositions, fVertices->fVertexCnt);
-        fVertices->fUniqueID = next_id();
-        return std::move(fVertices);        // this will null fVertices after the return
+    if (!fPositions) {
+        return nullptr;
     }
-    return nullptr;
-}
 
-int SkVertices::Builder::vertexCount() const {
-    return fVertices ? fVertices->vertexCount() : 0;
-}
+    SkVertices* obj = new SkVertices;
+    obj->fPositions = fPositions;  // owner of storage, use sk_free
+    obj->fTexs = fTexs;
+    obj->fColors = fColors;
+    obj->fIndices = fIndices;
+    obj->fBounds.set(fPositions, fVertexCnt);
+    obj->fUniqueID = next_id();
+    obj->fVertexCnt = fVertexCnt;
+    obj->fIndexCnt = fIndexCnt;
+    obj->fMode = fMode;
 
-int SkVertices::Builder::indexCount() const {
-    return fVertices ? fVertices->indexCount() : 0;
-}
+    fPositions = nullptr;   // so we don't free the memory, now that obj owns it
 
-SkPoint* SkVertices::Builder::positions() {
-    return fVertices ? const_cast<SkPoint*>(fVertices->positions()) : nullptr;
+    return sk_sp<SkVertices>(obj);
 }
-
-SkPoint* SkVertices::Builder::texCoords() {
-    return fVertices ? const_cast<SkPoint*>(fVertices->texCoords()) : nullptr;
-}
-
-SkColor* SkVertices::Builder::colors() {
-    return fVertices ? const_cast<SkColor*>(fVertices->colors()) : nullptr;
-}
-
-uint16_t* SkVertices::Builder::indices() {
-    return fVertices ? const_cast<uint16_t*>(fVertices->indices()) : nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkVertices> SkVertices::MakeCopy(SkCanvas::VertexMode mode, int vertexCount,
                                        const SkPoint pos[], const SkPoint texs[],
                                        const SkColor colors[], int indexCount,
                                        const uint16_t indices[]) {
-    Sizes sizes(vertexCount, indexCount, texs != nullptr, colors != nullptr);
-    if (!sizes.isValid()) {
+    uint32_t flags = 0;
+    if (texs) {
+        flags |= kHasTexs_Flag;
+    }
+    if (colors) {
+        flags |= kHasColors_Flag;
+    }
+    Builder builder(mode, vertexCount, indexCount, flags);
+    if (!builder.isValid()) {
         return nullptr;
     }
 
-    Builder builder(mode, vertexCount, indexCount, sizes);
-    SkASSERT(builder.isValid());
-
-    sk_careful_memcpy(builder.positions(), pos, sizes.fVSize);
-    sk_careful_memcpy(builder.texCoords(), texs, sizes.fTSize);
-    sk_careful_memcpy(builder.colors(), colors, sizes.fCSize);
-    sk_careful_memcpy(builder.indices(), indices, sizes.fISize);
-
+    memcpy(builder.positions(), pos, vertexCount * sizeof(SkPoint));
+    if (texs) {
+        memcpy(builder.texCoords(), texs, vertexCount * sizeof(SkPoint));
+    }
+    if (colors) {
+        memcpy(builder.colors(), colors, vertexCount * sizeof(SkColor));
+    }
+    if (indices) {
+        memcpy(builder.indices(), indices, indexCount * sizeof(uint16_t));
+    }
     return builder.detach();
-}
-
-size_t SkVertices::approximateSize() const {
-    Sizes sizes(fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
-    SkASSERT(sizes.isValid());
-    return sizeof(SkVertices) + sizes.fArrays;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// storage = packed | vertex_count | index_count | pos[] | texs[] | colors[] | indices[]
-//         = header + arrays
+// storage = flags | vertex_count | index_count | pos[] | texs[] | colors[] | indices[]
 
 #define kMode_Mask          0x0FF
 #define kHasTexs_Mask       0x100
 #define kHasColors_Mask     0x200
-#define kHeaderSize         (3 * sizeof(uint32_t))
 
 sk_sp<SkData> SkVertices::encode() const {
-    // packed has room for addtional flags in the future (e.g. versioning)
-    uint32_t packed = static_cast<uint32_t>(fMode);
-    SkASSERT((packed & ~kMode_Mask) == 0);  // our mode fits in the mask bits
-    if (this->hasTexCoords()) {
-        packed |= kHasTexs_Mask;
+    uint32_t flags = static_cast<uint32_t>(fMode);
+    SkASSERT((flags & ~kMode_Mask) == 0);
+    if (fTexs) {
+        flags |= kHasTexs_Mask;
     }
-    if (this->hasColors()) {
-        packed |= kHasColors_Mask;
+    if (fColors) {
+        flags |= kHasColors_Mask;
     }
 
-    Sizes sizes(fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
-    SkASSERT(sizes.isValid());
-    const size_t size = kHeaderSize + sizes.fArrays;
+    size_t size = sizeof(uint32_t) * 3; // flags | verts_count | indices_count
+    size += fVertexCnt * sizeof(SkPoint);
+    if (fTexs) {
+        size += fVertexCnt * sizeof(SkPoint);
+    }
+    if (fColors) {
+        size += fVertexCnt * sizeof(SkColor);
+    }
+    size += fIndexCnt * sizeof(uint16_t);
 
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     SkWriter32 writer(data->writable_data(), data->size());
 
-    writer.write32(packed);
+    writer.write32(flags);
     writer.write32(fVertexCnt);
     writer.write32(fIndexCnt);
-    writer.write(fPositions, sizes.fVSize);
-    writer.write(fTexs, sizes.fTSize);
-    writer.write(fColors, sizes.fCSize);
-    writer.write(fIndices, sizes.fISize);
+    writer.write(fPositions, fVertexCnt * sizeof(SkPoint));
+    if (fTexs) {
+        writer.write(fTexs, fVertexCnt * sizeof(SkPoint));
+    }
+    if (fColors) {
+        writer.write(fColors, fVertexCnt * sizeof(SkColor));
+    }
+    writer.write(fIndices, fIndexCnt * sizeof(uint16_t));
 
     return data;
 }
 
 sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
-    if (length < kHeaderSize) {
-        return nullptr;
+    if (length < 3 * sizeof(uint32_t)) {
+        return nullptr; // buffer too small
     }
 
     SkReader32 reader(data, length);
 
-    const uint32_t packed = reader.readInt();
-    const int vertexCount = reader.readInt();
-    const int indexCount = reader.readInt();
-
-    const SkCanvas::VertexMode mode = static_cast<SkCanvas::VertexMode>(packed & kMode_Mask);
-    const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
-    const bool hasColors = SkToBool(packed & kHasColors_Mask);
-    Sizes sizes(vertexCount, indexCount, hasTexs, hasColors);
-    if (!sizes.isValid()) {
-        return nullptr;
+    uint32_t storageFlags = reader.readInt();
+    SkCanvas::VertexMode mode = static_cast<SkCanvas::VertexMode>(storageFlags & kMode_Mask);
+    int vertexCount = reader.readInt();
+    int indexCount = reader.readInt();
+    uint32_t builderFlags = 0;
+    if (storageFlags & kHasTexs_Mask) {
+        builderFlags |= SkVertices::kHasTexs_Flag;
     }
-    if (kHeaderSize + sizes.fArrays != length) {
-        return nullptr;
+    if (storageFlags & kHasColors_Mask) {
+        builderFlags |= SkVertices::kHasColors_Flag;
     }
 
-    Builder builder(mode, vertexCount, indexCount, sizes);
+    size_t size = compute_arrays_size(vertexCount, indexCount, builderFlags);
+    if (0 == size) {
+        return nullptr;
+    }
 
-    reader.read(builder.positions(), sizes.fVSize);
-    reader.read(builder.texCoords(), sizes.fTSize);
-    reader.read(builder.colors(), sizes.fCSize);
-    reader.read(builder.indices(), sizes.fISize);
+    length -= 3 * sizeof(uint32_t); // already read the header
+    if (length < size) {    // buffer too small
+        return nullptr;
+    }
+
+    Builder builder(mode, vertexCount, indexCount, builderFlags);
+    if (!builder.isValid()) {
+        return nullptr;
+    }
+
+    reader.read(builder.positions(), vertexCount * sizeof(SkPoint));
+    if (builderFlags & SkVertices::kHasTexs_Flag) {
+        reader.read(builder.texCoords(), vertexCount * sizeof(SkPoint));
+    }
+    if (builderFlags & SkVertices::kHasColors_Flag) {
+        reader.read(builder.colors(), vertexCount * sizeof(SkColor));
+    }
+    reader.read(builder.indices(), indexCount * sizeof(uint16_t));
     
     return builder.detach();
 }
