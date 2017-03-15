@@ -13,8 +13,7 @@
 #include <memory>
 
 // Proxy SkCanvas calls to unowned target, transforming colors into targetCS as it goes.
-std::unique_ptr<SkCanvas> SkCreateColorSpaceXformCanvas(SkCanvas* target,
-                                                        sk_sp<SkColorSpace> targetCS);
+std::unique_ptr<SkCanvas> SK_API SkCreateColorSpaceXformCanvas(SkCanvas* target,
+                                                               sk_sp<SkColorSpace> targetCS);
 
-
-#endif//SkColorSpaceXformCanvas_DEFINED
+#endif  //SkColorSpaceXformCanvas_DEFINED
