@@ -55,40 +55,37 @@ protected:
     virtual void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
-        const struct {
-            SkBlendMode fMode;
-            const char* fLabel;
-        } gModes[] = {
-            { SkBlendMode::kClear,        "Clear"       },
-            { SkBlendMode::kSrc,          "Src"         },
-            { SkBlendMode::kDst,          "Dst"         },
-            { SkBlendMode::kSrcOver,      "SrcOver"     },
-            { SkBlendMode::kDstOver,      "DstOver"     },
-            { SkBlendMode::kSrcIn,        "SrcIn"       },
-            { SkBlendMode::kDstIn,        "DstIn"       },
-            { SkBlendMode::kSrcOut,       "SrcOut"      },
-            { SkBlendMode::kDstOut,       "DstOut"      },
-            { SkBlendMode::kSrcATop,      "SrcATop"     },
-            { SkBlendMode::kDstATop,      "DstATop"     },
+        const SkBlendMode gModes[] = {
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
 
-            { SkBlendMode::kXor,          "Xor"         },
-            { SkBlendMode::kPlus,         "Plus"        },
-            { SkBlendMode::kModulate,     "Modulate"    },
-            { SkBlendMode::kScreen,       "Screen"      },
-            { SkBlendMode::kOverlay,      "Overlay"     },
-            { SkBlendMode::kDarken,       "Darken"      },
-            { SkBlendMode::kLighten,      "Lighten"     },
-            { SkBlendMode::kColorDodge,   "ColorDodge"  },
-            { SkBlendMode::kColorBurn,    "ColorBurn"   },
-            { SkBlendMode::kHardLight,    "HardLight"   },
-            { SkBlendMode::kSoftLight,    "SoftLight"   },
-            { SkBlendMode::kDifference,   "Difference"  },
-            { SkBlendMode::kExclusion,    "Exclusion"   },
-            { SkBlendMode::kMultiply,     "Multiply"    },
-            { SkBlendMode::kHue,          "Hue"         },
-            { SkBlendMode::kSaturation,   "Saturation"  },
-            { SkBlendMode::kColor,        "Color"       },
-            { SkBlendMode::kLuminosity,   "Luminosity"  },
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
+            SkBlendMode::kModulate,
+            SkBlendMode::kScreen,
+            SkBlendMode::kOverlay,
+            SkBlendMode::kDarken,
+            SkBlendMode::kLighten,
+            SkBlendMode::kColorDodge,
+            SkBlendMode::kColorBurn,
+            SkBlendMode::kHardLight,
+            SkBlendMode::kSoftLight,
+            SkBlendMode::kDifference,
+            SkBlendMode::kExclusion,
+            SkBlendMode::kMultiply,
+            SkBlendMode::kHue,
+            SkBlendMode::kSaturation,
+            SkBlendMode::kColor,
+            SkBlendMode::kLuminosity,
         };
 
         const SkScalar w = SkIntToScalar(W);
@@ -127,10 +124,11 @@ protected:
             p.setShader(nullptr);
             canvas->drawRect(r, p);
 
-            textP.setBlendMode(gModes[i].fMode);
+            textP.setBlendMode(gModes[i]);
             canvas->drawText("H", 1, x+ w/10.f, y + 7.f*h/8.f, textP);
 #if 1
-            canvas->drawText(gModes[i].fLabel, strlen(gModes[i].fLabel),
+            const char* label = SkBlendMode_Name(gModes[i]);
+            canvas->drawText(label, strlen(label),
                              x + w/2, y - labelP.getTextSize()/2, labelP);
 #endif
             x += w + SkIntToScalar(10);
