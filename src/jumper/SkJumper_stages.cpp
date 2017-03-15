@@ -8,34 +8,36 @@
 #include "SkJumper.h"
 #include <string.h>
 
+#define SI static inline
+
 template <typename T, typename P>
-static T unaligned_load(const P* p) {
+SI T unaligned_load(const P* p) {
     T v;
     memcpy(&v, p, sizeof(v));
     return v;
 }
 
 template <typename Dst, typename Src>
-static Dst bit_cast(const Src& src) {
+SI Dst bit_cast(const Src& src) {
     static_assert(sizeof(Dst) == sizeof(Src), "");
     return unaligned_load<Dst>(&src);
 }
 
 // A couple functions for embedding constants directly into code,
 // so that no .const or .literal4 section is created.
-static inline int C(int x) {
+SI int C(int x) {
 #if defined(JUMPER) && defined(__x86_64__)
     // Move x-the-compile-time-constant as a literal into x-the-register.
     asm("mov %1, %0" : "=r"(x) : "i"(x));
 #endif
     return x;
 }
-static inline float C(float f) {
+SI float C(float f) {
     int x = C(unaligned_load<int>(&f));
     return unaligned_load<float>(&x);
 }
-static inline int   operator "" _i(unsigned long long int i) { return C(  (int)i); }
-static inline float operator "" _f(           long double f) { return C((float)f); }
+SI int   operator "" _i(unsigned long long int i) { return C(  (int)i); }
+SI float operator "" _f(           long double f) { return C((float)f); }
 
 // Not all constants can be generated using C() or _i/_f.  We read the rest from this struct.
 using K = const SkJumper_constants;
@@ -51,20 +53,20 @@ using K = const SkJumper_constants;
     using U16 = uint16_t;
     using U8  = uint8_t;
 
-    static F   mad(F f, F m, F a)   { return f*m+a; }
-    static F   min(F a, F b)        { return fminf(a,b); }
-    static F   max(F a, F b)        { return fmaxf(a,b); }
-    static F   abs_  (F v)          { return fabsf(v); }
-    static F   floor_(F v)          { return floorf(v); }
-    static F   rcp   (F v)          { return 1.0f / v; }
-    static F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
-    static U32 round (F v, F scale) { return (uint32_t)lrintf(v*scale); }
-    static U16 pack(U32 v)          { return (U16)v; }
-    static U8  pack(U16 v)          { return  (U8)v; }
+    SI F   mad(F f, F m, F a)   { return f*m+a; }
+    SI F   min(F a, F b)        { return fminf(a,b); }
+    SI F   max(F a, F b)        { return fmaxf(a,b); }
+    SI F   abs_  (F v)          { return fabsf(v); }
+    SI F   floor_(F v)          { return floorf(v); }
+    SI F   rcp   (F v)          { return 1.0f / v; }
+    SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
+    SI U32 round (F v, F scale) { return (uint32_t)lrintf(v*scale); }
+    SI U16 pack(U32 v)          { return (U16)v; }
+    SI U8  pack(U16 v)          { return  (U8)v; }
 
-    static F if_then_else(I32 c, F t, F e) { return c ? t : e; }
+    SI F if_then_else(I32 c, F t, F e) { return c ? t : e; }
 
-    static F gather(const float* p, U32 ix) { return p[ix]; }
+    SI F gather(const float* p, U32 ix) { return p[ix]; }
 
     #define WRAP(name) sk_##name
 
@@ -79,20 +81,20 @@ using K = const SkJumper_constants;
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    static F   mad(F f, F m, F a)                    { return vfmaq_f32(a,f,m);        }
-    static F   min(F a, F b)                         { return vminq_f32(a,b);          }
-    static F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
-    static F   abs_  (F v)                           { return vabsq_f32(v);            }
-    static F   floor_(F v)                           { return vrndmq_f32(v);           }
-    static F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
-    static F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
-    static U32 round (F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
-    static U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
-    static U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
+    SI F   mad(F f, F m, F a)                    { return vfmaq_f32(a,f,m);        }
+    SI F   min(F a, F b)                         { return vminq_f32(a,b);          }
+    SI F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
+    SI F   abs_  (F v)                           { return vabsq_f32(v);            }
+    SI F   floor_(F v)                           { return vrndmq_f32(v);           }
+    SI F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
+    SI F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+    SI U32 round (F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
+    SI U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
+    SI U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
 
-    static F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
+    SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
-    static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
 
     #define WRAP(name) sk_##name##_aarch64
 
@@ -109,24 +111,24 @@ using K = const SkJumper_constants;
     using U16 = uint16_t __attribute__((ext_vector_type(2)));
     using U8  = uint8_t  __attribute__((ext_vector_type(2)));
 
-    static F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
-    static F   min(F a, F b)                       { return vmin_f32(a,b);          }
-    static F   max(F a, F b)                       { return vmax_f32(a,b);          }
-    static F   abs_ (F v)                          { return vabs_f32(v);            }
-    static F   rcp  (F v) { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
-    static F   rsqrt(F v) { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
-    static U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
-    static U16 pack(U32 v)                         { return __builtin_convertvector(v, U16); }
-    static U8  pack(U16 v)                         { return __builtin_convertvector(v,  U8); }
+    SI F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
+    SI F   min(F a, F b)                       { return vmin_f32(a,b);          }
+    SI F   max(F a, F b)                       { return vmax_f32(a,b);          }
+    SI F   abs_ (F v)                          { return vabs_f32(v);            }
+    SI F   rcp  (F v) { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
+    SI F   rsqrt(F v) { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
+    SI U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
+    SI U16 pack(U32 v)                         { return __builtin_convertvector(v, U16); }
+    SI U8  pack(U16 v)                         { return __builtin_convertvector(v,  U8); }
 
-    static F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
+    SI F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
 
-    static F floor_(F v) {
+    SI F floor_(F v) {
         F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
         return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
     }
 
-    static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
+    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
 
     #define WRAP(name) sk_##name##_vfp4
 
@@ -140,7 +142,7 @@ using K = const SkJumper_constants;
     using U16 = uint16_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
-    static F mad(F f, F m, F a)  {
+    SI F mad(F f, F m, F a)  {
     #if defined(__FMA__)
         return _mm256_fmadd_ps(f,m,a);
     #else
@@ -148,26 +150,26 @@ using K = const SkJumper_constants;
     #endif
     }
 
-    static F   min(F a, F b)        { return _mm256_min_ps(a,b);    }
-    static F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
-    static F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
-    static F   floor_(F v)          { return _mm256_floor_ps(v);    }
-    static F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
-    static F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
-    static U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
+    SI F   min(F a, F b)        { return _mm256_min_ps(a,b);    }
+    SI F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
+    SI F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
+    SI F   floor_(F v)          { return _mm256_floor_ps(v);    }
+    SI F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
+    SI F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
+    SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
 
-    static U16 pack(U32 v) {
+    SI U16 pack(U32 v) {
         return _mm_packus_epi32(_mm256_extractf128_si256(v, 0),
                                 _mm256_extractf128_si256(v, 1));
     }
-    static U8 pack(U16 v) {
+    SI U8 pack(U16 v) {
         auto r = _mm_packus_epi16(v,v);
         return unaligned_load<U8>(&r);
     }
 
-    static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
+    SI F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
 
-    static F gather(const float* p, U32 ix) {
+    SI F gather(const float* p, U32 ix) {
     #if defined(__AVX2__)
         return _mm256_i32gather_ps(p, ix, 4);
     #else
@@ -191,15 +193,15 @@ using K = const SkJumper_constants;
     using U16 = uint16_t __attribute__((ext_vector_type(4)));
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
-    static F   mad(F f, F m, F a)  { return f*m+a;              }
-    static F   min(F a, F b)       { return _mm_min_ps(a,b);    }
-    static F   max(F a, F b)       { return _mm_max_ps(a,b);    }
-    static F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
-    static F   rcp  (F v)          { return _mm_rcp_ps  (v);    }
-    static F   rsqrt(F v)          { return _mm_rsqrt_ps(v);    }
-    static U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
+    SI F   mad(F f, F m, F a)  { return f*m+a;              }
+    SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
+    SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
+    SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
+    SI F   rcp  (F v)          { return _mm_rcp_ps  (v);    }
+    SI F   rsqrt(F v)          { return _mm_rsqrt_ps(v);    }
+    SI U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
 
-    static U16 pack(U32 v) {
+    SI U16 pack(U32 v) {
     #if defined(__SSE4_1__)
         auto p = _mm_packus_epi32(v,v);
     #else
@@ -209,18 +211,18 @@ using K = const SkJumper_constants;
     #endif
         return unaligned_load<U16>(&p);  // We have two copies.  Return (the lower) one.
     }
-    static U8 pack(U16 v) {
+    SI U8 pack(U16 v) {
         __m128i r;
         memcpy(&r, &v, sizeof(v));
         r = _mm_packus_epi16(r,r);
         return unaligned_load<U8>(&r);
     }
 
-    static F if_then_else(I32 c, F t, F e) {
+    SI F if_then_else(I32 c, F t, F e) {
         return _mm_or_ps(_mm_and_ps(c, t), _mm_andnot_ps(c, e));
     }
 
-    static F floor_(F v) {
+    SI F floor_(F v) {
     #if defined(__SSE4_1__)
         return _mm_floor_ps(v);
     #else
@@ -229,7 +231,7 @@ using K = const SkJumper_constants;
     #endif
     }
 
-    static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
 
     #if defined(__SSE4_1__)
         #define WRAP(name) sk_##name##_sse41
@@ -244,17 +246,17 @@ static const size_t kStride = sizeof(F) / sizeof(float);
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
 #if defined(JUMPER)
-    static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
-    static U32 expand(U16 v) { return __builtin_convertvector(     v, U32); }
-    static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
+    SI F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
+    SI U32 expand(U16 v) { return __builtin_convertvector(     v, U32); }
+    SI U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
 #else
-    static F   cast  (U32 v) { return   (F)v; }
-    static U32 expand(U16 v) { return (U32)v; }
-    static U32 expand(U8  v) { return (U32)v; }
+    SI F   cast  (U32 v) { return   (F)v; }
+    SI U32 expand(U16 v) { return (U32)v; }
+    SI U32 expand(U8  v) { return (U32)v; }
 #endif
 
 template <typename V, typename T>
-static inline V load(const T* src, size_t tail) {
+SI V load(const T* src, size_t tail) {
 #if defined(JUMPER)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
@@ -275,7 +277,7 @@ static inline V load(const T* src, size_t tail) {
 }
 
 template <typename V, typename T>
-static inline void store(T* dst, V v, size_t tail) {
+SI void store(T* dst, V v, size_t tail) {
 #if defined(JUMPER)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
@@ -312,7 +314,7 @@ static inline void store(T* dst, V v, size_t tail) {
 #endif
 
 #if 1 && defined(JUMPER) && defined(__AVX2__)
-    static inline U32 mask(size_t tail) {
+    SI U32 mask(size_t tail) {
         // It's easiest to build the mask as 8 8-bit values, either 0x00 or 0xff.
         // Start fully on, then shift away lanes from the top until we've got our mask.
         uint64_t mask = 0xffffffffffffffff >> 8*(kStride-tail);
@@ -341,11 +343,11 @@ static inline void store(T* dst, V v, size_t tail) {
 #endif
 
 
-static F lerp(F from, F to, F t) {
+SI F lerp(F from, F to, F t) {
     return mad(to-from, t, from);
 }
 
-static void from_565(U16 _565, F* r, F* g, F* b) {
+SI void from_565(U16 _565, F* r, F* g, F* b) {
     U32 wide = expand(_565);
     *r = cast(wide & C(31<<11)) * C(1.0f / (31<<11));
     *g = cast(wide & C(63<< 5)) * C(1.0f / (63<< 5));
@@ -362,7 +364,7 @@ static void from_565(U16 _565, F* r, F* g, F* b) {
     };
 #endif
 
-static void* load_and_inc(void**& program) {
+SI void* load_and_inc(void**& program) {
 #if defined(__GNUC__) && defined(__x86_64__)
     // Passing program as the second Stage argument makes it likely that it's in %rsi,
     // so this is usually a single instruction *program++.
@@ -432,8 +434,8 @@ struct LazyCtx {
     }
 
     #define STAGE(name)                                                           \
-        static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
-                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
         extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
                                    F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
             LazyCtx ctx(program);                                                 \
@@ -441,8 +443,8 @@ struct LazyCtx {
             auto next = (Stage*)load_and_inc(program);                            \
             next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
         }                                                                         \
-        static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
-                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 #else
     // Other instruction sets (SSE, NEON, portable) can fall back on narrower
@@ -466,8 +468,8 @@ struct LazyCtx {
     }
 
     #define STAGE(name)                                                           \
-        static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
-                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
         extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
                                    F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
             LazyCtx ctx(program);                                                 \
@@ -475,8 +477,8 @@ struct LazyCtx {
             auto next = (Stage*)load_and_inc(program);                            \
             next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
         }                                                                         \
-        static void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,            \
-                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #endif
 
 // Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
@@ -1065,18 +1067,18 @@ STAGE(store_f32) {
 #endif
 }
 
-static F ulp_before(F v) {
+SI F ulp_before(F v) {
     return bit_cast<F>(bit_cast<U32>(v) + U32(0xffffffff));
 }
-static F clamp(F v, float limit) {
+SI F clamp(F v, float limit) {
     v = max(0, v);
     return min(v, ulp_before(limit));
 }
-static F repeat(F v, float limit) {
+SI F repeat(F v, float limit) {
     v = v - floor_(v/limit)*limit;
     return min(v, ulp_before(limit));
 }
-static F mirror(F v, float limit) {
+SI F mirror(F v, float limit) {
     v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
     return min(v, ulp_before(limit));
 }
