@@ -99,7 +99,7 @@
       "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\gn.exe",
       "gen",
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan\\Release_x64",
-      "--args=is_debug=false skia_vulkan_sdk=\"[START_DIR]\\win_vulkan_sdk\" target_cpu=\"x86_64\" windk=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\d3cb0e37bdd120ad0ac4650b674b09e81be45616\""
+      "--args=is_debug=false skia_enable_vulkan_debug_layers=false skia_vulkan_sdk=\"[START_DIR]\\win_vulkan_sdk\" target_cpu=\"x86_64\" windk=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\d3cb0e37bdd120ad0ac4650b674b09e81be45616\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
