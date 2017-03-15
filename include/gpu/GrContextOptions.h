@@ -94,11 +94,14 @@ struct GrContextOptions {
         kAAHairline        = 1 << 3,
         kAAConvex          = 1 << 4,
         kAALinearizing     = 1 << 5,
-        kDistanceField     = 1 << 6,
+        kSmall             = 1 << 6,
         kTessellating      = 1 << 7,
         kDefault           = 1 << 8,
 
-        kAll               = kDefault | (kDefault - 1)
+        kAll               = kDefault | (kDefault - 1),
+
+        // For legacy. To be removed when updated in Android.
+        kDistanceField     = kSmall
     };
 
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;

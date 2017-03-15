@@ -11,7 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "ops/GrAADistanceFieldPathRenderer.h"
+#include "ops/GrSmallPathRenderer.h"
 
 #if 0
 // This test case including path coords and matrix taken from crbug.com/627443.
@@ -58,7 +58,7 @@ static void test_far_from_origin(GrContext* ctx, GrRenderTargetContext* renderTa
     pr->drawPath(args);
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(SmallPathRenderer, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
     // The DF PR only works with contexts that support derivatives
     if (!ctx->caps()->shaderCaps()->shaderDerivativeSupport()) {
@@ -74,10 +74,10 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) 
         return;
     }
 
-    GrAADistanceFieldPathRenderer dfpr;
+    GrSmallPathRenderer spr;
 
     ctx->flush();
-    test_far_from_origin(ctx, rtc.get(), &dfpr);
+    test_far_from_origin(ctx, rtc.get(), &spr);
     ctx->flush();
 }
 #endif
