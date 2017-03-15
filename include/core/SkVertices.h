@@ -22,8 +22,6 @@
  */
 class SkVertices : public SkNVRefCnt<SkVertices> {
 public:
-    ~SkVertices() { sk_free((void*)fPositions); }
-
     /**
      *  Create a vertices by copying the specified arrays. texs and colors may be nullptr,
      *  and indices is ignored if indexCount == 0.
@@ -49,32 +47,29 @@ public:
     class Builder {
     public:
         Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
-        ~Builder();
 
-        bool isValid() const { return fPositions != nullptr; }
+        bool isValid() const { return fVertices != nullptr; }
 
-        int vertexCount() const { return fVertexCnt; }
-        int indexCount() const { return fIndexCnt; }
-        SkPoint* positions() { return fPositions; }
-        SkPoint* texCoords() { return fTexs; }
-        SkColor* colors() { return fColors; }
-        uint16_t* indices() { return fIndices; }
+        int vertexCount() const { return fVertices->vertexCount(); }
+        int indexCount() const { return fVertices->indexCount(); }
+        SkPoint* positions() { return const_cast<SkPoint*>(fVertices->positions()); }
+        SkPoint* texCoords() { return const_cast<SkPoint*>(fVertices->texCoords()); }
+        SkColor* colors() { return const_cast<SkColor*>(fVertices->colors()); }
+        uint16_t* indices() { return const_cast<uint16_t*>(fVertices->indices()); }
 
         sk_sp<SkVertices> detach();
 
     private:
-        SkPoint* fPositions;  // owner of storage, use sk_free
-        SkPoint* fTexs;
-        SkColor* fColors;
-        uint16_t* fIndices;
-        int fVertexCnt;
-        int fIndexCnt;
-        SkCanvas::VertexMode fMode;
+        // holds a partially complete object. only completed in detach()
+        sk_sp<SkVertices> fVertices;
+        size_t            fArraySize;
+
+        friend class SkVertices;
     };
 
-    SkCanvas::VertexMode mode() const { return fMode; }
 
     uint32_t uniqueID() const { return fUniqueID; }
+    SkCanvas::VertexMode mode() const { return fMode; }
     int vertexCount() const { return fVertexCnt; }
     bool hasColors() const { return SkToBool(fColors); }
     bool hasTexCoords() const { return SkToBool(fTexs); }
@@ -99,15 +94,19 @@ public:
 private:
     SkVertices() {}
 
-    const SkPoint* fPositions;  // owner of storage, use sk_free
-    const SkPoint* fTexs;
-    const SkColor* fColors;
-    const uint16_t* fIndices;
+    static sk_sp<SkVertices> Alloc(int vCount, int iCount, uint32_t builderFlags,
+                                   size_t* arraySize);
+
+    SkPoint* fPositions;
+    SkPoint* fTexs;
+    SkColor* fColors;
+    uint16_t* fIndices;
     SkRect fBounds;
     uint32_t fUniqueID;
     int fVertexCnt;
     int fIndexCnt;
     SkCanvas::VertexMode fMode;
+    // data for the arrays follows
 };
 
 #endif
