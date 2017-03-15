@@ -420,4 +420,3 @@ void GrResourceProvider::releaseOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphor
     semaphore->resetGpu(nullptr);
 }
 
-
