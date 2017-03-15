@@ -122,7 +122,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(975, 1175);
+        return SkISize::Make(325, 1175);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -167,31 +167,18 @@ protected:
             for (uint8_t alpha : {0xFF, 0x80}) {
                 for (const auto& cf : {sk_sp<SkColorFilter>(nullptr), fColorFilter}) {
                     for (const auto& shader : {fShader1, fShader2}) {
-                        static constexpr struct {
-                            bool fHasColors;
-                            bool fHasTexs;
-                        } kAttrs[] = {{true, false}, {false, true}, {true, true}};
-                        for (auto attrs : kAttrs) {
-                            paint.setShader(shader);
-                            paint.setColorFilter(cf);
-                            paint.setAlpha(alpha);
-                            if (fUseObject) {
-                                uint32_t flags = 0;
-                                flags |=
-                                        attrs.fHasColors ? 0 : SkCanvas::kIgnoreColors_VerticesFlag;
-                                flags |= attrs.fHasTexs ? 0
-                                                        : SkCanvas::kIgnoreTexCoords_VerticesFlag;
-                                canvas->drawVertices(fVertices, mode, paint, flags);
-                            } else {
-                                const SkColor* colors = attrs.fHasColors ? fColors : nullptr;
-                                const SkPoint* texs = attrs.fHasTexs ? fTexs : nullptr;
-                                canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode,
-                                                     kMeshVertexCnt, fPts, texs, colors, mode,
-                                                     kMeshFan, kMeshIndexCnt, paint);
-                            }
-                            canvas->translate(40, 0);
-                            ++x;
+                        paint.setShader(shader);
+                        paint.setColorFilter(cf);
+                        paint.setAlpha(alpha);
+                        if (fUseObject) {
+                            canvas->drawVertices(fVertices, mode, paint);
+                        } else {
+                            canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode,
+                                                 kMeshVertexCnt, fPts, fTexs, fColors, mode,
+                                                 kMeshFan, kMeshIndexCnt, paint);
                         }
+                        canvas->translate(40, 0);
+                        ++x;
                     }
                 }
             }
@@ -247,30 +234,26 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
     canvas->save();
     canvas->translate(10, 10);
     for (bool useShader : {false, true}) {
-        for (bool useTex : {false, true}) {
-            for (const auto& m : matrices) {
-                canvas->save();
-                canvas->concat(m);
-                SkPaint paint;
-                paint.setShader(useShader ? shader : nullptr);
-                if (useObject) {
-                    uint32_t flags = useTex ? 0 : SkCanvas::kIgnoreTexCoords_VerticesFlag;
-                    canvas->drawVertices(vertices, SkBlendMode::kModulate, paint, flags);
-                } else {
-                    const SkPoint* t = useTex ? texs : nullptr;
-                    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, pts,
-                                         t, colors, indices, kNumTris * 3, paint);
-                }
-                canvas->restore();
+        for (const auto& m : matrices) {
+            canvas->save();
+            canvas->concat(m);
+            SkPaint paint;
+            paint.setShader(useShader ? shader : nullptr);
+            if (useObject) {
+                canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
+            } else {
+                canvas->drawVertices(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, pts,
+                                     texs, colors, indices, kNumTris * 3, paint);
             }
-            canvas->translate(0, 120);
+            canvas->restore();
         }
+        canvas->translate(120, 0);
     }
     canvas->restore();
 }
 
 // This test exists to exercise batching in the gpu backend.
-DEF_SIMPLE_GM(vertices_batching, canvas, 100, 500) {
+DEF_SIMPLE_GM(vertices_batching, canvas, 230, 130) {
     draw_batching(canvas, false);
     canvas->translate(50, 0);
     draw_batching(canvas, true);
