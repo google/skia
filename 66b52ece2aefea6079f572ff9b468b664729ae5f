@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ef5a056_59eb159b",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1775,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-15T17:22:30Z",
+      "side": 1,
+      "message": "where do these numbers come from?",
+      "range": {
+        "startLine": 1775,
+        "startChar": 30,
+        "endLine": 1775,
+        "endChar": 38
+      },
+      "revId": "66b52ece2aefea6079f572ff9b468b664729ae5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
