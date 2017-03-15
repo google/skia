@@ -350,7 +350,12 @@ private:
             case SkBlendMode::kSaturation:
             case SkBlendMode::kColor:
             case SkBlendMode::kLuminosity:
-                flags = kPreservesOpaqueInput_OptimizationFlag;
+                if (child == kSrc_Child) {
+                    flags = fp->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
+                                                       : kNone_OptimizationFlags;
+                } else {
+                    flags = kPreservesOpaqueInput_OptimizationFlag;
+                }
                 break;
         }
         if (does_cpu_blend_impl_match_gpu(mode) && fp->hasConstantOutputForConstantInput()) {
