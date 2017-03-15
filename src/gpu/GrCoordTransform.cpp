@@ -9,6 +9,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrGpu.h"
+#include "GrResourceProvider.h"
 #include "GrTextureProxy.h"
 
 static GrSLPrecision compute_precision(const GrShaderCaps* caps,
@@ -67,7 +68,7 @@ void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
     }
 }
 
-void GrCoordTransform::reset(GrContext* context, const SkMatrix& m,
+void GrCoordTransform::reset(GrResourceProvider* resourceProvider, const SkMatrix& m,
                              GrTextureProxy* proxy,
                              GrSamplerParams::FilterMode filter, bool normalize) {
     SkASSERT(proxy);
@@ -77,11 +78,11 @@ void GrCoordTransform::reset(GrContext* context, const SkMatrix& m,
     // MDB TODO: just GrCaps is needed for this method
     // MDB TODO: once all the coord transforms take a proxy just store it here and
     // instantiate later
-    fTexture = proxy->instantiate(context->resourceProvider());
+    fTexture = proxy->instantiate(resourceProvider);
     fNormalize = normalize;
     fReverseY = kBottomLeft_GrSurfaceOrigin == proxy->origin();
 
-    const GrCaps* caps = context->caps();
+    const GrCaps* caps = resourceProvider->caps();
     fPrecision = compute_precision(caps->shaderCaps(),
                                    proxy->worstCaseWidth(*caps),
                                    proxy->worstCaseHeight(*caps), filter);

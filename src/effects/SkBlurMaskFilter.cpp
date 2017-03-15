@@ -1011,7 +1011,7 @@ sk_sp<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* d) 
     float sigma = d->fRandom->nextRangeF(3,8);
     float width = d->fRandom->nextRangeF(200,300);
     float height = d->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(d->context()->resourceProvider(),
+    return GrRectBlurEffect::Make(d->resourceProvider(),
                                   SkRect::MakeWH(width, height), sigma);
 }
 #endif
@@ -1238,7 +1238,7 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTestData* d)
     SkScalar sigma = d->fRandom->nextRangeF(1.f,10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Make(d->context(), sigma, sigma, rrect, rrect);
+    return GrRRectBlurEffect::Make(d->context1(), sigma, sigma, rrect, rrect);
 }
 #endif
 
@@ -1519,8 +1519,9 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
     if (!isNormalBlur) {
         GrPaint paint;
         // Blend pathTexture over blurTexture.
-        paint.addCoverageFragmentProcessor(
-                GrSimpleTextureEffect::Make(context, std::move(srcProxy), nullptr, SkMatrix::I()));
+        paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(context->resourceProvider(),
+                                                                       std::move(srcProxy),
+                                                                       nullptr, SkMatrix::I()));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);

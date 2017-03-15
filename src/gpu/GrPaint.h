@@ -118,13 +118,14 @@ public:
     void addCoverageTextureProcessor(GrTexture*, const SkMatrix&, const GrSamplerParams&);
 
 
-    void addColorTextureProcessor(GrContext*, sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
-                                  const SkMatrix&);
-    void addColorTextureProcessor(GrContext*, sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
-                                  const SkMatrix&, const GrSamplerParams&);
+    void addColorTextureProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>,
+                                  sk_sp<GrColorSpaceXform>, const SkMatrix&);
+    void addColorTextureProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>,
+                                  sk_sp<GrColorSpaceXform>, const SkMatrix&,
+                                  const GrSamplerParams&);
 
-    void addCoverageTextureProcessor(GrContext*, sk_sp<GrTextureProxy>, const SkMatrix&);
-    void addCoverageTextureProcessor(GrContext*, sk_sp<GrTextureProxy>,
+    void addCoverageTextureProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>, const SkMatrix&);
+    void addCoverageTextureProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>,
                                      const SkMatrix&, const GrSamplerParams&);
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }

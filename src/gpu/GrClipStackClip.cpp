@@ -72,11 +72,12 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
 
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask.
-static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrContext* context,
+static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrResourceProvider* resourceProvider,
                                                      sk_sp<GrTextureProxy> mask,
                                                      const SkIRect &devBound) {
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
-    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(context, std::move(mask), domainTexels,
+    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(resourceProvider,
+                                                            std::move(mask), domainTexels,
                                                             {devBound.fLeft, devBound.fTop});
 }
 
@@ -323,7 +324,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         if (result) {
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // the clip's device space bounds.
-            out->addCoverageFP(create_fp_for_mask(context, std::move(result),
+            out->addCoverageFP(create_fp_for_mask(context->resourceProvider(), std::move(result),
                                                   reducedClip.ibounds()));
             return true;
         }

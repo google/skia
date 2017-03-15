@@ -356,7 +356,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     paint.addColorFragmentProcessor(
-        GrYUVEffect::MakeYUVToRGB(ctx,
+        GrYUVEffect::MakeYUVToRGB(ctx->resourceProvider(),
                                   sk_ref_sp(yProxy->asTextureProxy()),
                                   sk_ref_sp(uProxy->asTextureProxy()),
                                   sk_ref_sp(vProxy->asTextureProxy()), yuvSizes, colorSpace, nv12));
