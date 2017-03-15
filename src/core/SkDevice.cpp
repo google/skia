@@ -276,14 +276,11 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     }
 }
 
-void SkBaseDevice::drawVerticesObject(sk_sp<SkVertices> vertices,
-                                      SkBlendMode mode, const SkPaint& paint, uint32_t flags) {
-    const SkPoint* texs =
-            (flags & SkCanvas::kIgnoreTexCoords_VerticesFlag) ? nullptr : vertices->texCoords();
-    const SkColor* colors =
-            (flags & SkCanvas::kIgnoreColors_VerticesFlag) ? nullptr : vertices->colors();
-    this->drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(), texs,
-                       colors, mode, vertices->indices(), vertices->indexCount(), paint);
+void SkBaseDevice::drawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode,
+                                      const SkPaint& paint, uint32_t deprecatedFlags) {
+    this->drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
+                       vertices->texCoords(), vertices->colors(), mode, vertices->indices(),
+                       vertices->indexCount(), paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

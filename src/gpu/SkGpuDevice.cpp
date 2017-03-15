@@ -1668,8 +1668,8 @@ void SkGpuDevice::drawVerticesObject(sk_sp<SkVertices> vertices,
 
     SkASSERT(vertices);
     GrPaint grPaint;
-    bool hasColors = vertices->hasColors() && !(SkCanvas::kIgnoreColors_VerticesFlag & flags);
-    bool hasTexs = vertices->hasTexCoords() & !(SkCanvas::kIgnoreTexCoords_VerticesFlag & flags);
+    bool hasColors = vertices->hasColors();
+    bool hasTexs = vertices->hasTexCoords();
     if (!hasTexs && !hasColors) {
         // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
         this->drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),

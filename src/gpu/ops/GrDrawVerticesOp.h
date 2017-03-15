@@ -25,6 +25,11 @@ class GrDrawVerticesOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    enum {
+        kIgnoreTexCoords_VerticesFlag   = 1 << 0,
+        kIgnoreColors_VerticesFlag      = 1 << 1,
+    };
+
     /**
      * The 'color' param is used if the 'colors' array is null. 'bounds' is the bounds of the
      * 'positions' array (in local space prior to application of 'viewMatrix'). If 'indices' is null
@@ -87,11 +92,11 @@ private:
         uint32_t fFlags;
 
         bool hasExplicitLocalCoords() const {
-            return fVertices->hasTexCoords() && !(SkCanvas::kIgnoreTexCoords_VerticesFlag & fFlags);
+            return fVertices->hasTexCoords() && !(kIgnoreTexCoords_VerticesFlag & fFlags);
         }
 
         bool hasPerVertexColors() const {
-            return fVertices->hasColors() && !(SkCanvas::kIgnoreColors_VerticesFlag & fFlags);
+            return fVertices->hasColors() && !(kIgnoreColors_VerticesFlag & fFlags);
         }
     };
 

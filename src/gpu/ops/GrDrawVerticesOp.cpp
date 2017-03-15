@@ -89,14 +89,14 @@ void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations&
     GrColor overrideColor;
     if (optimizations.getOverrideColorIfSet(&overrideColor)) {
         fMeshes[0].fColor = overrideColor;
-        fMeshes[0].fFlags |= SkCanvas::kIgnoreColors_VerticesFlag;
+        fMeshes[0].fFlags |= kIgnoreColors_VerticesFlag;
         fFlags &= ~kRequiresPerVertexColors_Flag;
         fColorArrayType = GrRenderTargetContext::ColorArrayType::kPremulGrColor;
     }
     if (optimizations.readsLocalCoords()) {
         fFlags |= kPipelineRequiresLocalCoords_Flag;
     } else {
-        fFlags |= SkCanvas::kIgnoreTexCoords_VerticesFlag;
+        fFlags |= kIgnoreTexCoords_VerticesFlag;
         fFlags &= ~kAnyMeshHasExplicitLocalCoords;
     }
 }
