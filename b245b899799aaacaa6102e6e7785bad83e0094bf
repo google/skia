@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1505dff3_d057bdee",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-15T18:25:34Z",
+      "side": 1,
+      "message": "Can this just be handled with the GrContextOptions? Maybe bring back the bool to allow distance fields since this is kSmall now?",
+      "range": {
+        "startLine": 174,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 26
+      },
+      "revId": "b245b899799aaacaa6102e6e7785bad83e0094bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7e6fb79_33779ba9",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-15T18:25:34Z",
+      "side": 1,
+      "message": "I may consider saying something like\n\n\"Small paths  (cached sdf or alpha masks)\"",
+      "range": {
+        "startLine": 259,
+        "startChar": 68,
+        "endLine": 259,
+        "endChar": 72
+      },
+      "revId": "b245b899799aaacaa6102e6e7785bad83e0094bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
