@@ -11,9 +11,9 @@
 
 // Tests the SkTArray<T> class template.
 
-template <bool MEM_COPY>
+template <bool MEM_MOVE>
 static void TestTSet_basic(skiatest::Reporter* reporter) {
-    SkTArray<int, MEM_COPY> a;
+    SkTArray<int, MEM_MOVE> a;
 
     // Starts empty.
     REPORTER_ASSERT(reporter, a.empty());
@@ -219,6 +219,68 @@ static void test_move(skiatest::Reporter* reporter) {
 #undef TEST_MOVE
 }
 
+template <typename T, bool MEM_MOVE> int SkTArray<T, MEM_MOVE>::allocCntForTest() const {
+    return fAllocCount;
+}
+
+void test_unnecessary_alloc(skiatest::Reporter* reporter) {
+    {
+        SkTArray<int> a;
+        REPORTER_ASSERT(reporter, a.allocCntForTest() == 0);
+    }
+    {
+        SkSTArray<10, int> a;
+        REPORTER_ASSERT(reporter, a.allocCntForTest() == 10);
+    }
+    {
+        SkTArray<int> a(1);
+        REPORTER_ASSERT(reporter, a.allocCntForTest() >= 1);
+    }
+    {
+        SkTArray<int> a, b;
+        b = a;
+        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+    }
+    {
+        SkSTArray<10, int> a;
+        SkTArray<int> b;
+        b = a;
+        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+    }
+    {
+        SkTArray<int> a;
+        SkTArray<int> b(a);
+        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+    }
+    {
+        SkSTArray<10, int> a;
+        SkTArray<int> b(a);
+        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+    }
+    {
+        SkTArray<int> a;
+        SkTArray<int> b(std::move(a));
+        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+    }
+    {
+        SkSTArray<10, int> a;
+        SkTArray<int> b(std::move(a));
+        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+    }
+    {
+        SkTArray<int> a;
+        SkTArray<int> b;
+        b = std::move(a);
+        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+    }
+    {
+        SkSTArray<10, int> a;
+        SkTArray<int> b;
+        b = std::move(a);
+        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+    }
+}
+
 DEF_TEST(TArray, reporter) {
     TestTSet_basic<true>(reporter);
     TestTSet_basic<false>(reporter);
@@ -232,4 +294,6 @@ DEF_TEST(TArray, reporter) {
     test_copy_ctor(reporter, SkSTArray<10, sk_sp<SkRefCnt>,  true>());
 
     test_move(reporter);
+
+    test_unnecessary_alloc(reporter);
 }
