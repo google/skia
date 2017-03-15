@@ -276,7 +276,7 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     }
 }
 
-void SkBaseDevice::drawVerticesObject(sk_sp<SkVertices> vertices,
+void SkBaseDevice::drawVerticesObject(const SkVertices* vertices,
                                       SkBlendMode mode, const SkPaint& paint, uint32_t flags) {
     const SkPoint* texs =
             (flags & SkCanvas::kIgnoreTexCoords_VerticesFlag) ? nullptr : vertices->texCoords();
