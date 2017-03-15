@@ -60,12 +60,17 @@
 // SRC
 #include "SkUtils.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContextFactory.h"
+#endif
+
 // MISC
 
 #include <iostream>
 
 // TODO:
 //   SkTextBlob with Unicode
+//   SkImage: more types
 
 template <typename T, typename Min, typename Max>
 inline void fuzz_enum_range(Fuzz* fuzz, T* value, Min rmin, Max rmax) {
@@ -1755,12 +1760,26 @@ DEF_FUZZ(NullCanvas, fuzz) {
     fuzz_canvas(fuzz, SkMakeNullCanvas().get());
 }
 
+// 8.5x11 letter paper at 72ppi.
+constexpr SkISize kCanvasSize = {612, 792};
+
 DEF_FUZZ(RasterN32Canvas, fuzz) {
-    fuzz_canvas(fuzz, SkMakeNullCanvas().get());
-    auto surface = SkSurface::MakeRasterN32Premul(612, 792);
+    auto surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(), kCanvasSize.height());
     SkASSERT(surface && surface->getCanvas());
     fuzz_canvas(fuzz, surface->getCanvas());
 }
+
+#if SK_SUPPORT_GPU
+DEF_FUZZ(NativeGLCanvas, fuzz) {
+    auto surface = SkSurface::MakeRenderTarget(
+            sk_gpu_test::GrContextFactory().get(
+                    sk_gpu_test::GrContextFactory::kNativeGL_ContextType),
+            SkBudgeted::kNo,
+            SkImageInfo::Make(kCanvasSize.width(), kCanvasSize.height(), kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+    SkASSERT(surface && surface->getCanvas());
+    fuzz_canvas(fuzz, surface->getCanvas());
+}
+#endif
 
 DEF_FUZZ(PDFCanvas, fuzz) {
     struct final : public SkWStream {
@@ -1769,12 +1788,13 @@ DEF_FUZZ(PDFCanvas, fuzz) {
         size_t fN = 0;
     } stream;
     auto doc = SkDocument::MakePDF(&stream);
-    fuzz_canvas(fuzz, doc->beginPage(612.0f, 792.0f));
+    fuzz_canvas(fuzz, doc->beginPage(SkIntToScalar(kCanvasSize.width()),
+                                     SkIntToScalar(kCanvasSize.height())));
 }
 
 // not a "real" thing to fuzz, used to debug errors found while fuzzing.
 DEF_FUZZ(_DumpCanvas, fuzz) {
-    SkDebugCanvas debugCanvas(612, 792);
+    SkDebugCanvas debugCanvas(kCanvasSize.width(), kCanvasSize.height());
     fuzz_canvas(fuzz, &debugCanvas);
     std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
     UrlDataManager dataManager(SkString("data"));
