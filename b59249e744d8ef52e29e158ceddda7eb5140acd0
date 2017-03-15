@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86b49944_e8a46203",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-15T22:58:21Z",
+      "side": 1,
+      "message": "Hmm, this will lock it every time we call this. Can we either\n\n- arrange that it was already locked (in constructor?)\nor\n- make local copy that we lock (see line# 338)\n?",
+      "range": {
+        "startLine": 382,
+        "startChar": 12,
+        "endLine": 382,
+        "endChar": 22
+      },
+      "revId": "b59249e744d8ef52e29e158ceddda7eb5140acd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
