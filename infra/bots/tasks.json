@@ -7191,7 +7191,7 @@
         {
           "name": "skia/bots/svg",
           "path": "svg",
-          "version": "version:4"
+          "version": "version:5"
         }
       ],
       "dependencies": [
@@ -7240,7 +7240,7 @@
         {
           "name": "skia/bots/svg",
           "path": "svg",
-          "version": "version:4"
+          "version": "version:5"
         }
       ],
       "dependencies": [
@@ -13247,7 +13247,7 @@
         {
           "name": "skia/bots/svg",
           "path": "svg",
-          "version": "version:4"
+          "version": "version:5"
         }
       ],
       "dependencies": [
@@ -13296,7 +13296,7 @@
         {
           "name": "skia/bots/svg",
           "path": "svg",
-          "version": "version:4"
+          "version": "version:5"
         }
       ],
       "dependencies": [
