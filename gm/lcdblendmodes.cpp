@@ -81,39 +81,36 @@ protected:
     }
 
     void drawColumn(SkCanvas* canvas, SkColor backgroundColor, SkColor textColor, bool useGrad) {
-        const struct {
-            SkBlendMode fMode;
-            const char* fLabel;
-        } gModes[] = {
-            { SkBlendMode::kClear,        "Clear"       },
-            { SkBlendMode::kSrc,          "Src"         },
-            { SkBlendMode::kDst,          "Dst"         },
-            { SkBlendMode::kSrcOver,      "SrcOver"     },
-            { SkBlendMode::kDstOver,      "DstOver"     },
-            { SkBlendMode::kSrcIn,        "SrcIn"       },
-            { SkBlendMode::kDstIn,        "DstIn"       },
-            { SkBlendMode::kSrcOut,       "SrcOut"      },
-            { SkBlendMode::kDstOut,       "DstOut"      },
-            { SkBlendMode::kSrcATop,      "SrcATop"     },
-            { SkBlendMode::kDstATop,      "DstATop"     },
-            { SkBlendMode::kXor,          "Xor"         },
-            { SkBlendMode::kPlus,         "Plus"        },
-            { SkBlendMode::kModulate,     "Modulate"    },
-            { SkBlendMode::kScreen,       "Screen"      },
-            { SkBlendMode::kOverlay,      "Overlay"     },
-            { SkBlendMode::kDarken,       "Darken"      },
-            { SkBlendMode::kLighten,      "Lighten"     },
-            { SkBlendMode::kColorDodge,   "ColorDodge"  },
-            { SkBlendMode::kColorBurn,    "ColorBurn"   },
-            { SkBlendMode::kHardLight,    "HardLight"   },
-            { SkBlendMode::kSoftLight,    "SoftLight"   },
-            { SkBlendMode::kDifference,   "Difference"  },
-            { SkBlendMode::kExclusion,    "Exclusion"   },
-            { SkBlendMode::kMultiply,     "Multiply"    },
-            { SkBlendMode::kHue,          "Hue"         },
-            { SkBlendMode::kSaturation,   "Saturation"  },
-            { SkBlendMode::kColor,        "Color"       },
-            { SkBlendMode::kLuminosity,   "Luminosity"  },
+        const SkBlendMode gModes[] = {
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
+            SkBlendMode::kModulate,
+            SkBlendMode::kScreen,
+            SkBlendMode::kOverlay,
+            SkBlendMode::kDarken,
+            SkBlendMode::kLighten,
+            SkBlendMode::kColorDodge,
+            SkBlendMode::kColorBurn,
+            SkBlendMode::kHardLight,
+            SkBlendMode::kSoftLight,
+            SkBlendMode::kDifference,
+            SkBlendMode::kExclusion,
+            SkBlendMode::kMultiply,
+            SkBlendMode::kHue,
+            SkBlendMode::kSaturation,
+            SkBlendMode::kColor,
+            SkBlendMode::kLuminosity,
         };
         // Draw background rect
         SkPaint backgroundPaint;
@@ -127,15 +124,15 @@ protected:
             paint.setSubpixelText(true);
             paint.setLCDRenderText(true);
             paint.setTextSize(fTextHeight);
-            paint.setBlendMode(gModes[m].fMode);
+            paint.setBlendMode(gModes[m]);
             sk_tool_utils::set_portable_typeface(&paint);
             if (useGrad) {
                 SkRect r;
                 r.setXYWH(0, y - fTextHeight, SkIntToScalar(kColWidth), fTextHeight);
                 paint.setShader(make_shader(r));
             }
-            SkString string(gModes[m].fLabel);
-            canvas->drawText(gModes[m].fLabel, string.size(), 0, y, paint);
+            SkString string(SkBlendMode_Name(gModes[m]));
+            canvas->drawText(string.c_str(), string.size(), 0, y, paint);
             y+=fTextHeight;
         }
     }

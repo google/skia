@@ -34,7 +34,6 @@ enum SrcType {
 
 const struct {
     SkBlendMode fMode;
-    const char* fLabel;
     int         fSourceTypeMask;  // The source types to use this
     // mode with. See draw_mode for
     // an explanation of each type.
@@ -42,36 +41,36 @@ const struct {
     // to support the base modes,
     // test those more extensively.
 } gModes[] = {
-    { SkBlendMode::kClear,        "Clear",        kAll_SrcType   },
-    { SkBlendMode::kSrc,          "Src",          kAll_SrcType   },
-    { SkBlendMode::kDst,          "Dst",          kAll_SrcType   },
-    { SkBlendMode::kSrcOver,      "SrcOver",      kAll_SrcType   },
-    { SkBlendMode::kDstOver,      "DstOver",      kAll_SrcType   },
-    { SkBlendMode::kSrcIn,        "SrcIn",        kAll_SrcType   },
-    { SkBlendMode::kDstIn,        "DstIn",        kAll_SrcType   },
-    { SkBlendMode::kSrcOut,       "SrcOut",       kAll_SrcType   },
-    { SkBlendMode::kDstOut,       "DstOut",       kAll_SrcType   },
-    { SkBlendMode::kSrcATop,      "SrcATop",      kAll_SrcType   },
-    { SkBlendMode::kDstATop,      "DstATop",      kAll_SrcType   },
+    { SkBlendMode::kClear,        kAll_SrcType   },
+    { SkBlendMode::kSrc,          kAll_SrcType   },
+    { SkBlendMode::kDst,          kAll_SrcType   },
+    { SkBlendMode::kSrcOver,      kAll_SrcType   },
+    { SkBlendMode::kDstOver,      kAll_SrcType   },
+    { SkBlendMode::kSrcIn,        kAll_SrcType   },
+    { SkBlendMode::kDstIn,        kAll_SrcType   },
+    { SkBlendMode::kSrcOut,       kAll_SrcType   },
+    { SkBlendMode::kDstOut,       kAll_SrcType   },
+    { SkBlendMode::kSrcATop,      kAll_SrcType   },
+    { SkBlendMode::kDstATop,      kAll_SrcType   },
 
-    { SkBlendMode::kXor,          "Xor",          kBasic_SrcType },
-    { SkBlendMode::kPlus,         "Plus",         kBasic_SrcType },
-    { SkBlendMode::kModulate,     "Modulate",     kAll_SrcType   },
-    { SkBlendMode::kScreen,       "Screen",       kBasic_SrcType },
-    { SkBlendMode::kOverlay,      "Overlay",      kBasic_SrcType },
-    { SkBlendMode::kDarken,       "Darken",       kBasic_SrcType },
-    { SkBlendMode::kLighten,      "Lighten",      kBasic_SrcType },
-    { SkBlendMode::kColorDodge,   "ColorDodge",   kBasic_SrcType },
-    { SkBlendMode::kColorBurn,    "ColorBurn",    kBasic_SrcType },
-    { SkBlendMode::kHardLight,    "HardLight",    kBasic_SrcType },
-    { SkBlendMode::kSoftLight,    "SoftLight",    kBasic_SrcType },
-    { SkBlendMode::kDifference,   "Difference",   kBasic_SrcType },
-    { SkBlendMode::kExclusion,    "Exclusion",    kBasic_SrcType },
-    { SkBlendMode::kMultiply,     "Multiply",     kAll_SrcType   },
-    { SkBlendMode::kHue,          "Hue",          kBasic_SrcType },
-    { SkBlendMode::kSaturation,   "Saturation",   kBasic_SrcType },
-    { SkBlendMode::kColor,        "Color",        kBasic_SrcType },
-    { SkBlendMode::kLuminosity,   "Luminosity",   kBasic_SrcType },
+    { SkBlendMode::kXor,          kBasic_SrcType },
+    { SkBlendMode::kPlus,         kBasic_SrcType },
+    { SkBlendMode::kModulate,     kAll_SrcType   },
+    { SkBlendMode::kScreen,       kBasic_SrcType },
+    { SkBlendMode::kOverlay,      kBasic_SrcType },
+    { SkBlendMode::kDarken,       kBasic_SrcType },
+    { SkBlendMode::kLighten,      kBasic_SrcType },
+    { SkBlendMode::kColorDodge,   kBasic_SrcType },
+    { SkBlendMode::kColorBurn,    kBasic_SrcType },
+    { SkBlendMode::kHardLight,    kBasic_SrcType },
+    { SkBlendMode::kSoftLight,    kBasic_SrcType },
+    { SkBlendMode::kDifference,   kBasic_SrcType },
+    { SkBlendMode::kExclusion,    kBasic_SrcType },
+    { SkBlendMode::kMultiply,     kAll_SrcType   },
+    { SkBlendMode::kHue,          kBasic_SrcType },
+    { SkBlendMode::kSaturation,   kBasic_SrcType },
+    { SkBlendMode::kColor,        kBasic_SrcType },
+    { SkBlendMode::kLuminosity,   kBasic_SrcType },
 };
 
 static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
@@ -258,7 +257,8 @@ protected:
                 canvas->drawRect(r, p);
 
 #if 1
-                canvas->drawText(gModes[i].fLabel, strlen(gModes[i].fLabel),
+                const char* label = SkBlendMode_Name(gModes[i].fMode);
+                canvas->drawText(label, strlen(label),
                                  x + w/2, y - labelP.getTextSize()/2, labelP);
 #endif
                 x += w + SkIntToScalar(10);

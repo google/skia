@@ -58,22 +58,19 @@ static void test4(SkCanvas* canvas) {
     canvas->drawPath(path, paint);
 }
 
-constexpr struct {
-    SkBlendMode fMode;
-    const char* fLabel;
-} gModes[] = {
-    { SkBlendMode::kClear,    "Clear"     },
-    { SkBlendMode::kSrc,      "Src"       },
-    { SkBlendMode::kDst,      "Dst"       },
-    { SkBlendMode::kSrcOver,  "SrcOver"   },
-    { SkBlendMode::kDstOver,  "DstOver"   },
-    { SkBlendMode::kSrcIn,    "SrcIn"     },
-    { SkBlendMode::kDstIn,    "DstIn"     },
-    { SkBlendMode::kSrcOut,   "SrcOut"    },
-    { SkBlendMode::kDstOut,   "DstOut"    },
-    { SkBlendMode::kSrcATop,  "SrcATop"   },
-    { SkBlendMode::kDstATop,  "DstATop"   },
-    { SkBlendMode::kXor,      "Xor"       },
+constexpr SkBlendMode gModes[] = {
+    SkBlendMode::kClear,
+    SkBlendMode::kSrc,
+    SkBlendMode::kDst,
+    SkBlendMode::kSrcOver,
+    SkBlendMode::kDstOver,
+    SkBlendMode::kSrcIn,
+    SkBlendMode::kDstIn,
+    SkBlendMode::kSrcOut,
+    SkBlendMode::kDstOut,
+    SkBlendMode::kSrcATop,
+    SkBlendMode::kDstATop,
+    SkBlendMode::kXor,
 };
 
 const int gWidth = 64;
@@ -155,7 +152,7 @@ namespace skiagm {
                     }
                     canvas->drawRect(bounds, fBGPaint);
                     canvas->saveLayer(&bounds, nullptr);
-                    SkScalar dy = drawCell(canvas, gModes[i].fMode,
+                    SkScalar dy = drawCell(canvas, gModes[i],
                                            gAlphaValue[alpha & 1],
                                            gAlphaValue[alpha & 2]);
                     canvas->restore();
