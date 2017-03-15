@@ -17,6 +17,7 @@
 #include "SkATrace.h"
 #include "SkCanvas.h"
 #include "SkColorSpace_Base.h"
+#include "SkColorSpaceXformCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkDashPathEffect.h"
@@ -714,10 +715,11 @@ void Viewer::setColorMode(ColorMode colorMode) {
     fColorMode = colorMode;
 
     // When we're in color managed mode, we tag our window surface as sRGB. If we've switched into
-    // or out of legacy mode, we need to update our window configuration.
+    // or out of legacy/nonlinear mode, we need to update our window configuration.
     DisplayParams params = fWindow->getRequestedDisplayParams();
     bool wasInLegacy = !SkToBool(params.fColorSpace);
-    bool wantLegacy = (ColorMode::kLegacy == fColorMode);
+    bool wantLegacy = (ColorMode::kLegacy == fColorMode) ||
+                      (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode);
     if (wasInLegacy != wantLegacy) {
         params.fColorSpace = wantLegacy ? nullptr : SkColorSpace::MakeSRGB();
         fWindow->setRequestedDisplayParams(params);
@@ -740,30 +742,40 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     SkCanvas* slideCanvas = canvas;
     fLastImage.reset();
 
-    // If we're in F16 or nonlinear blending mode, or the gamut isn't sRGB, or we're zooming,
+    // If we're in any of the color managed modes, construct the color space we're going to use
+    sk_sp<SkColorSpace> cs = nullptr;
+    if (ColorMode::kLegacy != fColorMode) {
+        auto transferFn = (ColorMode::kColorManagedLinearF16 == fColorMode)
+            ? SkColorSpace::kLinear_RenderTargetGamma : SkColorSpace::kSRGB_RenderTargetGamma;
+        SkMatrix44 toXYZ;
+        SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
+        cs = SkColorSpace::MakeRGB(transferFn, toXYZ);
+    }
+
+    // If we're in F16, or we're zooming, or we're in color correct 8888 and the gamut isn't sRGB,
     // we need to render offscreen
-    bool colorManaged = (ColorMode::kLegacy != fColorMode);
     sk_sp<SkSurface> offscreenSurface = nullptr;
     if (ColorMode::kColorManagedLinearF16 == fColorMode ||
-        ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode ||
         fShowZoomWindow ||
-        (colorManaged && !primaries_equal(fColorSpacePrimaries, gSrgbPrimaries))) {
-        sk_sp<SkColorSpace> cs = nullptr;
-        if (colorManaged) {
-            auto transferFn = (ColorMode::kColorManagedLinearF16 == fColorMode)
-                ? SkColorSpace::kLinear_RenderTargetGamma : SkColorSpace::kSRGB_RenderTargetGamma;
-            SkMatrix44 toXYZ;
-            SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
-            uint32_t flags = (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode)
-                ? SkColorSpace::kNonLinearBlending_ColorSpaceFlag : 0;
-            cs = SkColorSpace::MakeRGB(transferFn, toXYZ, flags);
-        }
+        (ColorMode::kColorManagedSRGB8888 == fColorMode &&
+         !primaries_equal(fColorSpacePrimaries, gSrgbPrimaries))) {
+
         SkColorType colorType = (ColorMode::kColorManagedLinearF16 == fColorMode)
             ? kRGBA_F16_SkColorType : kN32_SkColorType;
+        // In nonlinear blending mode, we actually use a legacy off-screen canvas, and wrap it
+        // with a special canvas (below) that has the color space attached
+        sk_sp<SkColorSpace> offscreenColorSpace =
+            (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) ? nullptr : cs;
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), colorType,
-                                             kPremul_SkAlphaType, std::move(cs));
+                                             kPremul_SkAlphaType, std::move(offscreenColorSpace));
         offscreenSurface = canvas->makeSurface(info);
         slideCanvas = offscreenSurface->getCanvas();
+    }
+
+    std::unique_ptr<SkCanvas> xformCanvas = nullptr;
+    if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+        xformCanvas = SkCreateColorSpaceXformCanvas(slideCanvas, cs);
+        slideCanvas = xformCanvas.get();
     }
 
     int count = slideCanvas->save();
@@ -786,9 +798,9 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         fLastImage = offscreenSurface->makeImageSnapshot();
 
         // Tag the image with the sRGB gamut, so no further color space conversion happens
-        sk_sp<SkColorSpace> cs = (ColorMode::kColorManagedLinearF16 == fColorMode)
+        sk_sp<SkColorSpace> srgb = (ColorMode::kColorManagedLinearF16 == fColorMode)
             ? SkColorSpace::MakeSRGBLinear() : SkColorSpace::MakeSRGB();
-        auto retaggedImage = SkImageMakeRasterCopyAndAssignColorSpace(fLastImage.get(), cs.get());
+        auto retaggedImage = SkImageMakeRasterCopyAndAssignColorSpace(fLastImage.get(), srgb.get());
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         canvas->drawImage(retaggedImage, 0, 0, &paint);
