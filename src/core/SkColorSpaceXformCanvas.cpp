@@ -8,6 +8,7 @@
 #include "SkColorFilter.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformCanvas.h"
+#include "SkGradientShader.h"
 #include "SkImage_Base.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
@@ -25,6 +26,10 @@ public:
         fFromSRGB = SkColorSpaceXform::New(SkColorSpace::MakeSRGB().get(), fTargetCS.get());
     }
 
+    sk_sp<const SkImage> xform(const SkImage* img) const {
+        return as_IB(img)->makeColorSpace(fTargetCS);
+    }
+
     void xform(SkColor* xformed, const SkColor* srgb, int n) const {
         SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
                                         SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
@@ -35,6 +40,64 @@ public:
         SkColor xformed;
         this->xform(&xformed, &srgb, 1);
         return xformed;
+    }
+
+    // TODO: Is this introspection going to be enough, or do we need a new SkShader method?
+    sk_sp<SkShader> xform(const SkShader* shader) const {
+        SkColor color;
+        if (shader->isConstant() && shader->asLuminanceColor(&color)) {
+            return SkShader::MakeColorShader(this->xform(color));
+        }
+
+        SkShader::TileMode xy[2];
+        SkMatrix local;
+        if (auto img = shader->isAImage(&local, xy)) {
+            return this->xform(img)->makeShader(xy[0], xy[1], &local);
+        }
+
+        SkShader::ComposeRec compose;
+        if (shader->asACompose(&compose)) {
+            auto A = this->xform(compose.fShaderA),
+                 B = this->xform(compose.fShaderB);
+            if (A && B) {
+                return SkShader::MakeComposeShader(std::move(A), std::move(B), compose.fBlendMode);
+            }
+        }
+
+        SkShader::GradientInfo gradient;
+        sk_bzero(&gradient, sizeof(gradient));
+        if (auto type = shader->asAGradient(&gradient)) {
+            SkSTArray<8, SkColor>  colors(gradient.fColorCount);
+            SkSTArray<8, SkScalar>    pos(gradient.fColorCount);
+
+            gradient.fColors       = colors.begin();
+            gradient.fColorOffsets =    pos.begin();
+            shader->asAGradient(&gradient);
+
+            SkSTArray<8, SkColor> xformed(gradient.fColorCount);
+            this->xform(xformed.begin(), gradient.fColors, gradient.fColorCount);
+
+            switch (type) {
+                case SkShader::kNone_GradientType:
+                case SkShader::kColor_GradientType:
+                    SkASSERT(false);  // Should be unreachable.
+                    break;
+
+                case SkShader::kLinear_GradientType:
+                    return SkGradientShader::MakeLinear(gradient.fPoint,
+                                                        xformed.begin(),
+                                                        gradient.fColorOffsets,
+                                                        gradient.fColorCount,
+                                                        gradient.fTileMode,
+                                                        gradient.fGradientFlags,
+                                                        &shader->getLocalMatrix());
+                case SkShader::kRadial_GradientType:  break;  // TODO
+                case SkShader::kSweep_GradientType:   break;  // TODO
+                case SkShader::kConical_GradientType: break;  // TODO
+            }
+        }
+
+        return nullptr;
     }
 
     const SkPaint& xform(const SkPaint& paint, SkTLazy<SkPaint>* lazy) const {
@@ -52,6 +115,12 @@ public:
             get_lazy()->setColor(this->xform(paint.getColor()));
         }
 
+        if (auto shader = paint.getShader()) {
+            if (auto replacement = this->xform(shader)) {
+                get_lazy()->setShader(std::move(replacement));
+            }
+        }
+
         // As far as I know, SkModeColorFilter is the only color filter that holds a color.
         if (auto cf = paint.getColorFilter()) {
             SkColor color;
@@ -62,7 +131,6 @@ public:
         }
 
         // TODO:
-        //    - shaders
         //    - image filters?
 
         return *result;
@@ -70,10 +138,6 @@ public:
 
     const SkPaint* xform(const SkPaint* paint, SkTLazy<SkPaint>* lazy) const {
         return paint ? &this->xform(*paint, lazy) : nullptr;
-    }
-
-    sk_sp<const SkImage> xform(const SkImage* img) const {
-        return as_IB(img)->makeColorSpace(fTargetCS);
     }
 
     void onDrawPaint(const SkPaint& paint) override {
@@ -130,7 +194,7 @@ public:
                         const SkPoint* verts, const SkPoint* texs, const SkColor* colors,
                         SkBlendMode mode,
                         const uint16_t* indices, int indexCount, const SkPaint& paint) override {
-        SkTArray<SkColor> xformed;
+        SkSTArray<8, SkColor> xformed;
         if (colors) {
             xformed.reset(count);
             this->xform(xformed.begin(), colors, count);
@@ -214,7 +278,7 @@ public:
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
                      const SkRect* cull, const SkPaint* paint) override {
-        SkTArray<SkColor> xformed;
+        SkSTArray<8, SkColor> xformed;
         if (colors) {
             xformed.reset(count);
             this->xform(xformed.begin(), colors, count);
