@@ -22,6 +22,30 @@
       "revId": "457c194956b3309547b698d41d5d129bc531a57c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72b137c2_15c70317",
+        "filename": "src/gpu/GrTextureAdjuster.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-15T18:25:22Z",
+      "side": 1,
+      "message": "CopyOnGpu needs the power to create a render target context. Going forward, an object that just allowed creation of a RTC and access to the resourceProvider would satisfy almost all of the holdouts (like this one).",
+      "parentUuid": "f263de89_99a0e3f4",
+      "range": {
+        "startLine": 56,
+        "startChar": 24,
+        "endLine": 56,
+        "endChar": 32
+      },
+      "revId": "457c194956b3309547b698d41d5d129bc531a57c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
