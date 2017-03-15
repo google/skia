@@ -15,6 +15,7 @@
 #include "GrOpList.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
+#include "GrTexturePriv.h"
 #include "GrTextureRenderTargetProxy.h"
 
 #include "SkMathPriv.h"
@@ -51,6 +52,7 @@ GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
         return nullptr;
     }
 
+    fTarget->asTexture()->texturePriv().setMipColorMode(fMipColorMode);
     this->INHERITED::transferRefs();
 
 #ifdef SK_DEBUG

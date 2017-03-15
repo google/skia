@@ -231,7 +231,7 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider*,
  * Creates a new texture populated with the mipmap levels.
  */
 GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
-                                   int mipLevelCount);
+                                   int mipLevelCount, SkDestinationSurfaceColorMode colorMode);
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
                                            const GrSamplerParams&, SkScalar scaleAdjust[2]);

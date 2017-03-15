@@ -49,7 +49,9 @@ public:
      */
     GrTexture* createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                       const GrMipLevel* texels, int mipLevelCount,
-                                      uint32_t flags = 0);
+                                      uint32_t flags = 0,
+                                      SkDestinationSurfaceColorMode mipColorMode =
+                                                        SkDestinationSurfaceColorMode::kLegacy);
 
     /**
      * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
