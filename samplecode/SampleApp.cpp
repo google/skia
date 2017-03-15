@@ -43,6 +43,9 @@
 #include "SkCGUtils.h"
 #endif
 
+#define PICTURE_MEANS_PIPE  false
+#define SERIALIZE_PICTURE   true
+
 #if SK_SUPPORT_GPU
 #   include "gl/GrGLInterface.h"
 #   include "gl/GrGLUtil.h"
@@ -1362,10 +1365,13 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     } else if (fSaveToSKP) {
         canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
     } else if (fUsePicture) {
-        fPipeStream.reset(new SkDynamicMemoryWStream);
-        canvas = fPipeSerializer.beginWrite(SkRect::MakeWH(this->width(), this->height()),
-                                            fPipeStream.get());
-//        canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
+        if (PICTURE_MEANS_PIPE) {
+            fPipeStream.reset(new SkDynamicMemoryWStream);
+            canvas = fPipeSerializer.beginWrite(SkRect::MakeWH(this->width(), this->height()),
+                                                fPipeStream.get());
+        } else {
+            canvas = fRecorder.beginRecording(9999, 9999, nullptr, 0);
+        }
     } else {
         canvas = this->INHERITED::beforeChildren(canvas);
     }
@@ -1427,13 +1433,17 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     if (fUsePicture) {
-        if (true) {
+        if (PICTURE_MEANS_PIPE) {
             fPipeSerializer.endWrite();
             sk_sp<SkData> data(fPipeStream->detachAsData());
             fPipeDeserializer.playback(data->data(), data->size(), orig);
             fPipeStream.reset();
         } else {
             sk_sp<SkPicture> picture(fRecorder.finishRecordingAsPicture());
+            if (SERIALIZE_PICTURE) {
+                auto data = picture->serialize();
+                picture = SkPicture::MakeFromData(data.get(), nullptr);
+            }
             orig->drawPicture(picture.get());
         }
     }
