@@ -5,10 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
 #include "SkVertices.h"
 #include "SkData.h"
 #include "SkReader32.h"
 #include "SkWriter32.h"
+
+static int32_t gNextID = 1;
+static int32_t next_id() {
+    int32_t id;
+    do {
+        id = sk_atomic_inc(&gNextID);
+    } while (id == SK_InvalidGenID);
+    return id;
+}
 
 static size_t compute_arrays_size(int vertexCount, int indexCount, uint32_t builderFlags) {
     if (vertexCount < 0 || indexCount < 0) {
@@ -79,6 +89,7 @@ sk_sp<SkVertices> SkVertices::Builder::detach() {
     obj->fColors = fColors;
     obj->fIndices = fIndices;
     obj->fBounds.set(fPositions, fVertexCnt);
+    obj->fUniqueID = next_id();
     obj->fVertexCnt = fVertexCnt;
     obj->fIndexCnt = fIndexCnt;
     obj->fMode = fMode;

@@ -79,6 +79,9 @@ DEF_TEST(Vertices, reporter) {
             sk_sp<SkData> data = v0->encode();
             sk_sp<SkVertices> v1 = SkVertices::Decode(data->data(), data->size());
 
+            REPORTER_ASSERT(reporter, v0->uniqueID() != 0);
+            REPORTER_ASSERT(reporter, v1->uniqueID() != 0);
+            REPORTER_ASSERT(reporter, v0->uniqueID() != v1->uniqueID());
             REPORTER_ASSERT(reporter, equal(v0.get(), v1.get()));
         }
     }
