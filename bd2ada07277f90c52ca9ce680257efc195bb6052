@@ -52,6 +52,24 @@
       "revId": "bd2ada07277f90c52ca9ce680257efc195bb6052",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c65748b0_a06cb2cb",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-15T18:46:25Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "90654342_238cc090",
+      "revId": "bd2ada07277f90c52ca9ce680257efc195bb6052",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
