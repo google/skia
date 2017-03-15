@@ -86,10 +86,10 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, const SkEnco
             pixmap.colorSpace()->gammaIsLinear());
 
     SkPixmap src = pixmap;
-    if (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior) {
+    if (SkEncodeOptions::ColorBehavior::kLegacy == opts.fColorBehavior) {
         src.setColorSpace(nullptr);
     } else {
-        // kGammaCorrect behavior requires a color space.  It's not actually critical in the
+        // kCorrect behavior requires a color space.  It's not actually critical in the
         // jpeg case (since jpegs are opaque), but Skia color correct behavior generally
         // requires pixels to be tagged with color spaces.
         if (!src.colorSpace()) {
