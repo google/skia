@@ -16,6 +16,24 @@
       "revId": "bd2ada07277f90c52ca9ce680257efc195bb6052",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50665f02_2ca7f022",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-15T18:37:36Z",
+      "side": 1,
+      "message": "Yeah, the more I look the more I think the answer is probably just \"no, not good enough\".  That\u0027ll sort out the dependency on effects/ too.",
+      "parentUuid": "fa0cf447_e2ee7c97",
+      "revId": "bd2ada07277f90c52ca9ce680257efc195bb6052",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
