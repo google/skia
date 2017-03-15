@@ -22,6 +22,30 @@
       "revId": "b261b4f116b88eb3c19d6806785e638db00dfe4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c9cec93_eb4b2769",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-15T13:42:30Z",
+      "side": 1,
+      "message": "Zackly -- I\u0027ll add a comment to that effect -- moving to deprecate the raw form entirely",
+      "parentUuid": "9561dcd5_e83fcf3c",
+      "range": {
+        "startLine": 681,
+        "startChar": 37,
+        "endLine": 681,
+        "endChar": 57
+      },
+      "revId": "b261b4f116b88eb3c19d6806785e638db00dfe4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
