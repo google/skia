@@ -412,6 +412,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                                fp->name(), input, output);
                         passing = false;
                     }
+                    if (!passing) {
+                        ERRORF(reporter, "Processor details: %s", fp->dumpInfo().c_str());
+                    }
                 }
             }
         }

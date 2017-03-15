@@ -40,6 +40,18 @@ public:
 
     const char* name() const override { return "ComposeTwo"; }
 
+    SkString dumpInfo() const override {
+        SkString str;
+
+        str.appendf("Mode: %s", SkBlendMode_Name(fMode));
+
+        for (int i = 0; i < this->numChildProcessors(); ++i) {
+            str.appendf(" [%s %s]",
+                        this->childProcessor(i).name(), this->childProcessor(i).dumpInfo().c_str());
+        }
+        return str;
+    }
+
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->add32((int)fMode);
     }
@@ -248,8 +260,12 @@ public:
     SkString dumpInfo() const override {
         SkString str;
 
+        str.appendf("Mode: %s, Child: %s",
+                    SkBlendMode_Name(fMode), kDst_Child == fChild ? "Dst" : "Src");
+
         for (int i = 0; i < this->numChildProcessors(); ++i) {
-            str.append(this->childProcessor(i).dumpInfo());
+            str.appendf(" [%s %s]",
+                        this->childProcessor(i).name(), this->childProcessor(i).dumpInfo().c_str());
         }
         return str;
     }
