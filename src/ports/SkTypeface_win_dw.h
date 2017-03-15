@@ -18,7 +18,6 @@
 
 #include <dwrite.h>
 #include <dwrite_1.h>
-#include <dwrite_2.h>
 
 class SkFontDescriptor;
 struct SkScalerContextRec;
@@ -58,24 +57,16 @@ private:
             // http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
             SkASSERT_RELEASE(nullptr == fDWriteFontFace1.get());
         }
-        if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace2))) {
-            SkASSERT_RELEASE(nullptr == fDWriteFontFace2.get());
-        }
-        if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
-            SkASSERT_RELEASE(nullptr == fFactory2.get());
-        }
     }
 
 public:
     SkTScopedComPtr<IDWriteFactory> fFactory;
-    SkTScopedComPtr<IDWriteFactory2> fFactory2;
     SkTScopedComPtr<IDWriteFontCollectionLoader> fDWriteFontCollectionLoader;
     SkTScopedComPtr<IDWriteFontFileLoader> fDWriteFontFileLoader;
     SkTScopedComPtr<IDWriteFontFamily> fDWriteFontFamily;
     SkTScopedComPtr<IDWriteFont> fDWriteFont;
     SkTScopedComPtr<IDWriteFontFace> fDWriteFontFace;
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
-    SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
 
     static DWriteFontTypeface* Create(IDWriteFactory* factory,
                                       IDWriteFontFace* fontFace,
