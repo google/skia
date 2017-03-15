@@ -78,4 +78,13 @@ DEF_TEST(Reader32, reporter) {
     assert_empty(reporter, reader);
     REPORTER_ASSERT(reporter, nullptr == reader.base());
     REPORTER_ASSERT(reporter, nullptr == reader.peek());
+
+    // need to handle read(null, 0) and not get undefined behavior from memcpy
+    {
+        char storage[100];
+        reader.setMemory(storage, sizeof(storage));
+        char buffer[10];
+        reader.read(buffer, 0);     // easy case, since we pass a ptr
+        reader.read(nullptr, 0);    // undef case, read() can't blindly call memcpy
+    }
 }
