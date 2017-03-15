@@ -91,9 +91,34 @@ public:
                                                         gradient.fTileMode,
                                                         gradient.fGradientFlags,
                                                         &shader->getLocalMatrix());
-                case SkShader::kRadial_GradientType:  break;  // TODO
-                case SkShader::kSweep_GradientType:   break;  // TODO
-                case SkShader::kConical_GradientType: break;  // TODO
+                case SkShader::kRadial_GradientType:
+                    return SkGradientShader::MakeRadial(gradient.fPoint[0],
+                                                        gradient.fRadius[0],
+                                                        xformed.begin(),
+                                                        gradient.fColorOffsets,
+                                                        gradient.fColorCount,
+                                                        gradient.fTileMode,
+                                                        gradient.fGradientFlags,
+                                                        &shader->getLocalMatrix());
+                case SkShader::kSweep_GradientType:
+                    return SkGradientShader::MakeSweep(gradient.fPoint[0].fX,
+                                                       gradient.fPoint[0].fY,
+                                                       xformed.begin(),
+                                                       gradient.fColorOffsets,
+                                                       gradient.fColorCount,
+                                                       gradient.fGradientFlags,
+                                                       &shader->getLocalMatrix());
+                case SkShader::kConical_GradientType:
+                    return SkGradientShader::MakeTwoPointConical(gradient.fPoint[0],
+                                                                 gradient.fRadius[0],
+                                                                 gradient.fPoint[1],
+                                                                 gradient.fRadius[1],
+                                                                 xformed.begin(),
+                                                                 gradient.fColorOffsets,
+                                                                 gradient.fColorCount,
+                                                                 gradient.fTileMode,
+                                                                 gradient.fGradientFlags,
+                                                                 &shader->getLocalMatrix());
             }
         }
 
