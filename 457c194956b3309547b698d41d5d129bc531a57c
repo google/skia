@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f263de89_99a0e3f4",
+        "filename": "src/gpu/GrTextureAdjuster.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-15T17:21:29Z",
+      "side": 1,
+      "message": "Looks like this could be ResourceProvider after your recent changes.",
+      "range": {
+        "startLine": 56,
+        "startChar": 24,
+        "endLine": 56,
+        "endChar": 32
+      },
+      "revId": "457c194956b3309547b698d41d5d129bc531a57c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
