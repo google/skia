@@ -60,12 +60,17 @@
 // SRC
 #include "SkUtils.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContextFactory.h"
+#endif
+
 // MISC
 
 #include <iostream>
 
 // TODO:
 //   SkTextBlob with Unicode
+//   SkImage: more types
 
 template <typename T, typename Min, typename Max>
 inline void fuzz_enum_range(Fuzz* fuzz, T* value, Min rmin, Max rmax) {
@@ -1756,11 +1761,22 @@ DEF_FUZZ(NullCanvas, fuzz) {
 }
 
 DEF_FUZZ(RasterN32Canvas, fuzz) {
-    fuzz_canvas(fuzz, SkMakeNullCanvas().get());
     auto surface = SkSurface::MakeRasterN32Premul(612, 792);
     SkASSERT(surface && surface->getCanvas());
     fuzz_canvas(fuzz, surface->getCanvas());
 }
+
+#if SK_SUPPORT_GPU
+DEF_FUZZ(NativeGLCanvas, fuzz) {
+    auto surface = SkSurface::MakeRenderTarget(
+            sk_gpu_test::GrContextFactory().get(
+                    sk_gpu_test::GrContextFactory::kNativeGL_ContextType),
+            SkBudgeted::kNo,
+            SkImageInfo::Make(612, 792, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+    SkASSERT(surface && surface->getCanvas());
+    fuzz_canvas(fuzz, surface->getCanvas());
+}
+#endif
 
 DEF_FUZZ(PDFCanvas, fuzz) {
     struct final : public SkWStream {
