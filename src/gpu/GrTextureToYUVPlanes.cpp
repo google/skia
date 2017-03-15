@@ -19,7 +19,7 @@ namespace {
                                                       SkYUVColorSpace colorSpace);
 };
 
-static bool convert_proxy(GrContext* context, sk_sp<GrTextureProxy> src,
+static bool convert_proxy(sk_sp<GrTextureProxy> src,
                           GrRenderTargetContext* dst, int dstW, int dstH,
                           SkYUVColorSpace colorSpace, MakeFPProc proc) {
 
@@ -32,7 +32,10 @@ static bool convert_proxy(GrContext* context, sk_sp<GrTextureProxy> src,
         filter = GrSamplerParams::kBilerp_FilterMode;
     }
 
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(context, std::move(src), nullptr,
+    GrResourceProvider* resourceProvider = dst->resourceProvider();
+
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(resourceProvider, std::move(src),
+                                                              nullptr,
                                                               SkMatrix::MakeScale(xScale, yScale),
                                                               filter));
     if (!fp) {
@@ -121,32 +124,32 @@ bool GrTextureToYUVPlanes(GrContext* context, sk_sp<GrTextureProxy> proxy,
 
         // Do all the draws before any readback.
         if (yuvRenderTargetContext) {
-            if (!convert_proxy(context, std::move(proxy), yuvRenderTargetContext.get(),
+            if (!convert_proxy(std::move(proxy), yuvRenderTargetContext.get(),
                                sizes[0].fWidth, sizes[0].fHeight,
                                colorSpace, GrYUVEffect::MakeRGBToYUV)) {
                 return false;
             }
         } else {
             SkASSERT(yRenderTargetContext);
-            if (!convert_proxy(context, proxy, yRenderTargetContext.get(),
+            if (!convert_proxy(proxy, yRenderTargetContext.get(),
                                sizes[0].fWidth, sizes[0].fHeight,
                                colorSpace, GrYUVEffect::MakeRGBToY)) {
                 return false;
             }
             if (uvRenderTargetContext) {
-                if (!convert_proxy(context, std::move(proxy), uvRenderTargetContext.get(),
+                if (!convert_proxy(std::move(proxy), uvRenderTargetContext.get(),
                                    sizes[1].fWidth, sizes[1].fHeight,
                                    colorSpace,  GrYUVEffect::MakeRGBToUV)) {
                     return false;
                 }
             } else {
                 SkASSERT(uRenderTargetContext && vRenderTargetContext);
-                if (!convert_proxy(context, proxy, uRenderTargetContext.get(),
+                if (!convert_proxy(proxy, uRenderTargetContext.get(),
                                    sizes[1].fWidth, sizes[1].fHeight,
                                    colorSpace, GrYUVEffect::MakeRGBToU)) {
                     return false;
                 }
-                if (!convert_proxy(context, std::move(proxy), vRenderTargetContext.get(),
+                if (!convert_proxy(std::move(proxy), vRenderTargetContext.get(),
                                    sizes[2].fWidth, sizes[2].fHeight,
                                    colorSpace, GrYUVEffect::MakeRGBToV)) {
                     return false;

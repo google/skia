@@ -136,7 +136,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     GrSamplerParams mipMapParams(SkShader::kRepeat_TileMode, GrSamplerParams::kMipMap_FilterMode);
-    paint.addColorTextureProcessor(context, std::move(proxy),
+    paint.addColorTextureProcessor(context->resourceProvider(), std::move(proxy),
                                    nullptr, SkMatrix::MakeScale(rtS), mipMapParams);
 
     // 1) Draw texture to S32 surface (should generate/use sRGB mips)

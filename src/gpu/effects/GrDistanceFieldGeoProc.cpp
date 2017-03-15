@@ -7,7 +7,6 @@
 
 #include "GrDistanceFieldGeoProc.h"
 
-#include "GrContext.h"
 #include "GrTexture.h"
 #include "SkDistanceFieldGen.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -222,7 +221,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrContext* context,
+GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrResourceProvider* resourceProvider,
                                                            GrColor color,
                                                            const SkMatrix& viewMatrix,
                                                            sk_sp<GrTextureProxy> proxy,
@@ -234,7 +233,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrContext* context,
                                                            bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureSampler(context->resourceProvider(), std::move(proxy), params)
+    , fTextureSampler(resourceProvider, std::move(proxy), params)
 #ifdef SK_GAMMA_APPLY_TO_A8
     , fDistanceAdjust(distanceAdjust)
 #endif
@@ -289,7 +288,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
 
-    return GrDistanceFieldA8TextGeoProc::Make(d->context(),
+    return GrDistanceFieldA8TextGeoProc::Make(d->resourceProvider(),
                                               GrRandomColor(d->fRandom),
                                               GrTest::TestMatrix(d->fRandom),
                                               std::move(proxy), params,
@@ -472,7 +471,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
-        GrContext* context,
+        GrResourceProvider* resourceProvider,
         GrColor color,
         const SkMatrix& viewMatrix,
         sk_sp<GrTextureProxy> proxy,
@@ -481,7 +480,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureSampler(context->resourceProvider(), std::move(proxy), params)
+    , fTextureSampler(resourceProvider, std::move(proxy), params)
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(nullptr)
     , fUsesLocalCoords(usesLocalCoords) {
@@ -532,7 +531,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
 
-    return GrDistanceFieldPathGeoProc::Make(d->context(),
+    return GrDistanceFieldPathGeoProc::Make(d->resourceProvider(),
                                             GrRandomColor(d->fRandom),
                                             GrTest::TestMatrix(d->fRandom),
                                             std::move(proxy),
@@ -777,7 +776,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
-                                                  GrContext* context,
+                                                  GrResourceProvider* resourceProvider,
                                                   GrColor color, const SkMatrix& viewMatrix,
                                                   sk_sp<GrTextureProxy> proxy,
                                                   const GrSamplerParams& params,
@@ -785,7 +784,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   uint32_t flags, bool usesLocalCoords)
     : fColor(color)
     , fViewMatrix(viewMatrix)
-    , fTextureSampler(context->resourceProvider(), std::move(proxy), params)
+    , fTextureSampler(resourceProvider, std::move(proxy), params)
     , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask)
     , fUsesLocalCoords(usesLocalCoords) {
@@ -836,7 +835,8 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
     flags |= d->fRandom->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
-    return GrDistanceFieldLCDTextGeoProc::Make(d->context(), GrRandomColor(d->fRandom),
+    return GrDistanceFieldLCDTextGeoProc::Make(d->resourceProvider(),
+                                               GrRandomColor(d->fRandom),
                                                GrTest::TestMatrix(d->fRandom),
                                                std::move(proxy), params,
                                                wa,

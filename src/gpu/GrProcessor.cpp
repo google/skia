@@ -20,6 +20,15 @@
 class GrFragmentProcessor;
 class GrGeometryProcessor;
 
+GrResourceProvider* GrProcessorTestData::resourceProvider() {
+    return fContext->resourceProvider();
+}
+
+const GrCaps* GrProcessorTestData::caps() {
+    return fContext->caps();
+}
+
+
 /*
  * Originally these were both in the processor unit test header, but then it seemed to cause linker
  * problems on android.

@@ -6,6 +6,7 @@
  */
 
 #include "GrBicubicEffect.h"
+
 #include "GrProxyMove.h"
 #include "GrTextureProxy.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -152,11 +153,11 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
     this->initClassID<GrBicubicEffect>();
 }
 
-GrBicubicEffect::GrBicubicEffect(GrContext* context, sk_sp<GrTextureProxy> proxy,
+GrBicubicEffect::GrBicubicEffect(GrResourceProvider* resourceProvider, sk_sp<GrTextureProxy> proxy,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const SkMatrix &matrix,
                                  const SkShader::TileMode tileModes[2])
-  : INHERITED{context,
+  : INHERITED{resourceProvider,
               ModulationFlags(proxy->config()),
               GR_PROXY_MOVE(proxy),
               std::move(colorSpaceXform),
@@ -166,11 +167,11 @@ GrBicubicEffect::GrBicubicEffect(GrContext* context, sk_sp<GrTextureProxy> proxy
     this->initClassID<GrBicubicEffect>();
 }
 
-GrBicubicEffect::GrBicubicEffect(GrContext* context, sk_sp<GrTextureProxy> proxy,
+GrBicubicEffect::GrBicubicEffect(GrResourceProvider* resourceProvider, sk_sp<GrTextureProxy> proxy,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const SkMatrix &matrix,
                                  const SkRect& domain)
-  : INHERITED(context, ModulationFlags(proxy->config()), proxy,
+  : INHERITED(resourceProvider, ModulationFlags(proxy->config()), proxy,
               std::move(colorSpaceXform), matrix,
               GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
   , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode) {
@@ -203,7 +204,8 @@ sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
     static const SkShader::TileMode kClampClamp[] =
         { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
-    return GrBicubicEffect::Make(d->context(), d->textureProxy(texIdx), std::move(colorSpaceXform),
+    return GrBicubicEffect::Make(d->resourceProvider(),
+                                 d->textureProxy(texIdx), std::move(colorSpaceXform),
                                  SkMatrix::I(), kClampClamp);
 }
 #endif

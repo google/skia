@@ -88,7 +88,7 @@ protected:
 
         const SkMatrix trans = SkMatrix::MakeTrans(-kPad, -kPad);
 
-        sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(context,
+        sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(context->resourceProvider(),
                                                                     std::move(proxy),
                                                                     nullptr, trans);
 

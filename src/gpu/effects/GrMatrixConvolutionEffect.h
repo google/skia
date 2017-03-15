@@ -17,7 +17,7 @@
 
 class GrMatrixConvolutionEffect : public GrSingleTextureEffect {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
                                            sk_sp<GrTextureProxy> proxy,
                                            const SkIRect& bounds,
                                            const SkISize& kernelSize,
@@ -28,11 +28,11 @@ public:
                                            GrTextureDomain::Mode tileMode,
                                            bool convolveAlpha) {
         return sk_sp<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(context, std::move(proxy), bounds, kernelSize, kernel,
-                                          gain, bias, kernelOffset, tileMode, convolveAlpha));
+            new GrMatrixConvolutionEffect(resourceProvider, std::move(proxy), bounds, kernelSize,
+                                          kernel, gain, bias, kernelOffset, tileMode, convolveAlpha));
     }
 
-    static sk_sp<GrFragmentProcessor> MakeGaussian(GrContext* context,
+    static sk_sp<GrFragmentProcessor> MakeGaussian(GrResourceProvider*,
                                                    sk_sp<GrTextureProxy> proxy,
                                                    const SkIRect& bounds,
                                                    const SkISize& kernelSize,
@@ -56,7 +56,7 @@ public:
     const char* name() const override { return "MatrixConvolution"; }
 
 private:
-    GrMatrixConvolutionEffect(GrContext*,
+    GrMatrixConvolutionEffect(GrResourceProvider*,
                               sk_sp<GrTextureProxy> proxy,
                               const SkIRect& bounds,
                               const SkISize& kernelSize,

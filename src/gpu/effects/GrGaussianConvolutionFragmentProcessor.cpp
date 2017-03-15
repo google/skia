@@ -6,6 +6,7 @@
  */
 
 #include "GrGaussianConvolutionFragmentProcessor.h"
+
 #include "GrProxyMove.h"
 #include "GrTextureProxy.h"
 #include "../private/GrGLSL.h"
@@ -169,14 +170,14 @@ static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianS
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
-                                                                    GrContext* context,
-                                                                    sk_sp<GrTextureProxy> proxy,
-                                                                    Direction direction,
-                                                                    int radius,
-                                                                    float gaussianSigma,
-                                                                    bool useBounds,
-                                                                    int bounds[2])
-        : INHERITED{context,
+                                                            GrResourceProvider* resourceProvider,
+                                                            sk_sp<GrTextureProxy> proxy,
+                                                            Direction direction,
+                                                            int radius,
+                                                            float gaussianSigma,
+                                                            bool useBounds,
+                                                            int bounds[2])
+        : INHERITED{resourceProvider,
                     ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
                     direction,
@@ -239,6 +240,7 @@ sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
     float sigma = radius / 3.f;
 
     return GrGaussianConvolutionFragmentProcessor::Make(
-            d->context(), d->textureProxy(texIdx), dir, radius, sigma, useBounds, bounds);
+            d->resourceProvider(), d->textureProxy(texIdx),
+            dir, radius, sigma, useBounds, bounds);
 }
 #endif

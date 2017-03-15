@@ -132,7 +132,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
 
     GrPaint paint;
     sk_sp<GrFragmentProcessor> yuvToRgbProcessor(
-        GrYUVEffect::MakeYUVToRGB(ctx,
+        GrYUVEffect::MakeYUVToRGB(ctx->resourceProvider(),
                                   yuvTextureContexts[0]->asTextureProxyRef(),
                                   yuvTextureContexts[1]->asTextureProxyRef(),
                                   yuvTextureContexts[2]->asTextureProxyRef(),

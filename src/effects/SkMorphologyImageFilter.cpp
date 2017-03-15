@@ -145,16 +145,17 @@ public:
         kDilate_MorphologyType,
     };
 
-    static sk_sp<GrFragmentProcessor> Make(GrContext* context, sk_sp<GrTextureProxy> proxy,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                           sk_sp<GrTextureProxy> proxy,
                                            Direction dir, int radius, MorphologyType type) {
-        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(context, std::move(proxy),
+        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(resourceProvider, std::move(proxy),
                                                                  dir, radius, type));
     }
 
-    static sk_sp<GrFragmentProcessor> Make(GrContext* context, sk_sp<GrTextureProxy> proxy,
-                                           Direction dir, int radius,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                           sk_sp<GrTextureProxy> proxy, Direction dir, int radius,
                                            MorphologyType type, const float bounds[2]) {
-        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(context, std::move(proxy),
+        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(resourceProvider, std::move(proxy),
                                                                  dir, radius, type, bounds));
     }
 
@@ -179,8 +180,9 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    GrMorphologyEffect(GrContext*, sk_sp<GrTextureProxy>, Direction, int radius, MorphologyType);
-    GrMorphologyEffect(GrContext*, sk_sp<GrTextureProxy>,
+    GrMorphologyEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
+                       Direction, int radius, MorphologyType);
+    GrMorphologyEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
                        Direction, int radius, MorphologyType, const float bounds[2]);
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -322,12 +324,12 @@ void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrMorphologyEffect::GrMorphologyEffect(GrContext* context,
+GrMorphologyEffect::GrMorphologyEffect(GrResourceProvider* resourceProvider,
                                        sk_sp<GrTextureProxy> proxy,
                                        Direction direction,
                                        int radius,
                                        MorphologyType type)
-        : INHERITED{context,
+        : INHERITED{resourceProvider,
                     ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
                     direction, radius}
@@ -336,13 +338,13 @@ GrMorphologyEffect::GrMorphologyEffect(GrContext* context,
     this->initClassID<GrMorphologyEffect>();
 }
 
-GrMorphologyEffect::GrMorphologyEffect(GrContext* context,
+GrMorphologyEffect::GrMorphologyEffect(GrResourceProvider* resourceProvider,
                                        sk_sp<GrTextureProxy> proxy,
                                        Direction direction,
                                        int radius,
                                        MorphologyType type,
                                        const float range[2])
-        : INHERITED{context,
+        : INHERITED{resourceProvider,
                     ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
                     direction, radius}
@@ -388,13 +390,13 @@ sk_sp<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d
     MorphologyType type = d->fRandom->nextBool() ? GrMorphologyEffect::kErode_MorphologyType
                                                  : GrMorphologyEffect::kDilate_MorphologyType;
 
-    return GrMorphologyEffect::Make(d->context(), std::move(proxy), dir, radius, type);
+    return GrMorphologyEffect::Make(d->resourceProvider(),
+                                    std::move(proxy), dir, radius, type);
 }
 #endif
 
 
-static void apply_morphology_rect(GrContext* context,
-                                  GrRenderTargetContext* renderTargetContext,
+static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
                                   const GrClip& clip,
                                   sk_sp<GrTextureProxy> proxy,
                                   const SkIRect& srcRect,
@@ -406,7 +408,9 @@ static void apply_morphology_rect(GrContext* context,
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(context, std::move(proxy),
+    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
+
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(resourceProvider, std::move(proxy),
                                                              direction, radius, morphType,
                                                              bounds));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -414,8 +418,7 @@ static void apply_morphology_rect(GrContext* context,
                                         SkRect::Make(dstRect), SkRect::Make(srcRect));
 }
 
-static void apply_morphology_rect_no_bounds(GrContext* context,
-                                            GrRenderTargetContext* renderTargetContext,
+static void apply_morphology_rect_no_bounds(GrRenderTargetContext* renderTargetContext,
                                             const GrClip& clip,
                                             sk_sp<GrTextureProxy> proxy,
                                             const SkIRect& srcRect,
@@ -426,15 +429,16 @@ static void apply_morphology_rect_no_bounds(GrContext* context,
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(context, std::move(proxy),
+    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
+
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(resourceProvider, std::move(proxy),
                                                              direction, radius, morphType));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         SkRect::Make(dstRect), SkRect::Make(srcRect));
 }
 
-static void apply_morphology_pass(GrContext* context,
-                                  GrRenderTargetContext* renderTargetContext,
+static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
                                   const GrClip& clip,
                                   sk_sp<GrTextureProxy> textureProxy,
                                   const SkIRect& srcRect,
@@ -467,15 +471,15 @@ static void apply_morphology_pass(GrContext* context,
     }
     if (middleSrcRect.fLeft - middleSrcRect.fRight >= 0) {
         // radius covers srcRect; use bounds over entire draw
-        apply_morphology_rect(context, renderTargetContext, clip, std::move(textureProxy),
+        apply_morphology_rect(renderTargetContext, clip, std::move(textureProxy),
                               srcRect, dstRect, radius, morphType, bounds, direction);
     } else {
         // Draw upper and lower margins with bounds; middle without.
-        apply_morphology_rect(context, renderTargetContext, clip, textureProxy,
+        apply_morphology_rect(renderTargetContext, clip, textureProxy,
                               lowerSrcRect, lowerDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect(context, renderTargetContext, clip, textureProxy,
+        apply_morphology_rect(renderTargetContext, clip, textureProxy,
                               upperSrcRect, upperDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect_no_bounds(context, renderTargetContext, clip, std::move(textureProxy),
+        apply_morphology_rect_no_bounds(renderTargetContext, clip, std::move(textureProxy),
                                         middleSrcRect, middleDstRect, radius, morphType, direction);
     }
 }
@@ -507,8 +511,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
             return nullptr;
         }
 
-        apply_morphology_pass(context,
-                              dstRTContext.get(), clip, std::move(srcTexture),
+        apply_morphology_pass(dstRTContext.get(), clip, std::move(srcTexture),
                               srcRect, dstRect, radius.fWidth, morphType,
                               Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
@@ -528,8 +531,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
             return nullptr;
         }
 
-        apply_morphology_pass(context,
-                              dstRTContext.get(), clip, std::move(srcTexture),
+        apply_morphology_pass(dstRTContext.get(), clip, std::move(srcTexture),
                               srcRect, dstRect, radius.fHeight, morphType,
                               Gr1DKernelEffect::kY_Direction);
 
