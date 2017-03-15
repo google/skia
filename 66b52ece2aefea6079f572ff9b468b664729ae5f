@@ -22,6 +22,30 @@
       "revId": "66b52ece2aefea6079f572ff9b468b664729ae5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdaeda1a_2f88e604",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1775,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-15T17:33:51Z",
+      "side": 1,
+      "message": "Good question.  I began with the PDF backend, writing to a 8.5x11 sheet of paper.  Then I decided all backends should use the same canvas size.",
+      "parentUuid": "3ef5a056_59eb159b",
+      "range": {
+        "startLine": 1775,
+        "startChar": 30,
+        "endLine": 1775,
+        "endChar": 38
+      },
+      "revId": "66b52ece2aefea6079f572ff9b468b664729ae5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
