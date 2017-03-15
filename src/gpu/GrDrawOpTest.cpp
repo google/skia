@@ -18,13 +18,13 @@
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
 DRAW_OP_TEST_EXTERN(AAConvexPathOp);
-DRAW_OP_TEST_EXTERN(AADistanceFieldPathOp);
 DRAW_OP_TEST_EXTERN(AAFillRectOp);
 DRAW_OP_TEST_EXTERN(AAFillRectOpLocalMatrix);
 DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp)
 DRAW_OP_TEST_EXTERN(AAHairlineOp);
 DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
 DRAW_OP_TEST_EXTERN(AnalyticRectOp);
+DRAW_OP_TEST_EXTERN(SmallPathOp);
 DRAW_OP_TEST_EXTERN(DashOp);
 DRAW_OP_TEST_EXTERN(DefaultPathOp);
 DRAW_OP_TEST_EXTERN(CircleOp);
@@ -41,13 +41,13 @@ std::unique_ptr<GrMeshDrawOp> GrRandomDrawOp(SkRandom* random, GrContext* contex
     using MakeTestDrawOpFn = std::unique_ptr<GrMeshDrawOp>(SkRandom* random, GrContext* context);
     static constexpr MakeTestDrawOpFn* gFactories[] = {
         DRAW_OP_TEST_ENTRY(AAConvexPathOp),
-        DRAW_OP_TEST_ENTRY(AADistanceFieldPathOp),
         DRAW_OP_TEST_ENTRY(AAFillRectOp),
         DRAW_OP_TEST_ENTRY(AAFillRectOpLocalMatrix),
         DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
         DRAW_OP_TEST_ENTRY(AAHairlineOp),
         DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
         DRAW_OP_TEST_ENTRY(AnalyticRectOp),
+        DRAW_OP_TEST_ENTRY(SmallPathOp),
         DRAW_OP_TEST_ENTRY(DashOp),
         DRAW_OP_TEST_ENTRY(DefaultPathOp),
         DRAW_OP_TEST_ENTRY(CircleOp),
