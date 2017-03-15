@@ -318,7 +318,7 @@ sk_sp<SkImage> SkImage_Base::makeColorSpace(sk_sp<SkColorSpace> target) const {
         return nullptr;
     }
 
-    if (SkColorSpace::Equals(this->colorSpace(), target.get())) {
+    if (!this->colorSpace() || SkColorSpace::Equals(this->colorSpace(), target.get())) {
         return sk_ref_sp(const_cast<SkImage_Base*>(this));
     }
 
