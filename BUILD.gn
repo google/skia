@@ -1313,6 +1313,7 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":flags",
+      ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
     ]
