@@ -549,6 +549,8 @@ public:
                      const SkMatrix& matrix, BoundaryMode boundaryMode, const SkIRect* srcBounds);
     ~GrLightingEffect() override;
 
+    SkString dumpInfo() const override;
+
     const SkImageFilterLight* light() const { return fLight; }
     SkScalar surfaceScale() const { return fSurfaceScale; }
     const SkMatrix& filterMatrix() const { return fFilterMatrix; }
@@ -627,6 +629,13 @@ public:
     }
 
     const char* name() const override { return "SpecularLighting"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("KS: %f, Shininess: %f ", fKS, fShininess);
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -773,6 +782,12 @@ public:
     }
     virtual SkImageFilterLight* transform(const SkMatrix& matrix) const = 0;
 
+    virtual SkString dumpInfo() const {
+        SkString str;
+        str.appendf("Color: (%f, %f, %f) ", fColor.fX, fColor.fY, fColor.fZ);
+        return str;
+    }
+
     // Defined below SkLight's subclasses.
     void flattenLight(SkWriteBuffer& buffer) const;
     static SkImageFilterLight* UnflattenLight(SkReadBuffer& buffer);
@@ -828,6 +843,14 @@ public:
         const SkDistantLight& o = static_cast<const SkDistantLight&>(other);
         return INHERITED::isEqual(other) &&
                fDirection == o.fDirection;
+    }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Type: Distant, Direction: (%f, %f, %f) ",
+                    fDirection.fX, fDirection.fY, fDirection.fZ);
+        str.append(INHERITED::dumpInfo());
+        return str;
     }
 
     SkDistantLight(SkReadBuffer& buffer) : INHERITED(buffer) {
@@ -894,6 +917,14 @@ public:
                                            location2.fY,
                                            SkScalarAve(locationZ.fX, locationZ.fY));
         return new SkPointLight(location, color());
+    }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Type: Point, Location: (%f, %f, %f) ",
+                    fLocation.fX, fLocation.fY, fLocation.fZ);
+        str.append(INHERITED::dumpInfo());
+        return str;
     }
 
     SkPointLight(SkReadBuffer& buffer) : INHERITED(buffer) {
@@ -995,6 +1026,16 @@ public:
     SkScalar cosOuterConeAngle() const { return fCosOuterConeAngle; }
     SkScalar coneScale() const { return fConeScale; }
     const SkPoint3& s() const { return fS; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Type: Spot, Location: (%f, %f, %f), Target: (%f, %f, %f), Exponent: %f, "
+                    "CosOuter: %f, CosInner: %f, ConeScale: %f, S: %f ",
+                    fLocation.fX, fLocation.fY, fLocation.fZ, fTarget.fX, fTarget.fY, fTarget.fZ,
+                    fSpecularExponent, fCosOuterConeAngle, fCosInnerConeAngle, fConeScale, fS);
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
 
     SkSpotLight(SkReadBuffer& buffer) : INHERITED(buffer) {
         fLocation = readPoint3(buffer);
@@ -1724,6 +1765,17 @@ bool GrLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     return fLight->isEqual(*s.fLight) &&
            fSurfaceScale == s.fSurfaceScale &&
            fBoundaryMode == s.fBoundaryMode;
+}
+
+SkString GrLightingEffect::dumpInfo() const {
+    SkString str;
+    SkString mtxStr;
+    fFilterMatrix.toString(&mtxStr);
+    str.appendf("Light: %s, SurfaceScale: %f, Matrix: %s, BoundaryMode: %d, Domain: %s",
+                fLight->dumpInfo().c_str(), fSurfaceScale, mtxStr.c_str(),
+                static_cast<int>(fBoundaryMode), "???" /* fDomain */);
+    str.append(INHERITED::dumpInfo());
+    return str;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
