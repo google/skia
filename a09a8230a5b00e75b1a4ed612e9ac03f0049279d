@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "239a73ca_c3b9c257",
+        "filename": "gm/dstreadshuffle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-15T19:23:05Z",
+      "side": 1,
+      "message": "do you want this to be .f?",
+      "range": {
+        "startLine": 152,
+        "startChar": 26,
+        "endLine": 152,
+        "endChar": 28
+      },
+      "revId": "a09a8230a5b00e75b1a4ed612e9ac03f0049279d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
