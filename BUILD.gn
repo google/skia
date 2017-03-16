@@ -198,7 +198,10 @@ opts("none") {
 
 opts("armv7") {
   enabled = current_cpu == "arm"
-  sources = skia_opts.armv7_sources + skia_opts.neon_sources
+  sources = skia_opts.armv7_sources
+  if (!is_win) {
+    sources += skia_opts.neon_sources
+  }
   cflags = []
 }
 
@@ -398,7 +401,7 @@ optional("gpu") {
     sources += [ "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp" ]
   } else if (is_ios) {
     sources += [ "src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp" ]
-  } else if (is_win) {
+  } else if (is_win && !is_winrt) {
     sources += [ "src/gpu/gl/win/GrGLCreateNativeInterface_win.cpp" ]
     libs += [ "OpenGL32.lib" ]
   } else {
@@ -610,7 +613,6 @@ component("skia") {
     sources += [
       "src/fonts/SkFontMgr_indirect.cpp",
       "src/ports/SkDebug_win.cpp",
-      "src/ports/SkFontHost_win.cpp",
       "src/ports/SkFontMgr_win_dw.cpp",
       "src/ports/SkImageEncoder_WIC.cpp",
       "src/ports/SkImageGeneratorWIC.cpp",
@@ -620,6 +622,9 @@ component("skia") {
       "src/ports/SkTLS_win.cpp",
       "src/ports/SkTypeface_win_dw.cpp",
     ]
+    if (!is_winrt) {
+      sources += [ "src/ports/SkFontHost_win.cpp" ]
+    }
     if (skia_use_gdi) {
       sources += [ "src/ports/SkFontMgr_win_gdi_factory.cpp" ]
       libs += [
@@ -642,6 +647,13 @@ component("skia") {
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkOSLibrary_posix.cpp",
       "src/ports/SkTLS_pthread.cpp",
+    ]
+  }
+
+  if (is_winrt) {
+    sources -= [
+      get_path_info("src/utils/win/SkWGL.h", "abspath"),
+      get_path_info("src/utils/win/SkWGL_win.cpp", "abspath"),
     ]
   }
 

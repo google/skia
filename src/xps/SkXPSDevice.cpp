@@ -200,6 +200,10 @@ template <typename T> static constexpr size_t sk_digits_in() {
 HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
                                         const unsigned int pageNum,
                                         IXpsOMImageResource** image) {
+#ifdef SK_BUILD_FOR_WINRT
+    *image = nullptr;
+    return S_OK;
+#else
     SkTScopedComPtr<IXpsOMThumbnailGenerator> thumbnailGenerator;
     HRM(CoCreateInstance(
             CLSID_XpsOMThumbnailGenerator,
@@ -231,6 +235,7 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
         "Could not generate thumbnail.");
 
     return S_OK;
+#endif
 }
 
 HRESULT SkXPSDevice::createXpsPage(const XPS_SIZE& pageSize,
@@ -359,6 +364,9 @@ bool SkXPSDevice::endSheet() {
 }
 
 static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
+#if SK_BUILD_FOR_WINRT
+    return E_UNEXPECTED;
+#else
     //CreateFontPackage wants unsigned short.
     //Microsoft, Y U NO stdint.h?
     SkTDArray<unsigned short> keepList;
@@ -449,6 +457,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         "Could not set new stream for subsetted font.");
 
     return S_OK;
+#endif
 }
 
 bool SkXPSDevice::endPortfolio() {

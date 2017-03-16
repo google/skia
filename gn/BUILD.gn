@@ -87,32 +87,49 @@ config("default") {
       "WIN32_LEAN_AND_MEAN",
       "NOMINMAX",
     ]
-    include_dirs = [
-      "$windk/VC/include",
+    if (is_winrt) {
+      include_dirs = [
+        "$windk/VC/include",
 
-      # For local builds.
-      "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
-      "$windk/../Windows Kits/8.1/Include/shared",
-      "$windk/../Windows Kits/8.1/Include/um",
-      "$windk/../Windows Kits/8.1/Include/winrt",
-
-      # For builds using win_toolchain asset.
-      "$windk/win_sdk/Include/10.0.14393.0/shared",
-      "$windk/win_sdk/Include/10.0.14393.0/ucrt",
-      "$windk/win_sdk/Include/10.0.14393.0/um",
-      "$windk/win_sdk/Include/10.0.14393.0/winrt",
-    ]
-    lib_dirs = [
-      # For local builds.
-      "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
-      "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
-
-      # For builds using win_toolchain asset.
-      "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
-    ]
+        "$windk/../Windows Kits/10/Include/10.0.10240.0/ucrt",
+        "$windk/../Windows Kits/10/Include/10.0.10240.0/um",
+        "$windk/../Windows Kits/10/Include/10.0.10240.0/shared",
+        "$windk/../Windows Kits/10/Include/10.0.10240.0/winrt",
+      ]
+      lib_dirs = [
+        "$windk/../Windows Kits\10\lib\10.0.10240.0\ucrt\$target_cpu",
+        "$windk/../Windows Kits\10\lib\10.0.10240.0\um\$target_cpu",
+      ]
+    } else {
+      include_dirs = [
+        "$windk/VC/include",
+    
+        # For local builds.
+        "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
+        "$windk/../Windows Kits/8.1/Include/shared",
+        "$windk/../Windows Kits/8.1/Include/um",
+        "$windk/../Windows Kits/8.1/Include/winrt",
+    
+        # For builds using win_toolchain asset.
+        "$windk/win_sdk/Include/10.0.14393.0/shared",
+        "$windk/win_sdk/Include/10.0.14393.0/ucrt",
+        "$windk/win_sdk/Include/10.0.14393.0/um",
+        "$windk/win_sdk/Include/10.0.14393.0/winrt",
+      ]
+      lib_dirs = [
+        # For local builds.
+        "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
+        "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
+    
+        # For builds using win_toolchain asset.
+        "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
+        "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
+      ]
+    }
     if (target_cpu == "x86") {
       lib_dirs += [ "$windk/VC/lib" ]
+    } else if (target_cpu == "arm") {
+      lib_dirs += [ "$windk/VC/lib/arm" ]
     } else {
       lib_dirs += [ "$windk/VC/lib/amd64" ]
     }
@@ -130,13 +147,13 @@ config("default") {
     ]
   }
 
-  if (current_cpu == "arm") {
+  if (current_cpu == "arm" && !is_win) {
     cflags += [
       "-march=armv7-a",
       "-mfpu=neon",
       "-mthumb",
     ]
-  } else if (current_cpu == "mipsel") {
+  } else if (current_cpu == "mipsel" && !is_win) {
     cflags += [
       "-march=mips32r2",
       "-mdspr2",
@@ -452,12 +469,19 @@ config("executable") {
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
-  bin = "$windk/VC/bin/amd64"
+  _target = "amd64"
   env_setup = ""
-  if (target_cpu == "x86") {
-    bin += "_x86"
-    env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
+  env_setup_end = ""
+  if (target_cpu != "x64") {
+    if (target_cpu == "x86") {
+      _target += "_x86"
+    } else if (target_cpu == "arm") {
+      _target += "_arm"
+    }
+    env_setup = "cmd /c \"\"$windk/VC/vcvarsall.bat\" $_target && "
+    env_setup_end = "\""
   }
+  bin = "$windk/VC/bin/$_target"
 
   tool("cc") {
     rspfile = "{{output}}.rsp"
@@ -465,7 +489,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup\"$bin/cl.exe\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\"$env_setup_end"
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -480,7 +504,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup\"$bin/cl.exe\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\"$env_setup_end"
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -492,7 +516,7 @@ toolchain("msvc") {
   tool("alink") {
     rspfile = "{{output}}.rsp"
 
-    command = "$env_setup$bin/lib.exe /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+    command = "$env_setup\"$bin/lib.exe\" /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile$env_setup_end"
     outputs = [
       # Ignore {{output_extension}} and always use .lib, there's no reason to
       # allow targets to override this extension on Windows.
@@ -512,7 +536,7 @@ toolchain("msvc") {
     pdbname = "${dllname}.pdb"
     rspfile = "${dllname}.rsp"
 
-    command = "$env_setup$bin/link.exe /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+    command = "$env_setup\"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile$env_setup_end"
     outputs = [
       dllname,
       libname,
@@ -542,7 +566,7 @@ toolchain("msvc") {
     rspfile = "$exename.rsp"
 
     command =
-        "$env_setup$bin/link.exe /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+        "$env_setup\"$bin/link.exe\" /nologo /OUT:$exename /PDB:$pdbname @$rspfile$env_setup_end"
 
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
