@@ -71,7 +71,7 @@ SkSurface_Base::~SkSurface_Base() {
 }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
-    auto image = this->makeImageSnapshot(SkBudgeted::kYes);
+    auto image = this->makeImageSnapshot();
     if (image) {
         canvas->drawImage(image, x, y, paint);
     }
@@ -153,8 +153,8 @@ SkCanvas* SkSurface::getCanvas() {
     return asSB(this)->getCachedCanvas();
 }
 
-sk_sp<SkImage> SkSurface::makeImageSnapshot(SkBudgeted budgeted) {
-    return asSB(this)->refCachedImage(budgeted);
+sk_sp<SkImage> SkSurface::makeImageSnapshot() {
+    return asSB(this)->refCachedImage();
 }
 
 sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
