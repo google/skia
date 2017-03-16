@@ -45,6 +45,9 @@ protected:
      */
     virtual GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) = 0;
 
+    virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
+                                                          SkColorSpace* dstColorSpace) = 0;
+
     /**
      *  Returns the color space of the maker's "original" texture, assuming it was retrieved with
      *  the same destination color space.

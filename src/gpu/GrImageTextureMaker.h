@@ -26,6 +26,9 @@ protected:
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
 
     GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) override;
+    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
+                                                  SkColorSpace* dstColorSpace) override;
+
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
                      SkColorSpace* dstColorSpace) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;

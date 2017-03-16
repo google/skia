@@ -14,11 +14,13 @@
 #include "GrTexture.h"
 #include "SkGr.h"
 
-GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
+GrTextureAdjuster::GrTextureAdjuster(GrContext* context, GrTexture* original,
+                                     SkAlphaType alphaType,
                                      const SkIRect& contentArea, uint32_t uniqueID,
                                      SkColorSpace* cs)
     : INHERITED(contentArea.width(), contentArea.height(),
                 GrPixelConfigIsAlphaOnly(original->config()))
+    , fContext(context)
     , fOriginal(original)
     , fAlphaType(alphaType)
     , fColorSpace(cs)
@@ -42,14 +44,17 @@ void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
     // We don't currently have a mechanism for notifications on Images!
 }
 
+sk_sp<GrTextureProxy> GrTextureAdjuster::originalProxyRef() {
+    return GrSurfaceProxy::MakeWrapped(sk_ref_sp(fOriginal));
+}
+
 GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
     GrTexture* texture = this->originalTexture();
-    GrContext* context = texture->getContext();
     const SkIRect* contentArea = this->contentAreaOrNull();
     GrUniqueKey key;
     this->makeCopyKey(copyParams, &key, nullptr);
     if (key.isValid()) {
-        GrTexture* cachedCopy = context->resourceProvider()->findAndRefTextureByUniqueKey(key);
+        GrTexture* cachedCopy = fContext->resourceProvider()->findAndRefTextureByUniqueKey(key);
         if (cachedCopy) {
             return cachedCopy;
         }
@@ -57,7 +62,30 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
     GrTexture* copy = CopyOnGpu(texture, contentArea, copyParams);
     if (copy) {
         if (key.isValid()) {
-            context->resourceProvider()->assignUniqueKeyToTexture(key, copy);
+            fContext->resourceProvider()->assignUniqueKeyToTexture(key, copy);
+            this->didCacheCopy(key);
+        }
+    }
+    return copy;
+}
+
+sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& copyParams) {
+    GrUniqueKey key;
+    this->makeCopyKey(copyParams, &key, nullptr);
+    if (key.isValid()) {
+        sk_sp<GrTextureProxy> cachedCopy = fContext->resourceProvider()->findProxyByUniqueKey(key);
+        if (cachedCopy) {
+            return cachedCopy;
+        }
+    }
+
+    sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
+    const SkIRect* contentArea = this->contentAreaOrNull();
+
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), contentArea, copyParams);
+    if (copy) {
+        if (key.isValid()) {
+            fContext->resourceProvider()->assignUniqueKeyToProxy(key, copy.get());
             this->didCacheCopy(key);
         }
     }
@@ -68,11 +96,10 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& par
                                                       SkIPoint* outOffset,
                                                       SkScalar scaleAdjust[2]) {
     GrTexture* texture = this->originalTexture();
-    GrContext* context = texture->getContext();
     CopyParams copyParams;
     const SkIRect* contentArea = this->contentAreaOrNull();
 
-    if (!context) {
+    if (!fContext) {
         // The texture was abandoned.
         return nullptr;
     }
@@ -83,8 +110,8 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& par
         copyParams.fWidth = contentArea->width();
         copyParams.fHeight = contentArea->height();
         copyParams.fFilter = GrSamplerParams::kBilerp_FilterMode;
-    } else if (!context->getGpu()->makeCopyForTextureParams(texture, params, &copyParams,
-                                                            scaleAdjust)) {
+    } else if (!fContext->getGpu()->makeCopyForTextureParams(texture, params, &copyParams,
+                                                             scaleAdjust)) {
         if (outOffset) {
             if (contentArea) {
                 outOffset->set(contentArea->fLeft, contentArea->fRight);

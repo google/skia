@@ -1362,7 +1362,8 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTexture> tex = as_IB(image)->refPinnedTexture(&pinnedUniqueID)) {
         CHECK_SHOULD_DRAW();
-        GrTextureAdjuster adjuster(tex.get(), image->alphaType(), image->bounds(), pinnedUniqueID,
+        GrTextureAdjuster adjuster(this->context(), tex.get(), image->alphaType(),
+                                   image->bounds(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
         this->drawTextureProducer(&adjuster, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                   viewMatrix, this->clip(), paint);
@@ -1394,7 +1395,8 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTexture> tex = as_IB(image)->refPinnedTexture(&pinnedUniqueID)) {
         CHECK_SHOULD_DRAW();
-        GrTextureAdjuster adjuster(tex.get(), image->alphaType(), image->bounds(), pinnedUniqueID,
+        GrTextureAdjuster adjuster(this->context(), tex.get(), image->alphaType(),
+                                   image->bounds(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
         this->drawTextureProducer(&adjuster, src, &dst, constraint, this->ctm(), this->clip(),
                                   paint);
@@ -1469,7 +1471,8 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTexture> tex = as_IB(image)->refPinnedTexture(&pinnedUniqueID)) {
         CHECK_SHOULD_DRAW();
-        GrTextureAdjuster adjuster(tex.get(), image->alphaType(), image->bounds(), pinnedUniqueID,
+        GrTextureAdjuster adjuster(this->context(), tex.get(), image->alphaType(),
+                                   image->bounds(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
         this->drawProducerNine(&adjuster, center, dst, paint);
     } else {
@@ -1524,7 +1527,8 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTexture> tex = as_IB(image)->refPinnedTexture(&pinnedUniqueID)) {
         CHECK_SHOULD_DRAW();
-        GrTextureAdjuster adjuster(tex.get(), image->alphaType(), image->bounds(), pinnedUniqueID,
+        GrTextureAdjuster adjuster(this->context(), tex.get(), image->alphaType(),
+                                   image->bounds(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
         this->drawProducerLattice(&adjuster, lattice, dst, paint);
     } else {

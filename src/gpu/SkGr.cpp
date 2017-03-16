@@ -289,6 +289,14 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
                                                            0, colorMode);
 }
 
+sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
+                                                               const SkBitmap& bitmap,
+                                                               SkColorSpace* dstColorSpace) {
+    sk_sp<GrTexture> tex(GrGenerateMipMapsAndUploadToTexture(ctx, bitmap, dstColorSpace));
+
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
 GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
                                    const GrMipLevel* texels, int mipLevelCount,
                                    SkDestinationSurfaceColorMode colorMode) {
