@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1eee897a_82c27be9",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-16T06:24:26Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "02ed83c1_616c4192",
+      "range": {
+        "startLine": 174,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 26
+      },
+      "revId": "b245b899799aaacaa6102e6e7785bad83e0094bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a7e6fb79_33779ba9",
         "filename": "tools/viewer/Viewer.cpp",
         "patchSetId": 4
