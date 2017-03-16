@@ -89,7 +89,6 @@ class VerticesGM : public skiagm::GM {
     sk_sp<SkShader>         fShader1;
     sk_sp<SkShader>         fShader2;
     sk_sp<SkColorFilter>    fColorFilter;
-    sk_sp<SkVertices>       fVertices;
     bool                    fUseObject;
     SkScalar                fShaderScale;
 
@@ -104,10 +103,6 @@ protected:
         fShader1 = make_shader1(fShaderScale);
         fShader2 = make_shader2();
         fColorFilter = make_color_filter();
-        if (fUseObject) {
-            fVertices = SkVertices::MakeCopy(SkCanvas::kTriangleFan_VertexMode, kMeshVertexCnt,
-                                             fPts, fTexs, fColors, kMeshIndexCnt, kMeshFan);
-        }
     }
 
     SkString onShortName() override {
@@ -175,16 +170,15 @@ protected:
                             paint.setShader(shader);
                             paint.setColorFilter(cf);
                             paint.setAlpha(alpha);
+
+                            const SkColor* colors = attrs.fHasColors ? fColors : nullptr;
+                            const SkPoint* texs = attrs.fHasTexs ? fTexs : nullptr;
                             if (fUseObject) {
-                                uint32_t flags = 0;
-                                flags |=
-                                        attrs.fHasColors ? 0 : SkCanvas::kIgnoreColors_VerticesFlag;
-                                flags |= attrs.fHasTexs ? 0
-                                                        : SkCanvas::kIgnoreTexCoords_VerticesFlag;
-                                canvas->drawVertices(fVertices, mode, paint, flags);
+                                auto v = SkVertices::MakeCopy(SkCanvas::kTriangleFan_VertexMode,
+                                                              kMeshVertexCnt, fPts, texs, colors,
+                                                              kMeshIndexCnt, kMeshFan);
+                                canvas->drawVertices(v, mode, paint);
                             } else {
-                                const SkColor* colors = attrs.fHasColors ? fColors : nullptr;
-                                const SkPoint* texs = attrs.fHasTexs ? fTexs : nullptr;
                                 canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode,
                                                      kMeshVertexCnt, fPts, texs, colors, mode,
                                                      kMeshFan, kMeshIndexCnt, paint);
@@ -240,10 +234,6 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
 
     }
 
-    sk_sp<SkVertices> vertices;
-    if (useObject) {
-        vertices = builder.detach();
-    }
     canvas->save();
     canvas->translate(10, 10);
     for (bool useShader : {false, true}) {
@@ -253,11 +243,13 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
                 canvas->concat(m);
                 SkPaint paint;
                 paint.setShader(useShader ? shader : nullptr);
+
+                const SkPoint* t = useTex ? texs : nullptr;
                 if (useObject) {
-                    uint32_t flags = useTex ? 0 : SkCanvas::kIgnoreTexCoords_VerticesFlag;
-                    canvas->drawVertices(vertices, SkBlendMode::kModulate, paint, flags);
+                    auto v = SkVertices::MakeCopy(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt,
+                                                  pts, t, colors, kNumTris * 3, indices);
+                    canvas->drawVertices(v, SkBlendMode::kModulate, paint);
                 } else {
-                    const SkPoint* t = useTex ? texs : nullptr;
                     canvas->drawVertices(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, pts,
                                          t, colors, indices, kNumTris * 3, paint);
                 }

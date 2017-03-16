@@ -1178,12 +1178,7 @@ public:
         this->drawVertices(vmode, vertexCount, vertices, texs, colors, SkBlendMode::kModulate,
                            indices, indexCount, paint);
     }
-    enum VerticesFlags {
-        /** Ignore the vertices' colors and instead use the paint color. */
-        kIgnoreColors_VerticesFlag = 0x1,
-        /** Ignore the vertices' tex coords (and any shader on the paint). */
-        kIgnoreTexCoords_VerticesFlag = 0x2
-    };
+
     /** Draw vertices from an immutable SkVertices object.
 
         @param vertices The mesh to draw.
@@ -1193,8 +1188,7 @@ public:
         @param paint Specifies the shader/texture if present.
         @param flags Allows the caller to ignore colors or texs on vertices.
      */
-    void drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
-                      uint32_t flags = 0);
+    void drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint);
 
     /**
      Draw a cubic coons patch

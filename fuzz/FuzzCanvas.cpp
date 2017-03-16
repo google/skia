@@ -1750,13 +1750,11 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                                          blendMode, indexCount > 0 ? indices : nullptr, indexCount,
                                          paint);
                 } else {
-                    uint32_t flags;
-                    fuzz->nextRange(&flags, 0, 3);
                     canvas->drawVertices(SkVertices::MakeCopy(vertexMode, vertexCount, vertices,
                                                               useTexs ? texs : nullptr,
                                                               useColors ? colors : nullptr,
                                                               indexCount, indices),
-                                         blendMode, paint, flags);
+                                         blendMode, paint);
                 }
                 break;
             }

@@ -245,8 +245,7 @@ public:
     void drawVertices(const GrClip&,
                       GrPaint&& paint,
                       const SkMatrix& viewMatrix,
-                      sk_sp<SkVertices> vertices,
-                      uint32_t flags);
+                      sk_sp<SkVertices> vertices);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the

@@ -951,8 +951,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                          GrPaint&& paint,
                                          const SkMatrix& viewMatrix,
-                                         sk_sp<SkVertices> vertices,
-                                         uint32_t flags) {
+                                         sk_sp<SkVertices> vertices) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -962,7 +961,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
 
     SkASSERT(vertices);
     std::unique_ptr<GrMeshDrawOp> op =
-            GrDrawVerticesOp::Make(paint.getColor(), std::move(vertices), viewMatrix, flags);
+            GrDrawVerticesOp::Make(paint.getColor(), std::move(vertices), viewMatrix);
     if (!op) {
         return;
     }

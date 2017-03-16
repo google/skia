@@ -32,12 +32,12 @@ std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(
 }
 
 std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(GrColor color, sk_sp<SkVertices> vertices,
-                                                     const SkMatrix& viewMatrix, uint32_t flags) {
+                                                     const SkMatrix& viewMatrix) {
     SkASSERT(vertices);
     GrPrimitiveType primType = SkVertexModeToGrPrimitiveType(vertices->mode());
     return std::unique_ptr<GrMeshDrawOp>(new GrDrawVerticesOp(
             std::move(vertices), primType, color, GrRenderTargetContext::ColorArrayType::kSkColor,
-            viewMatrix, flags));
+            viewMatrix));
 }
 
 GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
@@ -89,14 +89,14 @@ void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations&
     GrColor overrideColor;
     if (optimizations.getOverrideColorIfSet(&overrideColor)) {
         fMeshes[0].fColor = overrideColor;
-        fMeshes[0].fFlags |= SkCanvas::kIgnoreColors_VerticesFlag;
+        fMeshes[0].fFlags |= kIgnoreColors_VerticesFlag;
         fFlags &= ~kRequiresPerVertexColors_Flag;
         fColorArrayType = GrRenderTargetContext::ColorArrayType::kPremulGrColor;
     }
     if (optimizations.readsLocalCoords()) {
         fFlags |= kPipelineRequiresLocalCoords_Flag;
     } else {
-        fFlags |= SkCanvas::kIgnoreTexCoords_VerticesFlag;
+        fFlags |= kIgnoreTexCoords_VerticesFlag;
         fFlags &= ~kAnyMeshHasExplicitLocalCoords;
     }
 }

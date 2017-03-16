@@ -1799,10 +1799,10 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint ver
                          indexCount, paint);
 }
 
-void SkCanvas::drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
-                            uint32_t flags) {
+void SkCanvas::drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint) {
     RETURN_ON_NULL(vertices);
-    this->onDrawVerticesObject(std::move(vertices), mode, paint, flags);
+    uint32_t deprecatedFlags = 0;
+    this->onDrawVerticesObject(std::move(vertices), mode, paint, deprecatedFlags);
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
@@ -2685,12 +2685,10 @@ void SkCanvas::onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode bmod
 }
 
 void SkCanvas::onDrawVerticesObjectFallback(sk_sp<SkVertices> vertices, SkBlendMode mode,
-                                            const SkPaint& paint, uint32_t flags) {
-    const SkPoint* texs =
-            (flags & SkCanvas::kIgnoreTexCoords_VerticesFlag) ? nullptr : vertices->texCoords();
-    const SkColor* colors = (flags & kIgnoreColors_VerticesFlag) ? nullptr : vertices->colors();
-    this->onDrawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(), texs,
-                         colors, mode, vertices->indices(), vertices->indexCount(), paint);
+                                            const SkPaint& paint, uint32_t deprecatedFlags) {
+    this->onDrawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
+                         vertices->texCoords(), vertices->colors(), mode, vertices->indices(),
+                         vertices->indexCount(), paint);
 }
 
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
