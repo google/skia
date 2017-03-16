@@ -15,6 +15,7 @@
 #include "SkRegion.h"
 #include "SkRSXform.h"
 #include "SkTextBlob.h"
+#include "SkVertices.h"
 
 #ifndef SKLITEDL_PAGE
     #define SKLITEDL_PAGE 4096
@@ -54,7 +55,7 @@ namespace {
     M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice)          \
     M(DrawText) M(DrawPosText) M(DrawPosTextH)                                  \
     M(DrawTextOnPath) M(DrawTextRSXform) M(DrawTextBlob)                        \
-    M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawAtlas)
+    M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawVerticesObject) M(DrawAtlas)
 
 #define M(T) T,
     enum class Type : uint8_t { TYPES(M) };
@@ -502,6 +503,17 @@ namespace {
                             indices, nindices, paint);
         }
     };
+    struct DrawVerticesObject final : Op {
+        static const auto kType = Type::DrawVerticesObject;
+        DrawVerticesObject(const SkVertices* v, SkBlendMode m, const SkPaint& p)
+            : vertices(sk_ref_sp(const_cast<SkVertices*>(v))), mode(m), paint(p) {}
+        sk_sp<SkVertices> vertices;
+        SkBlendMode mode;
+        SkPaint paint;
+        void draw(SkCanvas* c, const SkMatrix&) {
+            c->drawVertices(vertices, mode, paint);
+        }
+    };
     struct DrawAtlas final : Op {
         static const auto kType = Type::DrawAtlas;
         DrawAtlas(const SkImage* atlas, int count, SkBlendMode xfermode,
@@ -713,6 +725,9 @@ void SkLiteDL::drawVertices(SkCanvas::VertexMode mode, int count, const SkPoint 
                     texs, texs    ? count    : 0,
                   colors, colors  ? count    : 0,
                  indices, indices ? nindices : 0);
+}
+void SkLiteDL::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
+    this->push<DrawVerticesObject>(0, vertices, mode, paint);
 }
 void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const SkRect texs[],
                          const SkColor colors[], int count, SkBlendMode xfermode,

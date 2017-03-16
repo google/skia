@@ -331,15 +331,13 @@ void SkRecorder::onDrawVertices(VertexMode vmode,
                                 const SkPoint texs[], const SkColor colors[],
                                 SkBlendMode bmode,
                                 const uint16_t indices[], int indexCount, const SkPaint& paint) {
-    APPEND(DrawVertices, paint,
-                         vmode,
-                         vertexCount,
-                         this->copy(vertices, vertexCount),
-                         texs ? this->copy(texs, vertexCount) : nullptr,
-                         colors ? this->copy(colors, vertexCount) : nullptr,
-                         bmode,
-                         this->copy(indices, indexCount),
-                         indexCount);
+    this->onDrawVerticesObject(SkVertices::MakeCopy(vmode, vertexCount, vertices, texs, colors,
+                                                    indexCount, indices).get(), bmode, paint);
+}
+
+void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
+                                      const SkPaint& paint) {
+    APPEND(DrawVertices, paint, sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode);
 }
 
 void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

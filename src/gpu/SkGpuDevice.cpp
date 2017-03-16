@@ -1664,8 +1664,8 @@ void SkGpuDevice::drawVertices(SkCanvas::VertexMode vmode,
                                        GrRenderTargetContext::ColorArrayType::kSkColor);
 }
 
-void SkGpuDevice::drawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode,
-                                     const SkPaint& paint, uint32_t deprecatedFlags) {
+void SkGpuDevice::drawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+                                     const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     CHECK_SHOULD_DRAW();
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVerticesObject", fContext.get());
@@ -1685,7 +1685,7 @@ void SkGpuDevice::drawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mod
         return;
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->ctm(),
-                                       std::move(vertices));
+                                       sk_ref_sp(const_cast<SkVertices*>(vertices)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
