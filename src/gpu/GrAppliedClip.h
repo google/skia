@@ -16,8 +16,12 @@
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
  * create the final GrPipeline for a GrOp.
  */
-class GrAppliedClip : public SkNoncopyable {
+class GrAppliedClip {
 public:
+    GrAppliedClip() = default;
+    GrAppliedClip(GrAppliedClip&& that) = default;
+    GrAppliedClip(const GrAppliedClip&) = delete;
+
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP.get(); }
@@ -52,12 +56,32 @@ public:
         fHasStencilClip = true;
     }
 
+    bool doesClip() const {
+        return fScissorState.enabled() || fClipCoverageFP || fHasStencilClip ||
+               fWindowRectsState.enabled();
+    }
+
+    bool operator==(const GrAppliedClip& that) const {
+        if (fScissorState != that.fScissorState || fHasStencilClip != that.fHasStencilClip) {
+            return false;
+        }
+        if (SkToBool(fClipCoverageFP)) {
+            if (!SkToBool(that.fClipCoverageFP) ||
+                !that.fClipCoverageFP->isEqual(*fClipCoverageFP)) {
+                return false;
+            }
+        } else if (SkToBool(that.fClipCoverageFP)) {
+            return false;
+        }
+        return fWindowRectsState == that.fWindowRectsState;
+    }
+    bool operator!=(const GrAppliedClip& that) const { return !(*this == that); }
+
 private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
     bool                       fHasStencilClip = false;
-    typedef SkNoncopyable INHERITED;
 };
 
 #endif

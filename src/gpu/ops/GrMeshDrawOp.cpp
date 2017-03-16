@@ -60,6 +60,9 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
 }
 
 void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
+    SkASSERT(!state->drawOpArgs().fAppliedClip);
+    SkASSERT(!state->drawOpArgs().fDstTexture.texture());
+    SkASSERT(state->drawOpArgs().fRenderTarget == this->pipeline()->getRenderTarget());
     int currUploadIdx = 0;
     int currMeshIdx = 0;
 

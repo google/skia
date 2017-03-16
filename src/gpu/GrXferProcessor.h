@@ -65,15 +65,18 @@ public:
         }
 
         DstTexture(GrTexture* texture, const SkIPoint& offset)
-            : fTexture(SkSafeRef(texture))
-            , fOffset(offset) {
-        }
+                : fTexture(SkSafeRef(texture)), fOffset(texture ? offset : SkIPoint{0, 0}) {}
 
         DstTexture& operator=(const DstTexture& other) {
             fTexture = other.fTexture;
             fOffset = other.fOffset;
             return *this;
         }
+
+        bool operator==(const DstTexture& that) const {
+            return fTexture == that.fTexture && fOffset == that.fOffset;
+        }
+        bool operator!=(const DstTexture& that) const { return !(*this == that); }
 
         const SkIPoint& offset() const { return fOffset; }
 
@@ -84,6 +87,9 @@ public:
 
         void setTexture(sk_sp<GrTexture> texture) {
             fTexture = std::move(texture);
+            if (!fTexture) {
+                fOffset = {0, 0};
+            }
         }
 
     private:
@@ -301,11 +307,6 @@ public:
                                          const GrCaps& caps) const;
 
     /**
-     * Is the destination color required either in the shader or fixed function blending.
-     */
-    static bool WillReadDst(const GrXPFactory*, const FragmentProcessorAnalysis&);
-
-    /**
     * This will return true if the xfer processor needs the dst color in the shader and the way
     * that the color will be made available to the xfer processor is by sampling a texture.
     */
@@ -315,13 +316,17 @@ public:
 
     static bool CompatibleWithCoverageAsAlpha(const GrXPFactory*, bool colorIsOpaque);
 
+    /**
+     * This indicates whether the the xfer processor will produce the same bleneded color result
+     * if a series of overlapping stencil and cover operations are replaced by a series of stencil
+     * operations and a single cover. A uniform src color is assumed.
+     **/
+    static bool CanCombineOverlappedStencilAndCover(const GrXPFactory*, bool colorIsOpaque);
+
 protected:
     constexpr GrXPFactory() {}
 
 private:
-    /** Subclass-specific implementation of WillReadDst(). */
-    virtual bool willReadsDst(const FragmentProcessorAnalysis& pipelineAnalysis) const = 0;
-
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                                    const FragmentProcessorAnalysis&,
                                                    bool hasMixedSamples,
@@ -334,6 +339,7 @@ private:
     virtual bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const = 0;
 
     virtual bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const = 0;
+    virtual bool canCombineOverlappedStencilAndCover(bool colorIsOpaque) const { return false; }
 };
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic pop
