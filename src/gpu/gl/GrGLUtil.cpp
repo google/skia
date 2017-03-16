@@ -111,7 +111,8 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         versionString = "";
     }
 
-    if (0 == strcmp(rendererString, "Chromium")) {
+    if (0 == strcmp(rendererString, "Chromium") ||
+        2 == sscanf(versionString, "OpenGL ES %d.%d Chromium", &major, &minor)) {
         *outDriver = kChromium_GrGLDriver;
         return;
     }
