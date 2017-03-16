@@ -22,6 +22,30 @@
       "revId": "b59249e744d8ef52e29e158ceddda7eb5140acd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72ee2a8c_de185703",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-16T00:41:23Z",
+      "side": 1,
+      "message": "I think behaving like line 338 would be appropriate.  The constructor already tries to lock unless it is costly - which it seems to be in this case.",
+      "parentUuid": "86b49944_e8a46203",
+      "range": {
+        "startLine": 382,
+        "startChar": 12,
+        "endLine": 382,
+        "endChar": 22
+      },
+      "revId": "b59249e744d8ef52e29e158ceddda7eb5140acd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
