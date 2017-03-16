@@ -75,6 +75,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_use_gdi'] = 'true'
     if extra_config == 'MSAN':
       args['skia_use_fontconfig'] = 'false'
+    if extra_config == 'ASAN':
+      args['skia_enable_spirv_validation'] = 'false'
     if extra_config == 'Mesa':
       args['skia_use_mesa'] = 'true'
     if extra_config == 'Mini':
