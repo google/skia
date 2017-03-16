@@ -10,11 +10,14 @@
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkFlattenableSerialization.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
+#include "SkImageFilter.h"
 #include "SkMallocPixelRef.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
@@ -55,6 +58,8 @@ static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
+static void fuzz_filter_fuzz(sk_sp<SkData>);
+
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
@@ -120,6 +125,10 @@ static int fuzz_file(const char* path) {
         }
         if (0 == strcmp("skp", FLAGS_type[0])) {
             fuzz_skp(bytes);
+            return 0;
+        }
+        if (0 == strcmp("filter_fuzz", FLAGS_type[0])) {
+            fuzz_filter_fuzz(bytes);
             return 0;
         }
 #if SK_SUPPORT_GPU
@@ -510,6 +519,40 @@ static void fuzz_region_deserialize(sk_sp<SkData> bytes) {
     s->getCanvas()->drawRegion(region, SkPaint());
     SkDEBUGCODE(region.validate());
     SkDebugf("[terminated] Success! Initialized SkRegion.\n");
+}
+
+static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
+
+    const int BitmapSize = 24;
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(BitmapSize, BitmapSize);
+    SkCanvas canvas(bitmap);
+    canvas.clear(0x00000000);
+
+    sk_sp<SkImageFilter> flattenable = SkValidatingDeserializeImageFilter(
+        bytes->data(), bytes->size());
+
+    // Adding some info, but the test passed if we got here without any trouble
+    if (flattenable != NULL) {
+        SkDebugf("Valid stream detected.\n");
+        // Let's see if using the filters can cause any trouble...
+        SkPaint paint;
+        paint.setImageFilter(flattenable);
+        canvas.save();
+        canvas.clipRect(SkRect::MakeXYWH(
+            0, 0, SkIntToScalar(BitmapSize), SkIntToScalar(BitmapSize)));
+
+        // This call shouldn't crash or cause ASAN to flag any memory issues
+        // If nothing bad happens within this call, everything is fine
+        canvas.drawBitmap(bitmap, 0, 0, &paint);
+
+        SkDebugf("Filter DAG rendered successfully\n");
+        canvas.restore();
+    } else {
+        SkDebugf("Invalid stream detected.\n");
+    }
+
+    SkDebugf("[terminated] Done\n");
 }
 
 #if SK_SUPPORT_GPU
