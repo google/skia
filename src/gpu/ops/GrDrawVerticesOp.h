@@ -97,7 +97,7 @@ private:
 
     bool isIndexed() const {
         // Consistency enforced in onCombineIfPossible.
-        return fMeshes[0].fVertices->isIndexed();
+        return fMeshes[0].fVertices->hasIndices();
     }
 
     bool requiresPerVertexColors() const {

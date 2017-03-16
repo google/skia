@@ -16,14 +16,10 @@
 #include "SkRefCnt.h"
 
 /**
- * An immutable set of vertex data that can be used with SkCanvas::drawVertices. Clients are
- * encouraged to provide a bounds on the vertex positions if they can compute one more cheaply than
- * looping over the positions.
+ * An immutable set of vertex data that can be used with SkCanvas::drawVertices.
  */
 class SkVertices : public SkNVRefCnt<SkVertices> {
 public:
-    ~SkVertices() { sk_free((void*)fPositions); }
-
     /**
      *  Create a vertices by copying the specified arrays. texs and colors may be nullptr,
      *  and indices is ignored if indexCount == 0.
@@ -42,72 +38,97 @@ public:
         return MakeCopy(mode, vertexCount, positions, texs, colors, 0, nullptr);
     }
 
-    enum Flags {
-        kHasTexs_Flag    = 1 << 0,
-        kHasColors_Flag  = 1 << 1,
+    struct Sizes;
+
+    enum BuilderFlags {
+        kHasTexCoords_BuilderFlag   = 1 << 0,
+        kHasColors_BuilderFlag      = 1 << 1,
     };
     class Builder {
     public:
         Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
-        ~Builder();
 
-        bool isValid() const { return fPositions != nullptr; }
+        bool isValid() const { return fVertices != nullptr; }
 
-        int vertexCount() const { return fVertexCnt; }
-        int indexCount() const { return fIndexCnt; }
-        SkPoint* positions() { return fPositions; }
-        SkPoint* texCoords() { return fTexs; }
-        SkColor* colors() { return fColors; }
-        uint16_t* indices() { return fIndices; }
+        // if the builder is invalid, these will return 0
+        int vertexCount() const;
+        int indexCount() const;
+        SkPoint* positions();
+        SkPoint* texCoords();   // returns null if there are no texCoords
+        SkColor* colors();      // returns null if there are no colors
+        uint16_t* indices();    // returns null if there are no indices
 
+        // Detach the built vertices object. After the first call, this will always return null.
         sk_sp<SkVertices> detach();
 
     private:
-        SkPoint* fPositions;  // owner of storage, use sk_free
-        SkPoint* fTexs;
-        SkColor* fColors;
-        uint16_t* fIndices;
-        int fVertexCnt;
-        int fIndexCnt;
-        SkCanvas::VertexMode fMode;
+        Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+
+        void init(SkCanvas::VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+
+        // holds a partially complete object. only completed in detach()
+        sk_sp<SkVertices> fVertices;
+
+        friend class SkVertices;
     };
 
-    SkCanvas::VertexMode mode() const { return fMode; }
-
     uint32_t uniqueID() const { return fUniqueID; }
+    SkCanvas::VertexMode mode() const { return fMode; }
+    const SkRect& bounds() const { return fBounds; }
+
+    bool hasColors() const { return SkToBool(this->colors()); }
+    bool hasTexCoords() const { return SkToBool(this->texCoords()); }
+    bool hasIndices() const { return SkToBool(this->indices()); }
+
     int vertexCount() const { return fVertexCnt; }
-    bool hasColors() const { return SkToBool(fColors); }
-    bool hasTexCoords() const { return SkToBool(fTexs); }
     const SkPoint* positions() const { return fPositions; }
     const SkPoint* texCoords() const { return fTexs; }
     const SkColor* colors() const { return fColors; }
 
-    bool isIndexed() const { return SkToBool(fIndexCnt); }
     int indexCount() const { return fIndexCnt; }
     const uint16_t* indices() const { return fIndices; }
 
-    size_t size() const {
-        return fVertexCnt * (sizeof(SkPoint) * (this->hasTexCoords() ? 2 : 1) + sizeof(SkColor)) +
-               fIndexCnt * sizeof(uint16_t);
-    }
+    // returns approximate byte size of the vertices object
+    size_t approximateSize() const;
 
-    const SkRect& bounds() const { return fBounds; }
+    /**
+     *  Recreate a vertices from a buffer previously created by calling encode().
+     *  Returns null if the data is corrupt or the length is incorrect for the contents.
+     */
+    static sk_sp<SkVertices> Decode(const void* buffer, size_t length);
 
-    static sk_sp<SkVertices> Decode(const void*, size_t);
+    /**
+     *  Pack the vertices object into a byte buffer. This can be used to recreate the vertices
+     *  by calling Decode() with the buffer.
+     */
     sk_sp<SkData> encode() const;
 
 private:
     SkVertices() {}
 
-    const SkPoint* fPositions;  // owner of storage, use sk_free
-    const SkPoint* fTexs;
-    const SkColor* fColors;
-    const uint16_t* fIndices;
-    SkRect fBounds;
+    // these are needed since we've manually sized our allocation (see Builder::init)
+    friend class SkNVRefCnt<SkVertices>;
+    void operator delete(void* p) { ::operator delete(p); }
+
+    static sk_sp<SkVertices> Alloc(int vCount, int iCount, uint32_t builderFlags,
+                                   size_t* arraySize);
+
+    // we store this first, to pair with the refcnt in our base-class, so we don't have an
+    // unnecessary pad between it and the (possibly 8-byte aligned) ptrs.
     uint32_t fUniqueID;
-    int fVertexCnt;
-    int fIndexCnt;
+
+    // these point inside our allocation, so none of these can be "freed"
+    SkPoint*    fPositions;
+    SkPoint*    fTexs;
+    SkColor*    fColors;
+    uint16_t*   fIndices;
+
+    SkRect  fBounds;    // computed to be the union of the fPositions[]
+    int     fVertexCnt;
+    int     fIndexCnt;
+
     SkCanvas::VertexMode fMode;
+    // below here is where the actual array data is stored.
 };
 
 #endif
