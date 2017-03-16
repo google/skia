@@ -84,7 +84,6 @@ protected:
 
     void addPendingExecution() const {
         this->validate();
-        SkASSERT(fRefCnt > 0);
         if (0 == fPendingExecutions) {
             static_cast<const DERIVED*>(this)->addPendingIOs();
         }

@@ -24,8 +24,6 @@ public:
     static const GrXPFactory* Get();
 
 private:
-    bool willReadsDst(const FragmentProcessorAnalysis&) const override { return false; }
-
     constexpr GrDisableColorXPFactory() {}
 
     bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
