@@ -23,8 +23,8 @@ public:
         outOffset will be the top-left corner of the subset if a copy is not made. Otherwise,
         the copy will be tight to the contents and outOffset will be (0, 0). If the copy's size
         does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    GrTexture* refTextureSafeForParams(const GrSamplerParams&, SkIPoint* outOffset,
-                                       SkScalar scaleAdjust[2]);
+    sk_sp<GrTextureProxy> refTextureSafeForParams(const GrSamplerParams&, SkIPoint* outOffset,
+                                                  SkScalar scaleAdjust[2]);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
@@ -36,7 +36,7 @@ public:
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
-    GrTextureAdjuster(GrContext*, GrTexture*, SkAlphaType, const SkIRect& area,
+    GrTextureAdjuster(GrContext*, sk_sp<GrTextureProxy>, SkAlphaType, const SkIRect& area,
                       uint32_t uniqueID, SkColorSpace*);
 
 protected:
@@ -45,8 +45,9 @@ protected:
                      SkColorSpace* dstColorSpace) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
-    GrTexture* originalTexture() const { return fOriginal; }
-    sk_sp<GrTextureProxy> originalProxyRef();
+    GrTexture* originalTexture() const;
+    GrTextureProxy* originalProxy() const { return fOriginal.get(); }
+    sk_sp<GrTextureProxy> originalProxyRef() const { return fOriginal; }
 
     /** Returns the content area or null for the whole original texture */
     const SkIRect* contentAreaOrNull() { return fContentArea.getMaybeNull(); }
@@ -54,7 +55,7 @@ protected:
 private:
     SkTLazy<SkIRect>    fContentArea;
     GrContext*          fContext;
-    GrTexture*          fOriginal;
+    sk_sp<GrTextureProxy> fOriginal;
     SkAlphaType         fAlphaType;
     SkColorSpace*       fColorSpace;
     uint32_t            fUniqueID;

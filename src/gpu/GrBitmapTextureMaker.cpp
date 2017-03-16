@@ -29,7 +29,7 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
 
 GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
                                                     SkColorSpace* dstColorSpace) {
-    GrTexture* tex = nullptr;
+    GrTexture* tex;
 
     if (fOriginalKey.isValid()) {
         tex = this->context()->resourceProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
@@ -41,7 +41,7 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
         tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap, dstColorSpace);
     }
     if (!tex) {
-        tex = GrUploadBitmapToTexture(this->context(), fBitmap);
+        tex = GrUploadBitmapToTexture(this->context()->resourceProvider(), fBitmap);
     }
     if (tex && fOriginalKey.isValid()) {
         this->context()->resourceProvider()->assignUniqueKeyToTexture(fOriginalKey, tex);
