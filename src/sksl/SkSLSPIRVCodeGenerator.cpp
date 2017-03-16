@@ -826,7 +826,7 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, SkWStream& out) 
 #if SPIRV_DEBUG
     out << std::endl << opcode_text(opCode) << " ";
 #else
-    this->writeWord((length << 16) | opCode, out);
+    this->writeWord((length << 16) | (opCode + 1), out);
 #endif
 }
 
