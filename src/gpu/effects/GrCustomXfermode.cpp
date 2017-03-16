@@ -327,6 +327,8 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
+    bool willReadsDst(const FragmentProcessorAnalysis&) const override { return true; }
+
     bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
 
     bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return true; }
