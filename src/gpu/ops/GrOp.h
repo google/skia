@@ -11,7 +11,6 @@
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
-#include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkString.h"

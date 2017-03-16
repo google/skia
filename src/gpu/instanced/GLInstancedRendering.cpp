@@ -19,8 +19,7 @@ class GLInstancedRendering::GLOp final : public InstancedRendering::Op {
 public:
     DEFINE_OP_CLASS_ID
 
-    GLOp(GLInstancedRendering* instRendering, GrPaint&& paint)
-            : INHERITED(ClassID(), std::move(paint), instRendering) {}
+    GLOp(GLInstancedRendering* instRendering) : INHERITED(ClassID(), instRendering) {}
     int numGLCommands() const { return 1 + fNumChangesInGeometry; }
 
 private:
@@ -61,8 +60,8 @@ inline GrGLGpu* GLInstancedRendering::glGpu() const {
     return static_cast<GrGLGpu*>(this->gpu());
 }
 
-std::unique_ptr<InstancedRendering::Op> GLInstancedRendering::makeOp(GrPaint&& paint) {
-    return std::unique_ptr<Op>(new GLOp(this, std::move(paint)));
+std::unique_ptr<InstancedRendering::Op> GLInstancedRendering::makeOp() {
+    return std::unique_ptr<Op>(new GLOp(this));
 }
 
 void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
