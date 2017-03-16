@@ -250,13 +250,13 @@ static bool get_analytic_clip_processor(const ElementList& elements,
 bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTargetContext,
                             bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
                             SkRect* bounds) const {
-    if (!fStack || fStack->isWideOpen()) {
-        return true;
-    }
-
     SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
     if (!devBounds.intersect(*bounds)) {
         return false;
+    }
+
+    if (!fStack || fStack->isWideOpen()) {
+        return true;
     }
 
     const GrReducedClip reducedClip(*fStack, devBounds,
