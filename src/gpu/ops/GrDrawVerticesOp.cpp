@@ -257,7 +257,7 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    if (fMeshes[0].fVertices->hasIndices() != that->fMeshes[0].fVertices->hasIndices()) {
+    if (fMeshes[0].fVertices->isIndexed() != that->fMeshes[0].fVertices->isIndexed()) {
         return false;
     }
 

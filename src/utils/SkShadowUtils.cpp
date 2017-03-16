@@ -232,12 +232,12 @@ private:
                 i = fCount++;
             } else {
                 i = gRandom.nextULessThan(MAX_ENTRIES);
-                fSize -= fEntries[i].fVertices->approximateSize();
+                fSize -= fEntries[i].fVertices->size();
             }
             fEntries[i].fFactory = factory;
             fEntries[i].fVertices = vertices;
             fEntries[i].fMatrix = matrix;
-            fSize += vertices->approximateSize();
+            fSize += vertices->size();
             return vertices;
         }
 
