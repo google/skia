@@ -68,35 +68,35 @@ static bool is_hinted_without_gasp(DWriteFontTypeface* typeface) {
     return !gasp.fExists;
 }
 
-/** A PPEMRange is inclusive, [min, max]. */
-struct PPEMRange {
-    int min;
-    int max;
+/** A GaspRange is inclusive, [min, max]. */
+struct GaspRange {
+    using Behavior = SkOTTableGridAndScanProcedure::GaspRange::behavior;
+    GaspRange(int min, int max, Behavior flags) : fMin(min), fMax(max), fFlags(flags) { }
+    int fMin;
+    int fMax;
+    Behavior fFlags;
 };
 
-/** If the rendering mode for the specified 'size' is gridfit, then place
- *  the gridfit range into 'range'. Otherwise, leave 'range' alone.
- */
-static void expand_range_if_gridfit_only(DWriteFontTypeface* typeface, int size, PPEMRange* range) {
+bool get_gasp_range(DWriteFontTypeface* typeface, int size, GaspRange* range) {
     AutoTDWriteTable<SkOTTableGridAndScanProcedure> gasp(typeface->fDWriteFontFace.get());
     if (!gasp.fExists) {
-        return;
+        return false;
     }
     if (gasp.fSize < sizeof(SkOTTableGridAndScanProcedure)) {
-        return;
+        return false;
     }
     if (gasp->version != SkOTTableGridAndScanProcedure::version0 &&
         gasp->version != SkOTTableGridAndScanProcedure::version1)
     {
-        return;
+        return false;
     }
 
     uint16_t numRanges = SkEndianSwap16(gasp->numRanges);
     if (numRanges > 1024 ||
         gasp.fSize < sizeof(SkOTTableGridAndScanProcedure) +
-                     sizeof(SkOTTableGridAndScanProcedure::GaspRange) * numRanges)
+        sizeof(SkOTTableGridAndScanProcedure::GaspRange) * numRanges)
     {
-        return;
+        return false;
     }
 
     const SkOTTableGridAndScanProcedure::GaspRange* rangeTable =
@@ -104,58 +104,32 @@ static void expand_range_if_gridfit_only(DWriteFontTypeface* typeface, int size,
     int minPPEM = -1;
     for (uint16_t i = 0; i < numRanges; ++i, ++rangeTable) {
         int maxPPEM = SkEndianSwap16(rangeTable->maxPPEM);
-        // Test that the size is in range and the range is gridfit only.
-        if (minPPEM < size && size <= maxPPEM &&
-            rangeTable->flags.raw.value == SkOTTableGridAndScanProcedure::GaspRange::behavior::Raw::GridfitMask)
-        {
-            range->min = minPPEM + 1;
-            range->max = maxPPEM;
-            return;
-        }
-        minPPEM = maxPPEM;
-    }
-}
-
-/** If the rendering mode for the specified 'size' sets SymmetricSmoothing, return true. */
-static bool gasp_allows_cleartype_symmetric(DWriteFontTypeface* typeface, int size) {
-#ifdef SK_IGNORE_DIRECTWRITE_GASP_FIX
-    return true;
-#endif
-    AutoTDWriteTable<SkOTTableGridAndScanProcedure> gasp(typeface->fDWriteFontFace.get());
-    if (!gasp.fExists) {
-        return false;
-    }
-    if (gasp.fSize < sizeof(SkOTTableGridAndScanProcedure)) {
-        return false;
-    }
-    if (gasp->version != SkOTTableGridAndScanProcedure::version0 &&
-        gasp->version != SkOTTableGridAndScanProcedure::version1)
-    {
-        return false;
-    }
-
-    uint16_t numRanges = SkEndianSwap16(gasp->numRanges);
-    if (numRanges > 1024 ||
-        gasp.fSize < sizeof(SkOTTableGridAndScanProcedure) +
-                     sizeof(SkOTTableGridAndScanProcedure::GaspRange) * numRanges)
-    {
-        return false;
-    }
-
-    const SkOTTableGridAndScanProcedure::GaspRange* rangeTable =
-        SkTAfter<const SkOTTableGridAndScanProcedure::GaspRange>(gasp.get());
-    int minPPEM = -1;
-    for (uint16_t i = 0; i < numRanges; ++i, ++rangeTable) {
-        int maxPPEM = SkEndianSwap16(rangeTable->maxPPEM);
         if (minPPEM < size && size <= maxPPEM) {
-            return rangeTable->flags.field.SymmetricSmoothing;
+            range->fMin = minPPEM + 1;
+            range->fMax = maxPPEM;
+            range->fFlags = rangeTable->flags;
+            return true;
         }
         minPPEM = maxPPEM;
     }
     return false;
 }
+/** If the rendering mode for the specified 'size' is gridfit, then place
+ *  the gridfit range into 'range'. Otherwise, leave 'range' alone.
+ */
+static bool is_gridfit_only(GaspRange::Behavior flags) {
+    return flags.raw.value == GaspRange::Behavior::Raw::GridfitMask;
+}
 
-static bool has_bitmap_strike(DWriteFontTypeface* typeface, PPEMRange range) {
+/** If the rendering mode for the specified 'size' sets SymmetricSmoothing, return true. */
+static bool gasp_allows_cleartype_symmetric(GaspRange::Behavior flags) {
+#ifdef SK_IGNORE_DIRECTWRITE_GASP_FIX
+    return true;
+#endif
+    return flags.field.SymmetricSmoothing;
+}
+
+static bool has_bitmap_strike(DWriteFontTypeface* typeface, GaspRange range) {
     SkAutoExclusive l(DWriteFactoryMutex);
     {
         AutoTDWriteTable<SkOTTableEmbeddedBitmapLocation> eblc(typeface->fDWriteFontFace.get());
@@ -181,7 +155,7 @@ static bool has_bitmap_strike(DWriteFontTypeface* typeface, PPEMRange range) {
                 SkTAfter<const SkOTTableEmbeddedBitmapLocation::BitmapSizeTable>(eblc.get());
         for (uint32_t i = 0; i < numSizes; ++i, ++sizeTable) {
             if (sizeTable->ppemX == sizeTable->ppemY &&
-                range.min <= sizeTable->ppemX && sizeTable->ppemX <= range.max)
+                range.fMin <= sizeTable->ppemX && sizeTable->ppemX <= range.fMax)
             {
                 // TODO: determine if we should dig through IndexSubTableArray/IndexSubTable
                 // to determine the actual number of glyphs with bitmaps.
@@ -220,7 +194,7 @@ static bool has_bitmap_strike(DWriteFontTypeface* typeface, PPEMRange range) {
                 SkTAfter<const SkOTTableEmbeddedBitmapScaling::BitmapScaleTable>(ebsc.get());
         for (uint32_t i = 0; i < numSizes; ++i, ++scaleTable) {
             if (scaleTable->ppemX == scaleTable->ppemY &&
-                range.min <= scaleTable->ppemX && scaleTable->ppemX <= range.max) {
+                range.fMin <= scaleTable->ppemX && scaleTable->ppemX <= range.fMax) {
                 // EBSC tables are normally only found in bitmap only fonts.
                 return true;
             }
@@ -248,13 +222,11 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         , fGlyphCount(-1) {
 
     DWriteFontTypeface* typeface = this->getDWriteTypeface();
-    typeface->fFactory->QueryInterface<IDWriteFactory2>(&fFactory2);
+    fIsColorFont = typeface->fFactory2 &&
+                   typeface->fDWriteFontFace2 &&
+                   typeface->fDWriteFontFace2->IsColorFont();
 
-    SkTScopedComPtr<IDWriteFontFace2> fontFace2;
-    typeface->fDWriteFontFace->QueryInterface<IDWriteFontFace2>(&fontFace2);
-    fIsColorFont = fFactory2.get() && fontFace2.get() && fontFace2->IsColorFont();
-
-    // In general, all glyphs should use CLEARTYPE_NATURAL_SYMMETRIC
+    // In general, all glyphs should use NATURAL_SYMMETRIC
     // except when bi-level rendering is requested or there are embedded
     // bi-level bitmaps (and the embedded bitmap flag is set and no rotation).
     //
@@ -306,8 +278,12 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         // When embedded bitmaps are requested, treat the entire range like
         // a bitmap strike if the range is gridfit only and contains a bitmap.
         int bitmapPPEM = SkScalarTruncToInt(gdiTextSize);
-        PPEMRange range = { bitmapPPEM, bitmapPPEM };
-        expand_range_if_gridfit_only(typeface, bitmapPPEM, &range);
+        GaspRange range(bitmapPPEM, bitmapPPEM, GaspRange::Behavior());
+        if (get_gasp_range(typeface, bitmapPPEM, &range)) {
+            if (!is_gridfit_only(range.fFlags)) {
+                range = GaspRange(bitmapPPEM, bitmapPPEM, GaspRange::Behavior());
+            }
+        }
         treatLikeBitmap = has_bitmap_strike(typeface, range);
 
         axisAlignedBitmap = is_axis_aligned(fRec);
@@ -325,7 +301,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     // This will not always provide a bitmap, but matches expected behavior.
     } else if (treatLikeBitmap && axisAlignedBitmap) {
         fTextSizeRender = gdiTextSize;
-        fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC;
+        fRenderingMode = DWRITE_RENDERING_MODE_GDI_CLASSIC;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = gdiTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
@@ -334,7 +310,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     // render high quality rotated glyphs but measure using bitmap metrics.
     } else if (treatLikeBitmap) {
         fTextSizeRender = gdiTextSize;
-        fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
+        fRenderingMode = DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = gdiTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
@@ -345,7 +321,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     // drop out control in the y direction in order to be legible.
     } else if (is_hinted_without_gasp(typeface)) {
         fTextSizeRender = gdiTextSize;
-        fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL;
+        fRenderingMode = DWRITE_RENDERING_MODE_NATURAL;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
@@ -353,12 +329,35 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     // The normal case is to use natural symmetric rendering (if permitted) and linear metrics.
     } else {
         fTextSizeRender = realTextSize;
-        fRenderingMode = gasp_allows_cleartype_symmetric(typeface, realTextSize)
-                       ? DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC
-                       : DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL;
+        GaspRange range(0, 0xFFFF, GaspRange::Behavior());
+        get_gasp_range(typeface, SkScalarTruncToInt(fTextSizeRender), &range);
+        fRenderingMode = gasp_allows_cleartype_symmetric(range.fFlags)
+                       ? DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC
+                       : DWRITE_RENDERING_MODE_NATURAL;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
+    }
+
+    // DirectWrite2 allows for grayscale hinting.
+    fAntiAliasMode = DWRITE_TEXT_ANTIALIAS_MODE_CLEARTYPE;
+#ifndef SK_IGNORE_DW_GRAY_FIX
+    if (typeface->fFactory2 && typeface->fDWriteFontFace2 &&
+        !isLCD(fRec) && !(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag))
+    {
+        // DWRITE_TEXTURE_ALIASED_1x1 is now misnamed, it must also be used with grayscale.
+        fTextureType = DWRITE_TEXTURE_ALIASED_1x1;
+        fAntiAliasMode = DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE;
+    }
+#endif
+
+    // DirectWrite2 allows hinting to be disabled.
+    fGridFitMode = DWRITE_GRID_FIT_MODE_ENABLED;
+    if (fRec.getHinting() == SkPaint::kNo_Hinting) {
+        fGridFitMode = DWRITE_GRID_FIT_MODE_DISABLED;
+        if (fRenderingMode != DWRITE_RENDERING_MODE_ALIASED) {
+            fRenderingMode = DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
+        }
     }
 
     if (this->isSubpixel()) {
@@ -468,16 +467,33 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
     SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
     {
         SkAutoExclusive l(DWriteFactoryMutex);
-        HRM(this->getDWriteTypeface()->fFactory->CreateGlyphRunAnalysis(
-            &run,
-            1.0f, // pixelsPerDip,
-            &fXform,
-            renderingMode,
-            fMeasuringMode,
-            0.0f, // baselineOriginX,
-            0.0f, // baselineOriginY,
-            &glyphRunAnalysis),
-            "Could not create glyph run analysis.");
+        // IDWriteFactory2::CreateGlyphRunAnalysis is very bad at aliased glyphs.
+        if (this->getDWriteTypeface()->fFactory2 &&
+                (fGridFitMode == DWRITE_GRID_FIT_MODE_DISABLED ||
+                 fAntiAliasMode == DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE))
+        {
+            HRM(this->getDWriteTypeface()->fFactory2->CreateGlyphRunAnalysis(
+                    &run,
+                    &fXform,
+                    renderingMode,
+                    fMeasuringMode,
+                    fGridFitMode,
+                    fAntiAliasMode,
+                    0.0f, // baselineOriginX,
+                    0.0f, // baselineOriginY,
+                    &glyphRunAnalysis),
+                "Could not create DW2 glyph run analysis.");
+        } else {
+            HRM(this->getDWriteTypeface()->fFactory->CreateGlyphRunAnalysis(&run,
+                    1.0f, // pixelsPerDip,
+                    &fXform,
+                    renderingMode,
+                    fMeasuringMode,
+                    0.0f, // baselineOriginX,
+                    0.0f, // baselineOriginY,
+                    &glyphRunAnalysis),
+                "Could not create glyph run analysis.");
+        }
     }
     {
         Shared l(DWriteFactoryMutex);
@@ -528,7 +544,7 @@ bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
     run.isSideways = FALSE;
     run.glyphOffsets = &offset;
 
-    HRESULT hr = fFactory2->TranslateColorGlyphRun(
+    HRESULT hr = this->getDWriteTypeface()->fFactory2->TranslateColorGlyphRun(
         0, 0, &run, nullptr, fMeasuringMode, &fXform, 0, colorGlyph);
     if (hr == DWRITE_E_NOCOLOR) {
         return false;
@@ -680,6 +696,22 @@ static void bilevel_to_bw(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) 
 }
 
 template<bool APPLY_PREBLEND>
+static void grayscale_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
+                            const uint8_t* table8) {
+    const size_t dstRB = glyph.rowBytes();
+    const U16CPU width = glyph.fWidth;
+    uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(glyph.fImage);
+
+    for (U16CPU y = 0; y < glyph.fHeight; y++) {
+        for (U16CPU i = 0; i < width; i++) {
+            U8CPU a = *(src++);
+            dst[i] = sk_apply_lut_if<APPLY_PREBLEND>(a, table8);
+        }
+        dst = SkTAddOffset<uint8_t>(dst, dstRB);
+    }
+}
+
+template<bool APPLY_PREBLEND>
 static void rgb_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph, const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const U16CPU width = glyph.fWidth;
@@ -692,7 +724,7 @@ static void rgb_to_a8(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph, cons
             U8CPU b = *(src++);
             dst[i] = sk_apply_lut_if<APPLY_PREBLEND>((r + g + b) / 3, table8);
         }
-        dst = (uint8_t*)((char*)dst + dstRB);
+        dst = SkTAddOffset<uint8_t>(dst, dstRB);
     }
 }
 
@@ -717,7 +749,7 @@ static void rgb_to_lcd16(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
             }
             dst[i] = SkPack888ToRGB16(r, g, b);
         }
-        dst = (uint16_t*)((char*)dst + dstRB);
+        dst = SkTAddOffset<uint16_t>(dst, dstRB);
     }
 }
 
@@ -726,7 +758,7 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
                                            DWRITE_TEXTURE_TYPE textureType)
 {
     int sizeNeeded = glyph.fWidth * glyph.fHeight;
-    if (DWRITE_RENDERING_MODE_ALIASED != renderingMode) {
+    if (DWRITE_TEXTURE_CLEARTYPE_3x1 == textureType) {
         sizeNeeded *= 3;
     }
     if (sizeNeeded > fBits.count()) {
@@ -757,19 +789,35 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
     run.isSideways = FALSE;
     run.glyphOffsets = &offset;
     {
-
         SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
         {
             SkAutoExclusive l(DWriteFactoryMutex);
-            HRNM(this->getDWriteTypeface()->fFactory->CreateGlyphRunAnalysis(&run,
-                1.0f, // pixelsPerDip,
-                &fXform,
-                renderingMode,
-                fMeasuringMode,
-                0.0f, // baselineOriginX,
-                0.0f, // baselineOriginY,
-                &glyphRunAnalysis),
-                "Could not create glyph run analysis.");
+            // IDWriteFactory2::CreateGlyphRunAnalysis is very bad at aliased glyphs.
+            if (this->getDWriteTypeface()->fFactory2 &&
+                    (fGridFitMode == DWRITE_GRID_FIT_MODE_DISABLED ||
+                     fAntiAliasMode == DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE))
+            {
+                HRNM(this->getDWriteTypeface()->fFactory2->CreateGlyphRunAnalysis(&run,
+                         &fXform,
+                         renderingMode,
+                         fMeasuringMode,
+                         fGridFitMode,
+                         fAntiAliasMode,
+                         0.0f, // baselineOriginX,
+                         0.0f, // baselineOriginY,
+                         &glyphRunAnalysis),
+                     "Could not create DW2 glyph run analysis.");
+            } else {
+                HRNM(this->getDWriteTypeface()->fFactory->CreateGlyphRunAnalysis(&run,
+                         1.0f, // pixelsPerDip,
+                         &fXform,
+                         renderingMode,
+                         fMeasuringMode,
+                         0.0f, // baselineOriginX,
+                         0.0f, // baselineOriginY,
+                         &glyphRunAnalysis),
+                     "Could not create glyph run analysis.");
+            }
         }
         //NOTE: this assumes that the glyph has already been measured
         //with an exact same glyph run analysis.
@@ -781,9 +829,9 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
         {
             Shared l(DWriteFactoryMutex);
             HRNM(glyphRunAnalysis->CreateAlphaTexture(textureType,
-                &bbox,
-                fBits.begin(),
-                sizeNeeded),
+                    &bbox,
+                    fBits.begin(),
+                    sizeNeeded),
                 "Could not draw mask.");
         }
     }
@@ -883,10 +931,18 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
         bilevel_to_bw(src, glyph);
         const_cast<SkGlyph&>(glyph).fMaskFormat = SkMask::kBW_Format;
     } else if (!isLCD(fRec)) {
-        if (fPreBlend.isApplicable()) {
-            rgb_to_a8<true>(src, glyph, fPreBlend.fG);
+        if (textureType == DWRITE_TEXTURE_ALIASED_1x1) {
+            if (fPreBlend.isApplicable()) {
+                grayscale_to_a8<true>(src, glyph, fPreBlend.fG);
+            } else {
+                grayscale_to_a8<false>(src, glyph, fPreBlend.fG);
+            }
         } else {
-            rgb_to_a8<false>(src, glyph, fPreBlend.fG);
+            if (fPreBlend.isApplicable()) {
+                rgb_to_a8<true>(src, glyph, fPreBlend.fG);
+            } else {
+                rgb_to_a8<false>(src, glyph, fPreBlend.fG);
+            }
         }
     } else {
         SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
