@@ -24,6 +24,55 @@
   {
     "cmd": [
       "adb",
+      "reboot"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "name": "rebooting device"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nimport time\n\nkicks = 0\nwhile True:\n\n  times = 0\n  while times < 30:\n    print 'Waiting for the device to be connected and ready.'\n    try:\n      times += 1\n      output = subprocess.check_output(['adb', 'shell',\n                                        'getprop', 'sys.boot_completed'])\n      if '1' in output:\n        print 'Connected'\n        sys.exit(0)\n    except subprocess.CalledProcessError:\n      # no device connected/authorized yet\n      pass\n    time.sleep(5)\n  if kicks >= 3:\n    break\n  print 'Giving the device a \"kick\" by trying to reboot it.'\n  kicks += 1\n  print subprocess.check_output(['adb', 'reboot'])\n\nprint 'Timed out waiting for device'\nsys.exit(1)\n"
+    ],
+    "name": "wait for device",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@kicks = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@while True:@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@  times = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@  while times < 30:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Waiting for the device to be connected and ready.'@@@",
+      "@@@STEP_LOG_LINE@python.inline@    try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      times += 1@@@",
+      "@@@STEP_LOG_LINE@python.inline@      output = subprocess.check_output(['adb', 'shell',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        'getprop', 'sys.boot_completed'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@      if '1' in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@        print 'Connected'@@@",
+      "@@@STEP_LOG_LINE@python.inline@        sys.exit(0)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    except subprocess.CalledProcessError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      # no device connected/authorized yet@@@",
+      "@@@STEP_LOG_LINE@python.inline@      pass@@@",
+      "@@@STEP_LOG_LINE@python.inline@    time.sleep(5)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if kicks >= 3:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    break@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print 'Giving the device a \"kick\" by trying to reboot it.'@@@",
+      "@@@STEP_LOG_LINE@python.inline@  kicks += 1@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print subprocess.check_output(['adb', 'reboot'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print 'Timed out waiting for device'@@@",
+      "@@@STEP_LOG_LINE@python.inline@sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
       "shell",
       "mkdir",
       "-p",
