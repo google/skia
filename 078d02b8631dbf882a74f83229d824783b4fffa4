@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83b13151_19cd2892",
+        "filename": "src/images/SkImageEncoderPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-16T13:57:28Z",
+      "side": 1,
+      "message": "Haha nice",
+      "range": {
+        "startLine": 16,
+        "startChar": 8,
+        "endLine": 16,
+        "endChar": 16
+      },
+      "revId": "078d02b8631dbf882a74f83229d824783b4fffa4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97287ab6_13852f16",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-16T13:57:28Z",
+      "side": 1,
+      "message": "Just making sure I understand here: if we later decode this, we\u0027ll treat it as sRGB even without this line, right? But now other clients that may not default to sRGB will, too?",
+      "range": {
+        "startLine": 342,
+        "startChar": 44,
+        "endLine": 342,
+        "endChar": 70
+      },
+      "revId": "078d02b8631dbf882a74f83229d824783b4fffa4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
