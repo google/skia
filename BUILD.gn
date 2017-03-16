@@ -33,6 +33,7 @@ declare_args() {
   skia_enable_jumper = is_skia_dev_build
   skia_enable_gpu = true
   skia_enable_pdf = true
+  skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
@@ -431,6 +432,12 @@ optional("gpu") {
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
+  }
+  if (skia_enable_spirv_validation) {
+    deps = [
+      "//third_party/spirv-tools",
+    ]
+    public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 }
 

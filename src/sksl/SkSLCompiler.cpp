@@ -21,6 +21,10 @@
 #include "ir/SkSLVarDeclarations.h"
 #include "SkMutex.h"
 
+#ifdef SK_ENABLE_SPIRV_VALIDATION
+#include "spirv-tools/libspirv.hpp"
+#endif
+
 #define STRINGIFY(x) #x
 
 // include the built-in shader symbols as static strings
@@ -486,10 +490,28 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString t
     return result;
 }
 
-
 bool Compiler::toSPIRV(const Program& program, SkWStream& out) {
+#ifdef SK_ENABLE_SPIRV_VALIDATION
+    SkDynamicMemoryWStream buffer;
+    SPIRVCodeGenerator cg(&fContext, &program, this, &buffer);
+    bool result = cg.generateCode();
+    if (result) {
+        sk_sp<SkData> data(buffer.detachAsData());
+        spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
+        SkASSERT(0 == data->size() % 4);
+        auto dumpmsg = [](spv_message_level_t, const char*, const spv_position_t&, const char* m) {
+            SkDebugf("SPIR-V validation error: %s\n", m);
+        };
+        tools.SetMessageConsumer(dumpmsg);
+        // Verify that the SPIR-V we produced is valid. If this assert fails, check the logs prior
+        // to the failure to see the validation errors.
+        SkAssertResult(tools.Validate((const uint32_t*) data->data(), data->size() / 4));
+        out.write(data->data(), data->size());
+    }
+#else
     SPIRVCodeGenerator cg(&fContext, &program, this, &out);
     bool result = cg.generateCode();
+#endif
     this->writeErrorCount();
     return result;
 }

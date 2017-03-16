@@ -17,6 +17,8 @@ deps = {
   "third_party/externals/piex"          : "https://android.googlesource.com/platform/external/piex.git@8f540f64b6c170a16fb7e6e52d61819705c1522a",
   "third_party/externals/sdl"           : "https://skia.googlesource.com/third_party/sdl@9b526d28cb2d7f0ccff0613c94bb52abc8f53b6f",
   "third_party/externals/sfntly"        : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@b18b09b6114b9b7fe6fc2f96d8b15e8a72f66916",
+  "third_party/externals/spirv-headers" : "https://github.com/KhronosGroup/SPIRV-Headers.git@2d6ba39368a781edd82eff5df2b6bc614e892329",
+  "third_party/externals/spirv-tools"   : "https://github.com/KhronosGroup/SPIRV-Tools.git@1fb8c37b5718118b49eec59dc383cfa3f98643c0",
  #"third_party/externals/v8"            : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
   "third_party/externals/zlib"          : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4576304a4b9835aa8646c9735b079e1d96858633",
 }
