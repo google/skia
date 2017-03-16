@@ -37,8 +37,9 @@ public:
     SkData* onRefEncoded(GrContext*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
+    sk_sp<GrTextureProxy> asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+                                       sk_sp<SkColorSpace>*,
+                                       SkScalar scaleAdjust[2]) const override;
     bool onIsLazyGenerated() const override { return true; }
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
@@ -90,21 +91,16 @@ sk_sp<GrTextureProxy> SkImage_Generator::asTextureProxyRef(GrContext* context,
                                                            SkColorSpace* dstColorSpace,
                                                            sk_sp<SkColorSpace>* texColorSpace,
                                                            SkScalar scaleAdjust[2]) const {
-    sk_sp<GrTexture> tex(fCache.lockAsTexture(context, params, dstColorSpace,
-                                              texColorSpace, this, scaleAdjust));
-    if (!tex) {
-        return nullptr;
-    }
-
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return fCache.lockAsTextureProxy(context, params, dstColorSpace,
+                                     texColorSpace, this, scaleAdjust);
 }
 #endif
 
-GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
+sk_sp<GrTextureProxy> SkImage_Generator::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
                                            SkColorSpace* dstColorSpace,
                                            sk_sp<SkColorSpace>* texColorSpace,
                                            SkScalar scaleAdjust[2]) const {
-    return fCache.lockAsTexture(ctx, params, dstColorSpace, texColorSpace, this, scaleAdjust);
+    return fCache.lockAsTextureProxy(ctx, params, dstColorSpace, texColorSpace, this, scaleAdjust);
 }
 
 sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
