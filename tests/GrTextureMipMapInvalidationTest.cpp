@@ -20,13 +20,11 @@
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInfo) {
     auto isMipped = [] (SkSurface* surf) {
-        return as_IB(surf->makeImageSnapshot(SkBudgeted::kYes))->
-                peekTexture()->texturePriv().hasMipMaps();
+        return as_IB(surf->makeImageSnapshot())->peekTexture()->texturePriv().hasMipMaps();
     };
 
     auto mipsAreDirty = [] (SkSurface* surf) {
-        return as_IB(surf->makeImageSnapshot(SkBudgeted::kYes))->
-                peekTexture()->texturePriv().mipMapsAreDirty();
+        return as_IB(surf->makeImageSnapshot())->peekTexture()->texturePriv().mipMapsAreDirty();
     };
 
     GrContext* context = ctxInfo.grContext();
@@ -44,7 +42,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInf
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
     surf2->getCanvas()->scale(0.2f, 0.2f);
-    surf2->getCanvas()->drawImage(surf1->makeImageSnapshot(SkBudgeted::kYes), 0, 0, &paint);
+    surf2->getCanvas()->drawImage(surf1->makeImageSnapshot(), 0, 0, &paint);
     surf2->getCanvas()->flush();
     REPORTER_ASSERT(reporter, isMipped(surf1.get()));
     REPORTER_ASSERT(reporter, !mipsAreDirty(surf1.get()));
