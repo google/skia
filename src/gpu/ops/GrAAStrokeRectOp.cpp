@@ -138,7 +138,15 @@ public:
         compute_rects(&info.fDevOutside, &info.fDevOutsideAssist, &info.fDevInside,
                       &info.fDegenerate, viewMatrix, rect, stroke.getWidth(), isMiter);
         info.fColor = color;
-        op->setBounds(info.fDevOutside, HasAABloat::kYes, IsZeroArea::kNo);
+        if (isMiter) {
+            op->setBounds(info.fDevOutside, HasAABloat::kYes, IsZeroArea::kNo);
+        } else {
+            // The outer polygon of the bevel stroke is an octagon specified by the points of a
+            // pair of overlapping rectangles where one is wide and the other is narrow.
+            SkRect bounds = info.fDevOutside;
+            bounds.joinPossiblyEmptyRect(info.fDevOutsideAssist);
+            op->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
+        }
         op->fViewMatrix = viewMatrix;
         return std::unique_ptr<GrMeshDrawOp>(op);
     }
