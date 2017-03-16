@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84fd55db_c78bb6ff",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-03-16T20:37:01Z",
+      "side": 1,
+      "message": "I think if bytesNeeded \u003d\u003d SkDynamicMemoryWStream_BlockSize, this code allocates 1 too many blocks. Shouldn\u0027t this be:\n(bytesNeeded + (SkDynamicMemoryWStream_BlockSize -1 )) / SkDynamicMemoryWStream_BlockSize;",
+      "range": {
+        "startLine": 505,
+        "startChar": 41,
+        "endLine": 505,
+        "endChar": 73
+      },
+      "revId": "9902f4bd95cead81bc44ce64f82369be58e55e4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
