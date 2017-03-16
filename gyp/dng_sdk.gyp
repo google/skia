@@ -13,7 +13,6 @@
     '-DqDNGUseXMP=0',
     '-DqDNGValidate=0',
     '-DqDNGValidateTarget=1',
-    '-DqDNGPrintMessages=1', # WinRT especially, but no popups on any platform
     '-fexceptions',
     '-frtti',
     '-w',

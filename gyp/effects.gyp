@@ -10,7 +10,6 @@
       'product_name': 'skia_effects',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'msvs_disabled_warnings': [4244],
       'dependencies': [
         'core.gyp:*',
         'images.gyp:*',

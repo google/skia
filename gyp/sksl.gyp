@@ -8,7 +8,6 @@
       'target_name': 'sksl',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'msvs_disabled_warnings': [ 4267 ],
       'sources': [ '<!@(python read_gni.py ../gn/sksl.gni skia_sksl_sources)' ],
       'include_dirs': [
         '../include/config',
