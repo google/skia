@@ -245,7 +245,7 @@ public:
     virtual void get4Pixels(
         const void* src, int index, Sk4f* px0, Sk4f* px1, Sk4f* px2, Sk4f* px3) const = 0;
 
-    virtual Sk4f getPixelFromRow(const void* row, int index) const = 0;
+    virtual Sk4f getPixelFromRow(const void* row, int64_t index) const = 0;
 
     virtual Sk4f getPixelAt(int index) const = 0;
 

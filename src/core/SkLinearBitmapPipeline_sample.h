@@ -272,7 +272,7 @@ public:
         *px3 = this->getPixelFromRow(src, index + 3);
     }
 
-    Sk4f getPixelFromRow(const void* row, int index) const override {
+    Sk4f getPixelFromRow(const void* row, int64_t index) const override {
         const Element* src = static_cast<const Element*>(row);
         return fConverter.toSk4f(src[index]);
     }
@@ -388,15 +388,15 @@ private:
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
         SkScalar x = X(start);
-        SkFixed fx = SkScalarToFixed(x);
+        int64_t fx = SkTo<int64_t>(SkScalarToFixed(x));
         SkScalar dx = length / (count - 1);
         SkFixed fdx = SkScalarToFixed(dx);
 
         const void* row = fAccessor.row((int)std::floor(Y(start)));
         Next* next = fNext;
 
-        int ix = SkFixedFloorToInt(fx);
-        int prevIX = ix;
+        int64_t ix = fx >> 16;
+        int64_t prevIX = ix;
         Sk4f fpixel = fAccessor.getPixelFromRow(row, ix);
 
         // When dx is less than one, each pixel is used more than once. Using the fixed point fx
@@ -408,7 +408,7 @@ private:
                 prevIX = ix;
             }
             fx += fdx;
-            ix = SkFixedFloorToInt(fx);
+            ix = fx >> 16;
             return fpixel;
         };
 
