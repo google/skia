@@ -257,7 +257,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         gPathRendererNames[GpuPathRenderers::kAll] = "Default Ganesh Behavior (best path renderer)";
         gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
         gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
-        gPathRendererNames[GpuPathRenderers::kDistanceField] = "Distance field (small paths only)";
+        gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
         gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
         gPathRendererNames[GpuPathRenderers::kDefault] = "Original Ganesh path renderer";
         gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
@@ -1065,7 +1065,7 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                         prButton(GpuPathRenderers::kNone);
                     } else {
                         prButton(GpuPathRenderers::kAll);
-                        prButton(GpuPathRenderers::kDistanceField);
+                        prButton(GpuPathRenderers::kSmall);
                         prButton(GpuPathRenderers::kTessellating);
                         prButton(GpuPathRenderers::kNone);
                     }
@@ -1300,7 +1300,7 @@ void Viewer::updateUIState() {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     } else {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
-        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDistanceField]);
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kSmall]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     }

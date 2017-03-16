@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAADistanceFieldPathRenderer_DEFINED
-#define GrAADistanceFieldPathRenderer_DEFINED
+#ifndef GrSmallPathRenderer_DEFINED
+#define GrSmallPathRenderer_DEFINED
 
 #include "GrDrawOpAtlas.h"
 #include "GrPathRenderer.h"
@@ -18,10 +18,10 @@
 
 class GrContext;
 
-class GrAADistanceFieldPathRenderer : public GrPathRenderer {
+class GrSmallPathRenderer : public GrPathRenderer {
 public:
-    GrAADistanceFieldPathRenderer();
-    virtual ~GrAADistanceFieldPathRenderer();
+    GrSmallPathRenderer();
+    virtual ~GrSmallPathRenderer();
 
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override {
@@ -129,7 +129,7 @@ private:
 
     typedef GrPathRenderer INHERITED;
 
-    friend class AADistanceFieldPathOp;
+    friend class SmallPathOp;
     friend struct PathTestStruct;
 };
 
