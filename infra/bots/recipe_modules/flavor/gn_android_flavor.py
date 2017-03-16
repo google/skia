@@ -127,7 +127,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._run('ninja', ninja, '-C', self.out_dir)
 
   def install(self):
-    if 'NexusPlayer' == self.m.vars.builder_cfg.get('model'):
+    reboot_always = ['NexusPlayer', 'PixelC']
+    if self.m.vars.builder_cfg.get('model') in reboot_always:
       self._adb('rebooting device', 'reboot')
       self._wait_for_device()
     self._adb('mkdir ' + self.device_dirs.resource_dir,
