@@ -50,6 +50,30 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
     return tex;
 }
 
+sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeMipped,
+                                                                    SkColorSpace* dstColorSpace) {
+    sk_sp<GrTextureProxy> proxy;
+
+    if (fOriginalKey.isValid()) {
+        proxy = this->context()->resourceProvider()->findProxyByUniqueKey(fOriginalKey);
+        if (proxy) {
+            return proxy;
+        }
+    }
+    if (willBeMipped) {
+        proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap, dstColorSpace);
+    }
+    if (!proxy) {
+        proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap);
+    }
+    if (proxy && fOriginalKey.isValid()) {
+        this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
+        // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
+        GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
+    }
+    return proxy;
+}
+
 void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
                                        SkColorSpace* dstColorSpace) {
     // Destination color space is irrelevant - we always upload the bitmap's contents as-is
