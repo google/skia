@@ -214,8 +214,7 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
     // Triangle fans can't batch so we convert to regular triangles,
     static constexpr int kNumTris = kMeshIndexCnt - 2;
     SkVertices::Builder builder(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, 3 * kNumTris,
-                                SkVertices::kHasColors_BuilderFlag |
-                                SkVertices::kHasTexCoords_BuilderFlag);
+                                SkVertices::kHasColors_Flag | SkVertices::kHasTexs_Flag);
 
     SkPoint* pts = builder.positions();
     SkPoint* texs = builder.texCoords();
