@@ -22,6 +22,30 @@
       "revId": "9902f4bd95cead81bc44ce64f82369be58e55e4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "773b7a7f_c445a8cb",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-16T21:07:01Z",
+      "side": 1,
+      "message": "Well, if we\u0027re going to fill the whole block anyway right away, it probably makes sense to just reserve some more space anyhow (we\u0027re going to do it anyway if there\u0027s another non-trivial call to write).\n\nIf we care, we can do\n\n(bytesNeeded + (SkDynamicMemoryWStream_BlockSize -1 )) / SkDynamicMemoryWStream_BlockSize\n\nlike you suggest.",
+      "parentUuid": "84fd55db_c78bb6ff",
+      "range": {
+        "startLine": 505,
+        "startChar": 41,
+        "endLine": 505,
+        "endChar": 73
+      },
+      "revId": "9902f4bd95cead81bc44ce64f82369be58e55e4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
