@@ -1753,6 +1753,8 @@ void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& cl
 
     SkIRect drawIBounds;
     opBounds.roundOut(&drawIBounds);
+    // Cover up for any precision issues by outsetting the op bounds a pixel in each direction.
+    drawIBounds.outset(1, 1);
     if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "Missed an early reject. "
