@@ -429,7 +429,7 @@ static inline void sk_memcpy_4bytes(void* dst, const void* src, size_t size) {
     }
 }
 
-#define SkDynamicMemoryWStream_MinBlockSize   4096
+#define SkDynamicMemoryWStream_BlockSize   4096
 
 struct SkDynamicMemoryWStream::Block {
     Block*  fNext;
@@ -484,37 +484,44 @@ size_t SkDynamicMemoryWStream::bytesWritten() const {
 }
 
 bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
-    if (count > 0) {
-        size_t  size;
-
-        if (fTail) {
-            if (fTail->avail() > 0) {
-                size = SkTMin(fTail->avail(), count);
-                buffer = fTail->append(buffer, size);
-                SkASSERT(count >= size);
-                count -= size;
-                if (count == 0) {
-                    return true;
-                }
-            }
-            // If we get here, we've just exhausted fTail, so update our tracker
-            fBytesWrittenBeforeTail += fTail->written();
-        }
-
-        size = SkTMax<size_t>(count, SkDynamicMemoryWStream_MinBlockSize - sizeof(Block));
-        size = SkAlign4(size);  // ensure we're always a multiple of 4 (see padToAlign4())
-
-        Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
-        block->init(size);
-        block->append(buffer, count);
-
-        if (fTail != nullptr)
-            fTail->fNext = block;
-        else
-            fHead = fTail = block;
-        fTail = block;
-        this->validate();
+    if (count == 0) {
+        return true;
     }
+
+    if (fTail) {
+        if (fTail->avail() > 0) {
+            size_t bytesToWrite = SkTMin(fTail->avail(), count);
+            buffer = fTail->append(buffer, bytesToWrite);
+            count -= bytesToWrite;
+            if (count == 0) {
+                return true;
+            }
+        }
+        // If we get here, we've just exhausted fTail, so update our tracker
+        fBytesWrittenBeforeTail += fTail->written();
+    }
+
+    size_t bytesNeeded = sizeof(Block) + count;
+    size_t blocksNeeded = (bytesNeeded / SkDynamicMemoryWStream_BlockSize) + 1;
+    size_t bytesForBlock = (blocksNeeded * SkDynamicMemoryWStream_BlockSize);
+    size_t bytesInBlock = bytesForBlock - sizeof(Block);
+
+    static_assert(SkIsAlign4(sizeof(Block)), "");
+    static_assert(SkIsAlign4(SkDynamicMemoryWStream_BlockSize), "");
+    static_assert(sizeof(Block) < SkDynamicMemoryWStream_BlockSize, "");
+    SkASSERT(SkIsAlign4(bytesInBlock));  // ensure always a multiple of 4 (see padToAlign4())
+
+    Block* block = (Block*)sk_malloc_throw(bytesForBlock);
+    block->init(bytesInBlock);
+    block->append(buffer, count);
+
+    if (fTail) {
+        fTail->fNext = block;
+    } else {
+        fHead = fTail = block;
+    }
+    fTail = block;
+    this->validate();
     return true;
 }
 
