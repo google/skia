@@ -53,8 +53,8 @@ DEF_TEST(Vertices, reporter) {
     int vCount = 4;
     int iCount = 6;
 
-    const uint32_t texFlags[] = { 0, SkVertices::kHasTexs_Flag };
-    const uint32_t colFlags[] = { 0, SkVertices::kHasColors_Flag };
+    const uint32_t texFlags[] = { 0, SkVertices::kHasTexCoords_BuilderFlag };
+    const uint32_t colFlags[] = { 0, SkVertices::kHasColors_BuilderFlag };
     for (auto texF : texFlags) {
         for (auto colF : colFlags) {
             uint32_t flags = texF | colF;
