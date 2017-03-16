@@ -109,6 +109,7 @@ third_party("spirv-tools") {
     ":spirv_build_version",
     ":spirv_core_tables_1.0",
     ":spirv_core_tables_1.1",
+    ":spirv_generators",
     ":spirv_glsl_tables",
     ":spirv_opencl_tables",
     "//third_party/spirv-headers",
