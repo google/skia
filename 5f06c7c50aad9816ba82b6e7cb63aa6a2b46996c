@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1549ca6e_be7e58a6",
+        "filename": "src/gpu/ops/GrAAStrokeRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-16T15:48:27Z",
+      "side": 1,
+      "message": "concentric -\u003e overlapping ?",
+      "revId": "5f06c7c50aad9816ba82b6e7cb63aa6a2b46996c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
