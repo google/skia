@@ -24,8 +24,6 @@ protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
-
-    GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) override;
     sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
                                                   SkColorSpace* dstColorSpace) override;
 
