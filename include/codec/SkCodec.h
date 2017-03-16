@@ -610,6 +610,15 @@ public:
          *  There could be an error in the stream.
          */
         bool fFullyReceived;
+
+        /**
+         *  Whether this frame has alpha.
+         *
+         *  Takes into account compositing with fRequiredFrame. This is
+         *  conservative; it will still return true if e.g. a color index-
+         *  based frame has a color with alpha but does not use it.
+         */
+        bool fHasAlpha;
     };
 
     /**

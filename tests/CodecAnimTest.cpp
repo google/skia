@@ -43,9 +43,16 @@ DEF_TEST(Codec_frames, r) {
         std::vector<size_t> fDurations;
         int                 fRepetitionCount;
     } gRecs[] = {
+        { "randPixelsAnim2.gif", 4,
+            // required frames
+            { 0, 0, 1 },
+            // durations
+            { 0, 1000, 170, 40 },
+            // repetition count
+            0 },
         { "randPixelsAnim.gif", 13,
             // required frames
-            { SkCodec::kNone, 1, 2, 3, 4, 4, 6, 7, 7, 7, 7, 7 },
+            { SkCodec::kNone, 1, 2, 3, 4, 4, 6, 7, 7, 7, 9, 9 },
             // durations
             { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
             // repetition count
@@ -67,7 +74,7 @@ DEF_TEST(Codec_frames, r) {
         { "yellow_rose.webp", 1, {}, {}, 0 },
     };
 
-    for (auto rec : gRecs) {
+    for (const auto& rec : gRecs) {
         std::unique_ptr<SkStream> stream(GetResourceAsStream(rec.fName));
         if (!stream) {
             // Useful error statement, but sometimes people run tests without
