@@ -1799,10 +1799,15 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint ver
                          indexCount, paint);
 }
 
-void SkCanvas::drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint) {
+void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
+                            const SkPaint& paint) {
     RETURN_ON_NULL(vertices);
-    uint32_t deprecatedFlags = 0;
-    this->onDrawVerticesObject(std::move(vertices), mode, paint, deprecatedFlags);
+    this->onDrawVerticesObject(vertices.get(), mode, paint);
+}
+
+void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
+    RETURN_ON_NULL(vertices);
+    this->onDrawVerticesObject(vertices, mode, paint);
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
@@ -2671,24 +2676,24 @@ void SkCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
     LOOPER_END
 }
 
-void SkCanvas::onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode bmode,
-                                    const SkPaint& paint, uint32_t flags) {
+void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
+                                    const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawVertices()");
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
 
     while (iter.next()) {
         // In the common case of one iteration we could std::move vertices here.
-        iter.fDevice->drawVerticesObject(vertices, bmode, looper.paint(), flags);
+        iter.fDevice->drawVerticesObject(vertices, bmode, looper.paint());
     }
 
     LOOPER_END
 }
 
-void SkCanvas::onDrawVerticesObjectFallback(sk_sp<SkVertices> vertices, SkBlendMode mode,
-                                            const SkPaint& paint, uint32_t deprecatedFlags) {
+void SkCanvas::devolveSkVerticesToRaw(const SkVertices* vertices, SkBlendMode mode,
+                                      const SkPaint& paint) {
     this->onDrawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                         vertices->texCoords(), vertices->colors(), mode, vertices->indices(),
-                         vertices->indexCount(), paint);
+                         vertices->texCoords(), vertices->colors(), mode,
+                         vertices->indices(), vertices->indexCount(), paint);
 }
 
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
