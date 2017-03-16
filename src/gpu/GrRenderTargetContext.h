@@ -430,7 +430,7 @@ private:
     friend class GrDashLinePathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrAAHairLinePathRenderer;           // for access to add[Mesh]DrawOp
     friend class GrAALinearizingConvexPathRenderer;  // for access to add[Mesh]DrawOp
-    friend class GrAADistanceFieldPathRenderer;      // for access to add[Mesh]DrawOp
+    friend class GrSmallPathRenderer;                // for access to add[Mesh]DrawOp
     friend class GrDefaultPathRenderer;              // for access to add[Mesh]DrawOp
     friend class GrMSAAPathRenderer;                 // for access to add[Mesh]DrawOp
     friend class GrStencilAndCoverPathRenderer;      // for access to add[Mesh]DrawOp

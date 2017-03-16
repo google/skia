@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrAADistanceFieldPathRenderer.h"
+#include "GrSmallPathRenderer.h"
 
 #include "GrBuffer.h"
 #include "GrContext.h"
@@ -49,8 +49,8 @@ static const SkScalar kMinSize = SK_ScalarHalf;
 static const SkScalar kMaxSize = 2*kMaxMIP;
 
 // Callback to clear out internal path cache when eviction occurs
-void GrAADistanceFieldPathRenderer::HandleEviction(GrDrawOpAtlas::AtlasID id, void* pr) {
-    GrAADistanceFieldPathRenderer* dfpr = (GrAADistanceFieldPathRenderer*)pr;
+void GrSmallPathRenderer::HandleEviction(GrDrawOpAtlas::AtlasID id, void* pr) {
+    GrSmallPathRenderer* dfpr = (GrSmallPathRenderer*)pr;
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
     iter.init(dfpr->fShapeList, ShapeDataList::Iter::kHead_IterStart);
@@ -69,9 +69,9 @@ void GrAADistanceFieldPathRenderer::HandleEviction(GrDrawOpAtlas::AtlasID id, vo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer() : fAtlas(nullptr) {}
+GrSmallPathRenderer::GrSmallPathRenderer() : fAtlas(nullptr) {}
 
-GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
+GrSmallPathRenderer::~GrSmallPathRenderer() {
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
     ShapeData* shapeData;
@@ -86,7 +86,7 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+bool GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fShaderCaps->shaderDerivativeSupport()) {
         return false;
     }
@@ -133,23 +133,23 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 // padding around path bounds to allow for antialiased pixels
 static const SkScalar kAntiAliasPad = 1.0f;
 
-class AADistanceFieldPathOp final : public GrMeshDrawOp {
+class SmallPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    using ShapeData = GrAADistanceFieldPathRenderer::ShapeData;
+    using ShapeData = GrSmallPathRenderer::ShapeData;
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeData::Key>;
-    using ShapeDataList = GrAADistanceFieldPathRenderer::ShapeDataList;
+    using ShapeDataList = GrSmallPathRenderer::ShapeDataList;
 
     static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const GrShape& shape,
                                               const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas,
                                               ShapeCache* shapeCache, ShapeDataList* shapeList,
                                               bool gammaCorrect) {
-        return std::unique_ptr<GrMeshDrawOp>(new AADistanceFieldPathOp(
-                color, shape, viewMatrix, atlas, shapeCache, shapeList, gammaCorrect));
+        return std::unique_ptr<GrMeshDrawOp>(new SmallPathOp(color, shape, viewMatrix, atlas,
+                                                             shapeCache, shapeList, gammaCorrect));
     }
 
-    const char* name() const override { return "AADistanceFieldPathOp"; }
+    const char* name() const override { return "SmallPathOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -162,18 +162,18 @@ public:
     }
 
 private:
-    AADistanceFieldPathOp(GrColor color, const GrShape& shape, const SkMatrix& viewMatrix,
-                          GrDrawOpAtlas* atlas, ShapeCache* shapeCache, ShapeDataList* shapeList,
-                          bool gammaCorrect)
+    SmallPathOp(GrColor color, const GrShape& shape, const SkMatrix& viewMatrix,
+                GrDrawOpAtlas* atlas, ShapeCache* shapeCache, ShapeDataList* shapeList,
+                bool gammaCorrect)
             : INHERITED(ClassID()) {
         SkASSERT(shape.hasUnstyledKey());
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
 
-#ifdef SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
         fUsesDistanceField = true;
 #else
-        // only use distance fields on desktop to save space in the atlas
+        // only use distance fields on desktop and Android framework to save space in the atlas
         fUsesDistanceField = this->bounds().width() > kMaxMIP || this->bounds().height() > kMaxMIP;
 #endif
         fViewMatrix = viewMatrix;
@@ -696,7 +696,7 @@ private:
     bool usesDistanceField() const { return fUsesDistanceField; }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        AADistanceFieldPathOp* that = t->cast<AADistanceFieldPathOp>();
+        SmallPathOp* that = t->cast<SmallPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -740,9 +740,9 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
+bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
-                              "GrAADistanceFieldPathRenderer::onDrawPath");
+                              "GrSmallPathRenderer::onDrawPath");
 
     // we've already bailed on inverse filled paths, so this is safe
     SkASSERT(!args.fShape->isEmpty());
@@ -752,14 +752,14 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                      kAlpha_8_GrPixelConfig,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                      NUM_PLOTS_X, NUM_PLOTS_Y,
-                                     &GrAADistanceFieldPathRenderer::HandleEviction,
+                                     &GrSmallPathRenderer::HandleEviction,
                                      (void*)this);
         if (!fAtlas) {
             return false;
         }
     }
 
-    std::unique_ptr<GrMeshDrawOp> op = AADistanceFieldPathOp::Make(
+    std::unique_ptr<GrMeshDrawOp> op = SmallPathOp::Make(
             args.fPaint.getColor(), *args.fShape, *args.fViewMatrix, fAtlas.get(), &fShapeCache,
             &fShapeList, args.fGammaCorrect);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
@@ -775,9 +775,9 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
 #if GR_TEST_UTILS
 
 struct PathTestStruct {
-    typedef GrAADistanceFieldPathRenderer::ShapeCache ShapeCache;
-    typedef GrAADistanceFieldPathRenderer::ShapeData ShapeData;
-    typedef GrAADistanceFieldPathRenderer::ShapeDataList ShapeDataList;
+    typedef GrSmallPathRenderer::ShapeCache ShapeCache;
+    typedef GrSmallPathRenderer::ShapeData ShapeData;
+    typedef GrSmallPathRenderer::ShapeDataList ShapeDataList;
     PathTestStruct() : fContextID(SK_InvalidGenID), fAtlas(nullptr) {}
     ~PathTestStruct() { this->reset(); }
 
@@ -816,7 +816,7 @@ struct PathTestStruct {
     ShapeDataList fShapeList;
 };
 
-DRAW_OP_TEST_DEFINE(AADistanceFieldPathOp) {
+DRAW_OP_TEST_DEFINE(SmallPathOp) {
     static PathTestStruct gTestStruct;
 
     if (context->uniqueID() != gTestStruct.fContextID) {
@@ -836,13 +836,8 @@ DRAW_OP_TEST_DEFINE(AADistanceFieldPathOp) {
     // This path renderer only allows fill styles.
     GrShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
 
-    return AADistanceFieldPathOp::Make(color,
-                                       shape,
-                                       viewMatrix,
-                                       gTestStruct.fAtlas.get(),
-                                       &gTestStruct.fShapeCache,
-                                       &gTestStruct.fShapeList,
-                                       gammaCorrect);
+    return SmallPathOp::Make(color, shape, viewMatrix, gTestStruct.fAtlas.get(),
+                             &gTestStruct.fShapeCache, &gTestStruct.fShapeList, gammaCorrect);
 }
 
 #endif
