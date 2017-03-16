@@ -46,7 +46,7 @@ private:
         stroke.setColor(0xff008800);
         srcCanvas->drawRect(kSrcImageClip.makeInset(kStrokeWidth / 2, kStrokeWidth / 2), stroke);
 
-        fSrcImage = srcSurface->makeImageSnapshot(SkBudgeted::kYes);
+        fSrcImage = srcSurface->makeImageSnapshot();
         fSrcImageShader = fSrcImage->makeShader(SkShader::kClamp_TileMode,
                                                 SkShader::kClamp_TileMode);
     }

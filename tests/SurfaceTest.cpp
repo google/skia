@@ -460,27 +460,24 @@ static SkBudgeted is_budgeted(const sk_sp<SkImage> image) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBudget, reporter, ctxInfo) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8,8);
-    for (auto sbudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
-        for (auto ibudgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
-            auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), sbudgeted, info));
-            SkASSERT(surface);
-            REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
+    for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
+        auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), budgeted, info));
+        SkASSERT(surface);
+        REPORTER_ASSERT(reporter, budgeted == is_budgeted(surface));
 
-            sk_sp<SkImage> image(surface->makeImageSnapshot(ibudgeted));
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
 
-            // Initially the image shares a texture with the surface, and the surface decides
-            // whether it is budgeted or not.
-            REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
-            REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(image));
+        // Initially the image shares a texture with the surface, and the
+        // the budgets should always match.
+        REPORTER_ASSERT(reporter, budgeted == is_budgeted(surface));
+        REPORTER_ASSERT(reporter, budgeted == is_budgeted(image));
 
-            // Now trigger copy-on-write
-            surface->getCanvas()->clear(SK_ColorBLUE);
+        // Now trigger copy-on-write
+        surface->getCanvas()->clear(SK_ColorBLUE);
 
-            // They don't share a texture anymore. They should each have made their own budget
-            // decision.
-            REPORTER_ASSERT(reporter, sbudgeted == is_budgeted(surface));
-            REPORTER_ASSERT(reporter, ibudgeted == is_budgeted(image));
-        }
+        // They don't share a texture anymore but the budgets should still match.
+        REPORTER_ASSERT(reporter, budgeted == is_budgeted(surface));
+        REPORTER_ASSERT(reporter, budgeted == is_budgeted(image));
     }
 }
 #endif
