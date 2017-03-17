@@ -343,7 +343,8 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     fAntiAliasMode = DWRITE_TEXT_ANTIALIAS_MODE_CLEARTYPE;
 #ifndef SK_IGNORE_DW_GRAY_FIX
     if (typeface->fFactory2 && typeface->fDWriteFontFace2 &&
-        !isLCD(fRec) && !(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag))
+        SkMask::kA8_Format == fRec.fMaskFormat &&
+        !(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag))
     {
         // DWRITE_TEXTURE_ALIASED_1x1 is now misnamed, it must also be used with grayscale.
         fTextureType = DWRITE_TEXTURE_ALIASED_1x1;
