@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5c1b8f4a_6de44c9e",
+        "filename": "src/ports/SkOSFile_posix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-17T18:13:57Z",
+      "side": 1,
+      "message": "\u003e Should we share code to get the file size?\n\nProbably.",
+      "parentUuid": "c4224bd8_a6f147ce",
+      "range": {
+        "startLine": 93,
+        "startChar": 11,
+        "endLine": 93,
+        "endChar": 19
+      },
+      "revId": "635fa1261f48dc3fa5dd3b92f9272be868a026c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "819c210f_a885c650",
         "filename": "src/ports/SkOSFile_win.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-17T18:06:10Z",
       "side": 1,
       "message": "Same question here.",
+      "range": {
+        "startLine": 114,
+        "startChar": 9,
+        "endLine": 114,
+        "endChar": 18
+      },
+      "revId": "635fa1261f48dc3fa5dd3b92f9272be868a026c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e2319f6_8ce0bd5d",
+        "filename": "src/ports/SkOSFile_win.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-17T18:13:57Z",
+      "side": 1,
+      "message": "Probably, the only issue I can imagine is differences when mmap-ing a file of 0 length, but I don\u0027t think we really care if that looks like it succeeds or not.",
+      "parentUuid": "819c210f_a885c650",
       "range": {
         "startLine": 114,
         "startChar": 9,
