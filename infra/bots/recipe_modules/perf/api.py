@@ -26,7 +26,12 @@ def nanobench_flags(bot):
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  config = ['8888', 'gpu', 'nonrendering', 'hwui' ]
+  config = ['8888', 'nonrendering', 'hwui' ]
+  if 'Android' in bot or 'iOS' in bot:
+    config.append('gles')
+  else:
+    config.append('gl')
+
   if '-arm-' not in bot:
     # For Android CPU tests, these take too long and cause the task to time out.
     config += [ 'f16', 'srgb' ]
@@ -38,18 +43,18 @@ def nanobench_flags(bot):
       # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
       # instead of ES.
       if 'NVIDIA_Shield' in bot:
-        config.remove('gpu')
+        config.remove('gles')
         config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
       else:
-        config.extend(['msaa4', 'nvpr4', 'nvprdit4'])
+        config.extend(['glesmsaa4', 'glesnvpr4', 'glesnvprdit4'])
     else:
-      config.extend(['msaa16', 'nvpr16', 'nvprdit16'])
+      config.extend(['glmsaa16', 'glnvpr16', 'glnvprdit16'])
 
   # Bench instanced rendering on a limited number of platforms
   if 'Nexus6' in bot:
-    config.append('esinst') # esinst4 isn't working yet on Adreno.
+    config.append('glesinst') # esinst4 isn't working yet on Adreno.
   elif 'PixelC' in bot:
-    config.extend(['esinst', 'esinst4'])
+    config.extend(['glesinst', 'glesinst4'])
   elif 'NVIDIA_Shield' in bot:
     config.extend(['glinst', 'glinst4'])
   elif 'MacMini6.2' in bot:
