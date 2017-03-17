@@ -102,6 +102,11 @@ struct GrContextOptions {
     };
 
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
+
+    /**
+     * If true, set caps to use draw instead of clear to avoid driver bugs.
+     */
+    bool fUseDrawInsteadOfClear = false;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrContextOptions::GpuPathRenderers)

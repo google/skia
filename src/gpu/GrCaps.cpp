@@ -96,6 +96,9 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
                  GrWindowRectangles::kMaxWindows, fMaxWindowRectangles);
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
+    if (options.fUseDrawInsteadOfClear) {
+        fUseDrawInsteadOfClear = true;
+    }
 }
 
 static SkString map_flags_to_string(uint32_t flags) {
