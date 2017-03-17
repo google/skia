@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2a934d1_4a83df32",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-17T17:31:49Z",
+      "side": 1,
+      "message": "Looks like this branch will be hit for iOS. These fancy configs will be ignored just like they were before, but might be worth a comment or extra check?",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2ec6a1e_170273a0",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-17T17:31:49Z",
+      "side": 1,
+      "message": "nit: typo snuck in",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c566ffc0_54dc4743",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-17T17:31:49Z",
+      "side": 1,
+      "message": "These two lines seem unnecessary, now that all configs have a common prefix.",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 0
+      },
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55fc53e0_0f6b1492",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-17T17:31:49Z",
+      "side": 1,
+      "message": "This is interesting - I don\u0027t think msaa16 runs on iOS, right?",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
