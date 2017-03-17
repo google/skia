@@ -517,3 +517,16 @@ DEF_GM( return new Strokes5GM; )
 
 DEF_GM( return new ZeroLenStrokesGM; )
 DEF_GM( return new TeenyStrokesGM; )
+
+DEF_SIMPLE_GM(thin_line, canvas, 256, 256) {
+    SkPaint paint;
+    for (bool antialias : { false, true }) { 
+        paint.setAntiAlias(antialias);
+        for (int width = 0; width <= 4; ++width) {
+            SkScalar offset = antialias * 100 + width * 20;
+            paint.setStrokeWidth(width * 0.25f);
+            canvas->drawLine(10 + offset,  10, 20 + offset,  60, paint);
+            canvas->drawLine(10 + offset, 110, 60 + offset, 160, paint);
+        }
+    }
+}
