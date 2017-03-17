@@ -59,15 +59,7 @@ SkStreamAsset* GetResourceAsStream(const char* resource) {
 
 sk_sp<SkData> GetResourceAsData(const char* resource) {
     SkString resourcePath = GetResourcePath(resource);
-    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
-    if (!stream->isValid()) {
-        SkDebugf("Resource %s not found.\n", resource);
-        return nullptr;
-    }
-    size_t bytes = stream->getLength();
-    sk_sp<SkData> data = SkData::MakeUninitialized(bytes);
-    stream->read(data->writable_data(), bytes);
-    return data;
+    return SkData::MakeFromFileName(resourcePath.c_str());
 }
 
 sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {
