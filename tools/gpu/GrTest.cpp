@@ -16,6 +16,7 @@
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 #include "GrSemaphore.h"
+#include "GrTextureProxy.h"
 
 #include "SkGr.h"
 #include "SkImage_Gpu.h"

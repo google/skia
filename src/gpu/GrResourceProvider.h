@@ -202,7 +202,6 @@ public:
     GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, uint32_t flags,
                            const void* data = nullptr);
 
-
     /**
      * If passed in render target already has a stencil buffer, return it. Otherwise attempt to
      * attach one.

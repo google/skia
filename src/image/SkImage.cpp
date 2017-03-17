@@ -168,23 +168,33 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
 #if SK_SUPPORT_GPU
 
 GrTexture* SkImage::getTexture() const {
-    return as_IB(this)->peekTexture();
+    sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();
+    return proxy->instantiate(nullptr);;
 }
 
-bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekTexture()); }
+bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->asTextureProxyRef()); }
+
+#include "GrSurfaceProxy.h"
 
 GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
                                           GrSurfaceOrigin* origin) const {
-    GrTexture* texture = as_IB(this)->peekTexture();
-    if (texture) {
-        GrContext* context = texture->getContext();
-        if (context && flushPendingGrContextIO) {
-            context->prepareSurfaceForExternalIO(texture);
+    sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();
+    if (!proxy) {
+        return 0;
+    }
+
+    GrSurface* surface = proxy->instantiate(nullptr);
+    if (surface && surface->asTexture()) {
+        GrContext* context = surface->getContext();
+        if (context) {
+            if (flushPendingGrContextIO) {
+                context->prepareSurfaceForExternalIO(surface);
+            }
         }
         if (origin) {
-            *origin = texture->origin();
+            *origin = proxy->origin();
         }
-        return texture->getTextureHandle();
+        return surface->asTexture()->getTextureHandle();
     }
     return 0;
 }

@@ -94,6 +94,10 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrSurfaceProxy.h"
+#include "GrTexture.h"
+
 sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(GrContext* ctx,
                                                                  const SkImageInfo& info,
                                                                  const SkIPoint& origin) {

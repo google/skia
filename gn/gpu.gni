@@ -61,6 +61,8 @@ skia_gpu_sources = [
   "$_include/private/GrTextureStripAtlas.h",
 
   "$_src/gpu/GrAppliedClip.h",
+  "$_src/gpu/GrAtlasUtils.h",
+  "$_src/gpu/GrAtlasUtils.cpp",
   "$_src/gpu/GrAuditTrail.cpp",
   "$_src/gpu/GrAutoLocaleSetter.h",
   "$_src/gpu/GrAllocator.h",

@@ -6,6 +6,7 @@
  */
 
 #include "GrAtlasGlyphCache.h"
+#include "GrAtlasUtils.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"

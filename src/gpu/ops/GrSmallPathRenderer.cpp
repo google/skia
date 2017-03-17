@@ -8,6 +8,7 @@
 
 #include "GrSmallPathRenderer.h"
 
+#include "GrAtlasUtils.h"
 #include "GrBuffer.h"
 #include "GrContext.h"
 #include "GrDistanceFieldGenFromVector.h"
@@ -19,6 +20,7 @@
 #include "GrSurfacePriv.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxy.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
