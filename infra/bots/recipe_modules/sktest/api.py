@@ -69,6 +69,14 @@ def dm_flags(bot):
     configs = [x.replace('msaa', 'glmsaa') for x in configs]
     configs = [x.replace('nvpr', 'glnvpr') for x in configs]
 
+  # We want to test both the OpenGL config and the GLES config on Linux Intel:
+  # GL is used by Chrome, GLES is used by ChromeOS.
+  if 'Intel' in bot and 'Ubuntu' in bot:
+    gpuconfigs = [x for x in configs if 'gpu' in x or 'msaa' in x]
+    configs = ([x for x in configs if x not in gpuconfigs] +
+               ['gl' + x.replace('gpu', '') for x in gpuconfigs] +
+               ['gles' + x.replace('gpu', '') for x in gpuconfigs])
+
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
@@ -122,6 +130,7 @@ def dm_flags(bot):
   blacklist('f16 _ _ dstreadshuffle')
   blacklist('gpusrgb image _ _')
   blacklist('glsrgb image _ _')
+  blacklist('glessrgb image _ _')
 
   # Decoder tests are now performing gamma correct decodes.  This means
   # that, when viewing the results, we need to perform a gamma correct
@@ -312,7 +321,8 @@ def dm_flags(bot):
 
   if 'IntelHD405' in bot and 'Ubuntu16' in bot:
     # skia:6331
-    blacklist('msaa16 image gen_codec_gpu abnormal.wbmp')
+    blacklist('glmsaa16 image gen_codec_gpu abnormal.wbmp')
+    blacklist('glesmsaa16 image gen_codec_gpu abnormal.wbmp')
 
   if 'Nexus5' in bot:
     # skia:5876
