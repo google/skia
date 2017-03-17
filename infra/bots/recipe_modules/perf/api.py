@@ -100,6 +100,8 @@ def nanobench_flags(bot):
     match.append('~GLInstancedArraysBench') # skia:4714
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~tile_image_filter_tiled_64')  # skia:6082
+  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+    match.append('~Xfermode_DstATop_aa')  # skia:6082
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~hardstop') # skia:6037
 
