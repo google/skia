@@ -124,11 +124,6 @@ public:
                             const SkPaint*) override;
     void onDrawBitmapLattice(const SkBitmap&, const Lattice& lattice, const SkRect& dst,
                              const SkPaint*) override;
-    void onDrawVertices(VertexMode vmode, int vertexCount,
-                        const SkPoint vertices[], const SkPoint texs[],
-                        const SkColor colors[], SkBlendMode,
-                        const uint16_t indices[], int indexCount,
-                        const SkPaint&) override;
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int count, SkBlendMode, const SkRect* cull, const SkPaint*) override;

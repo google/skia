@@ -179,14 +179,6 @@ void SkLiteRecorder::onDrawPoints(SkCanvas::PointMode mode,
                                   const SkPaint& paint) {
     fDL->drawPoints(mode, count, pts, paint);
 }
-void SkLiteRecorder::onDrawVertices(SkCanvas::VertexMode mode,
-                                    int count, const SkPoint vertices[],
-                                    const SkPoint texs[], const SkColor colors[],
-                                    SkBlendMode bmode,
-                                    const uint16_t indices[], int indexCount,
-                                    const SkPaint& paint) {
-    fDL->drawVertices(mode, count, vertices, texs, colors, bmode, indices, indexCount, paint);
-}
 void SkLiteRecorder::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                           const SkPaint& paint) {
     fDL->drawVertices(vertices, mode, paint);

@@ -215,20 +215,21 @@ public:
         SkTLazy<SkPaint> lazy;
         fTarget->drawPoints(mode, count, pts, this->xform(paint, &lazy));
     }
-    void onDrawVertices(VertexMode vmode, int count,
-                        const SkPoint* verts, const SkPoint* texs, const SkColor* colors,
-                        SkBlendMode mode,
-                        const uint16_t* indices, int indexCount, const SkPaint& paint) override {
-        SkSTArray<8, SkColor> xformed;
-        if (colors) {
-            xformed.reset(count);
-            this->xform(xformed.begin(), colors, count);
-            colors = xformed.begin();
+    void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+                              const SkPaint& paint) override {
+        sk_sp<SkVertices> copy;
+        if (vertices->hasColors()) {
+            int count = vertices->vertexCount();
+            SkSTArray<8, SkColor> xformed(count);
+            this->xform(xformed.begin(), vertices->colors(), count);
+            copy = SkVertices::MakeCopy(vertices->mode(), count, vertices->positions(),
+                                        vertices->texCoords(), xformed.begin(),
+                                        vertices->indexCount(), vertices->indices());
+            vertices = copy.get();
         }
 
         SkTLazy<SkPaint> lazy;
-        fTarget->drawVertices(vmode, count, verts, texs, colors, mode, indices, indexCount,
-                              this->xform(paint, &lazy));
+        fTarget->drawVertices(vertices, mode, this->xform(paint, &lazy));
     }
 
     void onDrawText(const void* ptr, size_t len,

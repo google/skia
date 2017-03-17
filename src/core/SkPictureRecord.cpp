@@ -722,17 +722,6 @@ void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matri
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
-                                     const SkPoint pos[], const SkPoint texs[],
-                                     const SkColor cols[], SkBlendMode bmode,
-                                     const uint16_t indices[], int indexCount,
-                                     const SkPaint& paint) {
-    auto vertices = SkVertices::MakeCopy(vmode, vertexCount, pos, texs, cols, indexCount, indices);
-    if (vertices) {
-        this->onDrawVerticesObject(vertices.get(), bmode, paint);
-    }
-}
-
 void SkPictureRecord::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                            const SkPaint& paint) {
     // op + paint index + vertices index + mode

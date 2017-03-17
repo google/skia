@@ -465,14 +465,10 @@ void SkDumpCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matri
                picture->cullRect().fRight, picture->cullRect().fBottom);
 }
 
-void SkDumpCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                                  const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkBlendMode,
-                                  const uint16_t indices[], int indexCount,
-                                  const SkPaint& paint) {
-    this->dump(kDrawVertices_Verb, &paint, "drawVertices(%s [%d] %g %g ...)",
-               toString(vmode), vertexCount, SkScalarToFloat(vertices[0].fX),
-               SkScalarToFloat(vertices[0].fY));
+void SkDumpCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode,
+                                        const SkPaint& paint) {
+    this->dump(kDrawVertices_Verb, &paint, "drawVertices(%s [%d] ...)",
+               toString(vertices->mode()), vertices->vertexCount());
 }
 
 void SkDumpCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

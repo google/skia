@@ -731,47 +731,14 @@ void SkPipeCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     write_paint(writer, paint, kGeometry_PaintUsage);
 }
 
-void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                                  const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkBlendMode bmode,
-                                  const uint16_t indices[], int indexCount,
-                                  const SkPaint& paint) {
-    SkASSERT(vertexCount > 0);
-
-    unsigned extra = 0;
-    if (vertexCount <= kVCount_DrawVerticesMask) {
-        extra |= vertexCount;
-    }
-    extra |= (unsigned)vmode << kVMode_DrawVerticesShift;
-    extra |= (unsigned)bmode << kXMode_DrawVerticesShift;
-
-    if (texs) {
-        extra |= kHasTex_DrawVerticesMask;
-    }
-    if (colors) {
-        extra |= kHasColors_DrawVerticesMask;
-    }
-    if (indexCount > 0) {
-        extra |= kHasIndices_DrawVerticesMask;
-    }
+void SkPipeCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
+                                        const SkPaint& paint) {
+    unsigned extra = static_cast<unsigned>(bmode);
 
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kDrawVertices, extra));
-    if (vertexCount > kVCount_DrawVerticesMask) {
-        writer.write32(vertexCount);
-    }
-    writer.write(vertices, vertexCount * sizeof(SkPoint));
-    if (texs) {
-        writer.write(texs, vertexCount * sizeof(SkPoint));
-    }
-    if (colors) {
-        writer.write(colors, vertexCount * sizeof(SkColor));
-    }
-    if (indexCount > 0) {
-        writer.write32(indexCount);
-        SkASSERT(SkIsAlign2(indexCount));
-        writer.write(indices, indexCount * sizeof(uint16_t));
-    }
+    // TODO: dedup vertices?
+    writer.writeDataAsByteArray(vertices->encode().get());
     write_paint(writer, paint, kVertices_PaintUsage);
 }
 
