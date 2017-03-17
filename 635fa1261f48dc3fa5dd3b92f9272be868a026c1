@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4224bd8_a6f147ce",
+        "filename": "src/ports/SkOSFile_posix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-17T18:06:10Z",
+      "side": 1,
+      "message": "Should we share code to get the file size?",
+      "range": {
+        "startLine": 93,
+        "startChar": 11,
+        "endLine": 93,
+        "endChar": 19
+      },
+      "revId": "635fa1261f48dc3fa5dd3b92f9272be868a026c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "819c210f_a885c650",
+        "filename": "src/ports/SkOSFile_win.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-17T18:06:10Z",
+      "side": 1,
+      "message": "Same question here.",
+      "range": {
+        "startLine": 114,
+        "startChar": 9,
+        "endLine": 114,
+        "endChar": 18
+      },
+      "revId": "635fa1261f48dc3fa5dd3b92f9272be868a026c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
