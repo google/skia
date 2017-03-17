@@ -44,7 +44,11 @@ public:
         return fTextBlobRefs;
     }
 
-    const SkTDArray<const SkImage* >& getImageRefs() const {
+    const SkTDArray<const SkVertices* >& getVerticesRefs() const {
+        return fVerticesRefs;
+    }
+
+   const SkTDArray<const SkImage* >& getImageRefs() const {
         return fImageRefs;
     }
 
@@ -141,6 +145,7 @@ private:
     void addRegion(const SkRegion& region);
     void addText(const void* text, size_t byteLength);
     void addTextBlob(const SkTextBlob* blob);
+    void addVertices(const SkVertices*);
 
     int find(const SkBitmap& bitmap);
 
@@ -204,10 +209,7 @@ protected:
                         const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
-    void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
-                              uint32_t flags) override {
-        this->onDrawVerticesObjectFallback(std::move(vertices), mode, paint, flags);
-    }
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
 
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
@@ -277,6 +279,7 @@ private:
     SkTDArray<const SkPicture*>  fPictureRefs;
     SkTDArray<SkDrawable*>       fDrawableRefs;
     SkTDArray<const SkTextBlob*> fTextBlobRefs;
+    SkTDArray<const SkVertices*> fVerticesRefs;
 
     uint32_t fRecordFlags;
     int      fInitialSaveCount;
