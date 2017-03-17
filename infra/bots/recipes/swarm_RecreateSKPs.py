@@ -98,14 +98,36 @@ def RunSteps(api):
                   'GYP_GENERATORS': 'ninja'})
 
     # Build Chrome.
-    api.step('Build Chrome',
-             ['ninja', '-C', out_dir, 'chrome'])
+    # api.step('Build Chrome',
+    #          ['ninja', '-C', out_dir, 'chrome'])
 
   # Clean up the output dir.
   output_dir = api.path['start_dir'].join('skp_output')
   if api.path.exists(output_dir):
     api.file.rmtree('skp_output', output_dir)
   api.file.makedirs('skp_output', output_dir)
+
+  ## Section for testing.
+  path_var= api.path.pathsep.join([str(api.path['depot_tools']), '%(PATH)s'])
+  env = {
+      'CHROME_HEADLESS': '1',
+      'PATH': path_var,
+  }
+  if 'Canary' not in api.properties['buildername']:
+    api.infra.update_go_deps()
+    update_skps_gitcookies = api.path.join(api.path.expanduser('~'),
+                                           UPDATE_SKPS_GITCOOKIES_FILE)
+    cmd = ['python',
+           api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
+           '--target_dir', output_dir,
+           '--gitcookies', str(update_skps_gitcookies)]
+    env.update(api.infra.go_env)
+    with gitcookies_auth(api, UPDATE_SKPS_KEY):
+      with api.step.context({'cwd': api.vars.skia_dir}):
+        api.step('Upload SKPs',
+                 cmd=cmd,
+                 env=env)
+  ## Section for testing.
 
   # Capture the SKPs.
   path_var= api.path.pathsep.join([str(api.path['depot_tools']), '%(PATH)s'])
