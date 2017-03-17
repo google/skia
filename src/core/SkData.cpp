@@ -143,8 +143,7 @@ sk_sp<SkData> SkData::MakeFromFD(int fd) {
     if (nullptr == addr) {
         return nullptr;
     }
-
-    return SkData::MakeWithProc(addr, size, sk_mmap_releaseproc, nullptr);
+    return SkData::MakeWithProc(addr, size, sk_mmap_releaseproc, reinterpret_cast<void*>(size));
 }
 
 // assumes context is a SkData
