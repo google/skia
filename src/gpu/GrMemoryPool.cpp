@@ -7,6 +7,8 @@
 
 #include "GrMemoryPool.h"
 
+#include "SkMemory.h"
+
 #ifdef SK_DEBUG
     #define VALIDATE this->validate()
 #else

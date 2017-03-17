@@ -10,6 +10,7 @@
 
 #include "GrRectanizer.h"
 #include "SkMathPriv.h"
+#include "SkMemory.h"
 #include "SkPoint.h"
 
 // This Rectanizer quantizes the incoming rects to powers of 2. Each power
