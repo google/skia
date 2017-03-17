@@ -16,6 +16,7 @@
 #include "SkRSXform.h"
 #include "SkString.h"
 #include "SkTDArray.h"
+#include "SkVertices.h"
 #include "SkJSONCPP.h"
 #include "UrlDataManager.h"
 
@@ -732,24 +733,14 @@ private:
 
 class SkDrawVerticesCommand : public SkDrawCommand {
 public:
-    SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int vertexCount,
-                          const SkPoint vertices[], const SkPoint texs[],
-                          const SkColor colors[], SkBlendMode,
-                          const uint16_t indices[], int indexCount,
-                          const SkPaint& paint);
-    virtual ~SkDrawVerticesCommand();
+    SkDrawVerticesCommand(sk_sp<SkVertices>, SkBlendMode, const SkPaint&);
+
     void execute(SkCanvas* canvas) const override;
 
 private:
-    SkCanvas::VertexMode fVmode;
-    int         fVertexCount;
-    SkPoint*    fVertices;
-    SkPoint*    fTexs;
-    SkColor*    fColors;
-    SkBlendMode fBlendMode;
-    uint16_t*   fIndices;
-    int         fIndexCount;
-    SkPaint     fPaint;
+    sk_sp<SkVertices>   fVertices;
+    SkBlendMode         fBlendMode;
+    SkPaint             fPaint;
 
     typedef SkDrawCommand INHERITED;
 };

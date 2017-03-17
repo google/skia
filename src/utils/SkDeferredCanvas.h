@@ -84,11 +84,7 @@ protected:
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                          const SkPaint*, SrcRectConstraint) override;
 
-    void onDrawVertices(VertexMode vmode, int vertexCount,
-                              const SkPoint vertices[], const SkPoint texs[],
-                              const SkColor colors[], SkBlendMode,
-                              const uint16_t indices[], int indexCount,
-                              const SkPaint&) override;
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void onDrawAtlas(const SkImage* image, const SkRSXform xform[],
                      const SkRect rects[], const SkColor colors[],
                      int count, SkBlendMode, const SkRect* cull, const SkPaint* paint) override;
