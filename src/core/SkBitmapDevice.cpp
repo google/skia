@@ -20,6 +20,7 @@
 #include "SkShader.h"
 #include "SkSpecialImage.h"
 #include "SkSurface.h"
+#include "SkVertices.h"
 
 class SkColorTable;
 
@@ -355,8 +356,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
     this->drawRect(*dstPtr, paintWithShader);
 }
 
-void SkBitmapDevice::drawSprite(const SkBitmap& bitmap,
-                                int x, int y, const SkPaint& paint) {
+void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
     BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
@@ -367,21 +367,18 @@ void SkBitmapDevice::drawText(const void* text, size_t len,
 
 void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
                                  int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    BDDraw(this).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint, &fSurfaceProps);
+    BDDraw(this).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint,
+                             &fSurfaceProps);
 }
 
-void SkBitmapDevice::drawVertices(SkCanvas::VertexMode vmode,
-                                  int vertexCount,
-                                  const SkPoint verts[], const SkPoint textures[],
-                                  const SkColor colors[], SkBlendMode bmode,
-                                  const uint16_t indices[], int indexCount,
+void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                                   const SkPaint& paint) {
-    BDDraw(this).drawVertices(vmode, vertexCount, verts, textures, colors, bmode, indices,
-                              indexCount, paint);
+    BDDraw(this).drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
+                              vertices->texCoords(), vertices->colors(), bmode,
+                              vertices->indices(), vertices->indexCount(), paint);
 }
 
-void SkBitmapDevice::drawDevice(SkBaseDevice* device,
-                                int x, int y, const SkPaint& paint) {
+void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
     BDDraw(this).drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
 }

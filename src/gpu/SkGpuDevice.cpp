@@ -1575,7 +1575,7 @@ static bool init_vertices_paint(GrContext* context, GrRenderTargetContext* rtc,
     }
 }
 
-void SkGpuDevice::drawVertices(SkCanvas::VertexMode vmode,
+void SkGpuDevice::privateDrawVertices(SkCanvas::VertexMode vmode,
                               int vertexCount, const SkPoint vertices[],
                               const SkPoint texs[], const SkColor colors[],
                               SkBlendMode bmode,
@@ -1664,7 +1664,7 @@ void SkGpuDevice::drawVertices(SkCanvas::VertexMode vmode,
                                        GrRenderTargetContext::ColorArrayType::kSkColor);
 }
 
-void SkGpuDevice::drawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode,
                                      const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     CHECK_SHOULD_DRAW();
@@ -1676,7 +1676,7 @@ void SkGpuDevice::drawVerticesObject(const SkVertices* vertices, SkBlendMode mod
     bool hasTexs = vertices->hasTexCoords();
     if (!hasTexs && !hasColors) {
         // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
-        this->drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
+        this->privateDrawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
                            nullptr, nullptr, mode, vertices->indices(), vertices->indexCount(),
                            paint);
     }
