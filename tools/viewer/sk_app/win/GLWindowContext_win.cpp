@@ -58,6 +58,21 @@ void GLWindowContext_win::onInitializeContext() {
         return;
     }
 
+    // Look to see if RenderDoc is attached. If so, re-create the context with a core profile
+    if (wglMakeCurrent(dc, fHGLRC)) {
+        const GrGLInterface* glInterface = GrGLCreateNativeInterface();
+        bool renderDocAttached = glInterface->hasExtension("GL_EXT_debug_tool");
+        SkSafeUnref(glInterface);
+        if (renderDocAttached) {
+            wglDeleteContext(fHGLRC);
+            fHGLRC = SkCreateWGLContext(dc, fDisplayParams.fMSAASampleCount, false /* deepColor */,
+                                        kGLPreferCoreProfile_SkWGLContextRequest);
+            if (NULL == fHGLRC) {
+                return;
+            }
+        }
+    }
+
     if (wglMakeCurrent(dc, fHGLRC)) {
         glClearStencil(0);
         glClearColor(0, 0, 0, 0);
