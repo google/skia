@@ -18,7 +18,7 @@ namespace skiagm {
  */
 class DstReadShuffle : public GM {
 public:
-    DstReadShuffle() { this->setBGColor(SK_ColorLTGRAY); }
+    DstReadShuffle() { this->setBGColor(kBackground); }
 
 protected:
     enum ShapeType {
@@ -97,7 +97,11 @@ protected:
     }
 
     static void DrawHairlines(SkCanvas* canvas) {
-        canvas->clear(SK_ColorTRANSPARENT);
+        if (canvas->imageInfo().alphaType() == kOpaque_SkAlphaType) {
+            canvas->clear(kBackground);
+        } else {
+            canvas->clear(SK_ColorTRANSPARENT);
+        }
         SkPaint hairPaint;
         hairPaint.setStyle(SkPaint::kStroke_Style);
         hairPaint.setStrokeWidth(0);
@@ -139,16 +143,27 @@ protected:
         // Draw hairlines to a surface and then draw that to the main canvas with a zoom so that
         // it is easier to see how they blend.
         SkImageInfo info;
-        if (SkColorType::kUnknown_SkColorType != canvas->imageInfo().colorType()) {
+        // Recording canvases don't have a color type.
+        if (SkColorType::kUnknown_SkColorType == canvas->imageInfo().colorType()) {
+            info = SkImageInfo::MakeN32Premul(35, 35);
+        } else {
             info = SkImageInfo::Make(35, 35,
                                      canvas->imageInfo().colorType(),
                                      canvas->imageInfo().alphaType(),
                                      canvas->imageInfo().refColorSpace());
-        } else {
-            info = SkImageInfo::MakeN32Premul(35, 35);
         }
         auto surf = canvas->makeSurface(info);
         if (!surf) {
+            // Fall back to raster. Raster supports only one of the 8 bit per-channel RGBA or BGRA
+            // formats. This fall back happens when running with --preAbandonGpuContext.
+            if ((info.colorType() == kRGBA_8888_SkColorType ||
+                 info.colorType() == kBGRA_8888_SkColorType) &&
+                info.colorType() != kN32_SkColorType) {
+                info = SkImageInfo::Make(35, 35,
+                                         kN32_SkColorType,
+                                         canvas->imageInfo().alphaType(),
+                                         canvas->imageInfo().refColorSpace());
+            }
             surf = SkSurface::MakeRaster(info);
         }
         canvas->scale(5.f, 5.f);
@@ -158,6 +173,7 @@ protected:
     }
 
 private:
+    static constexpr SkColor kBackground = SK_ColorLTGRAY;
     SkPath fConcavePath;
     SkPath fConvexPath;
     typedef GM INHERITED;
