@@ -1054,7 +1054,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         //TODO: outMatrix??
         SkMatrix localMatrix = shader->getLocalMatrix();
         if (parentTransform) {
-            localMatrix.preConcat(*parentTransform);
+            localMatrix.postConcat(*parentTransform);
         }
 
         SkTScopedComPtr<IXpsOMTileBrush> tileBrush;
@@ -2256,6 +2256,7 @@ void SkXPSDevice::drawBitmapRect(const SkBitmap& bitmap,
                                  const SkRect& dst,
                                  const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
+    // TODO(halcanary): more closely use correct logic for src > bitmap.bounds().
     SkRect srcBounds = src ? *src : SkRect::Make(bitmap.bounds());
     SkMatrix matrix = SkMatrix::MakeRectToRect(srcBounds, dst, SkMatrix::kFill_ScaleToFit);
 
