@@ -99,8 +99,6 @@ private:
         );
     };
 
-    SkDEBUGCODE(void printUnused(const Uniform&) const;)
-
     template<int N> inline void setMatrices(UniformHandle, int arrayCount,
                                             const float matrices[]) const;
 
