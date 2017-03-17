@@ -65,12 +65,6 @@ SkImage_Gpu::~SkImage_Gpu() {
     }
 }
 
-extern void SkTextureImageApplyBudgetedDecision(SkImage* image) {
-    if (image->isTextureBacked()) {
-        ((SkImage_Gpu*)image)->applyBudgetDecision();
-    }
-}
-
 SkImageInfo SkImage_Gpu::onImageInfo() const {
     SkColorType ct;
     if (!GrPixelConfigToColorType(fProxy->config(), &ct)) {

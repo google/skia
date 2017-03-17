@@ -250,11 +250,10 @@ public:
     /**
      *  Returns an image of the current state of the surface pixels up to this
      *  point. Subsequent changes to the surface (by drawing into its canvas)
-     *  will not be reflected in this image. If a copy must be made the Budgeted
-     *  parameter controls whether it counts against the resource budget
-     *  (currently for the gpu backend only).
+     *  will not be reflected in this image. For the GPU-backend, the budgeting
+     *  decision for the snapped image will match that of the surface.
      */
-    sk_sp<SkImage> makeImageSnapshot(SkBudgeted = SkBudgeted::kYes);
+    sk_sp<SkImage> makeImageSnapshot();
 
     /**
      *  Though the caller could get a snapshot image explicitly, and draw that,
