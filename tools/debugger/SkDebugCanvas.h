@@ -230,9 +230,9 @@ protected:
                         const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
-    void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
-                              uint32_t flags) override {
-        this->onDrawVerticesObjectFallback(std::move(vertices), mode, paint, flags);
+    void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+                              const SkPaint& paint) override {
+        this->devolveSkVerticesToRaw(vertices, mode, paint);
     }
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;

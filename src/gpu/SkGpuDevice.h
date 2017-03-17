@@ -92,8 +92,7 @@ public:
     void drawVertices(SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
                       const SkPoint texs[], const SkColor colors[], SkBlendMode,
                       const uint16_t indices[], int indexCount, const SkPaint&) override;
-    void drawVerticesObject(sk_sp<SkVertices>, SkBlendMode, const SkPaint&,
-                            uint32_t flags) override;
+    void drawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
                    const SkColor[], int count, SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;

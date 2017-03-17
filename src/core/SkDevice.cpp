@@ -276,8 +276,8 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     }
 }
 
-void SkBaseDevice::drawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode,
-                                      const SkPaint& paint, uint32_t deprecatedFlags) {
+void SkBaseDevice::drawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+                                      const SkPaint& paint) {
     this->drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
                        vertices->texCoords(), vertices->colors(), mode, vertices->indices(),
                        vertices->indexCount(), paint);
