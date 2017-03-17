@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d6c06cda_0e2dde54",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T17:55:42Z",
+      "side": 1,
+      "message": "Will do in follow-up iOS cleanup CL.",
+      "parentUuid": "316c2461_0bcba7f3",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2a934d1_4a83df32",
         "filename": "infra/bots/recipe_modules/perf/api.py",
         "patchSetId": 9
@@ -60,6 +84,42 @@
     },
     {
       "key": {
+        "uuid": "4b550f9f_f43cc7b7",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T17:55:42Z",
+      "side": 1,
+      "message": "Yes, I noticed that in the logs of a iOS trybot run on an earlier patchset. I\u0027ll fix this in a another CL.",
+      "parentUuid": "d2a934d1_4a83df32",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d31149ca_06dcff2a",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T17:55:42Z",
+      "side": 1,
+      "message": "Will do in follow up",
+      "parentUuid": "c8fb1e41_4c622081",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2ec6a1e_170273a0",
         "filename": "infra/bots/recipe_modules/perf/api.py",
         "patchSetId": 9
@@ -77,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "a64db484_b983f3ba",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T17:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2ec6a1e_170273a0",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11afb6e9_4c861844",
         "filename": "infra/bots/recipe_modules/perf/example.expected/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release.json",
         "patchSetId": 9
@@ -88,6 +166,24 @@
       "writtenOn": "2017-03-17T17:51:44Z",
       "side": 1,
       "message": "Per Brian\u0027s comment, should be gles.",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7935571_c7e81242",
+        "filename": "infra/bots/recipe_modules/perf/example.expected/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T17:55:42Z",
+      "side": 1,
+      "message": "Right, but these were bogus before and bogus afterwards. I\u0027ll cleanup iOS perf configs in a separate CL.",
+      "parentUuid": "11afb6e9_4c861844",
       "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "3eef9e8e_61b4576e",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T17:55:42Z",
+      "side": 1,
+      "message": "oh, nice catch. Done.",
+      "parentUuid": "c566ffc0_54dc4743",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 0
+      },
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55fc53e0_0f6b1492",
         "filename": "infra/bots/recipe_modules/sktest/api.py",
         "patchSetId": 9
@@ -128,6 +248,24 @@
       "writtenOn": "2017-03-17T17:31:49Z",
       "side": 1,
       "message": "This is interesting - I don\u0027t think msaa16 runs on iOS, right?",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27ad3a24_76ea4338",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T17:55:42Z",
+      "side": 1,
+      "message": "I had the same thought but was afraid to remove it in this CL. I\u0027ll try cleaning it up in a folow up.",
+      "parentUuid": "55fc53e0_0f6b1492",
       "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
