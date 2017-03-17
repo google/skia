@@ -10,10 +10,12 @@
 
 #include "SkColorPriv.h"
 #include "SkMatrix.h"
+#include "SkVertices.h"
 
 class SK_API SkPatchUtils {
 
 public:
+    // DEPRECATED -- use MakeVertices()
     /**
      * Structure that holds the vertex data related to the tessellation of a patch. It is passed
      * as a parameter to the function getVertexData which sets the points, colors and texture
@@ -104,6 +106,7 @@ public:
      */
     static void getRightCubic(const SkPoint cubics[12], SkPoint points[4]);
 
+    // DEPRECATED -- use MakeVertices()
     /**
      * Function that evaluates the coons patch interpolation.
      * data refers to the pointer of the PatchData struct in which the tessellation data is set.
@@ -116,6 +119,9 @@ public:
     static bool getVertexData(SkPatchUtils::VertexData* data, const SkPoint cubics[12],
                               const SkColor colors[4], const SkPoint texCoords[4],
                               int lodX, int lodY);
+
+    static sk_sp<SkVertices> MakeVertices(const SkPoint cubics[12], const SkColor colors[4],
+                                          const SkPoint texCoords[4], int lodX, int lodY);
 };
 
 #endif
