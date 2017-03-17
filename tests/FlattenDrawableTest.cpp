@@ -284,3 +284,34 @@ DEF_TEST(FlattenRecordedDrawable, r) {
     REPORTER_ASSERT(r, out);
     REPORTER_ASSERT(r, !strcmp("SkRecordedDrawable", out->getTypeName()));
 }
+
+DEF_TEST(FlattenRecordedDrawableWithoutDrawable, r) {
+    // Record a set of canvas draw commands
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(1000.0f, 1000.0f);
+    SkPaint paint;
+    paint.setColor(SK_ColorGREEN);
+    canvas->drawPoint(42.0f, 17.0f, paint);
+    paint.setColor(SK_ColorRED);
+    canvas->drawPaint(paint);
+    SkPaint textPaint;
+    textPaint.setColor(SK_ColorBLUE);
+    canvas->drawText("TEXT", 4, 467.0f, 100.0f, textPaint);
+
+    // No any drawable is drawn here.
+
+    // Serialize the recorded drawable
+    sk_sp<SkDrawable> recordedDrawable = recorder.finishRecordingAsDrawable();
+    SkBinaryWriteBuffer writeBuffer;
+    writeBuffer.writeFlattenable(recordedDrawable.get());
+
+    // Copy the contents of the write buffer into a read buffer
+    sk_sp<SkData> data = SkData::MakeUninitialized(writeBuffer.bytesWritten());
+    writeBuffer.writeToMemory(data->writable_data());
+    SkReadBuffer readBuffer(data->data(), data->size());
+
+    // Deserialize and verify the drawable
+    sk_sp<SkDrawable> out((SkDrawable*)readBuffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
+    REPORTER_ASSERT(r, out);
+    REPORTER_ASSERT(r, !strcmp("SkRecordedDrawable", out->getTypeName()));
+}
