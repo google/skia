@@ -55,7 +55,7 @@ __argparse.add_argument('--gpu',
 __argparse.add_argument('--fps',
   action='store_true', help="use fps instead of ms")
 __argparse.add_argument('-c', '--config',
-  default='gpu', help="comma- or space-separated list of GPU configs")
+  default='gl', help="comma- or space-separated list of GPU configs")
 __argparse.add_argument('-a', '--resultsfile',
   help="optional file to append results into")
 __argparse.add_argument('skps',
@@ -122,12 +122,12 @@ class SKPBench:
     return out.rstrip()
 
   @classmethod
-  def run_warmup(cls, warmup_time):
+  def run_warmup(cls, warmup_time, config):
     if not warmup_time:
       return
     print('running %i second warmup...' % warmup_time, file=sys.stderr)
     commandline = cls.ARGV + ['--duration', str(warmup_time * 1000),
-                              '--config', 'gpu',
+                              '--config', config,
                               '--skp', 'warmup']
     dump_commandline_if_verbose(commandline)
     output = subprocess.check_output(commandline, stderr=subprocess.STDOUT)
@@ -269,7 +269,7 @@ def run_benchmarks(configs, skps, hardware, resultsfile=None):
         hardware.sleep(exception.sleeptime)
         if FLAGS.verbosity >= 4:
           hardware.print_debug_diagnostics()
-        SKPBench.run_warmup(hardware.warmup_time)
+        SKPBench.run_warmup(hardware.warmup_time, configs[0])
 
 def main():
   # Delimiter is ',' or ' ', skip if nested inside parens (e.g. gpu(a=b,c=d)).
@@ -295,7 +295,7 @@ def main():
     hardware = Hardware()
 
   with hardware:
-    SKPBench.run_warmup(hardware.warmup_time)
+    SKPBench.run_warmup(hardware.warmup_time, configs[0])
     if FLAGS.resultsfile:
       with open(FLAGS.resultsfile, mode='a+') as resultsfile:
         run_benchmarks(configs, skps, hardware, resultsfile=resultsfile)
