@@ -3394,61 +3394,20 @@ SkDrawTextRSXformCommand* SkDrawTextRSXformCommand::fromJSON(Json::Value& comman
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int vertexCount,
-                                             const SkPoint vertices[], const SkPoint texs[],
-                                             const SkColor colors[], SkBlendMode bmode,
-                                             const uint16_t indices[], int indexCount,
+SkDrawVerticesCommand::SkDrawVerticesCommand(sk_sp<SkVertices> vertices, SkBlendMode bmode,
                                              const SkPaint& paint)
     : INHERITED(kDrawVertices_OpType)
+    , fVertices(std::move(vertices))
     , fBlendMode(bmode)
+    , fPaint(paint)
 {
-    fVmode = vmode;
-
-    fVertexCount = vertexCount;
-
-    fVertices = new SkPoint[vertexCount];
-    memcpy(fVertices, vertices, vertexCount * sizeof(SkPoint));
-
-    if (texs) {
-        fTexs = new SkPoint[vertexCount];
-        memcpy(fTexs, texs, vertexCount * sizeof(SkPoint));
-    } else {
-        fTexs = nullptr;
-    }
-
-    if (colors) {
-        fColors = new SkColor[vertexCount];
-        memcpy(fColors, colors, vertexCount * sizeof(SkColor));
-    } else {
-        fColors = nullptr;
-    }
-
-    if (indexCount > 0) {
-        fIndices = new uint16_t[indexCount];
-        memcpy(fIndices, indices, indexCount * sizeof(uint16_t));
-    } else {
-        fIndices = nullptr;
-    }
-
-    fIndexCount = indexCount;
-    fPaint = paint;
-
     // TODO(chudy)
     fInfo.push(SkObjectParser::CustomTextToString("To be implemented."));
     fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
-SkDrawVerticesCommand::~SkDrawVerticesCommand() {
-    delete [] fVertices;
-    delete [] fTexs;
-    delete [] fColors;
-    delete [] fIndices;
-}
-
 void SkDrawVerticesCommand::execute(SkCanvas* canvas) const {
-    canvas->drawVertices(fVmode, fVertexCount, fVertices,
-                         fTexs, fColors, fBlendMode, fIndices,
-                         fIndexCount, fPaint);
+    canvas->drawVertices(fVertices, fBlendMode, fPaint);
 }
 
 SkRestoreCommand::SkRestoreCommand()

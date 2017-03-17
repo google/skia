@@ -326,15 +326,6 @@ void SkRecorder::onDrawShadowedPicture(const SkPicture* pic, const SkMatrix* mat
 }
 
 
-void SkRecorder::onDrawVertices(VertexMode vmode,
-                                int vertexCount, const SkPoint vertices[],
-                                const SkPoint texs[], const SkColor colors[],
-                                SkBlendMode bmode,
-                                const uint16_t indices[], int indexCount, const SkPaint& paint) {
-    this->onDrawVerticesObject(SkVertices::MakeCopy(vmode, vertexCount, vertices, texs, colors,
-                                                    indexCount, indices).get(), bmode, paint);
-}
-
 void SkRecorder::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
                                       const SkPaint& paint) {
     APPEND(DrawVertices, paint, sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode);

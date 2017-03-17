@@ -38,8 +38,7 @@ public:
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
     void onDrawPoints(PointMode, size_t, const SkPoint[], const SkPaint&) override;
-    void onDrawVertices(VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
-                        SkBlendMode, const uint16_t[], int, const SkPaint&) override;
+    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;

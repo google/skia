@@ -520,14 +520,10 @@ void SkDeferredCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[]
     fCanvas->drawAtlas(image, xform, rects, colors, count, bmode, cull, paint);
 }
 
-void SkDeferredCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                                  const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkBlendMode bmode,
-                                  const uint16_t indices[], int indexCount,
-                                  const SkPaint& paint) {
+void SkDeferredCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
+                                            const SkPaint& paint) {
     this->flush_before_saves();
-    fCanvas->drawVertices(vmode, vertexCount, vertices, texs, colors, bmode,
-                           indices, indexCount, paint);
+    fCanvas->drawVertices(vertices, bmode, paint);
 }
 
 void SkDeferredCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
