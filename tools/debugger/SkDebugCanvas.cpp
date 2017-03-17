@@ -663,12 +663,10 @@ void SkDebugCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4
     this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, bmode, paint));
 }
 
-void SkDebugCanvas::onDrawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
-                                   const SkPoint texs[], const SkColor colors[],
-                                   SkBlendMode bmode, const uint16_t indices[], int indexCount,
-                                   const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawVerticesCommand(vmode, vertexCount, vertices,
-                         texs, colors, bmode, indices, indexCount, paint));
+void SkDebugCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
+                                         const SkPaint& paint) {
+    this->addDrawCommand(new SkDrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)),
+                                                   bmode, paint));
 }
 
 void SkDebugCanvas::willRestore() {
