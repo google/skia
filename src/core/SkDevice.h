@@ -238,7 +238,8 @@ protected:
                               const SkColor colors[], SkBlendMode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) = 0;
-    virtual void drawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&);
+    virtual void drawVerticesObject(sk_sp<SkVertices>, SkBlendMode, const SkPaint&,
+                                    uint32_t flags);
     // default implementation unrolls the blob runs.
     virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                               const SkPaint& paint, SkDrawFilter* drawFilter);
