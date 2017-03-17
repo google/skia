@@ -36,42 +36,6 @@
     #define validate_sort(edge)
 #endif
 
-static inline void remove_edge(SkEdge* edge) {
-    edge->fPrev->fNext = edge->fNext;
-    edge->fNext->fPrev = edge->fPrev;
-}
-
-static inline void insert_edge_after(SkEdge* edge, SkEdge* afterMe) {
-    edge->fPrev = afterMe;
-    edge->fNext = afterMe->fNext;
-    afterMe->fNext->fPrev = edge;
-    afterMe->fNext = edge;
-}
-
-static void backward_insert_edge_based_on_x(SkEdge* edge SkDECLAREPARAM(int, curr_y)) {
-    SkFixed x = edge->fX;
-
-    SkEdge* prev = edge->fPrev;
-    while (prev->fX > x) {
-        prev = prev->fPrev;
-    }
-    if (prev->fNext != edge) {
-        remove_edge(edge);
-        insert_edge_after(edge, prev);
-    }
-}
-
-// Start from the right side, searching backwards for the point to begin the new edge list
-// insertion, marching forwards from here. The implementation could have started from the left
-// of the prior insertion, and search to the right, or with some additional caching, binary
-// search the starting point. More work could be done to determine optimal new edge insertion.
-static SkEdge* backward_insert_start(SkEdge* prev, SkFixed x) {
-    while (prev->fX > x) {
-        prev = prev->fPrev;
-    }
-    return prev;
-}
-
 static void insert_new_edges(SkEdge* newEdge, int curr_y) {
     if (newEdge->fFirstY != curr_y) {
         return;
@@ -191,7 +155,7 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
                 currE->fX = newX;
             NEXT_X:
                 if (newX < prevX) { // ripple currE backwards until it is x-sorted
-                    backward_insert_edge_based_on_x(currE  SkPARAM(curr_y));
+                    backward_insert_edge_based_on_x(currE);
                 } else {
                     prevX = newX;
                 }
