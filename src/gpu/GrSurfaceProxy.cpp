@@ -290,18 +290,3 @@ sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSur
     return dstContext;
 }
 
-void GrSurfaceProxyPriv::makeBudgeted() {
-    if (fProxy->fTarget) {
-        fProxy->fTarget->resourcePriv().makeBudgeted();
-    }
-
-    fProxy->fBudgeted = SkBudgeted::kYes;
-}
-
-void GrSurfaceProxyPriv::makeUnbudgeted() {
-    if (fProxy->fTarget) {
-        fProxy->fTarget->resourcePriv().makeUnbudgeted();
-    }
-
-    fProxy->fBudgeted = SkBudgeted::kNo;
-}
