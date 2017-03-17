@@ -75,12 +75,12 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     // Parses all default configs and returns correct "tag".
 
     SkCommandLineFlags::StringArray config1 = make_string_array({
-        "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "msaa16", "msaa4",
-        "nonrendering", "null", "nullgpu", "nvpr16", "nvpr4", "nvprdit16", "nvprdit4", "pdf", "skp",
-        "svg", "xps", "angle_d3d11_es2", "angle_gl_es2", "commandbuffer", "mesa", "hwui", "gpuf16",
-        "gpusrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk", "glinst", "glinst4",
-        "glinstdit4", "glinst16", "glinstdit16", "esinst", "esinst4", "esinstdit4", "glwide",
-        "glnarrow"
+        "565", "8888", "debug", "gpu", "gpudebug", "gpudft", "gpunull", "glmsaa16", "glmsaa4",
+        "nonrendering", "null", "nullgpu", "glnvpr16", "glnvpr4", "glnvprdit16", "glesnvprdit4",
+        "pdf", "skp", "svg", "xps", "angle_d3d11_es2", "angle_gl_es2", "commandbuffer", "mesa",
+        "hwui", "gpuf16", "gpusrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk",
+        "glinst", "glinst4", "glinstdit4", "glinst16", "glinstdit16", "glesinst", "glesinst4",
+        "glesinstdit4", "glwide", "glnarrow"
     });
 
     SkCommandLineConfigArray configs;

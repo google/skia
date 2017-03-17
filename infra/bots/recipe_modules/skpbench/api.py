@@ -30,7 +30,7 @@ def skpbench_steps(api):
   skpbench_dir = api.vars.slave_dir.join('skia', 'tools', 'skpbench')
   table = api.path.join(api.vars.swarming_out_dir, 'table')
 
-  config = 'gpu,esinst4'
+  config = 'gles,glesinst4'
   if 'Vulkan' in api.vars.builder_name:
     config = 'vk'
 

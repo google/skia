@@ -205,7 +205,7 @@
       "--resultsfile",
       "[CUSTOM_[SWARM_OUT_DIR]]/table",
       "--config",
-      "gpu,esinst4"
+      "gles,glesinst4"
     ],
     "name": "skpbench"
   },

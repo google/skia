@@ -47,7 +47,8 @@ class SkCommandLineConfig {
 // SkCommandLineConfigGpu is a SkCommandLineConfig that extracts information out of the backend
 // part of the tag. It is constructed tags that have:
 // * backends of form "gpu(option=value,option2=value,...)"
-// * backends that represent a shorthand of above (such as "msaa16" representing "gpu(samples=16)")
+// * backends that represent a shorthand of above (such as "glmsaa16" representing
+// "gpu(samples=16)")
 class SkCommandLineConfigGpu : public SkCommandLineConfig {
   public:
     typedef sk_gpu_test::GrContextFactory::ContextType ContextType;
