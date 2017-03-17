@@ -9,6 +9,7 @@
 #define SkImage_Gpu_DEFINED
 
 #include "GrClip.h"
+#include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
@@ -21,7 +22,6 @@
 
 class SkImage_Gpu : public SkImage_Base {
 public:
-    SkImage_Gpu(uint32_t uniqueID, SkAlphaType, sk_sp<GrTexture>, sk_sp<SkColorSpace>, SkBudgeted);
     SkImage_Gpu(GrContext*, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
                 sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_Gpu() override;
@@ -34,6 +34,9 @@ public:
                             sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
+    GrTextureProxy* peekProxy() const {
+        return fProxy.get();
+    }
     GrTexture* peekTexture() const override {
         return fProxy->instantiate(fContext->resourceProvider());
     }
@@ -43,6 +46,7 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
+
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
         return sk_ref_sp(this->peekTexture());
