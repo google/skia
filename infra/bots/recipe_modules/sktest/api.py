@@ -12,6 +12,12 @@ from recipe_engine import recipe_api
 def dm_flags(bot):
   args = []
 
+  # This enables non-deterministic random seeding of the GPU FP optimization
+  # test. Limit it to one bot until we're sure it's not going to cause an
+  # avalanche of problems.
+  if 'Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release' in bot:
+    args.append('--randomProcessorTest')
+
   # 32-bit desktop bots tend to run out of memory, because they have relatively
   # far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.
   if '-x86-' in bot and not 'NexusPlayer' in bot:

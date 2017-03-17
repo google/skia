@@ -20,6 +20,7 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "ops/GrNonAAFillRectOp.h"
 #include "ops/GrTestMeshDrawOp.h"
+#include <random>
 
 namespace {
 class TestOp : public GrTestMeshDrawOp {
@@ -272,11 +273,23 @@ void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
     rtc->addMeshDrawOp(pb, GrNoClip(), std::move(op));
 }
 
+#include "SkCommandLineFlags.h"
+DEFINE_bool(randomProcessorTest, false, "Use non-deterministic seed for random processor tests?");
+
 #if GR_TEST_UTILS
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     using FPFactory = GrProcessorTestFactory<GrFragmentProcessor>;
-    SkRandom random;
+
+    uint32_t seed = 0;
+    if (FLAGS_randomProcessorTest) {
+        std::random_device rd;
+        seed = rd();
+    }
+    // If a non-deterministic bot fails this test, check the output to see what seed it used, then
+    // hard-code that value here:
+    SkRandom random(seed);
+
     sk_sp<GrRenderTargetContext> rtc = context->makeRenderTargetContext(
             SkBackingFit::kExact, 256, 256, kRGBA_8888_GrPixelConfig, nullptr);
     GrSurfaceDesc desc;
@@ -413,7 +426,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         passing = false;
                     }
                     if (!passing) {
-                        ERRORF(reporter, "Processor details: %s", fp->dumpInfo().c_str());
+                        ERRORF(reporter, "Seed: 0x%08x, Processor details: %s",
+                               seed, fp->dumpInfo().c_str());
                     }
                 }
             }
