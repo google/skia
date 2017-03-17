@@ -1661,7 +1661,7 @@ Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
 Error ViaDefer::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
     return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
-        SkDeferredCanvas deferred(canvas);
+        SkDeferredCanvas deferred(canvas, SkDeferredCanvas::kEager);
         return src.draw(&deferred);
     });
 }

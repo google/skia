@@ -8,6 +8,7 @@
 #include "SkDeferredCanvas.h"
 #include "SkDrawable.h"
 #include "SkPath.h"
+#include "SkRSXform.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
@@ -45,8 +46,11 @@ void SkDeferredCanvas::Rec::setConcat(const SkMatrix& m) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkDeferredCanvas::SkDeferredCanvas(SkCanvas* canvas)
-    : INHERITED(canvas->getBaseLayerSize().width(), canvas->getBaseLayerSize().height()) {
+SkDeferredCanvas::SkDeferredCanvas(SkCanvas* canvas, EvalType evalType)
+    : INHERITED(canvas->getBaseLayerSize().width(), canvas->getBaseLayerSize().height())
+    , fCanvas(nullptr)  // must be here for reset to work.
+    , fEvalType(evalType)
+{
     this->reset(canvas);
 }
 
@@ -493,23 +497,23 @@ void SkDeferredCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
 #include "SkCanvasPriv.h"
 void SkDeferredCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                  const SkPaint* paint) {
-#if 0
-    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
-    picture->playback(this);
-#else
-    this->flush_before_saves();
-    fCanvas->drawPicture(picture, matrix, paint);
-#endif
+    if (kEager == fEvalType) {
+        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
+        picture->playback(this);
+    } else {
+        this->flush_before_saves();
+        fCanvas->drawPicture(picture, matrix, paint);
+    }
 }
 
 void SkDeferredCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
-    // TODO: investigate culling and applying concat to the matrix
-#if 0
-    drawable->draw(this, matrix);
-#else
-    this->flush_before_saves();
-    fCanvas->drawDrawable(drawable, matrix);
-#endif
+    if (kEager == fEvalType) {
+        // TODO: investigate culling and applying concat to the matrix
+        drawable->draw(this, matrix);
+    } else {
+        this->flush_before_saves();
+        fCanvas->drawDrawable(drawable, matrix);
+    }
 }
 
 void SkDeferredCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[],
