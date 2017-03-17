@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "39d56785_55880111",
+        "filename": "gm/dstreadshuffle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T14:41:13Z",
+      "side": 1,
+      "message": "They do look the same. The non-565 version blends a transparent black background in the offscreen against a LTGRAY background of the GM rather than filling the offscreen with LTGRAY. I made them both use a shared constant to make that more obvious.",
+      "parentUuid": "094a1b85_677943a7",
+      "range": {
+        "startLine": 100,
+        "startChar": 8,
+        "endLine": 104,
+        "endChar": 9
+      },
+      "revId": "a8a496f488ed8c930b2f56f8ab4bd57a551d3e4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e2cd9850_501aa3b4",
         "filename": "gm/dstreadshuffle.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-17T14:33:06Z",
       "side": 1,
       "message": "you don\u0027t really need the if part of this block since it is set above. Just need to update the case where we were passing in the colorType. I don\u0027t think you could even get inside the outer if he if the canvas colorType was unknown since you would get an N32 color type.",
+      "range": {
+        "startLine": 162,
+        "startChar": 17,
+        "endLine": 163,
+        "endChar": 62
+      },
+      "revId": "a8a496f488ed8c930b2f56f8ab4bd57a551d3e4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33033836_9d071517",
+        "filename": "gm/dstreadshuffle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T14:41:13Z",
+      "side": 1,
+      "message": "oh duh.",
+      "parentUuid": "e2cd9850_501aa3b4",
       "range": {
         "startLine": 162,
         "startChar": 17,
