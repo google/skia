@@ -129,7 +129,6 @@ public:
                         const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
-    void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int count, SkBlendMode, const SkRect* cull, const SkPaint*) override;
 

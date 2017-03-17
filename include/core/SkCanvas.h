@@ -1186,9 +1186,9 @@ public:
                     shader. In this case the colors are combined with the texture
                     using mode, before being drawn using the paint.
         @param paint Specifies the shader/texture if present.
+        @param flags Allows the caller to ignore colors or texs on vertices.
      */
-    void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint);
-    void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
+    void drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint);
 
     /**
      Draw a cubic coons patch
@@ -1445,10 +1445,12 @@ protected:
     virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],
                                 const SkPoint texs[], const SkColor colors[], SkBlendMode,
                                 const uint16_t indices[], int indexCount, const SkPaint&);
-    virtual void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&);
+    virtual void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode,
+                                      const SkPaint& paint, uint32_t flags);
     // Subclasses can use this put the vertices object call on the regular draw vertices code path.
     // This is temporary until we teach recording and other SkCanvas classes about SkVertices.
-    void devolveSkVerticesToRaw(const SkVertices*, SkBlendMode, const SkPaint&);
+    void onDrawVerticesObjectFallback(sk_sp<SkVertices> vertices, SkBlendMode mode,
+                                      const SkPaint& paint, uint32_t flags);
 
     virtual void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                              int count, SkBlendMode, const SkRect* cull, const SkPaint*);

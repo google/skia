@@ -134,7 +134,8 @@ DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.p
 DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.paint));
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
                           r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
-DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint));
+DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
+                                r.bmode, r.indices, r.indexCount, r.paint));
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
 #undef DRAW
 
@@ -453,7 +454,9 @@ private:
         return this->adjustAndMap(dst, &op.paint);
     }
     Bounds bounds(const DrawVertices& op) const {
-        return this->adjustAndMap(op.vertices->bounds(), &op.paint);
+        SkRect dst;
+        dst.set(op.vertices, op.vertexCount);
+        return this->adjustAndMap(dst, &op.paint);
     }
 
     Bounds bounds(const DrawAtlas& op) const {

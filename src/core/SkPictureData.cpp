@@ -87,15 +87,6 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
         }
     }
 
-    const SkTDArray<const SkVertices*>& verts = record.getVerticesRefs();
-    fVerticesCount = verts.count();
-    if (fVerticesCount > 0) {
-        fVerticesRefs = new const SkVertices* [fVerticesCount];
-        for (int i = 0; i < fVerticesCount; ++i) {
-            fVerticesRefs[i] = SkRef(verts[i]);
-        }
-    }
-    
     const SkTDArray<const SkImage*>& imgs = record.getImageRefs();
     fImageCount = imgs.count();
     if (fImageCount > 0) {
@@ -113,8 +104,6 @@ void SkPictureData::init() {
     fDrawableCount = 0;
     fTextBlobRefs = nullptr;
     fTextBlobCount = 0;
-    fVerticesRefs = nullptr;
-    fVerticesCount = 0;
     fImageRefs = nullptr;
     fImageCount = 0;
     fFactoryPlayback = nullptr;
@@ -138,11 +127,6 @@ SkPictureData::~SkPictureData() {
         fTextBlobRefs[i]->unref();
     }
     delete[] fTextBlobRefs;
-
-    for (int i = 0; i < fVerticesCount; i++) {
-        fVerticesRefs[i]->unref();
-    }
-    delete[] fVerticesRefs;
 
     for (int i = 0; i < fImageCount; i++) {
         fImageRefs[i]->unref();
@@ -260,13 +244,6 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
         write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobCount);
         for (i = 0; i  < fTextBlobCount; ++i) {
             fTextBlobRefs[i]->flatten(buffer);
-        }
-    }
-
-    if (fVerticesCount > 0) {
-        write_tag_size(buffer, SK_PICT_VERTICES_BUFFER_TAG, fVerticesCount);
-        for (i = 0; i  < fVerticesCount; ++i) {
-            buffer.writeDataAsByteArray(fVerticesRefs[i]->encode().get());
         }
     }
 
@@ -487,10 +464,6 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
 static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
     return buffer.readImage().release();
 }
-static const SkVertices* create_vertices_from_buffer(SkReadBuffer& buffer) {
-    auto data = buffer.readByteArrayAsData();
-    return data ? SkVertices::Decode(data->data(), data->size()).release() : nullptr;
-}
 
 static const SkImage* create_bitmap_image_from_buffer(SkReadBuffer& buffer) {
     return buffer.readBitmapAsImage().release();
@@ -573,12 +546,6 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
         case SK_PICT_TEXTBLOB_BUFFER_TAG:
             if (!new_array_from_buffer(buffer, size, &fTextBlobRefs, &fTextBlobCount,
                                        SkTextBlob::CreateFromBuffer)) {
-                return false;
-            }
-            break;
-        case SK_PICT_VERTICES_BUFFER_TAG:
-            if (!new_array_from_buffer(buffer, size, &fVerticesRefs, &fVerticesCount,
-                                       create_vertices_from_buffer)) {
                 return false;
             }
             break;
