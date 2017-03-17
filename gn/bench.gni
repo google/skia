@@ -78,7 +78,6 @@ bench_sources = [
   "$_bench/MutexBench.cpp",
   "$_bench/pack_int_uint16_t_Bench.cpp",
   "$_bench/PatchBench.cpp",
-  "$_bench/PatchGridBench.cpp",
   "$_bench/PathBench.cpp",
   "$_bench/PathIterBench.cpp",
   "$_bench/PDFBench.cpp",

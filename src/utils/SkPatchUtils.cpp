@@ -309,3 +309,149 @@ bool SkPatchUtils::getVertexData(SkPatchUtils::VertexData* data, const SkPoint c
     return true;
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkColor srcColors[4],
+                                            const SkPoint srcTexCoords[4], int lodX, int lodY) {
+    if (lodX < 1 || lodY < 1 || nullptr == cubics) {
+        return nullptr;
+    }
+
+    // check for overflow in multiplication
+    const int64_t lodX64 = (lodX + 1),
+    lodY64 = (lodY + 1),
+    mult64 = lodX64 * lodY64;
+    if (mult64 > SK_MaxS32) {
+        return nullptr;
+    }
+
+    int vertexCount = SkToS32(mult64);
+    // it is recommended to generate draw calls of no more than 65536 indices, so we never generate
+    // more than 60000 indices. To accomplish that we resize the LOD and vertex count
+    if (vertexCount > 10000 || lodX > 200 || lodY > 200) {
+        float weightX = static_cast<float>(lodX) / (lodX + lodY);
+        float weightY = static_cast<float>(lodY) / (lodX + lodY);
+
+        // 200 comes from the 100 * 2 which is the max value of vertices because of the limit of
+        // 60000 indices ( sqrt(60000 / 6) that comes from data->fIndexCount = lodX * lodY * 6)
+        lodX = static_cast<int>(weightX * 200);
+        lodY = static_cast<int>(weightY * 200);
+        vertexCount = (lodX + 1) * (lodY + 1);
+    }
+    const int indexCount = lodX * lodY * 6;
+    uint32_t flags = 0;
+    if (srcTexCoords) {
+        flags |= SkVertices::kHasTexCoords_BuilderFlag;
+    }
+    if (srcColors) {
+        flags |= SkVertices::kHasColors_BuilderFlag;
+    }
+
+    SkVertices::Builder builder(SkCanvas::kTriangles_VertexMode, vertexCount, indexCount, flags);
+    SkPoint* pos = builder.positions();
+    SkPoint* texs = builder.texCoords();
+    SkColor* colors = builder.colors();
+    uint16_t* indices = builder.indices();
+
+    // if colors is not null then create array for colors
+    SkPMColor colorsPM[kNumCorners];
+    if (srcColors) {
+        // premultiply colors to avoid color bleeding.
+        for (int i = 0; i < kNumCorners; i++) {
+            colorsPM[i] = SkPreMultiplyColor(srcColors[i]);
+        }
+        srcColors = colorsPM;
+    }
+
+    SkPoint pts[kNumPtsCubic];
+    SkPatchUtils::getBottomCubic(cubics, pts);
+    FwDCubicEvaluator fBottom(pts);
+    SkPatchUtils::getTopCubic(cubics, pts);
+    FwDCubicEvaluator fTop(pts);
+    SkPatchUtils::getLeftCubic(cubics, pts);
+    FwDCubicEvaluator fLeft(pts);
+    SkPatchUtils::getRightCubic(cubics, pts);
+    FwDCubicEvaluator fRight(pts);
+
+    fBottom.restart(lodX);
+    fTop.restart(lodX);
+
+    SkScalar u = 0.0f;
+    int stride = lodY + 1;
+    for (int x = 0; x <= lodX; x++) {
+        SkPoint bottom = fBottom.next(), top = fTop.next();
+        fLeft.restart(lodY);
+        fRight.restart(lodY);
+        SkScalar v = 0.f;
+        for (int y = 0; y <= lodY; y++) {
+            int dataIndex = x * (lodY + 1) + y;
+
+            SkPoint left = fLeft.next(), right = fRight.next();
+
+            SkPoint s0 = SkPoint::Make((1.0f - v) * top.x() + v * bottom.x(),
+                                       (1.0f - v) * top.y() + v * bottom.y());
+            SkPoint s1 = SkPoint::Make((1.0f - u) * left.x() + u * right.x(),
+                                       (1.0f - u) * left.y() + u * right.y());
+            SkPoint s2 = SkPoint::Make(
+                                       (1.0f - v) * ((1.0f - u) * fTop.getCtrlPoints()[0].x()
+                                                     + u * fTop.getCtrlPoints()[3].x())
+                                       + v * ((1.0f - u) * fBottom.getCtrlPoints()[0].x()
+                                              + u * fBottom.getCtrlPoints()[3].x()),
+                                       (1.0f - v) * ((1.0f - u) * fTop.getCtrlPoints()[0].y()
+                                                     + u * fTop.getCtrlPoints()[3].y())
+                                       + v * ((1.0f - u) * fBottom.getCtrlPoints()[0].y()
+                                              + u * fBottom.getCtrlPoints()[3].y()));
+            pos[dataIndex] = s0 + s1 - s2;
+
+            if (colors) {
+                uint8_t a = uint8_t(bilerp(u, v,
+                                           SkScalar(SkColorGetA(colorsPM[kTopLeft_Corner])),
+                                           SkScalar(SkColorGetA(colorsPM[kTopRight_Corner])),
+                                           SkScalar(SkColorGetA(colorsPM[kBottomLeft_Corner])),
+                                           SkScalar(SkColorGetA(colorsPM[kBottomRight_Corner]))));
+                uint8_t r = uint8_t(bilerp(u, v,
+                                           SkScalar(SkColorGetR(colorsPM[kTopLeft_Corner])),
+                                           SkScalar(SkColorGetR(colorsPM[kTopRight_Corner])),
+                                           SkScalar(SkColorGetR(colorsPM[kBottomLeft_Corner])),
+                                           SkScalar(SkColorGetR(colorsPM[kBottomRight_Corner]))));
+                uint8_t g = uint8_t(bilerp(u, v,
+                                           SkScalar(SkColorGetG(colorsPM[kTopLeft_Corner])),
+                                           SkScalar(SkColorGetG(colorsPM[kTopRight_Corner])),
+                                           SkScalar(SkColorGetG(colorsPM[kBottomLeft_Corner])),
+                                           SkScalar(SkColorGetG(colorsPM[kBottomRight_Corner]))));
+                uint8_t b = uint8_t(bilerp(u, v,
+                                           SkScalar(SkColorGetB(colorsPM[kTopLeft_Corner])),
+                                           SkScalar(SkColorGetB(colorsPM[kTopRight_Corner])),
+                                           SkScalar(SkColorGetB(colorsPM[kBottomLeft_Corner])),
+                                           SkScalar(SkColorGetB(colorsPM[kBottomRight_Corner]))));
+                colors[dataIndex] = SkPackARGB32(a,r,g,b);
+            }
+
+            if (texs) {
+                texs[dataIndex] = SkPoint::Make(bilerp(u, v, srcTexCoords[kTopLeft_Corner].x(),
+                                                       srcTexCoords[kTopRight_Corner].x(),
+                                                       srcTexCoords[kBottomLeft_Corner].x(),
+                                                       srcTexCoords[kBottomRight_Corner].x()),
+                                                bilerp(u, v, srcTexCoords[kTopLeft_Corner].y(),
+                                                       srcTexCoords[kTopRight_Corner].y(),
+                                                       srcTexCoords[kBottomLeft_Corner].y(),
+                                                       srcTexCoords[kBottomRight_Corner].y()));
+
+            }
+
+            if(x < lodX && y < lodY) {
+                int i = 6 * (x * lodY + y);
+                indices[i] = x * stride + y;
+                indices[i + 1] = x * stride + 1 + y;
+                indices[i + 2] = (x + 1) * stride + 1 + y;
+                indices[i + 3] = indices[i];
+                indices[i + 4] = indices[i + 2];
+                indices[i + 5] = (x + 1) * stride + y;
+            }
+            v = SkScalarClampMax(v + 1.f / lodY, 1);
+        }
+        u = SkScalarClampMax(u + 1.f / lodX, 1);
+    }
+    return builder.detach();
+}
