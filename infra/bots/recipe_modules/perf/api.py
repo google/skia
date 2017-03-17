@@ -27,38 +27,37 @@ def nanobench_flags(bot):
     args.extend(['--skps', 'ignore_skps'])
 
   config = ['8888', 'nonrendering', 'hwui' ]
-  if 'Android' in bot or 'iOS' in bot:
-    config.append('gles')
-  else:
-    config.append('gl')
 
   if '-arm-' not in bot:
     # For Android CPU tests, these take too long and cause the task to time out.
     config += [ 'f16', 'srgb' ]
   if '-GCE-' in bot:
     config += [ '565' ]
-  # The NP produces a long error stream when we run with MSAA.
-  if 'NexusPlayer' not in bot:
-    if 'Android' in bot:
-      # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
-      # instead of ES.
-      if 'NVIDIA_Shield' in bot:
-        config.remove('gles')
-        config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
-      else:
-        config.extend(['glesmsaa4', 'glesnvpr4', 'glesnvprdit4'])
-    else:
-      config.extend(['glmsaa16', 'glnvpr16', 'glnvprdit16'])
+
+  gl_prefix = 'gl'
+  sample_count = 16
+  if 'Android' in bot or 'iOS' in bot:
+    sample_count = 4
+    # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
+    # instead of ES.
+    if 'NVIDIA_Shield' not in bot:
+      gl_prefix = 'gles'
+    # The NP produces a long error stream when we run with MSAA.
+    if 'NexusPlayer' in bot:
+      sample_count = 0
+
+  config.append(gl_prefix)
+  if sample_count > 0:
+    config.extend([gl_prefix + 'msaa' + str(sample_count),
+      gl_prefix + 'nvpr' + str(sample_count),
+      gl_prefix + 'nvprdit' + str(sample_count)])
 
   # Bench instanced rendering on a limited number of platforms
+  inst_config = gl_prefix + 'inst'
   if 'Nexus6' in bot:
-    config.append('glesinst') # esinst4 isn't working yet on Adreno.
-  elif 'PixelC' in bot:
-    config.extend(['glesinst', 'glesinst4'])
-  elif 'NVIDIA_Shield' in bot:
-    config.extend(['glinst', 'glinst4'])
-  elif 'MacMini6.2' in bot:
-    config.extend(['glinst', 'glinst16'])
+    config.append(inst_config) # msaa inst isn't working yet on Adreno.
+  elif 'PixelC' in bot or 'NVIDIA_Shield' in bot or 'MacMini6.2' in bot:
+    config.extend([inst_config, inst_config + str(sample_count)])
 
   if 'CommandBuffer' in bot:
     config = ['commandbuffer']
