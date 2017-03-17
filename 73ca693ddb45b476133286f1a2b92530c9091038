@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2d388df_8fb42741",
+        "filename": "src/utils/SkDeferredCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-17T18:56:24Z",
+      "side": 1,
+      "message": "nit: can we get away with this parameter required, and not defaulted? Maybe not if there are callers in android...\nnit: enum instead of bool?",
+      "range": {
+        "startLine": 23,
+        "startChar": 82,
+        "endLine": 23,
+        "endChar": 86
+      },
+      "revId": "73ca693ddb45b476133286f1a2b92530c9091038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
