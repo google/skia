@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "316c2461_0bcba7f3",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-17T17:51:44Z",
+      "side": 1,
+      "message": "nit: maybe move this below and combine with msaa logic?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2a934d1_4a83df32",
         "filename": "infra/bots/recipe_modules/perf/api.py",
         "patchSetId": 9
@@ -19,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "c8fb1e41_4c622081",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-17T17:51:44Z",
+      "side": 1,
+      "message": "Maybe define a var \"gl_prefix\"?",
+      "parentUuid": "d2a934d1_4a83df32",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2ec6a1e_170273a0",
         "filename": "infra/bots/recipe_modules/perf/api.py",
         "patchSetId": 9
@@ -30,6 +71,23 @@
       "writtenOn": "2017-03-17T17:31:49Z",
       "side": 1,
       "message": "nit: typo snuck in",
+      "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11afb6e9_4c861844",
+        "filename": "infra/bots/recipe_modules/perf/example.expected/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-17T17:51:44Z",
+      "side": 1,
+      "message": "Per Brian\u0027s comment, should be gles.",
       "revId": "fef407c629813991d4ed49d9a5378559aec6315d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
