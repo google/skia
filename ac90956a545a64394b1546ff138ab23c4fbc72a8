@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37bedc91_858adb74",
+        "filename": "gm/dstreadshuffle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T14:22:40Z",
+      "side": 1,
+      "message": "This is for 565 (as it doesn\u0027t have an alpha channel). I could have done this for all configs but then everything needs to be rebaselined again due to very slight blending differences.\n\nCurrently the background for the hairlines in 565 is black since transparent black turns into opaque black.",
+      "range": {
+        "startLine": 100,
+        "startChar": 8,
+        "endLine": 102,
+        "endChar": 9
+      },
+      "revId": "ac90956a545a64394b1546ff138ab23c4fbc72a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "980a1128_e136c2e2",
+        "filename": "gm/dstreadshuffle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T14:22:40Z",
+      "side": 1,
+      "message": "This was causing a valgrind bot failure with --preAbandonGpuContext. The GPU surface is RGBA but raster only supports BGRA (or vice versa, not sure).",
+      "range": {
+        "startLine": 157,
+        "startChar": 15,
+        "endLine": 158,
+        "endChar": 23
+      },
+      "revId": "ac90956a545a64394b1546ff138ab23c4fbc72a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
