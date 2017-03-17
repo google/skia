@@ -741,7 +741,7 @@ DEF_TEST(DeferredCanvas, r) {
     SkDebugfDumper dumper;
     SkDumpCanvas dumpC(&dumper);
 
-    SkDeferredCanvas canvas(&dumpC);
+    SkDeferredCanvas canvas(&dumpC, SkDeferredCanvas::kEager);
 
     SkPaint paint;
 //    paint.setShader(SkShader::MakeColorShader(SK_ColorRED));
