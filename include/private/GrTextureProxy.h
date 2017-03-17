@@ -24,6 +24,13 @@ public:
     // Actually instantiate the backing texture, if necessary
     GrTexture* instantiate(GrResourceProvider*);
 
+    // If the proxy is already instantiated, return its backing GrTexture; if not,
+    // return null
+    // TODO: move this to a GrTextureProxyPriv class?
+    GrTexture* peekTexture() {
+        return fTarget ? fTarget->asTexture() : nullptr;
+    }
+
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
 
 protected:
