@@ -9,6 +9,7 @@
 #define SkImage_Gpu_DEFINED
 
 #include "GrClip.h"
+#include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
@@ -21,7 +22,6 @@
 
 class SkImage_Gpu : public SkImage_Base {
 public:
-    SkImage_Gpu(uint32_t uniqueID, SkAlphaType, sk_sp<GrTexture>, sk_sp<SkColorSpace>, SkBudgeted);
     SkImage_Gpu(GrContext*, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
                 sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_Gpu() override;
@@ -34,7 +34,7 @@ public:
                             sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
-    GrTexture* peekTexture() const override {
+    GrTexture* peekTexture1() const override {
         return fProxy->instantiate(fContext->resourceProvider());
     }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override {
@@ -43,9 +43,14 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
+
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
+#if 0
         *uniqueID = this->uniqueID();
         return sk_ref_sp(this->peekTexture());
+#else
+        return nullptr;
+#endif
     }
 
     bool onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
