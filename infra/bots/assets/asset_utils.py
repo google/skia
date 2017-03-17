@@ -51,7 +51,7 @@ class CIPDStore(object):
     if sys.platform == 'win32':
       self._cipd = 'cipd.exe'
     self._cipd_url = cipd_url
-    self._check_setup()
+    # self._check_setup()
 
   def _check_setup(self):
     """Verify that we have the CIPD binary and that we're authenticated."""
