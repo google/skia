@@ -145,7 +145,6 @@ def dm_flags(bot):
   if 'iOS' in bot:
     blacklist('gles skp _ _')
     blacklist('glesmsaa skp _ _')
-    blacklist('glesmsaa16 gm _ tilemodesProcess')
 
   if 'Mac' in bot or 'iOS' in bot:
     # CG fails on questionable bmps
