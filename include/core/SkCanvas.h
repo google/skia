@@ -1444,9 +1444,9 @@ protected:
     virtual void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&);
 
 #ifdef SK_SUPPORT_LEGACY_DRAWVERTICES_VIRTUAL
-    virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],
-                                const SkPoint texs[], const SkColor colors[], SkBlendMode,
-                                const uint16_t indices[], int indexCount, const SkPaint&) {}
+    virtual void onDrawVertices(VertexMode, int, const SkPoint[],
+                                const SkPoint[], const SkColor[], SkBlendMode,
+                                const uint16_t[], int, const SkPaint&) {}
 #endif
 
     virtual void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&);
