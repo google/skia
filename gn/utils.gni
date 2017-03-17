@@ -58,8 +58,6 @@ skia_utils_sources = [
   "$_src/utils/SkParse.cpp",
   "$_src/utils/SkParseColor.cpp",
   "$_src/utils/SkParsePath.cpp",
-  "$_src/utils/SkPatchGrid.cpp",
-  "$_src/utils/SkPatchGrid.h",
   "$_src/utils/SkPatchUtils.cpp",
   "$_src/utils/SkPatchUtils.h",
   "$_src/utils/SkRGBAToYUV.cpp",
