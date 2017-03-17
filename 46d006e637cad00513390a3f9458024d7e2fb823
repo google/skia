@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b630cd75_2265afca",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1578,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-17T20:11:57Z",
+      "side": 1,
+      "message": "It looks like this is only used for write frame and doesn\u0027t need to take all these params as though it were used for general vertices drawing.",
+      "range": {
+        "startLine": 1578,
+        "startChar": 18,
+        "endLine": 1578,
+        "endChar": 37
+      },
+      "revId": "46d006e637cad00513390a3f9458024d7e2fb823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
