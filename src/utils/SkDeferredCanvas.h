@@ -13,7 +13,14 @@
 
 class SK_API SkDeferredCanvas : public SkNoDrawCanvas {
 public:
-    SkDeferredCanvas(SkCanvas* = nullptr);
+    // There are two strategies for evaluating of sub-drawings (pictures and drawables).
+    // * Eager - a sub-drawing is expanded using the using the SkDeferredCanvas. This has
+    //           the advantage of optimizing the sub drawing, and is used when the underlying
+    //           SkCanvas is drawing and not recording.
+    // * Lazy  - a sub-drawing is not expanded, but passed directly to the underlying SkCanvas.
+    //           This has the advantage of not expanding the sub drawing and then immediately
+    //           re-encoding it, and is used for recording canvases.
+    SkDeferredCanvas(SkCanvas* = nullptr, bool eagerlyEvaluatePictsAndDrawables = true);
     ~SkDeferredCanvas() override;
 
     void reset(SkCanvas*);
@@ -105,8 +112,6 @@ protected:
     class Iter;
 
 private:
-    SkCanvas* fCanvas{nullptr};
-
     enum Type {
         kSave_Type,
         kClipRect_Type,
@@ -131,7 +136,6 @@ private:
         }
         void setConcat(const SkMatrix&);
     };
-    SkTDArray<Rec>  fRecs;
 
     void push_save();
     void push_cliprect(const SkRect&);
@@ -147,6 +151,10 @@ private:
     void flush_check(SkRect* bounds, const SkPaint*, unsigned flags = 0);
 
     void internal_flush_translate(SkScalar* x, SkScalar* y, const SkRect* boundsOrNull);
+
+    SkTDArray<Rec> fRecs;
+    SkCanvas*      fCanvas;
+    const bool     fEagerlyEvaluatePictsAndDrawables;
 
     typedef SkNoDrawCanvas INHERITED;
 };
