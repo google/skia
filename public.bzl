@@ -658,6 +658,7 @@ DEFINES_ALL = [
     "SK_NO_ANALYTIC_AA",
     "SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF",
     "SK_SUPPORT_LEGACY_PATHEFFECT_SUBCLASSES",
+    "SK_SUPPORT_LEGACY_DRAWVERTICES_VIRTUAL",
 ]
 
 ################################################################################
