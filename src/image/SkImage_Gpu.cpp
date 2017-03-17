@@ -848,8 +848,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
 }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> colorSpace) const {
-    sk_sp<SkColorSpace> srcSpace = fColorSpace ? fColorSpace : SkColorSpace::MakeSRGB();
-    auto xform = GrNonlinearColorSpaceXformEffect::Make(srcSpace.get(), colorSpace.get());
+    auto xform = GrNonlinearColorSpaceXformEffect::Make(fColorSpace.get(), colorSpace.get());
     if (!xform) {
         return sk_ref_sp(const_cast<SkImage_Gpu*>(this));
     }

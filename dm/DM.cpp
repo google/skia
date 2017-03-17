@@ -14,7 +14,6 @@
 #include "SkCodec.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
-#include "SkColorSpacePriv.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkCommonFlagsPathRenderer.h"
@@ -896,26 +895,9 @@ static sk_sp<SkColorSpace> adobe_rgb() {
                                  SkColorSpace::kAdobeRGB_Gamut);
 }
 
-static sk_sp<SkColorSpace> rgb_to_gbr() {
-    float gbr[9];
-    gbr[0] = gSRGB_toXYZD50[1];
-    gbr[1] = gSRGB_toXYZD50[2];
-    gbr[2] = gSRGB_toXYZD50[0];
-    gbr[3] = gSRGB_toXYZD50[4];
-    gbr[4] = gSRGB_toXYZD50[5];
-    gbr[5] = gSRGB_toXYZD50[3];
-    gbr[6] = gSRGB_toXYZD50[7];
-    gbr[7] = gSRGB_toXYZD50[8];
-    gbr[8] = gSRGB_toXYZD50[6];
-    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
-    toXYZD50.set3x3RowMajorf(gbr);
-    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
-}
-
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
-    VIA("adobe",     ViaCSXform,           wrapped, adobe_rgb(), false);
-    VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
+    VIA("adobe",     ViaCSXform,           wrapped, adobe_rgb());
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);
