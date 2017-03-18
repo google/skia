@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkCrossContextImageData.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
@@ -318,7 +319,9 @@ sk_sp<SkImage> SkImage_Base::makeColorSpace(sk_sp<SkColorSpace> target) const {
         return nullptr;
     }
 
-    if (!this->colorSpace() || SkColorSpace::Equals(this->colorSpace(), target.get())) {
+    // Be sure to treat nullptr srcs as "equal to" sRGB.
+    if ((!this->colorSpace() && target->isSRGB()) ||
+            SkColorSpace_Base::EqualsIgnoreFlags(this->colorSpace(), target.get())) {
         return sk_ref_sp(const_cast<SkImage_Base*>(this));
     }
 

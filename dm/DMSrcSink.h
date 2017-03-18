@@ -496,10 +496,11 @@ public:
 
 class ViaCSXform : public Via {
 public:
-    explicit ViaCSXform(Sink*, sk_sp<SkColorSpace>);
+    explicit ViaCSXform(Sink*, sk_sp<SkColorSpace>, bool colorSpin);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     sk_sp<SkColorSpace> fCS;
+    bool                fColorSpin;
 };
 
 }  // namespace DM

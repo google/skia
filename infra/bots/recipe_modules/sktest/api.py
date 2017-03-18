@@ -56,7 +56,7 @@ def dm_flags(bot):
     configs.extend(['f16'])
     configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
     configs.extend(['lite-8888'])                # Experimental display list.
-    configs.extend(['srgbnl'])
+    configs.extend(['gbr-8888'])
 
   if '-TSAN' not in bot:
     if ('TegraK1'  in bot or
@@ -132,6 +132,10 @@ def dm_flags(bot):
   # encode to PNG.  Therefore, we run the image tests in srgb mode instead
   # of 8888.
   blacklist('8888 image _ _')
+
+  # Not any point to running these.
+  blacklist('gbr-8888 image _ _')
+  blacklist('gbr-8888 colorImage _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.

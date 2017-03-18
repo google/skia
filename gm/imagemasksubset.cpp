@@ -34,7 +34,12 @@ public:
             return false;
         }
 
-        make_mask(SkSurface::MakeRasterDirect(info, pixels, rowBytes));
+        SkImageInfo surfaceInfo = info;
+        if (kAlpha_8_SkColorType == info.colorType()) {
+            surfaceInfo = surfaceInfo.makeColorSpace(nullptr);
+        }
+
+        make_mask(SkSurface::MakeRasterDirect(surfaceInfo, pixels, rowBytes));
         return true;
     }
 
