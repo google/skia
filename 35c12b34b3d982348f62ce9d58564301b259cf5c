@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d655f2fb_702da537",
+        "filename": "tools/check-headers-self-sufficient",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-18T16:39:21Z",
+      "side": 1,
+      "message": "Might just want to exit(1) here?",
+      "revId": "35c12b34b3d982348f62ce9d58564301b259cf5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a9c18ed_fc3d531e",
+        "filename": "tools/check-headers-self-sufficient",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-18T16:39:21Z",
+      "side": 1,
+      "message": "This sort of thing is probably easier using multiprocessing, maybe to the point of not needing this function:\n\n    multiprocessing.Pool().map(function, list_of_arg_lists)\n\nmultiprocessing also has things like Lock in it, so should be you don\u0027t need to import threading at all.",
+      "revId": "35c12b34b3d982348f62ce9d58564301b259cf5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
