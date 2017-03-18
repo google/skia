@@ -1,7 +1,7 @@
 Vulkan
 ======
 
-Skis has a Vulkan implementation of its GPU backend. The Vulkan backend can be
+Skia has a Vulkan implementation of its GPU backend. The Vulkan backend can be
 built alongside the OpenGL backend. The client can select between the OpenGL
 and Vulkan implementation at runtime. The Vulkan backend has reached feature
 parity with the OpenGL backend. At this time we find that many Vulkan drivers
