@@ -391,6 +391,23 @@ def dm_flags(bot):
     match.extend(['~VkHeapTests', # skia:6245
                   '~XfermodeImageFilterCroppedInput_Gpu']) #skia:6280
 
+  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+    args.extend('--threads 0'.split(' '))
+    args.append('--verbose')
+    # skia:
+    blacklist(['vk', 'gm', '_', 'xfermodeimagefilter'])
+    blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
+    blacklist(['vk', 'gm', '_', 'matriximagefilter'])
+    blacklist(['vk', 'gm', '_', 'textblobmixedsizes_df'])
+    blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
+    blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
+    blacklist(['vk', 'gm', '_', 'typefacerenderingWin'])
+    blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
+    blacklist(['vk', 'gm', '_', 'textblobrandomfont'])
+    blacklist(['vk', 'gm', '_', 'textbloblooper'])
+    blacklist(['vk', 'gm', '_', 'imagefiltersgraph'])
+    blacklist(['vk', 'gm', '_', 'textblobgeometrychange'])
+
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~IntTexture') # skia:6086
     blacklist(['_', 'gm', '_', 'discard']) # skia:6141
@@ -589,9 +606,18 @@ def test_steps(api):
   if '_PreAbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
     args.append('--preAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args,
-          abort_on_failure=False,
-          env=env)
+  if ('Vulkan' in api.vars.builder_name and
+      'IntelIris540' in api.vars.builder_name and
+      'Win' in api.vars.builder_name):
+    for shard in range(100):
+      shard_args = args + ['--shard', '%d' % shard, '--shards', '100']
+      api.run(api.flavor.step, 'dm%d' % shard, cmd=shard_args,
+              abort_on_failure=False,
+              env=env)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args,
+            abort_on_failure=False,
+            env=env)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
