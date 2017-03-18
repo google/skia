@@ -391,6 +391,14 @@ def dm_flags(bot):
     match.extend(['~VkHeapTests', # skia:6245
                   '~XfermodeImageFilterCroppedInput_Gpu']) #skia:6280
 
+  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+    # skia:
+    blacklist(['vk', 'gm', '_', 'xfermodeimagefilter'])
+    blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
+    blacklist(['vk', 'gm', '_', 'matriximagefilter'])
+    blacklist(['vk', 'gm', '_', 'textblobmixedsizes_df'])
+    blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
+
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~IntTexture') # skia:6086
     blacklist(['_', 'gm', '_', 'discard']) # skia:6141
