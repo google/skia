@@ -233,12 +233,7 @@ protected:
     virtual void drawPosText(const void* text, size_t len,
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;
-    virtual void drawVertices(SkCanvas::VertexMode, int vertexCount,
-                              const SkPoint verts[], const SkPoint texs[],
-                              const SkColor colors[], SkBlendMode,
-                              const uint16_t indices[], int indexCount,
-                              const SkPaint& paint) = 0;
-    virtual void drawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&);
+    virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
     // default implementation unrolls the blob runs.
     virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                               const SkPaint& paint, SkDrawFilter* drawFilter);
