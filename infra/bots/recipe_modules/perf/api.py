@@ -50,6 +50,11 @@ def nanobench_flags(bot):
     else:
       config.extend(['glmsaa16', 'glnvpr16', 'glnvprdit16'])
 
+  # We want to test both the OpenGL config and the GLES config on Linux Intel:
+  # GL is used by Chrome, GLES is used by ChromeOS.
+  if 'Intel' in bot and 'Ubuntu' in bot:
+    config.append('gles')
+
   # Bench instanced rendering on a limited number of platforms
   if 'Nexus6' in bot:
     config.append('glesinst') # esinst4 isn't working yet on Adreno.

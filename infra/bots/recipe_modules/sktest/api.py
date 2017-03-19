@@ -73,6 +73,11 @@ def dm_flags(bot):
   if 'NVIDIA_Shield' in bot:
     configs = [x.replace('gles', 'gl') for x in configs]
 
+  # We want to test both the OpenGL config and the GLES config on Linux Intel:
+  # GL is used by Chrome, GLES is used by ChromeOS.
+  if 'Intel' in bot and 'Ubuntu' in bot:
+    configs.extend(['gles', 'glesdft', 'glessrgb', 'glesmsaa4'])
+
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
@@ -313,6 +318,7 @@ def dm_flags(bot):
   if 'IntelHD405' in bot and 'Ubuntu16' in bot:
     # skia:6331
     blacklist('glmsaa16 image gen_codec_gpu abnormal.wbmp')
+    blacklist('glesmsaa16 image gen_codec_gpu abnormal.wbmp')
 
   if 'Nexus5' in bot:
     # skia:5876
