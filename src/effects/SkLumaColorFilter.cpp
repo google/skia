@@ -46,7 +46,14 @@ bool SkLumaColorFilter::onAppendStages(SkRasterPipeline* p,
 }
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
-    return sk_sp<SkColorFilter>(new SkLumaColorFilter);
+    const float m[] = {
+        0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0,
+        SK_ITU_BT709_LUM_COEFF_R, SK_ITU_BT709_LUM_COEFF_G, SK_ITU_BT709_LUM_COEFF_B, 0, 0,
+    };
+    return SkColorFilter::MakeMatrixFilterRowMajor255(m);
+//    return sk_sp<SkColorFilter>(new SkLumaColorFilter);
 }
 
 SkLumaColorFilter::SkLumaColorFilter() : INHERITED() {}
