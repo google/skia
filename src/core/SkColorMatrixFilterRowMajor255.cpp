@@ -410,17 +410,3 @@ void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
 sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const SkScalar array[20]) {
     return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array));
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkColorFilter>
-SkColorMatrixFilterRowMajor255::MakeSingleChannelOutput(const SkScalar row[5]) {
-    SkASSERT(row);
-    auto cf = sk_make_sp<SkColorMatrixFilterRowMajor255>();
-    static_assert(sizeof(SkScalar) * 5 * 4 == sizeof(cf->fMatrix), "sizes don't match");
-    for (int i = 0; i < 4; ++i) {
-        memcpy(cf->fMatrix + 5 * i, row, sizeof(SkScalar) * 5);
-    }
-    cf->initState();
-    return cf;
-}

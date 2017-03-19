@@ -15,9 +15,6 @@ public:
     SkColorMatrixFilterRowMajor255() {}
     explicit SkColorMatrixFilterRowMajor255(const SkScalar array[20]);
 
-    /** Creates a color matrix filter that returns the same value in all four channels. */
-    static sk_sp<SkColorFilter> MakeSingleChannelOutput(const SkScalar row[5]);
-
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
     void filterSpan4f(const SkPM4f src[], int count, SkPM4f[]) const override;
     uint32_t getFlags() const override;

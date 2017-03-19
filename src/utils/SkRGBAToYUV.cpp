@@ -7,10 +7,16 @@
 
 #include "SkRGBAToYUV.h"
 #include "SkCanvas.h"
-#include "SkColorMatrixFilterRowMajor255.h"
+#include "SkColorFilter.h"
 #include "SkImage.h"
 #include "SkPaint.h"
 #include "SkSurface.h"
+
+static void make_single_channel_mx(float mx[], const float row[5]) {
+    for (int i = 0; i < 4; ++i) {
+        memcpy(mx + 5 * i, row, sizeof(SkScalar) * 5);
+    }
+}
 
 bool SkRGBAToYUV(const SkImage* image, const SkISize sizes[3], void* const planes[3],
                  const size_t rowBytes[3], SkYUVColorSpace colorSpace) {
@@ -48,8 +54,9 @@ bool SkRGBAToYUV(const SkImage* image, const SkISize sizes[3], void* const plane
         paint.setBlendMode(SkBlendMode::kSrc);
         int rowStartIdx = 5 * i;
         const SkScalar* row = kYUVColorSpaceInvMatrices[colorSpace] + rowStartIdx;
-        paint.setColorFilter(
-                SkColorMatrixFilterRowMajor255::MakeSingleChannelOutput(row));
+        float mx[20];
+        make_single_channel_mx(mx, row);
+        paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(mx));
         surface->getCanvas()->drawImageRect(image, SkIRect::MakeWH(image->width(), image->height()),
                                             SkRect::MakeIWH(surface->width(), surface->height()),
                                             &paint);
