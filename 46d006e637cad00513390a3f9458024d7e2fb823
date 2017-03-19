@@ -22,6 +22,30 @@
       "revId": "46d006e637cad00513390a3f9458024d7e2fb823",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7c51c9b_b5c80eef",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1578,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-19T17:40:02Z",
+      "side": 1,
+      "message": "Simplified, and renamed to wireframeVertices",
+      "parentUuid": "b630cd75_2265afca",
+      "range": {
+        "startLine": 1578,
+        "startChar": 18,
+        "endLine": 1578,
+        "endChar": 37
+      },
+      "revId": "46d006e637cad00513390a3f9458024d7e2fb823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
