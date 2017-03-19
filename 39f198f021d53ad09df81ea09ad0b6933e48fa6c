@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f94334e3_adc98398",
+        "filename": "include/c/sk_types.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-19T17:27:04Z",
+      "side": 1,
+      "message": "nit: I think we can use write 1 or 1.0. Certainly don\u0027t need the f everywhere (I think it detracts from readability). My pref would just be 1",
+      "range": {
+        "startLine": 126,
+        "startChar": 33,
+        "endLine": 126,
+        "endChar": 37
+      },
+      "revId": "39f198f021d53ad09df81ea09ad0b6933e48fa6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
