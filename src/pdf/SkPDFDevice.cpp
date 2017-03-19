@@ -1453,11 +1453,7 @@ void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     }
 }
 
-void SkPDFDevice::drawVertices(SkCanvas::VertexMode,
-                               int vertexCount, const SkPoint verts[],
-                               const SkPoint texs[], const SkColor colors[],
-                               SkBlendMode, const uint16_t indices[],
-                               int indexCount, const SkPaint& paint) {
+void SkPDFDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
     if (this->cs().isEmpty(size(*this))) {
         return;
     }
