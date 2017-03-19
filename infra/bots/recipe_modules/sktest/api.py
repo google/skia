@@ -390,6 +390,15 @@ def dm_flags(bot):
     # skia:6092
     match.append('~GPUMemorySize')
 
+  if 'Vulkan' in bot and 'RadeonR9M470X' in bot and 'Win' in bot:
+    # skia:6396
+    match.append('~VertexAttributeCount')
+    match.append('~ComposedImageFilterBounds_Gpu')
+    match.append('~CopySurface')
+    match.append('~ImageFilterZeroBlurSigma_Gpu')
+    match.append('~ReadWriteAlpha')
+    match.append('~XfermodeImageFilterCroppedInput_Gpu')
+
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Ubuntu' in bot:
     match.extend(['~VkHeapTests', # skia:6245
                   '~XfermodeImageFilterCroppedInput_Gpu']) #skia:6280
