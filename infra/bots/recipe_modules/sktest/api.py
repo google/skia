@@ -391,6 +391,68 @@ def dm_flags(bot):
     match.extend(['~VkHeapTests', # skia:6245
                   '~XfermodeImageFilterCroppedInput_Gpu']) #skia:6280
 
+  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+    args.extend('--threads 0'.split(' '))
+    args.append('--verbose')
+    # skia:
+    blacklist(['vk', 'gm', '_', 'xfermodeimagefilter'])
+    blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
+    blacklist(['vk', 'gm', '_', 'matriximagefilter'])
+    blacklist(['vk', 'gm', '_', 'textblobmixedsizes_df'])
+    blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
+    blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
+    blacklist(['vk', 'gm', '_', 'typefacerenderingWin'])
+    blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
+    blacklist(['vk', 'gm', '_', 'textblobrandomfont'])
+    blacklist(['vk', 'gm', '_', 'textbloblooper'])
+    blacklist(['vk', 'gm', '_', 'imagefiltersgraph'])
+    blacklist(['vk', 'gm', '_', 'textblobgeometrychange'])
+    blacklist(['vk', 'gm', '_', 'mixedtextblobsCOLR'])
+    blacklist(['vk', 'gm', '_', 'aaxfermodes'])
+    blacklist(['vk', 'gm', '_', 'aarectmodes'])
+    blacklist(['vk', 'gm', '_', 'savelayer_lcdtext'])
+    blacklist(['vk', 'gm', '_', 'lcdtextsize'])
+    blacklist(['vk', 'gm', '_', 'lcdoverlap'])
+    blacklist(['vk', 'gm', '_', 'lcdblendmodes'])
+    blacklist(['vk', 'gm', '_', 'imageresizetiled'])
+    blacklist(['vk', 'gm', '_', 'gammatextWin'])
+    blacklist(['vk', 'gm', '_', 'imagefiltersclipped'])
+    blacklist(['vk', 'gm', '_', 'textfilter_color'])
+    blacklist(['vk', 'gm', '_', 'pictureimagefilter'])
+    blacklist(['vk', 'gm', '_', 'surfaceprops'])
+    blacklist(['vk', 'gm', '_', 'fontmgr_matchWin10'])
+    blacklist(['vk', 'gm', '_', 'fontcache'])
+    blacklist(['vk', 'gm', '_', 'composeshader_bitmap'])
+    blacklist(['vk', 'gm', '_', 'composeshader_bitmap2'])
+    blacklist(['vk', 'gm', '_', 'hairmodes'])
+    blacklist(['vk', 'gm', '_', 'srcmode'])
+    blacklist(['vk', 'gm', '_', 'gradtext'])
+    blacklist(['vk', 'gm', '_', 'arithmode'])
+    blacklist(['vk', 'gm', '_', 'drawregionmodes'])
+    blacklist(['vk', 'gm', '_', 'dftextCOLR'])
+    blacklist(['vk', 'gm', '_', 'rotate_imagefilter'])
+    blacklist(['vk', 'gm', '_', 'imagefilterstransformed'])
+    blacklist(['vk', 'gm', '_', 'fontscalerWin'])
+    blacklist(['vk', 'gm', '_', 'imagefilters_xfermodes'])
+    blacklist(['vk', 'gm', '_', 'fontmgr_iterWin10'])
+    blacklist(['vk', 'gm', '_', 'filterfastbounds'])
+    blacklist(['vk', 'gm', '_', 'imagefiltersstroked'])
+    blacklist(['vk', 'gm', '_', 'fontmgr_iter_factoryWin10'])
+    match.append('~ReadPixels_Texture')
+    match.append('~ReadPixels_Gpu')
+    match.append('~ImageFilterFailAffectsTransparentBlack_Gpu')
+    match.append('~WritePixels_Gpu')
+    match.append('~ImageFilterZeroBlurSigma_Gpu')
+    match.append('~SpecialImage_DeferredGpu')
+    match.append('~SpecialImage_Gpu')
+    match.append('~ApplyGamma')
+    match.append('~ImageNewShader_GPU')
+    match.append('~XfermodeImageFilterCroppedInput_Gpu')
+    match.append('~ComposedImageFilterBounds_Gpu')
+    match.append('~ReadWriteAlpha')
+    match.append('~SRGBReadWritePixels')
+    match.append('~NewTextureFromPixmap')
+
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~IntTexture') # skia:6086
     blacklist(['_', 'gm', '_', 'discard']) # skia:6141
@@ -589,9 +651,18 @@ def test_steps(api):
   if '_PreAbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
     args.append('--preAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args,
-          abort_on_failure=False,
-          env=env)
+  if ('Vulkan' in api.vars.builder_name and
+      'IntelIris540' in api.vars.builder_name and
+      'Win' in api.vars.builder_name):
+    for shard in range(100):
+      shard_args = args + ['--shard', '%d' % shard, '--shards', '100']
+      api.run(api.flavor.step, 'dm%d' % shard, cmd=shard_args,
+              abort_on_failure=False,
+              env=env)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args,
+            abort_on_failure=False,
+            env=env)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
