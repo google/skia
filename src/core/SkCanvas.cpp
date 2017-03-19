@@ -99,8 +99,7 @@ protected:
     void drawPosText(const void*, size_t, const SkScalar[], int, const SkPoint&,
                      const SkPaint&) override {}
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
-    void drawVertices(SkCanvas::VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
-                      SkBlendMode, const uint16_t[], int, const SkPaint&) override {}
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
 
 private:
     typedef SkBaseDevice INHERITED;
@@ -2669,7 +2668,7 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmod
 
     while (iter.next()) {
         // In the common case of one iteration we could std::move vertices here.
-        iter.fDevice->drawVerticesObject(vertices, bmode, looper.paint());
+        iter.fDevice->drawVertices(vertices, bmode, looper.paint());
     }
 
     LOOPER_END

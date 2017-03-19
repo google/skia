@@ -89,10 +89,7 @@ public:
                      int scalarsPerPos, const SkPoint& offset, const SkPaint&) override;
     void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                       const SkPaint& paint, SkDrawFilter* drawFilter) override;
-    void drawVertices(SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
-                      const SkPoint texs[], const SkColor colors[], SkBlendMode,
-                      const uint16_t indices[], int indexCount, const SkPaint&) override;
-    void drawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
                    const SkColor[], int count, SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
@@ -230,6 +227,9 @@ private:
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
+
+    void wireframeVertices(SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
+                           SkBlendMode, const uint16_t indices[], int indexCount, const SkPaint&);
 
     static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
                                                                 SkBudgeted,

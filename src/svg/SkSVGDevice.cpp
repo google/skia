@@ -805,11 +805,7 @@ void SkSVGDevice::drawTextOnPath(const void* text, size_t len, const SkPath& pat
     }
 }
 
-void SkSVGDevice::drawVertices(SkCanvas::VertexMode, int vertexCount,
-                               const SkPoint verts[], const SkPoint texs[],
-                               const SkColor colors[], SkBlendMode,
-                               const uint16_t indices[], int indexCount,
-                               const SkPaint& paint) {
+void SkSVGDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
     // todo
     SkDebugf("unsupported operation: drawVertices()\n");
 }

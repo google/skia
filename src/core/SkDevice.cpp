@@ -131,7 +131,7 @@ void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->ctm());
     auto vertices = SkPatchUtils::MakeVertices(cubics, colors, texCoords, lod.width(), lod.height());
     if (vertices) {
-        this->drawVerticesObject(vertices.get(), bmode, paint);
+        this->drawVertices(vertices.get(), bmode, paint);
     }
 }
 
@@ -270,13 +270,6 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
         path.setConvexity(SkPath::kConvex_Convexity);
         this->drawPath(path, pnt, nullptr, true);
     }
-}
-
-void SkBaseDevice::drawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                                      const SkPaint& paint) {
-    this->drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                       vertices->texCoords(), vertices->colors(), mode, vertices->indices(),
-                       vertices->indexCount(), paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -111,11 +111,7 @@ public:
                      const SkPoint& offset, const SkPaint&) override;
     void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                       const SkPaint &, SkDrawFilter*) override;
-    void drawVertices(SkCanvas::VertexMode,
-                      int vertexCount, const SkPoint verts[],
-                      const SkPoint texs[], const SkColor colors[],
-                      SkBlendMode, const uint16_t indices[],
-                      int indexCount, const SkPaint& paint) override;
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 

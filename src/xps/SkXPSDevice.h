@@ -100,11 +100,7 @@ protected:
     void drawPosText(const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint& paint) override;
-    void drawVertices(SkCanvas::VertexMode, int vertexCount,
-                      const SkPoint verts[], const SkPoint texs[],
-                      const SkColor colors[], SkBlendMode,
-                      const uint16_t indices[], int indexCount,
-                      const SkPaint& paint) override;
+    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 
