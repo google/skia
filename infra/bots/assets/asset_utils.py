@@ -51,7 +51,7 @@ class CIPDStore(object):
     if sys.platform == 'win32':
       self._cipd = 'cipd.exe'
     self._cipd_url = cipd_url
-    self._check_setup()
+    # self._check_setup()
 
   def _check_setup(self):
     """Verify that we have the CIPD binary and that we're authenticated."""
@@ -116,6 +116,9 @@ class CIPDStore(object):
         '--tag', TAG_PROJECT_SKIA,
         '--tag', TAG_VERSION_TMPL % version,
         '--compression-level', '0',
+        # Enable automatic GCE authentication. For context see
+        # https://bugs.chromium.org/p/skia/issues/detail?id=6385#c3
+        '-service-account-json', ':gce',
     ])
 
   def download(self, name, version, target_dir):
