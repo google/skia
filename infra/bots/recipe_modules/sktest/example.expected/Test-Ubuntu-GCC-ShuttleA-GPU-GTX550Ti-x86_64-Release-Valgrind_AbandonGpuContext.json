@@ -108,6 +108,7 @@
       "os",
       "Ubuntu",
       "--nocpu",
+      "--randomProcessorTest",
       "--config",
       "8888",
       "srgb",
