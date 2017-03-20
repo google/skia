@@ -8,12 +8,14 @@ _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_utils_sources = [
+  "$_include/utils/SkBoundaryPatch.h",
   "$_include/utils/SkFrontBufferedStream.h",
   "$_include/utils/SkCamera.h",
   "$_include/utils/SkCanvasStateUtils.h",
   "$_include/utils/SkDumpCanvas.h",
   "$_include/utils/SkEventTracer.h",
   "$_include/utils/SkInterpolator.h",
+  "$_include/utils/SkMeshUtils.h",
   "$_include/utils/SkNoDrawCanvas.h",
   "$_include/utils/SkNWayCanvas.h",
   "$_include/utils/SkNullCanvas.h",
@@ -29,6 +31,7 @@ skia_utils_sources = [
   "$_src/utils/SkBitmapSourceDeserializer.cpp",
   "$_src/utils/SkBitmapSourceDeserializer.h",
   "$_src/utils/SkBitSet.h",
+  "$_src/utils/SkBoundaryPatch.cpp",
   "$_src/utils/SkFrontBufferedStream.cpp",
   "$_src/utils/SkCamera.cpp",
   "$_src/utils/SkCanvasStack.h",
@@ -45,6 +48,7 @@ skia_utils_sources = [
   "$_src/utils/SkInterpolator.cpp",
   "$_src/utils/SkMatrix22.cpp",
   "$_src/utils/SkMatrix22.h",
+  "$_src/utils/SkMeshUtils.cpp",
   "$_src/utils/SkMultiPictureDocument.cpp",
   "$_src/utils/SkNWayCanvas.cpp",
   "$_src/utils/SkNullCanvas.cpp",
