@@ -201,6 +201,7 @@ public:
         , m_width(0)
         , m_height(0)
         , m_transparentPixel(SkGIFColorMap::kNotFound)
+        , m_hasAlpha(false)
         , m_disposalMethod(SkCodecAnimation::Keep_DisposalMethod)
         , m_requiredFrame(kUninitialized)
         , m_dataSize(0)
@@ -240,6 +241,8 @@ public:
     unsigned height() const { return m_height; }
     size_t transparentPixel() const { return m_transparentPixel; }
     void setTransparentPixel(size_t pixel) { m_transparentPixel = pixel; }
+    bool hasAlpha() const { return m_hasAlpha; }
+    void setHasAlpha(bool alpha) { m_hasAlpha = alpha; }
     SkCodecAnimation::DisposalMethod getDisposalMethod() const { return m_disposalMethod; }
     void setDisposalMethod(SkCodecAnimation::DisposalMethod disposalMethod) { m_disposalMethod = disposalMethod; }
 
@@ -282,6 +285,11 @@ private:
     unsigned m_width;
     unsigned m_height;
     size_t m_transparentPixel; // Index of transparent pixel. Value is kNotFound if there is no transparent pixel.
+    // Cached value, taking into account:
+    // - m_transparentPixel
+    // - frameRect
+    // - previous required frame
+    bool m_hasAlpha;
     SkCodecAnimation::DisposalMethod m_disposalMethod; // Restore to background, leave in place, etc.
     size_t m_requiredFrame;
     int m_dataSize;
