@@ -370,7 +370,6 @@
       "_",
       ".SRW",
       "--match",
-      "~VertexAttributeCount",
       "~ComposedImageFilterBounds_Gpu",
       "~CopySurface",
       "~ImageFilterZeroBlurSigma_Gpu",
