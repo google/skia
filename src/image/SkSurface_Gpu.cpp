@@ -91,8 +91,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
 
     GrContext* ctx = fDevice->context();
 
-    GrSurfaceProxy* srcProxy = rtc->asSurfaceProxy();
-    sk_sp<GrSurfaceContext> copyCtx;
+    sk_sp<GrTextureProxy> srcProxy = rtc->asTextureProxyRef();
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
@@ -100,29 +99,27 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
         GrSurfaceDesc desc = rtc->desc();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
 
-        copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(desc,
+        sk_sp<GrSurfaceContext> copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(
+                                                                desc,
                                                                 SkBackingFit::kExact,
-                                                                budgeted);
+                                                                srcProxy->isBudgeted());
         if (!copyCtx) {
             return nullptr;
         }
 
-        if (!copyCtx->copy(srcProxy)) {
+        if (!copyCtx->copy(srcProxy.get())) {
             return nullptr;
         }
 
-        srcProxy = copyCtx->asSurfaceProxy();
+        srcProxy = copyCtx->asTextureProxyRef();
     }
-
-    // TODO: add proxy-backed SkImage_Gpu
-    GrTexture* tex = srcProxy->instantiate(ctx->resourceProvider())->asTexture();
 
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
-    if (tex) {
-        image = sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
-                                        info.alphaType(), sk_ref_sp(tex),
-                                        sk_ref_sp(info.colorSpace()), budgeted);
+    if (srcProxy) {
+        image = sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
+                                        info.alphaType(), std::move(srcProxy),
+                                        info.refColorSpace(), srcProxy->isBudgeted());
     }
     return image;
 }
