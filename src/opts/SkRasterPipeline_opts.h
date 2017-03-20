@@ -149,7 +149,8 @@ SI void SK_VECTORCALL just_return(size_t, void**, SkNf, SkNf, SkNf, SkNf,
 template <typename T>
 SI SkNx<N,T> load(size_t tail, const T* src) {
     if (tail) {
-        T buf[8] = {0};
+        T buf[8];
+        memset(buf, 0, 8*sizeof(T));
         switch (tail & (N-1)) {
             case 7: buf[6] = src[6];
             case 6: buf[5] = src[5];
@@ -574,6 +575,17 @@ STAGE_CTX(store_f16, uint64_t**) {
     }
 }
 
+STAGE_CTX(load_f32, const SkPM4f**) {
+    auto ptr = *ctx + x;
+
+    const void* src = ptr;
+    SkNx<N, SkPM4f> px;
+    if (tail) {
+        px = load(tail, ptr);
+        src = &px;
+    }
+    SkNf::Load4(src, &r, &g, &b, &a);
+}
 STAGE_CTX(store_f32, SkPM4f**) {
     auto ptr = *ctx + x;
 

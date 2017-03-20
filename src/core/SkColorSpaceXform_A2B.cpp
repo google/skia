@@ -35,7 +35,7 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
             pipeline.append(SkRasterPipeline::load_rgb_u16_be, &src);
             break;
         default:
-            SkCSXformPrintf("F16/F32 source color format not supported\n");
+            SkCSXformPrintf("F16/F32 sources must be linear.\n");
             return false;
     }
 

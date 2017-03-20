@@ -63,12 +63,13 @@
     M(set_rgb) M(swap_rb)                                        \
     M(from_srgb) M(to_srgb)                                      \
     M(from_2dot2) M(to_2dot2)                                    \
-    M(constant_color) M(seed_shader) M(store_f32)                \
+    M(constant_color) M(seed_shader)                             \
     M(load_a8)   M(store_a8)                                     \
     M(load_g8)                                                   \
     M(load_565)  M(store_565)                                    \
     M(load_4444) M(store_4444)                                   \
     M(load_f16)  M(store_f16)                                    \
+    M(load_f32)  M(store_f32)                                    \
     M(load_8888) M(store_8888)                                   \
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)            \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be)              \
