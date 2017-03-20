@@ -238,15 +238,6 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
 
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
 
-    // We don't support Gray8 directly in the GL backend, so fail-over to GrUploadBitmapToTexture.
-    // That will transform the Gray8 to 8888, then use the driver/GPU to build mipmaps. If we build
-    // the mips on the CPU here, they'll all be Gray8, which isn't useful. (They get treated as A8).
-    // TODO: A better option might be to transform the initial bitmap here to 8888, then run the
-    // CPU mip-mapper on that data before uploading. This is much less code for a rare case though:
-    if (kGray_8_SkColorType == bitmap.colorType()) {
-        return nullptr;
-    }
-
     SkAutoPixmapUnlock srcUnlocker;
     if (!bitmap.requestLock(&srcUnlocker)) {
         return nullptr;
