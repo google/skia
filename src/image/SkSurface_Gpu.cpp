@@ -83,7 +83,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
                                        origin, &this->props());
 }
 
-sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
+sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     if (!rtc) {
         return nullptr;
@@ -102,7 +102,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
 
         copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(desc,
                                                                 SkBackingFit::kExact,
-                                                                budgeted);
+                                                                srcProxy->isBudgeted());
         if (!copyCtx) {
             return nullptr;
         }
@@ -122,7 +122,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
     if (tex) {
         image = sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
                                         info.alphaType(), sk_ref_sp(tex),
-                                        sk_ref_sp(info.colorSpace()), budgeted);
+                                        sk_ref_sp(info.colorSpace()), srcProxy->isBudgeted());
     }
     return image;
 }
@@ -137,14 +137,13 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     }
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
-    sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo));
+    sk_sp<SkImage> image(this->refCachedImage());
     SkASSERT(image);
     // MDB TODO: this is unfortunate. The snapping of an Image_Gpu from a surface currently
-    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to 
+    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to
     // compare proxy uniqueIDs.
     if (rt->asTexture()->getTextureHandle() == image->getTextureHandle(false)) {
         fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
-        SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
     }
