@@ -10,6 +10,8 @@
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
+#include "SkColorSpaceXform.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkImage.h"
 #include "SkPictureRecorder.h"
@@ -48,14 +50,14 @@ sk_sp<SkColorSpace> fix_for_colortype(SkColorSpace* colorSpace, SkColorType colo
 static const int kWidth = 64;
 static const int kHeight = 64;
 
-static sk_sp<SkImage> make_raster_image(SkColorType colorType, SkAlphaType alphaType) {
+static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream("google_chrome.ico"));
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
     SkBitmap bitmap;
     SkImageInfo info = codec->getInfo().makeWH(kWidth, kHeight)
                                        .makeColorType(colorType)
-                                       .makeAlphaType(alphaType)
+                                       .makeAlphaType(kPremul_SkAlphaType)
             .makeColorSpace(fix_for_colortype(codec->getInfo().colorSpace(), colorType));
     bitmap.allocPixels(info);
     codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes());
@@ -132,6 +134,17 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
                                             dstAlphaType, dstColorSpace);
     image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, hint);
 
+    // SkImage must be premul, so manually premul the data if we unpremul'd during readPixels
+    if (kUnpremul_SkAlphaType == dstAlphaType) {
+        auto xform = SkColorSpaceXform::New(dstColorSpace.get(), dstColorSpace.get());
+        if (!xform->apply(select_xform_format(dstColorType), data->writable_data(),
+                          select_xform_format(dstColorType), data->data(),
+                          image->width() * image->height(), kPremul_SkAlphaType)) {
+            memset(data->writable_data(), 0, rowBytes * image->height());
+        }
+        dstInfo = dstInfo.makeAlphaType(kPremul_SkAlphaType);
+    }
+
     // readPixels() does not always clamp F16.  The drawing code expects pixels in the 0-1 range.
     clamp_if_necessary(dstInfo, data->writable_data());
 
@@ -152,7 +165,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(6 * kWidth, 18 * kHeight);
+        return SkISize::Make(6 * kWidth, 9 * kHeight);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -178,19 +191,17 @@ protected:
 
         for (sk_sp<SkColorSpace> dstColorSpace : colorSpaces) {
             for (SkColorType srcColorType : colorTypes) {
-                for (SkAlphaType srcAlphaType : alphaTypes) {
-                    canvas->save();
-                    sk_sp<SkImage> image = make_raster_image(srcColorType, srcAlphaType);
-                    for (SkColorType dstColorType : colorTypes) {
-                        for (SkAlphaType dstAlphaType : alphaTypes) {
-                            draw_image(canvas, image.get(), dstColorType, dstAlphaType,
-                                       dstColorSpace, SkImage::kAllow_CachingHint);
-                            canvas->translate((float) kWidth, 0.0f);
-                        }
+                canvas->save();
+                sk_sp<SkImage> image = make_raster_image(srcColorType);
+                for (SkColorType dstColorType : colorTypes) {
+                    for (SkAlphaType dstAlphaType : alphaTypes) {
+                        draw_image(canvas, image.get(), dstColorType, dstAlphaType,
+                                   dstColorSpace, SkImage::kAllow_CachingHint);
+                        canvas->translate((float) kWidth, 0.0f);
                     }
-                    canvas->restore();
-                    canvas->translate(0.0f, (float) kHeight);
                 }
+                canvas->restore();
+                canvas->translate(0.0f, (float) kHeight);
             }
         }
     }
