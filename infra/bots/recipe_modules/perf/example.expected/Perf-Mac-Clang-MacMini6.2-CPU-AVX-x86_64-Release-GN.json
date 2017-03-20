@@ -174,7 +174,6 @@
       "os",
       "Mac"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",

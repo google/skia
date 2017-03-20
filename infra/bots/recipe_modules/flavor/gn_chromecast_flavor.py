@@ -14,7 +14,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
   def __init__(self, m):
     super(GNChromecastFlavorUtils, self).__init__(m)
 
-  def compile(self, unused_target, **kwargs):
+  def compile(self, unused_target):
     configuration = self.m.vars.builder_cfg.get('configuration')
     os            = self.m.vars.builder_cfg.get('os')
     target_arch   = self.m.vars.builder_cfg.get('target_arch')

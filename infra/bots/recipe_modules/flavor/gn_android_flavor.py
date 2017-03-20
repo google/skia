@@ -30,13 +30,14 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def _run(self, title, *cmd, **kwargs):
     self._strip_environment()
-    return self.m.run(self.m.step, title, cmd=list(cmd),
-                      cwd=self.m.vars.skia_dir, **kwargs)
+    with self.m.step.context({'cwd': self.m.vars.skia_dir}):
+      return self.m.run(self.m.step, title, cmd=list(cmd), **kwargs)
 
   def _py(self, title, script, infra_step=True):
     self._strip_environment()
-    return self.m.run(self.m.python, title, script=script,
-                      cwd=self.m.vars.skia_dir, env=None, infra_step=infra_step)
+    with self.m.step.context({'cwd': self.m.vars.skia_dir}):
+      return self.m.run(self.m.python, title, script=script,
+                        infra_step=infra_step)
 
   def _adb(self, title, *cmd, **kwargs):
     self._ever_ran_adb = True
@@ -81,7 +82,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       infra_step=True)
 
 
-  def compile(self, unused_target, **kwargs):
+  def compile(self, unused_target):
     compiler      = self.m.vars.builder_cfg.get('compiler')
     configuration = self.m.vars.builder_cfg.get('configuration')
     extra_config  = self.m.vars.builder_cfg.get('extra_config', '')
@@ -169,7 +170,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if self._ever_ran_adb:
       self._adb('kill adb server', 'kill-server')
 
-  def step(self, name, cmd, env=None, **kwargs):
+  def step(self, name, cmd, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     self._adb('push %s' % cmd[0],
               'push', app, self.m.vars.android_bin_dir)
@@ -218,7 +219,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         subprocess.check_call(['adb', 'push',
                                os.path.realpath(os.path.join(host, p, f)),
                                os.path.join(device, p, f)])
-    """, args=[host, device], cwd=self.m.vars.skia_dir, infra_step=True)
+    """, args=[host, device], infra_step=True)
 
   def copy_directory_contents_to_host(self, device, host):
     self._adb('pull %s %s' % (device, host), 'pull', device, host)

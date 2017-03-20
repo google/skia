@@ -200,6 +200,7 @@ def RunSteps(api):
       tasks_to_swarm_hashes, dimensions=dimensions, io_timeout=40*60)
 
   # Now collect all tasks.
+  env = {'AWS_CREDENTIAL_FILE': None, 'BOTO_CONFIG': None}
   failed_tasks = []
   for task in tasks:
     try:
@@ -212,14 +213,14 @@ def RunSteps(api):
         gs_dest_dir = 'ct/%s/%d/%02d/%02d/%02d/' % (
             ct_page_type, utc.year, utc.month, utc.day, utc.hour)
         for json_output in api.file.listdir('output dir', output_dir):
-          api.gsutil.upload(
-              name='upload json output',
-              source=output_dir.join(json_output),
-              bucket='skia-perf',
-              dest=gs_dest_dir,
-              env={'AWS_CREDENTIAL_FILE': None, 'BOTO_CONFIG': None},
-              args=['-R']
-          )
+          with api.step.context({'env': env}):
+            api.gsutil.upload(
+                name='upload json output',
+                source=output_dir.join(json_output),
+                bucket='skia-perf',
+                dest=gs_dest_dir,
+                args=['-R']
+            )
 
     except api.step.StepFailure as e:
       # Add SKP links for convenience.

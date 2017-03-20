@@ -108,14 +108,6 @@
       "RECIPE_MODULE[skia::core]/resources/generate_and_upload_doxygen.py"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "generate and upload doxygen"
   },
   {
@@ -130,14 +122,6 @@
       "[DEPOT_TOOLS]/gsutil.py"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "generate and upload binary size data"
   },
   {

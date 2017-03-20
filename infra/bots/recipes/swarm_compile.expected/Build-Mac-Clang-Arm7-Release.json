@@ -88,9 +88,9 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "CXX": "/usr/bin/clang++",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-Arm7-Release-iOS"
     },
@@ -107,9 +107,9 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "CXX": "/usr/bin/clang++",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-Arm7-Release-iOS"
     },
@@ -124,9 +124,9 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
+      "CXX": "/usr/bin/clang++",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-Arm7-Release-iOS"
     },

@@ -5,12 +5,6 @@
       "[START_DIR]/skia/resources",
       "resources"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "push_if_needed [START_DIR]/skia/resources"
   },
   {
@@ -40,12 +34,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
       "tmp/SKP_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "cat_file tmp/SKP_VERSION",
     "stdout": "/path/to/tmp/"
   },
@@ -54,12 +42,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "tmp/SKP_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "rm tmp/SKP_VERSION"
   },
   {
@@ -67,12 +49,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "skps"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "rm skps"
   },
   {
@@ -80,12 +56,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
       "skps"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "mkdir skps"
   },
   {
@@ -94,12 +64,6 @@
       "[START_DIR]/skp",
       "skps"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "push_if_needed [START_DIR]/skp"
   },
   {
@@ -108,12 +72,6 @@
       "[START_DIR]/tmp/SKP_VERSION",
       "tmp/SKP_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "push_file [START_DIR]/tmp/SKP_VERSION"
   },
   {
@@ -143,12 +101,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
       "tmp/SK_IMAGE_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "cat_file tmp/SK_IMAGE_VERSION",
     "stdout": "/path/to/tmp/"
   },
@@ -157,12 +109,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "tmp/SK_IMAGE_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "rm tmp/SK_IMAGE_VERSION"
   },
   {
@@ -170,12 +116,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "images"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "rm images"
   },
   {
@@ -183,12 +123,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
       "images"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "mkdir images"
   },
   {
@@ -197,12 +131,6 @@
       "[START_DIR]/skimage",
       "images"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "push_if_needed [START_DIR]/skimage"
   },
   {
@@ -211,12 +139,6 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION",
       "tmp/SK_IMAGE_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "push_file [START_DIR]/tmp/SK_IMAGE_VERSION"
   },
   {
@@ -246,12 +168,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
       "tmp/SVG_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "cat_file tmp/SVG_VERSION",
     "stdout": "/path/to/tmp/"
   },
@@ -260,12 +176,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "tmp/SVG_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "rm tmp/SVG_VERSION"
   },
   {
@@ -273,12 +183,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "svgs"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "rm svgs"
   },
   {
@@ -286,12 +190,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
       "svgs"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "mkdir svgs"
   },
   {
@@ -300,12 +198,6 @@
       "[START_DIR]/svg",
       "svgs"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "push_if_needed [START_DIR]/svg"
   },
   {
@@ -314,12 +206,6 @@
       "[START_DIR]/tmp/SVG_VERSION",
       "tmp/SVG_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "push_file [START_DIR]/tmp/SVG_VERSION"
   },
   {
@@ -327,12 +213,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "perf"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "rm perf"
   },
   {
@@ -340,12 +220,6 @@
       "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
       "perf"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "mkdir perf"
   },
   {
@@ -355,7 +229,6 @@
       "[START_DIR]/skia/gn/package_ios.py",
       "[START_DIR]/out/Release/nanobench"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -374,7 +247,6 @@
       "--args",
       "--undefok -i resources --skps skps --images images/nanobench --svgs svgs --nocpu --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --skps ignore_skps --config 8888 nonrendering hwui gles --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi ~path_hairline ~GLInstancedArraysBench ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile perf/nanobench_abc123_1337000001.json --properties gitHash abc123 build_number 5 --key arch arm compiler Clang cpu_or_gpu GPU cpu_or_gpu_value GX6450 model iPadMini4 os iOS"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -411,12 +283,6 @@
       "perf",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.nanobench",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "pull_if_needed perf"
   },
   {

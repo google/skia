@@ -32,9 +32,9 @@ def RunSteps(api):
   
       depot_tools_path = api.depot_tools.package_repo_resource()
       env = {'PATH': api.path.pathsep.join([str(depot_tools_path), '%(PATH)s'])}
-      api.step('presubmit',
-               cmd=['git', 'cl', 'presubmit', '--force', '-v', '-v'],
-               env=env)
+      with api.step.context({'env': env}):
+        api.step('presubmit',
+                 cmd=['git', 'cl', 'presubmit', '--force', '-v', '-v'])
     finally:
       api.step('git reset',
                cmd=['git', 'reset', '--hard', 'origin/master'])

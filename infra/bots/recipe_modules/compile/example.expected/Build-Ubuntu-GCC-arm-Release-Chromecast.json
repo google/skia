@@ -86,9 +86,6 @@
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
     "infra_step": true,
     "name": "fetch-gn"
   },
@@ -100,9 +97,6 @@
       "--args=ar=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-ar\" cc=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-gcc\" cxx=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-g++\" extra_cflags=[\"-g0\"] extra_ldflags=[\"-static-libstdc++\", \"-static-libgcc\"] is_debug=false skia_enable_gpu=false skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"arm\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
     "name": "gn gen"
   },
   {
@@ -113,9 +107,6 @@
       "nanobench"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
     "name": "ninja"
   },
   {

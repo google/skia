@@ -19,7 +19,6 @@
       "[START_DIR]/skia/resources",
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
-    "cwd": "[START_DIR]/skia",
     "infra_step": true,
     "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
     "~followup_annotations": [
@@ -119,7 +118,6 @@
       "[START_DIR]/skp",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
-    "cwd": "[START_DIR]/skia",
     "infra_step": true,
     "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps",
     "~followup_annotations": [
@@ -230,7 +228,6 @@
       "[START_DIR]/skimage",
       "/sdcard/revenge_of_the_skiabot/images"
     ],
-    "cwd": "[START_DIR]/skia",
     "infra_step": true,
     "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images",
     "~followup_annotations": [
@@ -341,7 +338,6 @@
       "[START_DIR]/svg",
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
-    "cwd": "[START_DIR]/skia",
     "infra_step": true,
     "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs",
     "~followup_annotations": [

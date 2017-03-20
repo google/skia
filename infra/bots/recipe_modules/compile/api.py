@@ -39,7 +39,8 @@ class CompileApi(recipe_api.RecipeApi):
 
     try:
       for target in build_targets:
-        self.m.flavor.compile(target, env=env)
+        with self.m.step.context({'env': env}):
+          self.m.flavor.compile(target)
       self.m.run.copy_build_products(
           self.m.flavor.out_dir,
           self.m.vars.swarming_out_dir.join(

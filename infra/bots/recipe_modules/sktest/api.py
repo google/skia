@@ -511,7 +511,6 @@ def test_steps(api):
             time.sleep(waittime)
         """,
         args=[host_hashes_file],
-        cwd=api.vars.skia_dir,
         abort_on_failure=False,
         fail_build_on_failure=False,
         infra_step=True)
@@ -600,9 +599,8 @@ def test_steps(api):
   if '_PreAbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
     args.append('--preAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args,
-          abort_on_failure=False,
-          env=env)
+  with api.step.context({'env': env}):
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.

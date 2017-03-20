@@ -224,9 +224,9 @@ def perf_steps(api):
   if '_AbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
     args.extend(['--abandonGpuContext', '--nocpu'])
 
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False,
-          env=env)
+  with api.step.context({'env': env}):
+    api.run(api.flavor.step, target, cmd=args,
+            abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if api.vars.upload_perf_results:

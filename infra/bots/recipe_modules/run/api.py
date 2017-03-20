@@ -68,29 +68,21 @@ class SkiaStepApi(recipe_api.RecipeApi):
 
   def rmtree(self, path):
     """Wrapper around api.file.rmtree with environment fix."""
-    env = {}
+    env = self.m.step.get_from_context('env') or {}
     env['PYTHONPATH'] = str(self.m.path['start_dir'].join(
         'skia', 'infra', 'bots', '.recipe_deps', 'build', 'scripts'))
-    self.m.file.rmtree(self.m.path.basename(path),
-                       path,
-                       env=env,
-                       infra_step=True)
-
-  def _run(self, steptype, **kwargs):
-    """Wrapper for running a step."""
-    cwd = kwargs.pop('cwd', None)
-    if cwd:
-      with self.m.step.context({'cwd': cwd}):
-        return steptype(**kwargs)
-    return steptype(**kwargs)
+    with self.m.step.context({'env': env}):
+      self.m.file.rmtree(self.m.path.basename(path),
+                         path,
+                         infra_step=True)
 
   def __call__(self, steptype, name, abort_on_failure=True,
-               fail_build_on_failure=True, env=None, **kwargs):
+               fail_build_on_failure=True, **kwargs):
     """Run a step. If it fails, keep going but mark the build status failed."""
-    env = env or {}
+    env = self.m.step.get_from_context('env') or {}
     env.update(self.m.vars.default_env)
     try:
-      return self._run(steptype, name=name, env=env, **kwargs)
+      return steptype(name=name, **kwargs)
     except self.m.step.StepFailure as e:
       if abort_on_failure or fail_build_on_failure:
         self._failed.append(e)
@@ -135,7 +127,7 @@ for pattern in build_products_whitelist:
       if attempt > 0:
         step_name += ' (attempt %d)' % (attempt + 1)
       try:
-        res = self._run(steptype, name=step_name, **kwargs)
+        res = self(steptype, name=step_name, **kwargs)
         return res
       except self.m.step.StepFailure:
         if attempt == attempts - 1:
