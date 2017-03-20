@@ -497,20 +497,6 @@ sk_sp<SkImage> SkImage::makeNonTextureImage() const {
     return MakeRasterData(info, data, rowBytes);
 }
 
-sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pixmap,
-                                              SkBudgeted budgeted) {
-    if (!ctx) {
-        return nullptr;
-    }
-    sk_sp<GrTexture> texture(GrUploadPixmapToTexture(ctx, pixmap, budgeted));
-    if (!texture) {
-        return nullptr;
-    }
-    return sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
-                                   pixmap.alphaType(), std::move(texture),
-                                   sk_ref_sp(pixmap.info().colorSpace()), budgeted);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace {
@@ -809,7 +795,13 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
     if (mipLevelCount == 1) {
         SkPixmap pixmap;
         pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData, dti->fMipMapLevelData[0].fRowBytes);
-        return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
+        sk_sp<GrTextureProxy> proxy(GrUploadPixmapToTextureProxy(context->resourceProvider(),
+                                                                 pixmap, budgeted));
+        if (!proxy) {
+            return nullptr;
+        }
+        return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, pixmap.alphaType(),
+                                       std::move(proxy), std::move(colorSpace), budgeted);
     } else {
         std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
         for (int i = 0; i < mipLevelCount; i++) {
