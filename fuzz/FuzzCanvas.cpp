@@ -1787,9 +1787,14 @@ DEF_FUZZ(RasterN32Canvas, fuzz) {
 
 #if SK_SUPPORT_GPU
 DEF_FUZZ(NativeGLCanvas, fuzz) {
+    GrContext* context = sk_gpu_test::GrContextFactory().get(
+            sk_gpu_test::GrContextFactory::kGL_ContextType);
+    if (!context) {
+        context = sk_gpu_test::GrContextFactory().get(
+                sk_gpu_test::GrContextFactory::kGLES_ContextType);
+    }
     auto surface = SkSurface::MakeRenderTarget(
-            sk_gpu_test::GrContextFactory().get(
-                    sk_gpu_test::GrContextFactory::kNativeGL_ContextType),
+            context,
             SkBudgeted::kNo,
             SkImageInfo::Make(kCanvasSize.width(), kCanvasSize.height(), kRGBA_8888_SkColorType, kPremul_SkAlphaType));
     SkASSERT(surface && surface->getCanvas());

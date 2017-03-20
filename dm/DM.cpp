@@ -1491,13 +1491,19 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                             Reporter* reporter, GrContextFactory* factory) {
 #if SK_SUPPORT_GPU
 
+#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
+    static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
+#else
+    static constexpr auto kNativeGLType = GrContextFactory::kGLES_ContextType;
+#endif
+
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
         GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
         // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
         // desktop since tests do not account for not fixing http://skbug.com/2809
         if (contextType == GrContextFactory::kGL_ContextType ||
             contextType == GrContextFactory::kGLES_ContextType) {
-            if (contextType != GrContextFactory::kNativeGL_ContextType) {
+            if (contextType != kNativeGLType) {
                 continue;
             }
         }

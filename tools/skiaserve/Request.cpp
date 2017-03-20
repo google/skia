@@ -73,8 +73,12 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
 SkCanvas* Request::getCanvas() {
 #if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
-    GLTestContext* gl = factory->getContextInfo(GrContextFactory::kNativeGL_ContextType,
-                                             GrContextFactory::ContextOverrides::kNone).glContext();
+    GLTestContext* gl = factory->getContextInfo(GrContextFactory::kGL_ContextType,
+            GrContextFactory::ContextOverrides::kNone).glContext();
+    if (!gl) {
+        gl = factory->getContextInfo(GrContextFactory::kGLES_ContextType,
+                                     GrContextFactory::ContextOverrides::kNone).glContext();
+    }
     if (!gl) {
         gl = factory->getContextInfo(GrContextFactory::kMESA_ContextType,
                                      GrContextFactory::ContextOverrides::kNone).glContext();
@@ -126,8 +130,12 @@ sk_sp<SkData> Request::writeOutSkp() {
 
 GrContext* Request::getContext() {
 #if SK_SUPPORT_GPU
-    GrContext* result = fContextFactory->get(GrContextFactory::kNativeGL_ContextType,
+    GrContext* result = fContextFactory->get(GrContextFactory::kGL_ContextType,
                                              GrContextFactory::ContextOverrides::kNone);
+    if (!result) {
+        result = fContextFactory->get(GrContextFactory::kGLES_ContextType,
+                                      GrContextFactory::ContextOverrides::kNone);
+    }
     if (!result) {
         result = fContextFactory->get(GrContextFactory::kMESA_ContextType,
                                       GrContextFactory::ContextOverrides::kNone);

@@ -15,12 +15,20 @@
 using sk_gpu_test::GrContextFactory;
 #endif
 
+#if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
+#    define DEFAULT_GPU_CONFIG "gles"
+#else
+#    define DEFAULT_GPU_CONFIG "gl"
+#endif
+
 static const char defaultConfigs[] =
-    "8888 gpu nonrendering"
+    "8888 " DEFAULT_GPU_CONFIG " nonrendering "
 #if defined(SK_BUILD_FOR_WIN)
     " angle_d3d11_es2"
 #endif
     ;
+
+#undef DEFAULT_GPU_CONFIG
 
 static const struct {
     const char* predefinedConfig;
@@ -28,7 +36,6 @@ static const struct {
     const char* options;
 } gPredefinedConfigs[] ={
 #if SK_SUPPORT_GPU
-    { "gpu",                   "gpu", "" },
     { "gl",                    "gpu", "api=gl" },
     { "gles",                  "gpu", "api=gles" },
     { "glmsaa4",               "gpu", "api=gl,samples=4" },
@@ -48,22 +55,22 @@ static const struct {
     { "glesinst",              "gpu", "api=gles,inst=true" },
     { "glesinst4",             "gpu", "api=gles,inst=true,samples=4" },
     { "glesinstdit4",          "gpu", "api=gles,inst=true,samples=4,dit=true" },
-    { "gpuf16",                "gpu", "color=f16" },
-    { "gpusrgb",               "gpu", "color=srgb" },
-    { "gpusrgbnl",             "gpu", "color=srgbnl" },
+    { "glf16",                 "gpu", "api=gl,color=f16" },
+    { "glsrgb",                "gpu", "api=gl,color=srgb" },
+    { "glsrgbnl",              "gpu", "api=gl,color=srgbnl" },
+    { "glesf16",               "gpu", "api=gles,color=f16" },
+    { "glessrgb",              "gpu", "api=gles,color=srgb" },
+    { "glessrgbnl",            "gpu", "api=gles,color=srgbnl" },
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
     { "glwide",                "gpu", "api=gl,color=f16_wide" },
     { "glnarrow",              "gpu", "api=gl,color=f16_narrow" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
     { "gleswide",              "gpu", "api=gles,color=f16_wide" },
     { "glesnarrow",            "gpu", "api=gles,color=f16_narrow" },
-    { "gpudft",                "gpu", "dit=true" },
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
-    { "gpudebug",              "gpu", "api=debug" },
-    { "gpunull",               "gpu", "api=null" },
-    { "debug",                 "gpu", "api=debug" },
-    { "nullgpu",               "gpu", "api=null" },
+    { "debuggl",               "gpu", "api=debuggl" },
+    { "nullgl",                "gpu", "api=nullgl" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
     { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
     { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },
@@ -106,14 +113,14 @@ static const char configExtendedHelp[] =
 #if SK_SUPPORT_GPU
     "\n"
     "gpu[api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int]\n"
-    "\tapi\ttype: string\tdefault: native.\n"
+    "\tapi\ttype: string\trequired\n"
     "\t    Select graphics API to use with gpu backend.\n"
     "\t    Options:\n"
     "\t\tnative\t\t\tUse platform default OpenGL or OpenGL ES backend.\n"
     "\t\tgl    \t\t\tUse OpenGL.\n"
     "\t\tgles  \t\t\tUse OpenGL ES.\n"
-    "\t\tdebug \t\t\tUse debug OpenGL.\n"
-    "\t\tnull  \t\t\tUse null OpenGL.\n"
+    "\t\tdebuggl \t\t\tUse debug OpenGL.\n"
+    "\t\tnullgl \t\t\tUse null OpenGL.\n"
     "\t\tangle_d3d9_es2\t\t\tUse OpenGL ES2 on the ANGLE Direct3D9 backend.\n"
     "\t\tangle_d3d11_es2\t\t\tUse OpenGL ES2 on the ANGLE Direct3D11 backend.\n"
     "\t\tangle_d3d11_es3\t\t\tUse OpenGL ES3 on the ANGLE Direct3D11 backend.\n"
@@ -236,11 +243,11 @@ static bool parse_option_gpu_api(const SkString& value,
         *outContextType = GrContextFactory::kGLES_ContextType;
         return true;
     }
-    if (value.equals("debug")) {
+    if (value.equals("debuggl")) {
         *outContextType = GrContextFactory::kDebugGL_ContextType;
         return true;
     }
-    if (value.equals("null")) {
+    if (value.equals("nullgl")) {
         *outContextType = GrContextFactory::kNullGL_ContextType;
         return true;
     }
@@ -354,7 +361,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
                                                       const SkString& options) {
     // Defaults for GPU backend.
     bool seenAPI = false;
-    SkCommandLineConfigGpu::ContextType contextType = GrContextFactory::kNativeGL_ContextType;
+    SkCommandLineConfigGpu::ContextType contextType = GrContextFactory::kGL_ContextType;
     bool seenUseNVPR = false;
     bool useNVPR = false;
     bool seenUseInstanced = false;
@@ -400,6 +407,9 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         if (!valueOk) {
             return nullptr;
         }
+    }
+    if (!seenAPI) {
+        return nullptr;
     }
     return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useInstanced, useDIText,
                                       samples, colorType, colorSpace);

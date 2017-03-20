@@ -395,7 +395,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 }
 
 #if SK_SUPPORT_GPU
-#define kBogusContextType GrContextFactory::kNativeGL_ContextType
+#define kBogusContextType GrContextFactory::kGL_ContextType
 #define kBogusContextOverrides GrContextFactory::ContextOverrides::kNone
 #else
 #define kBogusContextType 0

@@ -95,14 +95,6 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
     }
 }
 
-#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-const GrContextFactory::ContextType GrContextFactory::kNativeGL_ContextType =
-    GrContextFactory::kGL_ContextType;
-#else
-const GrContextFactory::ContextType GrContextFactory::kNativeGL_ContextType =
-    GrContextFactory::kGLES_ContextType;
-#endif
-
 ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOverrides overrides,
                                                      GrContext* shareContext, uint32_t shareIndex) {
     // (shareIndex != 0) -> (shareContext != nullptr)

@@ -422,7 +422,8 @@ static void test_glprograms_other_contexts(
 }
 
 static bool is_native_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {
-    return type == sk_gpu_test::GrContextFactory::kNativeGL_ContextType;
+    return type == sk_gpu_test::GrContextFactory::kGL_ContextType ||
+           type == sk_gpu_test::GrContextFactory::kGLES_ContextType;
 }
 
 static bool is_other_rendering_gl_context_type(sk_gpu_test::GrContextFactory::ContextType type) {

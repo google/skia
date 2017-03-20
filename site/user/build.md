@@ -99,7 +99,7 @@ and run it as normal.  You may find `bin/droid` convenient.
     ninja -C out/arm64
     adb push out/arm64/dm /data/local/tmp
     adb push resources /data/local/tmp
-    adb shell "cd /data/local/tmp; ./dm --src gm --config gpu"
+    adb shell "cd /data/local/tmp; ./dm --src gm --config gl"
 
 Mac
 ---
