@@ -445,11 +445,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
 GrContextFactory::ContextType pick_second_context_type(const sk_gpu_test::ContextInfo& info) {
     switch (info.backend()) {
         case kOpenGL_GrBackend:
-            if (info.glContext()->gl()->fStandard == kGLES_GrGLStandard) {
-                return GrContextFactory::kGLES_ContextType;
-            } else {
-                return GrContextFactory::kGL_ContextType;
-            }
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_UNIX) || defined (SK_BUILD_FOR_MAC)
+            return GrContextFactory::kGL_ContextType;
+#else
+            return GrContextFactory::kGLES_ContextType;
+#endif
         case kVulkan_GrBackend:
             return GrContextFactory::kVulkan_ContextType;
     }
@@ -928,7 +928,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             testContext->makeCurrent();
             return otherContextImage;
           }, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-        kNone_SkFilterQuality, 1, false },
+          kNone_SkFilterQuality, 1, false },
         // Create an image that is too large to upload.
         { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
           kNone_SkFilterQuality, 1, false },
