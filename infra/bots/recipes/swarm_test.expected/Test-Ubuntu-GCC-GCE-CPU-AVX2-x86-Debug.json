@@ -223,7 +223,7 @@
       "gl",
       "gldft",
       "glsrgb",
-      "glmsaa16",
+      "glmsaa8",
       "565",
       "f16",
       "sp-8888",

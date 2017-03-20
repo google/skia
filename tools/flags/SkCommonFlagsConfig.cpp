@@ -39,19 +39,19 @@ static const struct {
     { "gl",                    "gpu", "api=gl" },
     { "gles",                  "gpu", "api=gles" },
     { "glmsaa4",               "gpu", "api=gl,samples=4" },
-    { "glmsaa16",              "gpu", "api=gl,samples=16" },
+    { "glmsaa8" ,              "gpu", "api=gl,samples=8" },
     { "glesmsaa4",             "gpu", "api=gles,samples=4" },
     { "glnvpr4",               "gpu", "api=gl,nvpr=true,samples=4" },
-    { "glnvpr16",              "gpu", "api=gl,nvpr=true,samples=16" },
+    { "glnvpr8" ,              "gpu", "api=gl,nvpr=true,samples=8" },
     { "glnvprdit4",            "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
-    { "glnvprdit16",           "gpu", "api=gl,nvpr=true,samples=16,dit=true" },
+    { "glnvprdit8" ,           "gpu", "api=gl,nvpr=true,samples=8,dit=true" },
     { "glesnvpr4",             "gpu", "api=gles,nvpr=true,samples=4" },
     { "glesnvprdit4",          "gpu", "api=gles,nvpr=true,samples=4,dit=true" },
     { "glinst",                "gpu", "api=gl,inst=true" },
     { "glinst4",               "gpu", "api=gl,inst=true,samples=4" },
     { "glinstdit4",            "gpu", "api=gl,inst=true,samples=4,dit=true" },
-    { "glinst16",              "gpu", "api=gl,inst=true,samples=16" },
-    { "glinstdit16",           "gpu", "api=gl,inst=true,samples=16,dit=true" },
+    { "glinst8" ,              "gpu", "api=gl,inst=true,samples=8" },
+    { "glinstdit8" ,           "gpu", "api=gl,inst=true,samples=8,dit=true" },
     { "glesinst",              "gpu", "api=gles,inst=true" },
     { "glesinst4",             "gpu", "api=gles,inst=true,samples=4" },
     { "glesinstdit4",          "gpu", "api=gles,inst=true,samples=4,dit=true" },
@@ -86,7 +86,7 @@ static const struct {
     ,{ "vksrgb",               "gpu", "api=vulkan,color=srgb" }
     ,{ "vkwide",               "gpu", "api=vulkan,color=f16_wide" }
     ,{ "vkmsaa4",              "gpu", "api=vulkan,samples=4" }
-    ,{ "vkmsaa16",             "gpu", "api=vulkan,samples=16" }
+    ,{ "vkmsaa8",              "gpu", "api=vulkan,samples=8" }
 #endif
 
 #else

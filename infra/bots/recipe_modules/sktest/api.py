@@ -27,10 +27,17 @@ def dm_flags(bot):
   # may opt out or substitute some below for specific bots
   configs = ['8888', 'srgb', 'pdf']
   # Add in either gles or gl configs to the canonical set based on OS
+  sample_count = '8'
+  gl_prefix = 'gl'
   if 'Android' in bot or 'iOS' in bot:
-    configs.extend(['gles', 'glesdft', 'glessrgb', 'glesmsaa4'])
-  else:
-    configs.extend(['gl', 'gldft', 'glsrgb', 'glmsaa16'])
+    sample_count = '4'
+    # We want to test the OpenGL config not the GLES config on the Shield
+    if 'NVIDIA_Shield' not in bot:
+      gl_prefix = 'gles'
+
+  configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb',
+                  gl_prefix + 'msaa' + sample_count])
+
 
   # The NP produces a long error stream when we run with MSAA. The Tegra3 just
   # doesn't support it.
@@ -64,14 +71,7 @@ def dm_flags(bot):
         'GTX550Ti' in bot or
         'GTX660'   in bot or
         'GT610'    in bot):
-      if 'Android' in bot:
-        configs.append('glesnvprdit4')
-      else:
-        configs.append('glnvprdit16')
-
-  # We want to test the OpenGL config not the GLES config on the Shield
-  if 'NVIDIA_Shield' in bot:
-    configs = [x.replace('gles', 'gl') for x in configs]
+      configs.append(gl_prefix + 'nvprdit' + sample_count)
 
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
@@ -80,17 +80,17 @@ def dm_flags(bot):
 
   # Test instanced rendering on a limited number of platforms
   if 'Nexus6' in bot:
-    configs.append('glesinst') # glesinst4 isn't working yet on Adreno.
-  elif 'NVIDIA_Shield' in bot:
-    # Multisampled instanced configs use nvpr.
-    configs = [x.replace('glnvpr', 'glinst') for x in configs]
-    configs.append('glinst')
-  elif 'PixelC' in bot:
-    # Multisampled instanced configs use nvpr.
-    configs = [x.replace('glesnvpr', 'glesinst') for x in configs]
-    configs.append('glesinst')
+    configs.append(gl_prefix + 'inst') # inst msaa isn't working yet on Adreno.
+  elif 'NVIDIA_Shield' in bot or 'PixelC' in bot:
+    # Multisampled instanced configs use nvpr so we substitute inst msaa
+    # configs for nvpr msaa configs.
+    old = gl_prefix + 'nvpr'
+    new = gl_prefix + 'inst'
+    configs = [x.replace(old, new) for x in configs]
+    # We also test non-msaa instanced.
+    configs.append(new)
   elif 'MacMini6.2' in bot:
-    configs.extend(['glinst', 'glinst16'])
+    configs.extend([gl_prefix + 'inst', gl_prefix + 'inst' + sample_count])
 
   # CommandBuffer bot *only* runs the command_buffer config.
   if 'CommandBuffer' in bot:
@@ -124,8 +124,7 @@ def dm_flags(bot):
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
-  blacklist('glessrgb image _ _')
-  blacklist('glsrgb image _ _')
+  blacklist(gl_prefix + 'srgb image _ _')
 
   # Decoder tests are now performing gamma correct decodes.  This means
   # that, when viewing the results, we need to perform a gamma correct
@@ -147,8 +146,7 @@ def dm_flags(bot):
     blacklist('_ svg _ _')
 
   if 'iOS' in bot:
-    blacklist('gles skp _ _')
-    blacklist('glesmsaa skp _ _')
+    blacklist(gl_prefix + ' skp _ _')
 
   if 'Mac' in bot or 'iOS' in bot:
     # CG fails on questionable bmps
@@ -311,34 +309,36 @@ def dm_flags(bot):
   # Large image that overwhelms older Mac bots
   if 'MacMini4.1-GPU' in bot:
     blacklist('_ image _ abnormal.wbmp')
-    blacklist(['glmsaa16', 'gm', '_', 'blurcircles'])
+    blacklist([gl_prefix + 'msaa' + sample_count, 'gm', '_', 'blurcircles'])
 
   if 'IntelHD405' in bot and 'Ubuntu16' in bot:
     # skia:6331
-    blacklist('glmsaa16 image gen_codec_gpu abnormal.wbmp')
+    blacklist(gl_prefix + 'msaa' + sample_count +
+        ' image gen_codec_gpu abnormal.wbmp')
 
   if 'Nexus5' in bot:
     # skia:5876
     blacklist(['_', 'gm', '_', 'encode-platform'])
 
   if 'AndroidOne-GPU' in bot:  # skia:4697, skia:4704, skia:4694, skia:4705
-    blacklist(['_',         'gm', '_', 'bigblurs'])
-    blacklist(['_',         'gm', '_', 'bleed'])
-    blacklist(['_',         'gm', '_', 'bleed_alpha_bmp'])
-    blacklist(['_',         'gm', '_', 'bleed_alpha_bmp_shader'])
-    blacklist(['_',         'gm', '_', 'bleed_alpha_image'])
-    blacklist(['_',         'gm', '_', 'bleed_alpha_image_shader'])
-    blacklist(['_',         'gm', '_', 'bleed_image'])
-    blacklist(['_',         'gm', '_', 'dropshadowimagefilter'])
-    blacklist(['_',         'gm', '_', 'filterfastbounds'])
-    blacklist(['gles',      'gm', '_', 'imageblurtiled'])
-    blacklist(['glesmsaa4', 'gm', '_', 'imageblurtiled'])
-    blacklist(['glesmsaa4', 'gm', '_', 'imagefiltersbase'])
-    blacklist(['_',         'gm', '_', 'imagefiltersclipped'])
-    blacklist(['_',         'gm', '_', 'imagefiltersscaled'])
-    blacklist(['_',         'gm', '_', 'imageresizetiled'])
-    blacklist(['_',         'gm', '_', 'matrixconvolution'])
-    blacklist(['_',         'gm', '_', 'strokedlines'])
+    gl_msaa_config = gl_prefix + 'msaa' + sample_count
+    blacklist(['_',            'gm', '_', 'bigblurs'])
+    blacklist(['_',            'gm', '_', 'bleed'])
+    blacklist(['_',            'gm', '_', 'bleed_alpha_bmp'])
+    blacklist(['_',            'gm', '_', 'bleed_alpha_bmp_shader'])
+    blacklist(['_',            'gm', '_', 'bleed_alpha_image'])
+    blacklist(['_',            'gm', '_', 'bleed_alpha_image_shader'])
+    blacklist(['_',            'gm', '_', 'bleed_image'])
+    blacklist(['_',            'gm', '_', 'dropshadowimagefilter'])
+    blacklist(['_',            'gm', '_', 'filterfastbounds'])
+    blacklist([gl_prefix,      'gm', '_', 'imageblurtiled'])
+    blacklist([gl_msaa_config, 'gm', '_', 'imageblurtiled'])
+    blacklist([gl_msaa_config, 'gm', '_', 'imagefiltersbase'])
+    blacklist(['_',            'gm', '_', 'imagefiltersclipped'])
+    blacklist(['_',            'gm', '_', 'imagefiltersscaled'])
+    blacklist(['_',            'gm', '_', 'imageresizetiled'])
+    blacklist(['_',            'gm', '_', 'matrixconvolution'])
+    blacklist(['_',            'gm', '_', 'strokedlines'])
 
   match = []
   if 'Valgrind' in bot: # skia:3021
