@@ -1,12 +1,12 @@
 {
   "AndroidOne":      ["sprout",      "MOB30Q"],
+  "Chorizo":         ["chorizo",     "1.24_82923"],
+  "GalaxyJ5":        ["j5xnlte",     "MMB29M"],
   "GalaxyS6":        ["zerofltetmo", "MMB29K"],
   "GalaxyS7_G930A":  ["heroqlteatt", "MMB29M"],
   "GalaxyS7_G930FD": ["herolte",     "NRD90M"],
-  "GalaxyJ5":        ["j5xnlte",     "MMB29M"],
   "GalaxyTab3":      ["goyawifi",    "JDQ39"],
   "MotoG4":          ["athene",      "MPJ24.139-64"],
-  "NVIDIA_Shield":   ["foster",      "MRA58K"],
   "Nexus10":         ["manta",       "LMY49J"],
   "Nexus5":          ["hammerhead",  "M4B30Z"],
   "Nexus6":          ["shamu",       "M"],
@@ -14,6 +14,7 @@
   "Nexus7":          ["grouper",     "LMY47V"],
   "Nexus7v2":        ["flo",         "M"],
   "NexusPlayer":     ["fugu",        "N2G10B"],
+  "NVIDIA_Shield":   ["foster",      "MRA58K"],
   "Pixel":           ["sailfish",    "NMF26Q"],
   "PixelC":          ["dragon",      "NMF26H"],
   "PixelXL":         ["marlin",      "NMF26Q"]
