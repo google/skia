@@ -425,7 +425,6 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/msan",
-      "PATH": "%(PATH)s:[START_DIR]/clang_linux/bin",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "symbolized dm"

@@ -12,7 +12,7 @@ import default_flavor
 
 class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
 
-  def compile(self, target, **kwargs):
+  def compile(self, target):
     """Build Flutter with Skia."""
 
     flutter_dir = self.m.vars.checkout_root.join('src')
@@ -20,13 +20,13 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
     out_dir = configuration
 
-    # Runhook to generate the gn binary in buildtools.
-    self.m.run(
-        self.m.step,
-        'runhook',
-        cmd=['gclient', 'runhooks'],
-        cwd=flutter_dir,
-        **kwargs)
+    with self.m.step.context({'cwd': flutter_dir}):
+
+      # Runhook to generate the gn binary in buildtools.
+      self.m.run(
+          self.m.step,
+          'runhook',
+          cmd=['gclient', 'runhooks'])
 
     # Setup GN args.
     gn_args = [
@@ -43,14 +43,10 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
     self.m.run(
         self.m.step,
         'gn_gen',
-        cmd=['flutter/tools/gn'] + gn_args,
-        cwd=flutter_dir,
-        **kwargs)
+        cmd=['flutter/tools/gn'] + gn_args)
 
     # Build Flutter.
     self.m.run(
         self.m.step,
         'build_flutter',
-        cmd=['ninja', '-C', 'out/' + out_dir, '-j100'],
-        cwd=flutter_dir,
-        **kwargs)
+        cmd=['ninja', '-C', 'out/' + out_dir, '-j100'])

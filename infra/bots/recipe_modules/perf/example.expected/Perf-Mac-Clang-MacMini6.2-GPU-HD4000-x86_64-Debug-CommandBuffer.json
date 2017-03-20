@@ -108,7 +108,6 @@
       "~inc0.webp",
       "~inc1.webp"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",

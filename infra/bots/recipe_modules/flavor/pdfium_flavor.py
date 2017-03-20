@@ -12,53 +12,47 @@ import default_flavor
 
 class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
 
-  def compile(self, target, **kwargs):
+  def compile(self, target):
     """Build PDFium with Skia."""
     pdfium_dir = self.m.vars.checkout_root.join('pdfium')
 
     # Runhook to generate the gn binary in buildtools.
-    self.m.run(
-        self.m.step,
-        'runhook',
-        cmd=['gclient', 'runhook', 'gn_linux64'],
-        cwd=pdfium_dir,
-        **kwargs)
+    with self.m.step.context({'cwd': pdfium_dir}):
+      self.m.run(
+          self.m.step,
+          'runhook',
+          cmd=['gclient', 'runhook', 'gn_linux64'])
 
-    # Install the sysroot.
-    self.m.run(
-        self.m.step,
-        'sysroot',
-        cmd=['python', 'build/linux/sysroot_scripts/install-sysroot.py',
-             '--arch=amd64'],
-        cwd=pdfium_dir)
+      # Install the sysroot.
+      self.m.run(
+          self.m.step,
+          'sysroot',
+          cmd=['python', 'build/linux/sysroot_scripts/install-sysroot.py',
+               '--arch=amd64'])
 
-    # Setup gn args.
-    gn_args = [
-        'pdf_is_standalone=true',
-        'clang_use_chrome_plugins=false',
-        'is_component_build=false',
-        'is_debug=false',
-    ]
-    if 'SkiaPaths' in self.m.vars.builder_name:
-      gn_args.append('pdf_use_skia_paths=true')
-    else:
-      gn_args.append('pdf_use_skia=true')
+      # Setup gn args.
+      gn_args = [
+          'pdf_is_standalone=true',
+          'clang_use_chrome_plugins=false',
+          'is_component_build=false',
+          'is_debug=false',
+      ]
+      if 'SkiaPaths' in self.m.vars.builder_name:
+        gn_args.append('pdf_use_skia_paths=true')
+      else:
+        gn_args.append('pdf_use_skia=true')
 
 
-    env = kwargs.pop('env', {})
-    env['CHROMIUM_BUILDTOOLS_PATH'] = str(pdfium_dir.join('buildtools'))
-    self.m.run(
-        self.m.step,
-        'gn_gen',
-        cmd=['gn', 'gen', 'out/skia', '--args=%s' % ' '.join(gn_args)],
-        cwd=pdfium_dir,
-        env=env)
+      env = self.m.step.get_from_context('env') or {}
+      env['CHROMIUM_BUILDTOOLS_PATH'] = str(pdfium_dir.join('buildtools'))
+      with self.m.step.context({'env': env}):
+        self.m.run(
+            self.m.step,
+            'gn_gen',
+            cmd=['gn', 'gen', 'out/skia', '--args=%s' % ' '.join(gn_args)])
 
-    # Build PDFium.
-    self.m.run(
-        self.m.step,
-        'build_pdfium',
-        cmd=['ninja', '-C', 'out/skia', '-j100'],
-        cwd=pdfium_dir,
-        env=env,
-        **kwargs)
+        # Build PDFium.
+        self.m.run(
+            self.m.step,
+            'build_pdfium',
+            cmd=['ninja', '-C', 'out/skia', '-j100'])
