@@ -137,7 +137,10 @@ config("skia_private") {
     if (skia_vulkan_sdk != "" && !is_android) {
       if (is_win) {
         include_dirs += [ "$skia_vulkan_sdk/Include/" ]
-        lib_dirs += [ "$skia_vulkan_sdk/Bin" ]
+        lib_dirs += [
+          "$skia_vulkan_sdk/Bin",
+          "$skia_vulkan_sdk/Lib",
+        ]
       } else {
         include_dirs += [ "$skia_vulkan_sdk/include/" ]
         lib_dirs += [ "$skia_vulkan_sdk/lib/" ]
