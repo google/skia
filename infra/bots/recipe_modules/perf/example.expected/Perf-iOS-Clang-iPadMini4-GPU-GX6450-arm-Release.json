@@ -21,6 +21,7 @@
       "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
+    "infra_step": true,
     "name": "Get downloaded SKP VERSION"
   },
   {
@@ -31,6 +32,7 @@
       "42",
       "[START_DIR]/tmp/SKP_VERSION"
     ],
+    "infra_step": true,
     "name": "write SKP_VERSION"
   },
   {
@@ -122,6 +124,7 @@
       "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
+    "infra_step": true,
     "name": "Get downloaded skimage VERSION"
   },
   {
@@ -132,6 +135,7 @@
       "42",
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
+    "infra_step": true,
     "name": "write SK_IMAGE_VERSION"
   },
   {
@@ -223,6 +227,7 @@
       "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
+    "infra_step": true,
     "name": "Get downloaded SVG VERSION"
   },
   {
@@ -233,6 +238,7 @@
       "42",
       "[START_DIR]/tmp/SVG_VERSION"
     ],
+    "infra_step": true,
     "name": "write SVG_VERSION"
   },
   {
@@ -356,6 +362,7 @@
       "IOS_BUNDLE_ID": "com.google.nanobench",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "package nanobench"
   },
   {

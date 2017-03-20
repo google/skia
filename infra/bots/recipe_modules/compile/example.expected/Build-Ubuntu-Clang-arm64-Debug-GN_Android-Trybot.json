@@ -7,6 +7,7 @@
       "[CUSTOM_/_B_WORK]",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs checkout_path",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -55,6 +56,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot"
     },
+    "infra_step": true,
     "name": "bot_update",
     "~followup_annotations": [
       "@@@STEP_TEXT@Some step text@@@",
@@ -90,9 +92,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
+    "infra_step": true,
     "name": "fetch-gn"
   },
   {
@@ -103,9 +103,6 @@
       "--args=extra_cflags=[\"-O1\"] ndk=\"[START_DIR]/android_ndk_linux\" target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
     "name": "gn gen"
   },
   {
@@ -115,9 +112,6 @@
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot/Debug"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
     "name": "ninja"
   },
   {
@@ -128,6 +122,7 @@
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot/Debug",
       "[CUSTOM_[SWARM_OUT_DIR]]/out/Debug"
     ],
+    "infra_step": true,
     "name": "copy build products",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import errno@@@",
