@@ -8,6 +8,7 @@
 #include "SkDiscardableMemory.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkImageGenerator.h"
+#include "SkMemory.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkTInternalLList.h"

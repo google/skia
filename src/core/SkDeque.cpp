@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkDeque.h"
+#include "SkMemory.h"
 
 struct SkDeque::Block {
     Block*  fNext;

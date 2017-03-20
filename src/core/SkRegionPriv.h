@@ -10,7 +10,9 @@
 #define SkRegionPriv_DEFINED
 
 #include "SkRegion.h"
+
 #include "SkAtomics.h"
+#include "SkMemory.h"
 
 inline bool SkRegionValueIsSentinel(int32_t value) {
     return value == (int32_t)SkRegion::kRunTypeSentinel;
