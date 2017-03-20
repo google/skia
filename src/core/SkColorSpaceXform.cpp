@@ -1061,6 +1061,7 @@ bool SkColorSpaceXform_XYZ<kCSM>
     }
 
     if (kRGBA_F32_ColorFormat == dstColorFormat ||
+        kRGBA_F16_ColorFormat == srcColorFormat ||
         kRGBA_U16_BE_ColorFormat == srcColorFormat ||
         kRGB_U16_BE_ColorFormat == srcColorFormat ||
         kPremul_SkAlphaType == alphaType)
@@ -1162,6 +1163,12 @@ bool SkColorSpaceXform_XYZ<kCSM>
             }
 
             pipeline.append(SkRasterPipeline::swap_rb);
+            break;
+        case kRGBA_F16_ColorFormat:
+            if (kLinear_SrcGamma != fSrcGamma) {
+                return false;
+            }
+            pipeline.append(SkRasterPipeline::load_f16, &src);
             break;
         case kRGBA_U16_BE_ColorFormat:
             switch (fSrcGamma) {
