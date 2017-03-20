@@ -56,7 +56,7 @@ class CIPDStore(object):
   def _check_setup(self):
     """Verify that we have the CIPD binary and that we're authenticated."""
     try:
-      subprocess.check_call([self._cipd, 'auth-info'])
+      self._run(['auth-info'])
     except OSError:
       raise Exception('CIPD binary not found on your path (typically in '
                       'depot_tools). You may need to update depot_tools.')
@@ -69,7 +69,11 @@ class CIPDStore(object):
     subprocess.check_call(
         [self._cipd]
         + cmd
-        + ['--service-url', self._cipd_url]
+        + ['--service-url', self._cipd_url,
+           # Enable automatic GCE authentication. For context see
+           # https://bugs.chromium.org/p/skia/issues/detail?id=6385#c3
+           '-service-account-json', ':gce',
+          ]
     )
 
   def _json_output(self, cmd):
