@@ -45,6 +45,30 @@
       "revId": "078d02b8631dbf882a74f83229d824783b4fffa4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4f2f748_80a46c60",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-20T23:10:49Z",
+      "side": 1,
+      "message": "Yes, that\u0027s correct.",
+      "parentUuid": "97287ab6_13852f16",
+      "range": {
+        "startLine": 342,
+        "startChar": 44,
+        "endLine": 342,
+        "endChar": 70
+      },
+      "revId": "078d02b8631dbf882a74f83229d824783b4fffa4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
