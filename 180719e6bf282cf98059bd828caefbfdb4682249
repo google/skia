@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b1d3b57_49e2ac7d",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1871,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-03-20T16:52:44Z",
+      "side": 1,
+      "message": "This is a generated file. You need to make the changes in gen_tasks.go.",
+      "range": {
+        "startLine": 1871,
+        "startChar": 0,
+        "endLine": 1871,
+        "endChar": 23
+      },
+      "revId": "180719e6bf282cf98059bd828caefbfdb4682249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
