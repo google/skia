@@ -27,12 +27,6 @@ SKIA_REPO = 'https://skia.googlesource.com/skia.git'
 
 def main(target_dir, gitcookies):
   with git_utils.NewGitCheckout(repository=SKIA_REPO):
-    # Download CIPD.
-    cipd_sha1 = os.path.join(os.getcwd(), 'infra', 'bots', 'tools', 'luci-go',
-                             'linux64', 'cipd.sha1')
-    subprocess.check_call(['download_from_google_storage', '-s', cipd_sha1,
-                           '--bucket', 'chromium-luci'])
-
     # First verify that there are no gen_tasks diffs.
     gen_tasks = os.path.join(os.getcwd(), 'infra', 'bots', 'gen_tasks.go')
     try:
@@ -45,6 +39,7 @@ def main(target_dir, gitcookies):
     # Skip GCE Auth in depot_tools/gerrit_utils.py. Use gitcookies instead.
     os.environ['SKIP_GCE_AUTH_FOR_GIT'] = 'True'
     os.environ['GIT_COOKIES_PATH'] = gitcookies
+    os.environ['USE_CIPD_GCE_AUTH'] = 'True'
     # Upload the new version, land the update CL as the update-skps user.
     config_dict = {
       'user.name': SKIA_COMMITTER_NAME,
