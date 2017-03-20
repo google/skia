@@ -33,14 +33,14 @@ public:
         kRGBA_U16_BE_ColorFormat,  // Src only
 
         kRGBA_F16_ColorFormat,
-        kRGBA_F32_ColorFormat,     // Dst only
+        kRGBA_F32_ColorFormat,
     };
 
     /**
      *  Apply the color conversion to a |src| buffer, storing the output in the |dst| buffer.
      *
-     *  F32 is only supported as a dst color format. F16 and F32 are only supported when the color
-     *  space is linear. This function will return false in unsupported cases.
+     *  F16 and F32 are only supported when the color space is linear. This function will return
+     *  false in unsupported cases.
      *
      *  @param dst            Stored in the format described by |dstColorFormat|
      *  @param src            Stored in the format described by |srcColorFormat|
