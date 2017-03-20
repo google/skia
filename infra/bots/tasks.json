@@ -1868,7 +1868,7 @@
     "Build-Mac-Clang-arm-Debug-iOS": {
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
@@ -1893,7 +1893,7 @@
     "Build-Mac-Clang-arm-Release-iOS": {
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
@@ -1925,7 +1925,7 @@
       ],
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
@@ -1950,7 +1950,7 @@
     "Build-Mac-Clang-arm64-Debug-iOS": {
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
@@ -1975,7 +1975,7 @@
     "Build-Mac-Clang-arm64-Release-iOS": {
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2000,7 +2000,7 @@
     "Build-Mac-Clang-x86_64-Debug": {
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2025,7 +2025,7 @@
     "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2050,7 +2050,7 @@
     "Build-Mac-Clang-x86_64-Release": {
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2075,7 +2075,7 @@
     "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
       "dimensions": [
         "gpu:none",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "extra_args": [
