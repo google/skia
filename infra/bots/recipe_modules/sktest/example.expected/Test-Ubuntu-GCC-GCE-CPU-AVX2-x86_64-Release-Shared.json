@@ -215,6 +215,7 @@
       "--writePath",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--nogpu",
+      "--randomProcessorTest",
       "--config",
       "8888",
       "srgb",
