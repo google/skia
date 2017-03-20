@@ -7,6 +7,7 @@
       "[CUSTOM_/_B_WORK]",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs checkout_path",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -51,6 +52,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths"
     },
+    "infra_step": true,
     "name": "bot_update",
     "~followup_annotations": [
       "@@@STEP_TEXT@Some step text@@@",
@@ -168,6 +170,7 @@
       "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths/Release",
       "[CUSTOM_[SWARM_OUT_DIR]]/out/Release"
     ],
+    "infra_step": true,
     "name": "copy build products",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import errno@@@",

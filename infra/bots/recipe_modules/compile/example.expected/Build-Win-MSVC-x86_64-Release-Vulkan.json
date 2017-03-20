@@ -7,6 +7,7 @@
       "[CUSTOM_C:\\_B_WORK]",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs checkout_path",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -49,6 +50,7 @@
       "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan"
     },
+    "infra_step": true,
     "name": "bot_update",
     "~followup_annotations": [
       "@@@STEP_TEXT@Some step text@@@",
@@ -92,6 +94,7 @@
       "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan"
     },
+    "infra_step": true,
     "name": "fetch-gn"
   },
   {
@@ -137,6 +140,7 @@
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan\\Release_x64",
       "[CUSTOM_[SWARM_OUT_DIR]]\\out\\Release_x64"
     ],
+    "infra_step": true,
     "name": "copy build products",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import errno@@@",
@@ -174,6 +178,7 @@
       "[START_DIR]\\win_vulkan_sdk",
       "[CUSTOM_[SWARM_OUT_DIR]]\\out\\Release_x64"
     ],
+    "infra_step": true,
     "name": "copy build products (2)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import errno@@@",
@@ -209,6 +214,7 @@
       "-u",
       "import psutil\nfor p in psutil.process_iter():\n  try:\n    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):\n      p.kill()\n  except psutil._error.AccessDenied:\n    pass\n"
     ],
+    "infra_step": true,
     "name": "cleanup",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import psutil@@@",
