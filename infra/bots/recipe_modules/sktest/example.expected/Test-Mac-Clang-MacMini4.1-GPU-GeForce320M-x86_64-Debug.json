@@ -215,7 +215,7 @@
       "gl",
       "gldft",
       "glsrgb",
-      "glmsaa16",
+      "glmsaa8",
       "serialize-8888",
       "tiles_rt-8888",
       "pic-8888",
@@ -602,7 +602,7 @@
       "image",
       "_",
       "abnormal.wbmp",
-      "glmsaa16",
+      "glmsaa8",
       "gm",
       "_",
       "blurcircles"

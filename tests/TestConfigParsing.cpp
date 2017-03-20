@@ -75,11 +75,11 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     // Parses all default configs and returns correct "tag".
 
     SkCommandLineFlags::StringArray config1 = make_string_array({
-        "565", "8888", "debuggl", "gl", "gldft", "nullgl", "glmsaa16", "glmsaa4",
-        "nonrendering", "nullgl", "gles", "glnvpr16", "glnvpr4", "glnvprdit16", "glesnvprdit4",
+        "565", "8888", "debuggl", "gl", "gldft", "nullgl", "glmsaa8", "glmsaa4",
+        "nonrendering", "nullgl", "gles", "glnvpr8", "glnvpr4", "glnvprdit8", "glesnvprdit4",
         "pdf", "skp", "svg", "xps", "angle_d3d11_es2", "angle_gl_es2", "commandbuffer", "mesa",
         "hwui", "glf16", "glessrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk",
-        "glinst", "glinst4", "glinstdit4", "glinst16", "glinstdit16", "glesinst", "glesinst4",
+        "glinst", "glinst4", "glinstdit4", "glinst8", "glinstdit8", "glesinst", "glesinst4",
         "glesinstdit4", "glwide", "glnarrow"
     });
 
@@ -100,18 +100,18 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[3]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[4]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[5]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[6]->asConfigGpu()->getSamples() == 16);
+    REPORTER_ASSERT(reporter, configs[6]->asConfigGpu()->getSamples() == 8);
     REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getSamples() == 4);
     REPORTER_ASSERT(reporter, !configs[8]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[9]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[10]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[11]->asConfigGpu()->getSamples() == 16);
+    REPORTER_ASSERT(reporter, configs[11]->asConfigGpu()->getSamples() == 8);
     REPORTER_ASSERT(reporter, configs[11]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[11]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[12]->asConfigGpu()->getSamples() == 4);
     REPORTER_ASSERT(reporter, configs[12]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[12]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getSamples() == 16);
+    REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getSamples() == 8);
     REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, configs[13]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[14]->asConfigGpu()->getSamples() == 4);
@@ -160,12 +160,12 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getSamples() == 16);
+    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getSamples() == 8);
     REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getUseInstanced());
     REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getSamples() == 16);
+    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getSamples() == 8);
     REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGLES_ContextType);
     REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getUseInstanced());
