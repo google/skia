@@ -142,8 +142,6 @@ class SkiaApi(recipe_api.RecipeApi):
       self.update_repo(self.m.vars.checkout_root, chromium)
 
     # Run bot_update.
-    checkout_kwargs = {}
-    checkout_kwargs['env'] = self.m.vars.default_env
 
     # Hack the patch ref if necessary.
     if self.m.properties.get('patch_storage', '') == 'gerrit':
@@ -155,14 +153,14 @@ class SkiaApi(recipe_api.RecipeApi):
         )
 
     self.m.gclient.c = gclient_cfg
-    with self.m.step.context({'cwd': self.m.vars.checkout_root}):
-      update_step = self.m.bot_update.ensure_checkout(
-          patch_root=patch_root,
-          **checkout_kwargs)
+    with self.m.step.context({'cwd': self.m.vars.checkout_root,
+                              'env': self.m.vars.default_env}):
+      update_step = self.m.bot_update.ensure_checkout(patch_root=patch_root)
 
     self.m.vars.got_revision = (
         update_step.presentation.properties['got_revision'])
 
     if self.m.vars.need_chromium_checkout:
-      with self.m.step.context({'cwd': self.m.vars.checkout_root}):
-        self.m.gclient.runhooks(env=self.m.vars.gclient_env)
+      with self.m.step.context({'cwd': self.m.vars.checkout_root,
+                                'env': self.m.vars.gclient_env}):
+        self.m.gclient.runhooks()

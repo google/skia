@@ -71,18 +71,22 @@ class SkiaStepApi(recipe_api.RecipeApi):
     env = {}
     env['PYTHONPATH'] = str(self.m.path['start_dir'].join(
         'skia', 'infra', 'bots', '.recipe_deps', 'build', 'scripts'))
-    self.m.file.rmtree(self.m.path.basename(path),
-                       path,
-                       env=env,
-                       infra_step=True)
+    with self.m.step.context({'env': env}):
+      self.m.file.rmtree(self.m.path.basename(path),
+                         path,
+                         infra_step=True)
 
   def _run(self, steptype, **kwargs):
     """Wrapper for running a step."""
+    ctx = {}
     cwd = kwargs.pop('cwd', None)
     if cwd:
-      with self.m.step.context({'cwd': cwd}):
-        return steptype(**kwargs)
-    return steptype(**kwargs)
+      ctx['cwd'] = cwd
+    env = kwargs.pop('env', None)
+    if env:
+      ctx['env'] = env
+    with self.m.step.context(ctx):
+      return steptype(**kwargs)
 
   def __call__(self, steptype, name, abort_on_failure=True,
                fail_build_on_failure=True, env=None, **kwargs):
