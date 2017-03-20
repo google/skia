@@ -717,16 +717,6 @@ static int lpaint_setDither(lua_State* L) {
     return 0;
 }
 
-static int lpaint_isUnderlineText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isUnderlineText());
-    return 1;
-}
-
-static int lpaint_isStrikeThruText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isStrikeThruText());
-    return 1;
-}
-
 static int lpaint_isFakeBoldText(lua_State* L) {
     lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isFakeBoldText());
     return 1;
@@ -1066,8 +1056,6 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setDither", lpaint_setDither },
     { "getFilterQuality", lpaint_getFilterQuality },
     { "setFilterQuality", lpaint_setFilterQuality },
-    { "isUnderlineText", lpaint_isUnderlineText },
-    { "isStrikeThruText", lpaint_isStrikeThruText },
     { "isFakeBoldText", lpaint_isFakeBoldText },
     { "isLinearText", lpaint_isLinearText },
     { "isSubpixelText", lpaint_isSubpixelText },
