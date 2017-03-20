@@ -7,6 +7,7 @@
       "[CUSTOM_/_B_WORK]/flutter",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs checkout_path",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -51,6 +52,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
     },
+    "infra_step": true,
     "name": "bot_update",
     "~followup_annotations": [
       "@@@STEP_TEXT@Some step text@@@",
@@ -97,9 +99,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
     },
     "name": "runhook"
@@ -115,6 +114,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
+    "infra_step": true,
     "name": "rmtree android_release"
   },
   {
@@ -127,9 +127,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
     },
     "name": "gn_gen"
@@ -145,9 +142,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
     },
     "name": "build_flutter"
@@ -160,6 +154,7 @@
       "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android/Release",
       "[CUSTOM_[SWARM_OUT_DIR]]/out/Release"
     ],
+    "infra_step": true,
     "name": "copy build products",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import errno@@@",
