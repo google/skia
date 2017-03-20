@@ -132,7 +132,9 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
     dstColorSpace = fix_for_colortype(dstColorSpace.get(), dstColorType);
     SkImageInfo dstInfo = SkImageInfo::Make(image->width(), image->height(), dstColorType,
                                             dstAlphaType, dstColorSpace);
-    image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, hint);
+    if (!image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, hint)) {
+        memset(data->writable_data(), 0, rowBytes * image->height());
+    }
 
     // SkImage must be premul, so manually premul the data if we unpremul'd during readPixels
     if (kUnpremul_SkAlphaType == dstAlphaType) {
@@ -193,11 +195,16 @@ protected:
             for (SkColorType srcColorType : colorTypes) {
                 canvas->save();
                 sk_sp<SkImage> image = make_raster_image(srcColorType);
-                for (SkColorType dstColorType : colorTypes) {
-                    for (SkAlphaType dstAlphaType : alphaTypes) {
-                        draw_image(canvas, image.get(), dstColorType, dstAlphaType,
-                                   dstColorSpace, SkImage::kAllow_CachingHint);
-                        canvas->translate((float) kWidth, 0.0f);
+                if (GrContext* context = canvas->getGrContext()) {
+                    image = image->makeTextureImage(context, canvas->imageInfo().colorSpace());
+                }
+                if (image) {
+                    for (SkColorType dstColorType : colorTypes) {
+                        for (SkAlphaType dstAlphaType : alphaTypes) {
+                            draw_image(canvas, image.get(), dstColorType, dstAlphaType,
+                                       dstColorSpace, SkImage::kAllow_CachingHint);
+                            canvas->translate((float)kWidth, 0.0f);
+                        }
                     }
                 }
                 canvas->restore();
