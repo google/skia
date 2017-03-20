@@ -332,10 +332,6 @@ sk_sp<SkImage> SkImage_Base::makeColorSpace(sk_sp<SkColorSpace> target) const {
 
 #if !SK_SUPPORT_GPU
 
-sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted) {
-    return nullptr;
-}
-
 sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
                                      int mipLevelCount, SkBudgeted, SkDestinationSurfaceColorMode) {
     return nullptr;
