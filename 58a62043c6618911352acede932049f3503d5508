@@ -16,6 +16,24 @@
       "revId": "58a62043c6618911352acede932049f3503d5508",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83448df1_db4ca46b",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-20T18:43:43Z",
+      "side": 1,
+      "message": "I\u0027ve updated the constructor call sites so it should no longer be possible.",
+      "parentUuid": "6d6885da_562d092b",
+      "revId": "58a62043c6618911352acede932049f3503d5508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
