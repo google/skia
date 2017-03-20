@@ -109,12 +109,8 @@
       "--make-output-dir"
     ],
     "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer"
+      "CC": "/usr/bin/clang",
+      "CXX": "/usr/bin/clang++"
     },
     "name": "build command_buffer"
   },
@@ -124,14 +120,9 @@
       "-u",
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer"
+      "CC": "/usr/bin/clang",
+      "CXX": "/usr/bin/clang++"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -143,14 +134,9 @@
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
       "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-O1\"] target_cpu=\"x86_64\""
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer"
+      "CC": "/usr/bin/clang",
+      "CXX": "/usr/bin/clang++"
     },
     "name": "gn gen"
   },
@@ -160,14 +146,9 @@
       "-C",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer"
+      "CC": "/usr/bin/clang",
+      "CXX": "/usr/bin/clang++"
     },
     "name": "ninja"
   },

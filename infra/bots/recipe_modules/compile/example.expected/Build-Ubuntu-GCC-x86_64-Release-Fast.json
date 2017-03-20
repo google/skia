@@ -85,15 +85,6 @@
       "-u",
       "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast"
-    },
     "infra_step": true,
     "name": "fetch-gn"
   },
@@ -104,15 +95,6 @@
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast/Release",
       "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-march=native\", \"-fomit-frame-pointer\", \"-O3\", \"-ffp-contract=off\"] is_debug=false target_cpu=\"x86_64\""
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast"
-    },
     "name": "gn gen"
   },
   {
@@ -121,15 +103,6 @@
       "-C",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast/Release"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast"
-    },
     "name": "ninja"
   },
   {

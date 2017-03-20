@@ -24,9 +24,11 @@ class InfraApi(recipe_api.RecipeApi):
 
     This fails flakily sometimes, so perform multiple attempts.
     """
-    self.m.run.with_retry(
-        self.m.step,
-        'update go pkgs',
-        UPDATE_GO_ATTEMPTS,
-        cmd=['go', 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG],
-        env=self.go_env)
+    env = self.m.step.get_from_context('env') or {}
+    env.update(self.go_env)
+    with self.m.step.context({'env': env}):
+      self.m.run.with_retry(
+          self.m.step,
+          'update go pkgs',
+          UPDATE_GO_ATTEMPTS,
+          cmd=['go', 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG])
