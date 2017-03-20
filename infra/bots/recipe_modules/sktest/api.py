@@ -392,7 +392,6 @@ def dm_flags(bot):
 
   if 'Vulkan' in bot and 'RadeonR9M470X' in bot and 'Win' in bot:
     # skia:6396
-    match.append('~VertexAttributeCount')
     match.append('~ComposedImageFilterBounds_Gpu')
     match.append('~CopySurface')
     match.append('~ImageFilterZeroBlurSigma_Gpu')
