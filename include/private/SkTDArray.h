@@ -11,6 +11,7 @@
 #define SkTDArray_DEFINED
 
 #include "SkTypes.h"
+#include "SkMemory.h"
 
 template <typename T> class SkTDArray {
 public:
@@ -234,7 +235,7 @@ public:
         }
         return -1;
     }
-    
+
     int find(const T& elem) const {
         const T* iter = fArray;
         const T* stop = fArray + fCount;

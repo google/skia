@@ -8,6 +8,8 @@
 
 #include "SkGradientBitmapCache.h"
 
+#include "SkMemory.h"
+
 struct SkGradientBitmapCache::Entry {
     Entry*      fPrev;
     Entry*      fNext;

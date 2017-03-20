@@ -7,6 +7,8 @@
 
 #include "SkVarAlloc.h"
 
+#include "SkMemory.h"
+
 struct SkVarAlloc::Block {
     Block* prev;
     char* data() { return (char*)(this + 1); }

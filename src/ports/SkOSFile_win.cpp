@@ -9,6 +9,7 @@
 #if defined(SK_BUILD_FOR_WIN32)
 
 #include "SkLeanWindows.h"
+#include "SkMemory.h"
 #include "SkOSFile.h"
 #include "SkTFitsIn.h"
 

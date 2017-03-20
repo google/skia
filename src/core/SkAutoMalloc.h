@@ -9,6 +9,7 @@
 #define SkAutoMalloc_DEFINED
 
 #include "SkTypes.h"
+#include "SkMemory.h"
 
 #include <memory>
 
