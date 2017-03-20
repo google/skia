@@ -8,6 +8,7 @@
 #include "SkShadowTessellator.h"
 #include "SkColorPriv.h"
 #include "SkGeometry.h"
+#include "SkInsetConvexPolygon.h"
 #include "SkPath.h"
 #include "SkVertices.h"
 
@@ -445,15 +446,18 @@ private:
     bool clipUmbraPoint(const SkPoint& umbraPoint, const SkPoint& centroid, SkPoint* clipPoint);
 
     void handleLine(const SkPoint& p) override;
+    void handlePolyPoint(const SkPoint& p);
 
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
-    void addInnerPoint(const SkPoint& pathPoint);
+    bool addInnerPoint(const SkPoint& pathPoint);
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal) override;
 
     SkTDArray<SkPoint>  fClipPolygon;
     SkTDArray<SkVector> fClipVectors;
     SkPoint             fCentroid;
 
+    SkTDArray<SkPoint>  fPathPolygon;
+    SkTDArray<SkPoint>  fUmbraPolygon;
     int                 fCurrPolyPoint;
     bool                fPrevUmbraOutside;
     bool                fFirstUmbraOutside;
@@ -497,14 +501,11 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     bool usePointCheck = path.isRRect(nullptr) || path.isRect(nullptr) || path.isOval(nullptr);
     this->checkUmbraAndTransformCentroid(scale, translate, usePointCheck);
 
-    // walk around the path, tessellate and generate inner and outer rings
+    // build path polygon
+    fPathPolygon.setReserve(path.countPoints());
     SkPath::Iter iter(devPath, true);
     SkPoint pts[4];
     SkPath::Verb verb;
-    if (fTransparent) {
-        *fPositions.push() = fCentroid;
-        *fColors.push() = fUmbraColor;
-    }
     SkMatrix shadowTransform;
     shadowTransform.setScaleTranslate(scale, scale, xlate.fX, xlate.fY);
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
@@ -526,6 +527,66 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
             case SkPath::kDone_Verb:
                 break;
         }
+    }
+
+    if (fPathPolygon.count() < 3) {
+        return;
+    }
+
+    // compute centroid
+    SkPoint centroid = { 0, 0 };
+    SkScalar area = 0;
+    for (int i = 0; i < fPathPolygon.count(); ++i) {
+        int j = i + 1;
+        if (i == fPathPolygon.count() - 1) {
+            j = 0;
+        }
+        SkPoint currPoint = fPathPolygon[i];
+        SkPoint nextPoint = fPathPolygon[j];
+        SkScalar quadArea = currPoint.cross(nextPoint);
+        centroid.fX += (currPoint.fX + nextPoint.fX) * quadArea;
+        centroid.fY += (currPoint.fY + nextPoint.fY) * quadArea;
+        area += quadArea;
+    }
+    area *= 0.5f;
+    centroid *= SK_Scalar1 / (6 * area);
+    fCentroid = centroid;
+
+    SkScalar minDistSq = centroid.distanceToLineSegmentBetweenSqd(fPathPolygon[0],
+                                                                  fPathPolygon[1]);
+    for (int i = 1; i < fPathPolygon.count(); ++i) {
+        int j = i + 1;
+        if (i == fPathPolygon.count() - 1) {
+            j = 0;
+        }
+        SkPoint currPoint = fPathPolygon[i];
+        SkPoint nextPoint = fPathPolygon[j];
+        SkScalar distSq = centroid.distanceToLineSegmentBetweenSqd(currPoint, nextPoint);
+        if (distSq < minDistSq) {
+            minDistSq = distSq;
+        }
+    }
+
+    //*** not sure the tolerances are quite right here
+    if (minDistSq + 1.0e-6f < radius*radius) {
+        SkScalar newRadius = SkScalarSqrt(minDistSq) - 1.0e-3f;
+        SkScalar ratio = 256 * newRadius / radius;
+        // they aren't PMColors, but the interpolation algorithm is the same
+        fUmbraColor = SkPMLerp(fUmbraColor, fPenumbraColor, (unsigned)ratio);
+        radius = newRadius;
+    }
+
+    if (!SkInsetConvexPolygon(fPathPolygon, radius, &fUmbraPolygon)) {
+        fValidUmbra = false;
+    }
+
+    // walk around the path, tessellate and generate inner and outer rings
+    if (fTransparent) {
+        *fPositions.push() = fCentroid;
+        *fColors.push() = fUmbraColor;
+    }
+    for (int i = 0; i < fPathPolygon.count(); ++i) {
+        this->handlePolyPoint(fPathPolygon[i]);
     }
 
     if (!this->indexCount()) {
@@ -757,7 +818,7 @@ void SkSpotShadowTessellator::checkUmbraAndTransformCentroid(SkScalar scale,
     }
 
     fTransparent = fTransparent || !hiddenCentroid || !validUmbra;
-    fValidUmbra = validUmbra;
+//    fValidUmbra = validUmbra;
     fCentroid = transformedCentroid;
 }
 
@@ -804,7 +865,46 @@ void SkSpotShadowTessellator::mapPoints(SkScalar scale, const SkVector& xlate,
     }
 }
 
+static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
+    static constexpr SkScalar kClose = (SK_Scalar1 / 16);
+    static constexpr SkScalar kCloseSqd = kClose*kClose;
+
+    SkScalar distSq = p0.distanceToSqd(p1);
+    return distSq < kCloseSqd;
+}
+
+static bool is_collinear(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+    SkVector v0 = p1 - p0;
+    SkVector v1 = p2 - p0;
+    return (SkScalarNearlyZero(v0.cross(v1)));
+}
+
 void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
+    // remove coincident points
+    if (fPathPolygon.count() > 0 && duplicate_pt(p, fPathPolygon[fPathPolygon.count()-1])) {
+        return;
+    }
+
+    // remove collinear points
+    if (fPathPolygon.count() > 1 && is_collinear(fPathPolygon[fPathPolygon.count()-2],
+                                                 fPathPolygon[fPathPolygon.count()-1],
+                                                 p)) {
+        fPathPolygon[fPathPolygon.count() - 1] = p;
+    } else {
+        *fPathPolygon.push() = p;
+    }
+
+    if (fValidUmbra) {
+        // Determine whether we have a real umbra by insetting polygon by radius
+        // and see if it extends past centroid.
+        SkScalar distance = fCentroid.distanceToSqd(p);
+        if (distance <= fRadius*fRadius) {
+            fValidUmbra = false;
+        }
+    }
+}
+
+void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
     if (fInitPoints.count() < 2) {
         *fInitPoints.push() = p;
         return;
@@ -814,7 +914,7 @@ void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
         // determine if cw or ccw
         SkVector v0 = fInitPoints[1] - fInitPoints[0];
         SkVector v1 = p - fInitPoints[0];
-        SkScalar perpDot = v0.fX*v1.fY - v0.fY*v1.fX;
+        SkScalar perpDot = v0.cross(v1);
         if (SkScalarNearlyZero(perpDot)) {
             // nearly parallel, just treat as straight line and continue
             fInitPoints[1] = p;
@@ -867,60 +967,77 @@ void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
     }
 }
 
-void SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint) {
-    SkVector v = fCentroid - pathPoint;
-    SkScalar distance = v.length();
-    SkScalar t;
-    if (fValidUmbra) {
-        SkASSERT(distance >= fRadius);
-        t = fRadius / distance;
+bool SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint) {
+    SkPoint umbraPoint;
+    if (!fValidUmbra) {
+        SkVector v = fCentroid - pathPoint;
+        v *= 0.95f;
+        umbraPoint = pathPoint + v;
     } else {
-        t = 0.95f;
+        umbraPoint = fUmbraPolygon[0];
+        SkScalar minDistance = pathPoint.distanceToSqd(umbraPoint);
+        for (int i = 1; i < fUmbraPolygon.count(); ++i) {
+            SkScalar distance = pathPoint.distanceToSqd(fUmbraPolygon[i]);
+            if (distance < minDistance) {
+                umbraPoint = fUmbraPolygon[i];
+                minDistance = distance;
+            }
+        }
     }
-    v *= t;
-    SkPoint umbraPoint = pathPoint + v;
-    *fPositions.push() = umbraPoint;
-    *fColors.push() = fUmbraColor;
 
     fPrevPoint = pathPoint;
+
+    // merge "close" points
+    if (fPrevUmbraIndex == fFirstVertex ||
+        !duplicate_pt(umbraPoint, fPositions[fPrevUmbraIndex])) {
+        *fPositions.push() = umbraPoint;
+        *fColors.push() = fUmbraColor;
+
+        return false;
+    } else {
+        return true;
+    }
 }
 
 void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& nextNormal) {
     // add next umbra point
-    this->addInnerPoint(nextPoint);
-    int prevPenumbraIndex = fPositions.count() - 2;
-    int currUmbraIndex = fPositions.count() - 1;
+    bool duplicate = this->addInnerPoint(nextPoint);
+    // TODO: is this right? What if we're not transparent and the first point is not outside?
+    int prevPenumbraIndex = duplicate ? fPositions.count()-1 : fPositions.count()-2;
+    int currUmbraIndex = duplicate ? fPrevUmbraIndex : fPositions.count()-1;
 
-    // add to center fan if transparent or centroid showing
-    if (fTransparent) {
-        *fIndices.push() = 0;
-        *fIndices.push() = fPrevUmbraIndex;
-        *fIndices.push() = currUmbraIndex;
-    // otherwise add to clip ring
-    } else {
-        if (!fTransparent) {
-            SkPoint clipPoint;
-            bool isOutside = clipUmbraPoint(fPositions[currUmbraIndex], fCentroid, &clipPoint);
-            if (isOutside) {
-                *fPositions.push() = clipPoint;
-                *fColors.push() = fUmbraColor;
+    if (!duplicate) {
+        // add to center fan if transparent or centroid showing
+        if (fTransparent) {
+            *fIndices.push() = 0;
+            *fIndices.push() = fPrevUmbraIndex;
+            *fIndices.push() = currUmbraIndex;
+        // otherwise add to clip ring
+        } else {
+            if (!fTransparent) {
+                SkPoint clipPoint;
+                bool isOutside = clipUmbraPoint(fPositions[currUmbraIndex], fCentroid, &clipPoint);
+                if (isOutside) {
+                    *fPositions.push() = clipPoint;
+                    *fColors.push() = fUmbraColor;
 
-                *fIndices.push() = fPrevUmbraIndex;
-                *fIndices.push() = currUmbraIndex;
-                *fIndices.push() = currUmbraIndex + 1;
-                if (fPrevUmbraOutside) {
-                    // fill out quad
                     *fIndices.push() = fPrevUmbraIndex;
+                    *fIndices.push() = currUmbraIndex;
                     *fIndices.push() = currUmbraIndex + 1;
+                    if (fPrevUmbraOutside) {
+                        // fill out quad
+                        *fIndices.push() = fPrevUmbraIndex;
+                        *fIndices.push() = currUmbraIndex + 1;
+                        *fIndices.push() = fPrevUmbraIndex + 1;
+                    }
+                } else if (fPrevUmbraOutside) {
+                    // add tri
+                    *fIndices.push() = fPrevUmbraIndex;
+                    *fIndices.push() = currUmbraIndex;
                     *fIndices.push() = fPrevUmbraIndex + 1;
                 }
-            } else if (fPrevUmbraOutside) {
-                // add tri
-                *fIndices.push() = fPrevUmbraIndex;
-                *fIndices.push() = currUmbraIndex;
-                *fIndices.push() = fPrevUmbraIndex + 1;
+                fPrevUmbraOutside = isOutside;
             }
-            fPrevUmbraOutside = isOutside;
         }
     }
 
@@ -929,9 +1046,11 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
     *fPositions.push() = newPoint;
     *fColors.push() = fPenumbraColor;
 
-    *fIndices.push() = fPrevUmbraIndex;
-    *fIndices.push() = prevPenumbraIndex;
-    *fIndices.push() = currUmbraIndex;
+    if (!duplicate) {
+        *fIndices.push() = fPrevUmbraIndex;
+        *fIndices.push() = prevPenumbraIndex;
+        *fIndices.push() = currUmbraIndex;
+    }
 
     *fIndices.push() = prevPenumbraIndex;
     *fIndices.push() = fPositions.count() - 1;
