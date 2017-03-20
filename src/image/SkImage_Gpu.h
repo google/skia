@@ -21,7 +21,6 @@
 
 class SkImage_Gpu : public SkImage_Base {
 public:
-    SkImage_Gpu(uint32_t uniqueID, SkAlphaType, sk_sp<GrTexture>, sk_sp<SkColorSpace>, SkBudgeted);
     SkImage_Gpu(GrContext*, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
                 sk_sp<SkColorSpace>, SkBudgeted);
     ~SkImage_Gpu() override;
@@ -34,6 +33,9 @@ public:
                             sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
+    GrTextureProxy* peekProxy() const override {
+        return fProxy.get();
+    }
     GrTexture* peekTexture() const override {
         return fProxy->instantiate(fContext->resourceProvider());
     }
@@ -43,10 +45,14 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
+
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
         return sk_ref_sp(this->peekTexture());
     }
+    GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
+                                       GrSurfaceOrigin* origin) const override;
+    GrTexture* onGetTexture() const override;
 
     bool onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
                           const size_t rowBytes[3], SkYUVColorSpace colorSpace) const override;
