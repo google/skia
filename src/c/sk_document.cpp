@@ -29,13 +29,13 @@ sk_document_t* sk_document_create_pdf_from_filename(const char* path, float dpi)
     return ToDocument(SkDocument::MakePDF(path, dpi).release());
 }
 
-//sk_document_t* sk_document_create_xps_from_stream(sk_wstream_t* stream, float dpi) {
-//    return ToDocument(SkDocument::CreateXPS(AsWStream(stream), dpi));
-//}
-//
-//sk_document_t* sk_document_create_xps_from_filename(const char* path, float dpi) {
-//    return ToDocument(SkDocument::CreateXPS(path, dpi));
-//}
+sk_document_t* sk_document_create_xps_from_stream(sk_wstream_t* stream, float dpi) {
+   return ToDocument(SkDocument::MakeXPS(AsWStream(stream), dpi).release());
+}
+
+sk_document_t* sk_document_create_xps_from_filename(const char* path, float dpi) {
+   return ToDocument(SkDocument::MakeXPS(path, dpi).release());
+}
 
 sk_canvas_t* sk_document_begin_page(sk_document_t* document, float width, float height, const sk_rect_t* content) {
     return ToCanvas(AsDocument(document)->beginPage(width, height, AsRect(content)));
