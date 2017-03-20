@@ -71,8 +71,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def step(self, name, cmd, **kwargs):
     return self._f.step(name, cmd, **kwargs)
 
-  def compile(self, target, **kwargs):
-    return self._f.compile(target, **kwargs)
+  def compile(self, target):
+    return self._f.compile(target)
 
   def copy_extra_build_products(self, swarming_out_dir):
     return self._f.copy_extra_build_products(swarming_out_dir)

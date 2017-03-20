@@ -97,14 +97,6 @@
       "gn_linux64"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths"
-    },
     "name": "runhook"
   },
   {
@@ -114,14 +106,6 @@
       "--arch=amd64"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths"
-    },
     "name": "sysroot"
   },
   {
@@ -133,13 +117,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths"
+      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools"
     },
     "name": "gn_gen"
   },
@@ -152,13 +130,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
-      "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
-      "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths"
+      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools"
     },
     "name": "build_pdfium"
   },

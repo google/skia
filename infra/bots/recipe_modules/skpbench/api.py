@@ -12,8 +12,8 @@ from recipe_engine import recipe_api
 
 
 def _run(api, title, *cmd, **kwargs):
-  return api.run(api.step, title, cmd=list(cmd),
-                 cwd=api.vars.skia_dir, **kwargs)
+  with api.step.context({'cwd': api.vars.skia_dir}):
+    return api.run(api.step, title, cmd=list(cmd), **kwargs)
 
 
 def _adb(api, title, *cmd, **kwargs):

@@ -6,13 +6,13 @@ import default_flavor
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def _run(self, title, cmd, env=None, infra_step=False):
+  def _run(self, title, cmd, infra_step=False):
     self.m.run(self.m.step, title, cmd=cmd,
-               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+               infra_step=infra_step)
 
-  def _py(self, title, script, env=None, infra_step=True, args=()):
+  def _py(self, title, script, infra_step=True, args=()):
     self.m.run(self.m.python, title, script=script, args=args,
-               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+               infra_step=infra_step)
 
   def build_command_buffer(self):
     self.m.run(self.m.python, 'build command_buffer',
@@ -22,7 +22,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
           '--no-sync', '--make-output-dir'])
 
-  def compile(self, unused_target, **kwargs):
+  def compile(self, unused_target):
     """Build Skia with GN."""
     compiler      = self.m.vars.builder_cfg.get('compiler',      '')
     configuration = self.m.vars.builder_cfg.get('configuration', '')
@@ -124,9 +124,16 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     ninja = 'ninja.exe' if 'Win' in os else 'ninja'
     gn = self.m.vars.skia_dir.join('bin', gn)
 
-    self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-    self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-    self._run('ninja', [ninja, '-C', self.out_dir])
+    env = self.m.step.get_from_context('env', {})
+    env.update(self.m.vars.default_env)
+    env['PATH'] = self.m.path.pathsep.join([
+        env.get('PATH', '%(PATH)s'),
+        str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
+    ])
+    with self.m.step.context({'cwd': self.m.vars.skia_dir, 'env': env}):
+      self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
+      self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
+      self._run('ninja', [ninja, '-C', self.out_dir])
 
   def copy_extra_build_products(self, swarming_out_dir):
     configuration = self.m.vars.builder_cfg.get('configuration', '')
@@ -139,10 +146,10 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
           win_vulkan_sdk,
           swarming_out_dir.join('out', configuration + '_x64'))
 
-  def step(self, name, cmd, env=None, **kwargs):
+  def step(self, name, cmd):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     cmd = [app] + cmd[1:]
-    env = env or {}
+    env = self.m.step.get_from_context('env') or {}
 
     clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
@@ -167,12 +174,13 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
       args = [self.m.vars.slave_dir] + [str(x) for x in cmd]
-      self._py('symbolized %s' % name,
-               self.m.vars.infrabots_dir.join('recipe_modules', 'core',
-               'resources', 'symbolize_stack_trace.py'),
-               args=args,
-               env=env,
-               infra_step=False)
+      with self.m.step.context({'cwd': self.m.vars.skia_dir, 'env': env}):
+        self._py('symbolized %s' % name,
+                 self.m.vars.infrabots_dir.join('recipe_modules', 'core',
+                 'resources', 'symbolize_stack_trace.py'),
+                 args=args,
+                 infra_step=False)
 
     else:
-      self._run(name, cmd, env=env)
+      with self.m.step.context({'env': env}):
+        self._run(name, cmd)

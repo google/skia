@@ -34,28 +34,27 @@ def RunSteps(api):
 
   # TODO(borenet): Detect static initializers?
 
-  gsutil_path = api.path['depot_tools'].join('gsutil.py')
-  if not api.vars.is_trybot:
+  with api.step.context({'cwd': cwd}):
+    gsutil_path = api.path['depot_tools'].join('gsutil.py')
+    if not api.vars.is_trybot:
+      api.run(
+        api.step,
+        'generate and upload doxygen',
+        cmd=['python', api.core.resource('generate_and_upload_doxygen.py')],
+        abort_on_failure=False)
+
+    cmd = ['python', api.core.resource('run_binary_size_analysis.py'),
+           '--library', api.vars.skia_out.join(
+               'Release', 'lib', 'libskia.so'),
+           '--githash', api.properties['revision'],
+           '--gsutil_path', gsutil_path]
+    if api.vars.is_trybot:
+      cmd.extend(['--issue_number', str(api.properties['patch_issue'])])
     api.run(
       api.step,
-      'generate and upload doxygen',
-      cmd=['python', api.core.resource('generate_and_upload_doxygen.py')],
-      cwd=cwd,
+      'generate and upload binary size data',
+      cmd=cmd,
       abort_on_failure=False)
-
-  cmd = ['python', api.core.resource('run_binary_size_analysis.py'),
-         '--library', api.vars.skia_out.join(
-             'Release', 'lib', 'libskia.so'),
-         '--githash', api.properties['revision'],
-         '--gsutil_path', gsutil_path]
-  if api.vars.is_trybot:
-    cmd.extend(['--issue_number', str(api.properties['patch_issue'])])
-  api.run(
-    api.step,
-    'generate and upload binary size data',
-    cmd=cmd,
-    cwd=cwd,
-    abort_on_failure=False)
 
 
 def GenTests(api):
