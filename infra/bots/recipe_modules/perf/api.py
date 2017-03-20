@@ -35,29 +35,29 @@ def nanobench_flags(bot):
     config += [ '565' ]
 
   gl_prefix = 'gl'
-  sample_count = 16
+  sample_count = '8'
   if 'Android' in bot or 'iOS' in bot:
-    sample_count = 4
+    sample_count = '4'
     # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
     # instead of ES.
     if 'NVIDIA_Shield' not in bot:
       gl_prefix = 'gles'
     # The NP produces a long error stream when we run with MSAA.
     if 'NexusPlayer' in bot:
-      sample_count = 0
+      sample_count = ''
 
   config.append(gl_prefix)
-  if sample_count > 0:
-    config.extend([gl_prefix + 'msaa' + str(sample_count),
-      gl_prefix + 'nvpr' + str(sample_count),
-      gl_prefix + 'nvprdit' + str(sample_count)])
+  if sample_count is not '':
+    config.extend([gl_prefix + 'msaa' + sample_count,
+      gl_prefix + 'nvpr' + sample_count,
+      gl_prefix + 'nvprdit' + sample_count])
 
   # Bench instanced rendering on a limited number of platforms
   inst_config = gl_prefix + 'inst'
   if 'Nexus6' in bot:
     config.append(inst_config) # msaa inst isn't working yet on Adreno.
   elif 'PixelC' in bot or 'NVIDIA_Shield' in bot or 'MacMini6.2' in bot:
-    config.extend([inst_config, inst_config + str(sample_count)])
+    config.extend([inst_config, inst_config + sample_count])
 
   if 'CommandBuffer' in bot:
     config = ['commandbuffer']
