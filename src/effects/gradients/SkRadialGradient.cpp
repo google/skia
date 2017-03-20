@@ -240,7 +240,7 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
-#include "glsl/GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrRadialGradient : public GrGradientEffect {
@@ -263,7 +263,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -280,7 +280,7 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor& processor, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
         b->add32(GenBaseGradientKey(processor));
     }
 
@@ -295,7 +295,7 @@ GrGLSLFragmentProcessor* GrRadialGradient::onCreateGLSLInstance() const {
     return new GrRadialGradient::GLSLRadialProcessor(*this);
 }
 
-void GrRadialGradient::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrRadialGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
     GrRadialGradient::GLSLRadialProcessor::GenKey(*this, caps, b);
 }
@@ -330,7 +330,7 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
     t.append(")");
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge, t.c_str(),
                     args.fOutputColor,
                     args.fInputColor,

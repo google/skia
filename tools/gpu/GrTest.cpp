@@ -7,29 +7,29 @@
 
 #include "GrTest.h"
 
-#include "GrBatchAtlas.h"
 #include "GrContextOptions.h"
-#include "GrRenderTargetContextPriv.h"
+#include "GrDrawOpAtlas.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrPipelineBuilder.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 
-#include "SkGpuDevice.h"
 #include "SkGrPriv.h"
+#include "SkImage_Gpu.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
 
-#include "text/GrBatchFontCache.h"
+#include "text/GrAtlasGlyphCache.h"
 #include "text/GrTextBlobCache.h"
 
 namespace GrTest {
 void SetupAlwaysEvictAtlas(GrContext* context) {
     // These sizes were selected because they allow each atlas to hold a single plot and will thus
     // stress the atlas
-    int dim = GrBatchAtlas::kGlyphMaxDim;
-    GrBatchAtlasConfig configs[3];
+    int dim = GrDrawOpAtlas::kGlyphMaxDim;
+    GrDrawOpAtlasConfig configs[3];
     configs[kA8_GrMaskFormat].fWidth = dim;
     configs[kA8_GrMaskFormat].fHeight = dim;
     configs[kA8_GrMaskFormat].fLog2Width = SkNextLog2(dim);
@@ -84,8 +84,8 @@ void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
     fTextBlobCache->setBudget(bytes);
 }
 
-void GrContext::setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs) {
-    fBatchFontCache->setAtlasSizes_ForTesting(configs);
+void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
+    fAtlasGlyphCache->setAtlasSizes_ForTesting(configs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -138,31 +138,15 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-GrTexture* GrContext::getFontAtlasTexture(GrMaskFormat format) {
-    GrBatchFontCache* cache = this->getBatchFontCache();
+sk_sp<SkImage> GrContext::getFontAtlasImage(GrMaskFormat format) {
+    GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
 
-    return cache->getTexture(format);
+    GrTexture* tex = cache->getTexture(format);
+    sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
+                                         kNeedNewImageUniqueID, kPremul_SkAlphaType,
+                                         sk_ref_sp(tex), nullptr, SkBudgeted::kNo));
+    return image;
 }
-
-void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& paint) {
-    GrPaint grPaint;
-    SkMatrix mat;
-    mat.reset();
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext.get(), paint, mat, &grPaint)) {
-        return;
-    }
-    SkMatrix textureMat;
-    textureMat.reset();
-    textureMat[SkMatrix::kMScaleX] = 1.0f/dst.width();
-    textureMat[SkMatrix::kMScaleY] = 1.0f/dst.height();
-    textureMat[SkMatrix::kMTransX] = -dst.fLeft/dst.width();
-    textureMat[SkMatrix::kMTransY] = -dst.fTop/dst.height();
-
-    grPaint.addColorTextureProcessor(tex, nullptr, textureMat);
-
-    fRenderTargetContext->drawRect(GrNoClip(), grPaint, mat, dst);
-}
-
 
 #if GR_GPU_STATS
 void GrGpu::Stats::dump(SkString* out) {
@@ -237,23 +221,39 @@ void GrResourceCache::dumpStatsKeyValuePairs(SkTArray<SkString>* keys,
 
 void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newTimestamp; }
 
+#ifdef SK_DEBUG
+int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
+    int count = 0;
+    UniqueHash::ConstIter iter(&fUniqueHash);
+    while (!iter.done()) {
+        if (0 == strcmp(tag, (*iter).getUniqueKey().tag())) {
+            ++count;
+        }
+        ++iter;
+    }
+    return count;
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
 #define RETURN_IF_ABANDONED        if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return; }
 
-void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
-                                                      GrDrawBatch* batch,
+void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
+                                                      GrAAType aaType,
+                                                      std::unique_ptr<GrDrawOp>
+                                                              op,
                                                       const GrUserStencilSettings* uss,
                                                       bool snapToCenters) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(fRenderTargetContext->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
-                              "GrRenderTargetContext::testingOnly_drawBatch");
+                              "GrRenderTargetContext::testingOnly_addDrawOp");
 
-    GrPipelineBuilder pipelineBuilder(paint, fRenderTargetContext->mustUseHWAA(paint));
+    GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
     if (uss) {
         pipelineBuilder.setUserStencil(uss);
     }
@@ -261,8 +261,8 @@ void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag, true);
     }
 
-    fRenderTargetContext->getOpList()->drawBatch(pipelineBuilder, fRenderTargetContext, GrNoClip(),
-                                                 batch);
+    fRenderTargetContext->getOpList()->addDrawOp(pipelineBuilder, fRenderTargetContext, GrNoClip(),
+                                                 std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER
@@ -287,6 +287,8 @@ public:
     explicit MockCaps(const GrContextOptions& options) : INHERITED(options) {}
     bool isConfigTexturable(GrPixelConfig config) const override { return false; }
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
+    bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
+
 private:
     typedef GrCaps INHERITED;
 };
@@ -320,8 +322,7 @@ public:
         return false;
     }
 
-    GrGpuCommandBuffer* createCommandBuffer(GrRenderTarget* target,
-                                            const GrGpuCommandBuffer::LoadAndStoreInfo&,
+    GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
                                             const GrGpuCommandBuffer::LoadAndStoreInfo&) override {
         return nullptr;
     }

@@ -55,15 +55,15 @@ static const char* ja = "ja";
 
 class FontMgrGM : public skiagm::GM {
 public:
-    FontMgrGM(SkFontMgr* fontMgr = nullptr) {
+    FontMgrGM(sk_sp<SkFontMgr> fontMgr = nullptr) {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
 
         fName.set("fontmgr_iter");
         if (fontMgr) {
             fName.append("_factory");
-            fFM.reset(fontMgr);
+            fFM = std::move(fontMgr);
         } else {
-            fFM.reset(SkFontMgr::RefDefault());
+            fFM = SkFontMgr::RefDefault();
         }
         fName.append(sk_tool_utils::platform_os_name());
         fName.append(sk_tool_utils::platform_extra_config("GDI"));
@@ -225,7 +225,7 @@ public:
         }
         fName.append(sk_tool_utils::platform_os_name());
         fName.append(sk_tool_utils::platform_extra_config("GDI"));
-        fFM.reset(SkFontMgr::RefDefault());
+        fFM = SkFontMgr::RefDefault();
     }
 
     static void show_bounds(SkCanvas* canvas, const SkPaint& paint, SkScalar x, SkScalar y,

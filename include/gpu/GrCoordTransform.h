@@ -27,7 +27,7 @@ public:
      * from the texture size and filter. The texture origin also implies whether a y-reversal should
      * be performed.
      */
-    GrCoordTransform(const GrTexture* texture, GrTextureParams::FilterMode filter) {
+    GrCoordTransform(const GrTexture* texture, GrSamplerParams::FilterMode filter) {
         SkASSERT(texture);
         SkDEBUGCODE(fInProcessor = false);
         this->reset(texture, filter);
@@ -38,7 +38,7 @@ public:
      * filter. The texture origin also implies whether a y-reversal should be performed.
      */
     GrCoordTransform(const SkMatrix& m, const GrTexture* texture,
-                     GrTextureParams::FilterMode filter) {
+                     GrSamplerParams::FilterMode filter) {
         SkDEBUGCODE(fInProcessor = false);
         SkASSERT(texture);
         this->reset(m, texture, filter);
@@ -52,13 +52,13 @@ public:
         this->reset(m, precision);
     }
 
-    void reset(const GrTexture* texture, GrTextureParams::FilterMode filter) {
+    void reset(const GrTexture* texture, GrSamplerParams::FilterMode filter) {
         SkASSERT(!fInProcessor);
         SkASSERT(texture);
         this->reset(MakeDivByTextureWHMatrix(texture), texture, filter);
     }
 
-    void reset(const SkMatrix&, const GrTexture*, GrTextureParams::FilterMode filter);
+    void reset(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter);
     void reset(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision);
 
     GrCoordTransform& operator= (const GrCoordTransform& that) {

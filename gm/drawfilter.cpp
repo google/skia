@@ -46,8 +46,8 @@ protected:
 
     void onOnceBeforeDraw() override {
         fBlur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                    SkBlurMask::ConvertRadiusToSigma(10.0f),
-                    kLow_SkBlurQuality);
+                                       SkBlurMask::ConvertRadiusToSigma(10.0f),
+                                       kLow_SkBlurQuality);
     }
 
     void onDraw(SkCanvas* canvas) override {

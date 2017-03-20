@@ -7,7 +7,7 @@ Skia has multiple backends which receive SkCanvas drawing commands,
 including:
 
 -   [Raster](#raster) - CPU-only.
--   [Ganesh](#ganesh) - Skia's GPU-accelerated backend.
+-   [GPU](#gpu) - Skia's GPU-accelerated backend.
 -   [SkPDF](#skpdf) - PDF document creation.
 -   [SkPicture](#skpicture) - Skia's display list format.
 -   [NullCanvas](#nullcanvas)  - Useful for testing only.
@@ -68,26 +68,34 @@ explicitly, instead of asking Skia to manage it.
         return std::move(pixelMemory);
     }
 
-<span id="ganesh"></span>
-Ganesh
+<span id="gpu"></span>
+GPU
 ------
 
-Ganesh Surfaces must have a `GrContext` object which manages the
-GPU context, and related caches for textures and fonts.  In this
-example, we use a `GrContextFactory` to create a context.
+GPU Surfaces must have a `GrContext` object which manages the
+GPU context, and related caches for textures and fonts. GrContexts
+are matched one to one with OpenGL contexts or Vulkan devices. That is, all
+SkSurfaces that will be rendered to using the same OpenGL context or Vulkan
+device should share a GrContext. Skia does not create a OpenGL context or Vulkan
+device for you. In OpenGL mode it also assumes that the correct OpenGL context
+has been made current to the current thread when Skia calls are made.
 
 <!--?prettify lang=cc?-->
-
-    #include "GrContextFactory.h"
+    #include "GrContext.h"
+    #include "gl/GrGLInterface.h"
     #include "SkData.h"
     #include "SkImage.h"
     #include "SkStream.h"
     #include "SkSurface.h"
-    void ganesh(int width, int height,
-                void(*draw)(SkCanvas*),
-                const char* path) {
-        GrContextFactory grFactory;
-        GrContext* context = grFactory.get(GrContextFactory::kNative_GLContextType);
+    
+    void gl_example(int width, int height, void(*draw)(SkCanvas*), const char* path) {
+        // You've already created your OpenGL context and bound it.
+        const GrGLInterface* interface = nullptr;
+        // Leaving interface as null makes Skia extract pointers to OpenGL functions for the current
+        // context in a platform-specific way. Alternatively, you may create your own GrGLInterface and
+        // initialize it however you like to attach to an alternate OpenGL implementation or intercept
+        // Skia's OpenGL calls.
+        GrContext* context = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) interface);
         SkImageInfo info = SkImageInfo:: MakeN32Premul(width, height);
         sk_sp<SkSurface> gpuSurface(
                 SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
@@ -97,7 +105,7 @@ example, we use a `GrContextFactory` to create a context.
         }
         SkCanvas* gpuCanvas = gpuSurface->getCanvas();
         draw(gpuCanvas);
-        sk_sp<SkImage> img(s->newImageSnapshot());
+        sk_sp<SkImage> img(gpuSurface->makeImageSnapshot());
         if (!img) { return; }
         sk_sp<SkData> png(img->encode());
         if (!png) { return; }

@@ -30,7 +30,7 @@ public:
         fragBuilder->codeAppend(";");
     }
 
-    static inline void GenKey(const GrProcessor& effect, const GrGLSLCaps&,
+    static inline void GenKey(const GrProcessor& effect, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrSimpleTextureEffect& textureEffect = effect.cast<GrSimpleTextureEffect>();
         b->add32(GrColorSpaceXform::XformKey(textureEffect.colorSpaceXform()));
@@ -56,7 +56,7 @@ void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
     this->updateInvariantOutputForModulation(inout);
 }
 
-void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     GrGLSimpleTextureEffect::GenKey(*this, caps, b);
 }
@@ -81,8 +81,8 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
-                                                               GrTextureParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode :
+                                                               GrSamplerParams::kNone_FilterMode);
 
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);

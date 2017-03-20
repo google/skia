@@ -91,6 +91,12 @@ public:
     size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
 
     /**
+     *  This will brute-force return true if all of the pixels in the pixmap
+     *  are opaque. If there are no pixels, or encounters an error, returns false.
+     */
+    bool computeIsOpaque() const;
+
+    /**
      *  Converts the pixel at the specified coordinate to an unpremultiplied
      *  SkColor. Note: this ignores any SkColorSpace information, and may return
      *  lower precision data than is actually in the pixel. Alpha only

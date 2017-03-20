@@ -19,7 +19,6 @@
 // needed just to know that these are all subclassed from SkFlattenable
 #include "SkShader.h"
 #include "SkPathEffect.h"
-#include "SkXfermode.h"
 #include "SkColorFilter.h"
 #include "SkPathEffect.h"
 #include "SkMaskFilter.h"
@@ -105,11 +104,11 @@ static void toString(const SkPath& path, SkString* str) {
     }
 }
 
-static const char* toString(SkCanvas::ClipOp op) {
+static const char* toString(SkClipOp op) {
     static const char* gOpNames[] = {
         "DIFF", "SECT", "UNION", "XOR", "RDIFF", "REPLACE"
     };
-    return gOpNames[op];
+    return gOpNames[static_cast<int>(op)];
 }
 
 static void toString(const SkRegion& rgn, SkString* str) {
@@ -258,7 +257,7 @@ const char* SkDumpCanvas::EdgeStyleToAAString(ClipEdgeStyle edgeStyle) {
     return kSoft_ClipEdgeStyle == edgeStyle ? "AA" : "BW";
 }
 
-void SkDumpCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkDumpCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     SkString str;
     toString(rect, &str);
     this->dump(kClip_Verb, nullptr, "clipRect(%s %s %s)", str.c_str(), toString(op),
@@ -266,7 +265,7 @@ void SkDumpCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeS
     this->INHERITED::onClipRect(rect, op, edgeStyle);
 }
 
-void SkDumpCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkDumpCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     SkString str;
     toString(rrect, &str);
     this->dump(kClip_Verb, nullptr, "clipRRect(%s %s %s)", str.c_str(), toString(op),
@@ -274,7 +273,7 @@ void SkDumpCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle ed
     this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-void SkDumpCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkDumpCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     SkString str;
     toString(path, &str);
     this->dump(kClip_Verb, nullptr, "clipPath(%s %s %s)", str.c_str(), toString(op),
@@ -282,11 +281,10 @@ void SkDumpCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeS
     this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-void SkDumpCanvas::onClipRegion(const SkRegion& deviceRgn, ClipOp op) {
+void SkDumpCanvas::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     SkString str;
     toString(deviceRgn, &str);
-    this->dump(kClip_Verb, nullptr, "clipRegion(%s %s)", str.c_str(),
-               toString(op));
+    this->dump(kClip_Verb, nullptr, "clipRegion(%s %s)", str.c_str(), toString(op));
     this->INHERITED::onClipRegion(deviceRgn, op);
 }
 

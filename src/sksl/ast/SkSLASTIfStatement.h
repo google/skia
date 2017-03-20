@@ -23,8 +23,8 @@ struct ASTIfStatement : public ASTStatement {
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {}
 
-    std::string description() const override {
-        std::string result("if (");
+    SkString description() const override {
+        SkString result("if (");
         result += fTest->description();
         result += ") ";
         result += fIfTrue->description();

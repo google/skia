@@ -14,12 +14,10 @@ class GrStencilAndCoverTextContext;
 
 class GrPathRenderingRenderTargetContext : public GrRenderTargetContext {
 public:
-    void drawText(const GrClip&,  const GrPaint&, const SkPaint&,
-                  const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                  SkScalar x, SkScalar y, const SkIRect& clipBounds) override;
-    void drawPosText(const GrClip&, const GrPaint&, const SkPaint&,
-                     const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                     const SkScalar pos[], int scalarsPerPosition,
+    void drawText(const GrClip&, const SkPaint&, const SkMatrix& viewMatrix, const char text[],
+                  size_t byteLength, SkScalar x, SkScalar y, const SkIRect& clipBounds) override;
+    void drawPosText(const GrClip&, const SkPaint&, const SkMatrix& viewMatrix, const char text[],
+                     size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds) override;
     void drawTextBlob(const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkTextBlob*,

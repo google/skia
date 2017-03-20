@@ -953,6 +953,6 @@ protected:
     }
 };
 
-SK_API SkFontMgr* SkFontMgr_New_FontConfig(FcConfig* fc) {
-    return new SkFontMgr_fontconfig(fc);
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_FontConfig(FcConfig* fc) {
+    return sk_make_sp<SkFontMgr_fontconfig>(fc);
 }

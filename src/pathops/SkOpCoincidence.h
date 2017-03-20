@@ -17,8 +17,8 @@ class SkOpSpanBase;
 
 class SkCoincidentSpans {
 public:
-    const SkOpPtT* coinPtTEnd() const { return fCoinPtTEnd; }
-    const SkOpPtT* coinPtTStart() const { return fCoinPtTStart; }
+    const SkOpPtT* coinPtTEnd() const;
+    const SkOpPtT* coinPtTStart() const;
 
     // These return non-const pointers so that, as copies, they can be added
     // to a new span pair
@@ -67,8 +67,8 @@ public:
     SkCoincidentSpans* next() { return fNext; }
     const SkCoincidentSpans* next() const { return fNext; }
     SkCoincidentSpans** nextPtr() { return &fNext; }
-    const SkOpPtT* oppPtTStart() const { return fOppPtTStart; }
-    const SkOpPtT* oppPtTEnd() const { return fOppPtTEnd; }
+    const SkOpPtT* oppPtTStart() const;
+    const SkOpPtT* oppPtTEnd() const;
     // These return non-const pointers so that, as copies, they can be added
     // to a new span pair
     SkOpPtT* oppPtTStartWritable() const { return const_cast<SkOpPtT*>(fOppPtTStart); }

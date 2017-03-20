@@ -8,12 +8,12 @@
 #ifndef SkBlitter_DEFINED
 #define SkBlitter_DEFINED
 
+#include "SkAutoMalloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkColor.h"
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkTypes.h"
 
 class SkMatrix;
 class SkPaint;
@@ -258,6 +258,8 @@ public:
                               SkAlpha leftAlpha, SkAlpha rightAlpha) override;
     void blitMask(const SkMask&, const SkIRect& clip) override;
     const SkPixmap* justAnOpaqueColor(uint32_t* value) override;
+    void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
+    void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
 
     int requestRowsPreserved() const override {
         return fBlitter->requestRowsPreserved();

@@ -7,6 +7,7 @@
 
 #include <emmintrin.h>
 #include "SkBitmapProcState_opts_SSE2.h"
+#include "SkBitmapProcState_utils.h"
 #include "SkColorPriv.h"
 #include "SkPaint.h"
 #include "SkUtils.h"
@@ -262,8 +263,7 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
     SkFixed fx = mapper.fixedX();
 
     // test if we don't need to apply the tile proc
-    if (dx > 0 && (unsigned)(fx >> 16) <= maxX &&
-        (unsigned)((fx + dx * (count - 1)) >> 16) < maxX) {
+    if (can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
         if (count >= 4) {
             // SSE version of decal_filter_scale
             while ((size_t(xy) & 0x0F) != 0) {
@@ -328,7 +328,7 @@ void ClampX_ClampY_filter_scale_SSE2(const SkBitmapProcState& s, uint32_t xy[],
                                        _mm_setzero_si128());
                 wide_i = _mm_min_epi16(wide_i, wide_maxX);
 
-                // i<<4 | TILEX_LOW_BITS(fx)
+                // i<<4 | EXTRACT_LOW_BITS(fx)
                 wide_lo = _mm_srli_epi32(wide_fx, 12);
                 wide_lo = _mm_and_si128(wide_lo, wide_mask);
                 wide_i  = _mm_slli_epi32(wide_i, 4);
@@ -509,7 +509,7 @@ void ClampX_ClampY_filter_affine_SSE2(const SkBitmapProcState& s,
                                            _mm_setzero_si128());
             wide_i = _mm_min_epi16(wide_i, wide_max);
 
-            // i<<4 | TILEX_LOW_BITS(f)
+            // i<<4 | EXTRACT_LOW_BITS(f)
             __m128i wide_lo = _mm_srli_epi32(wide_f, 12);
             wide_lo = _mm_and_si128(wide_lo, wide_mask);
             wide_i  = _mm_slli_epi32(wide_i, 4);

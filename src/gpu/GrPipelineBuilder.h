@@ -8,38 +8,27 @@
 #ifndef GrPipelineBuilder_DEFINED
 #define GrPipelineBuilder_DEFINED
 
-#include "GrBlend.h"
-#include "GrCaps.h"
 #include "GrGpuResourceRef.h"
-#include "GrProcOptInfo.h"
+#include "GrProcessorSet.h"
 #include "GrRenderTarget.h"
 #include "GrUserStencilSettings.h"
 #include "GrXferProcessor.h"
-#include "SkMatrix.h"
-#include "SkRefCnt.h"
-#include "effects/GrCoverageSetOpXP.h"
-#include "effects/GrDisableColorXP.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrSimpleTextureEffect.h"
 
-class GrDrawBatch;
 class GrCaps;
+class GrDrawOp;
 class GrPaint;
+struct GrPipelineAnalysis;
 class GrTexture;
 
-class GrPipelineBuilder : public SkNoncopyable {
+class GrPipelineBuilder : private SkNoncopyable {
 public:
-    GrPipelineBuilder();
-
     /**
      * Initializes the GrPipelineBuilder based on a GrPaint and MSAA availability. Note
      * that GrPipelineBuilder encompasses more than GrPaint. Aspects of GrPipelineBuilder that have
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    GrPipelineBuilder(const GrPaint&, bool useHWAA = false);
-
-    virtual ~GrPipelineBuilder();
+    GrPipelineBuilder(GrPaint&&, GrAAType);
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Fragment Processors
@@ -51,90 +40,22 @@ public:
     /// feed their output to the GrXferProcessor which controls blending.
     ////
 
-    int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
-    int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }
-    int numFragmentProcessors() const { return this->numColorFragmentProcessors() +
-                                               this->numCoverageFragmentProcessors(); }
+    int numColorFragmentProcessors() const { return fProcessors.numColorFragmentProcessors(); }
+    int numCoverageFragmentProcessors() const {
+        return fProcessors.numCoverageFragmentProcessors();
+    }
+    int numFragmentProcessors() const { return fProcessors.numFragmentProcessors(); }
 
     const GrFragmentProcessor* getColorFragmentProcessor(int idx) const {
-        return fColorFragmentProcessors[idx].get();
+        return fProcessors.colorFragmentProcessor(idx);
     }
     const GrFragmentProcessor* getCoverageFragmentProcessor(int idx) const {
-        return fCoverageFragmentProcessors[idx].get();
+        return fProcessors.coverageFragmentProcessor(idx);
     }
 
-    void addColorFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
-        SkASSERT(processor);
-        fColorFragmentProcessors.push_back(std::move(processor));
+    void analyzeFragmentProcessors(GrPipelineAnalysis* analysis) const {
+        fProcessors.analyzeFragmentProcessors(analysis);
     }
-
-    void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
-        SkASSERT(processor);
-        fCoverageFragmentProcessors.push_back(std::move(processor));
-    }
-
-    /**
-     * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
-     */
-    void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
-    }
-
-    void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
-    }
-
-    void addColorTextureProcessor(GrTexture* texture,
-                                  const SkMatrix& matrix,
-                                  const GrTextureParams& params) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
-                                                                    params));
-    }
-
-    void addCoverageTextureProcessor(GrTexture* texture,
-                                     const SkMatrix& matrix,
-                                     const GrTextureParams& params) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
-                                                                       params));
-    }
-
-    /**
-     * When this object is destroyed it will remove any color/coverage FPs from the pipeline builder
-     * that were added after its constructor.
-     * This class can transiently modify its "const" GrPipelineBuilder object but will restore it
-     * when done - so it is notionally "const" correct.
-     */
-    class AutoRestoreFragmentProcessorState : public ::SkNoncopyable {
-    public:
-        AutoRestoreFragmentProcessorState()
-            : fPipelineBuilder(nullptr)
-            , fColorEffectCnt(0)
-            , fCoverageEffectCnt(0) {}
-
-        AutoRestoreFragmentProcessorState(const GrPipelineBuilder& ds)
-            : fPipelineBuilder(nullptr)
-            , fColorEffectCnt(0)
-            , fCoverageEffectCnt(0) {
-            this->set(&ds);
-        }
-
-        ~AutoRestoreFragmentProcessorState() { this->set(nullptr); }
-
-        void set(const GrPipelineBuilder* ds);
-
-        bool isSet() const { return SkToBool(fPipelineBuilder); }
-
-        void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
-            SkASSERT(this->isSet());
-            return fPipelineBuilder->addCoverageFragmentProcessor(std::move(processor));
-        }
-
-    private:
-        // notionally const (as marginalia)
-        GrPipelineBuilder*    fPipelineBuilder;
-        int                   fColorEffectCnt;
-        int                   fCoverageEffectCnt;
-    };
 
     /// @}
 
@@ -142,31 +63,12 @@ public:
     /// @name Blending
     ////
 
-    /**
-     * Installs a GrXPFactory. This object controls how src color, fractional pixel coverage,
-     * and the dst color are blended.
-     */
-    void setXPFactory(sk_sp<GrXPFactory> xpFactory) {
-        fXPFactory = std::move(xpFactory);
-    }
-
-    /**
-     * Sets a GrXPFactory that disables color writes to the destination. This is useful when
-     * rendering to the stencil buffer.
-     */
-    void setDisableColorXPFactory() {
-        fXPFactory = GrDisableColorXPFactory::Make();
-    }
-
-    const GrXPFactory* getXPFactory() const {
-        return fXPFactory.get();
-    }
+    const GrXPFactory* getXPFactory() const { return fProcessors.xpFactory(); }
 
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
      */
-    bool willXPNeedDstTexture(const GrCaps& caps,
-                              const GrPipelineOptimizations& optimizations) const;
+    bool willXPNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis&) const;
 
     /// @}
 
@@ -294,27 +196,13 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool usePLSDstRead(const GrDrawBatch* batch) const;
+    bool usePLSDstRead(const GrDrawOp*) const;
 
 private:
-    // Some of the auto restore objects assume that no effects are removed during their lifetime.
-    // This is used to assert that this condition holds.
-    SkDEBUGCODE(mutable int fBlockEffectRemovalCnt;)
-
-    typedef SkSTArray<4, sk_sp<GrFragmentProcessor>> FragmentProcessorArray;
-
-    uint32_t                                fFlags;
-    const GrUserStencilSettings*            fUserStencilSettings;
-    GrDrawFace                              fDrawFace;
-    mutable sk_sp<GrXPFactory>              fXPFactory;
-    FragmentProcessorArray                  fColorFragmentProcessors;
-    FragmentProcessorArray                  fCoverageFragmentProcessors;
-
-    friend class GrPipeline;
-    // This gives the GrRenderTargetOpList raw access to fColorFragmentProcessors &
-    // fCoverageFragmentProcessors
-    // TODO: that access seems a little dodgy
-    friend class GrRenderTargetOpList;
+    uint32_t fFlags;
+    const GrUserStencilSettings* fUserStencilSettings;
+    GrDrawFace fDrawFace;
+    GrProcessorSet fProcessors;
 };
 
 #endif

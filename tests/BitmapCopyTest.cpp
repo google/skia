@@ -183,7 +183,7 @@ static void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
 
 static const Pair gPairs[] = {
     { kUnknown_SkColorType,     "000000"  },
-    { kAlpha_8_SkColorType,     "010101"  },
+    { kAlpha_8_SkColorType,     "010000"  },
     { kIndex_8_SkColorType,     "011111"  },
     { kRGB_565_SkColorType,     "010101"  },
     { kARGB_4444_SkColorType,   "010111"  },

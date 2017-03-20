@@ -57,7 +57,7 @@ void GrGpu::disconnect(DisconnectType) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::makeCopyForTextureParams(int width, int height, const GrTextureParams& textureParams,
+bool GrGpu::makeCopyForTextureParams(int width, int height, const GrSamplerParams& textureParams,
                                      GrTextureProducer::CopyParams* copyParams) const {
     const GrCaps& caps = *this->caps();
     if (textureParams.isTiled() && !caps.npotTextureTileSupport() &&
@@ -65,13 +65,13 @@ bool GrGpu::makeCopyForTextureParams(int width, int height, const GrTextureParam
         copyParams->fWidth = GrNextPow2(width);
         copyParams->fHeight = GrNextPow2(height);
         switch (textureParams.filterMode()) {
-            case GrTextureParams::kNone_FilterMode:
-                copyParams->fFilter = GrTextureParams::kNone_FilterMode;
+            case GrSamplerParams::kNone_FilterMode:
+                copyParams->fFilter = GrSamplerParams::kNone_FilterMode;
                 break;
-            case GrTextureParams::kBilerp_FilterMode:
-            case GrTextureParams::kMipMap_FilterMode:
+            case GrSamplerParams::kBilerp_FilterMode:
+            case GrSamplerParams::kMipMap_FilterMode:
                 // We are only ever scaling up so no reason to ever indicate kMipMap.
-                copyParams->fFilter = GrTextureParams::kBilerp_FilterMode;
+                copyParams->fFilter = GrSamplerParams::kBilerp_FilterMode;
                 break;
         }
         return true;

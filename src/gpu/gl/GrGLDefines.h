@@ -461,6 +461,9 @@
 #define GR_GL_R32I                           0x8235
 #define GR_GL_R32UI                          0x8236
 
+/* Luminance sized formats */
+#define GR_GL_LUMINANCE8                     0x8040
+
 /* Alpha sized formats */
 #define GR_GL_ALPHA8                         0x803C
 #define GR_GL_ALPHA16                        0x803E
@@ -506,7 +509,6 @@
 /* RGBA sized formats */
 #define GR_GL_RGBA4                          0x8056
 #define GR_GL_RGB5_A1                        0x8057
-#define GR_GL_PALETTE8_RGBA8                 0x8B96
 #define GR_GL_RGBA8                          0x8058
 #define GR_GL_SRGB8_ALPHA8                   0x8C43
 #define GR_GL_RGBA16F                        0x881A

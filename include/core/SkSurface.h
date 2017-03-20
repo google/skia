@@ -257,18 +257,6 @@ public:
     sk_sp<SkImage> makeImageSnapshot(SkBudgeted = SkBudgeted::kYes);
 
     /**
-     * In rare instances a client may want a unique copy of the SkSurface's contents in an image
-     * snapshot. This enum can be used to enforce that the image snapshot's backing store is not
-     * shared with another image snapshot or the surface's backing store. This is generally more
-     * expensive. This was added for Chromium bug 585250.
-     */
-    enum ForceUnique {
-        kNo_ForceUnique,
-        kYes_ForceUnique
-    };
-    sk_sp<SkImage> makeImageSnapshot(SkBudgeted, ForceUnique);
-
-    /**
      *  Though the caller could get a snapshot image explicitly, and draw that,
      *  it seems that directly drawing a surface into another canvas might be
      *  a common pattern, and that we could possibly be more efficient, since

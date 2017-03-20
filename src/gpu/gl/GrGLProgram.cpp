@@ -19,7 +19,6 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLXferProcessor.h"
-#include "SkXfermode.h"
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)
@@ -31,7 +30,8 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const BuiltinUniformHandles& builtinUniforms,
                          GrGLuint programID,
                          const UniformInfoArray& uniforms,
-                         const SkTArray<GrGLSampler>& samplers,
+                         const UniformInfoArray& samplers,
+                         const UniformInfoArray& imageStorages,
                          const VaryingInfoArray& pathProcVaryings,
                          GrGLSLPrimitiveProcessor* geometryProcessor,
                          GrGLSLXferProcessor* xferProcessor,
@@ -47,6 +47,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
     // Assign texture units to sampler uniforms one time up front.
     GL_CALL(UseProgram(fProgramID));
     fProgramDataManager.setSamplers(samplers);
+    fProgramDataManager.setImageStorages(imageStorages);
 }
 
 GrGLProgram::~GrGLProgram() {
@@ -152,23 +153,28 @@ void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
 void GrGLProgram::bindTextures(const GrProcessor& processor,
                                bool allowSRGBInputs,
                                int* nextSamplerIdx) {
-    for (int i = 0; i < processor.numTextures(); ++i) {
-        const GrTextureAccess& access = processor.textureAccess(i);
-        fGpu->bindTexture((*nextSamplerIdx)++, access.getParams(),
-                          allowSRGBInputs, static_cast<GrGLTexture*>(access.getTexture()));
+    for (int i = 0; i < processor.numTextureSamplers(); ++i) {
+        const GrProcessor::TextureSampler& sampler = processor.textureSampler(i);
+        fGpu->bindTexture((*nextSamplerIdx)++, sampler.params(),
+                          allowSRGBInputs, static_cast<GrGLTexture*>(sampler.texture()));
     }
     for (int i = 0; i < processor.numBuffers(); ++i) {
-        const GrBufferAccess& access = processor.bufferAccess(i);
+        const GrProcessor::BufferAccess& access = processor.bufferAccess(i);
         fGpu->bindTexelBuffer((*nextSamplerIdx)++, access.texelConfig(),
                               static_cast<GrGLBuffer*>(access.buffer()));
+    }
+    for (int i = 0; i < processor.numImageStorages(); ++i) {
+        const GrProcessor::ImageStorageAccess& access = processor.imageStorageAccess(i);
+        fGpu->bindImageStorage((*nextSamplerIdx)++, access.ioType(),
+                               static_cast<GrGLTexture *>(access.texture()));
     }
 }
 
 void GrGLProgram::generateMipmaps(const GrProcessor& processor,
                                   bool allowSRGBInputs) {
-    for (int i = 0; i < processor.numTextures(); ++i) {
-        const GrTextureAccess& access = processor.textureAccess(i);
-        fGpu->generateMipmaps(access.getParams(), allowSRGBInputs,
-                              static_cast<GrGLTexture*>(access.getTexture()));
+    for (int i = 0; i < processor.numTextureSamplers(); ++i) {
+        const GrProcessor::TextureSampler& sampler = processor.textureSampler(i);
+        fGpu->generateMipmaps(sampler.params(), allowSRGBInputs,
+                              static_cast<GrGLTexture*>(sampler.texture()));
     }
 }

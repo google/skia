@@ -8,11 +8,12 @@
 #include "DMSrcSink.h"
 #include "Resources.h"
 #include "SkAndroidCodec.h"
+#include "SkAutoMalloc.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXform.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkDebugCanvas.h"
@@ -37,10 +38,10 @@
 #include "SkRecorder.h"
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
-#include "SkTLogic.h"
 #include "SkSwizzler.h"
-#include <functional>
+#include "SkTLogic.h"
 #include <cmath>
+#include <functional>
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
@@ -106,6 +107,16 @@ static SkBitmapRegionDecoder* create_brd(Path path) {
     return SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy);
 }
 
+static inline void alpha8_to_gray8(SkBitmap* bitmap) {
+    // Android requires kGray8 bitmaps to be tagged as kAlpha8.  Here we convert
+    // them back to kGray8 so our test framework can draw them correctly.
+    if (kAlpha_8_SkColorType == bitmap->info().colorType()) {
+        SkImageInfo newInfo = bitmap->info().makeColorType(kGray_8_SkColorType)
+                                            .makeAlphaType(kOpaque_SkAlphaType);
+        *const_cast<SkImageInfo*>(&bitmap->info()) = newInfo;
+    }
+}
+
 Error BRDSrc::draw(SkCanvas* canvas) const {
     SkColorType colorType = canvas->imageInfo().colorType();
     if (kRGB_565_SkColorType == colorType &&
@@ -148,9 +159,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     fSampleSize, colorType, false)) {
                 return "Cannot decode (full) region.";
             }
-            if (colorType != bitmap.colorType()) {
-                return Error::Nonfatal("Cannot convert to color type.");
-            }
+            alpha8_to_gray8(&bitmap);
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
         }
@@ -204,10 +213,8 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                             decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false)) {
                         return "Cannot decode region.";
                     }
-                    if (colorType != bitmap.colorType()) {
-                        return Error::Nonfatal("Cannot convert to color type.");
-                    }
 
+                    alpha8_to_gray8(&bitmap);
                     canvas->drawBitmapRect(bitmap,
                             SkRect::MakeXYWH((SkScalar) scaledBorder, (SkScalar) scaledBorder,
                                     (SkScalar) (subsetWidth / fSampleSize),
@@ -453,9 +460,14 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 } else {
                     options.fHasPriorFrame = false;
                 }
-                const SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
-                                                                rowBytes, &options,
-                                                                colorPtr, &colorCount);
+                SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
+                                                          rowBytes, &options,
+                                                          colorPtr, &colorCount);
+                if (SkCodec::kInvalidInput == result && i > 0) {
+                    // Some of our test images have truncated later frames. Treat that
+                    // the same as incomplete.
+                    result = SkCodec::kIncompleteInput;
+                }
                 switch (result) {
                     case SkCodec::kSuccess:
                     case SkCodec::kIncompleteInput: {
@@ -1018,11 +1030,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     size_t rowBytes = bitmap.rowBytes();
     SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), rowBytes);
     if (SkCodec::kSuccess != r && SkCodec::kIncompleteInput != r) {
-        // FIXME (raftias):
-        // This should be a fatal error.  We need to add support for
-        // A2B images in SkColorSpaceXform.
-        return Error::Nonfatal(SkStringPrintf("Couldn't getPixels %s. Error code %d",
-                                              fPath.c_str(), r));
+        return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
     }
 
     switch (fMode) {
@@ -1215,19 +1223,16 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
     , fThreaded(threaded) {}
 
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
-DEFINE_bool(batchClip, false, "Clip each GrBatch to its device bounds for testing.");
-DEFINE_bool(batchBounds, false, "Draw a wireframe bounds of each GrBatch.");
-DEFINE_int32(batchLookback, -1, "Maximum GrBatch lookback for combining, negative means default.");
-DEFINE_int32(batchLookahead, -1, "Maximum GrBatch lookahead for combining, negative means "
-                                 "default.");
+DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
+DEFINE_int32(opLookback, -1, "Maximum GrOp lookback for combining, negative means default.");
+DEFINE_int32(opLookahead, -1, "Maximum GrOp lookahead for combining, negative means default.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions grOptions;
     grOptions.fImmediateMode = FLAGS_imm;
-    grOptions.fClipBatchToBounds = FLAGS_batchClip;
-    grOptions.fDrawBatchBounds = FLAGS_batchBounds;
-    grOptions.fMaxBatchLookback = FLAGS_batchLookback;
-    grOptions.fMaxBatchLookahead = FLAGS_batchLookahead;
+    grOptions.fClipDrawOpsToBounds = FLAGS_drawOpClip;
+    grOptions.fMaxOpCombineLookback = FLAGS_opLookback;
+    grOptions.fMaxOpCombineLookahead = FLAGS_opLookahead;
 
     src.modifyGrContextOptions(&grOptions);
 

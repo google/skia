@@ -12,15 +12,8 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-GrPaint::GrPaint()
-    : fAntiAlias(false)
-    , fDisableOutputConversionToSRGB(false)
-    , fAllowSRGBInputs(false)
-    , fUsesDistanceVectorField(false)
-    , fColor(GrColor4f::OpaqueWhite()) {}
-
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
-    fXPFactory = GrCoverageSetOpXPFactory::Make(regionOp, invertCoverage);
+    fXPFactory = GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage);
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
@@ -38,7 +31,7 @@ void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& ma
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        const SkMatrix& matrix,
-                                       const GrTextureParams& params) {
+                                       const GrSamplerParams& params) {
     this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture,
                                                                 std::move(colorSpaceXform),
                                                                 matrix, params));
@@ -46,16 +39,16 @@ void GrPaint::addColorTextureProcessor(GrTexture* texture,
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                           const SkMatrix& matrix,
-                                          const GrTextureParams& params) {
+                                          const GrSamplerParams& params) {
     this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
                                                                    params));
 }
 
 bool GrPaint::internalIsConstantBlendedColor(GrColor paintColor, GrColor* color) const {
-    GrProcOptInfo colorProcInfo;
-    colorProcInfo.calcWithInitialValues(
-        sk_sp_address_as_pointer_address(fColorFragmentProcessors.begin()),
-        this->numColorFragmentProcessors(), paintColor, kRGBA_GrColorComponentFlags, false);
+    GrProcOptInfo colorProcInfo(paintColor, kRGBA_GrColorComponentFlags);
+    colorProcInfo.analyzeProcessors(
+            sk_sp_address_as_pointer_address(fColorFragmentProcessors.begin()),
+            this->numColorFragmentProcessors());
 
     GrXPFactory::InvariantBlendedColor blendedColor;
     if (fXPFactory) {

@@ -11,6 +11,7 @@
 #include "SkPixelSerializer.h"
 #include "SkPM4fPriv.h"
 #include "picture_utils.h"
+#include "sk_tool_utils.h"
 
 using namespace sk_gpu_test;
 
@@ -117,7 +118,7 @@ sk_sp<SkData> Request::writeOutSkp() {
 
     SkDynamicMemoryWStream outStream;
 
-    sk_sp<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
+    sk_sp<SkPixelSerializer> serializer = sk_tool_utils::MakePixelSerializer();
     picture->serialize(&outStream, serializer.get());
 
     return outStream.detachAsData();
@@ -258,7 +259,7 @@ sk_sp<SkData> Request::getJsonOps(int n) {
     SkCanvas* canvas = this->getCanvas();
     Json::Value root = fDebugCanvas->toJSON(fUrlDataManager, n, canvas);
     root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
-    root["drawGpuBatchBounds"] = Json::Value(fDebugCanvas->getDrawGpuBatchBounds());
+    root["drawGpuOpBounds"] = Json::Value(fDebugCanvas->getDrawGpuOpBounds());
     root["colorMode"] = Json::Value(fColorMode);
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
@@ -266,11 +267,11 @@ sk_sp<SkData> Request::getJsonOps(int n) {
     return stream.detachAsData();
 }
 
-sk_sp<SkData> Request::getJsonBatchList(int n) {
+sk_sp<SkData> Request::getJsonOpList(int n) {
     SkCanvas* canvas = this->getCanvas();
     SkASSERT(fGPUEnabled);
 
-    Json::Value result = fDebugCanvas->toJSONBatchList(n, canvas);
+    Json::Value result = fDebugCanvas->toJSONOpList(n, canvas);
 
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(result).c_str());

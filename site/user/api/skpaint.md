@@ -1,14 +1,20 @@
 SkPaint
 =======
+<span id="top"></span>
 
 *color, stroke, font, effects*
 
--   [SkXfermode](#SkXfermode) - transfer modes
--   [ShShader](#ShShader) - gradients and patterns
--   [SkMaskFilter](#SkMaskFilter) - modifications to the alpha mask
--   [SkColorFilter](#SkColorFilter) - modify the source color before applying the
--   [SkPathEffect](#SkPathEffect) - modify to the geometry before it
-    generates an alpha mask.
+<div class="float">
+  <ul>
+    <li><a href="#">SkPaint</a></li>
+    <li><a href="#SkXfermode">SkXfermode</a></li>
+    <li><a href="#SkShader">SkShader</a></li>
+    <li><a href="#SkMaskFilter">SkMaskFilter</a></li>
+    <li><a href="#SkColorFilter">SkColorFilter</a></li>
+    <li><a href="#SkPathEffect">SkPathEffect</a></li>
+  </ul>
+</div>
+
 
 Anytime you draw something in Skia, and want to specify what color it
 is, or how it blends with the background, or what style or font to
@@ -124,7 +130,7 @@ There are 6 types of effects that can be assigned to a paint:
     generates an alpha mask (e.g. dashing)
 *   **SkRasterizer** - composing custom mask layers (e.g. shadows)
 *   **SkMaskFilter** - modifications to the alpha mask before it is
-    colorized and drawn (e.g. blur, emboss)
+    colorized and drawn (e.g. blur)
 *   **SkShader** - e.g. gradients (linear, radial, sweep), bitmap patterns
     (clamp, repeat, mirror)
 *   **SkColorFilter** - modify the source color(s) before applying the
@@ -236,9 +242,9 @@ with a vertical alpha gradient.
 <a href='https://fiddle.skia.org/c/@skpaint_xfer'><img
   src='https://fiddle.skia.org/i/@skpaint_xfer_raster.png'></a>
 
-<span id="ShShader"></span>
+<span id="SkShader"></span>
 
-ShShader
+SkShader
 --------
 
 Several shaders are defined (besides the linear gradient already mentioned):
@@ -373,23 +379,6 @@ SkMaskFilter
 
     <a href='https://fiddle.skia.org/c/@skpaint_blur_mask_filter'><img
       src='https://fiddle.skia.org/i/@skpaint_blur_mask_filter_raster.png'></a>
-
-*   Emboss Mask Filter
-
-    <!--?prettify lang=cc?-->
-
-        canvas->drawColor(SK_ColorWHITE);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextSize(120);
-        SkScalar direction[3] = {1.0f, 1.0f, 1.0f};
-        paint.setMaskFilter(SkBlurMaskFilter::MakeEmboss(
-                2.0f, direction, 0.3f, 0.1f));
-        const char text[] = "Skia";
-        canvas->drawText(text, strlen(text), 0, 160, paint);
-
-    <a href='https://fiddle.skia.org/c/@skpaint_emboss'><img
-      src='https://fiddle.skia.org/i/@skpaint_emboss_raster.png'></a>
 
 
 <span id="SkColorFilter"></span>

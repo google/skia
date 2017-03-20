@@ -24,7 +24,6 @@ class GrVkSecondaryCommandBuffer;
 class GrVkGpuCommandBuffer : public GrGpuCommandBuffer {
 public:
     GrVkGpuCommandBuffer(GrVkGpu* gpu,
-                         GrVkRenderTarget*,
                          const LoadAndStoreInfo& colorInfo,
                          const LoadAndStoreInfo& stencilInfo);
 
@@ -32,11 +31,14 @@ public:
 
     void end() override;
 
-    void discard() override;
+    void discard(GrRenderTarget*) override;
 
-    void inlineUpload(GrBatchFlushState* state, GrDrawBatch::DeferredUploadFn& upload) override;
+    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override;
 
 private:
+    // Performs lazy initialization on the first operation seen by the command buffer.
+    void init(GrVkRenderTarget* rt);
+
     GrGpu* gpu() override;
     GrRenderTarget* renderTarget() override;
 
@@ -55,19 +57,18 @@ private:
                 int meshCount,
                 const SkRect& bounds) override;
 
-    void onClear(const GrFixedClip&, GrColor color) override;
+    void onClear(GrRenderTarget*, const GrFixedClip&, GrColor color) override;
 
-    void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
+    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override;
 
     void addAdditionalCommandBuffer();
 
     struct InlineUploadInfo {
-        InlineUploadInfo(GrBatchFlushState* state, const GrDrawBatch::DeferredUploadFn& upload)
-                : fFlushState(state)
-                , fUpload(upload) {}
+        InlineUploadInfo(GrOpFlushState* state, const GrDrawOp::DeferredUploadFn& upload)
+            : fFlushState(state), fUpload(upload) {}
 
-        GrBatchFlushState*            fFlushState;
-        GrDrawBatch::DeferredUploadFn fUpload;
+        GrOpFlushState* fFlushState;
+        GrDrawOp::DeferredUploadFn fUpload;
     };
 
     struct CommandBufferInfo {
@@ -85,6 +86,11 @@ private:
 
     GrVkGpu*                    fGpu;
     GrVkRenderTarget*           fRenderTarget;
+    VkAttachmentLoadOp          fVkColorLoadOp;
+    VkAttachmentStoreOp         fVkColorStoreOp;
+    VkAttachmentLoadOp          fVkStencilLoadOp;
+    VkAttachmentStoreOp         fVkStencilStoreOp;
+    GrColor4f                   fClearColor;
 
     typedef GrGpuCommandBuffer INHERITED;
 };

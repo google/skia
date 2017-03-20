@@ -103,7 +103,7 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
     SkASSERT(KeySize(style, apply) == i);
 }
 
-void GrStyle::initPathEffect(SkPathEffect* pe) {
+void GrStyle::initPathEffect(sk_sp<SkPathEffect> pe) {
     SkASSERT(!fPathEffect);
     SkASSERT(SkPathEffect::kNone_DashType == fDashInfo.fType);
     SkASSERT(0 == fDashInfo.fIntervals.count());
@@ -119,10 +119,10 @@ void GrStyle::initPathEffect(SkPathEffect* pe) {
             fDashInfo.fPhase = info.fPhase;
             info.fIntervals = fDashInfo.fIntervals.get();
             pe->asADash(&info);
-            fPathEffect.reset(SkSafeRef(pe));
+            fPathEffect = std::move(pe);
         }
     } else {
-        fPathEffect.reset(SkSafeRef(pe));
+        fPathEffect = std::move(pe);
     }
 }
 

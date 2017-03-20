@@ -11,6 +11,8 @@
 #include "SkSVGShape.h"
 #include "SkSVGTypes.h"
 
+struct SkRect;
+
 class SkSVGEllipse final : public SkSVGShape {
 public:
     virtual ~SkSVGEllipse() = default;
@@ -24,10 +26,15 @@ public:
 protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
-    void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&) const override;
+    void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
+                SkPath::FillType) const override;
+
+    SkPath onAsPath(const SkSVGRenderContext&) const override;
 
 private:
     SkSVGEllipse();
+
+    SkRect resolve(const SkSVGLengthContext&) const;
 
     SkSVGLength fCx = SkSVGLength(0);
     SkSVGLength fCy = SkSVGLength(0);

@@ -36,6 +36,7 @@
     #define SK_OPTS_NS portable
 #endif
 
+#include "SkBitmapFilter_opts.h"
 #include "SkBlend_opts.h"
 #include "SkBlitMask_opts.h"
 #include "SkBlitRow_opts.h"
@@ -89,7 +90,13 @@ namespace SkOpts {
 
     DEFINE_DEFAULT(hash_fn);
 
+    DEFINE_DEFAULT(run_pipeline);
     DEFINE_DEFAULT(compile_pipeline);
+
+    DEFINE_DEFAULT(convolve_vertically);
+    DEFINE_DEFAULT(convolve_horizontally);
+    DEFINE_DEFAULT(convolve_4_rows_horizontally);
+
 #undef DEFINE_DEFAULT
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.

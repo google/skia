@@ -13,13 +13,11 @@
 #include "GrProcessor.h"
 #include "GrTexture.h"
 #include "GrTypes.h"
-#include "SkXfermode.h"
 
 class GrShaderCaps;
-class GrGLSLCaps;
 class GrGLSLXferProcessor;
 class GrProcOptInfo;
-struct GrPipelineOptimizations;
+struct GrPipelineAnalysis;
 
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
@@ -95,7 +93,7 @@ public:
      * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLSLProcessorKey(...) to get the
      * specific subclass's key.
      */ 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const;
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
@@ -109,23 +107,19 @@ public:
         /**
          * The draw can be skipped completely.
          */
-        kSkipDraw_OptFlag                 = 0x1,
+        kSkipDraw_OptFlag = 0x1,
         /**
          * GrXferProcessor will ignore color, thus no need to provide
          */
-        kIgnoreColor_OptFlag              = 0x2,
-        /**
-         * GrXferProcessor will ignore coverage, thus no need to provide
-         */
-        kIgnoreCoverage_OptFlag           = 0x4,
+        kIgnoreColor_OptFlag = 0x2,
         /**
          * Clear color stages and override input color to that returned by getOptimizations
          */
-        kOverrideColor_OptFlag            = 0x8,
+        kOverrideColor_OptFlag = 0x4,
         /**
-         * Can tweak alpha for coverage. Currently this flag should only be used by a batch
+         * Can tweak alpha for coverage. Currently this flag should only be used by a GrDrawOp.
          */
-        kCanTweakAlphaForCoverage_OptFlag = 0x20,
+        kCanTweakAlphaForCoverage_OptFlag = 0x8,
     };
 
     static const OptFlags kNone_OptFlags = (OptFlags)0;
@@ -141,7 +135,7 @@ public:
      * A caller who calls this function on a XP is required to honor the returned OptFlags
      * and color values for its draw.
      */
-    OptFlags getOptimizations(const GrPipelineOptimizations& optimizations,
+    OptFlags getOptimizations(const GrPipelineAnalysis&,
                               bool doesStencilWrite,
                               GrColor* overrideColor,
                               const GrCaps& caps) const;
@@ -179,7 +173,7 @@ public:
      * shader. If the returned texture is NULL then the XP is either not reading the dst or we have
      * extentions that support framebuffer fetching and thus don't need a copy of the dst texture.
      */
-    const GrTexture* getDstTexture() const { return fDstTexture.getTexture(); }
+    const GrTexture* getDstTexture() const { return fDstTexture.texture(); }
 
     /**
      * Returns the offset in device coords to use when accessing the dst texture to get the dst
@@ -218,7 +212,7 @@ public:
         if (this->fWillReadDstColor != that.fWillReadDstColor) {
             return false;
         }
-        if (this->fDstTexture.getTexture() != that.fDstTexture.getTexture()) {
+        if (this->fDstTexture.texture() != that.fDstTexture.texture()) {
             return false;
         }
         if (this->fDstTextureOffset != that.fDstTextureOffset) {
@@ -229,7 +223,7 @@ public:
         }
         return this->onIsEqual(that);
     }
-   
+
 protected:
     GrXferProcessor();
     GrXferProcessor(const DstTexture*, bool willReadDstColor, bool hasMixedSamples);
@@ -237,7 +231,7 @@ protected:
 private:
     void notifyRefCntIsZero() const final {}
 
-    virtual OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+    virtual OptFlags onGetOptimizations(const GrPipelineAnalysis&,
                                         bool doesStencilWrite,
                                         GrColor* overrideColor,
                                         const GrCaps& caps) const = 0;
@@ -246,8 +240,7 @@ private:
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
      * processor's GL backend implementation.
      */
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const = 0;
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
     /**
      * Determines the type of barrier (if any) required by the subclass. Note that the possibility
@@ -277,7 +270,7 @@ private:
     bool                    fWillReadDstColor;
     bool                    fDstReadUsesMixedSamples;
     SkIPoint                fDstTextureOffset;
-    GrTextureAccess         fDstTexture;
+    TextureSampler          fDstTexture;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -296,11 +289,25 @@ GR_MAKE_BITFIELD_OPS(GrXferProcessor::OptFlags);
  * Before the XP is created, the XPF is able to answer queries about what functionality the XPs it
  * creates will have. For example, can it create an XP that supports RGB coverage or will the XP
  * blend with the destination color.
+ *
+ * GrXPFactories are intended to be static immutable objects. We pass them around as raw pointers
+ * and expect the pointers to always be valid and for the factories to be reusable and thread safe.
+ * Equality is tested for using pointer comparison. GrXPFactory destructors must be no-ops.
  */
-class GrXPFactory : public SkRefCnt {
+
+// In order to construct GrXPFactory subclass instances as constexpr the subclass, and therefore
+// GrXPFactory, must be a literal type. One requirement is having a trivial destructor. This is ok
+// since these objects have no need for destructors. However, GCC and clang throw a warning when a
+// class has virtual functions and a non-virtual destructor. We suppress that warning here and
+// for the subclasses.
+#if defined(__GNUC__) || defined(__clang)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
+class GrXPFactory {
 public:
     typedef GrXferProcessor::DstTexture DstTexture;
-    GrXferProcessor* createXferProcessor(const GrPipelineOptimizations& optimizations,
+    GrXferProcessor* createXferProcessor(const GrPipelineAnalysis&,
                                          bool hasMixedSamples,
                                          const DstTexture*,
                                          const GrCaps& caps) const;
@@ -322,66 +329,28 @@ public:
     virtual void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                           InvariantBlendedColor*) const = 0;
 
-    bool willNeedDstTexture(const GrCaps& caps, const GrPipelineOptimizations& optimizations) const;
-
-    bool isEqual(const GrXPFactory& that) const {
-        if (this->classID() != that.classID()) {
-            return false;
-        }
-        return this->onIsEqual(that);
-    }
-
-    /**
-      * Helper for down-casting to a GrXPFactory subclass
-      */
-    template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
-
-    uint32_t classID() const { SkASSERT(kIllegalXPFClassID != fClassID); return fClassID; }
+    bool willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis&) const;
 
 protected:
-    GrXPFactory() : fClassID(kIllegalXPFClassID) {}
-
-    template <typename XPF_SUBCLASS> void initClassID() {
-         static uint32_t kClassID = GenClassID();
-         fClassID = kClassID;
-    }
-
-    uint32_t fClassID;
+    constexpr GrXPFactory() {}
 
 private:
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                                   const GrPipelineOptimizations& optimizations,
+                                                   const GrPipelineAnalysis&,
                                                    bool hasMixedSamples,
                                                    const DstTexture*) const = 0;
 
-    virtual bool onIsEqual(const GrXPFactory&) const = 0;
+    bool willReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const;
 
-    bool willReadDstColor(const GrCaps&, const GrPipelineOptimizations&) const;
     /**
      *  Returns true if the XP generated by this factory will explicitly read dst in the fragment
      *  shader.
      */
-    virtual bool onWillReadDstColor(const GrCaps&, const GrPipelineOptimizations&) const = 0;
-
-    static uint32_t GenClassID() {
-        // fCurrXPFactoryID has been initialized to kIllegalXPFactoryID. The
-        // atomic inc returns the old value not the incremented value. So we add
-        // 1 to the returned value.
-        uint32_t id = static_cast<uint32_t>(sk_atomic_inc(&gCurrXPFClassID)) + 1;
-        if (!id) {
-            SkFAIL("This should never wrap as it should only be called once for each GrXPFactory "
-                   "subclass.");
-        }
-        return id;
-    }
-
-    enum {
-        kIllegalXPFClassID = 0,
-    };
-    static int32_t gCurrXPFClassID;
-
-    typedef GrProgramElement INHERITED;
+    virtual bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const = 0;
 };
+#if defined(__GNUC__) || defined(__clang)
+#pragma GCC diagnostic pop
+#endif
 
 #endif
 

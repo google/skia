@@ -36,9 +36,7 @@
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkTypes.h"
 
-#if USE_SKSL
 #include "SkSLCompiler.h"
-#endif
 
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RET(this->vkInterface(), RET, X)
@@ -119,11 +117,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     }
 #endif
 
-#if USE_SKSL
     fCompiler = new SkSL::Compiler();
-#else
-    fCompiler = shaderc_compiler_initialize();
-#endif
 
     fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendCtx->fPhysicalDevice,
                                backendCtx->fFeatures, backendCtx->fExtensions));
@@ -193,11 +187,7 @@ GrVkGpu::~GrVkGpu() {
 
     VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
 
-#if USE_SKSL
     delete fCompiler;
-#else
-    shaderc_compiler_release(fCompiler);
-#endif
 
 #ifdef SK_ENABLE_VK_LAYERS
     if (fCallback) {
@@ -210,11 +200,9 @@ GrVkGpu::~GrVkGpu() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
-            GrRenderTarget* target,
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
-    return new GrVkGpuCommandBuffer(this, vkRT, colorInfo, stencilInfo);
+    return new GrVkGpuCommandBuffer(this, colorInfo, stencilInfo);
 }
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
@@ -269,7 +257,7 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
 bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                    GrPixelConfig srcConfig, DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
-    if (kIndex_8_GrPixelConfig == srcConfig || GrPixelConfigIsCompressed(dstSurface->config())) {
+    if (GrPixelConfigIsCompressed(dstSurface->config())) {
         return false;
     }
 
@@ -1545,19 +1533,6 @@ void GrVkGpu::copySurfaceAsResolve(GrSurface* dst,
     GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
     SkASSERT(dstRT && dstRT->numColorSamples() <= 1);
     this->resolveImage(dstRT, srcRT, srcRect, dstPoint);
-}
-
-inline bool can_copy_as_draw(const GrSurface* dst,
-                             const GrSurface* src,
-                             const GrVkGpu* gpu) {
-    return false;
-}
-
-void GrVkGpu::copySurfaceAsDraw(GrSurface* dst,
-                                GrSurface* src,
-                                const SkIRect& srcRect,
-                                const SkIPoint& dstPoint) {
-    SkASSERT(false);
 }
 
 bool GrVkGpu::onCopySurface(GrSurface* dst,

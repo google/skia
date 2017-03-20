@@ -35,11 +35,9 @@ public:
                                              const SkMatrix& viewMatrix,
                                              const SkMatrix& localMatrix,
                                              bool localCoordsWillBeRead,
-                                             bool coverageWillBeIgnored,
                                              uint8_t coverage) {
         return sk_sp<GrGeometryProcessor>(new DefaultGeoProc(
-                gpTypeFlags, color, viewMatrix, localMatrix, coverage,
-                localCoordsWillBeRead, coverageWillBeIgnored));
+                gpTypeFlags, color, viewMatrix, localMatrix, coverage, localCoordsWillBeRead));
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -49,13 +47,11 @@ public:
     const Attribute* inLocalCoords() const { return fInLocalCoords; }
     const Attribute* inCoverage() const { return fInCoverage; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool localCoordsWillBeRead() const { return fLocalCoordsWillBeRead; }
     uint8_t coverage() const { return fCoverage; }
-    bool coverageWillBeIgnored() const { return fCoverageWillBeIgnored; }
     bool hasVertexCoverage() const { return SkToBool(fInCoverage); }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
@@ -74,13 +70,11 @@ public:
             varyingHandler->emitAttributes(gp);
 
             // Setup pass through color
-            if (!gp.colorIgnored()) {
-                if (gp.hasVertexColor()) {
-                    varyingHandler->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
-                } else {
-                    this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
-                                            &fColorUniform);
-                }
+            if (gp.hasVertexColor()) {
+                varyingHandler->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
+            } else {
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
@@ -112,37 +106,33 @@ public:
             }
 
             // Setup coverage as pass through
-            if (!gp.coverageWillBeIgnored()) {
-                if (gp.hasVertexCoverage()) {
-                    fragBuilder->codeAppendf("float alpha = 1.0;");
-                    varyingHandler->addPassThroughAttribute(gp.inCoverage(), "alpha");
-                    fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
-                } else if (gp.coverage() == 0xff) {
-                    fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
-                } else {
-                    const char* fragCoverage;
-                    fCoverageUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                                  kFloat_GrSLType,
-                                                                  kDefault_GrSLPrecision,
-                                                                  "Coverage",
-                                                                  &fragCoverage);
-                    fragBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, fragCoverage);
-                }
+            if (gp.hasVertexCoverage()) {
+                fragBuilder->codeAppendf("float alpha = 1.0;");
+                varyingHandler->addPassThroughAttribute(gp.inCoverage(), "alpha");
+                fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
+            } else if (gp.coverage() == 0xff) {
+                fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+            } else {
+                const char* fragCoverage;
+                fCoverageUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                              kFloat_GrSLType,
+                                                              kDefault_GrSLPrecision,
+                                                              "Coverage",
+                                                              &fragCoverage);
+                fragBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, fragCoverage);
             }
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrGLSLCaps&,
+                                  const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
-            key |= def.colorIgnored() << 8;
-            key |= def.coverageWillBeIgnored() << 9;
-            key |= def.hasVertexColor() << 10;
-            key |= def.hasVertexCoverage() << 11;
-            key |= def.coverage() == 0xff ? 0x1 << 12 : 0;
-            key |= def.localCoordsWillBeRead() && def.localMatrix().hasPerspective() ? 0x1 << 24 :
-                                                                                       0x0;
+            key |= def.hasVertexColor() << 8;
+            key |= def.hasVertexCoverage() << 9;
+            key |= (def.coverage() == 0xff) ? (0x1 << 10) : 0;
+            key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? (0x1 << 24)
+                                                                                       : 0x0;
             key |= ComputePosKey(def.viewMatrix()) << 25;
             b->add32(key);
         }
@@ -166,8 +156,7 @@ public:
                 fColor = dgp.color();
             }
 
-            if (!dgp.coverageWillBeIgnored() &&
-                dgp.coverage() != fCoverage && !dgp.hasVertexCoverage()) {
+            if (dgp.coverage() != fCoverage && !dgp.hasVertexCoverage()) {
                 pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(dgp.coverage()));
                 fCoverage = dgp.coverage();
             }
@@ -185,11 +174,11 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor();
     }
 
@@ -199,19 +188,17 @@ private:
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,
                    uint8_t coverage,
-                   bool localCoordsWillBeRead,
-                   bool coverageWillBeIgnored)
-        : fInPosition(nullptr)
-        , fInColor(nullptr)
-        , fInLocalCoords(nullptr)
-        , fInCoverage(nullptr)
-        , fColor(color)
-        , fViewMatrix(viewMatrix)
-        , fLocalMatrix(localMatrix)
-        , fCoverage(coverage)
-        , fFlags(gpTypeFlags)
-        , fLocalCoordsWillBeRead(localCoordsWillBeRead)
-        , fCoverageWillBeIgnored(coverageWillBeIgnored) {
+                   bool localCoordsWillBeRead)
+            : fInPosition(nullptr)
+            , fInColor(nullptr)
+            , fInLocalCoords(nullptr)
+            , fInCoverage(nullptr)
+            , fColor(color)
+            , fViewMatrix(viewMatrix)
+            , fLocalMatrix(localMatrix)
+            , fCoverage(coverage)
+            , fFlags(gpTypeFlags)
+            , fLocalCoordsWillBeRead(localCoordsWillBeRead) {
         this->initClassID<DefaultGeoProc>();
         bool hasColor = SkToBool(gpTypeFlags & kColor_GPFlag);
         bool hasExplicitLocalCoords = SkToBool(gpTypeFlags & kLocalCoord_GPFlag);
@@ -241,7 +228,6 @@ private:
     uint8_t fCoverage;
     uint32_t fFlags;
     bool fLocalCoordsWillBeRead;
-    bool fCoverageWillBeIgnored;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -267,7 +253,6 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
                                 GrTest::TestMatrix(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
                                 d->fRandom->nextBool(),
-                                d->fRandom->nextBool(),
                                 GrRandomCoverage(d->fRandom));
 }
 
@@ -281,7 +266,6 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoord_GPFlag : 0;
 
     uint8_t inCoverage = coverage.fCoverage;
-    bool coverageWillBeIgnored = coverage.fType == Coverage::kNone_Type;
     bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
 
     GrColor inColor = color.fColor;
@@ -290,7 +274,6 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
                                 viewMatrix,
                                 localCoords.fMatrix ? *localCoords.fMatrix : SkMatrix::I(),
                                 localCoordsWillBeRead,
-                                coverageWillBeIgnored,
                                 inCoverage);
 }
 

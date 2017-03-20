@@ -188,3 +188,14 @@ DEF_TEST(PathOpsTightBoundsIllBehaved, reporter) {
     REPORTER_ASSERT(reporter, bounds != tight);
 }
 
+DEF_TEST(PathOpsTightBoundsIllBehavedScaled, reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1048578, 1048577, 1048576, 1048576);
+    const SkRect& bounds = path.getBounds();
+    SkRect tight;
+    REPORTER_ASSERT(reporter, TightBounds(path, &tight));
+    REPORTER_ASSERT(reporter, bounds != tight);
+    REPORTER_ASSERT(reporter, tight.right() == 1048576);
+    REPORTER_ASSERT(reporter, tight.bottom() == 1048576);
+}

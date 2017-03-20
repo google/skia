@@ -35,7 +35,6 @@
 #include "SkTextToPathIter.h"
 #include "SkTLazy.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
 
 static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
     return cond ? bits | mask : bits & ~mask;
@@ -184,6 +183,17 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         ;
 #undef EQUAL
 }
+
+#define DEFINE_REF_FOO(type)    sk_sp<Sk##type> SkPaint::ref##type() const { return f##type; }
+DEFINE_REF_FOO(ColorFilter)
+DEFINE_REF_FOO(DrawLooper)
+DEFINE_REF_FOO(ImageFilter)
+DEFINE_REF_FOO(MaskFilter)
+DEFINE_REF_FOO(PathEffect)
+DEFINE_REF_FOO(Rasterizer)
+DEFINE_REF_FOO(Shader)
+DEFINE_REF_FOO(Typeface)
+#undef DEFINE_REF_FOO
 
 void SkPaint::reset() {
     SkPaint init;
@@ -441,7 +451,11 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
     switch (this->getTextEncoding()) {
         case SkPaint::kUTF8_TextEncoding:
             while (text < stop) {
-                *gptr++ = cache->unicharToGlyph(SkUTF8_NextUnichar(&text));
+                SkUnichar u = SkUTF8_NextUnicharWithError(&text, stop);
+                if (u < 0) {
+                    return 0;  // bad UTF-8 sequence
+                }
+                *gptr++ = cache->unicharToGlyph(u);
             }
             break;
         case SkPaint::kUTF16_TextEncoding: {
@@ -2241,12 +2255,12 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     sk_sp<SkPathEffect> pe;
 
     if (!applyStrokeAndPathEffects) {
-        style = paint.getStyle();   // restore
-        pe = sk_ref_sp(paint.getPathEffect());     // restore
+        style = paint.getStyle();       // restore
+        pe = paint.refPathEffect();     // restore
     }
     fPaint.setStyle(style);
     fPaint.setPathEffect(pe);
-    fPaint.setMaskFilter(sk_ref_sp(paint.getMaskFilter()));    // restore
+    fPaint.setMaskFilter(paint.refMaskFilter());    // restore
 
     // now compute fXOffset if needed
 

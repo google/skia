@@ -20,8 +20,8 @@
 #include "SkGeometry.h"
 #include "SkTLList.h"
 
-#include "batches/GrTestBatch.h"
-#include "batches/GrVertexBatch.h"
+#include "ops/GrMeshDrawOp.h"
+#include "ops/GrTestMeshDrawOp.h"
 
 #include "effects/GrConvexPolyEffect.h"
 
@@ -40,26 +40,26 @@ static SkRect sorted_rect(const SkRect& unsorted) {
 }
 
 namespace skiagm {
-class PolyBoundsBatch : public GrTestBatch {
+class PolyBoundsOp : public GrTestMeshDrawOp {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "PolyBoundsBatch"; }
+    const char* name() const override { return "PolyBoundsOp"; }
 
-    PolyBoundsBatch(const SkRect& rect, GrColor color)
-        : INHERITED(ClassID(), outset(sorted_rect(rect)), color)
-        , fRect(outset(rect)) {
+    static std::unique_ptr<GrDrawOp> Make(const SkRect& rect, GrColor color) {
+        return std::unique_ptr<GrDrawOp>(new PolyBoundsOp(rect, color));
     }
 
 private:
+    PolyBoundsOp(const SkRect& rect, GrColor color)
+            : INHERITED(ClassID(), outset(sorted_rect(rect)), color), fRect(outset(rect)) {}
+
     void onPrepareDraws(Target* target) const override {
         using namespace GrDefaultGeoProcFactory;
 
         Color color(this->color());
-        Coverage coverage(Coverage::kSolid_Type);
-        LocalCoords localCoords(LocalCoords::kUnused_Type);
-        sk_sp<GrGeometryProcessor> gp(
-            GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I()));
+        sk_sp<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
+                color, Coverage::kSolid_Type, LocalCoords::kUnused_Type, SkMatrix::I()));
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
@@ -76,7 +76,7 @@ private:
 
     SkRect fRect;
 
-    typedef GrTestBatch INHERITED;
+    typedef GrTestMeshDrawOp INHERITED;
 };
 
 /**
@@ -180,12 +180,13 @@ protected:
                 }
 
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                sk_sp<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
+                std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
 
-                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint),
+                                                                  GrAAType::kNone, std::move(op));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -219,12 +220,13 @@ protected:
                 }
 
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                sk_sp<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
+                std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
 
-                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint),
+                                                                  GrAAType::kNone, std::move(op));
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }

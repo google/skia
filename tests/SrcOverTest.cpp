@@ -6,7 +6,6 @@
  */
 
 #include "SkColorPriv.h"
-#include "SkXfermode.h"
 #include "Test.h"
 
 // our std SkAlpha255To256

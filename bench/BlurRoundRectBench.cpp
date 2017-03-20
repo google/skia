@@ -17,7 +17,6 @@
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkString.h"
-#include "SkXfermode.h"
 
 // Large blurred RR appear frequently on web pages. This benchmark measures our
 // performance in this case.

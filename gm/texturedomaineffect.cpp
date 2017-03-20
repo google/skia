@@ -11,14 +11,14 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrRenderTargetContextPriv.h"
 #include "GrContext.h"
+#include "GrRenderTargetContextPriv.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
-#include "batches/GrDrawBatch.h"
-#include "batches/GrRectBatchFactory.h"
 #include "effects/GrTextureDomain.h"
+#include "ops/GrDrawOp.h"
+#include "ops/GrRectOpFactory.h"
 
 namespace skiagm {
 /**
@@ -83,8 +83,7 @@ protected:
         }
 
         sk_sp<GrTexture> texture(
-            GrRefCachedBitmapTexture(context, fBmp, GrTextureParams::ClampNoFilter(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, fBmp, GrSamplerParams::ClampNoFilter()));
         if (!texture) {
             return;
         }
@@ -114,12 +113,12 @@ protected:
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     sk_sp<GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Make(texture.get(), nullptr, textureMatrices[tm],
-                                                GrTextureDomain::MakeTexelDomain(texture.get(),
-                                                                                 texelDomains[d]),
-                                                mode, GrTextureParams::kNone_FilterMode));
+                        GrTextureDomainEffect::Make(
+                                   texture.get(), nullptr, textureMatrices[tm],
+                                   GrTextureDomain::MakeTexelDomainForMode(texelDomains[d], mode),
+                                   mode, GrSamplerParams::kNone_FilterMode));
 
                     if (!fp) {
                         continue;
@@ -127,10 +126,10 @@ protected:
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    sk_sp<GrDrawBatch> batch(
-                            GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
-                                                                renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
+                    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                            GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

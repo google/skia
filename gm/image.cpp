@@ -246,7 +246,8 @@ static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*d
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
-                                    info.dimensions(), nullptr, nullptr);
+                                    info.dimensions(), nullptr, nullptr, SkImage::BitDepth::kU8,
+                                    SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 
 static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
@@ -343,18 +344,20 @@ static SkImageGenerator* gen_picture(const SkImageInfo& info) {
     SkPictureRecorder recorder;
     draw_opaque_contents(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
-    return SkImageGenerator::NewFromPicture(info.dimensions(), pict.get(), nullptr, nullptr);
+    return SkImageGenerator::NewFromPicture(info.dimensions(), pict.get(), nullptr, nullptr,
+                                            SkImage::BitDepth::kU8,
+                                            SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 
 static SkImageGenerator* gen_png(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
-    sk_sp<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> data(image->encode(SkEncodedImageFormat::kPNG, 100));
     return SkImageGenerator::NewFromEncoded(data.get());
 }
 
 static SkImageGenerator* gen_jpg(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
-    sk_sp<SkData> data(image->encode(SkImageEncoder::kJPEG_Type, 100));
+    sk_sp<SkData> data(image->encode(SkEncodedImageFormat::kJPEG, 100));
     return SkImageGenerator::NewFromEncoded(data.get());
 }
 
@@ -424,86 +427,3 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ScaleGeneratorGM; )
-
-#if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#endif
-
-DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
-    GrContext* context = nullptr;
-#if SK_SUPPORT_GPU
-    context = canvas->getGrContext();
-    sk_gpu_test::GrContextFactory factory;
-#endif
-    if (!context) {
-        skiagm::GM::DrawGpuOnlyMessage(canvas);
-        return;
-    }
-
-    auto render_image = [](SkCanvas* canvas) {
-        canvas->clear(SK_ColorBLUE);
-        SkPaint paint;
-        paint.setColor(SK_ColorRED);
-        canvas->drawRect(SkRect::MakeXYWH(10.f,10.f,10.f,10.f), paint);
-        paint.setColor(SK_ColorGREEN);
-        canvas->drawRect(SkRect::MakeXYWH(30.f,10.f,10.f,10.f), paint);
-        paint.setColor(SK_ColorYELLOW);
-        canvas->drawRect(SkRect::MakeXYWH(10.f,30.f,10.f,10.f), paint);
-        paint.setColor(SK_ColorCYAN);
-        canvas->drawRect(SkRect::MakeXYWH(30.f,30.f,10.f,10.f), paint);
-    };
-
-    static constexpr int kSize = 50;
-    SkBitmap bmp;
-    bmp.allocN32Pixels(kSize, kSize);
-    SkCanvas bmpCanvas(bmp);
-    render_image(&bmpCanvas);
-
-    std::function<sk_sp<SkImage>()> imageFactories[] = {
-        // Create sw raster image.
-        [bmp] {
-            return SkImage::MakeFromBitmap(bmp);
-        },
-        // Create encoded image.
-        [bmp] {
-            sk_sp<SkData> src(
-                SkImageEncoder::EncodeData(bmp, SkImageEncoder::kPNG_Type, 100));
-            return SkImage::MakeFromEncoded(std::move(src));
-        },
-        // Create a picture image.
-        [render_image] {
-            SkPictureRecorder recorder;
-            SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kSize), SkIntToScalar(kSize));
-            render_image(canvas);
-            return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
-                                           SkISize::Make(kSize, kSize), nullptr, nullptr);
-        },
-        // Create a texture image
-        [context, render_image]() -> sk_sp<SkImage> {
-            auto surface(
-                SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
-                                            SkImageInfo::MakeN32Premul(kSize, kSize)));
-            if (!surface) {
-                return nullptr;
-            }
-            render_image(surface->getCanvas());
-            return surface->makeImageSnapshot();
-        }
-    };
-
-    constexpr SkScalar kPad = 5.f;
-    canvas->translate(kPad, kPad);
-    for (auto factory : imageFactories) {
-        auto image(factory());
-        if (!image) {
-            continue;
-        }
-        if (context) {
-            sk_sp<SkImage> texImage(image->makeTextureImage(context));
-            if (texImage) {
-                canvas->drawImage(texImage, 0, 0);
-            }
-        }
-        canvas->translate(image->width() + kPad, 0);
-    }
-}

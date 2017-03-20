@@ -8,6 +8,7 @@
 
 #include "GrContext.h"
 #include "GrRenderTarget.h"
+#include "SkAutoMalloc.h"
 #include "SkSurface.h"
 #include "VulkanWindowContext.h"
 
@@ -446,6 +447,9 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
         if (!this->createSwapchain(-1, -1, fDisplayParams)) {
             return nullptr;
         }
+        backbuffer = this->getAvailableBackbuffer();
+        GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
+                            ResetFences(fBackendContext->fDevice, 2, backbuffer->fUsageFences));
 
         // acquire the image
         res = fAcquireNextImageKHR(fBackendContext->fDevice, fSwapchain, UINT64_MAX,

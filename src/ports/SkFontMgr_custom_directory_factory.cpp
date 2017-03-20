@@ -12,6 +12,6 @@
 #    define SK_FONT_FILE_PREFIX "/usr/share/fonts/"
 #endif
 
-SkFontMgr* SkFontMgr::Factory() {
+sk_sp<SkFontMgr> SkFontMgr::Factory() {
     return SkFontMgr_New_Custom_Directory(SK_FONT_FILE_PREFIX);
 }

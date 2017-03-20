@@ -16,7 +16,7 @@
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 /** Create a new, empty path. */
-SK_C_API sk_path_t* sk_path_new();
+SK_C_API sk_path_t* sk_path_new(void);
 /** Release the memory used by a sk_path_t. */
 SK_C_API void sk_path_delete(sk_path_t*);
 
@@ -237,7 +237,7 @@ SK_C_API bool sk_pathop_simplify(const sk_path_t* path, sk_path_t* result);
 
 SK_C_API bool sk_pathop_tight_bounds(const sk_path_t* path, sk_rect_t* result);
 
-SK_C_API sk_opbuilder_t* sk_opbuilder_new();
+SK_C_API sk_opbuilder_t* sk_opbuilder_new(void);
 
 SK_C_API void sk_opbuilder_destroy(sk_opbuilder_t* builder);
 
@@ -247,7 +247,7 @@ SK_C_API bool sk_opbuilder_resolve(sk_opbuilder_t* builder, sk_path_t* result);
 
 SK_C_API int sk_path_convert_conic_to_quads(const sk_point_t* p0, const sk_point_t* p1, const sk_point_t* p2, float w, sk_point_t* pts, int pow2);
 
-SK_C_API sk_pathmeasure_t* sk_pathmeasure_new();
+SK_C_API sk_pathmeasure_t* sk_pathmeasure_new(void);
 
 SK_C_API sk_pathmeasure_t* sk_pathmeasure_new_with_path(const sk_path_t* path, bool forceClosed, float resScale);
 

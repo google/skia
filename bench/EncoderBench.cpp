@@ -11,9 +11,11 @@
 #include "SkData.h"
 #include "SkImageEncoder.h"
 
+#include "sk_tool_utils.h"
+
 class EncodeBench : public Benchmark {
 public:
-    EncodeBench(const char* filename, SkImageEncoder::Type type, int quality)
+    EncodeBench(const char* filename, SkEncodedImageFormat type, int quality)
         : fFilename(filename)
         , fType(type)
         , fQuality(quality)
@@ -23,13 +25,13 @@ public:
         name.append(filename);
         name.append("_");
         switch (type) {
-            case SkImageEncoder::kJPEG_Type:
+            case SkEncodedImageFormat::kJPEG:
                 name.append("JPEG");
                 break;
-            case SkImageEncoder::kPNG_Type:
+            case SkEncodedImageFormat::kPNG:
                 name.append("PNG");
                 break;
-            case SkImageEncoder::kWEBP_Type:
+            case SkEncodedImageFormat::kWEBP:
                 name.append("WEBP");
                 break;
             default:
@@ -54,14 +56,14 @@ public:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            sk_sp<SkData> data(SkImageEncoder::EncodeData(fBitmap, fType, fQuality));
+            sk_sp<SkData> data(sk_tool_utils::EncodeImageToData(fBitmap, fType, fQuality));
             SkASSERT(data);
         }
     }
 
 private:
     const char*                fFilename;
-    const SkImageEncoder::Type fType;
+    const SkEncodedImageFormat fType;
     const int                  fQuality;
     SkString                   fName;
     SkBitmap                   fBitmap;
@@ -69,13 +71,13 @@ private:
 
 
 // The Android Photos app uses a quality of 90 on JPEG encodes
-DEF_BENCH(return new EncodeBench("mandrill_512.png", SkImageEncoder::kJPEG_Type, 90));
-DEF_BENCH(return new EncodeBench("color_wheel.jpg", SkImageEncoder::kJPEG_Type, 90));
+DEF_BENCH(return new EncodeBench("mandrill_512.png", SkEncodedImageFormat::kJPEG, 90));
+DEF_BENCH(return new EncodeBench("color_wheel.jpg", SkEncodedImageFormat::kJPEG, 90));
 
 // PNG encodes are lossless so quality should be ignored
-DEF_BENCH(return new EncodeBench("mandrill_512.png", SkImageEncoder::kPNG_Type, 90));
-DEF_BENCH(return new EncodeBench("color_wheel.jpg", SkImageEncoder::kPNG_Type, 90));
+DEF_BENCH(return new EncodeBench("mandrill_512.png", SkEncodedImageFormat::kPNG, 90));
+DEF_BENCH(return new EncodeBench("color_wheel.jpg", SkEncodedImageFormat::kPNG, 90));
 
 // TODO: What is the appropriate quality to use to benchmark WEBP encodes?
-DEF_BENCH(return new EncodeBench("mandrill_512.png", SkImageEncoder::kWEBP_Type, 90));
-DEF_BENCH(return new EncodeBench("color_wheel.jpg", SkImageEncoder::kWEBP_Type, 90));
+DEF_BENCH(return new EncodeBench("mandrill_512.png", SkEncodedImageFormat::kWEBP, 90));
+DEF_BENCH(return new EncodeBench("color_wheel.jpg", SkEncodedImageFormat::kWEBP, 90));

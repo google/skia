@@ -47,6 +47,10 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 0;
         case kSampler_GrSLType:
              return 0;
+        case kImageStorage2D_GrSLType:
+            return 0;
+        case kIImageStorage2D_GrSLType:
+            return 0;
     }
     SkFAIL("Unexpected type");
     return -1;
@@ -55,10 +59,10 @@ static inline int grsltype_to_location_size(GrSLType type) {
 void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
     int locationIndex = 0;
     for (int i = 0; i < vars.count(); ++i) {
-        GrGLSLShaderVar& var = vars[i];
+        GrShaderVar& var = vars[i];
         SkString location;
         location.appendf("location = %d", locationIndex);
-        var.setLayoutQualifier(location.c_str());
+        var.addLayoutQualifier(location.c_str());
 
         int elementSize = grsltype_to_location_size(var.getType());
         SkASSERT(elementSize);

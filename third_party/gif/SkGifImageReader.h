@@ -108,7 +108,7 @@ public:
         , m_frameContext(frameContext)
     { }
 
-    bool prepareToDecode(const SkGIFColorMap& globalMap);
+    bool prepareToDecode();
     bool outputRow(const unsigned char* rowBegin);
     bool doLZW(const unsigned char* block, size_t bytesInBlock);
     bool hasRemainingRows() { return SkToBool(rowsRemaining); }
@@ -137,37 +137,56 @@ private:
     const SkGIFFrameContext* m_frameContext;
 };
 
+struct SkGIFLZWBlock {
+ public:
+  SkGIFLZWBlock(size_t position, size_t size)
+      : blockPosition(position), blockSize(size) {}
+
+  size_t blockPosition;
+  size_t blockSize;
+};
+
 class SkGIFColorMap final {
 public:
+    static constexpr size_t kNotFound = static_cast<size_t>(-1);
+
     SkGIFColorMap()
         : m_isDefined(false)
+        , m_position(0)
         , m_colors(0)
+        , m_transPixel(kNotFound)
         , m_packColorProc(nullptr)
     {
     }
 
     void setNumColors(size_t colors) {
+        SkASSERT(!m_colors);
+        SkASSERT(!m_position);
+
         m_colors = colors;
+    }
+
+    void setTablePosition(size_t position) {
+        SkASSERT(!m_isDefined);
+
+        m_position = position;
+        m_isDefined = true;
     }
 
     size_t numColors() const { return m_colors; }
 
-    void setRawData(const char* data, size_t size)
-    {
-        // FIXME: Can we avoid this copy?
-        m_rawData = SkData::MakeWithCopy(data, size);
-        SkASSERT(m_colors * SK_BYTES_PER_COLORMAP_ENTRY == size);
-        m_isDefined = true;
-    }
     bool isDefined() const { return m_isDefined; }
 
     // Build RGBA table using the data stream.
-    sk_sp<SkColorTable> buildTable(SkColorType dstColorType, size_t transparentPixel) const;
+    sk_sp<SkColorTable> buildTable(SkStreamBuffer*, SkColorType dstColorType,
+                                   size_t transparentPixel) const;
 
 private:
     bool m_isDefined;
+    size_t m_position;
     size_t m_colors;
-    sk_sp<SkData> m_rawData;
+    // Cached values. If these match on a new request, we can reuse m_table.
+    mutable size_t m_transPixel;
     mutable PackColorProc m_packColorProc;
     mutable sk_sp<SkColorTable> m_table;
 };
@@ -181,7 +200,7 @@ public:
         , m_yOffset(0)
         , m_width(0)
         , m_height(0)
-        , m_transparentPixel(kNotFound)
+        , m_transparentPixel(SkGIFColorMap::kNotFound)
         , m_disposalMethod(SkCodecAnimation::Keep_DisposalMethod)
         , m_requiredFrame(SkCodec::kNone)
         , m_dataSize(0)
@@ -195,18 +214,16 @@ public:
     {
     }
 
-    static constexpr size_t kNotFound = static_cast<size_t>(-1);
-
     ~SkGIFFrameContext()
     {
     }
 
-    void addLzwBlock(const void* data, size_t size)
+    void addLzwBlock(size_t position, size_t size)
     {
-        m_lzwBlocks.push_back(SkData::MakeWithCopy(data, size));
+        m_lzwBlocks.push_back(SkGIFLZWBlock(position, size));
     }
 
-    bool decode(SkGifCodec* client, const SkGIFColorMap& globalMap, bool* frameDecoded);
+    bool decode(SkStreamBuffer*, SkGifCodec* client, bool* frameDecoded);
 
     int frameId() const { return m_frameId; }
     void setRect(unsigned x, unsigned y, unsigned width, unsigned height)
@@ -266,7 +283,9 @@ private:
     unsigned m_delayTime; // Display time, in milliseconds, for this image in a multi-image GIF.
 
     std::unique_ptr<SkGIFLZWContext> m_lzwContext;
-    std::vector<sk_sp<SkData>> m_lzwBlocks; // LZW blocks for this frame.
+    // LZW blocks for this frame.
+    std::vector<SkGIFLZWBlock> m_lzwBlocks;
+
     SkGIFColorMap m_localColorMap;
 
     size_t m_currentLzwBlock;
@@ -359,7 +378,7 @@ public:
     }
 
     // Return the color table for frame index (which may be the global color table).
-    sk_sp<SkColorTable> getColorTable(SkColorType dstColorType, size_t index) const;
+    sk_sp<SkColorTable> getColorTable(SkColorType dstColorType, size_t index);
 
     bool firstFrameHasAlpha() const { return m_firstFrameHasAlpha; }
 
@@ -372,6 +391,11 @@ private:
     }
 
     void addFrameIfNecessary();
+    // Must be called *after* the SkGIFFrameContext's color table (if any) has been parsed.
+    void setRequiredFrame(SkGIFFrameContext*);
+    // This method is sometimes called before creating a SkGIFFrameContext, so it cannot rely
+    // on SkGIFFrameContext::localColorMap().
+    bool hasTransparentPixel(size_t frameIndex, bool hasLocalColorMap, size_t localMapColors);
     bool currentFrameIsFirstFrame() const
     {
         return m_frames.empty() || (m_frames.size() == 1u && !m_frames[0]->isComplete());

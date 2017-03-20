@@ -9,25 +9,25 @@
 #define GrGLSLXferProcessor_DEFINED
 
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLSampler.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class GrXferProcessor;
-class GrGLSLCaps;
-class GrGLSLUniformHandler;
 class GrGLSLXPBuilder;
 class GrGLSLXPFragmentBuilder;
+class GrShaderCaps;
 
 class GrGLSLXferProcessor {
 public:
     GrGLSLXferProcessor() {}
     virtual ~GrGLSLXferProcessor() {}
 
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+    using SamplerHandle        = GrGLSLUniformHandler::SamplerHandle;
+    using ImageStorageHandle   = GrGLSLUniformHandler::ImageStorageHandle;
 
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
-                 const GrGLSLCaps* caps,
+                 const GrShaderCaps* caps,
                  const GrXferProcessor& xp,
                  const char* inputColor,
                  const char* inputCoverage,
@@ -35,10 +35,11 @@ public:
                  const char* outputSecondary,
                  const SamplerHandle* texSamplers,
                  const SamplerHandle* bufferSamplers,
+                 const ImageStorageHandle* imageStorages,
                  const bool usePLSDstRead)
             : fXPFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
-            , fGLSLCaps(caps)
+            , fShaderCaps(caps)
             , fXP(xp)
             , fInputColor(inputColor)
             , fInputCoverage(inputCoverage)
@@ -46,11 +47,12 @@ public:
             , fOutputSecondary(outputSecondary)
             , fTexSamplers(texSamplers)
             , fBufferSamplers(bufferSamplers)
+            , fImageStorages(imageStorages)
             , fUsePLSDstRead(usePLSDstRead) {}
 
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
-        const GrGLSLCaps* fGLSLCaps;
+        const GrShaderCaps* fShaderCaps;
         const GrXferProcessor& fXP;
         const char* fInputColor;
         const char* fInputCoverage;
@@ -58,6 +60,7 @@ public:
         const char* fOutputSecondary;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
+        const ImageStorageHandle* fImageStorages;
         bool fUsePLSDstRead;
     };
     /**

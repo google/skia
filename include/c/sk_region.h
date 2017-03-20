@@ -12,7 +12,7 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-SK_C_API sk_region_t* sk_region_new();
+SK_C_API sk_region_t* sk_region_new(void);
 SK_C_API sk_region_t* sk_region_new2(const sk_region_t* region);
 SK_C_API void sk_region_delete(sk_region_t* cpath); 
 SK_C_API void sk_region_contains(sk_region_t* r, const sk_region_t* region); 

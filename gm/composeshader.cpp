@@ -12,7 +12,6 @@
 #include "SkGraphics.h"
 #include "SkShader.h"
 #include "SkString.h"
-#include "SkXfermode.h"
 
 static sk_sp<SkShader> make_shader(SkBlendMode mode) {
     SkPoint pts[2];

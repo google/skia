@@ -74,13 +74,18 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
 SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
     if (!reader->parse(SkGifImageReader::SkGIFSizeQuery)) {
-        // Not enough data to determine the size.
+        // Fatal error occurred.
         return nullptr;
     }
 
-    if (0 == reader->screenWidth() || 0 == reader->screenHeight()) {
+    // If no images are in the data, or the first header is not yet defined, we cannot
+    // create a codec. In either case, the width and height are not yet known.
+    if (0 == reader->imagesCount() || !reader->frameContext(0)->isHeaderDefined()) {
         return nullptr;
     }
+
+    // isHeaderDefined() will not return true if the screen size is empty.
+    SkASSERT(reader->screenHeight() > 0 && reader->screenWidth() > 0);
 
     const auto alpha = reader->firstFrameHasAlpha() ? SkEncodedInfo::kBinary_Alpha
                                                     : SkEncodedInfo::kOpaque_Alpha;
@@ -135,6 +140,7 @@ std::vector<SkCodec::FrameInfo> SkGifCodec::onGetFrameInfo() {
         const SkGIFFrameContext* frameContext = fReader->frameContext(i);
         result[i].fDuration = frameContext->delayTime();
         result[i].fRequiredFrame = frameContext->getRequiredFrame();
+        result[i].fFullyReceived = frameContext->isComplete();
     }
     return result;
 }
@@ -234,6 +240,14 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
         return gif_error("frame index out of range!\n", kIncompleteInput);
     }
 
+    auto& localMap = fReader->frameContext(frameIndex)->localColorMap();
+    if (localMap.numColors() && !localMap.isDefined()) {
+        // We have parsed enough to know that there is a color map, but cannot
+        // parse the map itself yet. Exit now, so we do not build an incorrect
+        // table.
+        return gif_error("color map not available yet\n", kIncompleteInput);
+    }
+
     fTmpBuffer.reset(new uint8_t[dstInfo.minRowBytes()]);
 
     this->initializeColorTable(dstInfo, frameIndex);
@@ -291,8 +305,19 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         int* inputColorCount,
                                         int* rowsDecoded) {
     Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, opts);
-    if (kSuccess != result) {
-        return result;
+    switch (result) {
+        case kSuccess:
+            break;
+        case kIncompleteInput:
+            // onStartIncrementalDecode treats this as incomplete, since it may
+            // provide more data later, but in this case, no more data will be
+            // provided, and there is nothing to draw. We also cannot return
+            // kIncompleteInput, which will make SkCodec attempt to fill
+            // remaining rows, but that requires an SkSwizzler, which we have
+            // not created.
+            return kInvalidInput;
+        default:
+            return result;
     }
 
     if (dstInfo.dimensions() != this->getInfo().dimensions()) {
@@ -395,18 +420,23 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             }
             const auto* prevFrame = fReader->frameContext(frameContext->getRequiredFrame());
             if (prevFrame->getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod) {
-                const SkIRect prevRect = prevFrame->frameRect();
-                auto left = get_scaled_dimension(prevRect.fLeft, fSwizzler->sampleX());
-                auto top = get_scaled_dimension(prevRect.fTop, fSwizzler->sampleY());
-                void* const eraseDst = SkTAddOffset<void>(fDst, top * fDstRowBytes
-                        + left * SkColorTypeBytesPerPixel(dstInfo.colorType()));
-                auto width = get_scaled_dimension(prevRect.width(), fSwizzler->sampleX());
-                auto height = get_scaled_dimension(prevRect.height(), fSwizzler->sampleY());
-                // fSwizzler->fill() would fill to the scaled width of the frame, but we want to
-                // fill to the scaled with of the width of the PRIOR frame, so we do all the scaling
-                // ourselves and call the static version.
-                SkSampler::Fill(dstInfo.makeWH(width, height), eraseDst,
-                                fDstRowBytes, this->getFillValue(dstInfo), kNo_ZeroInitialized);
+                SkIRect prevRect = prevFrame->frameRect();
+                if (prevRect.intersect(this->getInfo().bounds())) {
+                    // Do the divide ourselves for left and top, since we do not want
+                    // get_scaled_dimension to upgrade 0 to 1. (This is similar to SkSampledCodec's
+                    // sampling of the subset.)
+                    auto left = prevRect.fLeft / fSwizzler->sampleX();
+                    auto top = prevRect.fTop / fSwizzler->sampleY();
+                    void* const eraseDst = SkTAddOffset<void>(fDst, top * fDstRowBytes
+                            + left * SkColorTypeBytesPerPixel(dstInfo.colorType()));
+                    auto width = get_scaled_dimension(prevRect.width(), fSwizzler->sampleX());
+                    auto height = get_scaled_dimension(prevRect.height(), fSwizzler->sampleY());
+                    // fSwizzler->fill() would fill to the scaled width of the frame, but we want to
+                    // fill to the scaled with of the width of the PRIOR frame, so we do all the
+                    // scaling ourselves and call the static version.
+                    SkSampler::Fill(dstInfo.makeWH(width, height), eraseDst,
+                                    fDstRowBytes, this->getFillValue(dstInfo), kNo_ZeroInitialized);
+                }
             }
             filledBackground = true;
         }
@@ -419,6 +449,11 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             // This will be updated by haveDecodedRow.
             fRowsDecoded = 0;
         }
+    }
+
+    if (!fCurrColorTableIsReal) {
+        // Nothing to draw this frame.
+        return kSuccess;
     }
 
     // Note: there is a difference between the following call to SkGifImageReader::decode
@@ -555,11 +590,9 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
         fRowsDecoded++;
     }
 
-    if (!fCurrColorTableIsReal) {
-        // No color table, so nothing to draw this frame.
-        // FIXME: We can abort even earlier - no need to decode this frame.
-        return true;
-    }
+    // decodeFrame will early exit if this is false, so this method will not be
+    // called.
+    SkASSERT(fCurrColorTableIsReal);
 
     // The swizzler takes care of offsetting into the dst width-wise.
     void* dstLine = SkTAddOffset<void>(fDst, dstRow * fDstRowBytes);

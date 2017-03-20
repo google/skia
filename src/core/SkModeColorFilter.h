@@ -7,7 +7,6 @@
 
 #include "SkColorFilter.h"
 #include "SkPM4f.h"
-#include "SkXfermode.h"
 
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED
@@ -45,7 +44,7 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
-    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         bool shaderIsOpaque) const override;
 
 private:

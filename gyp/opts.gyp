@@ -110,7 +110,6 @@
           '../src/utils',
       ],
       'sources': [ '<!@(python read_gni.py ../gn/opts.gni ssse3)' ],
-      'xcode_settings': { 'CLANG_X86_VECTOR_INSTRUCTIONS': 'ssse3' },
       'conditions': [
         [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=31' ] }],
         [ 'not skia_android_framework', { 'cflags': [ '-mssse3' ] }],
@@ -121,7 +120,6 @@
       'product_name': 'skia_opts_sse41',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'msvs_disabled_warnings': [ 4244, 4267 ],
       'dependencies': [ 'core.gyp:*' ],
       'include_dirs': [
           '../include/private',
@@ -176,7 +174,6 @@
       'product_name': 'skia_opts_hsw',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'msvs_disabled_warnings': [ 4244, 4267 ],
       'dependencies': [ 'core.gyp:*' ],
       'include_dirs': [
           '../include/private',

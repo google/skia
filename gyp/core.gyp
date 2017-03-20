@@ -14,18 +14,13 @@
 
       'include_dirs': [
         '../include/c',
-        '../include/codec',
         '../include/config',
         '../include/core',
-        '../include/effects',
         '../include/pathops',
         '../include/ports',
         '../include/private',
         '../include/utils',
         '../include/images',
-        '../include/gpu',
-        '../include/xml',
-        '../include/svg',
         '../src/core',
         '../src/sfnt',
         '../src/image',

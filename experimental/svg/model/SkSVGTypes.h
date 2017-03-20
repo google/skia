@@ -119,6 +119,34 @@ private:
     SkString       fIRI;
 };
 
+class SkSVGClip {
+public:
+    enum class Type {
+        kNone,
+        kInherit,
+        kIRI,
+    };
+
+    SkSVGClip() : fType(Type::kNone) {}
+    explicit SkSVGClip(Type t) : fType(t)           {}
+    explicit SkSVGClip(const SkString& iri) : fType(Type::kIRI), fIRI(iri) {}
+
+    SkSVGClip(const SkSVGClip&)            = default;
+    SkSVGClip& operator=(const SkSVGClip&) = default;
+
+    bool operator==(const SkSVGClip& other) const {
+        return fType == other.fType && fIRI == other.fIRI;
+    }
+    bool operator!=(const SkSVGClip& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+    const SkString& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
+
+private:
+    Type           fType;
+    SkString       fIRI;
+};
+
 class SkSVGLineCap {
 public:
     enum class Type {
@@ -184,6 +212,29 @@ public:
 
     bool operator==(const SkSVGSpreadMethod& other) const { return fType == other.fType; }
     bool operator!=(const SkSVGSpreadMethod& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
+class SkSVGFillRule {
+public:
+    enum class Type {
+        kNonZero,
+        kEvenOdd,
+        kInherit,
+    };
+
+    constexpr SkSVGFillRule() : fType(Type::kInherit) {}
+    constexpr explicit SkSVGFillRule(Type t) : fType(t) {}
+
+    SkSVGFillRule(const SkSVGFillRule&)            = default;
+    SkSVGFillRule& operator=(const SkSVGFillRule&) = default;
+
+    bool operator==(const SkSVGFillRule& other) const { return fType == other.fType; }
+    bool operator!=(const SkSVGFillRule& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
 

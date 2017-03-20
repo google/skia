@@ -154,8 +154,26 @@ public:
                                                    const SkISize nv12Sizes[2], GrSurfaceOrigin,
                                                    sk_sp<SkColorSpace> = nullptr);
 
+    enum class BitDepth {
+        kU8,
+        kF16,
+    };
+
+    /**
+     *  Create a new image from the specified picture.
+     *  This SkImage has no defined BitDepth or SkColorSpace, it is a flexible container for
+     *  draw commands.
+     */
+    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
+                                          const SkMatrix* matrix, const SkPaint* paint);
+
+    /**
+     *  Create a new image from the specified picture.
+     *  On creation of the SkImage, snap the SkPicture to a particular BitDepth and SkColorSpace.
+     */
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,
-                                          const SkMatrix*, const SkPaint*);
+                                          const SkMatrix*, const SkPaint*, BitDepth,
+                                          sk_sp<SkColorSpace>);
 
     static sk_sp<SkImage> MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted);
 
@@ -192,20 +210,6 @@ public:
      *  On failure, return false and ignore the pixmap parameter.
      */
     bool peekPixels(SkPixmap* pixmap) const;
-
-    /**
-     *  Some images have to perform preliminary work in preparation for drawing. This can be
-     *  decoding, uploading to a GPU, or other tasks. These happen automatically when an image
-     *  is drawn, and often they are cached so that the cost is only paid the first time.
-     *
-     *  Preroll() can be called before drawing to try to perform this prepatory work ahead of time.
-     *  For images that have no such work, this returns instantly. Others may do some thing to
-     *  prepare their cache and then return.
-     *
-     *  If the image will drawn to a GPU-backed canvas or surface, pass the associated GrContext.
-     *  If the image will be drawn to any other type of canvas or surface, pass null.
-     */
-    void preroll(GrContext* = nullptr) const;
 
     // DEPRECATED - currently used by Canvas2DLayerBridge in Chromium.
     GrTexture* getTexture() const;
@@ -275,7 +279,7 @@ public:
      *  Note: this will attempt to encode the image's pixels in the specified format,
      *  even if the image returns a data from refEncoded(). That data will be ignored.
      */
-    SkData* encode(SkImageEncoder::Type, int quality) const;
+    SkData* encode(SkEncodedImageFormat, int quality) const;
 
     /**
      *  Encode the image and return the result as a caller-managed SkData.  This will
@@ -314,13 +318,6 @@ public:
      *  NULL will be returned.
      */
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
-
-    /**
-     *  Ensures that an image is backed by a texture (when GrContext is non-null). If no
-     *  transformation is required, the returned image may be the same as this image. If the this
-     *  image is from a different GrContext, this will fail.
-     */
-    sk_sp<SkImage> makeTextureImage(GrContext*) const;
 
     /**
      * If the image is texture-backed this will make a raster copy of it (or nullptr if reading back

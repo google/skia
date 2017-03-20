@@ -18,7 +18,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 /**
     Return the default sk_colortype_t; this is operating-system dependent.
 */
-SK_C_API sk_colortype_t sk_colortype_get_default_8888();
+SK_C_API sk_colortype_t sk_colortype_get_default_8888(void);
 
 /**
     Return a new surface, with the memory for the pixels automatically

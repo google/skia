@@ -1048,14 +1048,14 @@ SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
 ////////////////////////////////////////////////////////////////////////////////
 #include "SkTypeface_win.h"
 
-SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
-                                            IDWriteFontCollection* collection) {
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+                                                  IDWriteFontCollection* collection) {
     return SkFontMgr_New_DirectWrite(factory, collection, nullptr);
 }
 
-SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
-                                            IDWriteFontCollection* collection,
-                                            IDWriteFontFallback* fallback) {
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+                                                  IDWriteFontCollection* collection,
+                                                  IDWriteFontFallback* fallback) {
     if (nullptr == factory) {
         factory = sk_get_dwrite_factory();
         if (nullptr == factory) {
@@ -1086,15 +1086,16 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         };
     }
 
-    return new SkFontMgr_DirectWrite(factory, collection, fallback, localeName, localeNameLen);
+    return sk_make_sp<SkFontMgr_DirectWrite>(factory, collection, fallback,
+                                             localeName, localeNameLen);
 }
 
 #include "SkFontMgr_indirect.h"
-SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
     sk_sp<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
     if (!impl) {
         return nullptr;
     }
-    return new SkFontMgr_Indirect(std::move(impl), std::move(proxy));
+    return sk_make_sp<SkFontMgr_Indirect>(std::move(impl), std::move(proxy));
 }
 #endif//defined(SK_BUILD_FOR_WIN32)

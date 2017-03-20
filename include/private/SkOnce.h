@@ -31,6 +31,7 @@ public:
 
         // If it looks like no one has started calling fn(), try to claim that job.
         if (state == NotStarted && fState.compare_exchange_strong(state, Claimed,
+                                                                  std::memory_order_relaxed,
                                                                   std::memory_order_relaxed)) {
             // Great!  We'll run fn() then notify the other threads by releasing Done into fState.
             fn(std::forward<Args>(args)...);

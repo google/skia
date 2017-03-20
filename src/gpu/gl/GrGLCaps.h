@@ -11,16 +11,15 @@
 
 #include <functional>
 
-#include "glsl/GrGLSL.h"
 #include "GrCaps.h"
 #include "GrGLStencilAttachment.h"
 #include "GrSwizzle.h"
 #include "SkChecksum.h"
 #include "SkTHash.h"
 #include "SkTArray.h"
+#include "../private/GrGLSL.h"
 
 class GrGLContextInfo;
-class GrGLSLCaps;
 class GrGLRenderTarget;
 
 /**
@@ -126,7 +125,9 @@ public:
             return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag);
         }
     }
-
+    bool canConfigBeImageStorage(GrPixelConfig config) const override {
+        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseAsImageStorage_Flag);
+    }
     bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kFBOColorAttachment_Flag);
     }
@@ -158,6 +159,11 @@ public:
                              GrGLenum* externalFormat, GrGLenum* externalType) const;
 
     bool getRenderbufferFormat(GrPixelConfig config, GrGLenum* internalFormat) const;
+
+    /** The format to use read/write a texture as an image in a shader */
+    GrGLenum getImageFormat(GrPixelConfig config) const {
+        return fConfigTable[config].fFormats.fSizedInternalFormat;
+    }
 
     /**
     * Gets an array of legal stencil formats. These formats are not guaranteed
@@ -339,6 +345,9 @@ public:
 
     bool doManualMipmapping() const { return fDoManualMipmapping; }
 
+    bool srgbDecodeDisableSupport() const { return fSRGBDecodeDisableSupport; }
+    bool srgbDecodeDisableAffectsMipmaps() const { return fSRGBDecodeDisableAffectsMipmaps; }
+
     /**
      * Returns a string containing the caps info.
      */
@@ -349,8 +358,6 @@ public:
     bool rgbaToBgraReadbackConversionsAreSlow() const {
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
-
-    const GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
 private:
     enum ExternalFormatUsage {
@@ -374,11 +381,10 @@ private:
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilFormats(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
-    void initConfigTable(const GrGLContextInfo&, const GrGLInterface* gli, GrGLSLCaps* glslCaps);
+    void initConfigTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
+                         GrShaderCaps*);
 
-    void initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
-                                  const GrGLInterface* intf,
-                                  GrGLSLCaps* glslCaps);
+    void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*, GrShaderCaps*);
 
     GrGLStandard fStandard;
 
@@ -418,6 +424,8 @@ private:
     bool fMipMapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
     bool fDoManualMipmapping : 1;
+    bool fSRGBDecodeDisableSupport : 1;
+    bool fSRGBDecodeDisableAffectsMipmaps : 1;
 
     uint32_t fBlitFramebufferFlags;
 
@@ -450,7 +458,6 @@ private:
             GL contexts. */
         GrGLenum fExternalFormat[kExternalFormatUsageCnt];
         GrGLenum fExternalType;
-
 
         // Either the base or sized internal format depending on the GL and config.
         GrGLenum fInternalFormatTexImage;
@@ -489,6 +496,7 @@ private:
             kFBOColorAttachment_Flag      = 0x10,
             kCanUseTexStorage_Flag        = 0x20,
             kCanUseWithTexelBuffer_Flag   = 0x40,
+            kCanUseAsImageStorage_Flag    = 0x80,
         };
         uint32_t fFlags;
 

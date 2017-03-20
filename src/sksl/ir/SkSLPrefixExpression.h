@@ -21,7 +21,7 @@ struct PrefixExpression : public Expression {
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
-    virtual std::string description() const override {
+    virtual SkString description() const override {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 

@@ -33,7 +33,6 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
-#include "SkXfermode.h"
 
 #include "SkBitmapProcShader.h"
 #include "SkDrawProcs.h"
@@ -1649,7 +1648,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
 
     // Now restore the original settings, so we "draw" with whatever style/stroking.
     paint.setStyle(origPaint.getStyle());
-    paint.setPathEffect(sk_ref_sp(origPaint.getPathEffect()));
+    paint.setPathEffect(origPaint.refPathEffect());
 
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
@@ -1957,7 +1956,8 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                 SkMatrix tempM;
                 if (texture_to_matrix(state, vertices, textures, &tempM)) {
                     SkShader::ContextRec rec(p, *fMatrix, &tempM,
-                                             SkBlitter::PreferredShaderDest(fDst.info()));
+                                             SkBlitter::PreferredShaderDest(fDst.info()),
+                                             fDst.colorSpace());
                     if (!blitter->resetShaderContext(rec)) {
                         continue;
                     }

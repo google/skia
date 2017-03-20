@@ -14,7 +14,8 @@
 #include "gl/builders/GrGLShaderStringBuilder.h"
 #include "SkSLCompiler.h"
 #include <stdio.h>
-#include <string>
+
+#include "sk_tool_utils.h"
 
 const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {
     // This bench exclusively tests GL calls directly
@@ -66,15 +67,16 @@ void GLBench::onDraw(int loops, SkCanvas* canvas) {
 
 GrGLuint GLBench::CompileShader(const GrGLContext* context, const char* sksl, GrGLenum type) {
     const GrGLInterface* gl = context->interface();
-    std::string glsl;
-    bool result = context->compiler()->toGLSL(type == GR_GL_VERTEX_SHADER 
-                                                                    ? SkSL::Program::kVertex_Kind
+    SkString glsl;
+    SkSL::Program::Settings settings;
+    settings.fCaps = context->caps()->shaderCaps();
+    std::unique_ptr<SkSL::Program> program = context->compiler()->convertProgram(
+                                        type == GR_GL_VERTEX_SHADER ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
-                                              std::string(sksl),
-                                              *context->caps()->glslCaps(),
-                                              &glsl);
-    if (!result) {
-        SkDebugf("SkSL compilation failed:\n%s\n%s\n", sksl, 
+                                        SkString(sksl),
+                                        settings);
+    if (!program || !context->compiler()->toGLSL(*program, &glsl)) {
+        SkDebugf("SkSL compilation failed:\n%s\n%s\n", sksl,
                  context->compiler()->errorText().c_str());
     }
     GrGLuint shader;
@@ -182,7 +184,7 @@ void GLBench::DumpImage(const GrGLInterface* gl, uint32_t screenWidth, uint32_t 
 
     bm.setPixels(readback.get());
 
-    if (!SkImageEncoder::EncodeFile(filename, bm, SkImageEncoder::kPNG_Type, 100)) {
+    if (!sk_tool_utils::EncodeImageToFile(filename, bm, SkEncodedImageFormat::kPNG, 100)) {
         SkDebugf("------ failed to encode %s\n", filename);
         remove(filename);   // remove any partial file
         return;

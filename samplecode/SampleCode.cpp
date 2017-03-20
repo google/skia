@@ -10,9 +10,6 @@
 
 #if SK_SUPPORT_GPU
 #   include "GrContext.h"
-#   if SK_ANGLE
-#       include "gl/angle/GLTestContext_angle.h"
-#   endif
 #else
 class GrContext;
 #endif
@@ -156,7 +153,7 @@ void SampleView::onDraw(SkCanvas* canvas) {
         SkAutoCanvasRestore acr(canvas, true);
         this->onDrawContent(canvas);
 #if SK_SUPPORT_GPU
-        // Ensure the GrContext doesn't batch across draw loops.
+        // Ensure the GrContext doesn't combine GrDrawOps across draw loops.
         if (GrContext* context = canvas->getGrContext()) {
             context->flush();
         }

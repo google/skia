@@ -479,7 +479,7 @@ class GrGLPerlinNoise : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -522,7 +522,7 @@ private:
         return new GrGLPerlinNoise;
     }
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override {
         GrGLPerlinNoise::GenKey(*this, caps, b);
     }
@@ -548,12 +548,12 @@ private:
       : fType(type)
       , fNumOctaves(numOctaves)
       , fStitchTiles(stitchTiles)
-      , fPermutationsAccess(permutationsTexture)
-      , fNoiseAccess(noiseTexture)
+      , fPermutationsSampler(permutationsTexture)
+      , fNoiseSampler(noiseTexture)
       , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoiseEffect>();
-        this->addTextureAccess(&fPermutationsAccess);
-        this->addTextureAccess(&fNoiseAccess);
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fNoiseSampler);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
@@ -564,8 +564,8 @@ private:
     GrCoordTransform                fCoordTransform;
     int                             fNumOctaves;
     bool                            fStitchTiles;
-    GrTextureAccess                 fPermutationsAccess;
-    GrTextureAccess                 fNoiseAccess;
+    TextureSampler                  fPermutationsSampler;
+    TextureSampler                  fNoiseSampler;
     SkPerlinNoiseShader::PaintingData *fPaintingData;
 
 private:
@@ -639,15 +639,15 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     const char* dotLattice  = "dot(((%s.ga + %s.rb * vec2(%s)) * vec2(2.0) - vec2(1.0)), %s);";
 
     // Add noise function
-    static const GrGLSLShaderVar gPerlinNoiseArgs[] =  {
-        GrGLSLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLSLShaderVar(noiseVec, kVec2f_GrSLType)
+    static const GrShaderVar gPerlinNoiseArgs[] =  {
+        GrShaderVar(chanCoord, kFloat_GrSLType),
+        GrShaderVar(noiseVec, kVec2f_GrSLType)
     };
 
-    static const GrGLSLShaderVar gPerlinNoiseStitchArgs[] =  {
-        GrGLSLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLSLShaderVar(noiseVec, kVec2f_GrSLType),
-        GrGLSLShaderVar(stitchData, kVec2f_GrSLType)
+    static const GrShaderVar gPerlinNoiseStitchArgs[] =  {
+        GrShaderVar(chanCoord, kFloat_GrSLType),
+        GrShaderVar(noiseVec, kVec2f_GrSLType),
+        GrShaderVar(stitchData, kVec2f_GrSLType)
     };
 
     SkString noiseCode;
@@ -848,7 +848,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
                              args.fOutputColor, args.fOutputColor);
 }
 
-void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrPerlinNoiseEffect& turbulence = processor.cast<GrPerlinNoiseEffect>();
 
@@ -926,10 +926,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader::asFragmentProcessor(const AsFPAr
             new PaintingData(fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, matrix);
     sk_sp<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter()));
     sk_sp<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter()));
 
     SkMatrix m = *args.fViewMatrix;
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);

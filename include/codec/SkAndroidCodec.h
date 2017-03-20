@@ -9,7 +9,7 @@
 #define SkAndroidCodec_DEFINED
 
 #include "SkCodec.h"
-#include "SkEncodedFormat.h"
+#include "SkEncodedImageFormat.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
@@ -51,14 +51,18 @@ public:
     /**
      *  Format of the encoded data.
      */
-    SkEncodedFormat getEncodedFormat() const { return fCodec->getEncodedFormat(); }
+    SkEncodedImageFormat getEncodedFormat() const { return fCodec->getEncodedFormat(); }
 
     /**
      *  @param requestedColorType Color type requested by the client
      *
-     *  If it is possible to decode to requestedColorType, this returns
-     *  requestedColorType.  Otherwise, this returns whichever color type
-     *  is suggested by the codec as the best match for the encoded data.
+     *  |requestedColorType| may be overriden.  We will default to kF16
+     *  for high precision images and kIndex8 for GIF and WBMP.
+     *
+     *  In the general case, if it is possible to decode to
+     *  |requestedColorType|, this returns |requestedColorType|.
+     *  Otherwise, this returns a color type that is an appropriate
+     *  match for the the encoded data.
      */
     SkColorType computeOutputColorType(SkColorType requestedColorType);
 
@@ -70,6 +74,16 @@ public:
      *  has alpha, the value of requestedUnpremul will be honored.
      */
     SkAlphaType computeOutputAlphaType(bool requestedUnpremul);
+
+    /**
+     *  @param outputColorType Color type that the client will decode to
+     *
+     *  Returns the appropriate color space to decode to.
+     *
+     *  For now, this just returns a default.  This could be updated to take
+     *  requests for wide gamut modes or specific output spaces.
+     */
+    sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType);
 
     /**
      *  Returns the dimensions of the scaled output image, for an input
@@ -154,7 +168,7 @@ public:
          *
          *  Must be within the bounds returned by getInfo().
          *
-         *  If the EncodedFormat is kWEBP_SkEncodedFormat, the top and left
+         *  If the EncodedFormat is SkEncodedImageFormat::kWEBP, the top and left
          *  values must be even.
          *
          *  The default is NULL, meaning a decode of the entire image.

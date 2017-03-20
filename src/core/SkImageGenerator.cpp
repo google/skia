@@ -77,11 +77,13 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
     return this->onGetYUV8Planes(sizeInfo, planes);
 }
 
-GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkIRect* subset) {
-    if (subset && !SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(*subset)) {
+GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
+                                             const SkIPoint& origin) {
+    SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
+    if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
         return nullptr;
     }
-    return this->onGenerateTexture(ctx, subset);
+    return this->onGenerateTexture(ctx, info, origin);
 }
 
 bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SupportedSizes* sizes) {
@@ -91,21 +93,11 @@ bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SupportedSizes* s
     return false;
 }
 
-bool SkImageGenerator::generateScaledPixels(const SkISize& scaledSize,
-                                            const SkIPoint& subsetOrigin,
-                                            const SkPixmap& subsetPixels) {
-    if (scaledSize.width() <= 0 || scaledSize.height() <= 0) {
+bool SkImageGenerator::generateScaledPixels(const SkPixmap& scaledPixels) {
+    if (scaledPixels.width() <= 0 || scaledPixels.height() <= 0) {
         return false;
     }
-    if (subsetPixels.width() <= 0 || subsetPixels.height() <= 0) {
-        return false;
-    }
-    const SkIRect subset = SkIRect::MakeXYWH(subsetOrigin.x(), subsetOrigin.y(),
-                                             subsetPixels.width(), subsetPixels.height());
-    if (!SkIRect::MakeWH(scaledSize.width(), scaledSize.height()).contains(subset)) {
-        return false;
-    }
-    return this->onGenerateScaledPixels(scaledSize, subsetOrigin, subsetPixels);
+    return this->onGenerateScaledPixels(scaledPixels);
 }
 
 bool SkImageGenerator::accessScaledImage(const SkRect& src, const SkMatrix& matrix,
@@ -116,7 +108,7 @@ bool SkImageGenerator::accessScaledImage(const SkRect& src, const SkMatrix& matr
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-SkData* SkImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
+SkData* SkImageGenerator::onRefEncodedData(GrContext* ctx) {
     return nullptr;
 }
 
@@ -135,9 +127,8 @@ static bool reset_and_return_false(SkBitmap* bitmap) {
     return false;
 }
 
-bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo* infoPtr,
+bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo& info,
                                          SkBitmap::Allocator* allocator) {
-    SkImageInfo info = infoPtr ? *infoPtr : this->getInfo();
     if (0 == info.getSafeSize(info.minRowBytes())) {
         return false;
     }
@@ -153,7 +144,7 @@ bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo* in
         // kIndex_8_SkColorTable.
         // https://bug.skia.org/4355
 #if 1
-        // ignroe the allocator, and see if we can succeed without it
+        // ignore the allocator, and see if we can succeed without it
         if (!bitmap->tryAllocPixels(nullptr, ctable.get())) {
             return reset_and_return_false(bitmap);
         }

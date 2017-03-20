@@ -10,16 +10,21 @@
 #include <type_traits>
 
 #include "SkAutoPixmapStorage.h"
+#include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrImageTextureMaker.h"
 #include "GrRenderTargetContext.h"
-#include "GrImageIDTextureAdjuster.h"
+#include "GrTextureAdjuster.h"
 #include "GrTexturePriv.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
+#include "SkImageCacherator.h"
+#include "SkImageInfoPriv.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 
@@ -60,7 +65,8 @@ static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> c
     return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
 }
 
-bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
+bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
+                              CachingHint chint) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
@@ -85,11 +91,19 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
     return true;
 }
 
-GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params,
-                                     SkDestinationSurfaceColorMode colorMode) const {
-    GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(), this->uniqueID(),
-                               this->onImageInfo().colorSpace());
-    return adjuster.refTextureSafeForParams(params, colorMode, nullptr);
+sk_sp<GrSurfaceProxy> SkImage_Gpu::refProxy() const {
+    return GrSurfaceProxy::MakeWrapped(fTexture);
+}
+
+GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
+                                     SkColorSpace* dstColorSpace,
+                                     sk_sp<SkColorSpace>* texColorSpace) const {
+    if (texColorSpace) {
+        *texColorSpace = this->fColorSpace;
+    }
+    GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(),
+                               this->uniqueID(), this->fColorSpace.get());
+    return adjuster.refTextureSafeForParams(params, nullptr);
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -115,14 +129,18 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                int srcX, int srcY, CachingHint) const {
+    if (!SkImageInfoValidConversion(info, this->onImageInfo())) {
+        return false;
+    }
+
     GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fTexture->getContext()->caps());
     uint32_t flags = 0;
     if (kUnpremul_SkAlphaType == info.alphaType() && kPremul_SkAlphaType == fAlphaType) {
         // let the GPU perform this transformation for us
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    if (!fTexture->readPixels(srcX, srcY, info.width(), info.height(), config,
-                              pixels, rowBytes, flags)) {
+    if (!fTexture->readPixels(fColorSpace.get(), srcX, srcY, info.width(), info.height(), config,
+                              info.colorSpace(), pixels, rowBytes, flags)) {
         return false;
     }
     // do we have to manually fix-up the alpha channel?
@@ -145,13 +163,33 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
 
-    sk_sp<GrTexture> subTx(ctx->textureProvider()->createTexture(desc, fBudgeted));
+    sk_sp<GrSurfaceContext> sContext(ctx->contextPriv().makeDeferredSurfaceContext(
+                                                                        desc,
+                                                                        SkBackingFit::kExact,
+                                                                        fBudgeted));
+    if (!sContext) {
+        return nullptr;
+    }
+
+    // TODO: make gpu images be proxy-backed so we don't need to do this
+    sk_sp<GrSurfaceProxy> tmpSrc(GrSurfaceProxy::MakeWrapped(fTexture));
+    if (!tmpSrc) {
+        return nullptr;
+    }
+
+    if (!sContext->copy(tmpSrc.get(), subset, SkIPoint::Make(0, 0))) {
+        return nullptr;
+    }
+
+    // TODO: make gpu images be proxy-backed so we don't need to do this
+    GrSurface* subTx = sContext->asDeferredSurface()->instantiate(ctx->textureProvider());
     if (!subTx) {
         return nullptr;
     }
-    ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
+
     return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                   fAlphaType, std::move(subTx), fColorSpace, fBudgeted);
+                                   fAlphaType, sk_ref_sp(subTx->asTexture()),
+                                   fColorSpace, fBudgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,7 +307,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    renderTargetContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect);
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
 
     if (!renderTargetContext->accessRenderTarget()) {
         return nullptr;
@@ -277,7 +315,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     ctx->flushSurfaceWrites(renderTargetContext->accessRenderTarget());
     return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
                                    kOpaque_SkAlphaType, renderTargetContext->asTexture(),
-                                   sk_ref_sp(renderTargetContext->getColorSpace()), budgeted);
+                                   renderTargetContext->refColorSpace(), budgeted);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
@@ -295,37 +333,6 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                                  sk_sp<SkColorSpace> imageColorSpace) {
     return make_from_yuv_textures_copy(ctx, colorSpace, true, yuvTextureHandles, yuvSizes, origin,
                                        std::move(imageColorSpace));
-}
-
-static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {
-    sk_sp<GrTexture> texture(
-        maker->refTextureForParams(GrTextureParams::ClampNoFilter(),
-                                   SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
-    if (!texture) {
-        return nullptr;
-    }
-    return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), id, at, std::move(texture),
-                                   sk_ref_sp(maker->getColorSpace()), SkBudgeted::kNo);
-}
-
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context) const {
-    if (!context) {
-        return nullptr;
-    }
-    if (GrTexture* peek = as_IB(this)->peekTexture()) {
-        return peek->getContext() == context ? sk_ref_sp(const_cast<SkImage*>(this)) : nullptr;
-    }
-
-    if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
-        GrImageTextureMaker maker(context, cacher, this, kDisallow_CachingHint);
-        return create_image_from_maker(&maker, this->alphaType(), this->uniqueID());
-    }
-
-    if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
-        GrBitmapTextureMaker maker(context, *bmp);
-        return create_image_from_maker(&maker, this->alphaType(), this->uniqueID());
-    }
-    return nullptr;
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
@@ -484,7 +491,16 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }
-        info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
+        if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
+            // Generator backed image. Tweak info to trigger correct kind of decode.
+            SkImageCacherator::CachedFormat cacheFormat = cacher->chooseCacheFormat(
+                dstColorSpace, proxy.fCaps.get());
+            info = cacher->buildCacheInfo(cacheFormat).makeWH(scaledSize.width(),
+                                                              scaledSize.height());
+
+        } else {
+            info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
+        }
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);

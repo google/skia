@@ -11,7 +11,6 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 #include "gl/GrGLProgramDataManager.h"
-#include "gl/GrGLSampler.h"
 
 class GrGLCaps;
 
@@ -19,7 +18,7 @@ class GrGLUniformHandler : public GrGLSLUniformHandler {
 public:
     static const int kUniformsPerBlock = 8;
 
-    const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const override {
+    const GrShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;
     }
 
@@ -29,7 +28,9 @@ public:
 private:
     explicit GrGLUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
-        , fUniforms(kUniformsPerBlock) {}
+        , fUniforms(kUniformsPerBlock)
+        , fSamplers(kUniformsPerBlock)
+        , fImageStorages(kUniformsPerBlock) {}
 
     UniformHandle internalAddUniformArray(uint32_t visibility,
                                           GrSLType type,
@@ -39,15 +40,23 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle internalAddSampler(uint32_t visibility,
-                                     GrPixelConfig config,
-                                     GrSLType type,
-                                     GrSLPrecision precision,
-                                     const char* name) override;
+    SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,
+                             const char* name) override;
 
-    int numSamplers() const override { return fSamplers.count(); }
-    const GrGLSLSampler& getSampler(SamplerHandle handle) const override {
-        return fSamplers[handle.toIndex()];
+    const GrShaderVar& samplerVariable(SamplerHandle handle) const override {
+        return fSamplers[handle.toIndex()].fVariable;
+    }
+
+    ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType, GrImageStorageFormat,
+                                       GrSLMemoryModel, GrSLRestrict, GrIOType,
+                                       const char* name) override;
+
+    GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
+        return fSamplerSwizzles[handle.toIndex()];
+    }
+
+    const GrShaderVar& imageStorageVariable(ImageStorageHandle handle) const override {
+        return fImageStorages[handle.toIndex()].fVariable;
     }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
@@ -63,9 +72,10 @@ private:
     typedef GrGLProgramDataManager::UniformInfo UniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
-    UniformInfoArray fUniforms;
-
-    SkTArray<GrGLSampler> fSamplers;
+    UniformInfoArray    fUniforms;
+    UniformInfoArray    fSamplers;
+    SkTArray<GrSwizzle> fSamplerSwizzles;
+    UniformInfoArray    fImageStorages;
 
     friend class GrGLProgramBuilder;
 

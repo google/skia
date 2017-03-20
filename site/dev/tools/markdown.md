@@ -419,3 +419,20 @@ Output:
         &lt;p&gt;For example.&lt;/p&gt;
     &lt;/blockquote&gt;
     </code></pre>
+
+### Floating Menu ###
+
+To create a floating menu for a single page that always appears
+in the upper right hand corner of the page, use a `div` with a
+class of "float", for example:
+
+    <div class="float">
+      <ul>
+        <li><a href="#SkXfermode">SkXfermode</a></li>
+        <li><a href="#SkShader">SkShader</a></li>
+        <li><a href="#SkMaskFilter">SkMaskFilter</a></li>
+        <li><a href="#SkColorFilter">SkColorFilter</a></li>
+        <li><a href="#SkPathEffect">SkPathEffect</a></li>
+      </ul>
+    </div>
+

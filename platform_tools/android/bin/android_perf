@@ -9,17 +9,8 @@
 #
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
-
-if [ $(uname) == "Linux" ]; then
-    PERFHOST=$SCRIPT_DIR/linux/perfhost
-elif [ $(uname) == "Darwin" ]; then
-    PERFHOST=$SCRIPT_DIR/mac/perfhost
-else
-    echo "Could not automatically determine OS!"
-    exit 1;
-fi
 
 # grab and remove the perf command from the input args
 PERF_CMD=${APP_ARGS[0]}
@@ -42,54 +33,49 @@ perf_setup() {
     echo "Copying symbol files"
     adb_pull_if_needed /system/lib/libc.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libstdc++.so $TMP_SYS_LIB
-    adb_pull_if_needed /system/lib/libstlport.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libGLESv2.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libandroid.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libm.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libz.so $TMP_SYS_LIB
 
     # BUILDTYPE variable is set by android_setup.sh
-    BUILDDIR="${SKIA_OUT}/${BUILDTYPE}"
-    if [ ! -f "${BUILDDIR}/lib/lib${runVars[0]}.so" ];
+    if [ ! -f "${SKIA_OUT}/${runVars[0]}" ];
     then
-      echo "Unable to find the ${runVars[0]} library in ${BUILDDIR}/lib."
+      echo "Unable to find the ${runVars[0]} executable"
       exit 1
     fi
 
+    echo "Pushing simpleperf..."
+    adb_push_if_needed $SKIA_OUT/simpleperf /data/local/tmp
+
     echo "Pushing app..."
-    for lib_file in \
-        "${BUILDDIR}/skia_launcher" \
-        "${BUILDDIR}/lib/libskia_android.so" \
-        "${BUILDDIR}/lib/lib${runVars[0]}.so" \
-      ; do
-      adb_push_if_needed "$lib_file" /data/local/tmp
-      cp "$lib_file" $TMP_APP_LOC
-    done
+    adb_push_if_needed "${SKIA_OUT}/${runVars[0]}" /data/local/tmp
+    cp "${SKIA_OUT}/${runVars[0]}" $TMP_APP_LOC
 }
 
 perf_record() {
 
     echo "Killing any running Skia processes."
-    $ADB shell ps | grep skia_launcher | awk '{print $2}' | xargs $ADB shell kill
+    $ADB shell ps | grep ${runVars[0]} | awk '{print $2}' | xargs $ADB shell kill
 
     echo "Starting application"
-    $ADB shell /data/local/tmp/skia_launcher ${runVars[@]} &
+    $ADB shell /data/local/tmp/${runVars[@]} &
 
     # WE REALLY REALLY WANT TO BE ABLE TO PASS THE SKIA_LAUNCHER APP DIRECTLY TO
     # PERF, BUT AT THIS POINT THE DATA FILE WE GET WHEN GOING THAT ROUTE IS UNABLE
     # TO BE READ BY THE REPORTING TOOL
     echo "Starting profiler"
-    APP_PID=$($ADB shell ps | grep skia_launcher | awk '{print $2}')
-    $ADB shell perf record -p ${APP_PID} sleep 70
+    APP_PID=$($ADB shell ps | grep ${runVars[0]} | awk '{print $2}')
+    $ADB shell /data/local/tmp/simpleperf record -p ${APP_PID} -o /data/local/tmp/perf.data sleep 70
 
-    $ADB pull /data/perf.data $PERF_TMP_DIR/perf.data
+    $ADB pull /data/local/tmp/perf.data $PERF_TMP_DIR/perf.data
 
     exit 0;
 }
 
 perf_report() {
-    adb_pull_if_needed /data/perf.data $PERF_TMP_DIR/perf.data
-    $PERFHOST report -i $PERF_TMP_DIR/perf.data --symfs=$PERF_TMP_DIR ${runVars[@]}
+    adb_pull_if_needed /data/local/tmp/perf.data $PERF_TMP_DIR/perf.data
+    $SKIA_OUT/perfhost_report.py -i $PERF_TMP_DIR/perf.data --symfs=$PERF_TMP_DIR ${runVars[@]}
 }
 
 # Clean up

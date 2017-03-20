@@ -13,6 +13,7 @@
 #include "SkRSXform.h"
 #include "SkTextBlob.h"
 #include "SkTSearch.h"
+#include "SkClipOpPriv.h"
 
 #define HEAP_BLOCK_SIZE 4096
 
@@ -230,18 +231,18 @@ void SkPictureRecord::didTranslateZ(SkScalar z) {
 #endif
 }
 
-static bool clipOpExpands(SkCanvas::ClipOp op) {
+static bool clipOpExpands(SkClipOp op) {
     switch (op) {
-        case SkCanvas::kUnion_Op:
-        case SkCanvas::kXOR_Op:
-        case SkCanvas::kReverseDifference_Op:
-        case SkCanvas::kReplace_Op:
+        case kUnion_SkClipOp:
+        case kXOR_SkClipOp:
+        case kReverseDifference_SkClipOp:
+        case kReplace_SkClipOp:
             return true;
-        case SkCanvas::kIntersect_Op:
-        case SkCanvas::kDifference_Op:
+        case kIntersect_SkClipOp:
+        case kDifference_SkClipOp:
             return false;
         default:
-            SkDEBUGFAIL("unknown region op");
+            SkDEBUGFAIL("unknown clipop");
             return false;
     }
 }
@@ -279,7 +280,7 @@ void SkPictureRecord::endRecording() {
     this->restoreToCount(fInitialSaveCount);
 }
 
-size_t SkPictureRecord::recordRestoreOffsetPlaceholder(ClipOp op) {
+size_t SkPictureRecord::recordRestoreOffsetPlaceholder(SkClipOp op) {
     if (fRestoreOffsetStack.isEmpty()) {
         return -1;
     }
@@ -309,12 +310,12 @@ size_t SkPictureRecord::recordRestoreOffsetPlaceholder(ClipOp op) {
     return offset;
 }
 
-void SkPictureRecord::onClipRect(const SkRect& rect, SkCanvas::ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkPictureRecord::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     this->recordClipRect(rect, op, kSoft_ClipEdgeStyle == edgeStyle);
     this->INHERITED::onClipRect(rect, op, edgeStyle);
 }
 
-size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
+size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkClipOp op, bool doAA) {
     // id + rect + clip params
     size_t size = 1 * kUInt32Size + sizeof(rect) + 1 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
@@ -331,12 +332,12 @@ size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkCanvas::ClipOp op, 
     return offset;
 }
 
-void SkPictureRecord::onClipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkPictureRecord::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     this->recordClipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
     this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
+size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
     // op + rrect + clip params
     size_t size = 1 * kUInt32Size + SkRRect::kSizeInMemory + 1 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
@@ -352,13 +353,13 @@ size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkCanvas::ClipOp o
     return offset;
 }
 
-void SkPictureRecord::onClipPath(const SkPath& path, SkCanvas::ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkPictureRecord::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     int pathID = this->addPathToHeap(path);
     this->recordClipPath(pathID, op, kSoft_ClipEdgeStyle == edgeStyle);
     this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-size_t SkPictureRecord::recordClipPath(int pathID, SkCanvas::ClipOp op, bool doAA) {
+size_t SkPictureRecord::recordClipPath(int pathID, SkClipOp op, bool doAA) {
     // op + path index + clip params
     size_t size = 3 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
@@ -374,12 +375,12 @@ size_t SkPictureRecord::recordClipPath(int pathID, SkCanvas::ClipOp op, bool doA
     return offset;
 }
 
-void SkPictureRecord::onClipRegion(const SkRegion& region, ClipOp op) {
+void SkPictureRecord::onClipRegion(const SkRegion& region, SkClipOp op) {
     this->recordClipRegion(region, op);
     this->INHERITED::onClipRegion(region, op);
 }
 
-size_t SkPictureRecord::recordClipRegion(const SkRegion& region, ClipOp op) {
+size_t SkPictureRecord::recordClipRegion(const SkRegion& region, SkClipOp op) {
     // op + clip params + region
     size_t size = 2 * kUInt32Size + region.writeToMemory(nullptr);
     // recordRestoreOffsetPlaceholder doesn't always write an offset

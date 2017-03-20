@@ -13,17 +13,19 @@
     #define VALIDATE
 #endif
 
+constexpr size_t GrMemoryPool::kSmallestMinAllocSize;
+
 GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
     SkDEBUGCODE(fAllocationCnt = 0);
     SkDEBUGCODE(fAllocBlockCnt = 0);
 
-    minAllocSize = SkTMax<size_t>(minAllocSize, 1 << 10);
-    fMinAllocSize = GrSizeAlignUp(minAllocSize + kPerAllocPad, kAlignment);
-    fPreallocSize = GrSizeAlignUp(preallocSize + kPerAllocPad, kAlignment);
-    fPreallocSize = SkTMax(fPreallocSize, fMinAllocSize);
+    minAllocSize = SkTMax<size_t>(GrSizeAlignUp(minAllocSize, kAlignment), kSmallestMinAllocSize);
+    preallocSize = SkTMax<size_t>(GrSizeAlignUp(preallocSize, kAlignment), minAllocSize);
+
+    fMinAllocSize = minAllocSize;
     fSize = 0;
 
-    fHead = CreateBlock(fPreallocSize);
+    fHead = CreateBlock(preallocSize);
     fTail = fHead;
     fHead->fNext = nullptr;
     fHead->fPrev = nullptr;
@@ -43,7 +45,7 @@ void* GrMemoryPool::allocate(size_t size) {
     size += kPerAllocPad;
     size = GrSizeAlignUp(size, kAlignment);
     if (fTail->fFreeSize < size) {
-        size_t blockSize = size;
+        size_t blockSize = size + kHeaderSize;
         blockSize = SkTMax<size_t>(blockSize, fMinAllocSize);
         BlockHeader* block = CreateBlock(blockSize);
 
@@ -87,7 +89,7 @@ void GrMemoryPool::release(void* p) {
         if (fHead == block) {
             fHead->fCurrPtr = reinterpret_cast<intptr_t>(fHead) + kHeaderSize;
             fHead->fLiveCount = 0;
-            fHead->fFreeSize = fPreallocSize;
+            fHead->fFreeSize = fHead->fSize - kHeaderSize;
         } else {
             BlockHeader* prev = block->fPrev;
             BlockHeader* next = block->fNext;
@@ -115,18 +117,18 @@ void GrMemoryPool::release(void* p) {
     VALIDATE;
 }
 
-GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t size) {
-    size_t paddedSize = size + kHeaderSize;
+GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t blockSize) {
+    blockSize = SkTMax<size_t>(blockSize, kHeaderSize);
     BlockHeader* block =
-        reinterpret_cast<BlockHeader*>(sk_malloc_throw(paddedSize));
+        reinterpret_cast<BlockHeader*>(sk_malloc_throw(blockSize));
     // we assume malloc gives us aligned memory
     SkASSERT(!(reinterpret_cast<intptr_t>(block) % kAlignment));
     SkDEBUGCODE(block->fBlockSentinal = kAssignedMarker);
     block->fLiveCount = 0;
-    block->fFreeSize = size;
+    block->fFreeSize = blockSize - kHeaderSize;
     block->fCurrPtr = reinterpret_cast<intptr_t>(block) + kHeaderSize;
     block->fPrevPtr = 0; // gcc warns on assigning nullptr to an intptr_t.
-    block->fSize = paddedSize;
+    block->fSize = blockSize;
     return block;
 }
 
@@ -153,18 +155,16 @@ void GrMemoryPool::validate() {
         intptr_t b = reinterpret_cast<intptr_t>(block);
         size_t ptrOffset = block->fCurrPtr - b;
         size_t totalSize = ptrOffset + block->fFreeSize;
-        size_t userSize = totalSize - kHeaderSize;
         intptr_t userStart = b + kHeaderSize;
 
         SkASSERT(!(b % kAlignment));
         SkASSERT(!(totalSize % kAlignment));
-        SkASSERT(!(userSize % kAlignment));
         SkASSERT(!(block->fCurrPtr % kAlignment));
         if (fHead != block) {
             SkASSERT(block->fLiveCount);
-            SkASSERT(userSize >= fMinAllocSize);
+            SkASSERT(totalSize >= fMinAllocSize);
         } else {
-            SkASSERT(userSize == fPreallocSize);
+            SkASSERT(totalSize == block->fSize);
         }
         if (!block->fLiveCount) {
             SkASSERT(ptrOffset ==  kHeaderSize);

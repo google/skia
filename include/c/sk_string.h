@@ -19,7 +19,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
     Returns a new empty sk_string_t.  This call must be balanced with a call to
     sk_string_destructor().
 */
-SK_C_API sk_string_t* sk_string_new_empty();
+SK_C_API sk_string_t* sk_string_new_empty(void);
 /**
     Returns a new sk_string_t by copying the specified source string, encoded in UTF-8.
     This call must be balanced with a call to sk_string_destructor().

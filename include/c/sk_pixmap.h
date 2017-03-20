@@ -16,7 +16,7 @@
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 SK_C_API void sk_pixmap_destructor(sk_pixmap_t* cpixmap);
-SK_C_API sk_pixmap_t* sk_pixmap_new();
+SK_C_API sk_pixmap_t* sk_pixmap_new(void);
 SK_C_API sk_pixmap_t* sk_pixmap_new_with_params(const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes, sk_colortable_t* ctable);
 SK_C_API void sk_pixmap_reset(sk_pixmap_t* cpixmap);
 SK_C_API void sk_pixmap_reset_with_params(sk_pixmap_t* cpixmap, const sk_imageinfo_t* cinfo, const void* addr, size_t rowBytes, sk_colortable_t* ctable);

@@ -9,6 +9,7 @@
 #define SkShader_DEFINED
 
 #include "SkBitmap.h"
+#include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
 #include "SkMask.h"
@@ -18,7 +19,7 @@
 
 class SkColorFilter;
 class SkColorSpace;
-class SkFallbackAlloc;
+class SkArenaAlloc;
 class SkImage;
 class SkPath;
 class SkPicture;
@@ -115,16 +116,18 @@ public:
         };
 
         ContextRec(const SkPaint& paint, const SkMatrix& matrix, const SkMatrix* localM,
-                   DstType dstType)
+                   DstType dstType, SkColorSpace* dstColorSpace)
             : fPaint(&paint)
             , fMatrix(&matrix)
             , fLocalMatrix(localM)
-            , fPreferredDstType(dstType) {}
+            , fPreferredDstType(dstType)
+            , fDstColorSpace(dstColorSpace) {}
 
         const SkPaint*  fPaint;            // the current paint associated with the draw
         const SkMatrix* fMatrix;           // the current matrix in the canvas
         const SkMatrix* fLocalMatrix;      // optional local matrix
         const DstType   fPreferredDstType; // the "natural" client dest type
+        SkColorSpace*   fDstColorSpace;    // the color space of the dest surface (if any)
     };
 
     class Context : public ::SkNoncopyable {
@@ -339,21 +342,18 @@ public:
                  const SkMatrix* viewMatrix,
                  const SkMatrix* localMatrix,
                  SkFilterQuality filterQuality,
-                 SkColorSpace* dstColorSpace,
-                 SkDestinationSurfaceColorMode colorMode)
+                 SkColorSpace* dstColorSpace)
             : fContext(context)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
             , fFilterQuality(filterQuality)
-            , fDstColorSpace(dstColorSpace)
-            , fColorMode(colorMode) {}
+            , fDstColorSpace(dstColorSpace) {}
 
         GrContext*                    fContext;
         const SkMatrix*               fViewMatrix;
         const SkMatrix*               fLocalMatrix;
         SkFilterQuality               fFilterQuality;
         SkColorSpace*                 fDstColorSpace;
-        SkDestinationSurfaceColorMode fColorMode;
     };
 
     /**
@@ -475,8 +475,8 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
-    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                      const SkMatrix& ctm) const;
+    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                      const SkMatrix& ctm, const SkPaint&) const;
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -509,8 +509,8 @@ protected:
         return nullptr;
     }
 
-    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                                const SkMatrix&) const {
+    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                                const SkMatrix&, const SkPaint&) const {
         return false;
     }
 

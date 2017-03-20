@@ -15,7 +15,6 @@
       'product_name': 'skia_codec',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'msvs_disabled_warnings': [ 4267 ],
       'dependencies': [
         'core.gyp:*',
         'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',

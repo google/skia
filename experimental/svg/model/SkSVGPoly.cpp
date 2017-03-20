@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkTLazy.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGPoly.h"
 #include "SkSVGValue.h"
@@ -31,6 +32,18 @@ void SkSVGPoly::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     }
 }
 
-void SkSVGPoly::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPaint& paint) const {
+void SkSVGPoly::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPaint& paint,
+                       SkPath::FillType fillType) const {
+    // the passed fillType follows inheritance rules and needs to be applied at draw time.
+    fPath.setFillType(fillType);
     canvas->drawPath(fPath, paint);
+}
+
+SkPath SkSVGPoly::onAsPath(const SkSVGRenderContext& ctx) const {
+    // the computed fillType follows inheritance rules and needs to be applied at draw time.
+    fPath.setFillType(FillRuleToFillType(*ctx.presentationContext().fInherited.fFillRule.get()));
+
+    SkPath path = fPath;
+    this->mapToParent(&path);
+    return path;
 }

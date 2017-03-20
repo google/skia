@@ -156,7 +156,7 @@
       # These variables determine the default optimization level for different
       # compilers.
       'skia_default_vs_optimization_level': 3, # full (/Ox)
-      'skia_default_gcc_optimization_level': 's', # -O3
+      'skia_default_gcc_optimization_level': 3, # -O3
     },
 
     'conditions': [

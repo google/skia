@@ -25,27 +25,27 @@
 #include "Stats.h"
 
 #include "SkAndroidCodec.h"
-#include "SkBitmapRegionDecoder.h"
+#include "SkAutoMalloc.h"
 #include "SkBBoxHierarchy.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkData.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
+#include "SkSVGDOM.h"
+#include "SkScan.h"
 #include "SkString.h"
 #include "SkSurface.h"
-#include "SkSVGDOM.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
 #include "ThermalManager.h"
-#include "SkScan.h"
 
 #include <stdlib.h>
 
@@ -68,8 +68,6 @@
 #endif
 
     struct GrContextOptions;
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 static const int kAutoTuneLoops = 0;
 
@@ -300,7 +298,7 @@ static bool write_canvas_png(Target* target, const SkString& filename) {
         SkDebugf("Can't write %s.\n", filename.c_str());
         return false;
     }
-    if (!SkImageEncoder::EncodeStream(&stream, bmp, SkImageEncoder::kPNG_Type, 100)) {
+    if (!SkEncodeImage(&stream, bmp, SkEncodedImageFormat::kPNG, 100)) {
         SkDebugf("Can't encode a PNG.\n");
         return false;
     }
@@ -331,7 +329,7 @@ static int setup_cpu_bench(const double overhead, Target* target, Benchmark* ben
     //  -------------------------  < FLAGS_overheadGoal
     //  overhead + N * Bench Time
     //
-    // where bench_plus_overhead ≈ overhead + Bench Time.
+    // where bench_plus_overhead ~=~ overhead + Bench Time.
     //
     // Doing some math, we get:
     //
@@ -1198,8 +1196,10 @@ int nanobench_main() {
         start_keepalive();
     }
 
-    if (FLAGS_analyticAA) {
-        gSkUseAnalyticAA = true;
+    gSkUseAnalyticAA = FLAGS_analyticAA;
+
+    if (FLAGS_forceAnalyticAA) {
+        gSkForceAnalyticAA = true;
     }
 
     int runs = 0;
@@ -1291,6 +1291,7 @@ int nanobench_main() {
             benchStream.fillCurrentOptions(log.get());
             target->fillOptions(log.get());
             log->metric("min_ms",    stats.min);
+            log->metrics("samples",    samples);
 #if SK_SUPPORT_GPU
             if (gpuStatsDump) {
                 // dump to json, only SKPBench currently returns valid keys / values

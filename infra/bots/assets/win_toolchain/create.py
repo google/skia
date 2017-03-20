@@ -29,7 +29,6 @@ IGNORE_LIST = [
   'App Certification Kit',
   'Debuggers',
   'Extension SDKs',
-  'winrt',
   'DesignTime',
   'AccChecker',
 ]

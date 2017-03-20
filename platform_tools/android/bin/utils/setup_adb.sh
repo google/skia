@@ -3,8 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-UTIL_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 if [ $PYADB ] && [ -a "$PYADB" ]; then
   echo "Python ADB detected, going to use that"
   ADB="python ${PYADB}"

@@ -9,6 +9,7 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorTable.h"
 #include "SkMath.h"
 #include "SkOpts.h"
@@ -317,18 +318,13 @@ static float png_inverted_fixed_point_to_float(png_fixed_point x) {
     return 1.0f / png_fixed_point_to_float(x);
 }
 
-static constexpr float gSRGB_toXYZD50[] {
-    0.4358f, 0.3853f, 0.1430f,    // Rx, Gx, Bx
-    0.2224f, 0.7170f, 0.0606f,    // Ry, Gy, Gz
-    0.0139f, 0.0971f, 0.7139f,    // Rz, Gz, Bz
-};
-
 #endif // LIBPNG >= 1.6
 
 // Returns a colorSpace object that represents any color space information in
-// the encoded data.  If the encoded data contains no color space, this will
-// return NULL.
-sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
+// the encoded data.  If the encoded data contains an invalid/unsupported color space,
+// this will return NULL. If there is no color space information, it will guess sRGB
+sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr,
+                                     SkColorSpace_Base::ICCTypeFlag iccType) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
 
@@ -345,7 +341,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
     int compression;
     if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile,
             &length)) {
-        return SkColorSpace::MakeICC(profile, length);
+        return SkColorSpace_Base::MakeICC(profile, length, iccType);
     }
 
     // Second, check for sRGB.
@@ -410,9 +406,9 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
 #endif // LIBPNG >= 1.6
 
-    // Report that there is no color space information in the PNG.  SkPngCodec is currently
-    // implemented to guess sRGB in this case.
-    return nullptr;
+    // Report that there is no color space information in the PNG.
+    // Guess sRGB in this case.
+    return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
 }
 
 void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
@@ -424,16 +420,28 @@ void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
             // be created later if we are sampling.  We'll go ahead and allocate
             // enough memory to swizzle if necessary.
         case kSwizzleColor_XformMode: {
-            const size_t colorXformBytes = dstInfo.width() * sizeof(uint32_t);
+            const size_t bpp = (this->getEncodedInfo().bitsPerPixel() > 32) ? 8 : 4;
+            const size_t colorXformBytes = dstInfo.width() * bpp;
             fStorage.reset(colorXformBytes);
-            fColorXformSrcRow = (uint32_t*) fStorage.get();
+            fColorXformSrcRow = fStorage.get();
             break;
         }
     }
 }
 
+static SkColorSpaceXform::ColorFormat png_select_xform_format(const SkEncodedInfo& info) {
+    // We always use kRGBA because color PNGs are always RGB or RGBA.
+    // TODO (msarett): Support kRGB_U16 inputs as well.
+    if (16 == info.bitsPerComponent() && SkEncodedInfo::kRGBA_Color == info.color()) {
+        return SkColorSpaceXform::kRGBA_U16_BE_ColorFormat;
+    }
+
+    return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+}
+
 void SkPngCodec::applyXformRow(void* dst, const void* src) {
-    const SkColorSpaceXform::ColorFormat srcColorFormat = select_xform_format(kXformSrcColorType);
+    const SkColorSpaceXform::ColorFormat srcColorFormat =
+            png_select_xform_format(this->getEncodedInfo());
     switch (fXformMode) {
         case kSwizzleOnly_XformMode:
             fSwizzler->swizzle(dst, (const uint8_t*) src);
@@ -874,17 +882,17 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
 // FIXME (scroggo): Once SK_GOOGLE3_PNG_HACK is no more, this method can be inline in
 // AutoCleanPng::infoCallback
 static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
-                                  SkEncodedInfo::Color* outColor, SkEncodedInfo::Alpha* outAlpha) {
+                                  SkEncodedInfo::Color* outColor, SkEncodedInfo::Alpha* outAlpha,
+                                  int* outBitDepth) {
     png_uint_32 origWidth, origHeight;
     int bitDepth, encodedColorType;
     png_get_IHDR(png_ptr, info_ptr, &origWidth, &origHeight, &bitDepth,
                  &encodedColorType, nullptr, nullptr, nullptr);
 
-    // Tell libpng to strip 16 bit/color files down to 8 bits/color.
-    // TODO: Should we handle this in SkSwizzler?  Could this also benefit
-    //       RAW decodes?
-    if (bitDepth == 16) {
-        SkASSERT(PNG_COLOR_TYPE_PALETTE != encodedColorType);
+    // TODO: Should we support 16-bits of precision for gray images?
+    if (bitDepth == 16 && (PNG_COLOR_TYPE_GRAY == encodedColorType ||
+                           PNG_COLOR_TYPE_GRAY_ALPHA == encodedColorType)) {
+        bitDepth = 8;
         png_set_strip_16(png_ptr);
     }
 
@@ -899,6 +907,7 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
             // byte into separate bytes (useful for paletted and grayscale images).
             if (bitDepth < 8) {
                 // TODO: Should we use SkSwizzler here?
+                bitDepth = 8;
                 png_set_packing(png_ptr);
             }
 
@@ -922,6 +931,7 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
             // Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel.
             if (bitDepth < 8) {
                 // TODO: Should we use SkSwizzler here?
+                bitDepth = 8;
                 png_set_expand_gray_1_2_4_to_8(png_ptr);
             }
 
@@ -954,11 +964,14 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
     if (outAlpha) {
         *outAlpha = alpha;
     }
+    if (outBitDepth) {
+        *outBitDepth = bitDepth;
+    }
 }
 
 #ifdef SK_GOOGLE3_PNG_HACK
 void SkPngCodec::rereadInfoCallback() {
-    general_info_callback(fPng_ptr, fInfo_ptr, nullptr, nullptr);
+    general_info_callback(fPng_ptr, fInfo_ptr, nullptr, nullptr, nullptr);
     png_set_interlace_handling(fPng_ptr);
     png_read_update_info(fPng_ptr, fInfo_ptr);
 }
@@ -967,7 +980,8 @@ void SkPngCodec::rereadInfoCallback() {
 void AutoCleanPng::infoCallback() {
     SkEncodedInfo::Color color;
     SkEncodedInfo::Alpha alpha;
-    general_info_callback(fPng_ptr, fInfo_ptr, &color, &alpha);
+    int bitDepth;
+    general_info_callback(fPng_ptr, fInfo_ptr, &color, &alpha, &bitDepth);
 
     const int numberPasses = png_set_interlace_handling(fPng_ptr);
 
@@ -983,13 +997,18 @@ void AutoCleanPng::infoCallback() {
 #endif
     if (fOutCodec) {
         SkASSERT(nullptr == *fOutCodec);
-        sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr);
+        SkColorSpace_Base::ICCTypeFlag iccType = SkColorSpace_Base::kRGB_ICCTypeFlag;
+        if (SkEncodedInfo::kGray_Color == color || SkEncodedInfo::kGrayAlpha_Color == color) {
+            iccType |= SkColorSpace_Base::kGray_ICCTypeFlag;
+        }
+        sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr, iccType);
+        const bool unsupportedICC = !colorSpace;
         if (!colorSpace) {
-            // Treat unmarked pngs as sRGB.
+            // Treat unsupported/invalid color spaces as sRGB.
             colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         }
 
-        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, 8);
+        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, bitDepth);
         // FIXME (scroggo): Once we get rid of SK_GOOGLE3_PNG_HACK, general_info_callback can
         // be inlined, so these values will already be set.
         png_uint_32 origWidth = png_get_image_width(fPng_ptr, fInfo_ptr);
@@ -1014,6 +1033,7 @@ void AutoCleanPng::infoCallback() {
             *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream,
                     fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
         }
+        (*fOutCodec)->setUnsupportedICC(unsupportedICC);
     }
 
 
@@ -1071,9 +1091,9 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     }
 
     // If the image is RGBA and we have a color xform, we can skip the swizzler.
-    if (this->colorXform() && SkEncodedInfo::kRGBA_Color == this->getEncodedInfo().color() &&
-        !options.fSubset)
-    {
+    const bool skipFormatConversion = this->colorXform() &&
+            SkEncodedInfo::kRGBA_Color == this->getEncodedInfo().color();
+    if (skipFormatConversion && !options.fSubset) {
         fXformMode = kColorOnly_XformMode;
         return true;
     }
@@ -1087,7 +1107,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     // Copy the color table to the client if they request kIndex8 mode.
     copy_color_table(dstInfo, fColorTable.get(), ctable, ctableCount);
 
-    this->initializeSwizzler(dstInfo, options);
+    this->initializeSwizzler(dstInfo, options, skipFormatConversion);
     return true;
 }
 
@@ -1110,7 +1130,8 @@ void SkPngCodec::initializeXformParams() {
     }
 }
 
-void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
+void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
+                                    bool skipFormatConversion) {
     SkImageInfo swizzlerInfo = dstInfo;
     Options swizzlerOptions = options;
     fXformMode = kSwizzleOnly_XformMode;
@@ -1132,7 +1153,7 @@ void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& o
 
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, swizzlerInfo,
-                                               swizzlerOptions));
+                                               swizzlerOptions, nullptr, skipFormatConversion));
     SkASSERT(fSwizzler);
 }
 
@@ -1141,7 +1162,7 @@ SkSampler* SkPngCodec::getSampler(bool createIfNecessary) {
         return fSwizzler.get();
     }
 
-    this->initializeSwizzler(this->dstInfo(), this->options());
+    this->initializeSwizzler(this->dstInfo(), this->options(), true);
     return fSwizzler.get();
 }
 

@@ -8,13 +8,14 @@
 #ifndef GrTexureOpList_DEFINED
 #define GrTexureOpList_DEFINED
 
+#include "GrGpuResource.h"
 #include "GrOpList.h"
 
 #include "SkTArray.h"
 
 class GrAuditTrail;
-class GrBatch;
 class GrGpu;
+class GrOp;
 class GrTextureProxy;
 struct SkIPoint;
 struct SkIRect;
@@ -26,7 +27,7 @@ public:
     ~GrTextureOpList() override;
 
     /**
-     * Empties the draw buffer of any queued up draws.
+     * Empties the draw buffer of any queued ops.
      */
     void reset() override;
 
@@ -34,11 +35,11 @@ public:
     void freeGpuResources() override {}
 
     /**
-     * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
-     * of drawBatches() indicates whether any commands were actually issued to the GPU.
+     * Together these two functions flush all queued ops to GrGpuCommandBuffer. The return value
+     * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
-    void prepareBatches(GrBatchFlushState* flushState) override;
-    bool drawBatches(GrBatchFlushState* flushState) override;
+    void prepareOps(GrOpFlushState* flushState) override;
+    bool executeOps(GrOpFlushState* flushState) override;
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -55,13 +56,16 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
+    GrTextureOpList* asTextureOpList() override { return this; }
+
     SkDEBUGCODE(void dump() const override;)
 
 private:
-    void recordBatch(GrBatch*);
+    // The unique ID is only needed for the audit trail. This should be removed with MDB.
+    void recordOp(std::unique_ptr<GrOp>, GrGpuResource::UniqueID renderTargetID);
 
-    SkSTArray<2, sk_sp<GrBatch>, true> fRecordedBatches;
-    GrGpu*                             fGpu;
+    SkSTArray<2, std::unique_ptr<GrOp>, true> fRecordedOps;
+    GrGpu*                          fGpu;
 
     typedef GrOpList INHERITED;
 };

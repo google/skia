@@ -33,11 +33,6 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkSh
                                    const SkMatrix* localMatrix, SkCopyPixelsMode,
                                    SkTBlitterAllocator* alloc);
 
-// Call this if you explicitly want to use/share this pixelRef in the image
-extern sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
-                                              const SkIPoint& pixelRefOrigin,
-                                              size_t rowBytes);
-
 /**
  *  Examines the bitmap to decide if it can share the existing pixelRef, or
  *  if it needs to make a deep-copy of the pixels.
@@ -100,5 +95,12 @@ bool SkImage_pinAsTexture(const SkImage*, GrContext*);
  *  The context passed to unpin must match the one passed to pin.
  */
 void SkImage_unpinAsTexture(const SkImage*, GrContext*);
+
+/**
+ *  Returns a new image containing the same pixel values as the source, but with a different color
+ *  space assigned. This performs no color space conversion. Primarily used in tests, to visualize
+ *  the results of rendering in wide or narrow gamuts.
+ */
+sk_sp<SkImage> SkImageMakeRasterCopyAndAssignColorSpace(const SkImage*, SkColorSpace*);
 
 #endif

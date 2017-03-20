@@ -46,9 +46,9 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    // This draws the same text blob 3 times.  The second draw used a different
-    // xfer mode so it doens't get batched with the first and third.
-    // ultimately thye iwll be flushed in the order first, third, and then second
+    // This draws the same text blob 3 times.  The second draw used a different xfer mode so its
+    // GrDrawOp doesn't get combined with the first and third. Ultimately, they will be flushed in
+    // the order first, third, and then second.
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
 
@@ -63,8 +63,7 @@ protected:
 
         canvas->translate(SkIntToScalar(xDelta), SkIntToScalar(yDelta));
 
-	// draw a rect where the text should be, and then twiddle the xfermode
-        // so we don't batch
+        // Draw a rect where the text should be, and then twiddle the xfermode so we don't combine.
         SkPaint redPaint;
         redPaint.setColor(SK_ColorRED);
         canvas->drawRect(bounds, redPaint);

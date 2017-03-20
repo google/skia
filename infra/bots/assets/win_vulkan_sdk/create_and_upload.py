@@ -35,6 +35,7 @@ def main():
     upload_script = os.path.join(common.FILE_DIR, 'upload.py')
 
     try:
+      cwd = os.path.join(cwd, 'sdk')
       cmd = ['python', create_script,
              '-t', cwd,
              '--sdk_path', args.sdk_path,

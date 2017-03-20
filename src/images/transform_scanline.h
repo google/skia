@@ -13,6 +13,7 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkPreConfig.h"
+#include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
 
 /**
@@ -128,19 +129,51 @@ static inline void transform_scanline_unpremultiply(char* SK_RESTRICT dst,
 }
 
 /**
+ * Transform from legacy kPremul, kRGBA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
+ */
+static void transform_scanline_rgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src, int width,
+                                    int bpp) {
+    transform_scanline_unpremultiply<true>(dst, src, width, bpp);
+}
+
+/**
+ * Transform from legacy kPremul, kBGRA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
+ */
+static void transform_scanline_bgrA(char* SK_RESTRICT dst, const char* SK_RESTRICT src, int width,
+                                    int bpp) {
+    transform_scanline_unpremultiply<false>(dst, src, width, bpp);
+}
+
+template <bool kIsRGBA>
+static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* src, int width, int)
+{
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_8888, &src);
+    if (!kIsRGBA) {
+        p.append(SkRasterPipeline::swap_rb);
+    }
+
+    p.append_from_srgb(kPremul_SkAlphaType);
+    p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_8888, &dst);
+    p.run(0, 0, width);
+}
+
+/**
  * Transform from kPremul, kRGBA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
  */
-static void transform_scanline_rgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
-                                    int width, int bpp) {
-    transform_scanline_unpremultiply<true>(dst, src, width, bpp);
+static void transform_scanline_srgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
+                                     int width, int bpp) {
+    transform_scanline_unpremultiply_sRGB<true>(dst, src, width, bpp);
 }
 
 /**
  * Transform from kPremul, kBGRA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
  */
-static void transform_scanline_bgrA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
-                                    int width, int bpp) {
-    transform_scanline_unpremultiply<false>(dst, src, width, bpp);
+static void transform_scanline_sbgrA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
+                                     int width, int bpp) {
+    transform_scanline_unpremultiply_sRGB<false>(dst, src, width, bpp);
 }
 
 /**

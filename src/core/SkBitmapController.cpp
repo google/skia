@@ -40,13 +40,15 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
 
 class SkDefaultBitmapControllerState : public SkBitmapController::State {
 public:
-    SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality,
-                                   SkDestinationSurfaceColorMode);
+    SkDefaultBitmapControllerState(const SkBitmapProvider&,
+                                   const SkMatrix& inv,
+                                   SkFilterQuality,
+                                   bool canShadeHQ);
 
 private:
     SkBitmap                      fResultBitmap;
-    SkDestinationSurfaceColorMode fColorMode;
     sk_sp<const SkMipMap>         fCurrMip;
+    bool                          fCanShadeHQ;
 
     bool processExternalRequest(const SkBitmapProvider&);
     bool processHQRequest(const SkBitmapProvider&);
@@ -130,6 +132,14 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
         return false; // only use HQ when upsampling
     }
 
+    // If the shader can natively handle HQ filtering, let it do it.
+    if (fCanShadeHQ) {
+        fQuality = kHigh_SkFilterQuality;
+        SkAssertResult(provider.asBitmap(&fResultBitmap));
+        fResultBitmap.lockPixels();
+        return true;
+    }
+
     const int dstW = SkScalarRoundToScalar(provider.width() / invScaleX);
     const int dstH = SkScalarRoundToScalar(provider.height() / invScaleY);
     const SkBitmapCacheDesc desc = provider.makeCacheDesc(dstW, dstH);
@@ -184,14 +194,17 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
         return false;
     }
 
+    SkDestinationSurfaceColorMode colorMode = provider.dstColorSpace()
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
     if (invScaleSize.width() > SK_Scalar1 || invScaleSize.height() > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), fColorMode));
+        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), colorMode));
         if (nullptr == fCurrMip.get()) {
             SkBitmap orig;
             if (!provider.asBitmap(&orig)) {
                 return false;
             }
-            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, fColorMode));
+            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, colorMode));
             if (nullptr == fCurrMip.get()) {
                 return false;
             }
@@ -219,14 +232,13 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
     return false;
 }
 
-SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(
-                                                         const SkBitmapProvider& provider,
-                                                         const SkMatrix& inv,
-                                                         SkFilterQuality qual,
-                                                         SkDestinationSurfaceColorMode colorMode) {
+SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapProvider& provider,
+                                                               const SkMatrix& inv,
+                                                               SkFilterQuality qual,
+                                                               bool canShadeHQ) {
     fInvMatrix = inv;
     fQuality = qual;
-    fColorMode = colorMode;
+    fCanShadeHQ = canShadeHQ;
 
     bool processed = this->processExternalRequest(provider);
 
@@ -241,7 +253,7 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(
         fResultBitmap.lockPixels();
         // lock may fail to give us pixels
     }
-    SkASSERT(fQuality <= kLow_SkFilterQuality);
+    SkASSERT(fCanShadeHQ || fQuality <= kLow_SkFilterQuality);
 
     // fResultBitmap.getPixels() may be null, but our caller knows to check fPixmap.addr()
     // and will destroy us if it is nullptr.
@@ -253,6 +265,6 @@ SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBi
                                                                       const SkMatrix& inverse,
                                                                       SkFilterQuality quality,
                                                                       void* storage, size_t size) {
-    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality,
-                                                             fColorMode);
+    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size,
+                                                             bm, inverse, quality, fCanShadeHQ);
 }

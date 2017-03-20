@@ -11,7 +11,7 @@
 #include "GrContext.h"
 #include "GrTest.h"
 #include "Test.h"
-#include "batches/GrTessellatingPathRenderer.h"
+#include "ops/GrTessellatingPathRenderer.h"
 
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.
@@ -254,20 +254,20 @@ static void test_path(GrRenderTargetContext* renderTargetContext, GrResourceProv
     GrTessellatingPathRenderer tess;
 
     GrPaint paint;
-    paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+    paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
-    GrPathRenderer::DrawPathArgs args;
-    args.fPaint = &paint;
-    args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
-    args.fRenderTargetContext = renderTargetContext;
-    args.fClip = &noClip;
-    args.fResourceProvider = rp;
-    args.fViewMatrix = &SkMatrix::I();
     GrShape shape(path, style);
-    args.fShape = &shape;
-    args.fAntiAlias = false;
+    GrPathRenderer::DrawPathArgs args{rp,
+                                      std::move(paint),
+                                      &GrUserStencilSettings::kUnused,
+                                      renderTargetContext,
+                                      &noClip,
+                                      &SkMatrix::I(),
+                                      &shape,
+                                      GrAAType::kNone,
+                                      false};
     tess.drawPath(args);
 }
 

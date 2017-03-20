@@ -16,7 +16,7 @@
 #include "GrPathRendering.h"
 #include "GrXferProcessor.h"
 
-#include "batches/GrDrawBatch.h"
+#include "ops/GrDrawOp.h"
 
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -26,15 +26,14 @@
 #include "SkTArray.h"
 #include "SkTLazy.h"
 #include "SkTypes.h"
-#include "SkXfermode.h"
 
 class GrAuditTrail;
-class GrBatch;
-class GrClearBatch;
+class GrClearOp;
 class GrClip;
 class GrCaps;
 class GrPath;
-class GrDrawPathBatchBase;
+class GrDrawPathOpBase;
+class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
 
@@ -42,15 +41,9 @@ class GrRenderTargetOpList final : public GrOpList {
 public:
     /** Options for GrRenderTargetOpList behavior. */
     struct Options {
-        Options ()
-            : fClipBatchToBounds(false)
-            , fDrawBatchBounds(false)
-            , fMaxBatchLookback(-1)
-            , fMaxBatchLookahead(-1) {}
-        bool fClipBatchToBounds;
-        bool fDrawBatchBounds;
-        int  fMaxBatchLookback;
-        int  fMaxBatchLookahead;
+        bool fClipDrawOpsToBounds = false;
+        int fMaxOpCombineLookback = -1;
+        int fMaxOpCombineLookahead = -1;
     };
 
     GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*,
@@ -61,7 +54,7 @@ public:
     void makeClosed() override {
         INHERITED::makeClosed();
 
-        fLastFullClearBatch = nullptr;
+        fLastFullClearOp = nullptr;
         this->forwardCombine();
     }
 
@@ -75,19 +68,22 @@ public:
 
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
-     * of drawBatches() indicates whether any commands were actually issued to the GPU.
+     * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
-    void prepareBatches(GrBatchFlushState* flushState) override;
-    bool drawBatches(GrBatchFlushState* flushState) override;
+    void prepareOps(GrOpFlushState* flushState) override;
+    bool executeOps(GrOpFlushState* flushState) override;
 
     /**
      * Gets the capabilities of the draw target.
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawBatch*);
+    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
+                   std::unique_ptr<GrDrawOp>);
 
-    void addBatch(sk_sp<GrBatch>);
+    void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
+        this->recordOp(std::move(op), renderTargetContext);
+    }
 
     /**
      * Draws the path into user stencil bits. Upon return, all user stencil values
@@ -98,15 +94,15 @@ public:
      */
     void stencilPath(GrRenderTargetContext*,
                      const GrClip&,
-                     bool useHWAA,
+                     GrAAType aa,
                      const SkMatrix& viewMatrix,
                      const GrPath*);
 
     /** Clears the entire render target */
-    void fullClear(GrRenderTarget*, GrColor color);
+    void fullClear(GrRenderTargetContext*, GrColor color);
 
     /** Discards the contents render target. */
-    void discard(GrRenderTarget*);
+    void discard(GrRenderTargetContext*);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -128,50 +124,61 @@ public:
         return fInstancedRendering.get();
     }
 
+    GrRenderTargetOpList* asRenderTargetOpList() override { return this; }
+
     SkDEBUGCODE(void dump() const override;)
 
 private:
     friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
 
-    // Returns the batch that the input batch was combined with or the input batch if it wasn't
-    // combined.
-    GrBatch* recordBatch(GrBatch*, const SkRect& clippedBounds);
+    // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
+    // returns the input op.
+    GrOp* recordOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
+        SkRect bounds = op->bounds();
+        return this->recordOp(std::move(op), renderTargetContext, bounds);
+    }
+
+    // Variant that allows an explicit bounds (computed from the Op's bounds and a clip).
+    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds);
+
     void forwardCombine();
 
-    // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
-    // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
-    // needs to be accessed by GLPrograms to setup a correct drawstate
-    bool setupDstReadIfNecessary(const GrPipelineBuilder&,
-                                 GrRenderTarget*,
-                                 const GrClip&,
-                                 const GrPipelineOptimizations& optimizations,
-                                 GrXferProcessor::DstTexture*,
-                                 const SkRect& batchBounds);
+    // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
+    // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
+    // a texture copy could not be made.
+    void setupDstTexture(GrRenderTarget*,
+                         const GrClip&,
+                         const SkRect& opBounds,
+                         GrXferProcessor::DstTexture*);
 
     // Used only via GrRenderTargetContextPriv.
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
-    struct RecordedBatch {
-        sk_sp<GrBatch> fBatch;
-        SkRect         fClippedBounds;
+    struct RecordedOp {
+        std::unique_ptr<GrOp> fOp;
+        SkRect fClippedBounds;
+        // TODO: Use proxy ID instead of instantiated render target ID.
+        GrGpuResource::UniqueID fRenderTargetID;
     };
-    SkSTArray<256, RecordedBatch, true>             fRecordedBatches;
-    GrClearBatch*                                   fLastFullClearBatch;
-    // The context is only in service of the GrClip, remove once it doesn't need this.
-    GrContext*                                      fContext;
-    GrGpu*                                          fGpu;
-    GrResourceProvider*                             fResourceProvider;
+    SkSTArray<256, RecordedOp, true> fRecordedOps;
 
-    bool                                            fClipBatchToBounds;
-    bool                                            fDrawBatchBounds;
-    int                                             fMaxBatchLookback;
-    int                                             fMaxBatchLookahead;
+    GrClearOp* fLastFullClearOp = nullptr;
+    GrGpuResource::UniqueID fLastFullClearRenderTargetID = GrGpuResource::UniqueID::InvalidID();
+
+    // The context is only in service of the GrClip, remove once it doesn't need this.
+    GrContext* fContext;
+    GrGpu* fGpu;
+    GrResourceProvider* fResourceProvider;
+
+    bool fClipOpToBounds;
+    int fMaxOpLookback;
+    int fMaxOpLookahead;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
-    int32_t                                         fLastClipStackGenID;
-    SkIRect                                         fLastClipStackRect;
-    SkIPoint                                        fLastClipOrigin;
+    int32_t fLastClipStackGenID;
+    SkIRect fLastClipStackRect;
+    SkIPoint fLastClipOrigin;
 
     typedef GrOpList INHERITED;
 };

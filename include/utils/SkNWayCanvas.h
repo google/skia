@@ -10,9 +10,9 @@
 #define SkNWayCanvas_DEFINED
 
 #include "../private/SkTDArray.h"
-#include "SkCanvas.h"
+#include "SkNoDrawCanvas.h"
 
-class SK_API SkNWayCanvas : public SkCanvas {
+class SK_API SkNWayCanvas : public SkNoDrawCanvas {
 public:
     SkNWayCanvas(int width, int height);
     virtual ~SkNWayCanvas();
@@ -76,10 +76,10 @@ protected:
                               const uint16_t indices[], int indexCount,
                               const SkPaint&) override;
 
-    void onClipRect(const SkRect&, ClipOp, ClipEdgeStyle) override;
-    void onClipRRect(const SkRRect&, ClipOp, ClipEdgeStyle) override;
-    void onClipPath(const SkPath&, ClipOp, ClipEdgeStyle) override;
-    void onClipRegion(const SkRegion&, ClipOp) override;
+    void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
+    void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion&, SkClipOp) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
@@ -87,7 +87,7 @@ protected:
     class Iter;
 
 private:
-    typedef SkCanvas INHERITED;
+    typedef SkNoDrawCanvas INHERITED;
 };
 
 

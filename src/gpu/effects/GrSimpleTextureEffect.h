@@ -14,7 +14,7 @@ class GrInvariantOutput;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
- * It allows explicit specification of the filtering and wrap modes (GrTextureParams) and accepts
+ * It allows explicit specification of the filtering and wrap modes (GrSamplerParams) and accepts
  * a matrix that is used to compute texture coordinates from local coordinates.
  */
 class GrSimpleTextureEffect : public GrSingleTextureEffect {
@@ -25,14 +25,14 @@ public:
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
             new GrSimpleTextureEffect(tex, std::move(colorSpaceXform), matrix,
-                                      GrTextureParams::kNone_FilterMode));
+                                      GrSamplerParams::kNone_FilterMode));
     }
 
     /* clamp mode */
     static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
-                                           GrTextureParams::FilterMode filterMode) {
+                                           GrSamplerParams::FilterMode filterMode) {
         return sk_sp<GrFragmentProcessor>(
             new GrSimpleTextureEffect(tex, std::move(colorSpaceXform), matrix, filterMode));
     }
@@ -40,7 +40,7 @@ public:
     static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
-                                           const GrTextureParams& p) {
+                                           const GrSamplerParams& p) {
         return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(tex, std::move(colorSpaceXform),
                                                                     matrix, p));
     }
@@ -53,7 +53,7 @@ private:
     GrSimpleTextureEffect(GrTexture* texture,
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
-                          GrTextureParams::FilterMode filterMode)
+                          GrSamplerParams::FilterMode filterMode)
         : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode) {
         this->initClassID<GrSimpleTextureEffect>();
     }
@@ -61,14 +61,14 @@ private:
     GrSimpleTextureEffect(GrTexture* texture,
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
-                          const GrTextureParams& params)
+                          const GrSamplerParams& params)
         : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, params) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override { return true; }
 

@@ -77,19 +77,19 @@ public:
 
     explicit GrStyle(SkStrokeRec::InitStyle initStyle) : fStrokeRec(initStyle) {}
 
-    GrStyle(const SkStrokeRec& strokeRec, SkPathEffect* pe) : fStrokeRec(strokeRec) {
-        this->initPathEffect(pe);
+    GrStyle(const SkStrokeRec& strokeRec, sk_sp<SkPathEffect> pe) : fStrokeRec(strokeRec) {
+        this->initPathEffect(std::move(pe));
     }
 
     GrStyle(const GrStyle& that) : fStrokeRec(SkStrokeRec::kFill_InitStyle) { *this = that; }
 
     explicit GrStyle(const SkPaint& paint) : fStrokeRec(paint) {
-        this->initPathEffect(paint.getPathEffect());
+        this->initPathEffect(paint.refPathEffect());
     }
 
     explicit GrStyle(const SkPaint& paint, SkPaint::Style overrideStyle)
             : fStrokeRec(paint, overrideStyle) {
-        this->initPathEffect(paint.getPathEffect());
+        this->initPathEffect(paint.refPathEffect());
     }
 
     GrStyle& operator=(const GrStyle& that) {
@@ -116,6 +116,7 @@ public:
     bool isSimpleHairline() const { return fStrokeRec.isHairlineStyle() && !fPathEffect; }
 
     SkPathEffect* pathEffect() const { return fPathEffect.get(); }
+    sk_sp<SkPathEffect> refPathEffect() const { return fPathEffect; }
 
     bool hasPathEffect() const { return SkToBool(fPathEffect.get()); }
 
@@ -182,7 +183,7 @@ public:
     }
 
 private:
-    void initPathEffect(SkPathEffect* pe);
+    void initPathEffect(sk_sp<SkPathEffect> pe);
 
     struct DashInfo {
         DashInfo() : fType(SkPathEffect::kNone_DashType) {}

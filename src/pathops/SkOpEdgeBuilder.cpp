@@ -9,7 +9,6 @@
 #include "SkReduceOrder.h"
 
 void SkOpEdgeBuilder::init() {
-    fCurrentContour = fContoursHead;
     fOperand = false;
     fXorMask[0] = fXorMask[1] = (fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
             : kWinding_PathOpsMask;
@@ -52,8 +51,9 @@ bool SkOpEdgeBuilder::finish() {
         return false;
     }
     complete();
-    if (fCurrentContour && !fCurrentContour->count()) {
-        fContoursHead->remove(fCurrentContour);
+    SkOpContour* contour = fContourBuilder.contour();
+    if (contour && !contour->count()) {
+        fContoursHead->remove(contour);
     }
     return true;
 }
@@ -178,6 +178,7 @@ bool SkOpEdgeBuilder::walk() {
     SkPoint* pointsPtr = fPathPts.begin() - 1;
     SkScalar* weightPtr = fWeights.begin();
     SkPath::Verb verb;
+    SkOpContour* contour = fContourBuilder.contour();
     while ((verb = (SkPath::Verb) *verbPtr) != SkPath::kDone_Verb) {
         if (verbPtr == endOfFirstHalf) {
             fOperand = true;
@@ -185,22 +186,22 @@ bool SkOpEdgeBuilder::walk() {
         verbPtr++;
         switch (verb) {
             case SkPath::kMove_Verb:
-                if (fCurrentContour && fCurrentContour->count()) {
+                if (contour && contour->count()) {
                     if (fAllowOpenContours) {
                         complete();
                     } else if (!close()) {
                         return false;
                     }
                 }
-                if (!fCurrentContour) {
-                    fCurrentContour = fContoursHead->appendContour();
+                if (!contour) {
+                    fContourBuilder.setContour(contour = fContoursHead->appendContour());
                 }
-                fCurrentContour->init(fGlobalState, fOperand,
+                contour->init(fGlobalState, fOperand,
                     fXorMask[fOperand] == kEvenOdd_PathOpsMask);
                 pointsPtr += 1;
                 continue;
             case SkPath::kLine_Verb:
-                fCurrentContour->addLine(pointsPtr);
+                fContourBuilder.addLine(pointsPtr);
                 break;
             case SkPath::kQuad_Verb:
                 {
@@ -220,14 +221,14 @@ bool SkOpEdgeBuilder::walk() {
                         SkPoint* curve1 = v1 != SkPath::kLine_Verb ? &pair[0] : cStorage[0];
                         SkPoint* curve2 = v2 != SkPath::kLine_Verb ? &pair[2] : cStorage[1];
                         if (can_add_curve(v1, curve1) && can_add_curve(v2, curve2)) {
-                            fCurrentContour->addCurve(v1, curve1);
-                            fCurrentContour->addCurve(v2, curve2);
+                            fContourBuilder.addCurve(v1, curve1);
+                            fContourBuilder.addCurve(v2, curve2);
                             break;
                         }
                     }
                 }
             addOneQuad:
-                fCurrentContour->addQuad(pointsPtr);
+                fContourBuilder.addQuad(pointsPtr);
                 break;
             case SkPath::kConic_Verb: {
                 SkVector v1 = pointsPtr[1] - pointsPtr[0];
@@ -241,7 +242,7 @@ bool SkOpEdgeBuilder::walk() {
                         SkConic pair[2];
                         if (!conic.chopAt(maxCurvature, pair)) {
                             // if result can't be computed, use original
-                            fCurrentContour->addConic(pointsPtr, weight);
+                            fContourBuilder.addConic(pointsPtr, weight);
                             break;
                         }
                         SkPoint cStorage[2][3];
@@ -250,56 +251,106 @@ bool SkOpEdgeBuilder::walk() {
                         SkPoint* curve1 = v1 != SkPath::kLine_Verb ? pair[0].fPts : cStorage[0];
                         SkPoint* curve2 = v2 != SkPath::kLine_Verb ? pair[1].fPts : cStorage[1];
                         if (can_add_curve(v1, curve1) && can_add_curve(v2, curve2)) {
-                            fCurrentContour->addCurve(v1, curve1, pair[0].fW);
-                            fCurrentContour->addCurve(v2, curve2, pair[1].fW);
+                            fContourBuilder.addCurve(v1, curve1, pair[0].fW);
+                            fContourBuilder.addCurve(v2, curve2, pair[1].fW);
                             break;
                         }
                     }
                 }
-                fCurrentContour->addConic(pointsPtr, weight);
+                fContourBuilder.addConic(pointsPtr, weight);
                 } break;
             case SkPath::kCubic_Verb:
                 {
                     // Split complex cubics (such as self-intersecting curves or
                     // ones with difficult curvature) in two before proceeding.
                     // This can be required for intersection to succeed.
-                    SkScalar splitT;
-                    if (SkDCubic::ComplexBreak(pointsPtr, &splitT)) {
-                        SkPoint pair[7];
-                        SkChopCubicAt(pointsPtr, pair, splitT);
-                        if (!SkScalarsAreFinite(&pair[0].fX, SK_ARRAY_COUNT(pair) * 2)) {
+                    SkScalar splitT[3];
+                    int breaks = SkDCubic::ComplexBreak(pointsPtr, splitT);
+                    if (!breaks) {
+                        fContourBuilder.addCubic(pointsPtr);
+                        break;
+                    }
+                    SkASSERT(breaks <= (int) SK_ARRAY_COUNT(splitT));
+                    struct Splitsville {
+                        double fT[2];
+                        SkPoint fPts[4];
+                        SkPoint fReduced[4];
+                        SkPath::Verb fVerb;
+                        bool fCanAdd;
+                    } splits[4];
+                    SkASSERT(SK_ARRAY_COUNT(splits) == SK_ARRAY_COUNT(splitT) + 1);
+                    SkTQSort(splitT, &splitT[breaks - 1]);
+                    for (int index = 0; index <= breaks; ++index) {
+                        Splitsville* split = &splits[index];
+                        split->fT[0] = index ? splitT[index - 1] : 0;
+                        split->fT[1] = index < breaks ? splitT[index] : 1;
+                        SkDCubic part = SkDCubic::SubDivide(pointsPtr, split->fT[0], split->fT[1]);
+                        if (!part.toFloatPoints(split->fPts)) {
                             return false;
                         }
-                        SkPoint cStorage[2][4];
-                        SkPath::Verb v1 = SkReduceOrder::Cubic(&pair[0], cStorage[0]);
-                        SkPath::Verb v2 = SkReduceOrder::Cubic(&pair[3], cStorage[1]);
-                        SkPoint* curve1 = v1 == SkPath::kCubic_Verb ? &pair[0] : cStorage[0];
-                        SkPoint* curve2 = v2 == SkPath::kCubic_Verb ? &pair[3] : cStorage[1];
-                        if (can_add_curve(v1, curve1) && can_add_curve(v2, curve2)) {
-                            fCurrentContour->addCurve(v1, curve1);
-                            fCurrentContour->addCurve(v2, curve2);
-                            break;
-                        } 
+                        split->fVerb = SkReduceOrder::Cubic(split->fPts, split->fReduced);
+                        SkPoint* curve = SkPath::kCubic_Verb == verb
+                                ? split->fPts : split->fReduced;
+                        split->fCanAdd = can_add_curve(split->fVerb, curve);
+                    }
+                    for (int index = 0; index <= breaks; ++index) {
+                        Splitsville* split = &splits[index];
+                        if (!split->fCanAdd) {
+                            continue;
+                        }
+                        int prior = index;
+                        while (prior > 0 && !splits[prior - 1].fCanAdd) {
+                            --prior;
+                        }
+                        if (prior < index) {
+                            split->fT[0] = splits[prior].fT[0];
+                        }
+                        int next = index;
+                        while (next < breaks && !splits[next + 1].fCanAdd) {
+                            ++next;
+                        }
+                        if (next > index) {
+                            split->fT[1] = splits[next].fT[1];
+                        }
+                        if (prior < index || next > index) {
+                            if (0 == split->fT[0] && 1 == split->fT[1]) {
+                                fContourBuilder.addCubic(pointsPtr);
+                                break;
+                            }
+                            SkDCubic part = SkDCubic::SubDivide(pointsPtr, split->fT[0],
+                                    split->fT[1]);
+                            if (!part.toFloatPoints(split->fPts)) {
+                                return false;
+                            }
+                            split->fVerb = SkReduceOrder::Cubic(split->fPts, split->fReduced);
+                        }
+                        SkPoint* curve = SkPath::kCubic_Verb == split->fVerb
+                                ? split->fPts : split->fReduced;
+                        SkAssertResult(can_add_curve(split->fVerb, curve));
+                        fContourBuilder.addCurve(split->fVerb, curve);
                     }
                 }
-                fCurrentContour->addCubic(pointsPtr);
                 break;
             case SkPath::kClose_Verb:
-                SkASSERT(fCurrentContour);
+                SkASSERT(contour);
                 if (!close()) {
                     return false;
                 }
+                contour = nullptr;
                 continue;
             default:
                 SkDEBUGFAIL("bad verb");
                 return false;
         }
-        SkASSERT(fCurrentContour);
-        fCurrentContour->debugValidate();
+        SkASSERT(contour);
+        if (contour->count()) {
+            contour->debugValidate();
+        }
         pointsPtr += SkPathOpsVerbToPoints(verb);
     }
-   if (fCurrentContour && fCurrentContour->count() &&!fAllowOpenContours && !close()) {
-       return false;
-   }
-   return true;
+    fContourBuilder.flush();
+    if (contour && contour->count() &&!fAllowOpenContours && !close()) {
+        return false;
+    }
+    return true;
 }

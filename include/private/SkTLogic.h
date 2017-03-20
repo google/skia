@@ -57,8 +57,10 @@ template <typename... T> using common_type_t = typename std::common_type<T...>::
 template <typename T> struct underlying_type {
     using type = __underlying_type(T);
 };
+template <typename T> using is_trivially_destructible = std::has_trivial_destructor<T>;
 #else
 template <typename T> using underlying_type = std::underlying_type<T>;
+template <typename T> using is_trivially_destructible = std::is_trivially_destructible<T>;
 #endif
 template <typename T> using underlying_type_t = typename skstd::underlying_type<T>::type;
 

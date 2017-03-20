@@ -393,18 +393,6 @@ typedef enum {
 } sk_displacement_map_effect_channel_selector_type_t;
 
 typedef enum {
-    UNKNOWN_SK_IMAGE_ENCODER_TYPE,
-    BMP_SK_IMAGE_ENCODER_TYPE,
-    GIF_SK_IMAGE_ENCODER_TYPE,
-    ICO_SK_IMAGE_ENCODER_TYPE,
-    JPEG_SK_IMAGE_ENCODER_TYPE,
-    PNG_SK_IMAGE_ENCODER_TYPE,
-    WBMP_SK_IMAGE_ENCODER_TYPE,
-    WEBP_SK_IMAGE_ENCODER_TYPE,
-    KTX_SK_IMAGE_ENCODER_TYPE,
-} sk_image_encoder_type_t;
-
-typedef enum {
     CLAMP_SK_MATRIX_CONVOLUTION_TILEMODE,
     REPEAT_SK_MATRIX_CONVOLUTION_TILEMODE,
     CLAMP_TO_BLACK_SK_MATRIX_CONVOLUTION_TILEMODE,
@@ -431,7 +419,6 @@ typedef enum {
  *  Enum describing format of encoded data.
  */
 typedef enum {
-    UNKNOWN_SK_ENCODED_FORMAT,
     BMP_SK_ENCODED_FORMAT,
     GIF_SK_ENCODED_FORMAT,
     ICO_SK_ENCODED_FORMAT,
@@ -443,7 +430,7 @@ typedef enum {
     KTX_SK_ENCODED_FORMAT,
     ASTC_SK_ENCODED_FORMAT,
     DNG_SK_ENCODED_FORMAT
-} sk_encoded_format_t;
+} sk_encoded_image_format_t;
 
 typedef enum {
     TOP_LEFT_SK_CODEC_ORIGIN     = 1, // Default
@@ -593,7 +580,7 @@ typedef enum {
 typedef enum {
     UNKNOWN_GR_PIXEL_CONFIG,
     ALPHA_8_GR_PIXEL_CONFIG,
-    INDEX_8_GR_PIXEL_CONFIG,
+    GRAY_8_GR_PIXEL_CONFIG,
     RGB_565_GR_PIXEL_CONFIG,
     RGBA_4444_GR_PIXEL_CONFIG,
     RGBA_8888_GR_PIXEL_CONFIG,
@@ -760,14 +747,6 @@ typedef struct {
 } sk_document_pdf_metadata_t;
 
 typedef enum {
-    NONE_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x00,
-    TRANSPARENT_OCCLUDER_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x01,
-    LARGER_UMBRA_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x02,
-    GAUSSIAN_EDGE_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x04,
-    ALL_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x07
-} sk_shadowmaskfilter_shadowflags_t;
-
-typedef enum {
     OPAQUE_SK_ENCODEDINFO_ALPHA,
     UNPREMUL_SK_ENCODEDINFO_ALPHA,
     BINARY_SK_ENCODEDINFO_ALPHA,
@@ -797,6 +776,7 @@ typedef struct {
 typedef struct {
     size_t fRequiredFrame;
     size_t fDuration;
+    bool fullyRecieved;
 } sk_codec_frameinfo_t;
 
 typedef struct sk_xmlstreamwriter_t sk_xmlstreamwriter_t;

@@ -87,18 +87,6 @@ SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkData> profileData)
     : fProfileData(std::move(profileData))
 {}
 
-static constexpr float gSRGB_toXYZD50[] {
-    0.4358f, 0.3853f, 0.1430f,    // Rx, Gx, Bx
-    0.2224f, 0.7170f, 0.0606f,    // Ry, Gy, Gz
-    0.0139f, 0.0971f, 0.7139f,    // Rz, Gz, Bz
-};
-
-static constexpr float gAdobeRGB_toXYZD50[] {
-    0.6098f, 0.2052f, 0.1492f,    // Rx, Gx, Bx
-    0.3111f, 0.6257f, 0.0632f,    // Ry, Gy, By
-    0.0195f, 0.0609f, 0.7448f,    // Rz, Gz, Bz
-};
-
 /**
  *  Checks if our toXYZ matrix is a close match to a known color gamut.
  *
@@ -177,19 +165,20 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs,
         return SkColorSpace_Base::MakeRGB(k2Dot2Curve_SkGammaNamed, toXYZD50);
     }
 
+    if (is_almost_linear(coeffs)) {
+        return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, toXYZD50);
+    }
+
     void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(SkColorSpaceTransferFn));
-    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
     SkColorSpaceTransferFn* fn = SkTAddOffset<SkColorSpaceTransferFn>(memory, sizeof(SkGammas));
     *fn = coeffs;
-    gammas->fRedType = SkGammas::Type::kParam_Type;
-    gammas->fGreenType = SkGammas::Type::kParam_Type;
-    gammas->fBlueType = SkGammas::Type::kParam_Type;
-
     SkGammas::Data data;
     data.fParamOffset = 0;
-    gammas->fRedData = data;
-    gammas->fGreenData = data;
-    gammas->fBlueData = data;
+    for (int channel = 0; channel < 3; ++channel) {
+        gammas->fType[channel] = SkGammas::Type::kParam_Type;
+        gammas->fData[channel] = data;
+    }
     return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(kNonStandard_SkGammaNamed,
                                                     std::move(gammas), toXYZD50, nullptr));
 }

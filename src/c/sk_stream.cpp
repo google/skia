@@ -150,11 +150,6 @@ sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new()
     return ToDynamicMemoryWStream(new SkDynamicMemoryWStream());
 }
 
-sk_data_t* sk_dynamicmemorywstream_copy_to_data(sk_wstream_dynamicmemorystream_t* cstream)
-{
-    return ToData(AsDynamicMemoryWStream(cstream)->snapshotAsData().release());
-}
-
 sk_stream_asset_t* sk_dynamicmemorywstream_detach_as_stream(sk_wstream_dynamicmemorystream_t* cstream)
 {
     return ToStreamAsset(AsDynamicMemoryWStream(cstream)->detachAsStream());
@@ -165,7 +160,7 @@ bool sk_wstream_write(sk_wstream_t* cstream, const void* buffer, size_t size)
     return AsWStream(cstream)->write(buffer, size);
 }
 
-void sk_wstream_newline(sk_wstream_t* cstream)
+bool sk_wstream_newline(sk_wstream_t* cstream)
 {
     return AsWStream(cstream)->newline();
 }

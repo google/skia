@@ -325,7 +325,7 @@ static BlendFormula get_blend_formula(const GrProcOptInfo& colorPOI,
                                       bool hasMixedSamples,
                                       SkBlendMode xfermode) {
     SkASSERT((unsigned)xfermode <= (unsigned)SkBlendMode::kLastCoeffMode);
-    SkASSERT(!coveragePOI.isFourChannelOutput());
+    SkASSERT(!coveragePOI.isLCDCoverage());
 
     bool conflatesCoverage = !coveragePOI.isSolidWhite() || hasMixedSamples;
     return gBlendTable[colorPOI.isOpaque()][conflatesCoverage][(int)xfermode];
@@ -334,7 +334,7 @@ static BlendFormula get_blend_formula(const GrProcOptInfo& colorPOI,
 static BlendFormula get_lcd_blend_formula(const GrProcOptInfo& coveragePOI,
                                           SkBlendMode xfermode) {
     SkASSERT((unsigned)xfermode <= (unsigned)SkBlendMode::kLastCoeffMode);
-    SkASSERT(coveragePOI.isFourChannelOutput());
+    SkASSERT(coveragePOI.isLCDCoverage());
 
     return gLCDBlendTable[(int)xfermode];
 }
@@ -354,12 +354,12 @@ public:
     BlendFormula getBlendFormula() const { return fBlendFormula; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrCaps& caps) const override;
+                                                 const GrCaps&) const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onHasSecondaryOutput() const override { return fBlendFormula.hasSecondaryOutput(); }
 
@@ -386,45 +386,27 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
                                 GrGLSLXPFragmentBuilder* fragBuilder,
                                 BlendFormula::OutputType outputType, const char* output,
                                 const char* inColor, const char* inCoverage) {
+    SkASSERT(inCoverage);
+    SkASSERT(inColor);
     switch (outputType) {
         case BlendFormula::kNone_OutputType:
             fragBuilder->codeAppendf("%s = vec4(0.0);", output);
             break;
         case BlendFormula::kCoverage_OutputType:
             // We can have a coverage formula while not reading coverage if there are mixed samples.
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = %s;", output, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = vec4(1.0);", output);
-            }
+            fragBuilder->codeAppendf("%s = %s;", output, inCoverage);
             break;
         case BlendFormula::kModulate_OutputType:
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = %s * %s;", output, inColor, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = %s;", output, inColor);
-            }
+            fragBuilder->codeAppendf("%s = %s * %s;", output, inColor, inCoverage);
             break;
         case BlendFormula::kSAModulate_OutputType:
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = %s.a * %s;", output, inColor, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = %s;", output, inColor);
-            }
+            fragBuilder->codeAppendf("%s = %s.a * %s;", output, inColor, inCoverage);
             break;
         case BlendFormula::kISAModulate_OutputType:
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = vec4(1.0 - %s.a);", output, inColor);
-            }
+            fragBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
             break;
         case BlendFormula::kISCModulate_OutputType:
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;", output, inColor, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = vec4(1.0) - %s;", output, inColor);
-            }
+            fragBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;", output, inColor, inCoverage);
             break;
         default:
             SkFAIL("Unsupported output type.");
@@ -462,7 +444,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void PorterDuffXferProcessor::onGetGLSLProcessorKey(const GrGLSLCaps&,
+void PorterDuffXferProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
                                                     GrProcessorKeyBuilder* b) const {
     GLPorterDuffXferProcessor::GenKey(*this, b);
 }
@@ -471,29 +453,24 @@ GrGLSLXferProcessor* PorterDuffXferProcessor::createGLSLInstance() const {
     return new GLPorterDuffXferProcessor;
 }
 
-GrXferProcessor::OptFlags
-PorterDuffXferProcessor::onGetOptimizations(const GrPipelineOptimizations& optimizations,
-                                            bool doesStencilWrite,
-                                            GrColor* overrideColor,
-                                            const GrCaps& caps) const {
+GrXferProcessor::OptFlags PorterDuffXferProcessor::onGetOptimizations(
+        const GrPipelineAnalysis& analysis,
+        bool doesStencilWrite,
+        GrColor* overrideColor,
+        const GrCaps& caps) const {
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
     if (!fBlendFormula.modifiesDst()) {
         if (!doesStencilWrite) {
             optFlags |= GrXferProcessor::kSkipDraw_OptFlag;
         }
         optFlags |= (GrXferProcessor::kIgnoreColor_OptFlag |
-                     GrXferProcessor::kIgnoreCoverage_OptFlag |
                      GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag);
     } else {
         if (!fBlendFormula.usesInputColor()) {
             optFlags |= GrXferProcessor::kIgnoreColor_OptFlag;
         }
-        if (optimizations.fCoveragePOI.isSolidWhite()) {
-            optFlags |= GrXferProcessor::kIgnoreCoverage_OptFlag;
-        }
-        if (optimizations.fColorPOI.allStagesMultiplyInput() &&
-            fBlendFormula.canTweakAlphaForCoverage() &&
-            !optimizations.fCoveragePOI.isFourChannelOutput()) {
+        if (analysis.fColorPOI.allStagesMultiplyInput() &&
+            fBlendFormula.canTweakAlphaForCoverage() && !analysis.fCoveragePOI.isLCDCoverage()) {
             optFlags |= GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag;
         }
     }
@@ -519,12 +496,12 @@ public:
     SkBlendMode getXfermode() const { return fXfermode; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&, bool, GrColor*,
                                                  const GrCaps&) const override {
         return kNone_OptFlags;
     }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const ShaderPDXferProcessor& xp = xpBase.cast<ShaderPDXferProcessor>();
@@ -570,7 +547,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ShaderPDXferProcessor::onGetGLSLProcessorKey(const GrGLSLCaps&,
+void ShaderPDXferProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
                                                   GrProcessorKeyBuilder* b) const {
     GLShaderPDXferProcessor::GenKey(*this, b);
 }
@@ -594,12 +571,12 @@ public:
 private:
     PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha);
 
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
-                                                 const GrCaps& caps) const override;
+                                                 const GrCaps&) const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         blendInfo->fSrcBlend = kConstC_GrBlendCoeff;
@@ -630,7 +607,7 @@ public:
 
     virtual ~GLPDLCDXferProcessor() {}
 
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps& caps,
+    static void GenKey(const GrProcessor& processor, const GrShaderCaps& caps,
                        GrProcessorKeyBuilder* b) {}
 
 private:
@@ -674,7 +651,7 @@ GrXferProcessor* PDLCDXferProcessor::Create(SkBlendMode xfermode,
 PDLCDXferProcessor::~PDLCDXferProcessor() {
 }
 
-void PDLCDXferProcessor::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void PDLCDXferProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                GrProcessorKeyBuilder* b) const {
     GLPDLCDXferProcessor::GenKey(*this, caps, b);
 }
@@ -683,84 +660,113 @@ GrGLSLXferProcessor* PDLCDXferProcessor::createGLSLInstance() const {
     return new GLPDLCDXferProcessor(*this);
 }
 
-GrXferProcessor::OptFlags
-PDLCDXferProcessor::onGetOptimizations(const GrPipelineOptimizations& optimizations,
-                                       bool doesStencilWrite,
-                                       GrColor* overrideColor,
-                                       const GrCaps& caps) const {
-        // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
-        // value of the blend the constant. We should already have valid blend coeff's if we are at
-        // a point where we have RGB coverage. We don't need any color stages since the known color
-        // output is already baked into the blendConstant.
-        *overrideColor = GrColorPackRGBA(fAlpha, fAlpha, fAlpha, fAlpha);
-        return GrXferProcessor::kOverrideColor_OptFlag;
+GrXferProcessor::OptFlags PDLCDXferProcessor::onGetOptimizations(const GrPipelineAnalysis&,
+                                                                 bool doesStencilWrite,
+                                                                 GrColor* overrideColor,
+                                                                 const GrCaps& caps) const {
+    // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
+    // value of the blend the constant. We should already have valid blend coeff's if we are at
+    // a point where we have RGB coverage. We don't need any color stages since the known color
+    // output is already baked into the blendConstant.
+    *overrideColor = GrColorPackRGBA(fAlpha, fAlpha, fAlpha, fAlpha);
+    return GrXferProcessor::kOverrideColor_OptFlag;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrPorterDuffXPFactory::GrPorterDuffXPFactory(SkBlendMode xfermode)
-    : fXfermode(xfermode) {
-    SkASSERT((unsigned)fXfermode <= (unsigned)SkBlendMode::kLastCoeffMode);
-    this->initClassID<GrPorterDuffXPFactory>();
-}
+constexpr GrPorterDuffXPFactory::GrPorterDuffXPFactory(SkBlendMode xfermode)
+        : fBlendMode(xfermode) {}
 
-sk_sp<GrXPFactory> GrPorterDuffXPFactory::Make(SkBlendMode xfermode) {
-    static GrPorterDuffXPFactory gClearPDXPF(SkBlendMode::kClear);
-    static GrPorterDuffXPFactory gSrcPDXPF(SkBlendMode::kSrc);
-    static GrPorterDuffXPFactory gDstPDXPF(SkBlendMode::kDst);
-    static GrPorterDuffXPFactory gSrcOverPDXPF(SkBlendMode::kSrcOver);
-    static GrPorterDuffXPFactory gDstOverPDXPF(SkBlendMode::kDstOver);
-    static GrPorterDuffXPFactory gSrcInPDXPF(SkBlendMode::kSrcIn);
-    static GrPorterDuffXPFactory gDstInPDXPF(SkBlendMode::kDstIn);
-    static GrPorterDuffXPFactory gSrcOutPDXPF(SkBlendMode::kSrcOut);
-    static GrPorterDuffXPFactory gDstOutPDXPF(SkBlendMode::kDstOut);
-    static GrPorterDuffXPFactory gSrcATopPDXPF(SkBlendMode::kSrcATop);
-    static GrPorterDuffXPFactory gDstATopPDXPF(SkBlendMode::kDstATop);
-    static GrPorterDuffXPFactory gXorPDXPF(SkBlendMode::kXor);
-    static GrPorterDuffXPFactory gPlusPDXPF(SkBlendMode::kPlus);
-    static GrPorterDuffXPFactory gModulatePDXPF(SkBlendMode::kModulate);
-    static GrPorterDuffXPFactory gScreenPDXPF(SkBlendMode::kScreen);
+const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
+    SkASSERT((unsigned)blendMode <= (unsigned)SkBlendMode::kLastCoeffMode);
 
-    static GrPorterDuffXPFactory* gFactories[] = {
-        &gClearPDXPF, &gSrcPDXPF, &gDstPDXPF, &gSrcOverPDXPF, &gDstOverPDXPF, &gSrcInPDXPF,
-        &gDstInPDXPF, &gSrcOutPDXPF, &gDstOutPDXPF, &gSrcATopPDXPF, &gDstATopPDXPF, &gXorPDXPF,
-        &gPlusPDXPF, &gModulatePDXPF, &gScreenPDXPF
-    };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gFactories) == (int)SkBlendMode::kLastCoeffMode + 1);
+    // If these objects are constructed as static constexpr by cl.exe (2015 SP2) the vtables are
+    // null.
+#ifdef SK_BUILD_FOR_WIN
+#define _CONSTEXPR_
+#else
+#define _CONSTEXPR_ constexpr
+#endif
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gClearPDXPF(SkBlendMode::kClear);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcPDXPF(SkBlendMode::kSrc);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstPDXPF(SkBlendMode::kDst);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcOverPDXPF(SkBlendMode::kSrcOver);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstOverPDXPF(SkBlendMode::kDstOver);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcInPDXPF(SkBlendMode::kSrcIn);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstInPDXPF(SkBlendMode::kDstIn);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcOutPDXPF(SkBlendMode::kSrcOut);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstOutPDXPF(SkBlendMode::kDstOut);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gSrcATopPDXPF(SkBlendMode::kSrcATop);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gDstATopPDXPF(SkBlendMode::kDstATop);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gXorPDXPF(SkBlendMode::kXor);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gPlusPDXPF(SkBlendMode::kPlus);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gModulatePDXPF(SkBlendMode::kModulate);
+    static _CONSTEXPR_ const GrPorterDuffXPFactory gScreenPDXPF(SkBlendMode::kScreen);
+#undef _CONSTEXPR_
 
-    if ((int)xfermode < 0 || (int)xfermode > (int)SkBlendMode::kLastCoeffMode) {
-        return nullptr;
+    switch (blendMode) {
+        case SkBlendMode::kClear:
+            return &gClearPDXPF;
+        case SkBlendMode::kSrc:
+            return &gSrcPDXPF;
+        case SkBlendMode::kDst:
+            return &gDstPDXPF;
+        case SkBlendMode::kSrcOver:
+            return &gSrcOverPDXPF;
+        case SkBlendMode::kDstOver:
+            return &gDstOverPDXPF;
+        case SkBlendMode::kSrcIn:
+            return &gSrcInPDXPF;
+        case SkBlendMode::kDstIn:
+            return &gDstInPDXPF;
+        case SkBlendMode::kSrcOut:
+            return &gSrcOutPDXPF;
+        case SkBlendMode::kDstOut:
+            return &gDstOutPDXPF;
+        case SkBlendMode::kSrcATop:
+            return &gSrcATopPDXPF;
+        case SkBlendMode::kDstATop:
+            return &gDstATopPDXPF;
+        case SkBlendMode::kXor:
+            return &gXorPDXPF;
+        case SkBlendMode::kPlus:
+            return &gPlusPDXPF;
+        case SkBlendMode::kModulate:
+            return &gModulatePDXPF;
+        case SkBlendMode::kScreen:
+            return &gScreenPDXPF;
+        default:
+            SkFAIL("Unexpected blend mode.");
+            return nullptr;
     }
-    return sk_sp<GrXPFactory>(SkRef(gFactories[(int)xfermode]));
 }
 
-GrXferProcessor*
-GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                             const GrPipelineOptimizations& optimizations,
-                                             bool hasMixedSamples,
-                                             const DstTexture* dstTexture) const {
-    if (optimizations.fOverrides.fUsePLSDstRead) {
-        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fXfermode);
+GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
+                                                              const GrPipelineAnalysis& analysis,
+                                                              bool hasMixedSamples,
+                                                              const DstTexture* dstTexture) const {
+    if (analysis.fUsesPLSDstRead) {
+        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fBlendMode);
     }
     BlendFormula blendFormula;
-    if (optimizations.fCoveragePOI.isFourChannelOutput()) {
-        if (SkBlendMode::kSrcOver == fXfermode &&
-            kRGBA_GrColorComponentFlags == optimizations.fColorPOI.validFlags() &&
+    if (analysis.fCoveragePOI.isLCDCoverage()) {
+        if (SkBlendMode::kSrcOver == fBlendMode &&
+            kRGBA_GrColorComponentFlags == analysis.fColorPOI.validFlags() &&
             !caps.shaderCaps()->dualSourceBlendingSupport() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             // If we don't have dual source blending or in shader dst reads, we fall back to this
             // trick for rendering SrcOver LCD text instead of doing a dst copy.
             SkASSERT(!dstTexture || !dstTexture->texture());
-            return PDLCDXferProcessor::Create(fXfermode, optimizations.fColorPOI);
+            return PDLCDXferProcessor::Create(fBlendMode, analysis.fColorPOI);
         }
-        blendFormula = get_lcd_blend_formula(optimizations.fCoveragePOI, fXfermode);
+        blendFormula = get_lcd_blend_formula(analysis.fCoveragePOI, fBlendMode);
     } else {
-        blendFormula = get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
-                                         hasMixedSamples, fXfermode);
+        blendFormula = get_blend_formula(analysis.fColorPOI, analysis.fCoveragePOI, hasMixedSamples,
+                                         fBlendMode);
     }
 
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
-        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fXfermode);
+        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fBlendMode);
     }
 
     SkASSERT(!dstTexture || !dstTexture->texture());
@@ -770,7 +776,7 @@ GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
 void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                                      InvariantBlendedColor* blendedColor) const {
     // Find the blended color info based on the formula that does not have coverage.
-    BlendFormula colorFormula = gBlendTable[colorPOI.isOpaque()][0][(int)fXfermode];
+    BlendFormula colorFormula = gBlendTable[colorPOI.isOpaque()][0][(int)fBlendMode];
     if (colorFormula.usesDstColor()) {
         blendedColor->fWillBlendWithDst = true;
         blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
@@ -799,7 +805,7 @@ void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
 }
 
 bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
-                                               const GrPipelineOptimizations& optimizations) const {
+                                               const GrPipelineAnalysis& analysis) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
@@ -807,28 +813,29 @@ bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
     // When we have four channel coverage we always need to read the dst in order to correctly
     // blend. The one exception is when we are using srcover mode and we know the input color into
     // the XP.
-    if (optimizations.fCoveragePOI.isFourChannelOutput()) {
-        if (SkBlendMode::kSrcOver == fXfermode &&
-            kRGBA_GrColorComponentFlags == optimizations.fColorPOI.validFlags() &&
+    if (analysis.fCoveragePOI.isLCDCoverage()) {
+        if (SkBlendMode::kSrcOver == fBlendMode &&
+            kRGBA_GrColorComponentFlags == analysis.fColorPOI.validFlags() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
         }
-        return get_lcd_blend_formula(optimizations.fCoveragePOI, fXfermode).hasSecondaryOutput();
+        return get_lcd_blend_formula(analysis.fCoveragePOI, fBlendMode).hasSecondaryOutput();
     }
 
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
     static const bool kHasMixedSamples = false;
     SkASSERT(!caps.usesMixedSamples()); // We never use mixed samples without dual source blending.
-    return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI, kHasMixedSamples,
-                             fXfermode).hasSecondaryOutput();
+    auto formula = get_blend_formula(analysis.fColorPOI, analysis.fCoveragePOI, kHasMixedSamples,
+                                     fBlendMode);
+    return formula.hasSecondaryOutput();
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
 
-sk_sp<GrXPFactory> GrPorterDuffXPFactory::TestCreate(GrProcessorTestData* d) {
+const GrXPFactory* GrPorterDuffXPFactory::TestGet(GrProcessorTestData* d) {
     SkBlendMode mode = SkBlendMode(d->fRandom->nextULessThan((int)SkBlendMode::kLastCoeffMode));
-    return GrPorterDuffXPFactory::Make(mode);
+    return GrPorterDuffXPFactory::Get(mode);
 }
 
 void GrPorterDuffXPFactory::TestGetXPOutputTypes(const GrXferProcessor* xp,
@@ -856,10 +863,10 @@ const GrXferProcessor& GrPorterDuffXPFactory::SimpleSrcOverXP() {
 
 GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const GrCaps& caps,
-        const GrPipelineOptimizations& optimizations,
+        const GrPipelineAnalysis& analysis,
         bool hasMixedSamples,
         const GrXferProcessor::DstTexture* dstTexture) {
-    if (optimizations.fOverrides.fUsePLSDstRead) {
+    if (analysis.fUsesPLSDstRead) {
         return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkBlendMode::kSrcOver);
     }
 
@@ -867,7 +874,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
     // doing lcd blending we will just use our global SimpleSrcOverXP. This slightly differs from
     // the general case where we convert a src-over blend that has solid coverage and an opaque
     // color to src-mode, which allows disabling of blending.
-    if (!optimizations.fCoveragePOI.isFourChannelOutput()) {
+    if (!analysis.fCoveragePOI.isLCDCoverage()) {
         // We return nullptr here, which our caller interprets as meaning "use SimpleSrcOverXP".
         // We don't simply return the address of that XP here because our caller would have to unref
         // it and since it is a global object and GrProgramElement's ref-cnting system is not thread
@@ -875,18 +882,18 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         return nullptr;
     }
 
-    if (kRGBA_GrColorComponentFlags == optimizations.fColorPOI.validFlags() &&
+    if (kRGBA_GrColorComponentFlags == analysis.fColorPOI.validFlags() &&
         !caps.shaderCaps()->dualSourceBlendingSupport() &&
         !caps.shaderCaps()->dstReadInShaderSupport()) {
         // If we don't have dual source blending or in shader dst reads, we fall
         // back to this trick for rendering SrcOver LCD text instead of doing a
         // dst copy.
         SkASSERT(!dstTexture || !dstTexture->texture());
-        return PDLCDXferProcessor::Create(SkBlendMode::kSrcOver, optimizations.fColorPOI);
+        return PDLCDXferProcessor::Create(SkBlendMode::kSrcOver, analysis.fColorPOI);
     }
 
     BlendFormula blendFormula;
-    blendFormula = get_lcd_blend_formula(optimizations.fCoveragePOI, SkBlendMode::kSrcOver);
+    blendFormula = get_lcd_blend_formula(analysis.fCoveragePOI, SkBlendMode::kSrcOver);
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
         return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkBlendMode::kSrcOver);
     }
@@ -896,7 +903,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
 }
 
 bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
-                                                     const GrPipelineOptimizations& optimizations) {
+                                                      const GrPipelineAnalysis& analysis) {
     if (caps.shaderCaps()->dstReadInShaderSupport() ||
         caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
@@ -905,19 +912,20 @@ bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
     // When we have four channel coverage we always need to read the dst in order to correctly
     // blend. The one exception is when we are using srcover mode and we know the input color
     // into the XP.
-    if (optimizations.fCoveragePOI.isFourChannelOutput()) {
-        if (kRGBA_GrColorComponentFlags == optimizations.fColorPOI.validFlags() &&
+    if (analysis.fCoveragePOI.isLCDCoverage()) {
+        if (kRGBA_GrColorComponentFlags == analysis.fColorPOI.validFlags() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
         }
-        return get_lcd_blend_formula(optimizations.fCoveragePOI,
-                                     SkBlendMode::kSrcOver).hasSecondaryOutput();
+        auto formula = get_lcd_blend_formula(analysis.fCoveragePOI, SkBlendMode::kSrcOver);
+        return formula.hasSecondaryOutput();
     }
 
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
     static const bool kHasMixedSamples = false;
     SkASSERT(!caps.usesMixedSamples()); // We never use mixed samples without dual source blending.
-    return get_blend_formula(optimizations.fColorPOI, optimizations.fCoveragePOI,
-                             kHasMixedSamples, SkBlendMode::kSrcOver).hasSecondaryOutput();
+    auto formula = get_blend_formula(analysis.fColorPOI, analysis.fCoveragePOI, kHasMixedSamples,
+                                     SkBlendMode::kSrcOver);
+    return formula.hasSecondaryOutput();
 }

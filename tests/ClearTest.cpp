@@ -60,7 +60,7 @@ static bool reset_rtc(sk_sp<GrRenderTargetContext>* rtc, GrContext* context, int
     return *rtc != nullptr;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearBatch, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     static const int kW = 10;
     static const int kH = 10;

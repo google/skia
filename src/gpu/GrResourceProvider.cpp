@@ -33,7 +33,7 @@ const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* p
                                                                const GrUniqueKey& key) {
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
-    // This is typically used in GrBatchs, so we assume kNoPendingIO.
+    // This is typically used in GrMeshDrawOps, so we assume kNoPendingIO.
     GrBuffer* buffer = this->createBuffer(bufferSize, kIndex_GrBufferType, kStatic_GrAccessPattern,
                                           kNoPendingIO_Flag);
     if (!buffer) {
@@ -135,11 +135,11 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     return buffer;
 }
 
-std::unique_ptr<GrBatchAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config,
-                                                            int width, int height,
-                                                            int numPlotsX, int numPlotsY,
-                                                            GrBatchAtlas::EvictionFunc func,
-                                                            void* data) {
+std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config, int width,
+                                                             int height, int numPlotsX,
+                                                             int numPlotsY,
+                                                             GrDrawOpAtlas::EvictionFunc func,
+                                                             void* data) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = width;
@@ -154,7 +154,8 @@ std::unique_ptr<GrBatchAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config
     if (!texture) {
         return nullptr;
     }
-    std::unique_ptr<GrBatchAtlas> atlas(new GrBatchAtlas(std::move(texture), numPlotsX, numPlotsY));
+    std::unique_ptr<GrDrawOpAtlas> atlas(
+            new GrDrawOpAtlas(std::move(texture), numPlotsX, numPlotsY));
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }

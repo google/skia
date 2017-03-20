@@ -13,7 +13,7 @@
 #include "vk/GrVkDefines.h"
 
 struct GrVkInterface;
-class GrGLSLCaps;
+class GrShaderCaps;
 
 /**
  * Stores some capabilities of a Vk backend.
@@ -36,6 +36,8 @@ public:
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
         return SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags);
     }
+
+    bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
 
     bool isConfigTexturableLinearly(GrPixelConfig config) const {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);
@@ -81,8 +83,6 @@ public:
         return fPreferedStencilFormat;
     }
 
-    GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
-
 private:
     enum VkVendor {
         kQualcomm_VkVendor = 20803,
@@ -94,7 +94,7 @@ private:
     void initGrCaps(const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
                     uint32_t featureFlags);
-    void initGLSLCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
+    void initShaderCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
 
 

@@ -263,7 +263,7 @@ void TestStyle(SkRandom* random, GrStyle* style) {
         SkScalar phase = random->nextRangeScalar(0, sum);
         pe = TestDashPathEffect::Make(intervals.get(), cnt, phase);
     }
-    *style = GrStyle(stroke, pe.get());
+    *style = GrStyle(stroke, std::move(pe));
 }
 
 TestDashPathEffect::TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase) {
@@ -331,9 +331,6 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
     fArgs.fLocalMatrix = nullptr;
     fArgs.fFilterQuality = kNone_SkFilterQuality;
     fArgs.fDstColorSpace = fColorSpaceStorage.get();
-    fArgs.fColorMode = SkToBool(fArgs.fDstColorSpace)
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
 }
 
 }  // namespace GrTest

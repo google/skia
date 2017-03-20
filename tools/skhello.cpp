@@ -9,14 +9,11 @@
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkSurface.h"
 #include "SkImage.h"
 #include "SkStream.h"
 #include "SkString.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
 DEFINE_string2(text, t, "Hello", "The string to write.");

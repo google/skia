@@ -85,9 +85,9 @@ DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat, concat(r.matrix));
 DRAW(Translate, translate(r.dx, r.dy));
 
-DRAW(ClipPath, clipPath(r.path, r.opAA.op, r.opAA.aa));
-DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op, r.opAA.aa));
-DRAW(ClipRect, clipRect(r.rect, r.opAA.op, r.opAA.aa));
+DRAW(ClipPath, clipPath(r.path, r.opAA.op(), r.opAA.aa()));
+DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op(), r.opAA.aa()));
+DRAW(ClipRect, clipRect(r.rect, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
 
 #ifdef SK_EXPERIMENTAL_SHADOWING

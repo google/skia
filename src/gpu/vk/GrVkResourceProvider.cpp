@@ -7,10 +7,9 @@
 
 #include "GrVkResourceProvider.h"
 
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkCopyPipeline.h"
-#include "GrVkGLSLSampler.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkSampler.h"
@@ -164,7 +163,7 @@ GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
     return new GrVkDescriptorPool(fGpu, type, count);
 }
 
-GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrTextureParams& params,
+GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSamplerParams& params,
                                                                  uint32_t mipLevels) {
     GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params, mipLevels));
     if (!sampler) {

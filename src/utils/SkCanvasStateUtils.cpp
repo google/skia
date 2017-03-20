@@ -12,6 +12,7 @@
 #include "SkDevice.h"
 #include "SkRasterClip.h"
 #include "SkWriter32.h"
+#include "SkClipOpPriv.h"
 
 /*
  * WARNING: The structs below are part of a stable ABI and as such we explicitly
@@ -105,11 +106,7 @@ public:
         layers = nullptr;
         mcState.clipRectCount = 0;
         mcState.clipRects = nullptr;
-#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
-        originalCanvas = SkRef(canvas);
-#else
         originalCanvas = canvas;
-#endif
     }
 
     ~SkCanvasState_v1() {
@@ -120,10 +117,6 @@ public:
 
         sk_free(mcState.clipRects);
         sk_free(layers);
-
-#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
-        originalCanvas->unref();
-#endif
     }
 
     SkMCState mcState;
@@ -143,15 +136,15 @@ public:
     bool failed() { return fFailed; }
 
     // ClipVisitor
-    void clipRect(const SkRect& rect, SkCanvas::ClipOp op, bool antialias) override {
+    void clipRect(const SkRect& rect, SkClipOp op, bool antialias) override {
         fFailed |= antialias;
     }
 
-    void clipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool antialias) override {
+    void clipRRect(const SkRRect& rrect, SkClipOp op, bool antialias) override {
         fFailed |= antialias;
     }
 
-    void clipPath(const SkPath&, SkCanvas::ClipOp, bool antialias) override {
+    void clipPath(const SkPath&, SkClipOp, bool antialias) override {
         fFailed |= antialias;
     }
 
@@ -283,7 +276,7 @@ static void setup_canvas_from_MC_state(const SkMCState& state, SkCanvas* canvas)
     }
 
     canvas->setMatrix(matrix);
-    canvas->clipRegion(clip, SkCanvas::kReplace_Op);
+    canvas->clipRegion(clip, kReplace_SkClipOp);
 }
 
 static std::unique_ptr<SkCanvas>

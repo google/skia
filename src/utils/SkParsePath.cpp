@@ -261,7 +261,7 @@ void SkParsePath::ToSVGString(const SkPath& path, SkString* str) {
                 stream.write("Z", 1);
                 break;
             case SkPath::kDone_Verb:
-                str->resize(stream.getOffset());
+                str->resize(stream.bytesWritten());
                 stream.copyTo(str->writable_str());
             return;
         }

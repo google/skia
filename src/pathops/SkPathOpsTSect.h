@@ -1162,12 +1162,16 @@ template<typename TCurve, typename OppCurve>
 bool SkTSect<TCurve, OppCurve>::deleteEmptySpans() {
     SkTSpan<TCurve, OppCurve>* test;
     SkTSpan<TCurve, OppCurve>* next = fHead;
+    int safetyHatch = 1000;
     while ((test = next)) {
         next = test->fNext;
         if (!test->fBounded) {
             if (!this->removeSpan(test)) {
                 return false;
             }
+        }
+        if (--safetyHatch < 0) {
+            return false;
         }
     }
     return true;
@@ -2027,7 +2031,7 @@ struct SkClosestRecord {
     }
 
     bool matesWith(const SkClosestRecord& mate  SkDEBUGPARAMS(SkIntersections* i)) const {
-        SkASSERT(fC1Span == mate.fC1Span || fC1Span->endT() <= mate.fC1Span->startT()
+        SkOPOBJASSERT(i, fC1Span == mate.fC1Span || fC1Span->endT() <= mate.fC1Span->startT()
                 || mate.fC1Span->endT() <= fC1Span->startT());
         SkOPOBJASSERT(i, fC2Span == mate.fC2Span || fC2Span->endT() <= mate.fC2Span->startT()
                 || mate.fC2Span->endT() <= fC2Span->startT());
@@ -2234,7 +2238,13 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
         }
         if (sect1->fActiveCount >= COINCIDENT_SPAN_COUNT
                 && sect2->fActiveCount >= COINCIDENT_SPAN_COUNT) {
+            if (!sect1->fHead) {
+                return;
+            }
             sect1->computePerpendiculars(sect2, sect1->fHead, sect1->tail());
+            if (!sect2->fHead) {
+                return;
+            }
             sect2->computePerpendiculars(sect1, sect2->fHead, sect2->tail());
             sect1->removeByPerpendicular(sect2);
             sect1->validate();
@@ -2271,8 +2281,12 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
             if (!coincident->fCoinEnd.isMatch()) {
                 continue;
             }
+            double perpT = coincident->fCoinStart.perpT();
+            if (perpT < 0) {
+                return;
+            }
             int index = intersections->insertCoincident(coincident->fStartT,
-                    coincident->fCoinStart.perpT(), coincident->fPart[0]);
+                    perpT, coincident->fPart[0]);
             if ((intersections->insertCoincident(coincident->fEndT,
                     coincident->fCoinEnd.perpT(),
                     coincident->fPart[TCurve::kPointLast]) < 0) && index >= 0) {

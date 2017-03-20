@@ -10,13 +10,13 @@
 #if SK_SUPPORT_GPU
 
 #include "GrInvariantOutput.h"
-#include "GrTextureAccess.h"
 #include "SkRefCnt.h"
 
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "../private/GrGLSL.h"
 
 sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::Make(
                                                            GrTexture* texture,
@@ -48,18 +48,18 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
     : fInnerThreshold(innerThreshold)
     , fOuterThreshold(outerThreshold)
     , fImageCoordTransform(GrCoordTransform::MakeDivByTextureWHMatrix(texture), texture,
-                           GrTextureParams::kNone_FilterMode)
-    , fImageTextureAccess(texture)
+                           GrSamplerParams::kNone_FilterMode)
+    , fImageTextureSampler(texture)
     , fColorSpaceXform(std::move(colorSpaceXform))
     , fMaskCoordTransform(make_div_and_translate_matrix(maskTexture, -bounds.x(), -bounds.y()),
                           maskTexture,
-                          GrTextureParams::kNone_FilterMode)
-    , fMaskTextureAccess(maskTexture) {
+                          GrSamplerParams::kNone_FilterMode)
+    , fMaskTextureSampler(maskTexture) {
     this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addCoordTransform(&fImageCoordTransform);
-    this->addTextureAccess(&fImageTextureAccess);
+    this->addTextureSampler(&fImageTextureSampler);
     this->addCoordTransform(&fMaskCoordTransform);
-    this->addTextureAccess(&fMaskTextureAccess);
+    this->addTextureSampler(&fMaskTextureSampler);
 }
 
 bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -69,9 +69,10 @@ bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& sBa
 }
 
 void GrAlphaThresholdFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
+    GrPixelConfig config = this->textureSampler(0).texture()->config();
+    if (GrPixelConfigIsAlphaOnly(config)) {
         inout->mulByUnknownSingleComponent();
-    } else if (GrPixelConfigIsOpaque(this->texture(0)->config()) && fOuterThreshold >= 1.f) {
+    } else if (GrPixelConfigIsOpaque(config) && fOuterThreshold >= 1.f) {
         inout->mulByUnknownOpaqueFourComponents();
     } else {
         inout->mulByUnknownFourComponents();
@@ -84,7 +85,7 @@ class GrGLAlphaThresholdFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor& effect, const GrGLSLCaps&,
+    static inline void GenKey(const GrProcessor& effect, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrAlphaThresholdFragmentProcessor& atfp =
             effect.cast<GrAlphaThresholdFragmentProcessor>();
@@ -186,7 +187,7 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProce
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                               GrProcessorKeyBuilder* b) const {
     GrGLAlphaThresholdFragmentProcessor::GenKey(*this, caps, b);
 }

@@ -4,9 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_LAYOUT
 #define SKSL_LAYOUT
+
+#include "SkString.h"
+#include "SkSLUtil.h"
 
 namespace SkSL {
 
@@ -16,45 +19,103 @@ namespace SkSL {
  * layout (location = 0) int x;
  */
 struct Layout {
-    Layout(const ASTLayout& layout)
-    : fLocation(layout.fLocation)
-    , fBinding(layout.fBinding)
-    , fIndex(layout.fIndex)
-    , fSet(layout.fSet)
-    , fBuiltin(layout.fBuiltin)
-    , fOriginUpperLeft(layout.fOriginUpperLeft)
-    , fOverrideCoverage(layout.fOverrideCoverage)
-    , fBlendSupportAllEquations(layout.fBlendSupportAllEquations)
-    , fFormat(layout.fFormat) {}
+    // These are used by images in GLSL. We only support a subset of what GL supports.
+    enum class Format {
+        kUnspecified = -1,
+        kRGBA32F,
+        kR32F,
+        kRGBA16F,
+        kR16F,
+        kRGBA8,
+        kR8,
+        kRGBA8I,
+        kR8I,
+    };
 
-    Layout(int location, int binding, int index, int set, int builtin, bool originUpperLeft,
-           bool overrideCoverage, bool blendSupportAllEquations, ASTLayout::Format format)
+    static const char* FormatToStr(Format format) {
+        switch (format) {
+            case Format::kUnspecified:  return "";
+            case Format::kRGBA32F:      return "rgba32f";
+            case Format::kR32F:         return "r32f";
+            case Format::kRGBA16F:      return "rgba16f";
+            case Format::kR16F:         return "r16f";
+            case Format::kRGBA8:        return "rgba8";
+            case Format::kR8:           return "r8";
+            case Format::kRGBA8I:       return "rgba8i";
+            case Format::kR8I:          return "r8i";
+        }
+        SkFAIL("Unexpected format");
+        return "";
+    }
+
+    static bool ReadFormat(SkString str, Format* format) {
+        if (str == "rgba32f") {
+            *format = Format::kRGBA32F;
+            return true;
+        } else if (str == "r32f") {
+            *format = Format::kR32F;
+            return true;
+        } else if (str == "rgba16f") {
+            *format = Format::kRGBA16F;
+            return true;
+        } else if (str == "r16f") {
+            *format = Format::kR16F;
+            return true;
+        } else if (str == "rgba8") {
+            *format = Format::kRGBA8;
+            return true;
+        } else if (str == "r8") {
+            *format = Format::kR8;
+            return true;
+        } else if (str == "rgba8i") {
+            *format = Format::kRGBA8I;
+            return true;
+        } else if (str == "r8i") {
+            *format = Format::kR8I;
+            return true;
+        }
+        return false;
+    }
+
+    Layout(int location, int offset, int binding, int index, int set, int builtin,
+           int inputAttachmentIndex, bool originUpperLeft, bool overrideCoverage,
+           bool blendSupportAllEquations, Format format, bool pushconstant)
     : fLocation(location)
+    , fOffset(offset)
     , fBinding(binding)
     , fIndex(index)
     , fSet(set)
     , fBuiltin(builtin)
+    , fInputAttachmentIndex(inputAttachmentIndex)
     , fOriginUpperLeft(originUpperLeft)
     , fOverrideCoverage(overrideCoverage)
     , fBlendSupportAllEquations(blendSupportAllEquations)
-    , fFormat(format) {}
+    , fFormat(format)
+    , fPushConstant(pushconstant) {}
 
-    Layout() 
+    Layout()
     : fLocation(-1)
+    , fOffset(-1)
     , fBinding(-1)
     , fIndex(-1)
     , fSet(-1)
     , fBuiltin(-1)
+    , fInputAttachmentIndex(-1)
     , fOriginUpperLeft(false)
     , fOverrideCoverage(false)
     , fBlendSupportAllEquations(false)
-    , fFormat(ASTLayout::Format::kUnspecified) {}
+    , fFormat(Format::kUnspecified)
+    , fPushConstant(false) {}
 
-    std::string description() const {
-        std::string result;
-        std::string separator;
+    SkString description() const {
+        SkString result;
+        SkString separator;
         if (fLocation >= 0) {
             result += separator + "location = " + to_string(fLocation);
+            separator = ", ";
+        }
+        if (fOffset >= 0) {
+            result += separator + "offset = " + to_string(fOffset);
             separator = ", ";
         }
         if (fBinding >= 0) {
@@ -73,6 +134,10 @@ struct Layout {
             result += separator + "builtin = " + to_string(fBuiltin);
             separator = ", ";
         }
+        if (fInputAttachmentIndex >= 0) {
+            result += separator + "input_attachment_index = " + to_string(fBuiltin);
+            separator = ", ";
+        }
         if (fOriginUpperLeft) {
             result += separator + "origin_upper_left";
             separator = ", ";
@@ -85,11 +150,15 @@ struct Layout {
             result += separator + "blend_support_all_equations";
             separator = ", ";
         }
-        if (ASTLayout::Format::kUnspecified != fFormat) {
-            result += separator + ASTLayout::FormatToStr(fFormat);
+        if (Format::kUnspecified != fFormat) {
+            result += separator + FormatToStr(fFormat);
             separator = ", ";
         }
-        if (result.length() > 0) {
+        if (fPushConstant) {
+            result += separator + "push_constant";
+            separator = ", ";
+        }
+        if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
         return result;
@@ -97,10 +166,12 @@ struct Layout {
 
     bool operator==(const Layout& other) const {
         return fLocation                 == other.fLocation &&
+               fOffset                   == other.fOffset &&
                fBinding                  == other.fBinding &&
                fIndex                    == other.fIndex &&
                fSet                      == other.fSet &&
                fBuiltin                  == other.fBuiltin &&
+               fInputAttachmentIndex     == other.fInputAttachmentIndex &&
                fOriginUpperLeft          == other.fOriginUpperLeft &&
                fOverrideCoverage         == other.fOverrideCoverage &&
                fBlendSupportAllEquations == other.fBlendSupportAllEquations &&
@@ -111,17 +182,22 @@ struct Layout {
         return !(*this == other);
     }
 
-    // everything but builtin is in the GLSL spec; builtin comes from SPIR-V and identifies which
-    // particular builtin value this object represents.
     int fLocation;
+    int fOffset;
     int fBinding;
     int fIndex;
     int fSet;
+    // builtin comes from SPIR-V and identifies which particular builtin value this object
+    // represents.
     int fBuiltin;
+    // input_attachment_index comes from Vulkan/SPIR-V to connect a shader variable to the a
+    // corresponding attachment on the subpass in which the shader is being used.
+    int fInputAttachmentIndex;
     bool fOriginUpperLeft;
     bool fOverrideCoverage;
     bool fBlendSupportAllEquations;
-    ASTLayout::Format fFormat;
+    Format fFormat;
+    bool fPushConstant;
 };
 
 } // namespace

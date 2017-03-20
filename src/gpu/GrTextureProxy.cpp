@@ -35,5 +35,5 @@ size_t GrTextureProxy::onGpuMemorySize() const {
 
     static const bool kHasMipMaps = true;
     // TODO: add tracking of mipmap state to improve the estimate
-    return GrSurface::ComputeSize(fDesc, 1, kHasMipMaps);
+    return GrSurface::ComputeSize(fDesc, 1, kHasMipMaps, SkBackingFit::kApprox == fFit);
 }

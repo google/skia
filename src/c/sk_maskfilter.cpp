@@ -7,19 +7,10 @@
 
 #include "SkBlurMaskFilter.h"
 #include "SkTableMaskFilter.h"
-#include "SkShadowMaskFilter.h"
 
 #include "sk_maskfilter.h"
 
 #include "sk_types_priv.h"
-
-sk_maskfilter_t* sk_maskfilter_new_emboss(
-    float blurSigma, 
-    const float direction[3],
-    float ambient, 
-    float specular) {
-    return ToMaskFilter(SkBlurMaskFilter::MakeEmboss(blurSigma, direction, ambient, specular).release());
-}
 
 sk_maskfilter_t* sk_maskfilter_new_table(const uint8_t table[256]) {
     return ToMaskFilter(SkTableMaskFilter::Create(table));
@@ -47,8 +38,4 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
 
 sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, const sk_rect_t* occluder, sk_blurmaskfilter_blurflags_t flags) {
     return ToMaskFilter(SkBlurMaskFilter::Make((SkBlurStyle)cstyle, sigma, AsRect(*occluder), (SkBlurMaskFilter::BlurFlags)flags).release());
-}
-
-sk_maskfilter_t* sk_maskfilter_new_shadow(float occluderHeight, const sk_point3_t* lightPos, float lightRadius, float ambientAlpha, float spotAlpha, sk_shadowmaskfilter_shadowflags_t flags) {
-    return ToMaskFilter(SkShadowMaskFilter::Make(occluderHeight, AsPoint3(*lightPos), lightRadius, ambientAlpha, spotAlpha, (SkShadowMaskFilter::ShadowFlags)flags).release());
 }

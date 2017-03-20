@@ -136,6 +136,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(
                                                                                 caps, desc, 
                                                                                 fit, budgeted));
+                                // This forces the proxy to compute and cache its pre-instantiation
+                                // size guess. Later, when it is actually instantiated, it checks
+                                // that the instantiated size is <= to the pre-computation. 
+                                // If the proxy never computed its pre-instantiation size then the
+                                // check is skipped.
+                                sProxy->gpuMemorySize();
+
                                 check_surface(reporter, sProxy.get(), origin,
                                               widthHeight, widthHeight, config,
                                               kInvalidResourceID, budgeted);
@@ -151,6 +158,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                                                                       desc,
                                                                                       fit,
                                                                                       budgeted));
+                            // This forces the proxy to compute and cache its pre-instantiation
+                            // size guess. Later, when it is actually instantiated, it checks
+                            // that the instantiated size is <= to the pre-computation. 
+                            // If the proxy never computed its pre-instantiation size then the
+                            // check is skipped.
+                            sProxy->gpuMemorySize();
+
                             check_surface(reporter, sProxy.get(), origin,
                                           widthHeight, widthHeight, config,
                                           kInvalidResourceID, budgeted);

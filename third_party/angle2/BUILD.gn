@@ -82,22 +82,17 @@ shared_library("libGLESv2") {
     ":commit_id",
   ]
   libs = []
-  sources =
-      rebase_path(
+  sources = rebase_path(
           compiler_gypi.angle_preprocessor_sources +
-              compiler_gypi.angle_translator_lib_sources +
-              compiler_gypi.angle_translator_lib_essl_sources +
-              compiler_gypi.angle_translator_lib_glsl_sources +
-              compiler_gypi.angle_translator_lib_hlsl_sources +
+              compiler_gypi.angle_translator_sources +
+              compiler_gypi.angle_translator_essl_sources +
+              compiler_gypi.angle_translator_glsl_sources +
+              compiler_gypi.angle_translator_hlsl_sources +
               gles_gypi.libangle_sources + gles_gypi.libangle_common_sources +
               gles_gypi.libangle_image_util_sources +
               gles_gypi.libglesv2_sources + gles_gypi.libangle_gl_sources,
           ".",
-          "$angle_root/src") +
-      [
-        "$angle_root/src/compiler/translator/ShaderLang.cpp",
-        "$angle_root/src/compiler/translator/ShaderVars.cpp",
-      ]
+          "$angle_root/src")
   if (!is_win) {
     sources -= [ "$angle_root/src/libGLESv2/libGLESv2.def" ]
   }

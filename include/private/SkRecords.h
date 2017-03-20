@@ -192,9 +192,14 @@ RECORD(TranslateZ, 0, SkScalar z);
 
 struct ClipOpAndAA {
     ClipOpAndAA() {}
-    ClipOpAndAA(SkCanvas::ClipOp op, bool aa) : op(op), aa(aa) {}
-    SkCanvas::ClipOp op : 31;  // This really only needs to be 3, but there's no win today to do so.
-    unsigned         aa :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.
+    ClipOpAndAA(SkClipOp op, bool aa) : fOp(static_cast<unsigned>(op)), fAA(aa) {}
+
+    SkClipOp op() const { return static_cast<SkClipOp>(fOp); }
+    bool aa() const { return fAA != 0; }
+
+private:
+    unsigned fOp : 31;  // This really only needs to be 3, but there's no win today to do so.
+    unsigned fAA :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.
 };
 static_assert(sizeof(ClipOpAndAA) == 4, "ClipOpAndAASize");
 
@@ -213,7 +218,7 @@ RECORD(ClipRect, 0,
 RECORD(ClipRegion, 0,
         SkIRect devBounds;
         SkRegion region;
-        SkCanvas::ClipOp op);
+        SkClipOp op);
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
 RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,

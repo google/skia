@@ -15,7 +15,7 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-SK_C_API sk_imagefilter_croprect_t* sk_imagefilter_croprect_new();
+SK_C_API sk_imagefilter_croprect_t* sk_imagefilter_croprect_new(void);
 SK_C_API sk_imagefilter_croprect_t* sk_imagefilter_croprect_new_with_rect(const sk_rect_t* rect, uint32_t flags);
 SK_C_API void sk_imagefilter_croprect_destructor(sk_imagefilter_croprect_t* cropRect);
 SK_C_API void sk_imagefilter_croprect_get_rect(sk_imagefilter_croprect_t* cropRect, sk_rect_t* rect);

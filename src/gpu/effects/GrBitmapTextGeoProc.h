@@ -16,12 +16,12 @@ class GrInvariantOutput;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
- * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
+ * It allows explicit specification of the filtering and wrap modes (GrSamplerParams). The input
  * coords are a custom attribute.
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(GrColor color, GrTexture* tex, const GrTextureParams& p,
+    static sk_sp<GrGeometryProcessor> Make(GrColor color, GrTexture* tex, const GrSamplerParams& p,
                                        GrMaskFormat format, const SkMatrix& localMatrix,
                                        bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
@@ -37,23 +37,22 @@ public:
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrMaskFormat maskFormat() const { return fMaskFormat; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps& caps) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
-    GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrTextureParams& params,
+    GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrSamplerParams& params,
                         GrMaskFormat format, const SkMatrix& localMatrix, bool usesLocalCoords);
 
     GrColor          fColor;
     SkMatrix         fLocalMatrix;
     bool             fUsesLocalCoords;
-    GrTextureAccess  fTextureAccess;
+    TextureSampler   fTextureSampler;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;

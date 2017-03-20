@@ -7,7 +7,6 @@
 
 #include "sk_types_priv.h"
 #include "SkMatrix44.h"
-#include "SkShadowMaskFilter.h"
 #include "SkBitmapScaler.h"
 #include "SkBlurMaskFilter.h"
 
@@ -106,17 +105,6 @@ static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kClamp_TileMode   
 static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kRepeat_TileMode         == (int)REPEAT_SK_MATRIX_CONVOLUTION_TILEMODE,           ASSERT_MSG(SkMatrixConvolutionImageFilter::TileMode, sk_matrix_convolution_tilemode_t));
 static_assert ((int)SkMatrixConvolutionImageFilter::TileMode::kClampToBlack_TileMode   == (int)CLAMP_TO_BLACK_SK_MATRIX_CONVOLUTION_TILEMODE,   ASSERT_MSG(SkMatrixConvolutionImageFilter::TileMode, sk_matrix_convolution_tilemode_t));
 
-// sk_image_encoder_type_t
-static_assert ((int)SkImageEncoder::Type::kUnknown_Type   == (int)UNKNOWN_SK_IMAGE_ENCODER_TYPE,   ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-static_assert ((int)SkImageEncoder::Type::kBMP_Type       == (int)BMP_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-static_assert ((int)SkImageEncoder::Type::kGIF_Type       == (int)GIF_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-static_assert ((int)SkImageEncoder::Type::kICO_Type       == (int)ICO_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-static_assert ((int)SkImageEncoder::Type::kJPEG_Type      == (int)JPEG_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-static_assert ((int)SkImageEncoder::Type::kPNG_Type       == (int)PNG_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-static_assert ((int)SkImageEncoder::Type::kWBMP_Type      == (int)WBMP_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-static_assert ((int)SkImageEncoder::Type::kWEBP_Type      == (int)WEBP_SK_IMAGE_ENCODER_TYPE,      ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-static_assert ((int)SkImageEncoder::Type::kKTX_Type       == (int)KTX_SK_IMAGE_ENCODER_TYPE,       ASSERT_MSG(SkImageEncoder::Type, sk_image_encoder_type_t));
-
 // sk_blendmode_t
 static_assert ((int)SkBlendMode::kClear        == (int)CLEAR_SK_BLENDMODE,        ASSERT_MSG(SkBlendMode, sk_blendmode_t));
 static_assert ((int)SkBlendMode::kSrc          == (int)SRC_SK_BLENDMODE,          ASSERT_MSG(SkBlendMode, sk_blendmode_t));
@@ -208,22 +196,21 @@ static_assert ((int)SkRegion::Op::kReverseDifference_Op   == (int)REVERSE_DIFFER
 static_assert ((int)SkRegion::Op::kReplace_Op             == (int)REPLACE_SK_REGION_OP,              ASSERT_MSG(SkRegion::Op, sk_region_op_t));
 
 // sk_clipop_t
-static_assert ((int)SkClipOp::kDifference_SkClipOp   == (int)DIFFERENCE_SK_CLIPOP,           ASSERT_MSG(SkClipOp, sk_clipop_t));
-static_assert ((int)SkClipOp::kIntersect_SkClipOp    == (int)INTERSECT_SK_CLIPOP,            ASSERT_MSG(SkClipOp, sk_clipop_t));
+static_assert ((int)SkClipOp::kDifference   == (int)DIFFERENCE_SK_CLIPOP,           ASSERT_MSG(SkClipOp, sk_clipop_t));
+static_assert ((int)SkClipOp::kIntersect    == (int)INTERSECT_SK_CLIPOP,            ASSERT_MSG(SkClipOp, sk_clipop_t));
 
-// sk_encoded_format_t
-static_assert ((int)SkEncodedFormat::kUnknown_SkEncodedFormat   == (int)UNKNOWN_SK_ENCODED_FORMAT,   ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kBMP_SkEncodedFormat       == (int)BMP_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kGIF_SkEncodedFormat       == (int)GIF_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kICO_SkEncodedFormat       == (int)ICO_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kJPEG_SkEncodedFormat      == (int)JPEG_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kPNG_SkEncodedFormat       == (int)PNG_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kWBMP_SkEncodedFormat      == (int)WBMP_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kWEBP_SkEncodedFormat      == (int)WEBP_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kPKM_SkEncodedFormat       == (int)PKM_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kKTX_SkEncodedFormat       == (int)KTX_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kASTC_SkEncodedFormat      == (int)ASTC_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
-static_assert ((int)SkEncodedFormat::kDNG_SkEncodedFormat       == (int)DNG_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
+// sk_encoded_image_format_t
+static_assert ((int)SkEncodedImageFormat::kBMP       == (int)BMP_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kGIF       == (int)GIF_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kICO       == (int)ICO_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kJPEG      == (int)JPEG_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kPNG       == (int)PNG_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kWBMP      == (int)WBMP_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kWEBP      == (int)WEBP_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kPKM       == (int)PKM_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kKTX       == (int)KTX_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kASTC      == (int)ASTC_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
+static_assert ((int)SkEncodedImageFormat::kDNG       == (int)DNG_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
 
 // sk_codec_origin_t
 static_assert ((int)SkCodec::Origin::kTopLeft_Origin       == (int)TOP_LEFT_SK_CODEC_ORIGIN,       ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
@@ -283,8 +270,8 @@ static_assert ((int)GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin      == (int)TOP_L
 
 // gr_pixelconfig_t
 static_assert ((int)GrPixelConfig::kUnknown_GrPixelConfig          == (int)UNKNOWN_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kIndex_8_GrPixelConfig          == (int)INDEX_8_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kAlpha_8_GrPixelConfig          == (int)ALPHA_8_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kGray_8_GrPixelConfig           == (int)GRAY_8_GR_PIXEL_CONFIG,           ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGB_565_GrPixelConfig          == (int)RGB_565_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_4444_GrPixelConfig        == (int)RGBA_4444_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_8888_GrPixelConfig        == (int)RGBA_8888_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
@@ -339,13 +326,6 @@ static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANS
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosition_MatrixFlag    == (int)GET_POSITION_SK_PATHMEASURE_MATRIXFLAGS,      ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetTangent_MatrixFlag     == (int)GET_TANGENT_SK_PATHMEASURE_MATRIXFLAGS,       ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosAndTan_MatrixFlag   == (int)GET_POS_AND_TAN_SK_PATHMEASURE_MATRIXFLAGS,   ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
-
-// sk_shadowmaskfilter_shadowflags_t
-static_assert ((int)SkShadowMaskFilter::ShadowFlags::kNone_ShadowFlag                  == (int)NONE_SK_SHADOWMASKFILTER_SHADOWFLAGS,                   ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
-static_assert ((int)SkShadowMaskFilter::ShadowFlags::kTransparentOccluder_ShadowFlag   == (int)TRANSPARENT_OCCLUDER_SK_SHADOWMASKFILTER_SHADOWFLAGS,   ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
-static_assert ((int)SkShadowMaskFilter::ShadowFlags::kLargerUmbra_ShadowFlag           == (int)LARGER_UMBRA_SK_SHADOWMASKFILTER_SHADOWFLAGS,           ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
-static_assert ((int)SkShadowMaskFilter::ShadowFlags::kGaussianEdge_ShadowFlag          == (int)GAUSSIAN_EDGE_SK_SHADOWMASKFILTER_SHADOWFLAGS,          ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
-static_assert ((int)SkShadowMaskFilter::ShadowFlags::kAll_ShadowFlag                   == (int)ALL_SK_SHADOWMASKFILTER_SHADOWFLAGS,                    ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
 
 // sk_encodedinfo_alpha_t
 static_assert ((int)SkEncodedInfo::Alpha::kOpaque_Alpha     == (int)OPAQUE_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));

@@ -115,10 +115,6 @@ public:
     GrRenderTargetPriv renderTargetPriv();
     const GrRenderTargetPriv renderTargetPriv() const;
 
-    GrRenderTargetOpList* getLastRenderTargetOpList() {
-        return (GrRenderTargetOpList*) this->getLastOpList();
-    }
-
 protected:
     enum class Flags {
         kNone                = 0,

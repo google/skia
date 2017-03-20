@@ -8,13 +8,13 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
-#include "GrBatchAtlas.h"
 #include "GrBuffer.h"
+#include "GrDrawOpAtlas.h"
 #include "GrGpu.h"
-#include "GrTextureProvider.h"
 #include "GrPathRange.h"
+#include "GrTextureProvider.h"
 
-class GrBatchAtlas;
+class GrDrawOpAtlas;
 class GrPath;
 class GrRenderTarget;
 class GrSingleOwner;
@@ -89,6 +89,7 @@ public:
     GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
                               const SkDescriptor*, const GrStyle&);
 
+    using GrTextureProvider::createTexture;
     using GrTextureProvider::assignUniqueKeyToResource;
     using GrTextureProvider::findAndRefResourceByUniqueKey;
     using GrTextureProvider::findAndRefTextureByUniqueKey;
@@ -98,7 +99,7 @@ public:
     enum Flags {
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
          *  set when accessing resources during a GrOpList flush. This includes the execution of
-         *  GrBatch objects. The reason is that these memory operations are done immediately and
+         *  GrOp objects. The reason is that these memory operations are done immediately and
          *  will occur out of order WRT the operations being flushed.
          *  Make this automatic: https://bug.skia.org/4156
          */
@@ -129,25 +130,25 @@ public:
         return this->internalCreateApproxTexture(desc, flags);
     }
 
-    /**  Returns a GrBatchAtlas. This function can be called anywhere, but the returned atlas should
-     *   only be used inside of GrBatch::generateGeometry
-     *   @param GrPixelConfig    The pixel config which this atlas will store
-     *   @param width            width in pixels of the atlas
-     *   @param height           height in pixels of the atlas
-     *   @param numPlotsX        The number of plots the atlas should be broken up into in the X
-     *                           direction
-     *   @param numPlotsY        The number of plots the atlas should be broken up into in the Y
-     *                           direction
-     *   @param func             An eviction function which will be called whenever the atlas has to
-     *                           evict data
-     *   @param data             User supplied data which will be passed into func whenver an
-     *                           eviction occurs
-     *
-     *   @return                 An initialized GrBatchAtlas, or nullptr if creation fails
+    /**
+     * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
+     * should only be used inside of GrMeshDrawOp::onPrepareDraws.
+     *  @param GrPixelConfig    The pixel config which this atlas will store
+     *  @param width            width in pixels of the atlas
+     *  @param height           height in pixels of the atlas
+     *  @param numPlotsX        The number of plots the atlas should be broken up into in the X
+     *                          direction
+     *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
+     *                          direction
+     *  @param func             An eviction function which will be called whenever the atlas has to
+     *                          evict data
+     *  @param data             User supplied data which will be passed into func whenver an
+     *                          eviction occurs
+     *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    std::unique_ptr<GrBatchAtlas> makeAtlas(GrPixelConfig, int width, int height,
-                                            int numPlotsX, int numPlotsY,
-                                            GrBatchAtlas::EvictionFunc func, void* data);
+    std::unique_ptr<GrDrawOpAtlas> makeAtlas(GrPixelConfig, int width, int height, int numPlotsX,
+                                             int numPlotsY, GrDrawOpAtlas::EvictionFunc func,
+                                             void* data);
 
     /**
      * If passed in render target already has a stencil buffer, return it. Otherwise attempt to

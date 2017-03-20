@@ -108,6 +108,7 @@ BASE_SRCS_ALL = struct(
         "src/images/*",
         "src/opts/**/*",
         "src/ports/**/*",
+        "src/splicer/*",
         "src/utils/android/**/*",
         "src/utils/mac/**/*",
         "src/utils/SkThreadUtils_win.cpp",  # Windows-only. Move to ports?
@@ -213,7 +214,6 @@ BASE_SRCS_ANDROID = struct(
         "src/opts/*sse4*",
         "src/opts/*avx*",
         "src/opts/*x86*",
-        "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
         "src/ports/*CG*",
@@ -265,7 +265,6 @@ BASE_SRCS_IOS = struct(
         "src/opts/*sse4*",
         "src/opts/*avx*",
         "src/opts/*x86*",
-        "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_arm*.cpp",
         "src/opts/SkBlitRow_opts_arm*.cpp",
         "src/ports/*CG*",
@@ -328,7 +327,6 @@ BASE_HDRS = struct(
     ],
     exclude = PRIVATE_HDRS_INCLUDE_LIST + [
         # Not used.
-        "include/animator/**/*",
         "include/views/**/*",
     ],
 )
@@ -435,9 +433,7 @@ DM_SRCS_ALL = struct(
         "tools/timer/*.h",
     ],
     exclude = [
-        "dm/DMSrcSinkAndroid.cpp",  # Android-only.
         "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
-        "tests/PathOpsSkpClipTest.cpp",  # Alternate main.
         "tests/skia_test.cpp",  # Old main.
         "tests/SkpSkGrTest.cpp",  # Alternate main.
         "tests/SVGDeviceTest.cpp",
@@ -461,8 +457,6 @@ DM_SRCS_UNIX = struct(
 
 DM_SRCS_ANDROID = struct(
     include = [
-        # Depends on Android HWUI library that is not available in google3.
-        #"dm/DMSrcSinkAndroid.cpp",
         "tests/FontMgrAndroidParserTest.cpp",
         # TODO(benjaminwagner): Figure out how to compile with EGL.
         "tools/gpu/gl/CreatePlatformGLContext_none.cpp",
@@ -486,6 +480,7 @@ DM_INCLUDES = [
     "src/effects",
     "src/effects/gradients",
     "src/fonts",
+    "src/images",
     "src/pathops",
     "src/pipe/utils",
     "src/ports",
@@ -501,7 +496,7 @@ DM_INCLUDES = [
 ## DM_ARGS
 ################################################################################
 
-def DM_ARGS(base_dir, asan):
+def DM_ARGS(asan):
   source = ["tests", "gm", "image"]
   # TODO(benjaminwagner): f16 and serialize-8888 fail.
   config = ["565", "8888", "pdf", "srgb", "tiles_rt", "pic"]
@@ -519,14 +514,12 @@ def DM_ARGS(base_dir, asan):
       "~Stream",
   ]
   if asan:
-    # Running all sources and configs under ASAN causes the test to exceed
-    # "large" size and time out.
-    source = ["tests", "gm"]
-    config = ["8888"]
+    # The ASAN we use with Bazel has some strict checks, so omit tests that
+    # trigger them.
     match += [
         "~clippedcubic2",
         "~conicpaths",
-        "~gradients_2pt_conical",
+        "~^gradients",
         "~Math",
         "~Matrix",
         "~PathOpsCubic",
@@ -537,15 +530,9 @@ def DM_ARGS(base_dir, asan):
         "~PathOpsTightBoundsQuads",
         "~Point",
         "~sk_linear_to_srgb",
+        "~small_color_stop",
     ]
-  return [
-      "--src %s" % " ".join(source),
-      "--config %s" % " ".join(config),
-      "--verbose",
-      "--match %s" % " ".join(match),
-      "--resourcePath %s/resources" % base_dir,
-      "--images %s/resources" % base_dir,
-  ]
+  return ["--src"] + source + ["--config"] + config + ["--match"] + match
 
 ################################################################################
 ## COPTS
@@ -599,11 +586,11 @@ DEFINES_ALL = [
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",
     # Staging flags for API changes
-    "SK_SUPPORT_LEGACY_ACCESSBITMAP",
-    "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
-    "SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC",
     # Temporarily Disable analytic AA for Google3
     "SK_NO_ANALYTIC_AA",
+    "SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF",
+    "SK_SUPPORT_LEGACY_CLIPOP_EXOTIC_NAMES",
+    "SK_SUPPORT_LEGACY_CANVAS_GETCLIPSTACK",
 ]
 
 ################################################################################

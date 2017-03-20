@@ -355,7 +355,7 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -365,7 +365,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    GrTextureAccess         fTextureAccess;
+    TextureSampler          fTextureSampler;
 
     // currently not used in shader code, just to assist onComputeInvariantOutput().
     unsigned                fFlags;
@@ -380,7 +380,7 @@ class GLColorTableEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
+    static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -474,8 +474,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
     if (-1 == row) {
         atlas = nullptr;
         texture.reset(
-            GrRefCachedBitmapTexture(context, bitmap, GrTextureParams::ClampNoFilter(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, bitmap, GrSamplerParams::ClampNoFilter()));
     } else {
         texture.reset(SkRef(atlas->getTexture()));
     }
@@ -485,12 +484,12 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
 
 ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row,
                                    unsigned flags)
-    : fTextureAccess(texture)
+    : fTextureSampler(texture)
     , fFlags(flags)
     , fAtlas(atlas)
     , fRow(row) {
     this->initClassID<ColorTableEffect>();
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 ColorTableEffect::~ColorTableEffect() {
@@ -499,7 +498,7 @@ ColorTableEffect::~ColorTableEffect() {
     }
 }
 
-void ColorTableEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void ColorTableEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
     GLColorTableEffect::GenKey(*this, caps, b);
 }

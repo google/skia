@@ -25,7 +25,6 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
-#include "SkTypes.h"
 #include <memory>
 
 #if defined(SK_CAN_USE_DLOPEN)
@@ -51,6 +50,12 @@
 #ifndef FT_LOAD_COLOR
 #    define FT_LOAD_COLOR ( 1L << 20 )
 #    define FT_PIXEL_MODE_BGRA 7
+#endif
+
+// FT_LOAD_BITMAP_METRICS_ONLY was introduced in FreeType 2.7.1
+// The following may be removed once FreeType 2.7.1 is required to build.
+#ifndef FT_LOAD_BITMAP_METRICS_ONLY
+#    define FT_LOAD_BITMAP_METRICS_ONLY ( 1L << 22 )
 #endif
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
@@ -1084,7 +1089,8 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         return;
     }
 
-    err = FT_Load_Glyph( fFace, glyph->getGlyphID(), fLoadGlyphFlags );
+    err = FT_Load_Glyph( fFace, glyph->getGlyphID(),
+                         fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY );
     if (err != 0) {
         glyph->zeroMetrics();
         return;

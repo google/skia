@@ -92,9 +92,9 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(const SkRect& circl
     : fCircle(circle)
     , fSolidRadius(solidRadius)
     , fTextureRadius(textureRadius)
-    , fBlurProfileAccess(blurProfile, GrTextureParams::kBilerp_FilterMode) {
+    , fBlurProfileSampler(blurProfile, GrSamplerParams::kBilerp_FilterMode) {
     this->initClassID<GrCircleBlurFragmentProcessor>();
-    this->addTextureAccess(&fBlurProfileAccess);
+    this->addTextureSampler(&fBlurProfileSampler);
     this->setWillReadFragmentPosition();
 }
 
@@ -102,7 +102,7 @@ GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLSLInstance() c
     return new GLSLProcessor;
 }
 
-void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                           GrProcessorKeyBuilder* b) const {
     // The code for this processor is always the same so there is nothing to add to the key.
     return;

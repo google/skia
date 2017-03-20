@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
@@ -1002,7 +1001,7 @@ sk_sp<GrFragmentProcessor> SkXfermode::makeFragmentProcessorForImageFilter(
     return nullptr;
 }
 
-sk_sp<GrXPFactory> SkXfermode::asXPFactory() const {
+const GrXPFactory* SkXfermode::asXPFactory() const {
     // This should never be called.
     // TODO: make pure virtual in SkXfermode once Android update lands
     SkASSERT(0);
@@ -1255,15 +1254,15 @@ sk_sp<GrFragmentProcessor> SkProcCoeffXfermode::makeFragmentProcessorForImageFil
     return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(dst), fMode);
 }
 
-sk_sp<GrXPFactory> SkProcCoeffXfermode::asXPFactory() const {
+const GrXPFactory* SkProcCoeffXfermode::asXPFactory() const {
     if (CANNOT_USE_COEFF != fSrcCoeff) {
-        sk_sp<GrXPFactory> result(GrPorterDuffXPFactory::Make(fMode));
+        const GrXPFactory* result(GrPorterDuffXPFactory::Get(fMode));
         SkASSERT(result);
         return result;
     }
 
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    return GrCustomXfermode::MakeXPFactory(fMode);
+    return GrCustomXfermode::Get(fMode);
 }
 #endif
 
@@ -1470,16 +1469,16 @@ bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacityType) {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrXPFactory> SkBlendMode_AsXPFactory(SkBlendMode mode) {
+const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode mode) {
     const ProcCoeff rec = gProcCoeffs[(int)mode];
     if (CANNOT_USE_COEFF != rec.fSC) {
-        sk_sp<GrXPFactory> result(GrPorterDuffXPFactory::Make(mode));
+        const GrXPFactory* result = GrPorterDuffXPFactory::Get(mode);
         SkASSERT(result);
         return result;
     }
 
     SkASSERT(GrCustomXfermode::IsSupportedMode(mode));
-    return GrCustomXfermode::MakeXPFactory(mode);
+    return GrCustomXfermode::Get(mode);
 }
 #endif
 
@@ -1490,7 +1489,7 @@ bool SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
     switch (mode) {
         case SkBlendMode::kClear:    stage = SkRasterPipeline::clear; break;
         case SkBlendMode::kSrc:      return true;  // This stage is a no-op.
-        case SkBlendMode::kDst:      stage = SkRasterPipeline::dst; break;
+        case SkBlendMode::kDst:      stage = SkRasterPipeline::move_dst_src; break;
         case SkBlendMode::kSrcOver:  stage = SkRasterPipeline::srcover; break;
         case SkBlendMode::kDstOver:  stage = SkRasterPipeline::dstover; break;
         case SkBlendMode::kSrcIn:    stage = SkRasterPipeline::srcin; break;

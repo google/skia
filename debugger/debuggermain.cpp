@@ -7,12 +7,8 @@
  */
 
 #include "SkDebuggerGUI.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include <QApplication>
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
-
 
 static void usage(const char * argv0) {
     SkDebugf("%s <input> \n", argv0);

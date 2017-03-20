@@ -8,6 +8,7 @@
 #include "GrRenderTargetProxy.h"
 
 #include "GrCaps.h"
+#include "GrGpuResourcePriv.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrTextureProvider.h"
@@ -54,23 +55,19 @@ GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider)
     return surf->asRenderTarget();
 }
 
-
-#ifdef SK_DEBUG
-void GrRenderTargetProxy::validate(GrContext* context) const {
-    if (fTarget) {
-        SkASSERT(fTarget->getContext() == context);
-    }
-
-    INHERITED::validate();
-}
-#endif
-
 size_t GrRenderTargetProxy::onGpuMemorySize() const {
     if (fTarget) {
         return fTarget->gpuMemorySize();
     }
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false);
+    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false, SkBackingFit::kApprox == fFit);
 }
 
+bool GrRenderTargetProxy::refsWrappedObjects() const {
+    if (!fTarget) {
+        return false;
+    }
+
+    return fTarget->resourcePriv().refsWrappedObjects();
+}

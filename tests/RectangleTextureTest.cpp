@@ -15,7 +15,7 @@
 #include "gl/GLTestContext.h"
 
 static void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
-                             GrTexture* texture, uint32_t expectedPixelValues[]) {
+                             GrSurface* texture, uint32_t expectedPixelValues[]) {
     int pixelCnt = texture->width() * texture->height();
     SkAutoTMalloc<uint32_t> pixels(pixelCnt);
     memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
@@ -52,22 +52,30 @@ static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
 }
 
 static void test_copy_surface_src(skiatest::Reporter* reporter, GrContext* context,
-                                  GrTexture* rectangleTexture, uint32_t expectedPixelValues[]) {
+                                  GrTexture* rectTexture, uint32_t expectedPixelValues[]) {
+    GrSurfaceDesc copyDstDesc;
+    copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    copyDstDesc.fWidth = rectTexture->width();
+    copyDstDesc.fHeight = rectTexture->height();
+
     for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
-        GrSurfaceDesc copyDstDesc;
-        copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
-        copyDstDesc.fWidth = rectangleTexture->width();
-        copyDstDesc.fHeight = rectangleTexture->height();
         copyDstDesc.fFlags = flags;
-        sk_sp<GrTexture> dst(
-                context->textureProvider()->createTexture(copyDstDesc, SkBudgeted::kYes));
-        context->copySurface(dst.get(), rectangleTexture);
-        test_read_pixels(reporter, context, dst.get(), expectedPixelValues);
+
+        sk_sp<GrSurfaceProxy> dst(GrSurfaceProxy::TestCopy(context, copyDstDesc,
+                                                           rectTexture, SkBudgeted::kYes));
+
+        GrSurface* dstSurf = dst->instantiate(context->textureProvider());
+
+        test_read_pixels(reporter, context, dstSurf, expectedPixelValues);
     }
 }
 
 static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* context,
                                   GrTexture* rectangleTexture) {
+
+    sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
+                                                                    sk_ref_sp(rectangleTexture)));
+
     int pixelCnt = rectangleTexture->width() * rectangleTexture->height();
     SkAutoTMalloc<uint32_t> pixels(pixelCnt);
     for (int y = 0; y < rectangleTexture->width(); ++y) {
@@ -81,10 +89,13 @@ static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* conte
         copySrcDesc.fWidth = rectangleTexture->width();
         copySrcDesc.fHeight = rectangleTexture->height();
         copySrcDesc.fFlags = flags;
-        sk_sp<GrTexture> src(context->textureProvider()->createTexture(
-                copySrcDesc, SkBudgeted::kYes, pixels.get(), 0));
 
-        context->copySurface(rectangleTexture, src.get());
+        sk_sp<GrSurfaceProxy> src(GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                                               context->textureProvider(),
+                                                               copySrcDesc,
+                                                               SkBudgeted::kYes, pixels.get(), 0));
+        sContext->copy(src.get());
+
         test_read_pixels(reporter, context, rectangleTexture, pixels.get());
     }
 }
@@ -98,16 +109,16 @@ static void test_basic_draw(skiatest::Reporter* reporter, GrContext* context,
                                              nullptr));
     SkMatrix m;
     m.setIDiv(rectangleTexture->width(), rectangleTexture->height());
-    for (auto filter : {GrTextureParams::kNone_FilterMode,
-                        GrTextureParams::kBilerp_FilterMode,
-                        GrTextureParams::kMipMap_FilterMode}) {
+    for (auto filter : {GrSamplerParams::kNone_FilterMode,
+                        GrSamplerParams::kBilerp_FilterMode,
+                        GrSamplerParams::kMipMap_FilterMode}) {
         rtContext->clear(nullptr, 0xDDCCBBAA, true);
         sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(rectangleTexture,
                                                                   nullptr, m, filter));
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
-        rtContext->drawPaint(GrNoClip(), paint, SkMatrix::I());
+        rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
         test_read_pixels(reporter, context, rtContext->asTexture().get(), expectedPixelValues);
     }
 }
