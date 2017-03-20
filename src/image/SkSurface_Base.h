@@ -43,7 +43,16 @@ public:
      *  must faithfully represent the current contents, even if the surface
      *  is changed after this called (e.g. it is drawn to via its canvas).
      */
-    virtual sk_sp<SkImage> onNewImageSnapshot(SkBudgeted) = 0;
+#ifdef SK_SUPPORT_LEGACY_IMG_SNAPSHOT
+    // This entry point is never called but is just here so Android unit tests will compile
+    virtual sk_sp<SkImage> onNewImageSnapshot(SkBudgeted) { return nullptr; }
+
+    // This entry point should be pure virtual. It has a default implementation so Android
+    // unit tests will compile.
+    virtual sk_sp<SkImage> onNewImageSnapshot() { return nullptr; }
+#else
+    virtual sk_sp<SkImage> onNewImageSnapshot() = 0;
+#endif
 
     /**
      *  Default implementation:
@@ -81,7 +90,7 @@ public:
     virtual void onPrepareForExternalIO() {}
 
     inline SkCanvas* getCachedCanvas();
-    inline sk_sp<SkImage> refCachedImage(SkBudgeted);
+    inline sk_sp<SkImage> refCachedImage();
 
     bool hasCachedImage() const { return fCachedImage != nullptr; }
 
@@ -114,12 +123,12 @@ SkCanvas* SkSurface_Base::getCachedCanvas() {
     return fCachedCanvas.get();
 }
 
-sk_sp<SkImage> SkSurface_Base::refCachedImage(SkBudgeted budgeted) {
+sk_sp<SkImage> SkSurface_Base::refCachedImage() {
     if (fCachedImage) {
         return fCachedImage;
     }
 
-    fCachedImage = this->onNewImageSnapshot(budgeted);
+    fCachedImage = this->onNewImageSnapshot();
 
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
     return fCachedImage;
