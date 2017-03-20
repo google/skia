@@ -49,7 +49,7 @@ class CIPDStore(object):
   def __init__(self, cipd_url=DEFAULT_CIPD_SERVICE_URL):
     self._cipd = 'cipd'
     if sys.platform == 'win32':
-      self._cipd = 'cipd.exe'
+      self._cipd = 'cipd.bat'
     self._cipd_url = cipd_url
     self._check_setup()
 
