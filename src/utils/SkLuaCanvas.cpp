@@ -307,11 +307,7 @@ void SkLuaCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix
     this->INHERITED::onDrawPicture(picture, matrix, paint);
 }
 
-void SkLuaCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
-                                 const SkPoint vertices[], const SkPoint texs[],
-                                 const SkColor colors[], SkBlendMode,
-                                 const uint16_t indices[], int indexCount,
-                                 const SkPaint& paint) {
+void SkLuaCanvas::onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint& paint) {
     AUTO_LUA("drawVertices");
     lua.pushPaint(paint, "paint");
 }
