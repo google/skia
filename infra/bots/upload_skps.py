@@ -27,12 +27,6 @@ SKIA_REPO = 'https://skia.googlesource.com/skia.git'
 
 def main(target_dir, gitcookies):
   with git_utils.NewGitCheckout(repository=SKIA_REPO):
-    # Download CIPD.
-    cipd_sha1 = os.path.join(os.getcwd(), 'infra', 'bots', 'tools', 'luci-go',
-                             'linux64', 'cipd.sha1')
-    subprocess.check_call(['download_from_google_storage', '-s', cipd_sha1,
-                           '--bucket', 'chromium-luci'])
-
     # First verify that there are no gen_tasks diffs.
     gen_tasks = os.path.join(os.getcwd(), 'infra', 'bots', 'gen_tasks.go')
     try:
@@ -55,6 +49,8 @@ def main(target_dir, gitcookies):
       with git_utils.GitBranch(branch_name='update_skp_version',
                                commit_msg=COMMIT_MSG,
                                commit_queue=True):
+        import time
+        time.sleep(300)
         upload_script = os.path.join(
             os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
         subprocess.check_call(['python', upload_script, '-t', target_dir])
