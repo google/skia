@@ -66,16 +66,15 @@ files (from `--skps`, which defaults to "skps").  You can control the types of
 sources DM will use with `--src` (default, "tests gm image skp").
 
 DM has found 3 usable ways to draw those 492 sources.  This is controlled by
-`--config`, which today defaults to "565 8888 gpu nonrendering angle nvprmsaa4".
-DM has skipped nonrendering, angle, and nvprmssa4, leaving three usable configs:
-565, 8888, and gpu.  These three name different ways to draw using Skia:
+`--config`. The defaults are operating system dependent. On Linux they are "8888 gl nonrendering".
+DM has skipped nonrendering leaving two usable configs:
+8888 and gl.  These two name different ways to draw using Skia:
 
-  -    565:  draw using the software backend into a 16-bit RGB bitmap
   -    8888: draw using the software backend into a 32-bit RGBA bitmap
-  -    gpu:  draw using the GPU backend (Ganesh) into a 32-bit RGBA bitmap
+  -    gl:  draw using the OpenGL backend (Ganesh) into a 32-bit RGBA bitmap
 
 Sometimes DM calls these configs, sometimes sinks.  Sorry.  There are many
-possible configs but generally we pay most attention to 8888 and gpu.
+possible configs but generally we pay most attention to 8888 and gl.
 
 DM always tries to draw all sources into all sinks, which is why we multiply
 492 by 3.  The unit tests don't really fit into this source-sink model, so they
@@ -110,19 +109,19 @@ When DM finishes running, you should find a directory with file named dm.json,
 and some nested directories filled with lots of images.
 ~~~
 $ ls dm_output
-565     8888    dm.json gpu
+8888    dm.json gl
 
 $ find dm_output -name '*.png'
-dm_output/565/gm/3x3bitmaprect.png
-dm_output/565/gm/aaclip.png
-dm_output/565/gm/aarectmodes.png
-dm_output/565/gm/alphagradients.png
-dm_output/565/gm/arcofzorro.png
-dm_output/565/gm/arithmode.png
-dm_output/565/gm/astcbitmap.png
-dm_output/565/gm/bezier_conic_effects.png
-dm_output/565/gm/bezier_cubic_effects.png
-dm_output/565/gm/bezier_quad_effects.png
+dm_output/8888/gm/3x3bitmaprect.png
+dm_output/8888/gm/aaclip.png
+dm_output/8888/gm/aarectmodes.png
+dm_output/8888/gm/alphagradients.png
+dm_output/8888/gm/arcofzorro.png
+dm_output/8888/gm/arithmode.png
+dm_output/8888/gm/astcbitmap.png
+dm_output/8888/gm/bezier_conic_effects.png
+dm_output/8888/gm/bezier_cubic_effects.png
+dm_output/8888/gm/bezier_quad_effects.png
                 ...
 ~~~
 

@@ -466,13 +466,26 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
     }
 }
 
+GrContextFactory::ContextType pick_second_context_type(const sk_gpu_test::ContextInfo& info) {
+    switch (info.backend()) {
+        case kOpenGL_GrBackend:
+            if (info.glContext()->gl()->fStandard == kGLES_GrGLStandard) {
+                return GrContextFactory::kGLES_ContextType;
+            } else {
+                return GrContextFactory::kGL_ContextType;
+            }
+        case kVulkan_GrBackend:
+            return GrContextFactory::kVulkan_ContextType;
+    }
+    SkFAIL("Unknown backend type.");
+    return GrContextFactory::kGL_ContextType;
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextInfo) {
     GrContext* context = contextInfo.grContext();
     sk_gpu_test::TestContext* testContext = contextInfo.testContext();
-
     GrContextFactory otherFactory;
-    GrContextFactory::ContextType otherContextType =
-            GrContextFactory::NativeContextTypeForBackend(testContext->backend());
+    GrContextFactory::ContextType otherContextType = pick_second_context_type(contextInfo);
     ContextInfo otherContextInfo = otherFactory.getContextInfo(otherContextType);
     testContext->makeCurrent();
 
@@ -932,7 +945,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
 
     GrContextFactory otherFactory;
     ContextInfo otherContextInfo =
-        otherFactory.getContextInfo(GrContextFactory::kNativeGL_ContextType);
+        otherFactory.getContextInfo(pick_second_context_type(ctxInfo));
 
     testContext->makeCurrent();
     REPORTER_ASSERT(reporter, proxy);
