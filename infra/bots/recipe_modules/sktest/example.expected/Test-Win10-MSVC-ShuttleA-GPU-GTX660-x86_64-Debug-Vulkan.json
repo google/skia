@@ -7,6 +7,7 @@
       "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
       "/path/to/tmp/"
     ],
+    "infra_step": true,
     "name": "Get downloaded SKP VERSION"
   },
   {
@@ -17,6 +18,7 @@
       "42",
       "[START_DIR]\\tmp\\SKP_VERSION"
     ],
+    "infra_step": true,
     "name": "write SKP_VERSION"
   },
   {
@@ -27,6 +29,7 @@
       "[START_DIR]\\skia\\infra\\bots\\assets\\skimage\\VERSION",
       "/path/to/tmp/"
     ],
+    "infra_step": true,
     "name": "Get downloaded skimage VERSION"
   },
   {
@@ -37,6 +40,7 @@
       "42",
       "[START_DIR]\\tmp\\SK_IMAGE_VERSION"
     ],
+    "infra_step": true,
     "name": "write SK_IMAGE_VERSION"
   },
   {
@@ -47,6 +51,7 @@
       "[START_DIR]\\skia\\infra\\bots\\assets\\svg\\VERSION",
       "/path/to/tmp/"
     ],
+    "infra_step": true,
     "name": "Get downloaded SVG VERSION"
   },
   {
@@ -57,6 +62,7 @@
       "42",
       "[START_DIR]\\tmp\\SVG_VERSION"
     ],
+    "infra_step": true,
     "name": "write SVG_VERSION"
   },
   {
@@ -70,6 +76,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]\\skia\\infra\\bots\\.recipe_deps\\build\\scripts"
     },
+    "infra_step": true,
     "name": "rmtree dm"
   },
   {
@@ -80,6 +87,7 @@
       "[CUSTOM_[SWARM_OUT_DIR]]\\dm",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -102,6 +110,7 @@
       "[START_DIR]\\tmp",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs tmp_dir",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -129,6 +138,7 @@
       "CHROME_HEADLESS": "1",
       "SKIA_OUT": "[START_DIR]\\out"
     },
+    "infra_step": true,
     "name": "get uninteresting hashes",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",

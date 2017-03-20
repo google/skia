@@ -7,6 +7,7 @@
       "[START_DIR]/tmp_upload",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs tmp dir",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -81,6 +82,7 @@
       "/path/to/tmp/",
       "[START_DIR]/dm/*"
     ],
+    "infra_step": true,
     "name": "find images"
   },
   {

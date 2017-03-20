@@ -7,6 +7,7 @@
       "[CUSTOM_/_B_WORK]",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs checkout_path",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -49,6 +50,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "bot_update",
     "~followup_annotations": [
       "@@@STEP_TEXT@Some step text@@@",
@@ -85,6 +87,7 @@
       "[START_DIR]/tmp",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs tmp_dir",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -114,6 +117,7 @@
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "fetch-gn"
   },
   {
@@ -159,6 +163,7 @@
       "[START_DIR]/out/Debug",
       "[CUSTOM_/_B_WORK]/skia/infra/bots/ct"
     ],
+    "infra_step": true,
     "name": "copy build products",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import errno@@@",
@@ -212,6 +217,7 @@
     "env": {
       "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
     },
+    "infra_step": true,
     "name": "git fetch (swarming_client)"
   },
   {
@@ -222,6 +228,7 @@
       "FETCH_HEAD"
     ],
     "cwd": "[START_DIR]/swarming.client",
+    "infra_step": true,
     "name": "git checkout (swarming_client)"
   },
   {
@@ -231,6 +238,7 @@
       "HEAD"
     ],
     "cwd": "[START_DIR]/swarming.client",
+    "infra_step": true,
     "name": "read revision",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
@@ -246,6 +254,7 @@
       "-x"
     ],
     "cwd": "[START_DIR]/swarming.client",
+    "infra_step": true,
     "name": "git clean (swarming_client)"
   },
   {
@@ -255,6 +264,7 @@
       "sync"
     ],
     "cwd": "[START_DIR]/swarming.client",
+    "infra_step": true,
     "name": "submodule sync (swarming_client)"
   },
   {
@@ -266,6 +276,7 @@
       "--recursive"
     ],
     "cwd": "[START_DIR]/swarming.client",
+    "infra_step": true,
     "name": "submodule update (swarming_client)"
   },
   {
@@ -340,6 +351,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
+    "infra_step": true,
     "name": "rmtree luci-go"
   },
   {
@@ -368,6 +380,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
+    "infra_step": true,
     "name": "rmtree swarming_temp_dir"
   },
   {
@@ -381,6 +394,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
+    "infra_step": true,
     "name": "rmtree slave1"
   },
   {
@@ -425,6 +439,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/10/*.skp",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave1"
     ],
+    "infra_step": true,
     "name": "gsutil cp"
   },
   {
@@ -470,6 +485,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
+    "infra_step": true,
     "name": "rmtree slave2"
   },
   {
@@ -514,6 +530,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/20/*.skp",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave2"
     ],
+    "infra_step": true,
     "name": "gsutil cp (2)"
   },
   {
@@ -559,6 +576,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
+    "infra_step": true,
     "name": "rmtree slave3"
   },
   {
@@ -603,6 +621,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/30/*.skp",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave3"
     ],
+    "infra_step": true,
     "name": "gsutil cp (3)"
   },
   {
@@ -648,6 +667,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
+    "infra_step": true,
     "name": "rmtree slave4"
   },
   {
@@ -692,6 +712,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/40/*.skp",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave4"
     ],
+    "infra_step": true,
     "name": "gsutil cp (4)"
   },
   {
@@ -737,6 +758,7 @@
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
+    "infra_step": true,
     "name": "rmtree slave5"
   },
   {
@@ -781,6 +803,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/fad657e-276e633/50/*.skp",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave5"
     ],
+    "infra_step": true,
     "name": "gsutil cp (5)"
   },
   {
@@ -823,6 +846,7 @@
       "{\"chromium_build\": \"fad657e-276e633\", \"num_slaves\": 5, \"page_type\": \"10k\"}",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/skps_version"
     ],
+    "infra_step": true,
     "name": "Create [CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/skps_version"
   },
   {
@@ -909,6 +933,7 @@
       "stepname:ct-dm-1",
       "[dummy hash for ct-dm-1]"
     ],
+    "infra_step": true,
     "name": "[trigger] ct-dm-1",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
@@ -979,6 +1004,7 @@
       "stepname:ct-dm-2",
       "[dummy hash for ct-dm-2]"
     ],
+    "infra_step": true,
     "name": "[trigger] ct-dm-2",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
@@ -1049,6 +1075,7 @@
       "stepname:ct-dm-3",
       "[dummy hash for ct-dm-3]"
     ],
+    "infra_step": true,
     "name": "[trigger] ct-dm-3",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
@@ -1119,6 +1146,7 @@
       "stepname:ct-dm-4",
       "[dummy hash for ct-dm-4]"
     ],
+    "infra_step": true,
     "name": "[trigger] ct-dm-4",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
@@ -1189,6 +1217,7 @@
       "stepname:ct-dm-5",
       "[dummy hash for ct-dm-5]"
     ],
+    "infra_step": true,
     "name": "[trigger] ct-dm-5",
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",

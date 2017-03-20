@@ -8,6 +8,7 @@
       "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot/data/*.json"
     ],
     "cwd": "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot/data",
+    "infra_step": true,
     "name": "find results"
   },
   {
@@ -19,6 +20,7 @@
       "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot/data/nanobench_abc123.json",
       "gs://skia-perf/trybot/nano-json-v1/2012/05/14/12/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot/12345/1002/nanobench_abc123.json"
     ],
+    "infra_step": true,
     "name": "upload"
   },
   {

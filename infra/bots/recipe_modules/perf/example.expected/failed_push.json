@@ -5,6 +5,7 @@
       "reboot"
     ],
     "cwd": "[START_DIR]/skia",
+    "infra_step": true,
     "name": "rebooting device"
   },
   {
@@ -13,6 +14,7 @@
       "-u",
       "\nimport subprocess\nimport sys\nimport time\n\nkicks = 0\nwhile True:\n\n  times = 0\n  while times < 30:\n    print 'Waiting for the device to be connected and ready.'\n    try:\n      times += 1\n      output = subprocess.check_output(['adb', 'shell',\n                                        'getprop', 'sys.boot_completed'])\n      if '1' in output:\n        print 'Connected'\n        sys.exit(0)\n    except subprocess.CalledProcessError:\n      # no device connected/authorized yet\n      pass\n    time.sleep(5)\n  if kicks >= 3:\n    break\n  print 'Giving the device a \"kick\" by trying to reboot it.'\n  kicks += 1\n  print subprocess.check_output(['adb', 'reboot'])\n\nprint 'Timed out waiting for device'\nsys.exit(1)\n"
     ],
+    "infra_step": true,
     "name": "wait for device",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -57,6 +59,7 @@
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
     "cwd": "[START_DIR]/skia",
+    "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
   },
   {
@@ -68,6 +71,7 @@
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
     "cwd": "[START_DIR]/skia",
+    "infra_step": true,
     "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
@@ -97,6 +101,7 @@
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
       "[START_DIR]/out/Debug"
     ],
+    "infra_step": true,
     "name": "dump log",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -125,6 +130,7 @@
       "-p"
     ],
     "cwd": "[START_DIR]/skia",
+    "infra_step": true,
     "name": "shut down device to quarantine bot"
   },
   {
@@ -133,6 +139,7 @@
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
+    "infra_step": true,
     "name": "kill adb server"
   },
   {
