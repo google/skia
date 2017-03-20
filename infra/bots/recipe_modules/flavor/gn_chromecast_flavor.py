@@ -7,12 +7,17 @@ from recipe_engine import recipe_api
 import default_flavor
 import gn_android_flavor
 import subprocess
+import os
+
+
+CHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')
 
 
 """GN Chromecast flavor utils, used for building Skia for Chromecast with GN"""
 class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
   def __init__(self, m):
     super(GNChromecastFlavorUtils, self).__init__(m)
+    self._ever_ran_adb = False
 
   def compile(self, unused_target, **kwargs):
     configuration = self.m.vars.builder_cfg.get('configuration')
@@ -57,3 +62,28 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     # We only build perf for the chromecasts.
     self._run('ninja', ninja, '-C', self.out_dir, 'nanobench')
 
+  def _adb(self, title, *cmd, **kwargs):
+    if not self._ever_ran_adb:
+      self._connect_to_remote()
+
+    self._ever_ran_adb = True
+    # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
+    if 'infra_step' not in kwargs:
+      kwargs['infra_step'] = True
+    return self._run(title, 'adb', *cmd, **kwargs)
+
+  def _connect_to_remote(self):
+
+    ip_address = self.m.run(self.m.python.inline, 'read chromecast ip',
+               program="""
+    import sys
+    file = sys.argv[1]
+    with open(file, 'r') as f:
+      print f.read()
+    """,
+    args=[CHROMECAST_IP_FILE],
+    stdout=self.m.raw_io.output(),
+    infra_step=True).stdout
+
+    self.m.run(self.m.step, 'adb connect %s' % ip_address, cmd=['adb',
+      'connect', ip_address], infra_step=True)
