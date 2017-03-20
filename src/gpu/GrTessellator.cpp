@@ -705,13 +705,35 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kConic_Verb: {
-                SkScalar weight = iter.conicWeight();
-                const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
-                for (int i = 0; i < converter.countQuads(); ++i) {
-                    int pointsLeft = GrPathUtils::quadraticPointCount(quadPts, tolerance);
-                    generate_quadratic_points(quadPts[0], quadPts[1], quadPts[2], toleranceSqd,
-                                              contour, pointsLeft, alloc);
-                    quadPts += 2;
+                SkConic conic(pts[0], pts[1], pts[2], iter.conicWeight());
+                SkScalar d01 = pts[0].distanceToSqd(pts[1]);
+                SkScalar d12 = pts[1].distanceToSqd(pts[2]);
+                if (fabs(d01 - d12) < toleranceSqd) {
+                    int nPoints = 1;
+                    float u;
+                    while (true) {
+                        u = 1.0f / nPoints;
+                        float half = (nPoints >> 1) * u;
+                        SkPoint p0 = conic.evalAt(half);
+                        SkPoint mid = conic.evalAt(half + 0.5f * u);
+                        SkPoint p1 = conic.evalAt(half + u);
+                        if (mid.distanceToLineSegmentBetweenSqd(p0, p1) < toleranceSqd) {
+                            break;
+                        }
+                        nPoints++;
+                    }
+                    for (int i = 1; i <= nPoints; i++) {
+                        append_point_to_contour(conic.evalAt(i * u), contour, alloc);
+                    }
+                } else {
+                    SkScalar weight = iter.conicWeight();
+                    const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
+                    for (int i = 0; i < converter.countQuads(); ++i) {
+                        int pointsLeft = GrPathUtils::quadraticPointCount(quadPts, tolerance);
+                        generate_quadratic_points(quadPts[0], quadPts[1], quadPts[2], toleranceSqd,
+                                                  contour, pointsLeft, alloc);
+                        quadPts += 2;
+                    }
                 }
                 *isLinear = false;
                 break;
