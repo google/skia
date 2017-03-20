@@ -39,8 +39,7 @@ declare_args() {
   skia_vulkan_sdk = getenv("VULKAN_SDK")
 }
 declare_args() {
-  skia_use_dng_sdk =
-      !is_fuchsia && !is_win && skia_use_libjpeg_turbo && skia_use_zlib
+  skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
 
   if (is_android) {
