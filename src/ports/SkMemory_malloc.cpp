@@ -4,10 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkMemory.h"
 
 #include "SkTypes.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #define SK_DEBUGFAILF(fmt, ...) \
     SkASSERT((SkDebugf(fmt"\n", __VA_ARGS__), false))

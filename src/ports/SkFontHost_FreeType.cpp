@@ -18,6 +18,7 @@
 #include "SkMask.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
+#include "SkMemory.h"
 #include "SkMutex.h"
 #include "SkOTUtils.h"
 #include "SkPath.h"

@@ -7,6 +7,8 @@
 
 
 #include "SkMetaData.h"
+
+#include "SkMemory.h"
 #include "SkRefCnt.h"
 
 struct PtrPair {
