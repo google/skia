@@ -574,6 +574,17 @@ STAGE_CTX(store_f16, uint64_t**) {
     }
 }
 
+STAGE_CTX(load_f32, const SkPM4f**) {
+    auto ptr = *ctx + x;
+
+    const void* src = ptr;
+    SkNx<N, SkPM4f> px;
+    if (tail) {
+        px = load(tail, ptr);
+        src = &px;
+    }
+    SkNf::Load4(src, &r, &g, &b, &a);
+}
 STAGE_CTX(store_f32, SkPM4f**) {
     auto ptr = *ctx + x;
 

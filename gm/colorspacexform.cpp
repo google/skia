@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkColor.h"
+#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 #include "SkRect.h"
 
@@ -35,14 +36,21 @@ protected:
         SkMatrix44 wideGamut(SkMatrix44::kUninitialized_Constructor);
         wideGamut.set3x3RowMajorf(kWideGamutRGB_toXYZD50);
 
+        // Test BGRA input.
         sk_sp<SkColorSpace> srcSpace = SkColorSpace::MakeSRGB();
         sk_sp<SkColorSpace> dstSpace =
                 SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, wideGamut);
         std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(),
                                                                           dstSpace.get());
-
-        xform->apply(SkColorSpaceXform::kRGBA_F32_ColorFormat, fWideGamutColors,
+        xform->apply(SkColorSpaceXform::kRGBA_F32_ColorFormat, fWideGamutColors0,
                      SkColorSpaceXform::kBGRA_8888_ColorFormat, colors, kNumColors,
+                     kOpaque_SkAlphaType);
+
+        // Test F32 input.
+        srcSpace = as_CSB(srcSpace)->makeLinearGamma();
+        xform = SkColorSpaceXform::New(srcSpace.get(), dstSpace.get());
+        xform->apply(SkColorSpaceXform::kRGBA_F32_ColorFormat, fWideGamutColors1,
+                     SkColorSpaceXform::kRGBA_F32_ColorFormat, fSRGBColors, kNumColors,
                      kOpaque_SkAlphaType);
     }
 
@@ -51,7 +59,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(500, 200);
+        return SkISize::Make(500, 300);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -73,14 +81,17 @@ protected:
         // Wide gamut colors should appear darker - we are simulating a more intense display.
         drawColors(fSRGBColors);
         canvas->translate(0.0f, 100.0f);
-        drawColors(fWideGamutColors);
+        drawColors(fWideGamutColors0);
+        canvas->translate(0.0f, 100.0f);
+        drawColors(fWideGamutColors1);
     }
 
 private:
     static constexpr int kNumColors = 10;
 
     SkColor4f fSRGBColors[kNumColors];
-    SkColor4f fWideGamutColors[kNumColors];
+    SkColor4f fWideGamutColors0[kNumColors];
+    SkColor4f fWideGamutColors1[kNumColors];
 
     typedef skiagm::GM INHERITED;
 };
