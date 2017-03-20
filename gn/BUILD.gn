@@ -20,7 +20,7 @@ declare_args() {
     }
   }
 
-  windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+  msvc = 2015
 
   extra_cflags = []
   extra_cflags_c = []
@@ -29,6 +29,13 @@ declare_args() {
 
   cc_wrapper = ""
   malloc = ""
+}
+declare_args() {
+  if (msvc == 2015) {
+    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+  } else {
+    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
+  }
 }
 
 if (host_os == "win") {
@@ -87,11 +94,22 @@ config("default") {
       "NOMINMAX",
     ]
     include_dirs = [
+      #2017
+      "$windk/VC/Tools/MSVC/14.10.25017/include",
+
+      #2015
       "$windk/VC/include",
 
       # For local builds.
-      "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
+      # 2017
+      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/shared",
+      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/ucrt",
+      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/um",
+      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/winrt",
+
+      # 2015
       "$windk/../Windows Kits/8.1/Include/shared",
+      "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
       "$windk/../Windows Kits/8.1/Include/um",
       "$windk/../Windows Kits/8.1/Include/winrt",
 
@@ -103,6 +121,11 @@ config("default") {
     ]
     lib_dirs = [
       # For local builds.
+      # 2017
+      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/ucrt/$target_cpu",
+      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/um/$target_cpu",
+
+      #2015
       "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
       "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
 
@@ -110,6 +133,11 @@ config("default") {
       "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
       "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
     ]
+
+    #2017
+    lib_dirs += [ "$windk/VC/Tools/MSVC/14.10.25017/lib/$target_cpu" ]
+
+    #2015
     if (target_cpu == "x86") {
       lib_dirs += [ "$windk/VC/lib" ]
     } else {
@@ -449,11 +477,21 @@ config("executable") {
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
-  bin = "$windk/VC/bin/amd64"
-  env_setup = ""
-  if (target_cpu == "x86") {
-    bin += "_x86"
-    env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
+  if (msvc == 2015) {
+    bin = "$windk/VC/bin/amd64"
+    env_setup = ""
+    if (target_cpu == "x86") {
+      bin += "_x86"
+      env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
+    }
+  } else {
+    bin = "$windk/VC/Tools/MSVC/14.10.25017/bin/HostX64/$target_cpu"
+    env_setup = ""
+    if (target_cpu == "x86") {
+      print("Be sure to run")
+      print("$windk/VC/Auxiliary/Build/vcvarsall.bat amd64_x86")
+      print("to set up your environment before running ninja.")
+    }
   }
 
   tool("asm") {
