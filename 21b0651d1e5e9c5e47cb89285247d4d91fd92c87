@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29c05076_084f2aad",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-20T14:39:44Z",
+      "side": 1,
+      "message": "This will conflict with https://skia-review.googlesource.com/c/9822/.\n\nOne more below.",
+      "revId": "21b0651d1e5e9c5e47cb89285247d4d91fd92c87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
