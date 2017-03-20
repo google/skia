@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d88f3e2_f07bee0e",
+        "filename": "src/utils/SkInsetConvexPolygon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-20T16:40:43Z",
+      "side": 1,
+      "message": "SkInsetConvexPolygon_DEFINED ?",
+      "revId": "214c24df01fae8bbb0f5dcb87daaec744c894cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "901af3bf_164c12d6",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-20T16:40:43Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "214c24df01fae8bbb0f5dcb87daaec744c894cd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
