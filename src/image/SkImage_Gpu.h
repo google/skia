@@ -29,14 +29,6 @@ public:
     SkImageInfo onImageInfo() const override;
     SkAlphaType onAlphaType() const override { return fAlphaType; }
 
-    void applyBudgetDecision() const {
-        if (SkBudgeted::kYes == fBudgeted) {
-            fProxy->priv().makeBudgeted();
-        } else {
-            fProxy->priv().makeUnbudgeted();
-        }
-    }
-
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                             sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
