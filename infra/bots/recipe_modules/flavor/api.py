@@ -32,7 +32,8 @@ def is_android(builder_cfg):
   return 'Android' in builder_cfg.get('extra_config', '')
 
 def is_chromecast(builder_cfg):
-  return 'Chromecast' in builder_cfg.get('extra_config', '')
+  return ('Chromecast' in builder_cfg.get('extra_config', '') or
+          'Chromecast' in builder_cfg.get('os', ''))
 
 def is_flutter(builder_cfg):
   return 'Flutter' in builder_cfg.get('extra_config', '')
