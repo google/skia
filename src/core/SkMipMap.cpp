@@ -266,24 +266,13 @@ template <typename F> void downsample_3_3(void* dst, const void* src, size_t src
     auto p2 = (const typename F::Type*)((const char*)p1 + srcRB);
     auto d = static_cast<typename F::Type*>(dst);
 
-    auto c02 = F::Expand(p0[0]);
-    auto c12 = F::Expand(p1[0]);
-    auto c22 = F::Expand(p2[0]);
+    auto c_2 = add_121(F::Expand(p0[0]), F::Expand(p1[0]), F::Expand(p2[0]));
     for (int i = 0; i < count; ++i) {
-        auto c00 = c02;
-        auto c01 = F::Expand(p0[1]);
-             c02 = F::Expand(p0[2]);
-        auto c10 = c12;
-        auto c11 = F::Expand(p1[1]);
-             c12 = F::Expand(p1[2]);
-        auto c20 = c22;
-        auto c21 = F::Expand(p2[1]);
-             c22 = F::Expand(p2[2]);
+        auto c_0 = c_2;
+        auto c_1 = shift_left(add_121(F::Expand(p0[1]), F::Expand(p1[1]), F::Expand(p2[1])), 1);
+        auto c_2 = add_121(F::Expand(p0[2]), F::Expand(p1[2]), F::Expand(p2[2]));
 
-        auto c =
-            add_121(c00, c01, c02) +
-            shift_left(add_121(c10, c11, c12), 1) +
-            add_121(c20, c21, c22);
+        auto c = c_0 + c_1 + c_2;
         d[i] = F::Compact(shift_right(c, 4));
         p0 += 2;
         p1 += 2;
@@ -359,6 +348,82 @@ void downsample_2_2_srgb(void* dst, const void* src, size_t srcRB, int count) {
 
     if (count) {
         downsample_2_2<ColorTypeFilter_S32>(d, p0, srcRB, count);
+    }
+}
+
+static inline Sk8h load_8_srgb(const uint8_t* p0, const uint8_t* p1) {
+    return Sk8h(sk_linear12_from_srgb[p0[0]],
+                sk_linear12_from_srgb[p0[1]],
+                sk_linear12_from_srgb[p0[2]],
+                p1[3] << 4                  ,
+                sk_linear12_from_srgb[p1[0]],
+                sk_linear12_from_srgb[p1[1]],
+                sk_linear12_from_srgb[p1[2]],
+                p1[3] << 4                 );
+}
+
+void downsample_3_3_srgb(void* dst, const void* src, size_t srcRB, int count) {
+    const uint8_t* p0 = ((const uint8_t*) src);
+    const uint8_t* p1 = p0 + srcRB;
+    const uint8_t* p2 = p1 + srcRB;
+    uint8_t* d = (uint8_t*) dst;
+
+    // Given pixels:
+    // a0 b0 c0 d0 e0 ...
+    // a1 b1 c1 d1 e1 ...
+    // a2 b2 c2 d2 e2 ...
+    // We want:
+    // (a0 + 2*b0 + c0 + 2*a1 + 4*b1 + 2*c1 + a2 + 2*b2 + c2) / 16
+    // (c0 + 2*d0 + e0 + 2*c1 + 4*d1 + 2*e1 + c2 + 2*d2 + e2) / 16
+    // ...
+
+    SkASSERT(count > 0);
+
+    while (count >= 4) {
+        Sk8h ae0 = load_8_srgb(p0     , p0 + 16)     ;
+        Sk8h ae1 = load_8_srgb(p1     , p1 + 16) << 1;
+        Sk8h ae2 = load_8_srgb(p2     , p2 + 16)     ;
+        Sk8h bf0 = load_8_srgb(p0 +  4, p0 + 20) << 1;
+        Sk8h bf1 = load_8_srgb(p1 +  4, p1 + 20) << 2;
+        Sk8h bf2 = load_8_srgb(p2 +  4, p2 + 20) << 1;
+        Sk8h cg0 = load_8_srgb(p0 +  8, p0 + 24)     ;
+        Sk8h cg1 = load_8_srgb(p1 +  8, p1 + 24) << 1;
+        Sk8h cg2 = load_8_srgb(p2 +  8, p2 + 24)     ;
+        Sk8h dh0 = load_8_srgb(p0 + 12, p0 + 28) << 1;
+        Sk8h dh1 = load_8_srgb(p1 + 12, p1 + 28) << 2;
+        Sk8h dh2 = load_8_srgb(p2 + 12, p2 + 28) << 1;
+        Sk8h ei0 = load_8_srgb(p0 + 16, p0 + 32)     ;
+        Sk8h ei1 = load_8_srgb(p1 + 16, p1 + 32) << 1;
+        Sk8h ei2 = load_8_srgb(p2 + 16, p2 + 32)     ;
+
+        Sk8h avg0 = (ae0 + ae1 + ae2 + bf0 + bf1 + bf2 + cg0 + cg1 + cg2) >> 4;
+        Sk8h avg1 = (cg0 + cg1 + cg2 + dh0 + dh1 + dh2 + ei0 + ei1 + ei2) >> 4;
+        d[ 0] = sk_linear12_to_srgb[avg0[0]];
+        d[ 1] = sk_linear12_to_srgb[avg0[1]];
+        d[ 2] = sk_linear12_to_srgb[avg0[2]];
+        d[ 3] = avg0[3] >> 4;
+        d[ 4] = sk_linear12_to_srgb[avg1[0]];
+        d[ 5] = sk_linear12_to_srgb[avg1[1]];
+        d[ 6] = sk_linear12_to_srgb[avg1[2]];
+        d[ 7] = avg1[3] >> 4;
+        d[ 8] = sk_linear12_to_srgb[avg0[4]];
+        d[ 9] = sk_linear12_to_srgb[avg0[5]];
+        d[10] = sk_linear12_to_srgb[avg0[6]];
+        d[11] = avg0[7] >> 4;
+        d[12] = sk_linear12_to_srgb[avg1[4]];
+        d[13] = sk_linear12_to_srgb[avg1[5]];
+        d[14] = sk_linear12_to_srgb[avg1[6]];
+        d[15] = avg1[7] >> 4;
+
+        p0 += 32;
+        p1 += 32;
+        p2 += 32;
+        d += 16;
+        count -= 4;
+    }
+
+    if (count) {
+        downsample_3_3<ColorTypeFilter_S32>(d, p0, srcRB, count);
     }
 }
 
