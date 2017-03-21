@@ -308,6 +308,17 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                                                  nullptr, scaleAdjust);
 }
 
+sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
+                                                    const SkBitmap& bitmap,
+                                                    const GrSamplerParams& params,
+                                                    SkScalar scaleAdjust[2]) {
+    // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
+    sk_sp<GrTexture> tex(GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr,
+                                                                               nullptr,
+                                                                               scaleAdjust));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvider,
                                               const SkBitmap& bitmap) {
     GrUniqueKey originalKey;
@@ -330,10 +341,6 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
             // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
         }
-    }
-
-    if (!proxy) {
-        return nullptr;
     }
 
     return proxy;
