@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-
+#include "SkJpegUtility.h"
 #include "SkJPEGWriteUtility.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ skjpeg_destination_mgr::skjpeg_destination_mgr(SkWStream* stream)
     this->term_destination = sk_term_destination;
 }
 
-void skjpeg_error_exit(j_common_ptr cinfo) {
+void skjpeg_write_error_exit(j_common_ptr cinfo) {
     skjpeg_error_mgr* error = (skjpeg_error_mgr*)cinfo->err;
 
     (*error->output_message) (cinfo);

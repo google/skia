@@ -20,6 +20,10 @@ extern "C" {
     #include "jerror.h"
 }
 
+const uint32_t kICCMarker = JPEG_APP0 + 2;
+const uint32_t kICCMarkerHeaderSize = 14;
+static const uint8_t kICCSig[] = { 'I', 'C', 'C', '_', 'P', 'R', 'O', 'F', 'I', 'L', 'E', '\0', };
+
 /*
  * Error handling struct
  */

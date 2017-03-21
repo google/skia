@@ -10,6 +10,8 @@
 #ifdef SK_HAS_JPEG_LIBRARY
 
 #include "SkColorPriv.h"
+#include "SkICC.h"
+#include "SkJpegUtility.h"
 #include "SkJPEGWriteUtility.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -112,7 +114,7 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
     SkAutoTMalloc<uint8_t>  storage;
 
     cinfo.err = jpeg_std_error(&sk_err);
-    sk_err.error_exit = skjpeg_error_exit;
+    sk_err.error_exit = skjpeg_write_error_exit;
     if (setjmp(sk_err.fJmpBuf)) {
         return false;
     }
@@ -140,6 +142,30 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
     jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
 
     jpeg_start_compress(&cinfo, TRUE);
+
+    if (pixmap.colorSpace()) {
+        SkColorSpaceTransferFn fn;
+        SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+        if (pixmap.colorSpace()->isNumericalTransferFn(&fn) &&
+            pixmap.colorSpace()->toXYZD50(&toXYZD50))
+        {
+            sk_sp<SkData> icc = SkICC::WriteToICC(fn, toXYZD50);
+
+            // Create a contiguous block of memory with the icc signature followed by the profile.
+            sk_sp<SkData> markerData =
+                    SkData::MakeUninitialized(kICCMarkerHeaderSize + icc->size());
+            uint8_t* ptr = (uint8_t*) markerData->writable_data();
+            memcpy(ptr, kICCSig, sizeof(kICCSig));
+            ptr += sizeof(kICCSig);
+            *ptr++ = 1; // This is the first marker.
+            *ptr++ = 1; // Out of one total markers.
+            memcpy(ptr, icc->data(), icc->size());
+
+            jpeg_write_marker(&cinfo, kICCMarker, markerData->bytes(), markerData->size());
+        }
+
+        // TODO: Should we support writing ICC profiles for additional color spaces?
+    }
 
     if (proc) {
         storage.reset(numComponents * pixmap.width());
