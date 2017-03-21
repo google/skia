@@ -120,7 +120,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
         REPORTER_ASSERT(reporter, tightImg->width() == subset.width());
         REPORTER_ASSERT(reporter, tightImg->height() == subset.height());
-        REPORTER_ASSERT(reporter, isGPUBacked == !!tightImg->isTextureBacked());
+        REPORTER_ASSERT(reporter, isGPUBacked == tightImg->isTextureBacked());
         SkPixmap tmpPixmap;
         REPORTER_ASSERT(reporter, isGPUBacked != !!tightImg->peekPixels(&tmpPixmap));
     }
