@@ -301,15 +301,6 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
                                                            mipLevelCount, 0, colorMode);
 }
 
-sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImageInfo& info,
-                                                   const GrMipLevel* texels,
-                                                   int mipLevelCount,
-                                                   SkDestinationSurfaceColorMode colorMode) {
-    sk_sp<GrTexture> tex(GrUploadMipMapToTexture(ctx, info, texels, mipLevelCount, colorMode));
-
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
-}
-
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrSamplerParams& params, SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)

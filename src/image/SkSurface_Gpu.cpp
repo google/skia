@@ -8,15 +8,14 @@
 #include "SkSurface_Gpu.h"
 
 #include "GrContextPriv.h"
-#include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
-
 #include "SkCanvas.h"
 #include "SkColorSpace_Base.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
 #include "SkImagePriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -24,7 +23,6 @@
 SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(std::move(device)) {
-    SkASSERT(fDevice->accessRenderTargetContext()->asSurfaceProxy()->priv().isExact());
 }
 
 SkSurface_Gpu::~SkSurface_Gpu() {
@@ -93,45 +91,38 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
 
     GrContext* ctx = fDevice->context();
 
-    if (!rtc->asSurfaceProxy()) {
-        return nullptr;
-    }
-
-    SkBudgeted budgeted = rtc->asSurfaceProxy()->isBudgeted();
-
-    sk_sp<GrTextureProxy> srcProxy = rtc->asTextureProxyRef();
+    GrSurfaceProxy* srcProxy = rtc->asSurfaceProxy();
+    sk_sp<GrSurfaceContext> copyCtx;
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
     if (!srcProxy || rtc->priv().refsWrappedObjects()) {
-        // MDB TODO: replace this with GrSurfaceProxy::Copy?
         GrSurfaceDesc desc = rtc->desc();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
 
-        sk_sp<GrSurfaceContext> copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(
-                                                                desc,
+        copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(desc,
                                                                 SkBackingFit::kExact,
-                                                                budgeted);
+                                                                srcProxy->isBudgeted());
         if (!copyCtx) {
             return nullptr;
         }
 
-        if (!copyCtx->copy(rtc->asSurfaceProxy())) {
+        if (!copyCtx->copy(srcProxy)) {
             return nullptr;
         }
 
-        srcProxy = copyCtx->asTextureProxyRef();
+        srcProxy = copyCtx->asSurfaceProxy();
     }
+
+    // TODO: add proxy-backed SkImage_Gpu
+    GrTexture* tex = srcProxy->instantiate(ctx->resourceProvider())->asTexture();
 
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
-    if (srcProxy) {
-        // The renderTargetContext coming out of SkGpuDevice should always be exact and the
-        // above copy creates a kExact surfaceContext.
-        SkASSERT(srcProxy->priv().isExact());
-        image = sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
-                                        info.alphaType(), std::move(srcProxy),
-                                        info.refColorSpace(), budgeted);
+    if (tex) {
+        image = sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID,
+                                        info.alphaType(), sk_ref_sp(tex),
+                                        sk_ref_sp(info.colorSpace()), srcProxy->isBudgeted());
     }
     return image;
 }

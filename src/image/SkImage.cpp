@@ -169,14 +169,25 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
 #if SK_SUPPORT_GPU
 
 GrTexture* SkImage::getTexture() const {
-    return as_IB(this)->onGetTexture();
+    return as_IB(this)->peekTexture();
 }
 
-bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekProxy()); }
+bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekTexture()); }
 
 GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
                                           GrSurfaceOrigin* origin) const {
-    return as_IB(this)->onGetTextureHandle(flushPendingGrContextIO, origin);
+    GrTexture* texture = as_IB(this)->peekTexture();
+    if (texture) {
+        GrContext* context = texture->getContext();
+        if (context && flushPendingGrContextIO) {
+            context->prepareSurfaceForExternalIO(texture);
+        }
+        if (origin) {
+            *origin = texture->origin();
+        }
+        return texture->getTextureHandle();
+    }
+    return 0;
 }
 
 #else
