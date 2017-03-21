@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b0c6747_33f6be49",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-21T13:59:01Z",
+      "side": 1,
+      "message": "nit: since writable_data asserts that ref-count is 1, it seems a little dicey to use sk_sp here, since the copy constructor would inc the ref-count. Maybe accept the same args as SkICC::WriteToICC instead?",
+      "range": {
+        "startLine": 42,
+        "startChar": 61,
+        "endLine": 42,
+        "endChar": 78
+      },
+      "revId": "85dd89427d5c8ffbda20e2d9285e0ada871dd1a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
