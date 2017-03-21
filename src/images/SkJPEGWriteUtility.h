@@ -18,15 +18,7 @@ extern "C" {
 
 #include <setjmp.h>
 
-/* Our error-handling struct.
- *
-*/
-struct skjpeg_error_mgr : jpeg_error_mgr {
-    jmp_buf fJmpBuf;
-};
-
-
-void skjpeg_error_exit(j_common_ptr cinfo);
+void skjpeg_write_error_exit(j_common_ptr cinfo);
 
 /////////////////////////////////////////////////////////////////////////////
 /* Our destination struct for directing decompressed pixels to our stream
