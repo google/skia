@@ -648,7 +648,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawTextRSXform(text.text(), text.length(), xform, cull, *paint);
             }
         } break;
-        case DRAW_VERTICES: {
+        case DRAW_VERTICES_RETIRED_03_2017: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             DrawVertexFlags flags = (DrawVertexFlags)reader->readInt();
             SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader->readInt();
