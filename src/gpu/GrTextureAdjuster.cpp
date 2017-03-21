@@ -110,8 +110,8 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& par
         copyParams.fWidth = contentArea->width();
         copyParams.fHeight = contentArea->height();
         copyParams.fFilter = GrSamplerParams::kBilerp_FilterMode;
-    } else if (!fContext->getGpu()->makeCopyForTextureParams(texture, params, &copyParams,
-                                                             scaleAdjust)) {
+    } else if (!fContext->getGpu()->isACopyNeededForTextureParams(texture, params, &copyParams,
+                                                                  scaleAdjust)) {
         if (outOffset) {
             if (contentArea) {
                 outOffset->set(contentArea->fLeft, contentArea->fRight);

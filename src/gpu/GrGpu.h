@@ -473,21 +473,22 @@ public:
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerParams. This variation is called when the caller will create a new texture using the
     // resource provider from a non-texture src (cpu-backed image, ...).
-    bool makeCopyForTextureParams(int width, int height, const GrSamplerParams&,
-                                 GrTextureProducer::CopyParams*, SkScalar scaleAdjust[2]) const;
+    bool isACopyNeededForTextureParams(int width, int height, const GrSamplerParams&,
+                                       GrTextureProducer::CopyParams*,
+                                       SkScalar scaleAdjust[2]) const;
 
     // Like the above but this variation should be called when the caller is not creating the
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
     // GrResourceProvider::wrap methods.
-    bool makeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& params,
-                                  GrTextureProducer::CopyParams* copyParams,
-                                  SkScalar scaleAdjust[2]) const {
-        if (this->makeCopyForTextureParams(texture->width(), texture->height(), params,
-                                           copyParams, scaleAdjust)) {
+    bool isACopyNeededForTextureParams(GrTexture* texture, const GrSamplerParams& params,
+                                       GrTextureProducer::CopyParams* copyParams,
+                                       SkScalar scaleAdjust[2]) const {
+        if (this->isACopyNeededForTextureParams(texture->width(), texture->height(), params,
+                                                copyParams, scaleAdjust)) {
             return true;
         }
-        return this->onMakeCopyForTextureParams(texture, params, copyParams, scaleAdjust);
+        return this->onIsACopyNeededForTextureParams(texture, params, copyParams, scaleAdjust);
     }
 
     // This is only to be used in GL-specific tests.
@@ -549,9 +550,11 @@ private:
 
     virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
 
-    virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams&,
-                                            GrTextureProducer::CopyParams*,
-                                            SkScalar scaleAdjust[2]) const { return false; }
+    virtual bool onIsACopyNeededForTextureParams(GrTexture* texture, const GrSamplerParams&,
+                                                 GrTextureProducer::CopyParams*,
+                                                 SkScalar scaleAdjust[2]) const {
+        return false;
+    }
 
     virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight,
                                      size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,

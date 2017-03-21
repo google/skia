@@ -4421,9 +4421,10 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
-bool GrGLGpu::onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& textureParams,
-                                         GrTextureProducer::CopyParams* copyParams,
-                                         SkScalar scaleAdjust[2]) const {
+bool GrGLGpu::onIsACopyNeededForTextureParams(GrTexture* texture,
+                                              const GrSamplerParams& textureParams,
+                                              GrTextureProducer::CopyParams* copyParams,
+                                              SkScalar scaleAdjust[2]) const {
     if (textureParams.isTiled() ||
         GrSamplerParams::kMipMap_FilterMode == textureParams.filterMode()) {
         GrGLTexture* glTexture = static_cast<GrGLTexture*>(texture);
