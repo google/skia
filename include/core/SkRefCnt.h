@@ -133,12 +133,7 @@ class SK_API SkRefCnt : public SkRefCntBase {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Helper macro to safely assign one SkRefCnt[TS]* to another, checking for
-    null in on each side of the assignment, and ensuring that ref() is called
-    before unref(), in case the two pointers point to the same object.
- */
-
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || defined(SK_DEBUG)
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 // This version heuristically detects data races, since those otherwise result
 // in redundant reference count decrements, which are exceedingly
 // difficult to debug.
@@ -151,14 +146,17 @@ class SK_API SkRefCnt : public SkRefCntBase {
         if (src) src->ref();            \
         if (old_dst) old_dst->unref();          \
         if (old_dst != *const_cast<SkRefCntPtrT volatile *>(&dst)) { \
-            SkDebugf("Detected racing Skia calls at %s:%d\n", \
-                    __FILE__, __LINE__); \
+            SK_ABORT("Detected racing Skia calls"); \
         } \
         dst = src;                      \
     } while (0)
 
-#else /* !(SK_BUILD_FOR_ANDROID_FRAMEWORK || SK_DEBUG) */
+#else /* !(SK_BUILD_FOR_ANDROID_FRAMEWORK) */
 
+/** Helper macro to safely assign one SkRefCnt[TS]* to another, checking for
+    null in on each side of the assignment, and ensuring that ref() is called
+    before unref(), in case the two pointers point to the same object.
+ */
 #define SkRefCnt_SafeAssign(dst, src)   \
     do {                                \
         if (src) src->ref();            \
@@ -291,12 +289,14 @@ public:
      *  object.
      */
     sk_sp<T>& operator=(const sk_sp<T>& that) {
-        this->reset(SkSafeRef(that.get()));
+        T* old = race_check_get();  // Try to do this before SkSafeRef().
+        this->reset(SkSafeRef(that.get()), old);
         return *this;
     }
     template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
     sk_sp<T>& operator=(const sk_sp<U>& that) {
-        this->reset(SkSafeRef(that.get()));
+        T* old = race_check_get();
+        this->reset(SkSafeRef(that.get()), old);
         return *this;
     }
 
@@ -306,12 +306,12 @@ public:
      *  will be made.
      */
     sk_sp<T>& operator=(sk_sp<T>&& that) {
-        this->reset(that.release());
+        this->reset(that.release(), race_check_get());
         return *this;
     }
     template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>
     sk_sp<T>& operator=(sk_sp<U>&& that) {
-        this->reset(that.release());
+        this->reset(that.release(), race_check_get());
         return *this;
     }
 
@@ -335,12 +335,7 @@ public:
      *  No call to ref() will be made.
      */
     void reset(T* ptr = nullptr) {
-        // Calling fPtr->unref() may call this->~() or this->reset(T*).
-        // http://wg21.cmeerw.net/lwg/issue998
-        // http://wg21.cmeerw.net/lwg/issue2262
-        T* oldPtr = fPtr;
-        fPtr = ptr;
-        SkSafeUnref(oldPtr);
+        reset(ptr, race_check_get());
     }
 
     /**
@@ -360,7 +355,37 @@ public:
     }
 
 private:
-    T*  fPtr;
+    T* fPtr;
+
+    /**
+     * The same as get(), but if we're checking for races, discourage the compiler from
+     * optimizing away the load.
+     */
+    T* race_check_get() const {
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+        return *const_cast<T* volatile *>(&fPtr);
+#else
+        return fPtr;
+#endif
+    }
+
+    /**
+     * Perform reset(ptr) and additionally check that race_check_get() is still
+     * equal to the value passed in. This allows us to detect racing reference
+     * count operations with reasonable probability.
+     */
+    void reset(T* ptr, T* old_ptr) {
+        // Calling fPtr->unref() may call this->~() or this->reset(T*).
+        // http://wg21.cmeerw.net/lwg/issue998
+        // http://wg21.cmeerw.net/lwg/issue2262
+        SkSafeUnref(old_ptr);
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+        if (old_ptr != race_check_get()) {
+            SK_ABORT("Detected racing Skia calls");
+        }
+#endif
+        fPtr = ptr;
+    }
 };
 
 template <typename T> inline void swap(sk_sp<T>& a, sk_sp<T>& b) /*noexcept*/ {
