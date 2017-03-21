@@ -33,11 +33,12 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
     VkImageLayout currentLayout = this->currentLayout();
 
-    // If the old and new layout are the same, there is no reason to put in a barrier since the
-    // operations used for each layout are implicitly synchronized with eachother. The one exception
-    // is if the layout is GENERAL. In this case the image could have been used for any operation so
-    // we must respect the barrier.
-    if (newLayout == currentLayout && VK_IMAGE_LAYOUT_GENERAL != currentLayout) {
+    // If the old and new layout are the same and the layout is a read only layout, there is no need
+    // to put in a barrier.
+    if (newLayout == currentLayout &&
+        (VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == currentLayout ||
+         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == currentLayout ||
+         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == currentLayout)) {
         return;
     }
 
