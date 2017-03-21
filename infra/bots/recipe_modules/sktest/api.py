@@ -568,8 +568,7 @@ def test_steps(api):
     args.append(skip_flag)
   args.extend(dm_flags(api.vars.builder_name))
 
-  env = {}
-  env.update(api.vars.default_env)
+  env = api.step.get_from_context('env', {})
   if 'Ubuntu16' in api.vars.builder_name:
     # The vulkan in this asset name simply means that the graphics driver
     # supports Vulkan. It is also the driver used for GL code.
@@ -611,11 +610,13 @@ def test_steps(api):
 class TestApi(recipe_api.RecipeApi):
   def run(self):
     self.m.core.setup()
+    env = self.m.step.get_from_context('env', {})
     if 'iOS' in self.m.vars.builder_name:
-      self.m.vars.default_env['IOS_BUNDLE_ID'] = 'com.google.dm'
-    try:
-      self.m.flavor.install_everything()
-      test_steps(self.m)
-    finally:
-      self.m.flavor.cleanup_steps()
-    self.m.run.check_failure()
+      env['IOS_BUNDLE_ID'] = 'com.google.dm'
+    with self.m.step.context({'env': env}):
+      try:
+        self.m.flavor.install_everything()
+        test_steps(self.m)
+      finally:
+        self.m.flavor.cleanup_steps()
+      self.m.run.check_failure()

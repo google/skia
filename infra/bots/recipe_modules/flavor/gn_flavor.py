@@ -124,13 +124,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     ninja = 'ninja.exe' if 'Win' in os else 'ninja'
     gn = self.m.vars.skia_dir.join('bin', gn)
 
-    env = self.m.step.get_from_context('env', {})
-    env.update(self.m.vars.default_env)
-    env['PATH'] = self.m.path.pathsep.join([
-        env.get('PATH', '%(PATH)s'),
-        str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
-    ])
-    with self.m.step.context({'cwd': self.m.vars.skia_dir, 'env': env}):
+    with self.m.step.context({'cwd': self.m.vars.skia_dir}):
       self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
       self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
       self._run('ninja', [ninja, '-C', self.out_dir])
@@ -149,14 +143,14 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
   def step(self, name, cmd):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     cmd = [app] + cmd[1:]
-    env = self.m.step.get_from_context('env') or {}
+    env = self.m.step.get_from_context('env', {})
 
     clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
 
     if 'SAN' in extra_config:
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
-      self.m.vars.default_env['PATH'] = '%%(PATH)s:%s' % clang_linux + '/bin'
+      env['PATH'] = '%%(PATH)s:%s' % clang_linux + '/bin'
     elif 'Ubuntu' == self.m.vars.builder_cfg.get('os', ''):
       cmd = ['catchsegv'] + cmd
 
