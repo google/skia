@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa7ec0a8_5e3063df",
+        "filename": "tests/skbug6389.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-21T23:14:28Z",
+      "side": 1,
+      "message": "Can you documet in the test how/why this test is exercising anything? What the expected result should be?\n\nWould it not be enough to just REPORTER_ASSERT that SkImageSource returned nullptr?",
+      "range": {
+        "startLine": 16,
+        "startChar": 13,
+        "endLine": 16,
+        "endChar": 22
+      },
+      "revId": "27ecd86b61e6650e9921712e803fb965c7276618",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
