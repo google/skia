@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "365868e0_4443f002",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-21T00:06:39Z",
+      "side": 1,
+      "message": "Do we perhaps need to scope tmp to be alive while using src?",
+      "revId": "480951f618822433874ae45c1ac084419bb79f9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
