@@ -29,8 +29,8 @@ public:
     SkAlphaType onAlphaType() const override { return fAlphaType; }
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
+    sk_sp<GrTextureProxy> asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+                                       sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     GrTextureProxy* peekProxy() const override {
@@ -46,9 +46,9 @@ public:
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
 
-    sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
+    sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
-        return sk_ref_sp(this->peekTexture());
+        return fProxy;
     }
     GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
                                        GrSurfaceOrigin* origin) const override;
