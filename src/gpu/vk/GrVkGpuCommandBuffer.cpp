@@ -400,7 +400,12 @@ void GrVkGpuCommandBuffer::addAdditionalCommandBuffer() {
     cbInfo.fCommandBuffer->begin(fGpu, fRenderTarget->framebuffer(), cbInfo.fRenderPass);
 }
 
-void GrVkGpuCommandBuffer::inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) {
+void GrVkGpuCommandBuffer::inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
+                                        GrRenderTarget* rt) {
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
+    if (!fRenderTarget) {
+        this->init(target);
+    }
     if (!fCommandBufferInfos[fCurrentCmdBuffer].fIsEmpty) {
         this->addAdditionalCommandBuffer();
     }
