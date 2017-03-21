@@ -27,7 +27,7 @@ sk_sp<SkImageFilter> SkImageSource::Make(sk_sp<SkImage> image,
                                          const SkRect& srcRect,
                                          const SkRect& dstRect,
                                          SkFilterQuality filterQuality) {
-    if (!image) {
+    if (!image || srcRect.width() <= 0.0f || srcRect.height() <= 0.0f) {
         return nullptr;
     }
 
