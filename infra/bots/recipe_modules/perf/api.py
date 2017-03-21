@@ -53,6 +53,11 @@ def nanobench_flags(bot):
       gl_prefix + 'nvpr' + sample_count,
       gl_prefix + 'nvprdit' + sample_count])
 
+  # We want to test both the OpenGL config and the GLES config on Linux Intel:
+  # GL is used by Chrome, GLES is used by ChromeOS.
+  if 'Intel' in bot and 'Ubuntu' in bot:
+    config.extend(['gles', 'glesmsaa4'])
+
   # Bench instanced rendering on a limited number of platforms
   inst_config = gl_prefix + 'inst'
   if 'Nexus6' in bot:
