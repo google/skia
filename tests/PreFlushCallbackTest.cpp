@@ -526,7 +526,7 @@ static void test_color(skiatest::Reporter* reporter, const SkBitmap& bm, int x, 
  * Note: until MDB lands, the atlas will actually have width= 9*kAtlasTileSize and look like:
  *           R G B C M Y K Grey White
  */
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PreFlushCallbackTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(PreFlushCallbackTest, reporter, ctxInfo) {
     static const int kNumProxies = 3;
 
     GrContext* context = ctxInfo.grContext();
