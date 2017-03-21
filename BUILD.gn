@@ -955,6 +955,8 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":skia",
+    ]
+    public_deps = [
       ":tool_utils",
     ]
   }
@@ -1146,6 +1148,16 @@ if (skia_enable_tools) {
       ":tool_utils",
       "//third_party/jsoncpp",
       "//third_party/libpng",
+    ]
+  }
+
+  test_app("ok") {
+    sources = [
+      "tools/ok.cpp",
+    ]
+    deps = [
+      ":gm",
+      ":skia",
     ]
   }
 
