@@ -22,6 +22,30 @@
       "revId": "2ae3135bd5ff3be5602ddf4c5ee6b341ab416020",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "203a8a22_bc4a923a",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-21T14:02:13Z",
+      "side": 1,
+      "message": "Yes, forgot about SkTLazy.  Cool!",
+      "parentUuid": "1547d66e_f6d9ddb2",
+      "range": {
+        "startLine": 383,
+        "startChar": 4,
+        "endLine": 383,
+        "endChar": 26
+      },
+      "revId": "2ae3135bd5ff3be5602ddf4c5ee6b341ab416020",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
