@@ -1150,6 +1150,18 @@ if (skia_enable_tools) {
     ]
   }
 
+  if (is_mac) {
+    test_app("ok") {
+      sources = [
+        "tools/ok.cpp",
+      ]
+      deps = [
+        ":gm",
+        ":skia",
+      ]
+    }
+  }
+
   if (!is_debug) {  # I've benchmarked debug code once too many times...
     test_app("monobench") {
       sources = [
