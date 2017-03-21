@@ -242,10 +242,23 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 	}
 
+	// TODO(stephana): Remove this once all Mac machines are on the same
+	// OS version again. Move the call to swarmDimensions back to the
+	// creation of the TaskSpec struct below.
+	dimensions := swarmDimensions(parts)
+	if strings.Contains(name, "Mac") {
+		for idx, dim := range dimensions {
+			if strings.HasPrefix(dim, "os") {
+				dimensions[idx] = "os:Mac-10.12"
+				break
+			}
+		}
+	}
+
 	// Add the task.
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: pkgs,
-		Dimensions:   swarmDimensions(parts),
+		Dimensions:   dimensions,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "swarm_compile",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
