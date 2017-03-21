@@ -14,6 +14,7 @@
 #include "SkImagePriv.h"
 #include "SkPixelRef.h"
 #include "SkSurface.h"
+#include "SkTLazy.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -380,10 +381,11 @@ sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) cons
     dst.allocPixels(dstInfo);
 
     SkPixmap src;
+    SkTLazy<SkBitmap> tmp;
     if (!fBitmap.peekPixels(&src)) {
-        SkBitmap tmp(fBitmap);
-        tmp.lockPixels();
-        SkAssertResult(tmp.peekPixels(&src));
+        tmp.init(fBitmap);
+        tmp.get()->lockPixels();
+        SkAssertResult(tmp.get()->peekPixels(&src));
     }
 
     // Treat nullptr srcs as sRGB.
