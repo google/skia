@@ -57,6 +57,11 @@ public:
                         tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str());
 
                     break;
+                case GrConfigConversionEffect::kMulByAlpha_PMConversion:
+                    fragBuilder->codeAppendf(
+                        "%s = vec4(%s.rgb * %s.a, %s.a);",
+                        tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str());
+                    break;
                 case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
                     fragBuilder->codeAppendf(
                         "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(%s.rgb / %s.a * 255.0) / 255.0, %s.a);",
@@ -66,6 +71,13 @@ public:
                 case GrConfigConversionEffect::kDivByAlpha_RoundDown_PMConversion:
                     fragBuilder->codeAppendf(
                         "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.rgb / %s.a * 255.0) / 255.0, %s.a);",
+                        tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(),
+                        tmpVar.c_str());
+                    break;
+                case GrConfigConversionEffect::kDivByAlpha_PMConversion:
+                    // TODO: Do we need a clamp [0,1] here?
+                    fragBuilder->codeAppendf(
+                        "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(%s.rgb / %s.a, %s.a);",
                         tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(),
                         tmpVar.c_str());
                     break;
@@ -93,6 +105,25 @@ private:
 
 };
 
+static bool valid_conversion(GrPixelConfig config, const GrSwizzle& swizzle,
+                             GrConfigConversionEffect::PMConversion pmConversion) {
+    switch (pmConversion) {
+        case GrConfigConversionEffect::kNone_PMConversion:
+            return swizzle != GrSwizzle::RGBA();
+        case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
+        case GrConfigConversionEffect::kMulByAlpha_RoundDown_PMConversion:
+        case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
+        case GrConfigConversionEffect::kDivByAlpha_RoundDown_PMConversion:
+            return kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config;
+        case GrConfigConversionEffect::kMulByAlpha_PMConversion:
+        case GrConfigConversionEffect::kDivByAlpha_PMConversion:
+            return kRGBA_half_GrPixelConfig == config;
+        default:
+            SkFAIL("Unknown conversion op.");
+            return false;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
                                                    const GrSwizzle& swizzle,
@@ -102,18 +133,12 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
         , fSwizzle(swizzle)
         , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
-    // We expect to get here with non-BGRA/RGBA only if we're doing not doing a premul/unpremul
-    // conversion.
-    SkASSERT((kRGBA_8888_GrPixelConfig == texture->config() ||
-              kBGRA_8888_GrPixelConfig == texture->config()) ||
-              kNone_PMConversion == pmConversion);
-    // Why did we pollute our texture cache instead of using a GrSingleTextureEffect?
-    SkASSERT(swizzle != GrSwizzle::RGBA() || kNone_PMConversion != pmConversion);
+    // Our different modes are only valid for certain configs
+    SkASSERT(valid_conversion(texture->config(), swizzle, pmConversion));
 }
 
 GrConfigConversionEffect::GrConfigConversionEffect(GrResourceProvider* resourceProvider,
-                                                   sk_sp<GrTextureProxy>
-                                                           proxy,
+                                                   sk_sp<GrTextureProxy> proxy,
                                                    const GrSwizzle& swizzle,
                                                    PMConversion pmConversion,
                                                    const SkMatrix& matrix)
@@ -121,13 +146,8 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrResourceProvider* resourceP
         , fSwizzle(swizzle)
         , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
-    // We expect to get here with non-BGRA/RGBA only if we're doing not doing a premul/unpremul
-    // conversion.
-    SkASSERT((kRGBA_8888_GrPixelConfig == proxy->config() ||
-              kBGRA_8888_GrPixelConfig == proxy->config()) ||
-              kNone_PMConversion == pmConversion);
-    // Why did we pollute our texture cache instead of using a GrSingleTextureEffect?
-    SkASSERT(swizzle != GrSwizzle::RGBA() || kNone_PMConversion != pmConversion);
+    // Our different modes are only valid for certain configs
+    SkASSERT(valid_conversion(proxy->config(), swizzle, pmConversion));
 }
 
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -148,7 +168,10 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
-    PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
+    // TODO: TestData only supplies 8888 textures, so we can't test the F16 mode
+    PMConversion pmConv = static_cast<PMConversion>(
+            d->fRandom->nextULessThan(kMulByAlpha_PMConversion));
+
     GrSwizzle swizzle;
     do {
         swizzle = GrSwizzle::CreateRandom(d->fRandom);
@@ -310,10 +333,7 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrTexture* texture,
         // conversions were requested we instead return a GrSimpleTextureEffect.
         return GrSimpleTextureEffect::Make(texture, nullptr, matrix);
     } else {
-        if (kRGBA_8888_GrPixelConfig != texture->config() &&
-            kBGRA_8888_GrPixelConfig != texture->config() &&
-            kNone_PMConversion != pmConversion) {
-            // The PM conversions assume colors are 0..255
+        if (!valid_conversion(texture->config(), swizzle, pmConversion)) {
             return nullptr;
         }
         return sk_sp<GrFragmentProcessor>(
@@ -332,10 +352,7 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrResourceProvider* re
         // conversions were requested we instead return a GrSimpleTextureEffect.
         return GrSimpleTextureEffect::Make(resourceProvider, std::move(proxy), nullptr, matrix);
     } else {
-        if (kRGBA_8888_GrPixelConfig != proxy->config() &&
-            kBGRA_8888_GrPixelConfig != proxy->config() &&
-            kNone_PMConversion != pmConversion) {
-            // The PM conversions assume colors are 0..255
+        if (!valid_conversion(proxy->config(), swizzle, pmConversion)) {
             return nullptr;
         }
         return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(resourceProvider,

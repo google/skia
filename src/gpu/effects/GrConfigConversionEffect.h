@@ -25,10 +25,16 @@ public:
      */
     enum PMConversion {
         kNone_PMConversion = 0,
+
+        // Rounding conversions for 8-bit textures
         kMulByAlpha_RoundUp_PMConversion,
         kMulByAlpha_RoundDown_PMConversion,
         kDivByAlpha_RoundUp_PMConversion,
         kDivByAlpha_RoundDown_PMConversion,
+
+        // Non-rounding conversions that are only used for floating point (FP16) textures
+        kMulByAlpha_PMConversion,
+        kDivByAlpha_PMConversion,
 
         kPMConversionCnt
     };
