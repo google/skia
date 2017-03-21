@@ -53,6 +53,11 @@ def nanobench_flags(bot):
       gl_prefix + 'nvpr' + sample_count,
       gl_prefix + 'nvprdit' + sample_count])
 
+  # We want to test both the OpenGL config and the GLES config on Linux Intel:
+  # GL is used by Chrome, GLES is used by ChromeOS.
+  if 'Intel' in bot and 'Ubuntu' in bot:
+    config.extend(['gles', 'glesmsaa4'])
+
   # Bench instanced rendering on a limited number of platforms
   inst_config = gl_prefix + 'inst'
   if 'Nexus6' in bot:
@@ -100,6 +105,8 @@ def nanobench_flags(bot):
     match.append('~GLInstancedArraysBench') # skia:4714
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~tile_image_filter_tiled_64')  # skia:6082
+  if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
+    match.append('~native_image_to_raster_surface')  # skia:6401
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~hardstop') # skia:6037
 
