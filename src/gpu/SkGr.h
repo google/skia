@@ -236,11 +236,6 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider*,
 GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
                                    int mipLevelCount, SkDestinationSurfaceColorMode colorMode);
 
-sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext*, const SkImageInfo&,
-                                                   const GrMipLevel* texels,
-                                                   int mipLevelCount,
-                                                   SkDestinationSurfaceColorMode colorMode);
-
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
                                            const GrSamplerParams&, SkScalar scaleAdjust[2]);
 

@@ -47,20 +47,13 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
-    // MDB TODO: this entry point needs to go away
     virtual GrTexture* peekTexture() const { return nullptr; }
 #if SK_SUPPORT_GPU
-    virtual GrTextureProxy* peekProxy() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&,
                                                     SkColorSpace*, sk_sp<SkColorSpace>*,
                                                     SkScalar scaleAdjust[2]) const = 0;
     virtual sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
-    virtual GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
-                                               GrSurfaceOrigin* origin) const {
-        return 0;
-    }
-    virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif
     virtual SkImageCacherator* peekCacherator() const { return nullptr; }
 
