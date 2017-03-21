@@ -1041,14 +1041,16 @@ private:
 
 class GrImprovedPerlinNoiseEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(int octaves, SkScalar z,
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                           int octaves, SkScalar z,
                                            SkPerlinNoiseShader2::PaintingData* paintingData,
-                                           GrTexture* permutationsTexture,
-                                           GrTexture* gradientTexture,
+                                           sk_sp<GrTextureProxy> permutationsProxy,
+                                           sk_sp<GrTextureProxy> gradientProxy,
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
-            new GrImprovedPerlinNoiseEffect(octaves, z, paintingData, permutationsTexture,
-                                            gradientTexture, matrix));
+            new GrImprovedPerlinNoiseEffect(resourceProvider, octaves, z, paintingData,
+                                            std::move(permutationsProxy),
+                                            std::move(gradientProxy), matrix));
     }
 
     virtual ~GrImprovedPerlinNoiseEffect() { delete fPaintingData; }
@@ -1075,15 +1077,17 @@ private:
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency;
     }
 
-    GrImprovedPerlinNoiseEffect(int octaves, SkScalar z,
+    GrImprovedPerlinNoiseEffect(GrResourceProvider* resourceProvider,
+                                int octaves, SkScalar z,
                                 SkPerlinNoiseShader2::PaintingData* paintingData,
-                                GrTexture* permutationsTexture, GrTexture* gradientTexture,
+                                sk_sp<GrTextureProxy> permutationsProxy,
+                                sk_sp<GrTextureProxy> gradientProxy,
                                 const SkMatrix& matrix)
             : INHERITED(kNone_OptimizationFlags)
             , fOctaves(octaves)
             , fZ(z)
-            , fPermutationsSampler(permutationsTexture)
-            , fGradientSampler(gradientTexture)
+            , fPermutationsSampler(resourceProvider, std::move(permutationsProxy))
+            , fGradientSampler(resourceProvider, std::move(gradientProxy))
             , fPaintingData(paintingData) {
         this->initClassID<GrImprovedPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
@@ -1311,15 +1315,18 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
     if (fType == kImprovedNoise_Type) {
         GrSamplerParams textureParams(SkShader::TileMode::kRepeat_TileMode,
                                       GrSamplerParams::FilterMode::kNone_FilterMode);
-        sk_sp<GrTexture> permutationsTexture(
-            GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
-                                     textureParams, nullptr));
-        sk_sp<GrTexture> gradientTexture(
-            GrRefCachedBitmapTexture(args.fContext, paintingData->getGradientBitmap(),
-                                     textureParams, nullptr));
-        return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, paintingData,
-                                                 permutationsTexture.get(),
-                                                 gradientTexture.get(), m);
+        sk_sp<GrTextureProxy> permutationsTexture(
+            GrRefCachedBitmapTextureProxy(args.fContext,
+                                          paintingData->getImprovedPermutationsBitmap(),
+                                          textureParams, nullptr));
+        sk_sp<GrTextureProxy> gradientTexture(
+            GrRefCachedBitmapTextureProxy(args.fContext,
+                                          paintingData->getGradientBitmap(),
+                                          textureParams, nullptr));
+        return GrImprovedPerlinNoiseEffect::Make(args.fContext->resourceProvider(),
+                                                 fNumOctaves, fSeed, paintingData,
+                                                 std::move(permutationsTexture),
+                                                 std::move(gradientTexture), m);
     }
 
     if (0 == fNumOctaves) {
