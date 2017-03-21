@@ -110,10 +110,11 @@ iOS
 ---
 
 Run GN to generate your build files.  Set `target_os="ios"` to build for iOS.
-This defaults to `target_cpu="arm64"`.
+This defaults to `target_cpu="arm64"`.  Choosing `x64` targets the iOS simulator.
 
-    bin/gn gen out/ios64 --args='target_os="ios"'
-    bin/gn gen out/ios32 --args='target_os="ios" target_cpu="arm"'
+    bin/gn gen out/ios64  --args='target_os="ios"'
+    bin/gn gen out/ios32  --args='target_os="ios" target_cpu="arm"'
+    bin/gn gen out/iossim --args='target_os="ios" target_cpu="x64"'
 
 Googlers who want to sign and run iOS test binaries can do so by running something like
 
