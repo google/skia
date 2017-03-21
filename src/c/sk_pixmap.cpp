@@ -7,6 +7,7 @@
 
 #include "SkPixmap.h"
 #include "SkBitmapScaler.h"
+#include "SkImageEncoder.h"
 
 #include "sk_pixmap.h"
 
@@ -95,9 +96,15 @@ void sk_color_premultiply_array(const sk_color_t* colors, int size, sk_pmcolor_t
     }
 }
 
-void sk_color_get_bit_shift(int* a, int* r, int* g, int* b) {
+void sk_color_get_bit_shift(int* a, int* r, int* g, int* b)
+{
     *a = (int)SK_A32_SHIFT;
     *r = (int)SK_R32_SHIFT;
     *g = (int)SK_G32_SHIFT;
     *b = (int)SK_B32_SHIFT;
+}
+
+bool sk_pixmap_encode_image(sk_wstream_t* dst, const sk_pixmap_t* src, sk_encoded_image_format_t encoder, int quality)
+{
+    return SkEncodeImage(AsWStream(dst), AsPixmap(*src), (SkEncodedImageFormat)encoder, quality);
 }

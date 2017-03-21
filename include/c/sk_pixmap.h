@@ -33,6 +33,8 @@ SK_C_API void sk_color_unpremultiply_array(const sk_pmcolor_t* pmcolors, int siz
 SK_C_API void sk_color_premultiply_array(const sk_color_t* colors, int size, sk_pmcolor_t* pmcolors);
 SK_C_API void sk_color_get_bit_shift(int* a, int* r, int* g, int* b);
 
+SK_C_API bool sk_pixmap_encode_image(sk_wstream_t* dst, const sk_pixmap_t* src, sk_encoded_image_format_t encoder, int quality);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
