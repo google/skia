@@ -346,17 +346,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
 ///////////////////////////////////////////////////////////////////////////////
 #include "GrTexture.h"
 
-static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, GrTextureProxy* proxy,
+static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, sk_sp<GrTextureProxy> proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
-    // TODO: add GrTextureProxy-backed SkImage_Gpus
-    GrTexture* tex = proxy->instantiate(context->resourceProvider());
-    if (!tex) {
-        return nullptr;
-    }
-
-    return sk_make_sp<SkImage_Gpu>(kNeedNewImageUniqueID, alphaType,
-                                   sk_ref_sp(tex),
-                                   std::move(colorSpace), SkBudgeted::kYes);
+    return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType,
+                                   std::move(proxy), std::move(colorSpace), SkBudgeted::kYes);
 }
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
@@ -386,21 +379,16 @@ public:
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
-        // TODO: add GrTextureProxy-backed SkImage_Gpus
-        GrTexture* tex = fTextureProxy->instantiate(fContext->resourceProvider());
-        if (!tex) {
-            return;
-        }
-
         // TODO: In this instance we know we're going to draw a sub-portion of the backing
         // texture into the canvas so it is okay to wrap it in an SkImage. This poses
         // some problems for full deferral however in that when the deferred SkImage_Gpu
         // instantiates itself it is going to have to either be okay with having a larger
         // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
         // to be tightened (if it is deferred).
-        auto img = sk_sp<SkImage>(new SkImage_Gpu(this->uniqueID(), fAlphaType,
-                                                  sk_ref_sp(tex),
-                                                  fColorSpace, SkBudgeted::kNo));
+        sk_sp<SkImage> img = sk_sp<SkImage>(new SkImage_Gpu(canvas->getGrContext(),
+                                                            this->uniqueID(), fAlphaType,
+                                                            fTextureProxy,
+                                                            fColorSpace, SkBudgeted::kNo));
 
         canvas->drawImageRect(img, this->subset(),
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
@@ -480,16 +468,22 @@ public:
                 fTextureProxy->width() == subset->width() &&
                 fTextureProxy->height() == subset->height()) {
                 // The existing GrTexture is already tight so reuse it in the SkImage
-                return wrap_proxy_in_image(fContext, fTextureProxy.get(), fAlphaType, fColorSpace);
+                return wrap_proxy_in_image(fContext, fTextureProxy, fAlphaType, fColorSpace);
             }
 
             sk_sp<GrTextureProxy> subsetProxy(GrSurfaceProxy::Copy(fContext, fTextureProxy.get(),
                                                                    *subset, SkBudgeted::kYes));
+            if (!subsetProxy) {
+                return nullptr;
+            }
 
-            return wrap_proxy_in_image(fContext, subsetProxy.get(), fAlphaType, fColorSpace);
+            SkASSERT(subsetProxy->priv().isExact());
+            // MDB: this is acceptable (wrapping subsetProxy in an SkImage) bc Copy will
+            // return a kExact-backed proxy
+            return wrap_proxy_in_image(fContext, std::move(subsetProxy), fAlphaType, fColorSpace);
         }
 
-        return wrap_proxy_in_image(fContext, fTextureProxy.get(), fAlphaType, fColorSpace);
+        return wrap_proxy_in_image(fContext, fTextureProxy, fAlphaType, fColorSpace);
     }
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,

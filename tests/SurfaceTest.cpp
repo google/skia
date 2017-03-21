@@ -451,7 +451,7 @@ static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
-    return ((SkImage_Gpu*)image)->peekTexture()->resourcePriv().isBudgeted();
+    return ((SkImage_Gpu*)image)->peekProxy()->isBudgeted();
 }
 
 static SkBudgeted is_budgeted(const sk_sp<SkImage> image) {
