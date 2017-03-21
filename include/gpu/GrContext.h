@@ -160,6 +160,12 @@ public:
      */
     void purgeAllUnlockedResources();
 
+    /**
+     * Purge GPU resources that haven't been used since the passed in time, regardless of whether
+     * the context is currently under budget.
+     */
+    void purgeResourceNotUsedSince(std::chrono::steady_clock::time_point);
+
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps; }
 
