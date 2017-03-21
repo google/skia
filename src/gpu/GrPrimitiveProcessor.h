@@ -70,11 +70,6 @@ public:
         return false;
     }
 
-    /**
-     * Returns true if the color written to the output pixel depends on the pixels previous value.
-     */
-    bool xpReadsDst() const { return SkToBool(kXPReadsDst_Flag & fFlags); }
-
 private:
     enum {
         // If this is not set the primitive processor need not produce local coordinates
@@ -87,8 +82,6 @@ private:
         // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
         // output color. If not set fOverrideColor is to be ignored.
         kUseOverrideColor_Flag = 0x4,
-
-        kXPReadsDst_Flag = 0x8,
     };
 
     uint32_t    fFlags;
