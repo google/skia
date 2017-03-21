@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0174b29_2a07bde9",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-03-21T12:29:52Z",
+      "side": 1,
+      "message": "If we can only have one, doesn\u0027t it make sense to use skps instead?",
+      "range": {
+        "startLine": 592,
+        "startChar": 2,
+        "endLine": 592,
+        "endChar": 69
+      },
+      "revId": "2b3ab3e4fdf06611a75c7e0ee5532a25cbb076e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
