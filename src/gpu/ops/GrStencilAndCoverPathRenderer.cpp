@@ -145,22 +145,10 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                      std::move(coverOp));
         }
     } else {
-        static constexpr GrUserStencilSettings kCoverPass(
-            GrUserStencilSettings::StaticInit<
-                0x0000,
-                GrUserStencilTest::kNotEqual,
-                0xffff,
-                GrUserStencilOp::kZero,
-                GrUserStencilOp::kKeep,
-                0xffff>()
-        );
-
+        GrAA aa = GrBoolToAA(GrAATypeIsHW(args.fAAType));
         std::unique_ptr<GrDrawOp> op =
-                GrDrawPathOp::Make(viewMatrix, args.fPaint.getColor(), path.get());
-
-        GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
-        pipelineBuilder.setUserStencil(&kCoverPass);
-        args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+                GrDrawPathOp::Make(viewMatrix, std::move(args.fPaint), aa, path.get());
+        args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     }
 
     return true;

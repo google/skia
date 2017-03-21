@@ -33,7 +33,7 @@ private:
 
     GrGLGpu* glGpu() const;
 
-    std::unique_ptr<Op> makeOp() override;
+    std::unique_ptr<Op> makeOp(GrPaint&& paint) override;
 
     void onBeginFlush(GrResourceProvider*) override;
     void onDraw(const GrPipeline&, const InstanceProcessor&, const Op*) override;

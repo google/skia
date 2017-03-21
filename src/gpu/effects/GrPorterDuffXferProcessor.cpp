@@ -759,10 +759,11 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(
     return new PorterDuffXferProcessor(blendFormula);
 }
 
-bool GrPorterDuffXPFactory::willReadsDst(const FragmentProcessorAnalysis& analysis) const {
-    BlendFormula colorFormula = gBlendTable[analysis.isOutputColorOpaque()][0][(int)fBlendMode];
+bool GrPorterDuffXPFactory::canCombineOverlappedStencilAndCover(bool colorIsOpaque) const {
+    // Ignore the effect of coverage here.
+    BlendFormula colorFormula = gBlendTable[colorIsOpaque][0][(int)fBlendMode];
     SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
-    return (colorFormula.usesDstColor() || analysis.hasCoverage());
+    return !colorFormula.usesDstColor();
 }
 
 bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps,
@@ -867,10 +868,6 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
 sk_sp<GrXferProcessor> GrPorterDuffXPFactory::CreateNoCoverageXP(SkBlendMode blendmode) {
     BlendFormula formula = get_blend_formula(false, false, false, blendmode);
     return sk_make_sp<PorterDuffXferProcessor>(formula);
-}
-
-bool GrPorterDuffXPFactory::WillSrcOverReadDst(const FragmentProcessorAnalysis& analysis) {
-    return analysis.hasCoverage() || !analysis.isOutputColorOpaque();
 }
 
 bool GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(const GrCaps& caps,
