@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "dde86f64_bf3da467",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-21T14:44:42Z",
+      "side": 1,
+      "message": "I liked this comment",
+      "revId": "74cba7ef3834b253863fc30f01134ce38d68c769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bfe1770a_6eea128c",
         "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
         "patchSetId": 1
@@ -13,6 +30,40 @@
       "writtenOn": "2017-03-21T14:27:08Z",
       "side": 1,
       "message": "Probably worth it to add a third texture to the test data, containing premul RGBA-F16 data.",
+      "revId": "74cba7ef3834b253863fc30f01134ce38d68c769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a4424fc_e8f9e171",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-21T14:44:42Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem equivalent to the old code",
+      "revId": "74cba7ef3834b253863fc30f01134ce38d68c769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "746cb96b_14118829",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-21T14:44:42Z",
+      "side": 1,
+      "message": "same here",
       "revId": "74cba7ef3834b253863fc30f01134ce38d68c769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
