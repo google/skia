@@ -11,10 +11,12 @@ from recipe_engine import recipe_api
 
 BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'dm',
+  'dm.app',
   'dm.exe',
   'get_images_from_skps',
   'get_images_from_skps.exe',
   'nanobench',
+  'nanobench.app',
   'nanobench.exe',
   'skpbench',
   '*.so',
