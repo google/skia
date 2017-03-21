@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b22a787_c067e2b1",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-21T03:57:11Z",
+      "side": 1,
+      "message": "Some versions of libpng seem to expect this to be non-const. Maybe use writable_data() instead?",
+      "range": {
+        "startLine": 347,
+        "startChar": 55,
+        "endLine": 347,
+        "endChar": 67
+      },
+      "revId": "0e032be6b25a943ae85f51aaf7309311da7fea44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
