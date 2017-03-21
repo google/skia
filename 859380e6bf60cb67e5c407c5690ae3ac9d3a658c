@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "466f6b64_550c8217",
+        "filename": "src/codec/SkJpegUtility.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-21T16:31:01Z",
+      "side": 1,
+      "message": "Should these be constexpr?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 5
+      },
+      "revId": "859380e6bf60cb67e5c407c5690ae3ac9d3a658c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f42cc94a_3ec6f4de",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-21T16:31:01Z",
+      "side": 1,
+      "message": "These lines look pretty similar to the PNG code. Should they share? Something like:\n\nsk_sp\u003cSkData\u003e icc_from_color_space(const SkColorSpace\u0026 cs) {\n        SkColorSpaceTransferFn fn;\n        SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);\n        if (cs.isNumericalTransferFn(\u0026fn) \u0026\u0026 cs.toXYZD50(\u0026toXYZD50)) {\n                return SkICC::WriteToICC(fn, toXYZD50);\n        }\n        return nullptr;\n}",
+      "range": {
+        "startLine": 147,
+        "startChar": 8,
+        "endLine": 153,
+        "endChar": 0
+      },
+      "revId": "859380e6bf60cb67e5c407c5690ae3ac9d3a658c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d3fd3e7_db32385f",
+        "filename": "src/images/SkJPEGWriteUtility.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-21T16:31:01Z",
+      "side": 1,
+      "message": "Is this an unrelated cleanup? Does this now use the one in src/images? (Add a note in the commit message?)",
+      "range": {
+        "startLine": 24,
+        "startChar": 7,
+        "endLine": 24,
+        "endChar": 23
+      },
+      "revId": "859380e6bf60cb67e5c407c5690ae3ac9d3a658c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
