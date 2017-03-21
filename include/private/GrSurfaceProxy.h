@@ -281,10 +281,13 @@ public:
     }
 
     // Helper function that creates a temporary SurfaceContext to perform the copy
+    // It always returns a kExact-backed proxy bc it is used when converting an SkSpecialImage
+    // to an SkImage.
     static sk_sp<GrTextureProxy> Copy(GrContext*, GrSurfaceProxy* src,
                                       SkIRect srcRect, SkBudgeted);
 
     // Copy the entire 'src'
+    // It always returns a kExact-backed proxy bc it is used in SkGpuDevice::snapSpecial
     static sk_sp<GrTextureProxy> Copy(GrContext* context, GrSurfaceProxy* src,
                                       SkBudgeted budgeted);
 
@@ -327,8 +330,8 @@ protected:
     }
 
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
-    const GrSurfaceDesc  fDesc;
-    const SkBackingFit   fFit;      // always exact for wrapped resources
+    GrSurfaceDesc        fDesc;
+    SkBackingFit         fFit;      // always exact for wrapped resources
     mutable SkBudgeted   fBudgeted; // set from the backing resource for wrapped resources
                                     // mutable bc of SkSurface/SkImage wishy-washiness
     const uint32_t       fFlags;
