@@ -15,6 +15,7 @@
 #include "SkICC.h"
 #include "SkMath.h"
 #include "SkStream.h"
+#include "SkString.h"
 #include "SkTemplates.h"
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
@@ -43,11 +44,14 @@ static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkColorSpaceT
                     const SkMatrix44& toXYZD50) {
     sk_sp<SkData> icc = SkICC::WriteToICC(fn, toXYZD50);
 #if PNG_LIBPNG_VER_MAJOR > 1 || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 5)
+    const char* name = "Skia";
     png_const_bytep iccPtr = icc->bytes();
 #else
+    SkString str("Skia");
+    char* name = str.writable_str();
     png_charp iccPtr = (png_charp) icc->writable_data();
 #endif
-    png_set_iCCP(png_ptr, info_ptr, "Skia", 0, iccPtr, icc->size());
+    png_set_iCCP(png_ptr, info_ptr, name, 0, iccPtr, icc->size());
 }
 
 static transform_scanline_proc choose_proc(const SkImageInfo& info) {
