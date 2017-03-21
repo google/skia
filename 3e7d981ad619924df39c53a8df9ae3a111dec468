@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0f255ad_147c8326",
+        "filename": "include/core/SkRefCnt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-21T21:22:40Z",
+      "side": 1,
+      "message": "Is this the slight change?\n\n1)  Neat! Never seen std::ignore before.  FWIW, (void)old_pointer is probably fine.\n2)  Why do we need to do this?  Isn\u0027t SkSafeUnref(old_ptr) a use?",
+      "range": {
+        "startLine": 386,
+        "startChar": 8,
+        "endLine": 386,
+        "endChar": 19
+      },
+      "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
