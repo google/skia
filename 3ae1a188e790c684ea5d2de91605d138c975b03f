@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "254fe356_70da6ac0",
+        "filename": "src/gpu/GrTextureStripAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-21T00:17:07Z",
+      "side": 1,
+      "message": "Is this move intentional?  You\u0027d better +bsalomon.  Seems like if nothing else, it\u0027s its own little unrelated CL.",
+      "revId": "3ae1a188e790c684ea5d2de91605d138c975b03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3a48ecb_bca9bc16",
+        "filename": "tools/check-headers-self-sufficient",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-21T00:17:07Z",
+      "side": 1,
+      "message": "This is neat.  A lexically scoped global.",
+      "revId": "3ae1a188e790c684ea5d2de91605d138c975b03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23964297_8bab86e8",
+        "filename": "tools/check-headers-self-sufficient",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-21T00:17:07Z",
+      "side": 1,
+      "message": "I think this is the default.",
+      "range": {
+        "startLine": 135,
+        "startChar": 32,
+        "endLine": 135,
+        "endChar": 59
+      },
+      "revId": "3ae1a188e790c684ea5d2de91605d138c975b03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
