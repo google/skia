@@ -380,8 +380,8 @@ sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) cons
     dst.allocPixels(dstInfo);
 
     SkPixmap src;
+    SkBitmap tmp(fBitmap);
     if (!fBitmap.peekPixels(&src)) {
-        SkBitmap tmp(fBitmap);
         tmp.lockPixels();
         SkAssertResult(tmp.peekPixels(&src));
     }
