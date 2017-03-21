@@ -28,6 +28,8 @@ TEST_BUILDERS = {
       ('Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_'
        'Android_Vulkan'),
       'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android',
+      'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
+      'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
       'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
@@ -80,6 +82,10 @@ def GenTests(api):
                                  rietveld='https://codereview.chromium.org')
         if 'Win' in builder:
           test += api.platform('win', 64)
+
+        if 'Chromecast' in builder:
+          test += api.step_data('read chromecast ip',
+                  stdout=api.raw_io.output('192.168.1.2:5555'))
 
         yield test
 
