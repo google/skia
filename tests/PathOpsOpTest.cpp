@@ -8488,7 +8488,61 @@ path.setFillType(SkPath::kWinding_FillType);
     testPathOpFail(reporter, path1, path2, (SkPathOp) 1, filename);
 }
 
+static void fuzzhang_3(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 0);
+path.setFillType(SkPath::kWinding_FillType);
+
+    SkPath path1(path);
+    path.reset();
+    path.setFillType((SkPath::FillType) 0);
+path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(SkBits2Float(0x46090052), SkBits2Float(0x7270726c));  // 8768.08f, 4.76254e+30f
+path.moveTo(SkBits2Float(0xe0437272), SkBits2Float(0x03e0e060));  // -5.63338e+19f, 1.32171e-36f
+path.close();
+path.moveTo(SkBits2Float(0xe0437272), SkBits2Float(0x03e0e060));  // -5.63338e+19f, 1.32171e-36f
+path.lineTo(SkBits2Float(0x77727272), SkBits2Float(0x52520072));  // 4.91741e+33f, 2.25488e+11f
+path.lineTo(SkBits2Float(0x46090052), SkBits2Float(0x727272ce));  // 8768.08f, 4.80219e+30f
+path.quadTo(SkBits2Float(0x725252ec), SkBits2Float(0x72727272), SkBits2Float(0x72727272), SkBits2Float(0x39393962));  // 4.16589e+30f, 4.80216e+30f, 4.80216e+30f, 0.000176644f
+path.lineTo(SkBits2Float(0x6c460900), SkBits2Float(0x72727072));  // 9.57639e+26f, 4.802e+30f
+path.cubicTo(SkBits2Float(0xe0e060e0), SkBits2Float(0x72943603), SkBits2Float(0x72777272), SkBits2Float(0x5c525200), SkBits2Float(0x46090052), SkBits2Float(0x727272ce));  // -1.29345e+20f, 5.87124e+30f, 4.90119e+30f, 2.368e+17f, 8768.08f, 4.80219e+30f
+path.quadTo(SkBits2Float(0x725252ec), SkBits2Float(0x72727272), SkBits2Float(0x72727272), SkBits2Float(0x39393962));  // 4.16589e+30f, 4.80216e+30f, 4.80216e+30f, 0.000176644f
+path.lineTo(SkBits2Float(0x0052ca00), SkBits2Float(0x728e4603));  // 7.60297e-39f, 5.63603e+30f
+path.quadTo(SkBits2Float(0xff727272), SkBits2Float(0x52527272), SkBits2Float(0x39392072), SkBits2Float(0xe0393939));  // -3.22267e+38f, 2.25966e+11f, 0.000176551f, -5.3387e+19f
+path.lineTo(SkBits2Float(0xe0437272), SkBits2Float(0x03e0e060));  // -5.63338e+19f, 1.32171e-36f
+path.close();
+path.moveTo(SkBits2Float(0xe0437272), SkBits2Float(0x03e0e060));  // -5.63338e+19f, 1.32171e-36f
+path.cubicTo(SkBits2Float(0xdada7272), SkBits2Float(0x2dff7272), SkBits2Float(0x767272f0), SkBits2Float(0x72727272), SkBits2Float(0x21727f72), SkBits2Float(0x0b210929));  // -3.07437e+16f, 2.9041e-11f, 1.22936e+33f, 4.80216e+30f, 8.21615e-19f, 3.10144e-32f
+path.cubicTo(SkBits2Float(0xd6d6d6d6), SkBits2Float(0x72a5d6d6), SkBits2Float(0x72553872), SkBits2Float(0xdada7072), SkBits2Float(0x5252525a), SkBits2Float(0x72727252));  // -1.18109e+14f, 6.56957e+30f, 4.22327e+30f, -3.07426e+16f, 2.25831e+11f, 4.80215e+30f
+path.quadTo(SkBits2Float(0x72725572), SkBits2Float(0xdada0072), SkBits2Float(0x52524b5a), SkBits2Float(0x72528000));  // 4.79991e+30f, -3.0681e+16f, 2.25802e+11f, 4.16938e+30f
+path.quadTo(SkBits2Float(0x72727272), SkBits2Float(0xca005252), SkBits2Float(0x46030052), SkBits2Float(0x7272728e));  // 4.80216e+30f, -2.10242e+06f, 8384.08f, 4.80217e+30f
+path.quadTo(SkBits2Float(0x7272ff72), SkBits2Float(0x20725252), SkBits2Float(0x39393939), SkBits2Float(0xd76ee039));  // 4.81307e+30f, 2.05254e-19f, 0.000176643f, -2.62647e+14f
+path.cubicTo(SkBits2Float(0xdada7272), SkBits2Float(0x2dff7272), SkBits2Float(0x767272f0), SkBits2Float(0x72727272), SkBits2Float(0x21727f72), SkBits2Float(0x0b210929));  // -3.07437e+16f, 2.9041e-11f, 1.22936e+33f, 4.80216e+30f, 8.21615e-19f, 3.10144e-32f
+path.cubicTo(SkBits2Float(0xd6d6d6d6), SkBits2Float(0x72a5d6d6), SkBits2Float(0x72553872), SkBits2Float(0xdada7072), SkBits2Float(0x5252525a), SkBits2Float(0x72727252));  // -1.18109e+14f, 6.56957e+30f, 4.22327e+30f, -3.07426e+16f, 2.25831e+11f, 4.80215e+30f
+path.quadTo(SkBits2Float(0x72725572), SkBits2Float(0xdada0072), SkBits2Float(0x52524b5a), SkBits2Float(0x72528000));  // 4.79991e+30f, -3.0681e+16f, 2.25802e+11f, 4.16938e+30f
+path.quadTo(SkBits2Float(0x72727272), SkBits2Float(0x52525252), SkBits2Float(0x27725252), SkBits2Float(0x72727272));  // 4.80216e+30f, 2.25831e+11f, 3.36289e-15f, 4.80216e+30f
+path.quadTo(SkBits2Float(0x72667254), SkBits2Float(0x00000040), SkBits2Float(0x00a70155), SkBits2Float(0x726800ff));  // 4.56447e+30f, 8.96831e-44f, 1.5337e-38f, 4.59531e+30f
+path.quadTo(SkBits2Float(0x7b727272), SkBits2Float(0xad000c52), SkBits2Float(0x1c10adad), SkBits2Float(0x72728d8a));  // 1.25886e+36f, -7.27869e-12f, 4.78701e-22f, 4.80425e+30f
+path.quadTo(SkBits2Float(0xff056546), SkBits2Float(0x727205ff), SkBits2Float(0x524b5aff), SkBits2Float(0x64005252));  // -1.77313e+38f, 4.79377e+30f, 2.18351e+11f, 9.46846e+21f
+path.quadTo(SkBits2Float(0x72524872), SkBits2Float(0xdada7272), SkBits2Float(0x5252525a), SkBits2Float(0x72727252));  // 4.16508e+30f, -3.07437e+16f, 2.25831e+11f, 4.80215e+30f
+path.quadTo(SkBits2Float(0x72724172), SkBits2Float(0xdad10072), SkBits2Float(0x52524b5a), SkBits2Float(0x725b8000));  // 4.79837e+30f, -2.94144e+16f, 2.25802e+11f, 4.34765e+30f
+path.quadTo(SkBits2Float(0x72727272), SkBits2Float(0x52525252), SkBits2Float(0x27725252), SkBits2Float(0x72727272));  // 4.80216e+30f, 2.25831e+11f, 3.36289e-15f, 4.80216e+30f
+path.quadTo(SkBits2Float(0x72728372), SkBits2Float(0x00000040), SkBits2Float(0xf6a70147), SkBits2Float(0xc2c2c256));  // 4.80347e+30f, 8.96831e-44f, -1.69363e+33f, -97.3796f
+path.lineTo(SkBits2Float(0xe0437272), SkBits2Float(0x03e0e060));  // -5.63338e+19f, 1.32171e-36f
+path.close();
+path.moveTo(SkBits2Float(0x7a787a7a), SkBits2Float(0x7a3a7a7a));  // 3.22543e+35f, 2.42063e+35f
+path.lineTo(SkBits2Float(0x8f4603e0), SkBits2Float(0x72727272));  // -9.7629e-30f, 4.80216e+30f
+path.quadTo(SkBits2Float(0x00807272), SkBits2Float(0x46090052), SkBits2Float(0x7270726c), SkBits2Float(0x60e04372));  // 1.1796e-38f, 8768.08f, 4.76254e+30f, 1.29279e+20f
+path.moveTo(SkBits2Float(0x943603e0), SkBits2Float(0x77727272));  // -9.18942e-27f, 4.91741e+33f
+path.quadTo(SkBits2Float(0x5c525200), SkBits2Float(0x46090052), SkBits2Float(0x727272ce), SkBits2Float(0x5252ec72));  // 2.368e+17f, 8768.08f, 4.80219e+30f, 2.26478e+11f
+
+    SkPath path2(path);
+    testPathOpFail(reporter, path1, path2, (SkPathOp) 3, filename);
+}
+
+
 static struct TestDesc failTests[] = {
+    TEST(fuzzhang_3),
     TEST(fuzzhang_2),
     TEST(release_13),
     TEST(fuzzhang_1),

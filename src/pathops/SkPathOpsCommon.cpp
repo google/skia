@@ -228,12 +228,15 @@ static bool move_multiples(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARA
     return true;
 }
 
-static void move_nearby(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+static bool move_nearby(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
     DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     do {
-        contour->moveNearby();
+        if (!contour->moveNearby()) {
+            return false;
+        }
     } while ((contour = contour->next()));
+    return true;
 }
 
 static bool sort_angles(SkOpContourHead* contourList) {
@@ -257,7 +260,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         return false;
     }
     // move t values and points together to eliminate small/tiny gaps
-    move_nearby(contourList  DEBUG_COIN_PARAMS());
+    if (!move_nearby(contourList  DEBUG_COIN_PARAMS())) {
+        return false;
+    }
     // add coincidence formed by pairing on curve points and endpoints
     coincidence->correctEnds(DEBUG_PHASE_ONLY_PARAMS(kIntersecting));
     if (!coincidence->addEndMovedSpans(DEBUG_COIN_ONLY_PARAMS())) {
