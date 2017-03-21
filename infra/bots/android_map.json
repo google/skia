@@ -1,9 +1,10 @@
 {
   "AndroidOne":      ["sprout",      "MOB30Q"],
+  "Chorizo":         ["chorizo",     "1.24_82923"],
+  "GalaxyJ5":        ["j5xnlte",     "MMB29M"],
   "GalaxyS6":        ["zerofltetmo", "MMB29K"],
   "GalaxyS7_G930A":  ["heroqlteatt", "MMB29M"],
   "GalaxyS7_G930FD": ["herolte",     "NRD90M"],
-  "GalaxyJ5":        ["j5xnlte",     "MMB29M"],
   "GalaxyTab3":      ["goyawifi",    "JDQ39"],
   "MotoG4":          ["athene",      "MPJ24.139-64"],
   "NVIDIA_Shield":   ["foster",      "MRA58K"],

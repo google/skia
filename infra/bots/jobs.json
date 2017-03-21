@@ -110,6 +110,8 @@
   "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
   "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
   "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench",
+  "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug",
+  "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
   "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug",
   "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release",
   "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug",

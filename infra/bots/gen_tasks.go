@@ -135,15 +135,16 @@ func swarmDimensions(parts map[string]string) []string {
 	}
 	if os, ok := parts["os"]; ok {
 		d["os"] = map[string]string{
-			"Android":  "Android",
-			"Mac":      "Mac-10.11",
-			"Ubuntu":   DEFAULT_OS_LINUX,
-			"Ubuntu16": "Ubuntu-16.10",
-			"Win":      "Windows-2008ServerR2-SP1",
-			"Win10":    "Windows-10-14393",
-			"Win2k8":   "Windows-2008ServerR2-SP1",
-			"Win8":     "Windows-8.1-SP0",
-			"iOS":      "iOS-9.3.1",
+			"Android":    "Android",
+			"Chromecast": "Android",
+			"Mac":        "Mac-10.11",
+			"Ubuntu":     DEFAULT_OS_LINUX,
+			"Ubuntu16":   "Ubuntu-16.10",
+			"Win":        "Windows-2008ServerR2-SP1",
+			"Win10":      "Windows-10-14393",
+			"Win2k8":     "Windows-2008ServerR2-SP1",
+			"Win8":       "Windows-8.1-SP0",
+			"iOS":        "iOS-9.3.1",
 		}[os]
 		// Chrome Golo has a different Windows image.
 		if parts["model"] == "Golo" && os == "Win10" {
@@ -153,7 +154,7 @@ func swarmDimensions(parts map[string]string) []string {
 		d["os"] = DEFAULT_OS
 	}
 	if parts["role"] == "Test" || parts["role"] == "Perf" {
-		if strings.Contains(parts["os"], "Android") {
+		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
 			deviceInfo, ok := ANDROID_MAPPING[parts["model"]]
@@ -599,6 +600,13 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		b.MustGetCipdPackageFromAsset("skimage"),
 		b.MustGetCipdPackageFromAsset("skp"),
 		b.MustGetCipdPackageFromAsset("svg"),
+	}
+	if strings.Contains(name, "Chromecast") {
+		// Chromecasts don't have enough disk space to fit all of the content,
+		// so we do a subset of the skps.
+		pkgs = []*specs.CipdPackage{
+			b.MustGetCipdPackageFromAsset("skp"),
+		}
 	}
 	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "SAN") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))

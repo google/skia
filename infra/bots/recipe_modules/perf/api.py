@@ -187,6 +187,16 @@ def perf_steps(api):
     args.append(skip_flag)
   args.extend(nanobench_flags(api.vars.builder_name))
 
+  if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
+    # Due to limited disk space, run a watered down perf run on Chromecast.
+    args = [
+      target,
+       '-i', api.flavor.device_dirs.resource_dir,
+       '--images', api.flavor.device_path_join(
+            api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
+       '--svgs',  api.flavor.device_dirs.svg_dir,
+    ]
+
   if api.vars.upload_perf_results:
     now = api.time.utcnow()
     ts = int(calendar.timegm(now.utctimetuple()))
@@ -249,7 +259,10 @@ class PerfApi(recipe_api.RecipeApi):
       env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
     with self.m.step.context({'env': env}):
       try:
-        self.m.flavor.install_everything()
+        if 'Chromecast' in self.m.vars.builder_name:
+          self.m.flavor.install(resources=True, skps=True)
+        else:
+          self.m.flavor.install_everything()
         perf_steps(self.m)
       finally:
         self.m.flavor.cleanup_steps()

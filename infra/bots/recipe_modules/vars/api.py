@@ -163,6 +163,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # Executables go under _bin_dir, which, well, allows executable files.
     self.android_bin_dir  = '/data/local/tmp/'
 
+    if self.builder_cfg.get('os', '') == 'Chromecast':
+      # On the Chromecast, everything goes in the (~110M) /cache/skia
+      self.android_bin_dir  = '/cache/skia/'
+      self.android_data_dir = '/cache/skia/'
+
   @property
   def upload_dm_results(self):
     # TODO(borenet): Move this into the swarm_test recipe.
