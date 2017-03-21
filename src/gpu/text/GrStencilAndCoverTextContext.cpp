@@ -605,24 +605,13 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         const SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(),
                                               renderTargetContext->height());
 
+        // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
         std::unique_ptr<GrDrawOp> op = GrDrawPathRangeOp::Make(
                 viewMatrix, fTextRatio, fTextInverseRatio * x, fTextInverseRatio * y,
-                grPaint.getColor(), GrPathRendering::kWinding_FillType, glyphs.get(),
+                std::move(grPaint), GrPathRendering::kWinding_FillType, runAA, glyphs.get(),
                 fInstanceData.get(), bounds);
 
-        // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
-        GrAAType aaType = GrAAType::kNone;
-        if (GrAA::kYes == runAA) {
-            if (renderTargetContext->isUnifiedMultisampled()) {
-                aaType = GrAAType::kMSAA;
-            } else if (renderTargetContext->isStencilBufferMultisampled()) {
-                aaType = GrAAType::kMixedSamples;
-            }
-        }
-        GrPipelineBuilder pipelineBuilder(std::move(grPaint), aaType);
-        pipelineBuilder.setUserStencil(&kCoverPass);
-
-        renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+        renderTargetContext->addDrawOp(clip, std::move(op));
     }
 
     if (fFallbackTextBlob) {
