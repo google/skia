@@ -51,7 +51,7 @@ enum DrawType {
     DRAW_TEXT,
     DRAW_TEXT_ON_PATH,
     DRAW_TEXT_TOP_BOTTOM,   // fast variant of DRAW_TEXT
-    DRAW_VERTICES,
+    DRAW_VERTICES_RETIRED_03_2017,
     RESTORE,
     ROTATE,
     SAVE,
