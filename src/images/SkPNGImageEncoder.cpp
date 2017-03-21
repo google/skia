@@ -39,6 +39,17 @@ static void sk_write_fn(png_structp png_ptr, png_bytep data, png_size_t len) {
     }
 }
 
+static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkColorSpaceTransferFn& fn,
+                    const SkMatrix44& toXYZD50) {
+    sk_sp<SkData> icc = SkICC::WriteToICC(fn, toXYZD50);
+#if PNG_LIBPNG_VER_MAJOR > 1 || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 5)
+    png_const_bytep iccPtr = icc->bytes();
+#else
+    png_charp iccPtr = (png_charp) icc->writable_data();
+#endif
+    png_set_iCCP(png_ptr, info_ptr, "Skia", 0, iccPtr, icc->size());
+}
+
 static transform_scanline_proc choose_proc(const SkImageInfo& info) {
     const bool isGammaEncoded = info.gammaCloseToSRGB();
     switch (info.colorType()) {
@@ -343,8 +354,7 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
         } else if (pixmap.colorSpace()->isNumericalTransferFn(&fn) &&
                    pixmap.colorSpace()->toXYZD50(&toXYZD50))
         {
-            sk_sp<SkData> icc = SkICC::WriteToICC(fn, toXYZD50);
-            png_set_iCCP(png_ptr, info_ptr, "Skia", 0, icc->bytes(), icc->size());
+            set_icc(png_ptr, info_ptr, fn, toXYZD50);
         }
 
         // TODO: Should we support writing ICC profiles for additional color spaces?
