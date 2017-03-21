@@ -114,6 +114,30 @@
       "revId": "74cba7ef3834b253863fc30f01134ce38d68c769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c64aab5d_be75f47d",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-21T14:50:41Z",
+      "side": 1,
+      "message": "Ah, I forgot about that. No - this is basically SimpleTextureEffect + PremulInput. I\u0027m working towards support for premul/unpremul conversions on F16 during read/write pixels, which was why I started extending this code. I\u0027m going to need some higher level dispatch based on config to pick the right conversion anyway, so I could:\n\n1) Continue down this road.\n2) Instead, add GrFragmentProcessor::UnpremulInput, leave this code alone, and just have GrContext use the other impl for F16 textures. This might be nicer, as it avoids polluting all of the error checking here.",
+      "parentUuid": "bdc58002_a853cfa1",
+      "range": {
+        "startLine": 36,
+        "startChar": 8,
+        "endLine": 36,
+        "endChar": 32
+      },
+      "revId": "74cba7ef3834b253863fc30f01134ce38d68c769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
