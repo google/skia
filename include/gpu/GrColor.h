@@ -259,6 +259,15 @@ struct GrColor4f {
         float a = fRGBA[3];
         return GrColor4f(fRGBA[0] * a, fRGBA[1] * a, fRGBA[2] * a, a);
     }
+
+    GrColor4f unpremul() const {
+        float a = fRGBA[3];
+        if (a <= 0.0f) {
+            return GrColor4f(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+        float invAlpha = 1.0f / a;
+        return GrColor4f(fRGBA[0] * invAlpha, fRGBA[1] * invAlpha, fRGBA[2] * invAlpha, a);
+    }
 };
 
 /**
