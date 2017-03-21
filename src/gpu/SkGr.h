@@ -207,6 +207,11 @@ GR_STATIC_ASSERT(SkXfermode::kCoeffCount == 10);
 GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
                                     const GrSamplerParams&, SkScalar scaleAdjust[2]);
 
+sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
+                                                    const SkBitmap&,
+                                                    const GrSamplerParams&,
+                                                    SkScalar scaleAdjust[2]);
+
 /**
  * Creates a new texture for the bitmap. Does not concern itself with cache keys or texture params.
  * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
