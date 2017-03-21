@@ -1442,15 +1442,7 @@ protected:
                            const SkPaint&);
     virtual void onDrawRRect(const SkRRect&, const SkPaint&);
     virtual void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&);
-
-#ifdef SK_SUPPORT_LEGACY_DRAWVERTICES_VIRTUAL
-    virtual void onDrawVertices(VertexMode, int, const SkPoint[],
-                                const SkPoint[], const SkColor[], SkBlendMode,
-                                const uint16_t[], int, const SkPaint&) {}
-#endif
-
     virtual void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&);
-
     virtual void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                              int count, SkBlendMode, const SkRect* cull, const SkPaint*);
     virtual void onDrawPath(const SkPath&, const SkPaint&);
