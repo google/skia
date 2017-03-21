@@ -401,7 +401,6 @@ def dm_flags(bot):
     match.append('~ComposedImageFilterBounds_Gpu')
     match.append('~CopySurface')
     match.append('~ImageFilterZeroBlurSigma_Gpu')
-    match.append('~ReadWriteAlpha')
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
 
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Ubuntu' in bot:

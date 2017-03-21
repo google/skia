@@ -373,7 +373,6 @@
       "~ComposedImageFilterBounds_Gpu",
       "~CopySurface",
       "~ImageFilterZeroBlurSigma_Gpu",
-      "~ReadWriteAlpha",
       "~XfermodeImageFilterCroppedInput_Gpu"
     ],
     "env": {
