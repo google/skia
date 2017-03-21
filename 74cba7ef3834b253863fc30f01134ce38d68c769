@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfe1770a_6eea128c",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-21T14:27:08Z",
+      "side": 1,
+      "message": "Probably worth it to add a third texture to the test data, containing premul RGBA-F16 data.",
+      "revId": "74cba7ef3834b253863fc30f01134ce38d68c769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
