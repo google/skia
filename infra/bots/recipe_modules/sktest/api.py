@@ -23,6 +23,10 @@ def dm_flags(bot):
   if '-x86-' in bot and not 'NexusPlayer' in bot:
     args.extend('--threads 4'.split(' '))
 
+  # Avoid issues with dynamically exceeding resource cache limits.
+  if 'Test' in bot and 'DISCARDABLE' in bot:
+    args.extend('--threads 0'.split(' '))
+
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
   configs = ['8888', 'srgb', 'pdf']
