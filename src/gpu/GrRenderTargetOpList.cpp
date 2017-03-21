@@ -295,7 +295,7 @@ void GrRenderTargetOpList::forwardCombine() {
     if (fMaxOpLookahead <= 0) {
         return;
     }
-    for (int i = 0; i < fRecordedOps.count() - 2; ++i) {
+    for (int i = 0; i < fRecordedOps.count() - 1; ++i) {
         GrOp* op = fRecordedOps[i].fOp.get();
         GrRenderTarget* renderTarget = fRecordedOps[i].fRenderTarget.get();
         // If we don't have a valid destination render target ID then we cannot reorder.
@@ -312,14 +312,7 @@ void GrRenderTargetOpList::forwardCombine() {
                           candidate.fOp->uniqueID());
                 break;
             }
-            if (j == i +1) {
-                // We assume op would have combined with candidate when the candidate was added
-                // via backwards combining in recordOp.
-
-                // not sure why this fires with device-clipping in gm/complexclip4.cpp
-//                SkASSERT(!op->combineIfPossible(candidate.fOp.get(), *this->caps()));
-
-            } else if (op->combineIfPossible(candidate.fOp.get(), *this->caps())) {
+            if (op->combineIfPossible(candidate.fOp.get(), *this->caps())) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());
