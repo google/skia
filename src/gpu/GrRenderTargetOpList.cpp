@@ -117,7 +117,8 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
-        if (fRecordedOps[i].fRenderTarget.get() != currentRenderTarget) {
+        if (fRecordedOps[i].fRenderTarget.get() != currentRenderTarget ||
+            fGpu->caps()->forceOnlyOneOpPerGpuCmdBuffer()) {
             if (commandBuffer) {
                 commandBuffer->end();
                 commandBuffer->submit();

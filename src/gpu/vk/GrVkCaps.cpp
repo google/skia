@@ -172,6 +172,12 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fStencilWrapOpsSupport = true;
     fOversizedStencilSupport = true;
     fSampleShadingSupport = SkToBool(featureFlags & kSampleRateShading_GrVkFeatureFlag);
+
+    // AMD seems to have issues binding new VkPipelines inside a secondary command buffer.
+    // Current workaround is to submit 1 cmd secondary cmd buffer.
+    if (kAMD_VkVendor == properties.vendorID) {
+        fForceOnlyOneOpPerGpuCmdBuffer = true;
+    }
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint32_t featureFlags) {

@@ -185,6 +185,8 @@ public:
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
 
+    bool forceOnlyOneOpPerGpuCmdBuffer() const { return fForceOnlyOneOpPerGpuCmdBuffer; }
+
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
      * used for doing dst copies needed in blends, thus the src is always a GrRenderTarget. It will
@@ -226,6 +228,7 @@ protected:
     bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites      : 1;
     bool fAvoidInstancedDrawsToFPTargets             : 1;
+    bool fForceOnlyOneOpPerGpuCmdBuffer              : 1;
 
     // ANGLE workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
