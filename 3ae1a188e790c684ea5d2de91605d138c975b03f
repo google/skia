@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "99ffe4e9_8c2ee164",
+        "filename": "src/gpu/GrTextureStripAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-21T14:49:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "254fe356_70da6ac0",
+      "revId": "3ae1a188e790c684ea5d2de91605d138c975b03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3a48ecb_bca9bc16",
         "filename": "tools/check-headers-self-sufficient",
         "patchSetId": 6
@@ -33,6 +51,24 @@
       "revId": "3ae1a188e790c684ea5d2de91605d138c975b03f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57f7ace9_353d6fc8",
+        "filename": "tools/check-headers-self-sufficient",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-21T14:49:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d3a48ecb_bca9bc16",
+      "revId": "3ae1a188e790c684ea5d2de91605d138c975b03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -56,6 +92,30 @@
       "revId": "3ae1a188e790c684ea5d2de91605d138c975b03f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a784d2dc_e292d1a1",
+        "filename": "tools/check-headers-self-sufficient",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-21T14:49:46Z",
+      "side": 1,
+      "message": "Right.  I was playing with it to see if I get any improvement, but since this is cpu-bound, it seems that the default is best.\n\nFixed.",
+      "parentUuid": "23964297_8bab86e8",
+      "range": {
+        "startLine": 135,
+        "startChar": 32,
+        "endLine": 135,
+        "endChar": 59
+      },
+      "revId": "3ae1a188e790c684ea5d2de91605d138c975b03f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

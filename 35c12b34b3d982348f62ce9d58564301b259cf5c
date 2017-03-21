@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0a9464b9_330eeb5c",
+        "filename": "tools/check-headers-self-sufficient",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-21T14:49:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d655f2fb_702da537",
+      "revId": "35c12b34b3d982348f62ce9d58564301b259cf5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a9c18ed_fc3d531e",
         "filename": "tools/check-headers-self-sufficient",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-18T16:39:21Z",
       "side": 1,
       "message": "This sort of thing is probably easier using multiprocessing, maybe to the point of not needing this function:\n\n    multiprocessing.Pool().map(function, list_of_arg_lists)\n\nmultiprocessing also has things like Lock in it, so should be you don\u0027t need to import threading at all.",
+      "revId": "35c12b34b3d982348f62ce9d58564301b259cf5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fadcd55b_47b5a49b",
+        "filename": "tools/check-headers-self-sufficient",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-21T14:49:46Z",
+      "side": 1,
+      "message": "I didn\u0027t know the multiprocessing module existed.  I guess I re-implemented parts of it using threading.  I\u0027ll look into it.\n\nLater:  multiprocessing is so much better for this particular application!",
+      "parentUuid": "5a9c18ed_fc3d531e",
       "revId": "35c12b34b3d982348f62ce9d58564301b259cf5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
