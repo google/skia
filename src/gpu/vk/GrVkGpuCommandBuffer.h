@@ -33,7 +33,8 @@ public:
 
     void discard(GrRenderTarget*) override;
 
-    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override;
+    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
+                      GrRenderTarget*) override;
 
 private:
     // Performs lazy initialization on the first operation seen by the command buffer.
