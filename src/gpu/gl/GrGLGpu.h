@@ -189,9 +189,9 @@ private:
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const SkTArray<GrMipLevel>& texels);
 
-    bool onMakeCopyForTextureParams(GrTexture*, const GrSamplerParams&,
-                                    GrTextureProducer::CopyParams*,
-                                    SkScalar scaleAdjust[2]) const override;
+    bool onIsACopyNeededForTextureParams(GrTexture*, const GrSamplerParams&,
+                                         GrTextureProducer::CopyParams*,
+                                         SkScalar scaleAdjust[2]) const override;
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
     // render target.

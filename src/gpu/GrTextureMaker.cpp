@@ -26,8 +26,8 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
         *texColorSpace = this->getColorSpace(dstColorSpace);
     }
 
-    if (!fContext->getGpu()->makeCopyForTextureParams(this->width(), this->height(), params,
-                                                      &copyParams, scaleAdjust)) {
+    if (!fContext->getGpu()->isACopyNeededForTextureParams(this->width(), this->height(), params,
+                                                           &copyParams, scaleAdjust)) {
         return this->refOriginalTexture(willBeMipped, dstColorSpace);
     }
     GrUniqueKey copyKey;
