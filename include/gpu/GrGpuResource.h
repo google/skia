@@ -8,6 +8,7 @@
 #ifndef GrGpuResource_DEFINED
 #define GrGpuResource_DEFINED
 
+#include <chrono>
 #include "GrResourceKey.h"
 #include "GrTypesPriv.h"
 
@@ -324,6 +325,7 @@ private:
     // by the cache.
     uint32_t                    fTimestamp;
     uint32_t                    fExternalFlushCntWhenBecamePurgeable;
+    std::chrono::steady_clock::time_point fTimeWhenBecamePurgeable;
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     GrScratchKey                fScratchKey;
