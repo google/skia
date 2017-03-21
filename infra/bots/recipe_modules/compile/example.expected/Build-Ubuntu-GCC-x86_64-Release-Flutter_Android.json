@@ -45,12 +45,9 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/flutter",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
       "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
       "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "bot_update",
@@ -96,6 +93,12 @@
       "runhooks"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+    },
     "name": "runhook"
   },
   {
@@ -106,6 +109,7 @@
       "rmtree",
       "[CUSTOM_/_B_WORK]/flutter/src/out/android_release"
     ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
     "env": {
       "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
@@ -118,6 +122,13 @@
       "--runtime-mode=release",
       "--android"
     ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+    },
     "name": "gn_gen"
   },
   {
@@ -127,6 +138,13 @@
       "out/android_release",
       "-j100"
     ],
+    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-Flutter_Android"
+    },
     "name": "build_flutter"
   },
   {

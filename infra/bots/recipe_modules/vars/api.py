@@ -31,7 +31,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     self.slave_dir = self.m.path['start_dir']
     self.checkout_root = self.slave_dir
-    self.default_env = {}
+    self.default_env = self.m.step.get_from_context('env', {})
+    self.default_env['PATH'] = self.m.path.pathsep.join([
+        self.default_env.get('PATH', '%(PATH)s'),
+        str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
+    ])
     self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
     self.no_buildbot = self.m.properties.get('nobuildbot', '') == 'True'

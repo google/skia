@@ -49,12 +49,9 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
       "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
       "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "bot_update",
@@ -101,6 +98,12 @@
       "gn_linux64"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
+    },
     "name": "runhook"
   },
   {
@@ -110,6 +113,12 @@
       "--arch=amd64"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
+    },
     "name": "sysroot"
   },
   {
@@ -121,7 +130,11 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
-      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools"
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
     },
     "name": "gn_gen"
   },
@@ -134,7 +147,11 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
-      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools"
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Ubuntu-GCC-x86_64-Release-PDFium"
     },
     "name": "build_pdfium"
   },

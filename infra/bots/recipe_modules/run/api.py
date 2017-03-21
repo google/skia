@@ -68,7 +68,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
 
   def rmtree(self, path):
     """Wrapper around api.file.rmtree with environment fix."""
-    env = self.m.step.get_from_context('env') or {}
+    env = self.m.step.get_from_context('env', {})
     env['PYTHONPATH'] = str(self.m.path['start_dir'].join(
         'skia', 'infra', 'bots', '.recipe_deps', 'build', 'scripts'))
     with self.m.step.context({'env': env}):
@@ -79,10 +79,11 @@ class SkiaStepApi(recipe_api.RecipeApi):
   def __call__(self, steptype, name, abort_on_failure=True,
                fail_build_on_failure=True, **kwargs):
     """Run a step. If it fails, keep going but mark the build status failed."""
-    env = self.m.step.get_from_context('env') or {}
+    env = self.m.step.get_from_context('env', {})
     env.update(self.m.vars.default_env)
     try:
-      return steptype(name=name, **kwargs)
+      with self.m.step.context({'env': env}):
+        return steptype(name=name, **kwargs)
     except self.m.step.StepFailure as e:
       if abort_on_failure or fail_build_on_failure:
         self._failed.append(e)

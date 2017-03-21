@@ -183,6 +183,7 @@
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_intel_driver_release",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_release",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "symbolized nanobench"

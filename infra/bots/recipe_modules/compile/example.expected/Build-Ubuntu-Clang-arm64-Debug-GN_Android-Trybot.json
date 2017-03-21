@@ -49,12 +49,9 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
       "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
       "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "bot_update",
@@ -93,8 +90,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
+      "BUILDTYPE": "Debug",
       "CC": "/usr/bin/clang",
-      "CXX": "/usr/bin/clang++"
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -108,8 +109,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
+      "BUILDTYPE": "Debug",
       "CC": "/usr/bin/clang",
-      "CXX": "/usr/bin/clang++"
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot"
     },
     "name": "gn gen"
   },
@@ -121,8 +126,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
+      "BUILDTYPE": "Debug",
       "CC": "/usr/bin/clang",
-      "CXX": "/usr/bin/clang++"
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot"
     },
     "name": "ninja"
   },

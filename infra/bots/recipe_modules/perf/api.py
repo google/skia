@@ -195,8 +195,7 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
-  env = {}
-  env.update(api.vars.default_env)
+  env = api.step.get_from_context('env', {})
   if 'Ubuntu16' in api.vars.builder_name:
     # The vulkan in this asset name simply means that the graphics driver
     # supports Vulkan. It is also the driver used for GL code.
@@ -238,11 +237,13 @@ def perf_steps(api):
 class PerfApi(recipe_api.RecipeApi):
   def run(self):
     self.m.core.setup()
+    env = self.m.step.get_from_context('env', {})
     if 'iOS' in self.m.vars.builder_name:
-      self.m.vars.default_env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
-    try:
-      self.m.flavor.install_everything()
-      perf_steps(self.m)
-    finally:
-      self.m.flavor.cleanup_steps()
-    self.m.run.check_failure()
+      env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
+    with self.m.step.context({'env': env}):
+      try:
+        self.m.flavor.install_everything()
+        perf_steps(self.m)
+      finally:
+        self.m.flavor.cleanup_steps()
+      self.m.run.check_failure()

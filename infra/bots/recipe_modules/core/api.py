@@ -153,8 +153,7 @@ class SkiaApi(recipe_api.RecipeApi):
         )
 
     self.m.gclient.c = gclient_cfg
-    with self.m.step.context({'cwd': self.m.vars.checkout_root,
-                              'env': self.m.vars.default_env}):
+    with self.m.step.context({'cwd': self.m.vars.checkout_root}):
       update_step = self.m.bot_update.ensure_checkout(patch_root=patch_root)
 
     self.m.vars.got_revision = (
