@@ -344,6 +344,7 @@ protected:
     static void draw_as_tex(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
         sk_sp<SkColorSpace> texColorSpace;
+        // MDB TODO: this should be lockAsTextureRef
         sk_sp<GrTexture> texture(
             cache->lockAsTexture(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
                                  canvas->imageInfo().colorSpace(), &texColorSpace,
@@ -359,9 +360,13 @@ protected:
             canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
             return;
         }
+
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture));
+
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        sk_sp<SkImage> image(new SkImage_Gpu(cache->uniqueID(), kPremul_SkAlphaType,
-                                             std::move(texture), std::move(texColorSpace),
+        sk_sp<SkImage> image(new SkImage_Gpu(canvas->getGrContext(),
+                                             cache->uniqueID(), kPremul_SkAlphaType,
+                                             std::move(proxy), std::move(texColorSpace),
                                              SkBudgeted::kNo));
         canvas->drawImage(image.get(), x, y);
 #endif

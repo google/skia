@@ -14,6 +14,7 @@
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrStyle.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTextureAdjuster.h"
 #include "GrTextureProxy.h"
 #include "GrTracing.h"
@@ -165,7 +166,9 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     }
 
     GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->caps());
-    return context->makeRenderTargetContext(SkBackingFit::kExact,               // Why exact?
+    // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
+    // they need to be exact.
+    return context->makeRenderTargetContext(SkBackingFit::kExact,
                                     origInfo.width(), origInfo.height(),
                                     config, origInfo.refColorSpace(), sampleCount,
                                     origin, surfaceProps, budgeted);
@@ -245,16 +248,19 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
 
     SkBudgeted budgeted = fRenderTargetContext->priv().isBudgeted();
 
+    // This entry point is used by SkSurface_Gpu::onCopyOnWrite so it must create a
+    // kExact-backed render target context.
     sk_sp<GrRenderTargetContext> newRTC(MakeRenderTargetContext(
                                                             this->context(),
                                                             budgeted,
                                                             this->imageInfo(),
-                                                            fRenderTargetContext->numColorSamples(), 
-                                                            fRenderTargetContext->origin(), 
+                                                            fRenderTargetContext->numColorSamples(),
+                                                            fRenderTargetContext->origin(),
                                                             &this->surfaceProps()));
     if (!newRTC) {
         return;
     }
+    SkASSERT(newRTC->asSurfaceProxy()->priv().isExact());
 
     if (shouldRetainContent) {
         if (fRenderTargetContext->wasAbandoned()) {
@@ -1326,6 +1332,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
     const SkImageInfo ii = this->imageInfo();
     const SkIRect srcRect = SkIRect::MakeWH(ii.width(), ii.height());
 
+    SkASSERT(proxy->priv().isExact());
     return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                srcRect,
                                                kNeedNewImageUniqueID_SpecialImage,
