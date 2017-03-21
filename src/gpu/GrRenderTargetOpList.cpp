@@ -70,14 +70,25 @@ void GrRenderTargetOpList::dump() const {
         }
     }
 }
+
+void GrRenderTargetOpList::validateTargetsSingleRenderTarget() const {
+    GrRenderTarget* rt = nullptr;
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        if (!fRecordedOps[i].fOp) {
+            continue;       // combined forward
+        }
+
+        if (!rt) {
+            rt = fRecordedOps[i].fRenderTarget.get();
+        } else {
+            SkASSERT(fRecordedOps[i].fRenderTarget.get() == rt);
+        }
+    }
+}
 #endif
 
 void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
-    // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
-    // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
-    // but need to be flushed anyway. Closing such GrOpLists here will mean new
-    // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-    this->makeClosed();
+    // MDB TODO: add SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet been prepared.
     for (int i = 0; i < fRecordedOps.count(); ++i) {
