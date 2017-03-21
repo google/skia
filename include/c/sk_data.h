@@ -81,6 +81,8 @@ SK_C_API const uint8_t* sk_data_get_bytes(const sk_data_t*);
 
 SK_C_API sk_data_t* sk_data_new_with_proc(const void* ptr, size_t length, sk_data_release_proc proc, void* ctx);
 
+SK_C_API sk_data_t* sk_data_new_uninitialized(size_t size);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

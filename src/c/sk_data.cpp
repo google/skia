@@ -43,6 +43,10 @@ sk_data_t* sk_data_new_with_proc(const void* ptr, size_t length, sk_data_release
     return ToData(SkData::MakeWithProc(ptr, length, proc, ctx).release());
 }
 
+sk_data_t* sk_data_new_uninitialized(size_t size) {
+    return ToData(SkData::MakeUninitialized(size).release());
+}
+
 void sk_data_ref(const sk_data_t* cdata) {
     SkSafeRef(AsData(cdata));
 }
