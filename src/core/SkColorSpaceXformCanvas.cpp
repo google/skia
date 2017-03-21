@@ -376,15 +376,19 @@ public:
     void didSetMatrix(const SkMatrix& m) override { fTarget->setMatrix(m); }
 
     void onClipRect(const SkRect& clip, SkClipOp op, ClipEdgeStyle style) override {
+        SkCanvas::onClipRect(clip, op, style);
         fTarget->clipRect(clip, op, style);
     }
     void onClipRRect(const SkRRect& clip, SkClipOp op, ClipEdgeStyle style) override {
+        SkCanvas::onClipRRect(clip, op, style);
         fTarget->clipRRect(clip, op, style);
     }
     void onClipPath(const SkPath& clip, SkClipOp op, ClipEdgeStyle style) override {
+        SkCanvas::onClipPath(clip, op, style);
         fTarget->clipPath(clip, op, style);
     }
     void onClipRegion(const SkRegion& clip, SkClipOp op) override {
+        SkCanvas::onClipRegion(clip, op);
         fTarget->clipRegion(clip, op);
     }
 
