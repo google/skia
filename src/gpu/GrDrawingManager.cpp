@@ -75,9 +75,52 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     }
     fFlushing = true;
     bool flushed = false;
+
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
+        // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
+        // but need to be flushed anyway. Closing such GrOpLists here will mean new
+        // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
+        fOpLists[i]->makeClosed();
+    }
+
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
+
+    GrPreFlushResourceProvider preFlushProvider(this);
+
+    if (fPreFlushCBObjects.count()) {
+        // MDB TODO: pre-MDB '1' is the correct pre-allocated size. Post-MDB it will need
+        // to be larger.
+        SkAutoSTArray<1, uint32_t> opListIds(fOpLists.count());
+        for (int i = 0; i < fOpLists.count(); ++i) {
+            opListIds[i] = fOpLists[i]->uniqueID();
+        }
+
+        SkSTArray<1, sk_sp<GrRenderTargetContext>> renderTargetContexts;
+        for (int i = 0; i < fPreFlushCBObjects.count(); ++i) {
+            fPreFlushCBObjects[i]->preFlush(&preFlushProvider,
+                                            opListIds.get(), opListIds.count(),
+                                            &renderTargetContexts);
+            if (!renderTargetContexts.count()) {
+                continue;       // This is fine. No atlases of this type are required for this flush
+            }
+
+            for (int j = 0; j < renderTargetContexts.count(); ++j) {
+                GrRenderTargetOpList* opList = renderTargetContexts[j]->getOpList();
+                if (!opList) {
+                    continue;   // Odd - but not a big deal
+                }
+                SkDEBUGCODE(opList->validateTargetsSingleRenderTarget());
+                opList->prepareOps(&fFlushState);
+                if (!opList->executeOps(&fFlushState)) {
+                    continue;         // This is bad
+                }
+            }
+            renderTargetContexts.reset();
+        }
+    }
 
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareOps(&fFlushState);
@@ -143,6 +186,10 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
     if (fContext->getGpu() && rt) {
         fContext->getGpu()->resolveRenderTarget(rt);
     }
+}
+
+void GrDrawingManager::addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject> preFlushCBObject) {
+    fPreFlushCBObjects.push_back(preFlushCBObject);
 }
 
 GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
