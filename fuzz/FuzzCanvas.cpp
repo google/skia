@@ -1786,6 +1786,16 @@ DEF_FUZZ(RasterN32Canvas, fuzz) {
 }
 
 #if SK_SUPPORT_GPU
+static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
+    SkASSERT(context);
+    auto surface = SkSurface::MakeRenderTarget(
+            context,
+            SkBudgeted::kNo,
+            SkImageInfo::Make(kCanvasSize.width(), kCanvasSize.height(), kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+    SkASSERT(surface && surface->getCanvas());
+    fuzz_canvas(fuzz, surface->getCanvas());
+}
+
 DEF_FUZZ(NativeGLCanvas, fuzz) {
     GrContext* context = sk_gpu_test::GrContextFactory().get(
             sk_gpu_test::GrContextFactory::kGL_ContextType);
@@ -1793,12 +1803,17 @@ DEF_FUZZ(NativeGLCanvas, fuzz) {
         context = sk_gpu_test::GrContextFactory().get(
                 sk_gpu_test::GrContextFactory::kGLES_ContextType);
     }
-    auto surface = SkSurface::MakeRenderTarget(
-            context,
-            SkBudgeted::kNo,
-            SkImageInfo::Make(kCanvasSize.width(), kCanvasSize.height(), kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    SkASSERT(surface && surface->getCanvas());
-    fuzz_canvas(fuzz, surface->getCanvas());
+    fuzz_ganesh(fuzz, context);
+}
+
+DEF_FUZZ(NullGLCanvas, fuzz) {
+    fuzz_ganesh(fuzz, sk_gpu_test::GrContextFactory().get(
+            sk_gpu_test::GrContextFactory::kNullGL_ContextType));
+}
+
+DEF_FUZZ(DebugGLCanvas, fuzz) {
+    fuzz_ganesh(fuzz, sk_gpu_test::GrContextFactory().get(
+            sk_gpu_test::GrContextFactory::kDebugGL_ContextType));
 }
 #endif
 
