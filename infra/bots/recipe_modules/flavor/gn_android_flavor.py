@@ -23,18 +23,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         svg_dir       = self.m.vars.android_data_dir + 'svgs',
         tmp_dir       = self.m.vars.android_data_dir)
 
-  def _strip_environment(self):
-    self.m.vars.default_env = {k: v for (k,v)
-                               in self.m.vars.default_env.iteritems()
-                               if k in ['PATH']}
-
   def _run(self, title, *cmd, **kwargs):
-    self._strip_environment()
     with self.m.step.context({'cwd': self.m.vars.skia_dir}):
       return self.m.run(self.m.step, title, cmd=list(cmd), **kwargs)
 
   def _py(self, title, script, infra_step=True):
-    self._strip_environment()
     with self.m.step.context({'cwd': self.m.vars.skia_dir}):
       return self.m.run(self.m.python, title, script=script,
                         infra_step=infra_step)

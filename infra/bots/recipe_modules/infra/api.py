@@ -24,7 +24,7 @@ class InfraApi(recipe_api.RecipeApi):
 
     This fails flakily sometimes, so perform multiple attempts.
     """
-    env = self.m.step.get_from_context('env') or {}
+    env = self.m.step.get_from_context('env', {})
     env.update(self.go_env)
     with self.m.step.context({'env': env}):
       self.m.run.with_retry(
