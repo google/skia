@@ -204,16 +204,16 @@ GR_STATIC_ASSERT(SkXfermode::kCoeffCount == 10);
  *  performed on the absolute texture coordinates (e.g., if the texture is resized out to
  *  the next power of two). It can be null if the caller is sure the bitmap won't be resized.
  */
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
-                                    const GrSamplerParams&, SkScalar scaleAdjust[2]);
+sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
+                                                    const SkBitmap&,
+                                                    const GrSamplerParams&,
+                                                    SkScalar scaleAdjust[2]);
 
 /**
  * Creates a new texture for the bitmap. Does not concern itself with cache keys or texture params.
  * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
  * compressed textures and yuv planes.
  */
-GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
-
 sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider*, const SkBitmap&);
 
 GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&,
@@ -225,8 +225,6 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const
 /**
  * Creates a new texture for the pixmap.
  */
-GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted);
-
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider*,
                                                    const SkPixmap&, SkBudgeted);
 
@@ -243,6 +241,10 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext*, const SkImageInfo
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
                                            const GrSamplerParams&, SkScalar scaleAdjust[2]);
+
+sk_sp<GrTextureProxy> GrMakeCachedBitmapTextureProxy(GrContext*, const SkBitmap&,
+                                                     const GrSamplerParams&,
+                                                     SkScalar scaleAdjust[2]);
 
 // This is intended to replace:
 //    SkAutoLockPixels alp(bitmap, true);
