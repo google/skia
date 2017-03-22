@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dda9fbb7_05077ed2",
+        "filename": "src/gpu/GrGpuResourceCacheAccess.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-22T13:54:52Z",
+      "side": 1,
+      "message": "puregable ?\nis the \"number of frames\" part correct ?",
+      "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7554584_209c87bc",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-22T13:54:52Z",
+      "side": 1,
+      "message": "rm \u0027a\u0027 ?",
+      "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df7931a2_0c9ff503",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-22T13:54:52Z",
+      "side": 1,
+      "message": "Are these really frame notifications ?",
+      "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d5e17c6_d4c66201",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1329,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-22T13:54:52Z",
+      "side": 1,
+      "message": "We really want this context flushed!",
+      "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
