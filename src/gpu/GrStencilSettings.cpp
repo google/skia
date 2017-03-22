@@ -78,6 +78,8 @@ bool GrStencilSettings::operator==(const GrStencilSettings& that) const {
     }
     if (kSingleSided_StencilFlag & (fFlags & that.fFlags)) {
         return 0 == memcmp(&fFront, &that.fFront, sizeof(Face)); // Both are single sided.
+    } else if (kSingleSided_StencilFlag & (fFlags | that.fFlags)) {
+        return false;
     } else {
         return 0 == memcmp(&fFront, &that.fFront, 2 * sizeof(Face));
         GR_STATIC_ASSERT(sizeof(Face) ==
