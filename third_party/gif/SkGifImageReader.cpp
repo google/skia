@@ -760,8 +760,8 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                     m_firstFrameSupportsIndex8 = true;
                 } else {
                     const bool frameIsSubset = xOffset > 0 || yOffset > 0
-                            || xOffset + width < m_screenWidth
-                            || yOffset + height < m_screenHeight;
+                            || width < m_screenWidth
+                            || height < m_screenHeight;
                     m_firstFrameHasAlpha = frameIsSubset;
                     m_firstFrameSupportsIndex8 = !frameIsSubset;
                 }
@@ -891,55 +891,105 @@ void SkGifImageReader::addFrameIfNecessary()
     }
 }
 
+static SkIRect frame_rect_on_screen(SkIRect frameRect,
+                                    const SkIRect& screenRect) {
+    if (!frameRect.intersect(screenRect)) {
+        return SkIRect::MakeEmpty();
+    }
+
+    return frameRect;
+}
+
+// FIXME: Rename to mention alpha as well.
 void SkGifImageReader::setRequiredFrame(SkGIFFrameContext* frame) {
     const size_t i = frame->frameId();
     if (0 == i) {
+        frame->setHasAlpha(m_firstFrameHasAlpha);
+        frame->setRequiredFrame(SkCodec::kNone);
+        return;
+    }
+
+    // Note: We could correct these after decoding - i.e. some frames may turn out to be
+    // independent and opaque if they do not use the transparent pixel, but that would require
+    // checking whether each pixel used the transparent index.
+    const SkGIFColorMap& localMap = frame->localColorMap();
+    const bool transValid = hasTransparentPixel(i, localMap.isDefined(), localMap.numColors());
+
+    const auto screenRect = SkIRect::MakeWH(m_screenWidth, m_screenHeight);
+    const auto frameRect = frame_rect_on_screen(frame->frameRect(), screenRect);
+    const bool fillsScreen = frameRect == screenRect;
+
+    if (!transValid && fillsScreen) {
+        frame->setHasAlpha(false);
         frame->setRequiredFrame(SkCodec::kNone);
         return;
     }
 
     const SkGIFFrameContext* prevFrame = m_frames[i - 1].get();
-    if (prevFrame->getDisposalMethod() == SkCodecAnimation::RestorePrevious_DisposalMethod) {
-        frame->setRequiredFrame(prevFrame->getRequiredFrame());
-        return;
+    while (prevFrame->getDisposalMethod() == SkCodecAnimation::RestorePrevious_DisposalMethod) {
+        const size_t prevId = prevFrame->frameId();
+        if (0 == prevId) {
+            frame->setHasAlpha(transValid || !fillsScreen);
+            frame->setRequiredFrame(SkCodec::kNone);
+            return;
+        }
+
+        prevFrame = m_frames[prevId - 1].get();
     }
 
-    // Note: We could correct these after decoding - i.e. some frames may turn out to be
-    // independent if they do not use the transparent pixel, but that would require
-    // checking whether each pixel used the transparent pixel.
-    const SkGIFColorMap& localMap = frame->localColorMap();
-    const bool transValid = hasTransparentPixel(i, localMap.isDefined(), localMap.numColors());
+    const auto prevDispose = prevFrame->getDisposalMethod();
+    SkASSERT(prevDispose != SkCodecAnimation::RestorePrevious_DisposalMethod);
+    const auto prevFrameRect = frame_rect_on_screen(prevFrame->frameRect(), screenRect);
 
-    const SkIRect prevFrameRect = prevFrame->frameRect();
-    const bool frameCoversPriorFrame = frame->frameRect().contains(prevFrameRect);
-
-    if (!transValid && frameCoversPriorFrame) {
-        frame->setRequiredFrame(prevFrame->getRequiredFrame());
-        return;
+    if (prevDispose == SkCodecAnimation::RestoreBGColor_DisposalMethod) {
+        if (prevFrameRect == screenRect
+                || prevFrame->getRequiredFrame() == SkCodec::kNone) {
+            frame->setHasAlpha(transValid || !fillsScreen);
+            frame->setRequiredFrame(SkCodec::kNone);
+            return;
+        }
     }
 
-    switch (prevFrame->getDisposalMethod()) {
-        case SkCodecAnimation::Keep_DisposalMethod:
-            frame->setRequiredFrame(i - 1);
-            break;
-        case SkCodecAnimation::RestorePrevious_DisposalMethod:
-            // This was already handled above.
-            SkASSERT(false);
-            break;
-        case SkCodecAnimation::RestoreBGColor_DisposalMethod:
-            // If the prior frame covers the whole image
-            if (prevFrameRect == SkIRect::MakeWH(m_screenWidth, m_screenHeight)
-                    // Or the prior frame was independent
-                    || prevFrame->getRequiredFrame() == SkCodec::kNone)
-            {
-                // This frame is independent, since we clear everything in the
-                // prior frame to the BG color
-                frame->setRequiredFrame(SkCodec::kNone);
-            } else {
-                frame->setRequiredFrame(i - 1);
+    if (!transValid && frameRect.contains(prevFrameRect)) {
+        const size_t prevRequiredFrame = prevFrame->getRequiredFrame();
+        frame->setRequiredFrame(prevRequiredFrame);
+        if (prevRequiredFrame == SkCodec::kNone) {
+            // !transValid && fillsScreen exits above.
+            SkASSERT(!fillsScreen);
+            frame->setHasAlpha(true);
+        } else {
+            // This is still conservative. It is possible that prevRequiredFrame is
+            // covered by frame (but not prevFrame), so we could look at the frame
+            // that prevRequiredFrame depends on.
+            const auto* reqFrame = m_frames[prevRequiredFrame].get();
+            if (reqFrame->hasAlpha()) {
+                frame->setHasAlpha(true);
+                return;
             }
-            break;
+
+            switch(reqFrame->getDisposalMethod()) {
+                case SkCodecAnimation::RestorePrevious_DisposalMethod:
+                    SkASSERT(false);
+                    break;
+                case SkCodecAnimation::Keep_DisposalMethod:
+                    SkASSERT(!reqFrame->hasAlpha());
+                    frame->setHasAlpha(false);
+                    break;
+                case SkCodecAnimation::RestoreBGColor_DisposalMethod: {
+                    const auto reqRect = frame_rect_on_screen(reqFrame->frameRect(), screenRect);
+                    // FIXME: if frameRect covers reqRect, frame does not truly
+                    // depend on prevRequiredFrame.
+                    frame->setHasAlpha(!frameRect.contains(reqRect));
+                    break;
+                }
+            }
+        }
+        return;
     }
+
+    frame->setRequiredFrame(prevFrame->frameId());
+    frame->setHasAlpha(prevFrame->hasAlpha()
+            || prevDispose == SkCodecAnimation::RestoreBGColor_DisposalMethod);
 }
 
 // FIXME: Move this method to close to doLZW().
