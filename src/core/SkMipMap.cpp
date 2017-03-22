@@ -266,25 +266,34 @@ template <typename F> void downsample_3_3(void* dst, const void* src, size_t src
     auto p2 = (const typename F::Type*)((const char*)p1 + srcRB);
     auto d = static_cast<typename F::Type*>(dst);
 
-    auto c02 = F::Expand(p0[0]);
-    auto c12 = F::Expand(p1[0]);
-    auto c22 = F::Expand(p2[0]);
-    for (int i = 0; i < count; ++i) {
-        auto c00 = c02;
-        auto c01 = F::Expand(p0[1]);
-             c02 = F::Expand(p0[2]);
-        auto c10 = c12;
-        auto c11 = F::Expand(p1[1]);
-             c12 = F::Expand(p1[2]);
-        auto c20 = c22;
-        auto c21 = F::Expand(p2[1]);
-             c22 = F::Expand(p2[2]);
+    // Given pixels:
+    // a0 b0 c0 d0 e0 ...
+    // a1 b1 c1 d1 e1 ...
+    // a2 b2 c2 d2 e2 ...
+    // We want:
+    // (a0 + 2*b0 + c0 + 2*a1 + 4*b1 + 2*c1 + a2 + 2*b2 + c2) / 16
+    // (c0 + 2*d0 + e0 + 2*c1 + 4*d1 + 2*e1 + c2 + 2*d2 + e2) / 16
+    // ...
 
-        auto c =
-            add_121(c00, c01, c02) +
-            shift_left(add_121(c10, c11, c12), 1) +
-            add_121(c20, c21, c22);
-        d[i] = F::Compact(shift_right(c, 4));
+    auto c0 = F::Expand(p0[0]);
+    auto c1 = F::Expand(p1[0]);
+    auto c2 = F::Expand(p2[0]);
+    auto c = add_121(c0, c1, c2);
+    for (int i = 0; i < count; ++i) {
+        auto a = c;
+
+        auto b0 = F::Expand(p0[1]);
+        auto b1 = F::Expand(p1[1]);
+        auto b2 = F::Expand(p2[1]);
+        auto b = shift_left(add_121(b0, b1, b2), 1);
+
+        c0 = F::Expand(p0[2]);
+        c1 = F::Expand(p1[2]);
+        c2 = F::Expand(p2[2]);
+        c = add_121(c0, c1, c2);
+
+        auto sum = a + b + c;
+        d[i] = F::Compact(shift_right(sum, 4));
         p0 += 2;
         p1 += 2;
         p2 += 2;
