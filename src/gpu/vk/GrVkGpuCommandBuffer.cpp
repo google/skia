@@ -509,6 +509,10 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     if (!meshCount) {
         return;
     }
+    if (!fCommandBufferInfos[fCurrentCmdBuffer].fIsEmpty &&
+        fGpu->caps()->forceOnlyOneOpPerGpuCmdBuffer()) {
+        this->addAdditionalCommandBuffer();
+    }
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdBuffer];
     SkASSERT(cbInfo.fRenderPass);
 
