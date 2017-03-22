@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ae98d915_1110e2a2",
+        "filename": "src/gpu/GrGpuResourceCacheAccess.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-22T14:06:06Z",
+      "side": 1,
+      "message": "No, that was from an older incarnation of the change. Rewrote the comment.",
+      "parentUuid": "dda9fbb7_05077ed2",
+      "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7554584_209c87bc",
         "filename": "tests/ResourceCacheTest.cpp",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b6e737_e73fe9d0",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-22T14:06:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7554584_209c87bc",
+      "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "d6caecd3_c0c77f1f",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-22T14:06:06Z",
+      "side": 1,
+      "message": "No, changed.",
+      "parentUuid": "df7931a2_0c9ff503",
+      "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4d5e17c6_d4c66201",
         "filename": "tests/ResourceCacheTest.cpp",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-22T13:54:52Z",
       "side": 1,
       "message": "We really want this context flushed!",
+      "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85e3ed36_d3487234",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1329,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-22T14:06:06Z",
+      "side": 1,
+      "message": "Ha, removed the loop.",
+      "parentUuid": "4d5e17c6_d4c66201",
       "revId": "853b9cf8f6cfd415d6525b5802cf6bcf3fab13c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
