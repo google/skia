@@ -1815,7 +1815,8 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     if (0xFF != dx && 0xFF != dy) {
-        this->changeOffset({SkIntToScalar(dx / 32.0f), SkIntToScalar(dy / 32.0f)});
+        SkScalar scale = 1;  // was 32
+        this->changeOffset({SkIntToScalar(dx / scale), SkIntToScalar(dy / scale)});
         return true;
     }
 
