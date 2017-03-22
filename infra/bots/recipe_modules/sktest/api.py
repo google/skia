@@ -38,10 +38,12 @@ def dm_flags(bot):
     # We want to test the OpenGL config not the GLES config on the Shield
     if 'NVIDIA_Shield' not in bot:
       gl_prefix = 'gles'
+  elif 'Intel' in bot:
+    sample_count = ''
 
-  configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb',
-                  gl_prefix + 'msaa' + sample_count])
-
+  configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb'])
+  if sample_count is not '':
+    configs.append(gl_prefix + 'msaa' + sample_count)
 
   # The NP produces a long error stream when we run with MSAA. The Tegra3 just
   # doesn't support it.
@@ -69,7 +71,7 @@ def dm_flags(bot):
     configs.extend(['lite-8888'])                # Experimental display list.
     configs.extend(['gbr-8888'])
 
-  if '-TSAN' not in bot:
+  if '-TSAN' not in bot and sample_count is not '':
     if ('TegraK1'  in bot or
         'TegraX1'  in bot or
         'GTX550Ti' in bot or
@@ -80,7 +82,7 @@ def dm_flags(bot):
   # We want to test both the OpenGL config and the GLES config on Linux Intel:
   # GL is used by Chrome, GLES is used by ChromeOS.
   if 'Intel' in bot and 'Ubuntu' in bot:
-    configs.extend(['gles', 'glesdft', 'glessrgb', 'glesmsaa4'])
+    configs.extend(['gles', 'glesdft', 'glessrgb'])
 
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
@@ -98,7 +100,7 @@ def dm_flags(bot):
     configs = [x.replace(old, new) for x in configs]
     # We also test non-msaa instanced.
     configs.append(new)
-  elif 'MacMini6.2' in bot:
+  elif 'MacMini6.2' in bot and sample_count is not '':
     configs.extend([gl_prefix + 'inst', gl_prefix + 'inst' + sample_count])
 
   # CommandBuffer bot *only* runs the command_buffer config.
@@ -109,8 +111,10 @@ def dm_flags(bot):
   if 'ANGLE' in bot:
     configs = ['angle_d3d11_es2',
                'angle_d3d9_es2',
-               'angle_d3d11_es2_msaa4',
                'angle_gl_es2']
+    if sample_count is not '':
+      # Currently we only have 4 sample msaa angle configs
+      configs.append('angle_d3d11_es2_msaa4')
 
   # Vulkan bot *only* runs the vk config.
   if 'Vulkan' in bot:
@@ -331,7 +335,6 @@ def dm_flags(bot):
     blacklist(['_', 'gm', '_', 'encode-platform'])
 
   if 'AndroidOne-GPU' in bot:  # skia:4697, skia:4704, skia:4694, skia:4705
-    gl_msaa_config = gl_prefix + 'msaa' + sample_count
     blacklist(['_',            'gm', '_', 'bigblurs'])
     blacklist(['_',            'gm', '_', 'bleed'])
     blacklist(['_',            'gm', '_', 'bleed_alpha_bmp'])
@@ -342,13 +345,15 @@ def dm_flags(bot):
     blacklist(['_',            'gm', '_', 'dropshadowimagefilter'])
     blacklist(['_',            'gm', '_', 'filterfastbounds'])
     blacklist([gl_prefix,      'gm', '_', 'imageblurtiled'])
-    blacklist([gl_msaa_config, 'gm', '_', 'imageblurtiled'])
-    blacklist([gl_msaa_config, 'gm', '_', 'imagefiltersbase'])
     blacklist(['_',            'gm', '_', 'imagefiltersclipped'])
     blacklist(['_',            'gm', '_', 'imagefiltersscaled'])
     blacklist(['_',            'gm', '_', 'imageresizetiled'])
     blacklist(['_',            'gm', '_', 'matrixconvolution'])
     blacklist(['_',            'gm', '_', 'strokedlines'])
+    if sample_count is not '':
+      gl_msaa_config = gl_prefix + 'msaa' + sample_count
+      blacklist([gl_msaa_config, 'gm', '_', 'imageblurtiled'])
+      blacklist([gl_msaa_config, 'gm', '_', 'imagefiltersbase'])
 
   match = []
   if 'Valgrind' in bot: # skia:3021
