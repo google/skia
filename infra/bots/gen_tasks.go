@@ -201,7 +201,11 @@ func swarmDimensions(parts map[string]string) []string {
 		}
 	} else {
 		d["gpu"] = "none"
+		if d["os"] == DEFAULT_OS_LINUX {
+			return linuxGceDimensions()
+		}
 	}
+
 	rv := make([]string, 0, len(d))
 	for k, v := range d {
 		rv = append(rv, fmt.Sprintf("%s:%s", k, v))
