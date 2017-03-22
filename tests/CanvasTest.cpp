@@ -44,6 +44,7 @@
  *      works the same way as SIMPLE_TEST_STEP, and additionally verifies
  *      that the invoked method returns a non-zero value.
  */
+
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
@@ -101,6 +102,59 @@ DEF_TEST(canvas_clipbounds, reporter) {
 
         SkPictureRecorder().beginRecording({ 5, 5, 4, 4 });
     }
+}
+
+const SkIRect gBaseRestrictedR = { 0, 0, 10, 10 };
+
+static void test_restriction(skiatest::Reporter* reporter, SkCanvas* canvas) {
+    REPORTER_ASSERT(reporter, canvas->getDeviceClipBounds() == gBaseRestrictedR);
+
+    const SkIRect restrictionR = { 2, 2, 8, 8 };
+    canvas->androidFramework_setDeviceClipRestriction(restrictionR);
+    REPORTER_ASSERT(reporter, canvas->getDeviceClipBounds() == restrictionR);
+
+    const SkIRect clipR = { 4, 4, 6, 6 };
+    canvas->clipRect(SkRect::Make(clipR), SkClipOp::kIntersect);
+    REPORTER_ASSERT(reporter, canvas->getDeviceClipBounds() == clipR);
+
+    // now test that expanding clipops can't exceed the restriction
+    const SkClipOp expanders[] = {
+        SkClipOp::kUnion_deprecated,
+        SkClipOp::kXOR_deprecated,
+        SkClipOp::kReverseDifference_deprecated,
+        SkClipOp::kReplace_deprecated,
+    };
+
+    const SkRect expandR = { 0, 0, 5, 9 };
+    SkASSERT(!SkRect::Make(restrictionR).contains(expandR));
+
+    for (SkClipOp op : expanders) {
+        canvas->save();
+        canvas->clipRect(expandR, op);
+        REPORTER_ASSERT(reporter, gBaseRestrictedR.contains(canvas->getDeviceClipBounds()));
+        canvas->restore();
+    }
+}
+
+/**
+ *  Clip restriction logic exists in the canvas itself, and in various kinds of devices.
+ *
+ *  This test explicitly tries to exercise that variety:
+ *  - picture : empty device but exercises canvas itself
+ *  - pdf : uses SkClipStack in its device (as does SVG and GPU)
+ *  - raster : uses SkRasterClip in its device
+ */
+DEF_TEST(canvas_clip_restriction, reporter) {
+    test_restriction(reporter, SkPictureRecorder().beginRecording(SkRect::Make(gBaseRestrictedR)));
+
+    SkNullWStream stream;
+    auto doc = SkDocument::MakePDF(&stream);
+    test_restriction(reporter, doc->beginPage(SkIntToScalar(gBaseRestrictedR.width()),
+                                              SkIntToScalar(gBaseRestrictedR.height())));
+
+    auto surf = SkSurface::MakeRasterN32Premul(gBaseRestrictedR.width(),
+                                               gBaseRestrictedR.height(), nullptr);
+    test_restriction(reporter, surf->getCanvas());
 }
 
 static const int kWidth = 2, kHeight = 2;
