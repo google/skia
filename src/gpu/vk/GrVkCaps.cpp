@@ -222,6 +222,12 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
     shaderCaps->fGeometryShaderSupport = SkToBool(featureFlags & kGeometryShader_GrVkFeatureFlag);
 
     shaderCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
+    if (kAMD_VkVendor == properties.vendorID) {
+        // Currently DualSourceBlending is not working on AMD. vkCreateGraphicsPipeline fails when
+        // using a draw with dual source. Looking into whether it is driver bug or issue with our
+        // SPIR-V. Bug skia:6405
+        shaderCaps->fDualSourceBlendingSupport = false;
+    }
 
     shaderCaps->fIntegerSupport = true;
 
