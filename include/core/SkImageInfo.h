@@ -349,4 +349,16 @@ private:
     {}
 };
 
+enum class SkBlendBehavior {
+    /**
+     *  Premultiplies, unpremultiplies, and blending occur in a linear space.
+     */
+    kLinear,
+
+    /**
+     *  Premultiplies, unpremultiplies, and blending ignore the transfer function.
+     */
+    kLegacy,
+};
+
 #endif

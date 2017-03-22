@@ -52,43 +52,14 @@ public:
      */
     const SkImageInfo& getInfo() const { return fInfo; }
 
-    /**
-     *  Decode into the given pixels, a block of memory of size at
-     *  least (info.fHeight - 1) * rowBytes + (info.fWidth *
-     *  bytesPerPixel)
-     *
-     *  Repeated calls to this function should give the same results,
-     *  allowing the PixelRef to be immutable.
-     *
-     *  @param info A description of the format (config, size)
-     *         expected by the caller.  This can simply be identical
-     *         to the info returned by getInfo().
-     *
-     *         This contract also allows the caller to specify
-     *         different output-configs, which the implementation can
-     *         decide to support or not.
-     *
-     *         A size that does not match getInfo() implies a request
-     *         to scale. If the generator cannot perform this scale,
-     *         it will return kInvalidScale.
-     *
-     *  If info is kIndex8_SkColorType, then the caller must provide storage for up to 256
-     *  SkPMColor values in ctable. On success the generator must copy N colors into that storage,
-     *  (where N is the logical number of table entries) and set ctableCount to N.
-     *
-     *  If info is not kIndex8_SkColorType, then the last two parameters may be NULL. If ctableCount
-     *  is not null, it will be set to 0.
-     *
-     *  @return true on success.
-     */
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                   SkPMColor ctable[], int* ctableCount);
+    struct Options {
+        // ctable
+        // ctableCount
+        // SkBlendBehavior
+        // ...
+    };
 
-    /**
-     *  Simplified version of getPixels() that asserts that info is NOT kIndex8_SkColorType and
-     *  uses the default Options.
-     */
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
+    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, Options opts);
 
     /**
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
