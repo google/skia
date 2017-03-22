@@ -141,6 +141,8 @@ std::vector<SkCodec::FrameInfo> SkGifCodec::onGetFrameInfo() {
         result[i].fDuration = frameContext->delayTime();
         result[i].fRequiredFrame = frameContext->getRequiredFrame();
         result[i].fFullyReceived = frameContext->isComplete();
+        result[i].fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
+                                                        : kOpaque_SkAlphaType;
     }
     return result;
 }
