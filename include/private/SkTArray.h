@@ -59,6 +59,9 @@ public:
     }
 
     SkTArray& operator=(const SkTArray& that) {
+        if (this == &that) {
+            return *this;
+        }
         for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }
@@ -69,6 +72,9 @@ public:
         return *this;
     }
     SkTArray& operator=(SkTArray&& that) {
+        if (this == &that) {
+            return *this;
+        }
         for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }

@@ -281,6 +281,19 @@ void test_unnecessary_alloc(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_self_assignment(skiatest::Reporter* reporter) {
+    SkTArray<int> a;
+    a.push_back(1);
+    REPORTER_ASSERT(reporter, !a.empty());
+    REPORTER_ASSERT(reporter, a.count() == 1);
+    REPORTER_ASSERT(reporter, a[0] == 1);
+
+    a = a;
+    REPORTER_ASSERT(reporter, !a.empty());
+    REPORTER_ASSERT(reporter, a.count() == 1);
+    REPORTER_ASSERT(reporter, a[0] == 1);
+}
+
 DEF_TEST(TArray, reporter) {
     TestTSet_basic<true>(reporter);
     TestTSet_basic<false>(reporter);
@@ -296,4 +309,6 @@ DEF_TEST(TArray, reporter) {
     test_move(reporter);
 
     test_unnecessary_alloc(reporter);
+
+    test_self_assignment(reporter);
 }
