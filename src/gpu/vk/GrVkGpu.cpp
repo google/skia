@@ -1794,7 +1794,7 @@ void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
     }
 }
 
-void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
+void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBuffer*>& buffers,
                                            const GrVkRenderPass* renderPass,
                                            const VkClearValue* colorClear,
                                            GrVkRenderTarget* target,
@@ -1820,7 +1820,9 @@ void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
     }
 
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, colorClear, *target, *pBounds, true);
-    fCurrentCmdBuffer->executeCommands(this, buffer);
+    for (int i = 0; i < buffers.count(); ++i) {
+        fCurrentCmdBuffer->executeCommands(this, buffers[i]);
+    }
     fCurrentCmdBuffer->endRenderPass(this);
 
     this->didWriteToSurface(target, &bounds);

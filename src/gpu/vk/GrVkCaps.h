@@ -80,6 +80,10 @@ public:
         return fMustSleepOnTearDown;
     }
 
+    bool newSecondaryCBOnPipelineChange() const {
+        return fNewSecondaryCBOnPipelineChange;
+    }
+
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
@@ -148,6 +152,11 @@ private:
     // on the command buffers even though they have completed. This causes an assert to fire when
     // destroying the command buffers. Therefore we add a sleep to make sure the fence signals.
     bool fMustSleepOnTearDown;
+
+    // If this is true, then while adding commands to secondary command buffers, we will make a new
+    // secondary command buffer everytime we want to bind a new VkPipeline. This is to work around a
+    // driver bug specifically on AMD.
+    bool fNewSecondaryCBOnPipelineChange;
 
     typedef GrCaps INHERITED;
 };
