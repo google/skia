@@ -15,6 +15,7 @@
 class GrCaps;
 class GrContext;
 class GrSamplerParams;
+class GrTextureProxy;
 class GrUniqueKey;
 class SkBitmap;
 class SkImage;
@@ -51,6 +52,7 @@ public:
     bool lockAsBitmap(GrContext*, SkBitmap*, const SkImage* client, SkColorSpace* dstColorSpace,
                       SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
+#if SK_SUPPORT_GPU
     /**
      *  Returns a ref() on the texture produced by this generator. The caller must call unref()
      *  when it is done. Will return nullptr on failure.
@@ -58,17 +60,20 @@ public:
      *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
      *  added to the cache on its behalf.
      *
-     *  The caller is responsible for calling texture->unref() when they are done.
+     *  The caller is responsible for calling proxy->unref() when they are done.
      *
      *  The scaleAdjust in/out parameter will return any scale adjustment that needs
      *  to be applied to the absolute texture coordinates in the case where the image
      *  was resized to meet the sampling requirements (e.g., resized out to the next power of 2).
      *  It can be null if the caller knows resizing will not be required.
      */
-    GrTexture* lockAsTexture(GrContext*, const GrSamplerParams&, SkColorSpace* dstColorSpace,
-                             sk_sp<SkColorSpace>* texColorSpace, const SkImage* client,
-                             SkScalar scaleAdjust[2],
-                             SkImage::CachingHint = SkImage::kAllow_CachingHint);
+    sk_sp<GrTextureProxy> lockAsTextureProxy(GrContext*, const GrSamplerParams&,
+                                             SkColorSpace* dstColorSpace,
+                                             sk_sp<SkColorSpace>* texColorSpace,
+                                             const SkImage* client,
+                                             SkScalar scaleAdjust[2],
+                                             SkImage::CachingHint = SkImage::kAllow_CachingHint);
+#endif
 
     /**
      *  If the underlying src naturally is represented by an encoded blob (in SkData), this returns
@@ -129,10 +134,14 @@ private:
     bool tryLockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
                          const SkImageInfo&);
 #if SK_SUPPORT_GPU
-    // Returns the texture. If the cacherator is generating the texture and wants to cache it,
+    // Returns the texture proxy. If the cacherator is generating the texture and wants to cache it,
     // it should use the passed in key (if the key is valid).
-    GrTexture* lockTexture(GrContext*, const GrUniqueKey& key, const SkImage* client,
-                           SkImage::CachingHint, bool willBeMipped, SkColorSpace* dstColorSpace);
+    sk_sp<GrTextureProxy> lockTextureProxy(GrContext*,
+                                           const GrUniqueKey& key,
+                                           const SkImage* client,
+                                           SkImage::CachingHint,
+                                           bool willBeMipped,
+                                           SkColorSpace* dstColorSpace);
     // Returns the color space of the texture that would be returned if you called lockTexture.
     // Separate code path to allow querying of the color space for textures that cached (even
     // externally).

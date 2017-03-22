@@ -88,13 +88,8 @@ sk_sp<GrTextureProxy> SkImage_Generator::asTextureProxyRef(GrContext* context,
                                                            SkColorSpace* dstColorSpace,
                                                            sk_sp<SkColorSpace>* texColorSpace,
                                                            SkScalar scaleAdjust[2]) const {
-    sk_sp<GrTexture> tex(fCache.lockAsTexture(context, params, dstColorSpace,
-                                              texColorSpace, this, scaleAdjust));
-    if (!tex) {
-        return nullptr;
-    }
-
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return fCache.lockAsTextureProxy(context, params, dstColorSpace,
+                                     texColorSpace, this, scaleAdjust);
 }
 #endif
 
