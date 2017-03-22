@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-
+#include "SkJpegUtility.h"
 #include "SkJPEGWriteUtility.h"
 
 ///////////////////////////////////////////////////////////////////////////////
