@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "485a94c6_7df2b0a7",
+        "filename": "gm/beziereffects.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-22T19:19:57Z",
+      "side": 1,
+      "message": "Are we after clarity/elegance here? Or performance?",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "e099dbfa0ae5594e9760a2344d6b84e7b57ddae1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
