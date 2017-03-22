@@ -56,6 +56,18 @@ public:
     static sk_sp<GrFragmentProcessor> PremulInput(sk_sp<GrFragmentProcessor>);
 
     /**
+     *  Returns a fragment processor that calls the passed in fragment processor, and then premuls
+     *  the output.
+     */
+    static sk_sp<GrFragmentProcessor> PremulOutput(sk_sp<GrFragmentProcessor>);
+
+    /**
+     *  Returns a fragment processor that calls the passed in fragment processor, and then unpremuls
+     *  the output.
+     */
+    static sk_sp<GrFragmentProcessor> UnpremulOutput(sk_sp<GrFragmentProcessor>);
+
+    /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a
      * series. The original input is passed to the first, the first's output is passed to the
      * second, etc. The output of the returned processor is the output of the last processor of the

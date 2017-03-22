@@ -266,7 +266,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
 
     bool applyPremulToSrc = false;
     if (kUnpremul_PixelOpsFlag & pixelOpsFlags) {
-        if (!GrPixelConfigIs8888Unorm(srcConfig)) {
+        if (!GrPixelConfigIs8888Unorm(srcConfig) && kRGBA_half_GrPixelConfig != srcConfig) {
             return false;
         }
         applyPremulToSrc = true;
@@ -279,7 +279,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
     GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
     // Don't prefer to draw for the conversion (and thereby access a texture from the cache) when
     // we've already determined that there isn't a roundtrip preserving conversion processor pair.
-    if (applyPremulToSrc && !this->didFailPMUPMConversionTest()) {
+    if (applyPremulToSrc && this->validPMUPMConversionExists(srcConfig)) {
         drawPreference = GrGpu::kCallerPrefersDraw_DrawPreference;
     }
 
@@ -422,8 +422,8 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
     }
 
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
-    if (unpremul && !GrPixelConfigIs8888Unorm(dstConfig)) {
-        // The unpremul flag is only allowed for 8888 configs.
+    if (unpremul && !GrPixelConfigIs8888Unorm(dstConfig) && kRGBA_half_GrPixelConfig != dstConfig) {
+        // The unpremul flag is only allowed for 8888 and F16 configs.
         return false;
     }
     // We don't allow conversion between integer configs and float/fixed configs.
@@ -434,7 +434,7 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
     GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
     // Don't prefer to draw for the conversion (and thereby access a texture from the cache) when
     // we've already determined that there isn't a roundtrip preserving conversion processor pair.
-    if (unpremul && !this->didFailPMUPMConversionTest()) {
+    if (unpremul && this->validPMUPMConversionExists(src->config())) {
         drawPreference = GrGpu::kCallerPrefersDraw_DrawPreference;
     }
 
@@ -865,12 +865,18 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    GrConfigConversionEffect::PMConversion pmToUPM =
-        static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
-    if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Make(texture, swizzle, pmToUPM, matrix);
+    if (kRGBA_half_GrPixelConfig == texture->config()) {
+        SkASSERT(swizzle == GrSwizzle::RGBA());
+        return GrFragmentProcessor::UnpremulOutput(
+                GrSimpleTextureEffect::Make(texture, nullptr, matrix));
     } else {
-        return nullptr;
+        GrConfigConversionEffect::PMConversion pmToUPM =
+            static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
+        if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
+            return GrConfigConversionEffect::Make(texture, swizzle, pmToUPM, matrix);
+        } else {
+            return nullptr;
+        }
     }
 }
 
@@ -880,13 +886,20 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrTextureProxy> 
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    GrConfigConversionEffect::PMConversion pmToUPM =
-        static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
-    if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Make(this->resourceProvider(),
-                                              proxy, swizzle, pmToUPM, matrix);
+    if (kRGBA_half_GrPixelConfig == proxy->config()) {
+        SkASSERT(swizzle == GrSwizzle::RGBA());
+        return GrFragmentProcessor::UnpremulOutput(
+                GrSimpleTextureEffect::Make(this->resourceProvider(), std::move(proxy),
+                                            nullptr, matrix));
     } else {
-        return nullptr;
+        GrConfigConversionEffect::PMConversion pmToUPM =
+            static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
+        if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
+            return GrConfigConversionEffect::Make(this->resourceProvider(), std::move(proxy),
+                                                  swizzle, pmToUPM, matrix);
+        } else {
+            return nullptr;
+        }
     }
 }
 
@@ -896,22 +909,31 @@ sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrTextureProxy> 
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    GrConfigConversionEffect::PMConversion upmToPM =
-        static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
-    if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
-        return GrConfigConversionEffect::Make(this->resourceProvider(),
-                                              std::move(proxy), swizzle, upmToPM, matrix);
+    if (kRGBA_half_GrPixelConfig == proxy->config()) {
+        SkASSERT(swizzle == GrSwizzle::RGBA());
+        return GrFragmentProcessor::PremulOutput(
+                GrSimpleTextureEffect::Make(this->resourceProvider(), std::move(proxy),
+                                            nullptr, matrix));
     } else {
-        return nullptr;
+        GrConfigConversionEffect::PMConversion upmToPM =
+            static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
+        if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
+            return GrConfigConversionEffect::Make(this->resourceProvider(), std::move(proxy),
+                                                  swizzle, upmToPM, matrix);
+        } else {
+            return nullptr;
+        }
     }
 }
 
-bool GrContext::didFailPMUPMConversionTest() const {
+bool GrContext::validPMUPMConversionExists(GrPixelConfig config) const {
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
     // The PM<->UPM tests fail or succeed together so we only need to check one.
-    return GrConfigConversionEffect::kNone_PMConversion == fPMToUPMConversion;
+    // For F16, we always allow PM/UPM conversion on the GPU, even if it doesn't round-trip.
+    return GrConfigConversionEffect::kNone_PMConversion != fPMToUPMConversion ||
+           kRGBA_half_GrPixelConfig == config;
 }
 
 //////////////////////////////////////////////////////////////////////////////
