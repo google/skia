@@ -94,6 +94,29 @@
       "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84ef29f3_7c37bafe",
+        "filename": "include/core/SkRefCnt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-03-22T15:19:41Z",
+      "side": 1,
+      "message": "This has to come before calling \u0027SkSafeUnref(old_ptr);\u0027. That\u0027s what the comment at the beginning is about.",
+      "range": {
+        "startLine": 388,
+        "startChar": 8,
+        "endLine": 388,
+        "endChar": 19
+      },
+      "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
