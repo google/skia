@@ -349,4 +349,17 @@ private:
     {}
 };
 
+enum class SkBlendBehavior {
+    /**
+     *  Converts to a linear space before premultiplying, unpremultiplying, or blending.
+     */
+    kLinear,
+
+    /**
+     *  Premultiplies, unpremultiplies, and blends ignoring the transfer function.  Pixels are
+     *  treated as if they are linear, regardless of what space they are actually in.
+     */
+    kLegacy,
+};
+
 #endif
