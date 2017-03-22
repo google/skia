@@ -27,7 +27,7 @@ public:
                          const LoadAndStoreInfo& colorInfo,
                          const LoadAndStoreInfo& stencilInfo);
 
-    virtual ~GrVkGpuCommandBuffer();
+    ~GrVkGpuCommandBuffer() override;
 
     void end() override;
 

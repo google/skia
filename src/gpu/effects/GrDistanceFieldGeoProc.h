@@ -70,7 +70,7 @@ public:
     }
 #endif
 
-    virtual ~GrDistanceFieldA8TextGeoProc() {}
+    ~GrDistanceFieldA8TextGeoProc() override {}
 
     const char* name() const override { return "DistanceFieldA8Text"; }
 

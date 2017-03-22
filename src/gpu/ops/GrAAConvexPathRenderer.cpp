@@ -530,7 +530,7 @@ public:
         return sk_sp<GrGeometryProcessor>(new QuadEdgeEffect(color, localMatrix, usesLocalCoords));
     }
 
-    virtual ~QuadEdgeEffect() {}
+    ~QuadEdgeEffect() override {}
 
     const char* name() const override { return "QuadEdge"; }
 

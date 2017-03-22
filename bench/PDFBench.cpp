@@ -68,7 +68,7 @@ static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
 class PDFImageBench : public Benchmark {
 public:
     PDFImageBench() {}
-    virtual ~PDFImageBench() {}
+    ~PDFImageBench() override {}
 
 protected:
     const char* onGetName() override { return "PDFImage"; }
@@ -107,7 +107,7 @@ private:
 class PDFJpegImageBench : public Benchmark {
 public:
     PDFJpegImageBench() {}
-    virtual ~PDFJpegImageBench() {}
+    ~PDFJpegImageBench() override {}
 
 protected:
     const char* onGetName() override { return "PDFJpegImage"; }
@@ -146,7 +146,7 @@ private:
 class PDFCompressionBench : public Benchmark {
 public:
     PDFCompressionBench() {}
-    virtual ~PDFCompressionBench() {}
+    ~PDFCompressionBench() override {}
 
 protected:
     const char* onGetName() override { return "PDFCompression"; }

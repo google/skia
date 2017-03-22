@@ -4315,7 +4315,7 @@ namespace {
 class ChangeListener : public SkPathRef::GenIDChangeListener {
 public:
     ChangeListener(bool *changed) : fChanged(changed) { *fChanged = false; }
-    virtual ~ChangeListener() {}
+    ~ChangeListener() override {}
     void onChange() override {
         *fChanged = true;
     }

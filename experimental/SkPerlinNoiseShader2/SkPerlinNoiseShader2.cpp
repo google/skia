@@ -633,7 +633,7 @@ public:
                                      std::move(permutationsProxy), std::move(noiseProxy), matrix));
     }
 
-    virtual ~GrPerlinNoise2Effect() { delete fPaintingData; }
+    ~GrPerlinNoise2Effect() override { delete fPaintingData; }
 
     const char* name() const override { return "PerlinNoise"; }
 
@@ -1053,7 +1053,7 @@ public:
                                             std::move(gradientProxy), matrix));
     }
 
-    virtual ~GrImprovedPerlinNoiseEffect() { delete fPaintingData; }
+    ~GrImprovedPerlinNoiseEffect() override { delete fPaintingData; }
 
     const char* name() const override { return "ImprovedPerlinNoise"; }
 

@@ -249,7 +249,7 @@ public:
      */
     explicit SkFILEStream(FILE* file);
 
-    virtual ~SkFILEStream();
+    ~SkFILEStream() override;
 
     /** Returns true if the current path could be opened. */
     bool isValid() const { return fFILE != nullptr; }
@@ -345,7 +345,7 @@ private:
 class SK_API SkFILEWStream : public SkWStream {
 public:
     SkFILEWStream(const char path[]);
-    virtual ~SkFILEWStream();
+    ~SkFILEWStream() override;
 
     /** Returns true if the current path could be opened.
     */
@@ -365,7 +365,7 @@ private:
 class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
     SkDynamicMemoryWStream();
-    virtual ~SkDynamicMemoryWStream();
+    ~SkDynamicMemoryWStream() override;
 
     bool write(const void* buffer, size_t size) override;
     size_t bytesWritten() const override;

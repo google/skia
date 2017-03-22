@@ -272,7 +272,7 @@ public:
         fGlobalOffset = fLocalOffset = 0;
     }
 
-    virtual ~SkROBufferStreamAsset() { fBuffer->unref(); }
+    ~SkROBufferStreamAsset() override { fBuffer->unref(); }
 
     size_t getLength() const override { return fBuffer->size(); }
 

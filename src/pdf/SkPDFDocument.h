@@ -50,7 +50,7 @@ public:
                   const SkDocument::PDFMetadata&,
                   sk_sp<SkPixelSerializer>,
                   bool);
-    virtual ~SkPDFDocument();
+    ~SkPDFDocument() override;
     SkCanvas* onBeginPage(SkScalar, SkScalar, const SkRect&) override;
     void onEndPage() override;
     void onClose(SkWStream*) override;

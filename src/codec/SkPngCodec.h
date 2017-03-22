@@ -32,7 +32,7 @@ public:
     // Assume IsPng was called and returned true.
     static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
 
-    virtual ~SkPngCodec();
+    ~SkPngCodec() override;
 
 protected:
     // We hold the png_ptr and info_ptr as voidp to avoid having to include png.h

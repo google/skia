@@ -51,7 +51,7 @@ static const int32_t kPdfSymbolic = 4;
 
 struct SkPDFType0Font final : public SkPDFFont {
     SkPDFType0Font(SkPDFFont::Info, const SkAdvancedTypefaceMetrics&);
-    virtual ~SkPDFType0Font();
+    ~SkPDFType0Font() override;
     void getFontSubset(SkPDFCanon*) override;
 #ifdef SK_DEBUG
     void emitObject(SkWStream*, const SkPDFObjNumMap&) const override;
@@ -62,13 +62,13 @@ struct SkPDFType0Font final : public SkPDFFont {
 
 struct SkPDFType1Font final : public SkPDFFont {
     SkPDFType1Font(SkPDFFont::Info, const SkAdvancedTypefaceMetrics&, SkPDFCanon*);
-    virtual ~SkPDFType1Font() {}
+    ~SkPDFType1Font() override {}
     void getFontSubset(SkPDFCanon*) override {} // TODO(halcanary): implement
 };
 
 struct SkPDFType3Font final : public SkPDFFont {
     SkPDFType3Font(SkPDFFont::Info, const SkAdvancedTypefaceMetrics&);
-    virtual ~SkPDFType3Font() {}
+    ~SkPDFType3Font() override {}
     void getFontSubset(SkPDFCanon*) override;
 };
 

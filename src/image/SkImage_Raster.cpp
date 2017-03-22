@@ -74,7 +74,7 @@ public:
     }
 
     SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*);
-    virtual ~SkImage_Raster();
+    ~SkImage_Raster() override;
 
     SkImageInfo onImageInfo() const override {
         return fBitmap.info();

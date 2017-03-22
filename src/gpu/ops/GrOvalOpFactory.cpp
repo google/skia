@@ -103,7 +103,7 @@ public:
 
     bool implementsDistanceVector() const override { return !fInClipPlane; }
 
-    virtual ~CircleGeometryProcessor() {}
+    ~CircleGeometryProcessor() override {}
 
     const char* name() const override { return "CircleEdge"; }
 
@@ -274,7 +274,7 @@ public:
         fStroke = stroke;
     }
 
-    virtual ~EllipseGeometryProcessor() {}
+    ~EllipseGeometryProcessor() override {}
 
     const char* name() const override { return "EllipseEdge"; }
 
@@ -416,7 +416,7 @@ public:
         fStyle = style;
     }
 
-    virtual ~DIEllipseGeometryProcessor() {}
+    ~DIEllipseGeometryProcessor() override {}
 
     const char* name() const override { return "DIEllipseEdge"; }
 

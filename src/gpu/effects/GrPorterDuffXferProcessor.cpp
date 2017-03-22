@@ -589,7 +589,7 @@ class GLPDLCDXferProcessor : public GrGLSLXferProcessor {
 public:
     GLPDLCDXferProcessor(const GrProcessor&) : fLastAlpha(SK_MaxU32) {}
 
-    virtual ~GLPDLCDXferProcessor() {}
+    ~GLPDLCDXferProcessor() override {}
 
     static void GenKey(const GrProcessor& processor, const GrShaderCaps& caps,
                        GrProcessorKeyBuilder* b) {}
