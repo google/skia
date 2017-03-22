@@ -46,6 +46,8 @@ def nanobench_flags(bot):
     # iOS crashes (skia:6399)
     if 'NexusPlayer' in bot or 'iOS' in bot:
       sample_count = ''
+  elif 'Intel' in bot:
+    sample_count = ''
 
   config.append(gl_prefix)
   if sample_count is not '':
@@ -56,7 +58,7 @@ def nanobench_flags(bot):
   # We want to test both the OpenGL config and the GLES config on Linux Intel:
   # GL is used by Chrome, GLES is used by ChromeOS.
   if 'Intel' in bot and 'Ubuntu' in bot:
-    config.extend(['gles', 'glesmsaa4'])
+    config.append('gles')
 
   # Bench instanced rendering on a limited number of platforms
   inst_config = gl_prefix + 'inst'
