@@ -233,7 +233,6 @@
       "gles",
       "glesdft",
       "glessrgb",
-      "glesmsaa4",
       "serialize-8888",
       "tiles_rt-8888",
       "pic-8888",
