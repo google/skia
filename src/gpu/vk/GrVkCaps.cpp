@@ -20,6 +20,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fSupportsCopiesAsDraws = false;
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
+    fNewSecondaryCBOnPipelineChange = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -172,6 +173,12 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fStencilWrapOpsSupport = true;
     fOversizedStencilSupport = true;
     fSampleShadingSupport = SkToBool(featureFlags & kSampleRateShading_GrVkFeatureFlag);
+
+    // AMD seems to have issues binding new VkPipelines inside a secondary command buffer.
+    // Current workaround is to use a different secondary command buffer for each new VkPipeline.
+    if (kAMD_VkVendor == properties.vendorID) {
+        fNewSecondaryCBOnPipelineChange = true;
+    }
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint32_t featureFlags) {
