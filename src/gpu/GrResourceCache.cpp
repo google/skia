@@ -365,6 +365,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
     resource->cacheAccess().setFlushCntWhenResourceBecamePurgeable(fExternalFlushCnt);
+    resource->cacheAccess().setTimeWhenResourceBecomePurgeable();
 
     if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
         // Check whether this resource could still be used as a scratch resource.
@@ -502,6 +503,24 @@ void GrResourceCache::purgeAllUnlocked() {
     }
 
     this->validate();
+}
+
+void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point purgeTime) {
+    while (fPurgeableQueue.count()) {
+        const GrStdSteadyClock::time_point resourceTime =
+                fPurgeableQueue.peek()->cacheAccess().timeWhenResourceBecamePurgeable();
+        if (resourceTime >= purgeTime) {
+            // Resources were given both LRU timestamps and tagged with a frame number when
+            // they first became purgeable. The LRU timestamp won't change again until the
+            // resource is made non-purgeable again. So, at this point all the remaining
+            // resources in the timestamp-sorted queue will have a frame number >= to this
+            // one.
+            break;
+        }
+        GrGpuResource* resource = fPurgeableQueue.peek();
+        SkASSERT(resource->isPurgeable());
+        resource->cacheAccess().release();
+    }
 }
 
 void GrResourceCache::processInvalidUniqueKeys(

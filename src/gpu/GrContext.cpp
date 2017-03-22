@@ -193,6 +193,11 @@ void GrContext::freeGpuResources() {
     fResourceCache->purgeAllUnlocked();
 }
 
+void GrContext::purgeResourcesNotUsedInMs(std::chrono::milliseconds ms) {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->purgeResourcesNotUsedSince(GrStdSteadyClock::now() - ms);
+}
+
 void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
     ASSERT_SINGLE_OWNER
 
