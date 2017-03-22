@@ -340,10 +340,10 @@ public:
 
         if (advX >= fAdvX) {
             advX = this->advance_interval(advX);
+            SkASSERT(advX < fAdvX);
+        } else {
+            fCc += fDcDx * Sk4f(advX);
         }
-        SkASSERT(advX < fAdvX);
-
-        fCc = fCc + fDcDx * Sk4f(advX);
         fAdvX -= advX;
     }
 
@@ -356,7 +356,7 @@ private:
             fDcDx = 0;
         } else {
             const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fDc);
-            fCc           = fCc + dC * Sk4f(t);
+            fCc          += dC * Sk4f(t);
             fDcDx         = dC * fDx;
         }
     }
@@ -407,7 +407,7 @@ private:
             SkASSERT(fAdvX > 0);
         } while (advX >= fAdvX);
 
-        compute_interval_props(0);
+        compute_interval_props(advX);
 
         SkASSERT(advX >= 0);
         return advX;
