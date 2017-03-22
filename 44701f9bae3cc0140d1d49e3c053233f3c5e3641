@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cd83d64_902e5dc4",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-03-22T19:56:52Z",
+      "side": 1,
+      "message": "Add a tracking bug ID?",
+      "range": {
+        "startLine": 220,
+        "startChar": 42,
+        "endLine": 220,
+        "endChar": 62
+      },
+      "revId": "44701f9bae3cc0140d1d49e3c053233f3c5e3641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
