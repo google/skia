@@ -4421,10 +4421,17 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
-bool GrGLGpu::onIsACopyNeededForTextureParams(GrTexture* texture,
+bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
                                               const GrSamplerParams& textureParams,
                                               GrTextureProducer::CopyParams* copyParams,
                                               SkScalar scaleAdjust[2]) const {
+    GrTexture* texture = proxy->peekTexture();
+    if (!texture) {
+        // The only way to get and EXTERNAL or RECTANGLE texture in Ganesh is to wrap them.
+        // In that case the proxy should already be instantiated.
+        return false;
+    }
+
     if (textureParams.isTiled() ||
         GrSamplerParams::kMipMap_FilterMode == textureParams.filterMode()) {
         GrGLTexture* glTexture = static_cast<GrGLTexture*>(texture);

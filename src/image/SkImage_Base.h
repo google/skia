@@ -55,7 +55,9 @@ public:
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&,
                                                     SkColorSpace*, sk_sp<SkColorSpace>*,
                                                     SkScalar scaleAdjust[2]) const = 0;
-    virtual sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
+    virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
+        return nullptr;
+    }
     virtual GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
                                                GrSurfaceOrigin* origin) const {
         return 0;
@@ -70,8 +72,9 @@ public:
                              CachingHint = kAllow_CachingHint) const = 0;
 
     // Caller must call unref when they are done.
-    virtual GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                                    sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const = 0;
+    virtual sk_sp<GrTextureProxy> asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+                                               sk_sp<SkColorSpace>*,
+                                               SkScalar scaleAdjust[2]) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
