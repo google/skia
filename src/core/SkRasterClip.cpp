@@ -62,43 +62,35 @@ static MutateResult mutate_conservative_op(SkRegion::Op* op, bool inverseFilled)
 
 void SkConservativeClip::op(const SkRect& localRect, const SkMatrix& ctm, const SkIRect& devBounds,
                             SkRegion::Op op, bool doAA) {
-    SkRect devRect;
-
-    SkIRect bounds(devBounds);
-    this->applyClipRestriction(op, &bounds);
     SkIRect ir;
     switch (mutate_conservative_op(&op, false)) {
         case kDoNothing_MutateResult:
             return;
         case kReplaceClippedAgainstGlobalBounds_MutateResult:
-            ir = bounds;
+            ir = devBounds;
             break;
-        case kContinue_MutateResult:
+        case kContinue_MutateResult: {
+            SkRect devRect;
             ctm.mapRect(&devRect, localRect);
             ir = doAA ? devRect.roundOut() : devRect.round();
-            break;
+        } break;
     }
     this->op(ir, op);
 }
 
 void SkConservativeClip::op(const SkRRect& rrect, const SkMatrix& ctm, const SkIRect& devBounds,
                             SkRegion::Op op, bool doAA) {
-    SkIRect bounds(devBounds);
-    this->applyClipRestriction(op, &bounds);
-    this->op(rrect.getBounds(), ctm, bounds, op, doAA);
+    this->op(rrect.getBounds(), ctm, devBounds, op, doAA);
 }
 
 void SkConservativeClip::op(const SkPath& path, const SkMatrix& ctm, const SkIRect& devBounds,
                             SkRegion::Op op, bool doAA) {
-    SkIRect bounds(devBounds);
-    this->applyClipRestriction(op, &bounds);
-
     SkIRect ir;
     switch (mutate_conservative_op(&op, path.isInverseFillType())) {
         case kDoNothing_MutateResult:
             return;
         case kReplaceClippedAgainstGlobalBounds_MutateResult:
-            ir = bounds;
+            ir = devBounds;
             break;
         case kContinue_MutateResult: {
             SkRect bounds = path.getBounds();
@@ -129,6 +121,7 @@ void SkConservativeClip::op(const SkIRect& devRect, SkRegion::Op op) {
     SkRegion result;
     result.op(SkRegion(fBounds), SkRegion(devRect), op);
     fBounds = result.getBounds();
+    this->applyClipRestriction(op, &fBounds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

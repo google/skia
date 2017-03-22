@@ -232,6 +232,18 @@ public:
     static int SizeOfPackedUInt(size_t value);
 };
 
+class SK_API SkNullWStream : public SkWStream {
+public:
+    SkNullWStream() : fBytesWritten(0) {}
+
+    bool write(const void*, size_t n) override { fBytesWritten += n; return true; }
+    void flush() override {}
+    size_t bytesWritten() const override { return fBytesWritten; }
+
+private:
+    size_t fBytesWritten;
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
