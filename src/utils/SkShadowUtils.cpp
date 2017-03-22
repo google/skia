@@ -418,12 +418,12 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
             if (!vertices) {
                 return;
             }
-            auto rec = new CachedTessellationsRec(*key, std::move(tessellations));
-            if (cache) {
-                cache->add(rec);
-            } else {
-                SkResourceCache::Add(rec);
-            }
+            //auto rec = new CachedTessellationsRec(*key, std::move(tessellations));
+            //if (cache) {
+            //    cache->add(rec);
+            //} else {
+            //    SkResourceCache::Add(rec);
+            //}
         } else {
             vertices = factory.makeVertices(path.path(), path.viewMatrix());
             if (!vertices) {
