@@ -4,8 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef transform_scanline_DEFINED
-#define transform_scanline_DEFINED
+
+#ifndef SkImageEncoderFns_DEFINED
+#define SkImageEncoderFns_DEFINED
 
 /**
  * Functions to transform scanlines between packed-pixel formats.
@@ -14,6 +15,7 @@
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkICC.h"
 #include "SkPreConfig.h"
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
@@ -273,4 +275,16 @@ static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
     p.append(SkRasterPipeline::store_8888, (void**) &dst);
     p.run(0, width);
 }
-#endif  // transform_scanline_DEFINED
+
+static inline sk_sp<SkData> icc_from_color_space(const SkColorSpace& cs) {
+    SkColorSpaceTransferFn fn;
+    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    if (cs.isNumericalTransferFn(&fn) && cs.toXYZD50(&toXYZD50)) {
+        return SkICC::WriteToICC(fn, toXYZD50);
+    }
+
+    // TODO: Should we support writing ICC profiles for additional color spaces?
+    return nullptr;
+}
+
+#endif  // SkImageEncoderFns_DEFINED
