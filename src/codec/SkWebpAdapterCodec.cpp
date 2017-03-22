@@ -40,6 +40,7 @@ SkCodec::Result SkWebpAdapterCodec::onGetAndroidPixels(const SkImageInfo& info, 
     SkCodec::Options codecOptions;
     codecOptions.fZeroInitialized = options.fZeroInitialized;
     codecOptions.fSubset = options.fSubset;
+    codecOptions.fPremulBehavior = SkCodec::PremulBehavior::kLegacy;
     return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions, options.fColorPtr,
             options.fColorCount);
 }
