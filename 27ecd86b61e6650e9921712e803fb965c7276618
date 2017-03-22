@@ -22,6 +22,30 @@
       "revId": "27ecd86b61e6650e9921712e803fb965c7276618",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa6571cf_31d24e60",
+        "filename": "tests/skbug6389.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-22T16:48:00Z",
+      "side": 1,
+      "message": "That API is totally undocumented to begin with.  Who reviewed it? \n\nWell, I don\u0027t care that it returns nullptr.  I just care skia doesn\u0027t crash when using a supposedly valid image filter.",
+      "parentUuid": "fa7ec0a8_5e3063df",
+      "range": {
+        "startLine": 16,
+        "startChar": 13,
+        "endLine": 16,
+        "endChar": 22
+      },
+      "revId": "27ecd86b61e6650e9921712e803fb965c7276618",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
