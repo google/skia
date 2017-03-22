@@ -220,6 +220,7 @@
       "--writePath",
       "[CUSTOM_[SWARM_OUT_DIR]]\\dm",
       "--nocpu",
+      "--randomProcessorTest",
       "--config",
       "angle_d3d11_es2",
       "angle_d3d9_es2",

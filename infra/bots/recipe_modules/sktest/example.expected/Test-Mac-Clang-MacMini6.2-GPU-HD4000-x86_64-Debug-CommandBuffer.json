@@ -220,6 +220,7 @@
       "--writePath",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--nocpu",
+      "--randomProcessorTest",
       "--config",
       "commandbuffer",
       "--src",
