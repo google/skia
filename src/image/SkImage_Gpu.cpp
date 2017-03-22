@@ -105,17 +105,7 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* texColorSpace,
                                                      SkScalar scaleAdjust[2]) const {
-    sk_sp<GrTexture> tex(this->asTextureRef(context, params, dstColorSpace,
-                                            texColorSpace, scaleAdjust));
-
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
-}
-
-GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                     SkColorSpace* dstColorSpace,
-                                     sk_sp<SkColorSpace>* texColorSpace,
-                                     SkScalar scaleAdjust[2]) const {
-    if (ctx != fContext) {
+    if (context != fContext) {
         SkASSERT(0);
         return nullptr;
     }
@@ -130,7 +120,9 @@ GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& para
 
     GrTextureAdjuster adjuster(fContext, texture, this->alphaType(), this->bounds(),
                                this->uniqueID(), this->fColorSpace.get());
-    return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
+    sk_sp<GrTexture> tex(adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust));
+
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {

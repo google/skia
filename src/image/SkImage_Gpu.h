@@ -30,8 +30,6 @@ public:
     SkAlphaType onAlphaType() const override { return fAlphaType; }
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     GrTextureProxy* peekProxy() const override {
