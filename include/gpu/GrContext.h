@@ -432,9 +432,9 @@ private:
     /** Called before either of the above two functions to determine the appropriate fragment
         processors for conversions. */
     void testPMConversionsIfNecessary(uint32_t flags);
-    /** Returns true if we've already determined that createPMtoUPMEffect and createUPMToPMEffect
-        will fail. In such cases fall back to SW conversion. */
-    bool didFailPMUPMConversionTest() const;
+    /** Returns true if we've determined that createPMtoUPMEffect and createUPMToPMEffect will
+        succeed for the passed in config. Otherwise we fall back to SW conversion. */
+    bool validPMUPMConversionExists(GrPixelConfig) const;
 
     /**
      * A callback similar to the above for use by the TextBlobCache
