@@ -371,13 +371,14 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
 }
 
 sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+    // Force the color type of the new image to be kN32_SkColorType.
+    // (1) This means we lose precision on F16 images.  This is necessary while this function is
+    //     used to pre-transform inputs to a legacy canvas.  Legacy canvases do not handle F16.
+    // (2) kIndex8 and kGray8 must be expanded in order perform a color space transformation.
+    // (3) Seems reasonable to expand k565 and k4444.  It's nice to avoid these color types for
+    //     clients who opt into color space support.
+    SkImageInfo dstInfo = fBitmap.info().makeColorType(kN32_SkColorType).makeColorSpace(target);
     SkBitmap dst;
-    SkImageInfo dstInfo = fBitmap.info().makeColorSpace(target);
-    if (kIndex_8_SkColorType == dstInfo.colorType() ||
-        kGray_8_SkColorType == dstInfo.colorType())
-    {
-        dstInfo = dstInfo.makeColorType(kN32_SkColorType);
-    }
     dst.allocPixels(dstInfo);
 
     SkPixmap src;
