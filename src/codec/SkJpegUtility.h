@@ -9,7 +9,6 @@
 #ifndef SkJpegUtility_codec_DEFINED
 #define SkJpegUtility_codec_DEFINED
 
-#include "SkJpegPriv.h"
 #include "SkStream.h"
 
 #include <setjmp.h>
@@ -20,6 +19,13 @@ extern "C" {
     #include "jpeglib.h"
     #include "jerror.h"
 }
+
+/*
+ * Error handling struct
+ */
+struct skjpeg_error_mgr : jpeg_error_mgr {
+    jmp_buf fJmpBuf;
+};
 
 /*
  * Error handling function
