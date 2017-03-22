@@ -612,7 +612,7 @@ DEF_TEST(Canvas, reporter) {
 }
 
 DEF_TEST(Canvas_SaveState, reporter) {
-    SkCanvas canvas(10, 10);
+    SkCanvas canvas;
     REPORTER_ASSERT(reporter, 1 == canvas.getSaveCount());
 
     int n = canvas.save();
@@ -763,7 +763,7 @@ DEF_TEST(DeferredCanvas, r) {
 class LifeLineCanvas : public SkCanvas {
     bool*   fLifeLine;
 public:
-    LifeLineCanvas(int w, int h, bool* lifeline) : SkCanvas(w, h), fLifeLine(lifeline) {
+    LifeLineCanvas(int w, int h, bool* lifeline) : fLifeLine(lifeline) {
         *fLifeLine = true;
     }
     ~LifeLineCanvas() {
@@ -820,6 +820,248 @@ DEF_TEST(CanvasStack, r) {
     // Now assert that the death of the canvasstack has also killed the sub-canvases
     REPORTER_ASSERT(r, !life[0]);
     REPORTER_ASSERT(r, !life[1]);
+}
+
+DEF_TEST(MakeRasterDirectN32, r) {
+	const int width = 3;
+	const int height = 3;
+	SkPMColor pixels[height][width];
+	std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(width, height, pixels[0], sizeof(pixels[0]));
+	canvas->clear(SK_ColorWHITE);
+	canvas->flush();
+	SkPMColor pmWhite = pixels[0][0];
+	SkPaint paint;
+	canvas->drawPoint(1, 1, paint);
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			printf("%c", pixels[y][x] == pmWhite ? '-' : 'x');
+		}
+		printf("\n");
+	}
+}
+
+DEF_TEST(MakeRasterDirect, r) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, premultipled 
+    const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row
+    const size_t size = info.getSafeSize(minRowBytes);  // bytes used by all rows
+    SkAutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels
+    SkPMColor* pixels = storage.get();
+	// create a SkCanvas backed by a raster device, and delete it when the 
+	// function goes out of scope.
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);
+	canvas->clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+	canvas->flush();  // ensure that pixels are cleared
+	SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+	SkPaint paint;  // by default, draws black
+	canvas->drawPoint(1, 1, paint);  // draw in the center
+	canvas->flush();  // ensure that point was drawn
+	for (int y = 0; y < info.height(); ++y) {
+		for (int x = 0; x < info.width(); ++x) {
+			printf("%c", *pixels++ == pmWhite ? '-' : 'x');
+		}
+		printf("\n");
+	}
+}
+
+// returns true if either the canvas rotates the text by 90 degrees, or the paint does
+static bool check_for_up_and_down_text(const SkCanvas* canvas, const SkPaint& paint) {
+	bool paintHasVertical = paint.isVerticalText();
+	const SkMatrix& matrix = canvas->getTotalMatrix();
+	bool matrixIsVertical = matrix.preservesRightAngles() && !matrix.isScaleTranslate();
+	return paintHasVertical != matrixIsVertical;
+}
+
+static bool check_for_up_and_down_text(const SkPaint& paint) {
+	SkCanvas canvas;  // placeholder only, does not have an associated device
+	return check_for_up_and_down_text(&canvas, paint);
+}
+
+DEF_TEST(up_and_down_text_test, r) {
+	SkPaint paint;
+	SkASSERT(!check_for_up_and_down_text(paint));  // paint draws text left to right
+	paint.setVerticalText(true);
+	SkASSERT(check_for_up_and_down_text(paint));  // paint draws text top to bottom
+}
+
+DEF_TEST(skcanvas_4, r) {
+    SkBitmap bitmap;
+    // create a bitmap 5 wide and 11 high
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(5, 11));
+    SkCanvas canvas(bitmap);
+    canvas.clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    SkPixmap pixmap;  // provides guaranteed access to the drawn pixels
+	SkAssertResult(canvas.peekPixels(&pixmap));
+    const SkPMColor* pixels = pixmap.addr32();  // points to top left of bitmap
+    SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black, 12 point text
+    canvas.drawText("!", 1, 1, 10, paint);  // 1 char at baseline (1, 10)
+    for (int y = 0; y < bitmap.height(); ++y) {
+        for (int x = 0; x < bitmap.width(); ++x) {
+            SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+}
+
+#include "SkMetaData.h"
+
+DEF_TEST(skcanvas_metadata, r) {
+	const char* kHelloMetaData = "HelloMetaData";
+    SkCanvas canvas;
+    SkMetaData& metaData = canvas.getMetaData();
+    SkDebugf("before: %s\n", metaData.findString(kHelloMetaData));
+    metaData.setString(kHelloMetaData, "Hello!");
+    SkDebugf("during: %s\n", metaData.findString(kHelloMetaData));
+    metaData.removeString(kHelloMetaData);
+    SkDebugf("after: %s\n", metaData.findString(kHelloMetaData));
+}
+
+DEF_TEST(empty_info, r) {
+	SkCanvas canvas;
+SkImageInfo canvasInfo = canvas.imageInfo();
+SkImageInfo emptyInfo;
+SkASSERT(emptyInfo == canvasInfo);
+}
+
+#include "SkSurfaceProps.h"
+
+DEF_TEST(get_surface_props, r) {
+	    SkBitmap bitmap;
+    SkCanvas canvas(bitmap, SkSurfaceProps(0, kRGB_V_SkPixelGeometry));
+    SkSurfaceProps surfaceProps(0, kUnknown_SkPixelGeometry);
+    SkDebugf("isRGB:%d\n", SkPixelGeometryIsRGB(surfaceProps.pixelGeometry()));
+    SkAssertResult(canvas.getProps(&surfaceProps));
+    SkDebugf("isRGB:%d\n", SkPixelGeometryIsRGB(surfaceProps.pixelGeometry()));
+}
+
+DEF_TEST(get_base_layer_size, r) {
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(20, 30));
+    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+    canvas.clipRect(SkRect::MakeWH(10, 40));
+    SkIRect clipDeviceBounds = canvas.getDeviceClipBounds();
+    SkAssertResult(!clipDeviceBounds.isEmpty());
+    SkDebugf("clip=%d,%d\n", clipDeviceBounds.width(), clipDeviceBounds.height());
+    SkISize baseLayerSize = canvas.getBaseLayerSize();
+    SkDebugf("size=%d,%d\n", baseLayerSize.width(), baseLayerSize.height());
+}
+
+DEF_TEST(make_surface, r) {
+	sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(5, 6);
+    SkCanvas* canvas = surface->getCanvas();
+    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(3, 4);
+    sk_sp<SkSurface> compatible = canvas->makeSurface(imageInfo);
+    SkDebugf("size=%d,%d\n", compatible->width(), compatible->height());
+}
+
+DEF_TEST(measure_text, r) {
+SkPaint paint;
+SkDebugf("default width = %g\n", paint.measureText("!", 1));
+paint.setTextSize(paint.getTextSize() * 2);
+SkDebugf("double width = %g\n", paint.measureText("!", 1));
+}
+
+DEF_TEST(paint_copy, r) {
+	SkPaint paint1;
+paint1.setColor(SK_ColorRED);
+SkPaint paint2(paint1);
+paint2.setColor(SK_ColorBLUE);
+SkASSERT(SK_ColorRED == paint1.getColor());
+SkASSERT(SK_ColorBLUE == paint2.getColor());
+}
+
+#include "SkDashPathEffect.h"
+
+static SkPaint makeDash(SkPaint paint) {
+    float intervals[] = { 5, 5 };
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+    return paint;
+}
+
+DEF_TEST(paint_move, r) {
+SkPaint paint = makeDash(SkPaint());
+SkDebugf("ref count = %d\n", paint.getPathEffect()->getRefCnt());
+}
+
+DEF_TEST(paint_equal, r) {
+	SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+float intervals[] = { 5, 5 };
+paint1.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+paint2.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+SkDebugf("paint1 %c= paint2", paint1 == paint2 ? '=' : '!');
+}
+
+DEF_TEST(paint_not_equal, r) {
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+SkDebugf("paint1 %c= paint2\n", paint1 != paint2 ? '!' : '=');
+}
+
+DEF_TEST(paint_hash, r) {
+    SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+SkDebugf("paint1.getHash() %c= paint2.getHash()\n",
+         paint1.getHash() == paint2.getHash() ? '=' : '!');
+}
+
+DEF_TEST(path_bounds, r) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.cubicTo(10, 0, 20, 0, 30, 0);
+    SkRect bounds = path.getBounds();
+    SkDebugf("bounds is empty : %s\n", bounds.isEmpty() ? "true" : "false");
+    SkDebugf("bounds %g,%g  %g,%g\n", bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
+}
+
+DEF_TEST(miter_limit, r) {
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(512, 256));
+    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+    SkPoint pts[] = {{ 10, 50 }, { 110, 80 }, { 10, 110 }};
+    SkVector v[] = { pts[0] - pts[1], pts[2] - pts[1] };
+//    SkScalar angle = SkScalarATan2(v[0].cross(v[1]), v[0].dot(v[1]));
+    SkScalar a1 = SkScalarATan2(v[0].fY, v[0].fX);
+    SkScalar a2 = SkScalarATan2(v[1].fY, v[1].fX);
+
+    const SkScalar strokeWidth = 20;
+    SkScalar miterLength = strokeWidth / SkScalarSin((a2 - a1) / 2);
+    SkPath path;
+    path.moveTo(pts[0]);
+    path.lineTo(pts[1]);
+    path.lineTo(pts[2]);
+    SkPaint paint;  // set to default kMiter_Join
+SkDebugf("default miter limit == %g\n", paint.getStrokeMiter());
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeMiter(miterLength / strokeWidth);
+    paint.setStrokeWidth(strokeWidth);
+    canvas.drawPath(path, paint);
+    paint.setStrokeWidth(1);
+    canvas.drawLine(pts[1].fX - miterLength, pts[1].fY + 50,
+                     pts[1].fX + miterLength, pts[1].fY + 50, paint);
+    canvas.translate(100, 0);
+    miterLength -= 1;
+    paint.setStrokeMiter(miterLength / strokeWidth);
+    paint.setStrokeWidth(strokeWidth);
+    canvas.drawPath(path, paint);
+    paint.setStrokeWidth(1);
+    canvas.drawLine(pts[1].fX - miterLength, pts[1].fY + 50,
+                     pts[1].fX + miterLength, pts[1].fY + 50, paint);
+}
+
+DEF_TEST(get_color, r) {
+SkPaint paint;
+paint.setColor(SK_ColorYELLOW);
+SkColor y = paint.getColor();
+SkDebugf("Yellow is %d%% red, %d%% green, and %d%% blue.\n", (int) (SkColorGetR(y) / 2.55f),
+        (int) (SkColorGetG(y) / 2.55f), (int) (SkColorGetB(y) / 2.55f));
 }
 
 static void test_cliptype(SkCanvas* canvas, skiatest::Reporter* r) {

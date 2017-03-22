@@ -144,3 +144,4 @@ DEF_TEST(LayerRasterizer_detachEmpty, reporter) {
     SkLayerRasterizer::Builder builder;
     REPORTER_ASSERT(reporter, nullptr == builder.detach());
 }
+

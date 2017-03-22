@@ -1,0 +1,1178 @@
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000    1) /*
+ec3ed6a5 (epoger@google.com         2011-07-28 14:26:00 +0000    2)  * Copyright 2006 The Android Open Source Project
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000    3)  *
+ec3ed6a5 (epoger@google.com         2011-07-28 14:26:00 +0000    4)  * Use of this source code is governed by a BSD-style license that can be
+ec3ed6a5 (epoger@google.com         2011-07-28 14:26:00 +0000    5)  * found in the LICENSE file.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000    6)  */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000    7) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000    8) #ifndef SkPaint_DEFINED
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000    9) #define SkPaint_DEFINED
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   10) 
+374772bd (reed                      2016-10-05 17:33:02 -0700   11) #include "SkBlendMode.h"
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   12) #include "SkColor.h"
+f803da12 (reed                      2015-01-23 05:58:07 -0800   13) #include "SkFilterQuality.h"
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000   14) #include "SkMatrix.h"
+71fecc32 (Mike Reed                 2016-11-18 17:19:54 -0500   15) #include "SkRefCnt.h"
+a0f5d154 (reed@android.com          2009-06-22 17:38:10 +0000   16) 
+2b6acb4e (joshualitt                2015-04-01 11:30:27 -0700   17) class SkAutoDescriptor;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   18) class SkAutoGlyphCache;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   19) class SkColorFilter;
+fd450793 (joshualitt                2015-03-13 08:38:43 -0700   20) class SkData;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   21) class SkDescriptor;
+0abdf766 (senorblanco               2015-08-20 11:10:41 -0700   22) class SkDrawLooper;
+eea76807 (Cary Clark                2017-02-03 16:24:26 -0500   23) class SkReadBuffer;
+eea76807 (Cary Clark                2017-02-03 16:24:26 -0500   24) class SkWriteBuffer;
+b69d0e0a (herb                      2015-02-25 06:47:06 -0800   25) class SkGlyph;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   26) struct SkRect;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   27) class SkGlyphCache;
+15356a68 (reed@google.com           2011-11-03 19:29:08 +0000   28) class SkImageFilter;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   29) class SkMaskFilter;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   30) class SkPath;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   31) class SkPathEffect;
+c73dd5c6 (djsollen@google.com       2012-08-07 15:54:32 +0000   32) struct SkPoint;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   33) class SkRasterizer;
+a9322c2d (reed                      2016-04-12 06:47:05 -0700   34) struct SkScalerContextEffects;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   35) class SkShader;
+fcf7829b (robertphillips            2015-06-19 11:49:52 -0700   36) class SkSurfaceProps;
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700   37) class SkTextBlob;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   38) class SkTypeface;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   39) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   40) /** \class SkPaint
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   41) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   42)     The SkPaint class holds the style and color information about how to draw
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   43)     geometries, text and bitmaps.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   44) */
+7ffb1b21 (ctguil@chromium.org       2011-03-15 21:27:08 +0000   45) class SK_API SkPaint {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   46) public:
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   47)     SkPaint();
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   48)     SkPaint(const SkPaint& paint);
+ccce0e02 (bungeman                  2016-02-07 14:37:23 -0800   49)     SkPaint(SkPaint&& paint);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   50)     ~SkPaint();
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   51) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   52)     SkPaint& operator=(const SkPaint&);
+ccce0e02 (bungeman                  2016-02-07 14:37:23 -0800   53)     SkPaint& operator=(SkPaint&&);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   54) 
+bc97ef42 (mtklein                   2014-08-25 10:10:47 -0700   55)     /** operator== may give false negatives: two paints that draw equivalently
+bc97ef42 (mtklein                   2014-08-25 10:10:47 -0700   56)         may return false.  It will never give false positives: two paints that
+bc97ef42 (mtklein                   2014-08-25 10:10:47 -0700   57)         are not equivalent always return false.
+bc97ef42 (mtklein                   2014-08-25 10:10:47 -0700   58)     */
+b265741c (robertphillips@google.com 2013-08-07 22:36:29 +0000   59)     SK_API friend bool operator==(const SkPaint& a, const SkPaint& b);
+b265741c (robertphillips@google.com 2013-08-07 22:36:29 +0000   60)     friend bool operator!=(const SkPaint& a, const SkPaint& b) {
+b265741c (robertphillips@google.com 2013-08-07 22:36:29 +0000   61)         return !(a == b);
+b265741c (robertphillips@google.com 2013-08-07 22:36:29 +0000   62)     }
+b265741c (robertphillips@google.com 2013-08-07 22:36:29 +0000   63) 
+fb1fe4f5 (mtklein                   2014-10-07 09:26:10 -0700   64)     /** getHash() is a shallow hash, with the same limitations as operator==.
+fb1fe4f5 (mtklein                   2014-10-07 09:26:10 -0700   65)      *  If operator== returns true for two paints, getHash() returns the same value for each.
+fb1fe4f5 (mtklein                   2014-10-07 09:26:10 -0700   66)      */
+fb1fe4f5 (mtklein                   2014-10-07 09:26:10 -0700   67)     uint32_t getHash() const;
+fb1fe4f5 (mtklein                   2014-10-07 09:26:10 -0700   68) 
+eea76807 (Cary Clark                2017-02-03 16:24:26 -0500   69)     void flatten(SkWriteBuffer&) const;
+eea76807 (Cary Clark                2017-02-03 16:24:26 -0500   70)     void unflatten(SkReadBuffer&);
+eea76807 (Cary Clark                2017-02-03 16:24:26 -0500   71) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   72)     /** Restores the paint to its initial settings.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   73)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   74)     void reset();
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   75) 
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   76)     /** Specifies the level of hinting to be performed. These names are taken
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   77)         from the Gnome/Cairo names for the same. They are translated into
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   78)         Freetype concepts the same as in cairo-ft-font.c:
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   79)            kNo_Hinting     -> FT_LOAD_NO_HINTING
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   80)            kSlight_Hinting -> FT_LOAD_TARGET_LIGHT
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   81)            kNormal_Hinting -> <default, no option>
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   82)            kFull_Hinting   -> <same as kNormalHinting, unless we are rendering
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   83)                               subpixel glyphs, in which case TARGET_LCD or
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   84)                               TARGET_LCD_V is used>
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   85)     */
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   86)     enum Hinting {
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   87)         kNo_Hinting            = 0,
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   88)         kSlight_Hinting        = 1,
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   89)         kNormal_Hinting        = 2,     //!< this is the default
+1f90287d (tomhudson@google.com      2012-06-01 13:15:47 +0000   90)         kFull_Hinting          = 3
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   91)     };
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   92) 
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000   93)     Hinting getHinting() const {
+f59eab26 (reed                      2014-07-14 14:39:15 -0700   94)         return static_cast<Hinting>(fBitfields.fHinting);
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   95)     }
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   96) 
+f5dbe2f0 (djsollen@google.com       2011-04-15 13:41:26 +0000   97)     void setHinting(Hinting hintingLevel);
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000   98) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000   99)     /** Specifies the bit values that are stored in the paint's flags.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  100)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  101)     enum Flags {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  102)         kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  103)         kDither_Flag          = 0x04,   //!< mask to enable dithering
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  104)         kUnderlineText_Flag   = 0x08,   //!< mask to enable underline text
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  105)         kStrikeThruText_Flag  = 0x10,   //!< mask to enable strike-thru text
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  106)         kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  107)         kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  108)         kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  109)         kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  110)         kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  111)         kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  112)         kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  113)         kVerticalText_Flag    = 0x1000,
+8351aabb (reed@google.com           2012-01-18 17:06:35 +0000  114)         kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  115)         // when adding extra flags, note that the fFlags member is specified
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  116)         // with a bit-width and you'll have to expand it.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  117) 
+387db0a2 (humper@google.com         2013-07-09 14:13:04 +0000  118)         kAllFlags = 0xFFFF
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  119)     };
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  120) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  121)     /** Return the paint's flags. Use the Flag enum to test flag values.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  122)         @return the paint's flags (see enums ending in _Flag for bit masks)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  123)     */
+f59eab26 (reed                      2014-07-14 14:39:15 -0700  124)     uint32_t getFlags() const { return fBitfields.fFlags; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  125) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  126)     /** Set the paint's flags. Use the Flag enum to specific flag values.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  127)         @param flags    The new flag bits for the paint (see Flags enum)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  128)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  129)     void setFlags(uint32_t flags);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  130) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  131)     /** Helper for getFlags(), returning true if kAntiAlias_Flag bit is set
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  132)         @return true if the antialias bit is set in the paint's flags.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  133)         */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  134)     bool isAntiAlias() const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  135)         return SkToBool(this->getFlags() & kAntiAlias_Flag);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  136)     }
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  137) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  138)     /** Helper for setFlags(), setting or clearing the kAntiAlias_Flag bit
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  139)         @param aa   true to enable antialiasing, false to disable it
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  140)         */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  141)     void setAntiAlias(bool aa);
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  142) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  143)     /** Helper for getFlags(), returning true if kDither_Flag bit is set
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  144)         @return true if the dithering bit is set in the paint's flags.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  145)         */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  146)     bool isDither() const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  147)         return SkToBool(this->getFlags() & kDither_Flag);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  148)     }
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  149) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  150)     /** Helper for setFlags(), setting or clearing the kDither_Flag bit
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  151)         @param dither   true to enable dithering, false to disable it
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  152)         */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  153)     void setDither(bool dither);
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  154) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  155)     /** Helper for getFlags(), returning true if kLinearText_Flag bit is set
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  156)         @return true if the lineartext bit is set in the paint's flags
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  157)     */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  158)     bool isLinearText() const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  159)         return SkToBool(this->getFlags() & kLinearText_Flag);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  160)     }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  161) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  162)     /** Helper for setFlags(), setting or clearing the kLinearText_Flag bit
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  163)         @param linearText true to set the linearText bit in the paint's flags,
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  164)                           false to clear it.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  165)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  166)     void setLinearText(bool linearText);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  167) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  168)     /** Helper for getFlags(), returning true if kSubpixelText_Flag bit is set
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  169)         @return true if the lineartext bit is set in the paint's flags
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  170)     */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  171)     bool isSubpixelText() const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  172)         return SkToBool(this->getFlags() & kSubpixelText_Flag);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  173)     }
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  174) 
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  175)     /**
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  176)      *  Helper for setFlags(), setting or clearing the kSubpixelText_Flag.
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  177)      *  @param subpixelText true to set the subpixelText bit in the paint's
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  178)      *                      flags, false to clear it.
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  179)      */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  180)     void setSubpixelText(bool subpixelText);
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  181) 
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  182)     bool isLCDRenderText() const {
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  183)         return SkToBool(this->getFlags() & kLCDRenderText_Flag);
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  184)     }
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  185) 
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  186)     /**
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  187)      *  Helper for setFlags(), setting or clearing the kLCDRenderText_Flag.
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  188)      *  Note: antialiasing must also be on for lcd rendering
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  189)      *  @param lcdText true to set the LCDRenderText bit in the paint's flags,
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  190)      *                 false to clear it.
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  191)      */
+84b437e6 (reed@google.com           2011-08-01 12:45:35 +0000  192)     void setLCDRenderText(bool lcdText);
+309485b7 (agl@chromium.org          2009-07-21 17:41:32 +0000  193) 
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  194)     bool isEmbeddedBitmapText() const {
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  195)         return SkToBool(this->getFlags() & kEmbeddedBitmapText_Flag);
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  196)     }
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  197) 
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  198)     /** Helper for setFlags(), setting or clearing the kEmbeddedBitmapText_Flag bit
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  199)         @param useEmbeddedBitmapText true to set the kEmbeddedBitmapText bit in the paint's flags,
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  200)                                      false to clear it.
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  201)     */
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  202)     void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
+e95c91e6 (agl@chromium.org          2010-01-04 18:27:55 +0000  203) 
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  204)     bool isAutohinted() const {
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  205)         return SkToBool(this->getFlags() & kAutoHinting_Flag);
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  206)     }
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  207) 
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  208)     /** Helper for setFlags(), setting or clearing the kAutoHinting_Flag bit
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  209)         @param useAutohinter true to set the kEmbeddedBitmapText bit in the
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  210)                                   paint's flags,
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  211)                              false to clear it.
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  212)     */
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  213)     void setAutohinted(bool useAutohinter);
+a2c71cbd (agl@chromium.org          2010-06-17 20:49:17 +0000  214) 
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  215)     bool isVerticalText() const {
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  216)         return SkToBool(this->getFlags() & kVerticalText_Flag);
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  217)     }
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000  218) 
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  219)     /**
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  220)      *  Helper for setting or clearing the kVerticalText_Flag bit in
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  221)      *  setFlags(...).
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  222)      *
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  223)      *  If this bit is set, then advances are treated as Y values rather than
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  224)      *  X values, and drawText will places its glyphs vertically rather than
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  225)      *  horizontally.
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  226)      */
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  227)     void setVerticalText(bool);
+830a23e3 (reed@google.com           2011-11-10 15:20:49 +0000  228) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  229)     /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  230)         @return true if the underlineText bit is set in the paint's flags.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  231)     */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  232)     bool isUnderlineText() const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  233)         return SkToBool(this->getFlags() & kUnderlineText_Flag);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  234)     }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  235) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  236)     /** Helper for setFlags(), setting or clearing the kUnderlineText_Flag bit
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  237)         @param underlineText true to set the underlineText bit in the paint's
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  238)                              flags, false to clear it.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  239)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  240)     void setUnderlineText(bool underlineText);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  241) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  242)     /** Helper for getFlags(), returns true if kStrikeThruText_Flag bit is set
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  243)         @return true if the strikeThruText bit is set in the paint's flags.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  244)     */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  245)     bool isStrikeThruText() const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  246)         return SkToBool(this->getFlags() & kStrikeThruText_Flag);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  247)     }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  248) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  249)     /** Helper for setFlags(), setting or clearing the kStrikeThruText_Flag bit
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  250)         @param strikeThruText   true to set the strikeThruText bit in the
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  251)                                 paint's flags, false to clear it.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  252)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  253)     void setStrikeThruText(bool strikeThruText);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  254) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  255)     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  256)         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  257)     */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  258)     bool isFakeBoldText() const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  259)         return SkToBool(this->getFlags() & kFakeBoldText_Flag);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  260)     }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  261) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  262)     /** Helper for setFlags(), setting or clearing the kFakeBoldText_Flag bit
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  263)         @param fakeBoldText true to set the kFakeBoldText_Flag bit in the paint's
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  264)                             flags, false to clear it.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  265)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  266)     void setFakeBoldText(bool fakeBoldText);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  267) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  268)     /** Helper for getFlags(), returns true if kDevKernText_Flag bit is set
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  269)         @return true if the kernText bit is set in the paint's flags.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  270)     */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  271)     bool isDevKernText() const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  272)         return SkToBool(this->getFlags() & kDevKernText_Flag);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  273)     }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  274) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  275)     /** Helper for setFlags(), setting or clearing the kKernText_Flag bit
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  276)         @param kernText true to set the kKernText_Flag bit in the paint's
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  277)                             flags, false to clear it.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  278)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  279)     void setDevKernText(bool devKernText);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  280) 
+f803da12 (reed                      2015-01-23 05:58:07 -0800  281)     /**
+f803da12 (reed                      2015-01-23 05:58:07 -0800  282)      *  Return the filter level. This affects the quality (and performance) of
+f803da12 (reed                      2015-01-23 05:58:07 -0800  283)      *  drawing scaled images.
+f803da12 (reed                      2015-01-23 05:58:07 -0800  284)      */
+f803da12 (reed                      2015-01-23 05:58:07 -0800  285)     SkFilterQuality getFilterQuality() const {
+f803da12 (reed                      2015-01-23 05:58:07 -0800  286)         return (SkFilterQuality)fBitfields.fFilterQuality;
+f803da12 (reed                      2015-01-23 05:58:07 -0800  287)     }
+fe81e2d2 (mtklein                   2015-09-09 07:35:42 -0700  288) 
+f803da12 (reed                      2015-01-23 05:58:07 -0800  289)     /**
+f803da12 (reed                      2015-01-23 05:58:07 -0800  290)      *  Set the filter quality. This affects the quality (and performance) of
+f803da12 (reed                      2015-01-23 05:58:07 -0800  291)      *  drawing scaled images.
+f803da12 (reed                      2015-01-23 05:58:07 -0800  292)      */
+f803da12 (reed                      2015-01-23 05:58:07 -0800  293)     void setFilterQuality(SkFilterQuality quality);
+c9683151 (reed@google.com           2013-07-18 13:47:01 +0000  294) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  295)     /** Styles apply to rect, oval, path, and text.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  296)         Bitmaps are always drawn in "fill", and lines are always drawn in
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  297)         "stroke".
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  298) 
+ed881c27 (reed@android.com          2009-09-15 14:10:42 +0000  299)         Note: strokeandfill implicitly draws the result with
+ed881c27 (reed@android.com          2009-09-15 14:10:42 +0000  300)         SkPath::kWinding_FillType, so if the original path is even-odd, the
+ed881c27 (reed@android.com          2009-09-15 14:10:42 +0000  301)         results may not appear the same as if it was drawn twice, filled and
+ed881c27 (reed@android.com          2009-09-15 14:10:42 +0000  302)         then stroked.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  303)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  304)     enum Style {
+ed881c27 (reed@android.com          2009-09-15 14:10:42 +0000  305)         kFill_Style,            //!< fill the geometry
+ed881c27 (reed@android.com          2009-09-15 14:10:42 +0000  306)         kStroke_Style,          //!< stroke the geometry
+ed881c27 (reed@android.com          2009-09-15 14:10:42 +0000  307)         kStrokeAndFill_Style,   //!< fill and stroke the geometry
+aac2fb80 (mike@reedtribe.org        2013-02-04 05:17:10 +0000  308)     };
+aac2fb80 (mike@reedtribe.org        2013-02-04 05:17:10 +0000  309)     enum {
+aac2fb80 (mike@reedtribe.org        2013-02-04 05:17:10 +0000  310)         kStyleCount = kStrokeAndFill_Style + 1
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  311)     };
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  312) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  313)     /** Return the paint's style, used for controlling how primitives'
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  314)         geometries are interpreted (except for drawBitmap, which always assumes
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  315)         kFill_Style).
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  316)         @return the paint's Style
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  317)     */
+f59eab26 (reed                      2014-07-14 14:39:15 -0700  318)     Style getStyle() const { return (Style)fBitfields.fStyle; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  319) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  320)     /** Set the paint's style, used for controlling how primitives'
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  321)         geometries are interpreted (except for drawBitmap, which always assumes
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  322)         Fill).
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  323)         @param style    The new style to set in the paint
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  324)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  325)     void setStyle(Style style);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  326) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  327)     /** Return the paint's color. Note that the color is a 32bit value
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  328)         containing alpha as well as r,g,b. This 32bit value is not
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  329)         premultiplied, meaning that its alpha can be any value, regardless of
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  330)         the values of r,g,b.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  331)         @return the paint's color (and alpha).
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  332)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  333)     SkColor getColor() const { return fColor; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  334) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  335)     /** Set the paint's color. Note that the color is a 32bit value containing
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  336)         alpha as well as r,g,b. This 32bit value is not premultiplied, meaning
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  337)         that its alpha can be any value, regardless of the values of r,g,b.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  338)         @param color    The new color (including alpha) to set in the paint.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  339)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  340)     void setColor(SkColor color);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  341) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  342)     /** Helper to getColor() that just returns the color's alpha value.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  343)         @return the alpha component of the paint's color.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  344)         */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  345)     uint8_t getAlpha() const { return SkToU8(SkColorGetA(fColor)); }
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  346) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  347)     /** Helper to setColor(), that only assigns the color's alpha value,
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  348)         leaving its r,g,b values unchanged.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  349)         @param a    set the alpha component (0..255) of the paint's color.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  350)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  351)     void setAlpha(U8CPU a);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  352) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  353)     /** Helper to setColor(), that takes a,r,g,b and constructs the color value
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  354)         using SkColorSetARGB()
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  355)         @param a    The new alpha component (0..255) of the paint's color.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  356)         @param r    The new red component (0..255) of the paint's color.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  357)         @param g    The new green component (0..255) of the paint's color.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  358)         @param b    The new blue component (0..255) of the paint's color.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  359)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  360)     void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  361) 
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  362)     /** Return the width for stroking.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  363)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  364)         A value of 0 strokes in hairline mode.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  365)         Hairlines always draw 1-pixel wide, regardless of the matrix.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  366)         @return the paint's stroke width, used whenever the paint's style is
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  367)                 Stroke or StrokeAndFill.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  368)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  369)     SkScalar getStrokeWidth() const { return fWidth; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  370) 
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  371)     /** Set the width for stroking.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  372)         Pass 0 to stroke in hairline mode.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  373)         Hairlines always draw 1-pixel wide, regardless of the matrix.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  374)         @param width set the paint's stroke width, used whenever the paint's
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  375)                      style is Stroke or StrokeAndFill.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  376)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  377)     void setStrokeWidth(SkScalar width);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  378) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  379)     /** Return the paint's stroke miter value. This is used to control the
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  380)         behavior of miter joins when the joins angle is sharp.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  381)         @return the paint's miter limit, used whenever the paint's style is
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  382)                 Stroke or StrokeAndFill.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  383)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  384)     SkScalar getStrokeMiter() const { return fMiterLimit; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  385) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  386)     /** Set the paint's stroke miter value. This is used to control the
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  387)         behavior of miter joins when the joins angle is sharp. This value must
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  388)         be >= 0.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  389)         @param miter    set the miter limit on the paint, used whenever the
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  390)                         paint's style is Stroke or StrokeAndFill.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  391)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  392)     void setStrokeMiter(SkScalar miter);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  393) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  394)     /** Cap enum specifies the settings for the paint's strokecap. This is the
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  395)         treatment that is applied to the beginning and end of each non-closed
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  396)         contour (e.g. lines).
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  397) 
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  398)         If the cap is round or square, the caps are drawn when the contour has
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  399)         a zero length. Zero length contours can be created by following moveTo
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  400)         with a lineTo at the same point, or a moveTo followed by a close.
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  401) 
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  402)         A dash with an on interval of zero also creates a zero length contour.
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  403) 
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  404)         The zero length contour draws the square cap without rotation, since
+5cb00a95 (caryclark                 2015-08-26 09:04:55 -0700  405)         the no direction can be inferred.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  406)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  407)     enum Cap {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  408)         kButt_Cap,      //!< begin/end contours with no extension
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  409)         kRound_Cap,     //!< begin/end contours with a semi-circle extension
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  410)         kSquare_Cap,    //!< begin/end contours with a half square extension
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  411) 
+a7d85ba1 (bsalomon                  2016-07-06 11:54:59 -0700  412)         kLast_Cap = kSquare_Cap,
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  413)         kDefault_Cap = kButt_Cap
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  414)     };
+a7d85ba1 (bsalomon                  2016-07-06 11:54:59 -0700  415)     static constexpr int kCapCount = kLast_Cap + 1;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  416) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  417)     /** Join enum specifies the settings for the paint's strokejoin. This is
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  418)         the treatment that is applied to corners in paths and rectangles.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  419)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  420)     enum Join {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  421)         kMiter_Join,    //!< connect path segments with a sharp join
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  422)         kRound_Join,    //!< connect path segments with a round join
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  423)         kBevel_Join,    //!< connect path segments with a flat bevel join
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  424) 
+a7d85ba1 (bsalomon                  2016-07-06 11:54:59 -0700  425)         kLast_Join = kBevel_Join,
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  426)         kDefault_Join = kMiter_Join
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  427)     };
+a7d85ba1 (bsalomon                  2016-07-06 11:54:59 -0700  428)     static constexpr int kJoinCount = kLast_Join + 1;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  429) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  430)     /** Return the paint's stroke cap type, controlling how the start and end
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  431)         of stroked lines and paths are treated.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  432)         @return the line cap style for the paint, used whenever the paint's
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  433)                 style is Stroke or StrokeAndFill.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  434)     */
+f59eab26 (reed                      2014-07-14 14:39:15 -0700  435)     Cap getStrokeCap() const { return (Cap)fBitfields.fCapType; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  436) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  437)     /** Set the paint's stroke cap type.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  438)         @param cap  set the paint's line cap style, used whenever the paint's
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  439)                     style is Stroke or StrokeAndFill.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  440)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  441)     void setStrokeCap(Cap cap);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  442) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  443)     /** Return the paint's stroke join type.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  444)         @return the paint's line join style, used whenever the paint's style is
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  445)                 Stroke or StrokeAndFill.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  446)     */
+f59eab26 (reed                      2014-07-14 14:39:15 -0700  447)     Join getStrokeJoin() const { return (Join)fBitfields.fJoinType; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  448) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  449)     /** Set the paint's stroke join type.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  450)         @param join set the paint's line join style, used whenever the paint's
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  451)                     style is Stroke or StrokeAndFill.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  452)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  453)     void setStrokeJoin(Join join);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  454) 
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  455)     /**
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  456)      *  Applies any/all effects (patheffect, stroking) to src, returning the
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  457)      *  result in dst. The result is that drawing src with this paint will be
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  458)      *  the same as drawing dst with a default paint (at least from the
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  459)      *  geometric perspective).
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  460)      *
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  461)      *  @param src  input path
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  462)      *  @param dst  output path (may be the same as src)
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  463)      *  @param cullRect If not null, the dst path may be culled to this rect.
+05d9044d (reed                      2015-02-12 13:35:52 -0800  464)      *  @param resScale If > 1, increase precision, else if (0 < res < 1) reduce precision
+05d9044d (reed                      2015-02-12 13:35:52 -0800  465)      *              in favor of speed/size.
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  466)      *  @return     true if the path should be filled, or false if it should be
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  467)      *              drawn with a hairline (width == 0)
+4bbdeac5 (reed@google.com           2013-01-24 21:03:11 +0000  468)      */
+05d9044d (reed                      2015-02-12 13:35:52 -0800  469)     bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
+05d9044d (reed                      2015-02-12 13:35:52 -0800  470)                      SkScalar resScale = 1) const;
+05d9044d (reed                      2015-02-12 13:35:52 -0800  471) 
+05d9044d (reed                      2015-02-12 13:35:52 -0800  472)     bool getFillPath(const SkPath& src, SkPath* dst) const {
+05d9044d (reed                      2015-02-12 13:35:52 -0800  473)         return this->getFillPath(src, dst, NULL, 1);
+05d9044d (reed                      2015-02-12 13:35:52 -0800  474)     }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  475) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  476)     /** Get the paint's shader object.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  477)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  478)       The shader's reference count is not affected.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  479)         @return the paint's shader (or NULL)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  480)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  481)     SkShader* getShader() const { return fShader.get(); }
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  482)     sk_sp<SkShader> refShader() const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  483) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  484)     /** Set or clear the shader object.
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  485)      *  Shaders specify the source color(s) for what is being drawn. If a paint
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  486)      *  has no shader, then the paint's color is used. If the paint has a
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  487)      *  shader, then the shader's color(s) are use instead, but they are
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  488)      *  modulated by the paint's alpha. This makes it easy to create a shader
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  489)      *  once (e.g. bitmap tiling or gradient) and then change its transparency
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  490)      *  w/o having to modify the original shader... only the paint's alpha needs
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  491)      *  to be modified.
+e5957f67 (commit-bot@chromium.org   2014-03-18 16:28:12 +0000  492)      *
+e5957f67 (commit-bot@chromium.org   2014-03-18 16:28:12 +0000  493)      *  There is an exception to this only-respect-paint's-alpha rule: If the shader only generates
+e5957f67 (commit-bot@chromium.org   2014-03-18 16:28:12 +0000  494)      *  alpha (e.g. SkShader::CreateBitmapShader(bitmap, ...) where bitmap's colortype is kAlpha_8)
+e5957f67 (commit-bot@chromium.org   2014-03-18 16:28:12 +0000  495)      *  then the shader will use the paint's entire color to "colorize" its output (modulating the
+e5957f67 (commit-bot@chromium.org   2014-03-18 16:28:12 +0000  496)      *  bitmap's alpha with the paint's color+alpha).
+e5957f67 (commit-bot@chromium.org   2014-03-18 16:28:12 +0000  497)      *
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  498)      *  Pass NULL to clear any previous shader.
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  499)      *  As a convenience, the parameter passed is also returned.
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  500)      *  If a previous shader exists, its reference count is decremented.
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  501)      *  If shader is not NULL, its reference count is incremented.
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  502)      *  @param shader   May be NULL. The shader to be installed in the paint
+880dc472 (reed@google.com           2012-05-11 14:47:03 +0000  503)      */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  504)     void setShader(sk_sp<SkShader>);
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  505) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  506)     /** Get the paint's colorfilter. If there is a colorfilter, its reference
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  507)         count is not changed.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  508)         @return the paint's colorfilter (or NULL)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  509)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  510)     SkColorFilter* getColorFilter() const { return fColorFilter.get(); }
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  511)     sk_sp<SkColorFilter> refColorFilter() const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  512) 
+958788ab (Mike Reed                 2016-10-20 16:40:26 -0400  513)     /** Set or clear the paint's colorfilter.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  514)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  515)         If the paint already has a filter, its reference count is decremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  516)         If filter is not NULL, its reference count is incremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  517)         @param filter   May be NULL. The filter to be installed in the paint
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  518)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  519)     void setColorFilter(sk_sp<SkColorFilter>);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  520) 
+374772bd (reed                      2016-10-05 17:33:02 -0700  521)     SkBlendMode getBlendMode() const { return (SkBlendMode)fBlendMode; }
+374772bd (reed                      2016-10-05 17:33:02 -0700  522)     bool isSrcOver() const { return (SkBlendMode)fBlendMode == SkBlendMode::kSrcOver; }
+374772bd (reed                      2016-10-05 17:33:02 -0700  523)     void setBlendMode(SkBlendMode mode) { fBlendMode = (unsigned)mode; }
+a0f5d154 (reed@android.com          2009-06-22 17:38:10 +0000  524) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  525)     /** Get the paint's patheffect object.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  526)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  527)       The patheffect reference count is not affected.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  528)         @return the paint's patheffect (or NULL)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  529)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  530)     SkPathEffect* getPathEffect() const { return fPathEffect.get(); }
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  531)     sk_sp<SkPathEffect> refPathEffect() const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  532) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  533)     /** Set or clear the patheffect object.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  534)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  535)         Pass NULL to clear any previous patheffect.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  536)         As a convenience, the parameter passed is also returned.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  537)         If a previous patheffect exists, its reference count is decremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  538)         If patheffect is not NULL, its reference count is incremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  539)         @param effect   May be NULL. The new patheffect to be installed in the
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  540)                         paint
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  541)         @return         effect
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  542)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  543)     void setPathEffect(sk_sp<SkPathEffect>);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  544) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  545)     /** Get the paint's maskfilter object.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  546)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  547)       The maskfilter reference count is not affected.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  548)         @return the paint's maskfilter (or NULL)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  549)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  550)     SkMaskFilter* getMaskFilter() const { return fMaskFilter.get(); }
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  551)     sk_sp<SkMaskFilter> refMaskFilter() const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  552) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  553)     /** Set or clear the maskfilter object.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  554)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  555)         Pass NULL to clear any previous maskfilter.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  556)         As a convenience, the parameter passed is also returned.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  557)         If a previous maskfilter exists, its reference count is decremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  558)         If maskfilter is not NULL, its reference count is incremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  559)         @param maskfilter   May be NULL. The new maskfilter to be installed in
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  560)                             the paint
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  561)         @return             maskfilter
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  562)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  563)     void setMaskFilter(sk_sp<SkMaskFilter>);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  564) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  565)     // These attributes are for text/fonts
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  566) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  567)     /** Get the paint's typeface object.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  568)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  569)         The typeface object identifies which font to use when drawing or
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  570)         measuring text. The typeface reference count is not affected.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  571)         @return the paint's typeface (or NULL)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  572)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  573)     SkTypeface* getTypeface() const { return fTypeface.get(); }
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  574)     sk_sp<SkTypeface> refTypeface() const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  575) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  576)     /** Set or clear the typeface object.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  577)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  578)         Pass NULL to clear any previous typeface.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  579)         As a convenience, the parameter passed is also returned.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  580)         If a previous typeface exists, its reference count is decremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  581)         If typeface is not NULL, its reference count is incremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  582)         @param typeface May be NULL. The new typeface to be installed in the
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  583)                         paint
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  584)         @return         typeface
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  585)     */
+9a9a7b29 (scroggo                   2016-05-12 06:22:30 -0700  586)     void setTypeface(sk_sp<SkTypeface>);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  587) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  588)     /** Get the paint's rasterizer (or NULL).
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  589)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  590)         The raster controls how paths/text are turned into alpha masks.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  591)         @return the paint's rasterizer (or NULL)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  592)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  593)     SkRasterizer* getRasterizer() const { return fRasterizer.get(); }
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  594)     sk_sp<SkRasterizer> refRasterizer() const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  595) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  596)     /** Set or clear the rasterizer object.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  597)         <p />
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  598)         Pass NULL to clear any previous rasterizer.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  599)         As a convenience, the parameter passed is also returned.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  600)         If a previous rasterizer exists in the paint, its reference count is
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  601)         decremented. If rasterizer is not NULL, its reference count is
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  602)         incremented.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  603)         @param rasterizer May be NULL. The new rasterizer to be installed in
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  604)                           the paint.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  605)         @return           rasterizer
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  606)     */
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  607)     void setRasterizer(sk_sp<SkRasterizer>);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  608) 
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  609)     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  610)     sk_sp<SkImageFilter> refImageFilter() const;
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  611)     void setImageFilter(sk_sp<SkImageFilter>);
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000  612) 
+b0a34d80 (reed@google.com           2012-07-11 19:57:55 +0000  613)     /**
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  614)      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  615)      *  reference count.
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  616)      */
+46f2d0ad (reed                      2016-09-11 05:40:31 -0700  617)     SkDrawLooper* getDrawLooper() const { return fDrawLooper.get(); }
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  618)     sk_sp<SkDrawLooper> refDrawLooper() const;
+693fdbd6 (Mike Reed                 2017-01-12 10:13:40 -0500  619) 
+46f2d0ad (reed                      2016-09-11 05:40:31 -0700  620)     SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  621)     /**
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  622)      *  Set or clear the looper object.
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  623)      *  <p />
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  624)      *  Pass NULL to clear any previous looper.
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  625)      *  If a previous looper exists in the paint, its reference count is
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  626)      *  decremented. If looper is not NULL, its reference count is
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  627)      *  incremented.
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  628)      *  @param looper May be NULL. The new looper to be installed in the paint.
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  629)      */
+46f2d0ad (reed                      2016-09-11 05:40:31 -0700  630)     void setDrawLooper(sk_sp<SkDrawLooper>);
+09d94358 (Mike Reed                 2016-10-31 15:11:04 -0400  631) 
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800  632)     void setLooper(sk_sp<SkDrawLooper>);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  633) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  634)     enum Align {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  635)         kLeft_Align,
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  636)         kCenter_Align,
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  637)         kRight_Align,
+ddc813b0 (mike@reedtribe.org        2013-06-08 12:58:19 +0000  638)     };
+ddc813b0 (mike@reedtribe.org        2013-06-08 12:58:19 +0000  639)     enum {
+ddc813b0 (mike@reedtribe.org        2013-06-08 12:58:19 +0000  640)         kAlignCount = 3
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  641)     };
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  642) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  643)     /** Return the paint's Align value for drawing text.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  644)         @return the paint's Align value for drawing text.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  645)     */
+f59eab26 (reed                      2014-07-14 14:39:15 -0700  646)     Align   getTextAlign() const { return (Align)fBitfields.fTextAlign; }
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  647) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  648)     /** Set the paint's text alignment.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  649)         @param align set the paint's Align value for drawing text.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  650)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  651)     void    setTextAlign(Align align);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  652) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  653)     /** Return the paint's text size.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  654)         @return the paint's text size.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  655)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  656)     SkScalar getTextSize() const { return fTextSize; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  657) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  658)     /** Set the paint's text size. This value must be > 0
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  659)         @param textSize set the paint's text size.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  660)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  661)     void setTextSize(SkScalar textSize);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  662) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  663)     /** Return the paint's horizontal scale factor for text. The default value
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  664)         is 1.0.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  665)         @return the paint's scale factor in X for drawing/measuring text
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  666)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  667)     SkScalar getTextScaleX() const { return fTextScaleX; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  668) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  669)     /** Set the paint's horizontal scale factor for text. The default value
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  670)         is 1.0. Values > 1.0 will stretch the text wider. Values < 1.0 will
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  671)         stretch the text narrower.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  672)         @param scaleX   set the paint's scale factor in X for drawing/measuring
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  673)                         text.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  674)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  675)     void setTextScaleX(SkScalar scaleX);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  676) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  677)     /** Return the paint's horizontal skew factor for text. The default value
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  678)         is 0.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  679)         @return the paint's skew factor in X for drawing text.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  680)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  681)     SkScalar getTextSkewX() const { return fTextSkewX; }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  682) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  683)     /** Set the paint's horizontal skew factor for text. The default value
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  684)         is 0. For approximating oblique text, use values around -0.25.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  685)         @param skewX set the paint's skew factor in X for drawing text.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  686)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  687)     void setTextSkewX(SkScalar skewX);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  688) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  689)     /** Describes how to interpret the text parameters that are passed to paint
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  690)         methods like measureText() and getTextWidths().
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  691)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  692)     enum TextEncoding {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  693)         kUTF8_TextEncoding,     //!< the text parameters are UTF8
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  694)         kUTF16_TextEncoding,    //!< the text parameters are UTF16
+69705570 (robertphillips@google.com 2012-03-21 19:46:50 +0000  695)         kUTF32_TextEncoding,    //!< the text parameters are UTF32
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  696)         kGlyphID_TextEncoding   //!< the text parameters are glyph indices
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  697)     };
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  698) 
+f59eab26 (reed                      2014-07-14 14:39:15 -0700  699)     TextEncoding getTextEncoding() const {
+f59eab26 (reed                      2014-07-14 14:39:15 -0700  700)       return (TextEncoding)fBitfields.fTextEncoding;
+f59eab26 (reed                      2014-07-14 14:39:15 -0700  701)     }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  702) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  703)     void setTextEncoding(TextEncoding encoding);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  704) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  705)     struct FontMetrics {
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  706)         /** Flags which indicate the confidence level of various metrics.
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  707)             A set flag indicates that the metric may be trusted.
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  708)         */
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  709)         enum FontMetricsFlags {
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  710)             kUnderlineThinknessIsValid_Flag = 1 << 0,
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  711)             kUnderlinePositionIsValid_Flag = 1 << 1,
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  712)         };
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  713) 
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  714)         uint32_t    fFlags;       //!< Bit field to identify which values are unknown
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  715)         SkScalar    fTop;       //!< The greatest distance above the baseline for any glyph (will be <= 0)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  716)         SkScalar    fAscent;    //!< The recommended distance above the baseline (will be <= 0)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  717)         SkScalar    fDescent;   //!< The recommended distance below the baseline (will be >= 0)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  718)         SkScalar    fBottom;    //!< The greatest distance below the baseline for any glyph (will be >= 0)
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  719)         SkScalar    fLeading;   //!< The recommended distance to add between lines of text (will be >= 0)
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  720)         SkScalar    fAvgCharWidth;  //!< the average character width (>= 0)
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  721)         SkScalar    fMaxCharWidth;  //!< the max character width (>= 0)
+cc3096ba (agl@chromium.org          2009-04-22 22:09:04 +0000  722)         SkScalar    fXMin;      //!< The minimum bounding box x value for all glyphs
+cc3096ba (agl@chromium.org          2009-04-22 22:09:04 +0000  723)         SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
+cbe1b54c (bungeman@google.com       2013-12-16 17:02:39 +0000  724)         SkScalar    fXHeight;   //!< The height of an 'x' in px, or 0 if no 'x' in face
+cbe1b54c (bungeman@google.com       2013-12-16 17:02:39 +0000  725)         SkScalar    fCapHeight;  //!< The cap height (> 0), or 0 if cannot be determined.
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  726)         SkScalar    fUnderlineThickness; //!< underline thickness, or 0 if cannot be determined
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  727) 
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  728)         /**  Underline Position - position of the top of the Underline stroke
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  729)                 relative to the baseline, this can have following values
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  730)                 - Negative - means underline should be drawn above baseline.
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  731)                 - Positive - means below baseline.
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  732)                 - Zero     - mean underline should be drawn on baseline.
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  733)          */
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  734)         SkScalar    fUnderlinePosition; //!< underline position, or 0 if cannot be determined
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  735) 
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  736)         /**  If the fontmetrics has a valid underlinethickness, return true, and set the
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  737)                 thickness param to that value. If it doesn't return false and ignore the
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  738)                 thickness param.
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  739)         */
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  740)         bool hasUnderlineThickness(SkScalar* thickness) const {
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  741)             if (SkToBool(fFlags & kUnderlineThinknessIsValid_Flag)) {
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  742)                 *thickness = fUnderlineThickness;
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  743)                 return true;
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  744)             }
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  745)             return false;
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  746)         }
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  747) 
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  748)         /**  If the fontmetrics has a valid underlineposition, return true, and set the
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  749)                 thickness param to that value. If it doesn't return false and ignore the
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  750)                 thickness param.
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  751)         */
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  752)         bool hasUnderlinePosition(SkScalar* position) const {
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  753)             if (SkToBool(fFlags & kUnderlinePositionIsValid_Flag)) {
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  754)                 *position = fUnderlinePosition;
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  755)                 return true;
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  756)             }
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  757)             return false;
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  758)         }
+0bc406df (commit-bot@chromium.org   2014-03-01 20:12:26 +0000  759) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  760)     };
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  761) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  762)     /** Return the recommend spacing between lines (which will be
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  763)         fDescent - fAscent + fLeading).
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  764)         If metrics is not null, return in it the font metrics for the
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  765)         typeface/pointsize/etc. currently set in the paint.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  766)         @param metrics      If not null, returns the font metrics for the
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  767)                             current typeface/pointsize/etc setting in this
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  768)                             paint.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  769)         @param scale        If not 0, return width as if the canvas were scaled
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  770)                             by this value
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  771)         @param return the recommended spacing between lines
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  772)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  773)     SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const;
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  774) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  775)     /** Return the recommend line spacing. This will be
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  776)         fDescent - fAscent + fLeading
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  777)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  778)     SkScalar getFontSpacing() const { return this->getFontMetrics(NULL, 0); }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  779) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  780)     /** Convert the specified text into glyph IDs, returning the number of
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  781)         glyphs ID written. If glyphs is NULL, it is ignore and only the count
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  782)         is returned.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  783)     */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  784)     int textToGlyphs(const void* text, size_t byteLength,
+d0e95a52 (halcanary                 2016-07-25 07:18:12 -0700  785)                      SkGlyphID glyphs[]) const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  786) 
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  787)     /** Return true if all of the specified text has a corresponding non-zero
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  788)         glyph ID. If any of the code-points in the text are not supported in
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  789)         the typeface (i.e. the glyph ID would be zero), then return false.
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  790) 
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  791)         If the text encoding for the paint is kGlyph_TextEncoding, then this
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  792)         returns true if all of the specified glyph IDs are non-zero.
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  793)      */
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  794)     bool containsText(const void* text, size_t byteLength) const;
+a5dcaf6f (reed@android.com          2010-02-05 17:12:32 +0000  795) 
+9d3a985a (reed@android.com          2010-01-08 14:07:42 +0000  796)     /** Convert the glyph array into Unichars. Unconvertable glyphs are mapped
+9d3a985a (reed@android.com          2010-01-08 14:07:42 +0000  797)         to zero. Note: this does not look at the text-encoding setting in the
+9d3a985a (reed@android.com          2010-01-08 14:07:42 +0000  798)         paint, only at the typeface.
+9d3a985a (reed@android.com          2010-01-08 14:07:42 +0000  799)     */
+d0e95a52 (halcanary                 2016-07-25 07:18:12 -0700  800)     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
+9d3a985a (reed@android.com          2010-01-08 14:07:42 +0000  801) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  802)     /** Return the number of drawable units in the specified text buffer.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  803)         This looks at the current TextEncoding field of the paint. If you also
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  804)         want to have the text converted into glyph IDs, call textToGlyphs
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  805)         instead.
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  806)     */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  807)     int countText(const void* text, size_t byteLength) const {
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  808)         return this->textToGlyphs(text, byteLength, NULL);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  809)     }
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  810) 
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  811)     /** Return the width of the text. This will return the vertical measure
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  812)      *  if isVerticalText() is true, in which case the returned value should
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  813)      *  be treated has a height instead of a width.
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  814)      *
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  815)      *  @param text         The text to be measured
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  816)      *  @param length       Number of bytes of text to measure
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  817)      *  @param bounds       If not NULL, returns the bounds of the text,
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  818)      *                      relative to (0, 0).
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  819)      *  @return             The advance width of the text
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  820)      */
+99ae881a (reed                      2014-08-26 11:30:01 -0700  821)     SkScalar measureText(const void* text, size_t length, SkRect* bounds) const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  822) 
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  823)     /** Return the width of the text. This will return the vertical measure
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  824)      *  if isVerticalText() is true, in which case the returned value should
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  825)      *  be treated has a height instead of a width.
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  826)      *
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  827)      *  @param text     Address of the text
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  828)      *  @param length   Number of bytes of text to measure
+97ecd1d4 (reed@google.com           2012-05-15 19:25:17 +0000  829)      *  @return         The advance width of the text
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  830)      */
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  831)     SkScalar measureText(const void* text, size_t length) const {
+99ae881a (reed                      2014-08-26 11:30:01 -0700  832)         return this->measureText(text, length, NULL);
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  833)     }
+9d07fec3 (reed@google.com           2011-03-16 20:02:59 +0000  834) 
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  835)     /** Return the number of bytes of text that were measured. If
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  836)      *  isVerticalText() is true, then the vertical advances are used for
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  837)      *  the measurement.
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000  838)      *
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  839)      *  @param text     The text to be measured
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  840)      *  @param length   Number of bytes of text to measure
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  841)      *  @param maxWidth Maximum width. Only the subset of text whose accumulated
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  842)      *                  widths are <= maxWidth are measured.
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  843)      *  @param measuredWidth Optional. If non-null, this returns the actual
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  844)      *                  width of the measured text.
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  845)      *  @return         The number of bytes of text that were measured. Will be
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  846)      *                  <= length.
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  847)      */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  848)     size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
+9e96aa07 (reed                      2014-10-03 12:44:37 -0700  849)                       SkScalar* measuredWidth = NULL) const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  850) 
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  851)     /** Return the advances for the text. These will be vertical advances if
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  852)      *  isVerticalText() returns true.
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  853)      *
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  854)      *  @param text         the text
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  855)      *  @param byteLength   number of bytes to of text
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  856)      *  @param widths       If not null, returns the array of advances for
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  857)      *                      the glyphs. If not NULL, must be at least a large
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  858)      *                      as the number of unichars in the specified text.
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  859)      *  @param bounds       If not null, returns the bounds for each of
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  860)      *                      character, relative to (0, 0)
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  861)      *  @return the number of unichars in the specified text.
+44da42e9 (reed@google.com           2011-11-10 20:04:47 +0000  862)      */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  863)     int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  864)                       SkRect bounds[] = NULL) const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  865) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  866)     /** Return the path (outline) for the specified text.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  867)      *  Note: just like SkCanvas::drawText, this will respect the Align setting
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  868)      *        in the paint.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  869)      *
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  870)      *  @param text         the text
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  871)      *  @param length       number of bytes of text
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  872)      *  @param x            The x-coordinate of the origin of the text.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  873)      *  @param y            The y-coordinate of the origin of the text.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  874)      *  @param path         The outline of the text.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  875)      */
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  876)     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  877)                      SkPath* path) const;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000  878) 
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  879)     /** Return the path (outline) for the specified text.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  880)      *  Note: just like SkCanvas::drawText, this will respect the Align setting
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  881)      *        in the paint.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  882)      *
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  883)      *  @param text         the text
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  884)      *  @param length       number of bytes of text
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  885)      *  @param pos          array of positions, used to position each character
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  886)      *  @param path         The outline of the text.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  887)      */
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000  888)     void getPosTextPath(const void* text, size_t length,
+ca0062ee (reed@google.com           2012-07-20 11:20:32 +0000  889)                         const SkPoint pos[], SkPath* path) const;
+ca0062ee (reed@google.com           2012-07-20 11:20:32 +0000  890) 
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  891)     /** Return the number of intervals that intersect the intercept along the axis of the advance.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  892)      *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  893)      *  the string. The caller may pass nullptr for intervals to determine the size of the interval
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  894)      *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  895)      *  intervals are cached by glyph to improve performance for multiple calls.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  896)      *  This permits constructing an underline that skips the descenders. 
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  897)      *
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  898)      *  @param text         the text
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  899)      *  @param length       number of bytes of text
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  900)      *  @param x            The x-coordinate of the origin of the text.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  901)      *  @param y            The y-coordinate of the origin of the text.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  902)      *  @param bounds       The lower and upper line parallel to the advance.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  903)      *  @param array        If not null, the found intersections.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  904)      *
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  905)      *  @return             The number of intersections, which may be zero.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  906)      */
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  907)     int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  908)                           const SkScalar bounds[2], SkScalar* intervals) const;
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  909) 
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  910)     /** Return the number of intervals that intersect the intercept along the axis of the advance.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  911)      *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  912)      *  string. The caller may pass nullptr for intervals to determine the size of the interval
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  913)      *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  914)      *  intervals are cached by glyph to improve performance for multiple calls.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  915)      *  This permits constructing an underline that skips the descenders. 
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  916)      *
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  917)      *  @param text         the text
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  918)      *  @param length       number of bytes of text
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  919)      *  @param pos          array of positions, used to position each character
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  920)      *  @param bounds       The lower and upper line parallel to the advance.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  921)      *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  922)      *
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  923)      *  @return             The number of intersections, which may be zero.
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  924)      */
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  925)     int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  926)                              const SkScalar bounds[2], SkScalar* intervals) const;
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800  927) 
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  928)     /** Return the number of intervals that intersect the intercept along the axis of the advance.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  929)      *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  930)      *  string. The caller may pass nullptr for intervals to determine the size of the interval
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  931)      *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  932)      *  intervals are cached by glyph to improve performance for multiple calls.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  933)      *  This permits constructing an underline that skips the descenders.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  934)      *
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  935)      *  @param text         The text.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  936)      *  @param length       Number of bytes of text.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  937)      *  @param xpos         Array of x-positions, used to position each character.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  938)      *  @param constY       The shared Y coordinate for all of the positions.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  939)      *  @param bounds       The lower and upper line parallel to the advance.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  940)      *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  941)      *
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  942)      *  @return             The number of intersections, which may be zero.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  943)      */
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  944)     int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  945)                               SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const;
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  946) 
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  947)     /** Return the number of intervals that intersect the intercept along the axis of the advance.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  948)      *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  949)      *  text blob. The caller may pass nullptr for intervals to determine the size of the interval
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  950)      *  array. The computed intervals are cached by glyph to improve performance for multiple calls.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  951)      *  This permits constructing an underline that skips the descenders.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  952)      *
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  953)      *  @param blob         The text blob.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  954)      *  @param bounds       The lower and upper line parallel to the advance.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  955)      *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  956)      *
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  957)      *  @return             The number of intersections, which may be zero.
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  958)      */
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  959)     int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  960)                               SkScalar* intervals) const;
+eae6a912 (fmalita                   2016-07-28 09:47:24 -0700  961) 
+8893e5f0 (reed                      2014-12-15 13:27:26 -0800  962)     /**
+8893e5f0 (reed                      2014-12-15 13:27:26 -0800  963)      *  Return a rectangle that represents the union of the bounds of all
+8893e5f0 (reed                      2014-12-15 13:27:26 -0800  964)      *  of the glyphs, but each one positioned at (0,0). This may be conservatively large, and
+8893e5f0 (reed                      2014-12-15 13:27:26 -0800  965)      *  will not take into account any hinting, but will respect any text-scale-x or text-skew-x
+8893e5f0 (reed                      2014-12-15 13:27:26 -0800  966)      *  on this paint.
+8893e5f0 (reed                      2014-12-15 13:27:26 -0800  967)      */
+8893e5f0 (reed                      2014-12-15 13:27:26 -0800  968)     SkRect getFontBounds() const;
+8893e5f0 (reed                      2014-12-15 13:27:26 -0800  969) 
+632e1a28 (reed@google.com           2011-10-06 12:37:00 +0000  970)     // returns true if the paint's settings (e.g. xfermode + alpha) resolve to
+632e1a28 (reed@google.com           2011-10-06 12:37:00 +0000  971)     // mean that we need not draw at all (e.g. SrcOver + 0-alpha)
+632e1a28 (reed@google.com           2011-10-06 12:37:00 +0000  972)     bool nothingToDraw() const;
+632e1a28 (reed@google.com           2011-10-06 12:37:00 +0000  973) 
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  974)     ///////////////////////////////////////////////////////////////////////////
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000  975)     // would prefer to make these private...
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000  976) 
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  977)     /** Returns true if the current paint settings allow for fast computation of
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  978)      bounds (i.e. there is nothing complex like a patheffect that would make
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  979)      the bounds computation expensive.
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  980)      */
+0abdf766 (senorblanco               2015-08-20 11:10:41 -0700  981)     bool canComputeFastBounds() const;
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000  982) 
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  983)     /** Only call this if canComputeFastBounds() returned true. This takes a
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  984)      raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  985)      effects in the paint (e.g. stroking). If needed, it uses the storage
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  986)      rect parameter. It returns the adjusted bounds that can then be used
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  987)      for quickReject tests.
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000  988) 
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  989)      The returned rect will either be orig or storage, thus the caller
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  990)      should not rely on storage being set to the result, but should always
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  991)      use the retured value. It is legal for orig and storage to be the same
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  992)      rect.
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000  993) 
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  994)      e.g.
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  995)      if (paint.canComputeFastBounds()) {
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  996)      SkRect r, storage;
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  997)      path.computeBounds(&r, SkPath::kFast_BoundsType);
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  998)      const SkRect& fastR = paint.computeFastBounds(r, &storage);
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000  999)      if (canvas->quickReject(fastR, ...)) {
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1000)      // don't draw the path
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1001)      }
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1002)      }
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1003)      */
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1004)     const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1005)         SkPaint::Style style = this->getStyle();
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1006)         // ultra fast-case: filling with no effects that affect geometry
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1007)         if (kFill_Style == style) {
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1008)             uintptr_t effects = reinterpret_cast<uintptr_t>(this->getLooper());
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1009)             effects |= reinterpret_cast<uintptr_t>(this->getMaskFilter());
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1010)             effects |= reinterpret_cast<uintptr_t>(this->getPathEffect());
+336d1d75 (senorblanco@chromium.org  2014-01-27 21:03:17 +0000 1011)             effects |= reinterpret_cast<uintptr_t>(this->getImageFilter());
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1012)             if (!effects) {
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1013)                 return orig;
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1014)             }
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1015)         }
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000 1016) 
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1017)         return this->doComputeFastBounds(orig, storage, style);
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1018)     }
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000 1019) 
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1020)     const SkRect& computeFastStrokeBounds(const SkRect& orig,
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1021)                                           SkRect* storage) const {
+73a02581 (reed@google.com           2012-05-16 19:21:12 +0000 1022)         return this->doComputeFastBounds(orig, storage, kStroke_Style);
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1023)     }
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000 1024) 
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1025)     // Take the style explicitly, so the caller can force us to be stroked
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1026)     // without having to make a copy of the paint just to change that field.
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1027)     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
+a584aed5 (reed@google.com           2012-05-16 14:06:02 +0000 1028)                                       Style) const;
+fbfcd560 (rmistry@google.com        2012-08-23 18:09:54 +0000 1029) 
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1030)     /**
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1031)      *  Return a matrix that applies the paint's text values: size, scale, skew
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1032)      */
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1033)     static SkMatrix* SetTextMatrix(SkMatrix* matrix, SkScalar size,
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1034)                                    SkScalar scaleX, SkScalar skewX) {
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1035)         matrix->setScale(size * scaleX, size);
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1036)         if (skewX) {
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1037)             matrix->postSkew(skewX, 0);
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1038)         }
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1039)         return matrix;
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1040)     }
+8f6ef401 (skia.committer@gmail.com  2013-06-05 07:01:06 +0000 1041) 
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1042)     SkMatrix* setTextMatrix(SkMatrix* matrix) const {
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1043)         return SetTextMatrix(matrix, fTextSize, fTextScaleX, fTextSkewX);
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1044)     }
+8f6ef401 (skia.committer@gmail.com  2013-06-05 07:01:06 +0000 1045) 
+d936f63c (benjaminwagner            2016-02-23 10:44:31 -0800 1046)     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
+d936f63c (benjaminwagner            2016-02-23 10:44:31 -0800 1047) 
+0f10f7bf (commit-bot@chromium.org   2014-03-13 18:02:17 +0000 1048)     SK_TO_STRING_NONVIRT()
+791f12e6 (robertphillips@google.com 2013-02-14 13:53:53 +0000 1049) 
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1050) private:
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800 1051)     sk_sp<SkTypeface>     fTypeface;
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800 1052)     sk_sp<SkPathEffect>   fPathEffect;
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800 1053)     sk_sp<SkShader>       fShader;
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800 1054)     sk_sp<SkMaskFilter>   fMaskFilter;
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800 1055)     sk_sp<SkColorFilter>  fColorFilter;
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800 1056)     sk_sp<SkRasterizer>   fRasterizer;
+46f2d0ad (reed                      2016-09-11 05:40:31 -0700 1057)     sk_sp<SkDrawLooper>   fDrawLooper;
+a5ab9ec2 (reed                      2016-03-06 18:10:48 -0800 1058)     sk_sp<SkImageFilter>  fImageFilter;
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1059) 
+e8807f49 (commit-bot@chromium.org   2014-03-24 23:03:11 +0000 1060)     SkScalar        fTextSize;
+e8807f49 (commit-bot@chromium.org   2014-03-24 23:03:11 +0000 1061)     SkScalar        fTextScaleX;
+e8807f49 (commit-bot@chromium.org   2014-03-24 23:03:11 +0000 1062)     SkScalar        fTextSkewX;
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1063)     SkColor         fColor;
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1064)     SkScalar        fWidth;
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1065)     SkScalar        fMiterLimit;
+71fecc32 (Mike Reed                 2016-11-18 17:19:54 -0500 1066)     uint32_t        fBlendMode; // just need 5-6 bits
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1067)     union {
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1068)         struct {
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1069)             // all of these bitfields should add up to 32
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1070)             unsigned        fFlags : 16;
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1071)             unsigned        fTextAlign : 2;
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1072)             unsigned        fCapType : 2;
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1073)             unsigned        fJoinType : 2;
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1074)             unsigned        fStyle : 2;
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1075)             unsigned        fTextEncoding : 2;  // 3 values
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1076)             unsigned        fHinting : 2;
+f803da12 (reed                      2015-01-23 05:58:07 -0800 1077)             unsigned        fFilterQuality : 2;
+85faf508 (commit-bot@chromium.org   2014-04-16 12:58:02 +0000 1078)             //unsigned      fFreeBits : 2;
+f59eab26 (reed                      2014-07-14 14:39:15 -0700 1079)         } fBitfields;
+f59eab26 (reed                      2014-07-14 14:39:15 -0700 1080)         uint32_t fBitfieldsUInt;
+aca1c01f (commit-bot@chromium.org   2014-02-21 18:18:05 +0000 1081)     };
+e8807f49 (commit-bot@chromium.org   2014-03-24 23:03:11 +0000 1082) 
+e34f17d2 (robertphillips            2016-07-19 07:59:22 -0700 1083)     static GlyphCacheProc GetGlyphCacheProc(TextEncoding encoding,
+e34f17d2 (robertphillips            2016-07-19 07:59:22 -0700 1084)                                             bool isDevKern,
+e34f17d2 (robertphillips            2016-07-19 07:59:22 -0700 1085)                                             bool needFullMetrics);
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1086) 
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1087)     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1088)                           int* count, SkRect* bounds) const;
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1089) 
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1090)     enum ScalerContextFlags : uint32_t {
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1091)         kNone_ScalerContextFlags = 0,
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1092) 
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1093)         kFakeGamma_ScalerContextFlag = 1 << 0,
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1094)         kBoostContrast_ScalerContextFlag = 1 << 1,
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1095) 
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1096)         kFakeGammaAndBoostContrast_ScalerContextFlags =
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1097)             kFakeGamma_ScalerContextFlag | kBoostContrast_ScalerContextFlag,
+f6d1e605 (bungeman                  2016-02-22 13:20:28 -0800 1098)     };
+f6d1e605 (bungeman                  2016-02-22 13:20:28 -0800 1099) 
+fd450793 (joshualitt                2015-03-13 08:38:43 -0700 1100)     /*
+fd450793 (joshualitt                2015-03-13 08:38:43 -0700 1101)      * Allocs an SkDescriptor on the heap and return it to the caller as a refcnted
+fd450793 (joshualitt                2015-03-13 08:38:43 -0700 1102)      * SkData.  Caller is responsible for managing the lifetime of this object.
+fd450793 (joshualitt                2015-03-13 08:38:43 -0700 1103)      */
+a9322c2d (reed                      2016-04-12 06:47:05 -0700 1104)     void getScalerContextDescriptor(SkScalerContextEffects*, SkAutoDescriptor*,
+a9322c2d (reed                      2016-04-12 06:47:05 -0700 1105)                                     const SkSurfaceProps& surfaceProps,
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1106)                                     uint32_t scalerContextFlags, const SkMatrix*) const;
+fd450793 (joshualitt                2015-03-13 08:38:43 -0700 1107) 
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1108)     SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
+f6d1e605 (bungeman                  2016-02-22 13:20:28 -0800 1109)                               const SkMatrix*) const;
+d5f20797 (reed@google.com           2012-05-16 14:15:02 +0000 1110) 
+a1e8f8d8 (brianosman                2016-04-08 06:47:54 -0700 1111)     void descriptorProc(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
+f6d1e605 (bungeman                  2016-02-22 13:20:28 -0800 1112)                         const SkMatrix* deviceMatrix,
+a9322c2d (reed                      2016-04-12 06:47:05 -0700 1113)                         void (*proc)(SkTypeface*, const SkScalerContextEffects&,
+a9322c2d (reed                      2016-04-12 06:47:05 -0700 1114)                                      const SkDescriptor*, void*),
+f6d1e605 (bungeman                  2016-02-22 13:20:28 -0800 1115)                         void* context) const;
+d252db03 (reed@android.com          2009-04-01 18:31:44 +0000 1116) 
+9e36c1a9 (joshualitt                2015-04-14 12:17:27 -0700 1117)     /*
+9e36c1a9 (joshualitt                2015-04-14 12:17:27 -0700 1118)      * The luminance color is used to determine which Gamma Canonical color to map to.  This is
+9e36c1a9 (joshualitt                2015-04-14 12:17:27 -0700 1119)      * really only used by backends which want to cache glyph masks, and need some way to know if
+9e36c1a9 (joshualitt                2015-04-14 12:17:27 -0700 1120)      * they need to generate new masks based off a given color.
+9e36c1a9 (joshualitt                2015-04-14 12:17:27 -0700 1121)      */
+9e36c1a9 (joshualitt                2015-04-14 12:17:27 -0700 1122)     SkColor computeLuminanceColor() const;
+9e36c1a9 (joshualitt                2015-04-14 12:17:27 -0700 1123) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000 1124)     enum {
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1125)         /*  This is the size we use when we ask for a glyph's path. We then
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1126)          *  post-transform it as we draw to match the request.
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1127)          *  This is done to try to re-use cache entries for the path.
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1128)          *
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1129)          *  This value is somewhat arbitrary. In theory, it could be 1, since
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1130)          *  we store paths as floats. However, we get the path from the font
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1131)          *  scaler, and it may represent its paths as fixed-point (or 26.6),
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1132)          *  so we shouldn't ask for something too big (might overflow 16.16)
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1133)          *  or too small (underflow 26.6).
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1134)          *
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1135)          *  This value could track kMaxSizeForGlyphCache, assuming the above
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1136)          *  constraints, but since we ask for unhinted paths, the two values
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1137)          *  need not match per-se.
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1138)          */
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1139)         kCanonicalTextSizeForPaths  = 64,
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1140) 
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1141)         /*
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1142)          *  Above this size (taking into account CTM and textSize), we never use
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1143)          *  the cache for bits or metrics (we might overflow), so we just ask
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1144)          *  for a caononical size and post-transform that.
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1145)          */
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1146)         kMaxSizeForGlyphCache       = 256,
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000 1147)     };
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1148) 
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1149)     static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM);
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1150) 
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1151)     // Set flags/hinting/textSize up to use for drawing text as paths.
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1152)     // Returns scale factor to restore the original textSize, since will will
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1153)     // have change it to kCanonicalTextSizeForPaths.
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1154)     SkScalar setupForAsPaths();
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1155) 
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1156)     static SkScalar MaxCacheSize2() {
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1157)         static const SkScalar kMaxSize = SkIntToScalar(kMaxSizeForGlyphCache);
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1158)         static const SkScalar kMag2Max = kMaxSize * kMaxSize;
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1159)         return kMag2Max;
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1160)     }
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1161) 
+28be72b6 (vandebo@chromium.org      2010-11-11 21:37:00 +0000 1162)     friend class SkAutoGlyphCache;
+2d2a68c5 (jvanverth                 2014-06-10 06:42:56 -0700 1163)     friend class SkAutoGlyphCacheNoGamma;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000 1164)     friend class SkCanvas;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000 1165)     friend class SkDraw;
+28be72b6 (vandebo@chromium.org      2010-11-11 21:37:00 +0000 1166)     friend class SkPDFDevice;
+e76b4bb3 (joshualitt                2015-12-28 07:23:58 -0800 1167)     friend class GrAtlasTextBlob;
+dbd3593e (joshualitt                2015-04-02 09:19:04 -0700 1168)     friend class GrAtlasTextContext;
+c6cb56f3 (kkinnunen                 2014-06-24 00:12:27 -0700 1169)     friend class GrStencilAndCoverTextContext;
+855d83ff (cdalton                   2014-09-18 13:51:53 -0700 1170)     friend class GrPathRendering;
+0a42e682 (joshualitt                2015-12-10 13:20:58 -0800 1171)     friend class GrTextUtils;
+855d83ff (cdalton                   2014-09-18 13:51:53 -0700 1172)     friend class GrGLPathRendering;
+9e36c1a9 (joshualitt                2015-04-14 12:17:27 -0700 1173)     friend class SkScalerContext;
+0449bcfb (caryclark                 2016-02-09 13:25:45 -0800 1174)     friend class SkTextBaseIter;
+ed43dffb (reed@google.com           2013-06-04 16:56:27 +0000 1175)     friend class SkCanonicalizePaint;
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000 1176) };
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000 1177) 
+8a1c16ff (reed@android.com          2008-12-17 15:59:43 +0000 1178) #endif
