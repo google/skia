@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d58fdec_ad35a389",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-22T18:47:10Z",
+      "side": 1,
+      "message": "My plan for landing this is to back out all of the SkImageGenerator/SkImageCacherator changes.  Changing the SkImageGenerator API looks like a big enough change on its own.\n\nI just left this here to give an idea of how I envision a new generator API might look.",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 89
+      },
+      "revId": "a16f93a1345afca2aa2d2f94423fd119421be698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
