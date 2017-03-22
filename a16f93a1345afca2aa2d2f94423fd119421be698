@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "543457d8_d2d675f9",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-22T20:12:21Z",
+      "side": 1,
+      "message": "You\u0027re right on all things, let me explain this better.",
+      "parentUuid": "3345deb8_737ca053",
+      "range": {
+        "startLine": 354,
+        "startChar": 8,
+        "endLine": 354,
+        "endChar": 76
+      },
+      "revId": "a16f93a1345afca2aa2d2f94423fd119421be698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "08315942_d14c6bd2",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 5
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "e94b8042_d0b6f865",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-22T20:12:21Z",
+      "side": 1,
+      "message": "You\u0027re right, that sgtm.",
+      "parentUuid": "08315942_d14c6bd2",
+      "range": {
+        "startLine": 477,
+        "startChar": 69,
+        "endLine": 477,
+        "endChar": 76
+      },
+      "revId": "a16f93a1345afca2aa2d2f94423fd119421be698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "51eb425c_83174790",
         "filename": "src/core/SkColorSpaceXform.cpp",
         "patchSetId": 5
@@ -82,6 +130,24 @@
       "writtenOn": "2017-03-22T18:56:00Z",
       "side": 1,
       "message": "Use SkBlendBehavior here (rather than bool)?",
+      "revId": "a16f93a1345afca2aa2d2f94423fd119421be698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c06e6c5_c11de41b",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-22T20:12:21Z",
+      "side": 1,
+      "message": "Yeah of course thanks, forgot to update here once I pulled the flag out of SkCodec.",
+      "parentUuid": "51eb425c_83174790",
       "revId": "a16f93a1345afca2aa2d2f94423fd119421be698",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
