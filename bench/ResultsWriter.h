@@ -85,7 +85,7 @@ public:
         , fBench(nullptr)
         , fConfig(nullptr) {}
 
-    ~NanoJSONResultsWriter() {
+    ~NanoJSONResultsWriter() override {
         this->flush();
     }
 

@@ -46,7 +46,7 @@ struct MultiPictureDocument final : public SkDocument {
     SkTArray<SkSize> fSizes;
     MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool))
         : SkDocument(s, d) {}
-    ~MultiPictureDocument() { this->close(); }
+    ~MultiPictureDocument() override { this->close(); }
 
     SkCanvas* onBeginPage(SkScalar w, SkScalar h, const SkRect& c) override {
         fCurrentPageSize.set(w, h);

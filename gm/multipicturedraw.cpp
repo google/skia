@@ -470,7 +470,7 @@ namespace skiagm {
             }
         }
 
-        virtual ~MultiPictureDraw() {
+        ~MultiPictureDraw() override {
             for (int i = 0; i < kNumPictures; ++i) {
                 SkSafeUnref(fPictures[i]);
             }

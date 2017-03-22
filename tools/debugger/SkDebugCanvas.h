@@ -26,7 +26,7 @@ class SkDebugCanvas : public SkCanvas {
 public:
     SkDebugCanvas(int width, int height);
 
-    virtual ~SkDebugCanvas();
+    ~SkDebugCanvas() override;
 
     void toggleFilter(bool toggle) { fFilter = toggle; }
 

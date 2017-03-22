@@ -702,7 +702,7 @@ private:
 
 class GrGLDistantLight : public GrGLLight {
 public:
-    virtual ~GrGLDistantLight() {}
+    ~GrGLDistantLight() override {}
     void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
     void emitSurfaceToLight(GrGLSLUniformHandler*, GrGLSLFPFragmentBuilder*, const char* z) override;
 
@@ -715,7 +715,7 @@ private:
 
 class GrGLPointLight : public GrGLLight {
 public:
-    virtual ~GrGLPointLight() {}
+    ~GrGLPointLight() override {}
     void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
     void emitSurfaceToLight(GrGLSLUniformHandler*, GrGLSLFPFragmentBuilder*, const char* z) override;
 
@@ -728,7 +728,7 @@ private:
 
 class GrGLSpotLight : public GrGLLight {
 public:
-    virtual ~GrGLSpotLight() {}
+    ~GrGLSpotLight() override {}
     void setData(const GrGLSLProgramDataManager&, const SkImageFilterLight* light) const override;
     void emitSurfaceToLight(GrGLSLUniformHandler*, GrGLSLFPFragmentBuilder*, const char* z) override;
     void emitLightColor(GrGLSLUniformHandler*,
@@ -758,8 +758,6 @@ class GrGLLight;
 
 class SkImageFilterLight : public SkRefCnt {
 public:
-
-
     enum LightType {
         kDistant_LightType,
         kPoint_LightType,
@@ -1630,7 +1628,7 @@ SkString emitNormalFunc(BoundaryMode mode,
 class GrGLLightingEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLLightingEffect() : fLight(nullptr) { }
-    virtual ~GrGLLightingEffect() { delete fLight; }
+    ~GrGLLightingEffect() override { delete fLight; }
 
     void emitCode(EmitArgs&) override;
 

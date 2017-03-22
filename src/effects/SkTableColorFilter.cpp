@@ -80,7 +80,7 @@ public:
         }
     }
 
-    virtual ~SkTable_ColorFilter() { delete fBitmap; }
+    ~SkTable_ColorFilter() override { delete fBitmap; }
 
     bool asComponentTable(SkBitmap* table) const override;
     sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter> inner) const override;

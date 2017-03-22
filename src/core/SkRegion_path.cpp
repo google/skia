@@ -26,7 +26,7 @@ static bool sk_memeq32(const int32_t* SK_RESTRICT a, const int32_t* SK_RESTRICT 
 class SkRgnBuilder : public SkBlitter {
 public:
     SkRgnBuilder();
-    virtual ~SkRgnBuilder();
+    ~SkRgnBuilder() override;
 
     // returns true if it could allocate the working storage needed
     bool init(int maxHeight, int maxTransitions, bool pathIsInverse);

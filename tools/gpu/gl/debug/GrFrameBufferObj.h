@@ -27,7 +27,7 @@ public:
         , fStencilBuffer(nullptr) {
     }
 
-    virtual ~GrFrameBufferObj() {
+    ~GrFrameBufferObj() override {
         fColorBuffer = nullptr;
         fDepthBuffer = nullptr;
         fStencilBuffer = nullptr;

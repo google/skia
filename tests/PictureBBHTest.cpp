@@ -59,10 +59,10 @@ private:
 class DrawEmptyPictureBBHTest : public PictureBBHTestBase {
 public:
     DrawEmptyPictureBBHTest()
-        : PictureBBHTestBase(2, 2, 1, 1) { }
-    virtual ~DrawEmptyPictureBBHTest() { }
+        : PictureBBHTestBase(2, 2, 1, 1) {}
+    ~DrawEmptyPictureBBHTest() override {}
 
-    void doTest(SkCanvas&, SkCanvas&) override { }
+    void doTest(SkCanvas&, SkCanvas&) override {}
 };
 
 // Test to verify the playback of a picture into a canvas that has
@@ -71,7 +71,7 @@ public:
 class EmptyClipPictureBBHTest : public PictureBBHTestBase {
 public:
     EmptyClipPictureBBHTest()
-        : PictureBBHTestBase(2, 2, 3, 3) { }
+        : PictureBBHTestBase(2, 2, 3, 3) {}
 
     void doTest(SkCanvas& playbackCanvas, SkCanvas& recordingCanvas) override {
         // intersect with out of bounds rect -> empty clip.
@@ -80,7 +80,7 @@ public:
         recordingCanvas.drawRect(SkRect::MakeWH(3, 3), paint);
     }
 
-    virtual ~EmptyClipPictureBBHTest() { }
+    ~EmptyClipPictureBBHTest() override {}
 };
 
 DEF_TEST(PictureBBH, reporter) {

@@ -104,7 +104,7 @@ class SuperBlitter : public BaseSuperBlitter {
 public:
     SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip, bool isInverse);
 
-    virtual ~SuperBlitter() {
+    ~SuperBlitter() override {
         this->flush();
     }
 
@@ -394,7 +394,7 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
 class MaskSuperBlitter : public BaseSuperBlitter {
 public:
     MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion&, bool isInverse);
-    virtual ~MaskSuperBlitter() {
+    ~MaskSuperBlitter() override {
         fRealBlitter->blitMask(fMask, fClipRect);
     }
 

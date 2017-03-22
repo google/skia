@@ -270,7 +270,7 @@ protected:
 
     SkImageFilter(sk_sp<SkImageFilter>* inputs, int inputCount, const CropRect* cropRect);
 
-    virtual ~SkImageFilter();
+    ~SkImageFilter() override;
 
     /**
      *  Constructs a new SkImageFilter read from an SkReadBuffer object.

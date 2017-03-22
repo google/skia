@@ -52,7 +52,7 @@ protected:
 
 private:
     SkSVGDevice(const SkISize& size, SkXMLWriter* writer);
-    virtual ~SkSVGDevice();
+    ~SkSVGDevice() override;
 
     struct MxCp;
     void drawBitmapCommon(const MxCp&, const SkBitmap& bm, const SkPaint& paint);

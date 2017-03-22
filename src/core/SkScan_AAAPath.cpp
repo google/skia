@@ -95,7 +95,7 @@ static inline void safelyAddAlpha(SkAlpha* alpha, SkAlpha delta) {
 
 class AdditiveBlitter : public SkBlitter {
 public:
-    virtual ~AdditiveBlitter() {}
+    ~AdditiveBlitter() override {}
 
     virtual SkBlitter* getRealBlitter(bool forceRealBlitter = false) = 0;
 
@@ -136,7 +136,7 @@ class MaskAdditiveBlitter : public AdditiveBlitter {
 public:
     MaskAdditiveBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip,
             bool isInverse);
-    ~MaskAdditiveBlitter() {
+    ~MaskAdditiveBlitter() override {
         fRealBlitter->blitMask(fMask, fClipRect);
     }
 
@@ -278,7 +278,7 @@ class RunBasedAdditiveBlitter : public AdditiveBlitter {
 public:
     RunBasedAdditiveBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip,
             bool isInverse);
-    ~RunBasedAdditiveBlitter();
+    ~RunBasedAdditiveBlitter() override;
 
     SkBlitter* getRealBlitter(bool forceRealBlitter) override;
 

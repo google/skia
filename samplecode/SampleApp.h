@@ -114,7 +114,7 @@ public:
     };
 
     SampleWindow(void* hwnd, int argc, char** argv, DeviceManager*);
-    virtual ~SampleWindow();
+    ~SampleWindow() override;
 
     sk_sp<SkSurface> makeSurface() override {
         sk_sp<SkSurface> surface;

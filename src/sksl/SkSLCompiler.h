@@ -40,7 +40,7 @@ class Compiler : public ErrorReporter {
 public:
     Compiler();
 
-    ~Compiler();
+    ~Compiler() override;
 
     std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text,
                                             const Program::Settings& settings);

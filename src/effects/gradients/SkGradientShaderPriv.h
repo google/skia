@@ -119,7 +119,7 @@ public:
     };
 
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);
-    virtual ~SkGradientShaderBase();
+    ~SkGradientShaderBase() override;
 
     // The cache is initialized on-demand when getCache32 is called.
     class GradientShaderCache : public SkRefCnt {
@@ -353,7 +353,7 @@ public:
 
     class GLSLProcessor;
 
-    virtual ~GrGradientEffect();
+    ~GrGradientEffect() override;
 
     bool useAtlas() const { return SkToBool(-1 != fRow); }
     SkScalar getYCoord() const { return fYCoord; }

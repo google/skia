@@ -81,7 +81,7 @@ public:
 
     SkBinaryWriteBuffer(uint32_t flags = 0);
     SkBinaryWriteBuffer(void* initialStorage, size_t storageSize, uint32_t flags = 0);
-    ~SkBinaryWriteBuffer();
+    ~SkBinaryWriteBuffer() override;
 
     bool isCrossProcess() const override {
         return SkToBool(fFlags & kCrossProcess_Flag);

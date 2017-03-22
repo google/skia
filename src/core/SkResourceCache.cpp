@@ -91,7 +91,7 @@ public:
     // The pixelref will ref() the colortable (if not NULL), and unref() in destructor
     SkOneShotDiscardablePixelRef(const SkImageInfo&, SkDiscardableMemory*, size_t rowBytes,
                                  SkColorTable*);
-    ~SkOneShotDiscardablePixelRef();
+    ~SkOneShotDiscardablePixelRef() override;
 
 protected:
     bool onNewLockPixels(LockRec*) override;

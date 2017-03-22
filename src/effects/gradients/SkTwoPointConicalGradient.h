@@ -47,7 +47,7 @@ public:
     class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
         TwoPointConicalGradientContext(const SkTwoPointConicalGradient&, const ContextRec&);
-        ~TwoPointConicalGradientContext() {}
+        ~TwoPointConicalGradientContext() override {}
 
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 

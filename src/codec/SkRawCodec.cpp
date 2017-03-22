@@ -201,7 +201,7 @@ public:
 
 class SkRawLimitedDynamicMemoryWStream : public SkDynamicMemoryWStream {
 public:
-    virtual ~SkRawLimitedDynamicMemoryWStream() {}
+    ~SkRawLimitedDynamicMemoryWStream() override {}
 
     bool write(const void* buffer, size_t size) override {
         size_t newSize;

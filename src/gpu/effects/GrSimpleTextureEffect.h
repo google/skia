@@ -80,7 +80,7 @@ public:
                                                                     matrix, p));
     }
 
-    virtual ~GrSimpleTextureEffect() {}
+    ~GrSimpleTextureEffect() override {}
 
     const char* name() const override { return "SimpleTexture"; }
 

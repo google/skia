@@ -15,7 +15,7 @@
 
 class SK_API SkLayerDrawLooper : public SkDrawLooper {
 public:
-    virtual ~SkLayerDrawLooper();
+    ~SkLayerDrawLooper() override;
 
     /**
      *  Bits specifies which aspects of the layer's paint should replace the

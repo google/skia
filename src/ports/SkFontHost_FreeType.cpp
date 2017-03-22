@@ -450,7 +450,7 @@ public:
     SkScalerContext_FreeType(sk_sp<SkTypeface>,
                              const SkScalerContextEffects&,
                              const SkDescriptor* desc);
-    virtual ~SkScalerContext_FreeType();
+    ~SkScalerContext_FreeType() override;
 
     bool success() const {
         return fFTSize != nullptr && fFace != nullptr;

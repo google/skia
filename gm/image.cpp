@@ -114,7 +114,7 @@ public:
         fSize.set(SkIntToScalar(W), SkIntToScalar(H));
     }
 
-    virtual ~ImageGM() {
+    ~ImageGM() override {
         sk_free(fBuffer);
     }
 

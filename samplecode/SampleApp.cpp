@@ -205,7 +205,7 @@ public:
         fBackend = kNone_BackEndType;
     }
 
-    virtual ~DefaultDeviceManager() {
+    ~DefaultDeviceManager() override {
 #if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         SkSafeUnref(fCurIntf);

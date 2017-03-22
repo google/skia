@@ -533,7 +533,7 @@ class SkDrawPointsCommand : public SkDrawCommand {
 public:
     SkDrawPointsCommand(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
                         const SkPaint& paint);
-    virtual ~SkDrawPointsCommand() { delete [] fPts; }
+    ~SkDrawPointsCommand() override { delete [] fPts; }
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
@@ -552,7 +552,7 @@ class SkDrawTextCommand : public SkDrawCommand {
 public:
     SkDrawTextCommand(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                       const SkPaint& paint);
-    virtual ~SkDrawTextCommand() { delete [] fText; }
+    ~SkDrawTextCommand() override { delete [] fText; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkDrawTextCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
@@ -571,7 +571,7 @@ class SkDrawPosTextCommand : public SkDrawCommand {
 public:
     SkDrawPosTextCommand(const void* text, size_t byteLength, const SkPoint pos[],
                          const SkPaint& paint);
-    virtual ~SkDrawPosTextCommand() { delete [] fPos; delete [] fText; }
+    ~SkDrawPosTextCommand() override { delete [] fPos; delete [] fText; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkDrawPosTextCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
@@ -589,7 +589,7 @@ class SkDrawTextOnPathCommand : public SkDrawCommand {
 public:
     SkDrawTextOnPathCommand(const void* text, size_t byteLength, const SkPath& path,
                             const SkMatrix* matrix, const SkPaint& paint);
-    virtual ~SkDrawTextOnPathCommand() { delete [] fText; }
+    ~SkDrawTextOnPathCommand() override { delete [] fText; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkDrawTextOnPathCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
@@ -628,7 +628,7 @@ class SkDrawPosTextHCommand : public SkDrawCommand {
 public:
     SkDrawPosTextHCommand(const void* text, size_t byteLength, const SkScalar xpos[],
                           SkScalar constY, const SkPaint& paint);
-    virtual ~SkDrawPosTextHCommand() { delete [] fXpos; delete [] fText; }
+    ~SkDrawPosTextHCommand() override { delete [] fXpos; delete [] fText; }
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkDrawPosTextHCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
@@ -759,7 +759,7 @@ private:
 class SkSaveLayerCommand : public SkDrawCommand {
 public:
     SkSaveLayerCommand(const SkCanvas::SaveLayerRec&);
-    virtual ~SkSaveLayerCommand();
+    ~SkSaveLayerCommand() override;
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkSaveLayerCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);

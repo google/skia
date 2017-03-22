@@ -1697,7 +1697,7 @@ public:
     class TriColorShaderContext : public SkShader::Context {
     public:
         TriColorShaderContext(const SkTriColorShader& shader, const ContextRec&);
-        virtual ~TriColorShaderContext();
+        ~TriColorShaderContext() override;
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
     private:

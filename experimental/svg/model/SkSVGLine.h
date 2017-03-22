@@ -15,7 +15,7 @@ struct SkPoint;
 
 class SkSVGLine final : public SkSVGShape {
 public:
-    virtual ~SkSVGLine() = default;
+    ~SkSVGLine() override = default;
     static sk_sp<SkSVGLine> Make() { return sk_sp<SkSVGLine>(new SkSVGLine()); }
 
     void setX1(const SkSVGLength&);

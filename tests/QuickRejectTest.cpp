@@ -34,7 +34,7 @@ private:
     class TestDrawLooperContext : public SkDrawLooper::Context {
     public:
         TestDrawLooperContext() : fOnce(true) {}
-        virtual ~TestDrawLooperContext() {}
+        ~TestDrawLooperContext() override {}
 
         bool next(SkCanvas* canvas, SkPaint*) override {
             if (fOnce) {

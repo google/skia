@@ -228,7 +228,7 @@ struct MipMapRec : public SkResourceCache::Rec {
         fMipMap->attachToCacheAndRef();
     }
 
-    virtual ~MipMapRec() {
+    ~MipMapRec() override {
         fMipMap->detachFromCacheAndUnref();
     }
 

@@ -22,7 +22,7 @@ public:
         : GrFBBindableObj() {
     }
 
-    virtual ~GrTextureObj() {
+    ~GrTextureObj() override {
         GrAlwaysAssert(0 == fTextureUnitReferees.count());
     }
 

@@ -72,7 +72,7 @@ public:
         return new SkPDFDevice(pageSize, rasterDpi, doc, false);
     }
 
-    virtual ~SkPDFDevice();
+    ~SkPDFDevice() override;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,

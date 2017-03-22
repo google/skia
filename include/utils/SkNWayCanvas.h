@@ -15,7 +15,7 @@
 class SK_API SkNWayCanvas : public SkNoDrawCanvas {
 public:
     SkNWayCanvas(int width, int height);
-    virtual ~SkNWayCanvas();
+    ~SkNWayCanvas() override;
 
     virtual void addCanvas(SkCanvas*);
     virtual void removeCanvas(SkCanvas*);

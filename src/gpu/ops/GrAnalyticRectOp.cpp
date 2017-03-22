@@ -69,7 +69,7 @@ public:
 
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
-    virtual ~RectGeometryProcessor() {}
+    ~RectGeometryProcessor() override {}
 
     const char* name() const override { return "RectEdge"; }
 

@@ -30,7 +30,7 @@ public:
                                     localMatrix, usesLocalCoords));
     }
 
-    virtual ~GrBitmapTextGeoProc() {}
+    ~GrBitmapTextGeoProc() override {}
 
     const char* name() const override { return "Texture"; }
 

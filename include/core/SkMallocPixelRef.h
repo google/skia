@@ -99,7 +99,7 @@ protected:
     // The ownPixels version of this constructor is deprecated.
     SkMallocPixelRef(const SkImageInfo&, void* addr, size_t rb, SkColorTable*,
                      bool ownPixels);
-    virtual ~SkMallocPixelRef();
+    ~SkMallocPixelRef() override;
 
     bool onNewLockPixels(LockRec*) override;
     void onUnlockPixels() override;

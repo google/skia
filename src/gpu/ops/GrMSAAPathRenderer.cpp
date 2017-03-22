@@ -116,7 +116,7 @@ public:
         return new MSAAQuadProcessor(viewMatrix);
     }
 
-    virtual ~MSAAQuadProcessor() {}
+    ~MSAAQuadProcessor() override {}
 
     const char* name() const override { return "MSAAQuadProcessor"; }
 

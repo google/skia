@@ -55,7 +55,7 @@ public:
 #endif
 
 protected:
-    virtual ~SkDashPathEffect();
+    ~SkDashPathEffect() override;
     SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase);
     void flatten(SkWriteBuffer&) const override;
 

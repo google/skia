@@ -100,7 +100,7 @@ private:
 class SkAAClipBlitter : public SkBlitter {
 public:
     SkAAClipBlitter() : fScanlineScratch(nullptr) {}
-    virtual ~SkAAClipBlitter();
+    ~SkAAClipBlitter() override;
 
     void init(SkBlitter* blitter, const SkAAClip* aaclip) {
         SkASSERT(aaclip && !aaclip->isEmpty());

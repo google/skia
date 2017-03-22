@@ -63,7 +63,7 @@ public:
         fPaint.setColor(color);
     }
 
-    virtual ~TextBench() {
+    ~TextBench() override {
         delete[] fPos;
     }
 
