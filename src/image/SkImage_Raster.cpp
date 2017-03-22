@@ -93,9 +93,6 @@ public:
                                             SkScalar scaleAdjust[2]) const override;
 #endif
 
-    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
-
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
@@ -186,18 +183,7 @@ sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrContext* context,
                                                         SkColorSpace* dstColorSpace,
                                                         sk_sp<SkColorSpace>* texColorSpace,
                                                         SkScalar scaleAdjust[2]) const {
-    sk_sp<GrTexture> tex(this->asTextureRef(context, params, dstColorSpace, texColorSpace,
-                                            scaleAdjust));
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
-}
-#endif
-
-GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                        SkColorSpace* dstColorSpace,
-                                        sk_sp<SkColorSpace>* texColorSpace,
-                                        SkScalar scaleAdjust[2]) const {
-#if SK_SUPPORT_GPU
-    if (!ctx) {
+    if (!context) {
         return nullptr;
     }
 
@@ -208,17 +194,17 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& p
     uint32_t uniqueID;
     sk_sp<GrTexture> tex = this->refPinnedTexture(&uniqueID);
     if (tex) {
-        GrTextureAdjuster adjuster(ctx, fPinnedTexture.get(),
+        GrTextureAdjuster adjuster(context, fPinnedTexture.get(),
                                    fBitmap.alphaType(), fBitmap.bounds(),
                                    fPinnedUniqueID, fBitmap.colorSpace());
-        return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
+        tex.reset(adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust));
+    } else {
+        tex.reset(GrRefCachedBitmapTexture(context, fBitmap, params, scaleAdjust));
     }
 
-    return GrRefCachedBitmapTexture(ctx, fBitmap, params, scaleAdjust);
-#else
-    return nullptr;
-#endif
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
+#endif
 
 #if SK_SUPPORT_GPU
 
