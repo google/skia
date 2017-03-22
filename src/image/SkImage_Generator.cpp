@@ -60,7 +60,8 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
             // Try passing the caller's buffer directly down to the generator. If this fails we
             // may still succeed in the general case, as the generator may prefer some other
             // config, which we could then convert via SkBitmap::readPixels.
-            if (fCache.directGeneratePixels(dstInfo, dstPixels, dstRB, srcX, srcY)) {
+            if (fCache.directGeneratePixels(dstInfo, dstPixels, dstRB, srcX, srcY,
+                                            SkBlendBehavior::kLinear)) {
                 return true;
             }
             // else fall through
@@ -111,7 +112,8 @@ sk_sp<SkImage> SkImage_Generator::onMakeColorSpace(sk_sp<SkColorSpace> target) c
     }
     dst.allocPixels(dstInfo);
 
-    if (!fCache.directGeneratePixels(dstInfo, dst.getPixels(), dst.rowBytes(), 0, 0)) {
+    if (!fCache.directGeneratePixels(dstInfo, dst.getPixels(), dst.rowBytes(), 0, 0,
+                                     SkBlendBehavior::kLegacy)) {
         return nullptr;
     }
 

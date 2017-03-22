@@ -474,10 +474,11 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
     }
 }
 
-bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo) {
+bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, const Options& opts) {
     fColorXform = nullptr;
-    bool needsPremul = needs_premul(dstInfo, fEncodedInfo);
-    if (needs_color_xform(dstInfo, fSrcInfo, needsPremul)) {
+    bool needsColorCorrectPremul = needs_premul(dstInfo, fEncodedInfo) &&
+                       SkBlendBehavior::kLinear == opts.fPremulBehavior;
+    if (needs_color_xform(dstInfo, fSrcInfo, needsColorCorrectPremul)) {
         fColorXform = SkColorSpaceXform::New(fSrcInfo.colorSpace(), dstInfo.colorSpace());
         if (!fColorXform) {
             return false;
