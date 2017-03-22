@@ -9,7 +9,7 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
-
+#include <thread>
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrGpu.h"
@@ -1241,6 +1241,108 @@ static void test_flush(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
 }
 
+static void test_time_purge(skiatest::Reporter* reporter) {
+    Mock mock(1000000, 1000000);
+    GrContext* context = mock.context();
+    GrResourceCache* cache = mock.cache();
+
+    static constexpr int kCnts[] = {1, 10, 1024};
+    auto nowish = []() {
+        // We sleep so that we ensure we get a value that is greater than the last call to
+        // GrStdSteadyClock::now().
+        std::this_thread::sleep_for(GrStdSteadyClock::duration(5));
+        auto result = GrStdSteadyClock::now();
+        // Also sleep afterwards so we don't get this value again.
+        std::this_thread::sleep_for(GrStdSteadyClock::duration(5));
+        return result;
+    };
+
+    for (int cnt : kCnts) {
+        std::unique_ptr<GrStdSteadyClock::time_point[]> timeStamps(
+                new GrStdSteadyClock::time_point[cnt]);
+        {
+            // Insert resources and get time points between each addition.
+            for (int i = 0; i < cnt; ++i) {
+                TestResource* r = new TestResource(context->getGpu());
+                GrUniqueKey k;
+                make_unique_key<1>(&k, i);
+                r->resourcePriv().setUniqueKey(k);
+                r->unref();
+                timeStamps.get()[i] = nowish();
+            }
+
+            // Purge based on the time points between resource additions. Each purge should remove
+            // the oldest resource.
+            for (int i = 0; i < cnt; ++i) {
+                cache->purgeResourcesNotUsedSince(timeStamps[i]);
+                REPORTER_ASSERT(reporter, cnt - i - 1 == cache->getResourceCount());
+                for (int j = 0; j < i; ++j) {
+                    GrUniqueKey k;
+                    make_unique_key<1>(&k, j);
+                    GrGpuResource* r = cache->findAndRefUniqueResource(k);
+                    REPORTER_ASSERT(reporter, !SkToBool(r));
+                    SkSafeUnref(r);
+                }
+            }
+
+            REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+            cache->purgeAllUnlocked();
+        }
+
+        // Do a similar test but where we leave refs on some resources to prevent them from being
+        // purged.
+        {
+            std::unique_ptr<GrGpuResource* []> refedResources(new GrGpuResource*[cnt / 2]);
+            for (int i = 0; i < cnt; ++i) {
+                TestResource* r = new TestResource(context->getGpu());
+                GrUniqueKey k;
+                make_unique_key<1>(&k, i);
+                r->resourcePriv().setUniqueKey(k);
+                // Leave a ref on every other resource, beginning with the first.
+                if (SkToBool(i & 0x1)) {
+                    refedResources.get()[i / 2] = r;
+                } else {
+                    r->unref();
+                }
+                timeStamps.get()[i] = nowish();
+            }
+
+            for (int i = 0; i < cnt; ++i) {
+                // Should get a resource purged every other frame.
+                cache->purgeResourcesNotUsedSince(timeStamps[i]);
+                REPORTER_ASSERT(reporter, cnt - i / 2 - 1 == cache->getResourceCount());
+            }
+
+            // Unref all the resources that we kept refs on in the first loop.
+            for (int i = 0; i < (cnt / 2); ++i) {
+                refedResources.get()[i]->unref();
+                cache->purgeResourcesNotUsedSince(nowish());
+                REPORTER_ASSERT(reporter, cnt / 2 - i - 1 == cache->getResourceCount());
+            }
+
+            cache->purgeAllUnlocked();
+        }
+
+        REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+
+        // Verify that calling flush() on a GrContext with nothing to do will not trigger resource
+        // eviction
+        context->flush();
+        for (int i = 0; i < 10; ++i) {
+            TestResource* r = new TestResource(context->getGpu());
+            GrUniqueKey k;
+            make_unique_key<1>(&k, i);
+            r->resourcePriv().setUniqueKey(k);
+            r->unref();
+        }
+        REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
+        context->flush();
+        REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
+        cache->purgeResourcesNotUsedSince(nowish());
+        REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+    }
+}
+
 static void test_large_resource_count(skiatest::Reporter* reporter) {
     // Set the cache size to double the resource count because we're going to create 2x that number
     // resources, using two different key domains. Add a little slop to the bytes because we resize
@@ -1393,6 +1495,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
     test_resource_size_changed(reporter);
     test_timestamp_wrap(reporter);
     test_flush(reporter);
+    test_time_purge(reporter);
     test_large_resource_count(reporter);
     test_custom_data(reporter);
     test_abandoned(reporter);
