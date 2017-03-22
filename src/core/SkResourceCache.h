@@ -16,6 +16,61 @@ class SkCachedData;
 class SkDiscardableMemory;
 class SkTraceMemoryDump;
 
+class SkCacheablePixelData : public SkRefCnt {
+public:
+    SkCacheablePixelData(const SkImageInfo& info, uint32_t uniqueID)
+        : fInfo(info)
+        , fRowBytes(info.minRowBytes())
+        , fUniqueID(uniqueID)
+    {}
+
+    ~SkCacheablePixelData() override {
+        SkASSERT(0 == fInstallCount);
+    }
+
+    size_t rowBytes() const { return fRowBytes; }
+
+    /**
+     *  If returns true, this installs the pixels into the bitmap. The bitmap's (pixelref's)
+     *  destructor will manage "unrefing/unlocking" the shared pixel memory in this object.
+     */
+    bool install(SkBitmap* bitmap) {
+        if (fReinstalling && fInstallCount == 0) {
+            if (!this->onFirstReinstall()) {
+                // we're a dead-object if this ever fails
+                return false;
+            }
+        }
+
+        // balanced in notifyUninstall
+        fInstallCount += 1;
+        bitmap->installPixels(fInfo, this->onGetAddr(), fRowBytes, [](void*, void* ctx) {
+            // the bitmap's pixelref is being destroyed, notify the cachablepixeldata
+            static_cast<SkCacheablePixelData>(ctx)->notifyUninstall();
+        }, this);
+    }
+
+protected:
+    virtual void onGetAddr() = 0;
+    virtual bool onFirstReinstall() = 0;
+    virtual void onNotifyUninstall() = 0;
+
+private:
+    SkImageInfo fInfo;
+    size_t      fRowBytes;
+    uint32_t    fUniqueID;
+    int32_t     fInstallCount = 0;
+    bool        fReinstalling = false;
+
+    void notifyUninstall() {
+        if (--fInstallCount == 0) {
+            // no more outstanding bitmaps/pixelrefs reference us
+            this->onNotifyUninstall();
+            fReinstalling = true;   // signal so we know we're re-installing from now on
+        }
+    }
+};
+
 /**
  *  Cache object for bitmaps (with possible scale in X Y as part of the key).
  *

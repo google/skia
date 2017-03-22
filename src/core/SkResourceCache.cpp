@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkDiscardableMemory.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkMutex.h"
@@ -15,6 +16,67 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+
+class SkMalloc_CacheablePixelData : public SkCacheablePixelData {
+public:
+    SkMalloc_CacheablePixelData(const SkImageInfo& info, uint32_t uniqueID)
+    : INHERITED(info, uniqueID)
+    {
+        fAlloc = sk_malloc_throw(info.height() * this->rowBytes());
+    }
+
+    ~SkMalloc_CacheablePixelData() override {
+        sk_free(fAlloc);
+    }
+
+protected:
+    void* onGetAddr() override { return fAlloc; }
+    bool onFirstReinstall() override { return true; }
+    void onNotifyUninstall() override {}
+
+private:
+    void*   fAlloc;
+
+    typedef SkCacheablePixelData INHERITED;
+};
+
+class SkDiscardable_CacheablePixelData : public SkCacheablePixelData {
+public:
+    SkDiscardable_CacheablePixelData(const SkImageInfo& info, uint32_t uniqueID,
+                                     std::unique_ptr<SkDiscardableMemory> dm)
+        : INHERITED(info, uniqueID)
+        , fDM(std::move(dm))
+    {
+        SkASSERT(fDM->data());  // we're already locked
+    }
+
+protected:
+    void* onGetAddr() override { return fDM ? fDM->data() : nullptr; }
+
+    bool onFirstReinstall() override {
+        // A previous call to onUnlock may have deleted our DM, so check for that
+        if (nullptr == fDM) {
+            return false;
+        }
+
+        if (!fDM->lock()) {
+            // since it failed, we delete it now, to free-up the resource
+            delete fDM;
+            fDM = nullptr;
+            return false;
+        }
+        return true;
+    }
+
+    void onNotifyUninstall() override { fDM->unlock(); }
+
+private:
+    std::unique_ptr<SkDiscardableMemory> fDM;
+
+    typedef SkCacheablePixelData INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage)
 
@@ -81,8 +143,6 @@ void SkResourceCache::init() {
     fTotalByteLimit = 0;
     fDiscardableFactory = nullptr;
 }
-
-#include "SkDiscardableMemory.h"
 
 class SkOneShotDiscardablePixelRef : public SkPixelRef {
 public:
