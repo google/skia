@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "SkSurface.h"
 #include "Resources.h"
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "SkMath.h"
 #include "SkColorPriv.h"

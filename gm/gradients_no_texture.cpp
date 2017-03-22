@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkGradientShader.h"
 
 using namespace skiagm;

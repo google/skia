@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkColor.h"
 #include "SkDisplacementMapEffect.h"
@@ -22,6 +21,7 @@
 #include "SkScalar.h"
 #include "SkSurface.h"
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #define RESIZE_FACTOR_X SkIntToScalar(2)
 #define RESIZE_FACTOR_Y SkIntToScalar(5)

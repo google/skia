@@ -6,9 +6,9 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkBlurMaskFilter.h"
 #include "SkRRect.h"
-#include "sk_tool_utils.h"
 
 static SkRect offset_center_to(const SkIRect& src, SkScalar x, SkScalar y) {
     SkScalar halfW = 0.5f * src.width();

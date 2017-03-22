@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkDashPathEffect.h"

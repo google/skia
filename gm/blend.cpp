@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 DEF_SIMPLE_GM(blend, canvas, 300, 100) {
     SkPaint p;

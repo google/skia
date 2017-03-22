@@ -6,12 +6,12 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkMakeUnique.h"
 #include "SkSurface.h"
-#include "sk_tool_utils.h"
 
 namespace {
 

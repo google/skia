@@ -8,6 +8,7 @@
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height) {
     SkPoint pts[2];

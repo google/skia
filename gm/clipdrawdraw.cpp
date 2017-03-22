@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkRegion.h"
 
 // This GM exercises the use case found in crbug.com/423834.

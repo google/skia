@@ -7,6 +7,7 @@
 
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkPathEffect.h"
 #include "SkPictureRecorder.h"
 #include "SkShadowPaintFilterCanvas.h"

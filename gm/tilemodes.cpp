@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkColorFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"

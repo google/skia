@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkGradientShader.h"
 
 typedef sk_sp<SkShader> (*MakeShaderProc)(const SkColor[], int count, const SkSize&);
