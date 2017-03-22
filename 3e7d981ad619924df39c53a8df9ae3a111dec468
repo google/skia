@@ -70,6 +70,30 @@
       "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caaa249b_0fb5604c",
+        "filename": "include/core/SkRefCnt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-22T15:00:18Z",
+      "side": 1,
+      "message": "I need to remove std::ignore in my next patch set.  I copied it from before I folded race_check into this function and while it was needed there it is not needed now.",
+      "parentUuid": "75a00a80_45433593",
+      "range": {
+        "startLine": 386,
+        "startChar": 8,
+        "endLine": 386,
+        "endChar": 19
+      },
+      "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
