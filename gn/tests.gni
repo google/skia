@@ -112,6 +112,7 @@ tests_sources = [
   "$_tests/ImageTest.cpp",
   "$_tests/IndexedPngOverflowTest.cpp",
   "$_tests/InfRectTest.cpp",
+  "$_tests/InsetConvexPolyTest.cpp",
   "$_tests/InterpolatorTest.cpp",
   "$_tests/IntTextureTest.cpp",
   "$_tests/InvalidIndexedPngTest.cpp",
