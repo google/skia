@@ -34,6 +34,7 @@ bench_sources = [
   "$_bench/ColorPrivBench.cpp",
   "$_bench/ControlBench.cpp",
   "$_bench/CoverageBench.cpp",
+  "$_bench/CubicKLMBench.cpp",
   "$_bench/DashBench.cpp",
   "$_bench/DisplacementBench.cpp",
   "$_bench/DrawBitmapAABench.cpp",
