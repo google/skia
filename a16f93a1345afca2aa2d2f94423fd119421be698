@@ -25,6 +25,52 @@
     },
     {
       "key": {
+        "uuid": "3345deb8_737ca053",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-22T19:02:58Z",
+      "side": 1,
+      "message": "I like the comment on the old enum better. (\"Convert to a linear space before premultiplying or unpremultiplying.\") This one doesn\u0027t tell me what the \"linear space\" is. (Doesn\u0027t legacy essentially treat the encoded data as a linear space?)",
+      "range": {
+        "startLine": 354,
+        "startChar": 8,
+        "endLine": 354,
+        "endChar": 76
+      },
+      "revId": "a16f93a1345afca2aa2d2f94423fd119421be698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08315942_d14c6bd2",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-22T19:02:58Z",
+      "side": 1,
+      "message": "Why not just pass the SkBlendBehavior? I suppose passing the Options struct makes the call sites simpler, but I assume it will only ever need the blend behavior, and not anything else we might put in the struct.",
+      "range": {
+        "startLine": 477,
+        "startChar": 69,
+        "endLine": 477,
+        "endChar": 76
+      },
+      "revId": "a16f93a1345afca2aa2d2f94423fd119421be698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "51eb425c_83174790",
         "filename": "src/core/SkColorSpaceXform.cpp",
         "patchSetId": 5
