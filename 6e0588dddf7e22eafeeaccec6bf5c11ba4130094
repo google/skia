@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db64a609_9c1b38a7",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-22T19:16:46Z",
+      "side": 1,
+      "message": "1 cmd *per* secondary cmd buffer?",
+      "revId": "6e0588dddf7e22eafeeaccec6bf5c11ba4130094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e7bab80_8ba4bf53",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-22T19:16:46Z",
+      "side": 1,
+      "message": "It seems like these comments would all be better placed on the functions that define this class\u0027s API than on the private members.",
+      "revId": "6e0588dddf7e22eafeeaccec6bf5c11ba4130094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
