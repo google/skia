@@ -46,6 +46,30 @@
       "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75a00a80_45433593",
+        "filename": "include/core/SkRefCnt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-22T14:27:31Z",
+      "side": 1,
+      "message": "So what\u0027s the error that requires std::ignore?  If I write this function like this, everything seems to compile:\n\nvoid reset(T* ptr, T* old_ptr) {\n    SkSafeUnref(old_ptr);\n#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)\n    if (old_ptr !\u003d race_check_get()) {\n        SK_ABORT(\"Detected racing Skia calls\");\n    }\n#endif\n    fPtr \u003d ptr;\n }",
+      "parentUuid": "21c64d7e_a20bde10",
+      "range": {
+        "startLine": 386,
+        "startChar": 8,
+        "endLine": 386,
+        "endChar": 19
+      },
+      "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
