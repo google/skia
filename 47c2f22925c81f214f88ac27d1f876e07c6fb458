@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d578da6d_4fd28999",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-22T13:41:02Z",
+      "side": 1,
+      "message": "I also tried for something more interesting, using the full width of the vector (like for downsample_2_2) to handle two pixels at a time.\n\nThe tricky part though is the reuse of vectors across loop iterations...  Given that we are dominated by load time, it is at least as good (and much simpler) to keep one pixel per vector and reuse efficiently.\n\nIf you\u0027re interested in a more complicated sRGB version that isn\u0027t really faster, see Patch Set 1.  There was a little bit more I could have tried, but I felt like I reached the point of \"not worth it\".",
+      "range": {
+        "startLine": 283,
+        "startChar": 8,
+        "endLine": 283,
+        "endChar": 19
+      },
+      "revId": "47c2f22925c81f214f88ac27d1f876e07c6fb458",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
