@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "879aebc6_dd8ec89c",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-22T18:58:58Z",
+      "side": 1,
+      "message": "This processor is such a good citizen.",
+      "revId": "f4308fbcdf6d5e282b881d9829a9bca5bcaf4f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
