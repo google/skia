@@ -120,7 +120,7 @@ public:
         this->internalResolveRenderTarget(target, true);
     }
 
-    void submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer*,
+    void submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBuffer*>&,
                                       const GrVkRenderPass*,
                                       const VkClearValue*,
                                       GrVkRenderTarget*,
