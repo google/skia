@@ -90,6 +90,25 @@ public:
         return GrColorPackRGBA(outR, outG, outB, outA);
     }
 
+    /** Applies this swizzle to the input color and returns the swizzled color. */
+    GrColor4f applyTo(const GrColor4f& color) const {
+        int idx;
+        uint32_t key = fKey;
+        // Index of the input color that should be mapped to output r.
+        idx = (key & 3);
+        float outR = color.fRGBA[idx];
+        key >>= 2;
+        idx = (key & 3);
+        float outG = color.fRGBA[idx];
+        key >>= 2;
+        idx = (key & 3);
+        float outB = color.fRGBA[idx];
+        key >>= 2;
+        idx = (key & 3);
+        float outA = color.fRGBA[idx];
+        return GrColor4f(outR, outG, outB, outA);
+    }
+
     static GrSwizzle RGBA() { return GrSwizzle("rgba"); }
     static GrSwizzle AAAA() { return GrSwizzle("aaaa"); }
     static GrSwizzle RRRR() { return GrSwizzle("rrrr"); }

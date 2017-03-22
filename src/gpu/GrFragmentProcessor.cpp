@@ -207,6 +207,63 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::UnpremulOutput(sk_sp<GrFragmentP
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
+sk_sp<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(sk_sp<GrFragmentProcessor> fp,
+                                                              const GrSwizzle& swizzle) {
+    class SwizzleFragmentProcessor : public GrFragmentProcessor {
+    public:
+        SwizzleFragmentProcessor(const GrSwizzle& swizzle)
+                : INHERITED(kAll_OptimizationFlags)
+                , fSwizzle(swizzle) {
+            this->initClassID<SwizzleFragmentProcessor>();
+        }
+
+        const char* name() const override { return "Swizzle"; }
+        const GrSwizzle& swizzle() const { return fSwizzle; }
+
+    private:
+        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+            class GLFP : public GrGLSLFragmentProcessor {
+            public:
+                void emitCode(EmitArgs& args) override {
+                    const SwizzleFragmentProcessor& sfp = args.fFp.cast<SwizzleFragmentProcessor>();
+                    const GrSwizzle& swizzle = sfp.swizzle();
+                    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+
+                    fragBuilder->codeAppendf("%s = %s.%s;",
+                                             args.fOutputColor, args.fInputColor, swizzle.c_str());
+                }
+            };
+            return new GLFP;
+        }
+
+        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+            b->add32(fSwizzle.asKey());
+        }
+
+        bool onIsEqual(const GrFragmentProcessor& other) const override {
+            const SwizzleFragmentProcessor& sfp = other.cast<SwizzleFragmentProcessor>();
+            return fSwizzle == sfp.fSwizzle;
+        }
+
+        GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+            return fSwizzle.applyTo(input);
+        }
+
+        GrSwizzle fSwizzle;
+
+        typedef GrFragmentProcessor INHERITED;
+    };
+
+    if (!fp) {
+        return nullptr;
+    }
+    if (GrSwizzle::RGBA() == swizzle) {
+        return fp;
+    }
+    sk_sp<GrFragmentProcessor> fpPipeline[] = { fp, sk_make_sp<SwizzleFragmentProcessor>(swizzle) };
+    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
+}
+
 sk_sp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
         sk_sp<GrFragmentProcessor> fp) {
 

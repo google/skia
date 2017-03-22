@@ -9,14 +9,12 @@
 #define GrConfigConversionEffect_DEFINED
 
 #include "GrSingleTextureEffect.h"
-#include "GrSwizzle.h"
 
 class GrInvariantOutput;
 
 /**
  * This class is used to perform config conversions. Clients may want to read/write data that is
- * unpremultiplied. Additionally, the channels may also be swizzled for optimal readback/upload
- * performance.
+ * unpremultiplied.
  */
 class GrConfigConversionEffect : public GrSingleTextureEffect {
 public:
@@ -24,8 +22,7 @@ public:
      * The PM->UPM or UPM->PM conversions to apply.
      */
     enum PMConversion {
-        kNone_PMConversion = 0,
-        kMulByAlpha_RoundUp_PMConversion,
+        kMulByAlpha_RoundUp_PMConversion = 0,
         kMulByAlpha_RoundDown_PMConversion,
         kDivByAlpha_RoundUp_PMConversion,
         kDivByAlpha_RoundDown_PMConversion,
@@ -33,15 +30,13 @@ public:
         kPMConversionCnt
     };
 
-    static sk_sp<GrFragmentProcessor> Make(GrTexture*, const GrSwizzle&, PMConversion,
-                                           const SkMatrix&);
+    static sk_sp<GrFragmentProcessor> Make(GrTexture*, PMConversion, const SkMatrix&);
 
     static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, sk_sp<GrTextureProxy>,
-                                           const GrSwizzle&, PMConversion, const SkMatrix&);
+                                           PMConversion, const SkMatrix&);
 
     const char* name() const override { return "Config Conversion"; }
 
-    const GrSwizzle& swizzle() const { return fSwizzle; }
     PMConversion  pmConversion() const { return fPMConversion; }
 
     // This function determines whether it is possible to choose PM->UPM and UPM->PM conversions
@@ -53,9 +48,9 @@ public:
                                                PMConversion* PMToUPMRule,
                                                PMConversion* UPMToPMRule);
 private:
-    GrConfigConversionEffect(GrTexture*, const GrSwizzle&, PMConversion, const SkMatrix& matrix);
+    GrConfigConversionEffect(GrTexture*, PMConversion, const SkMatrix& matrix);
 
-    GrConfigConversionEffect(GrResourceProvider*, sk_sp<GrTextureProxy>, const GrSwizzle&,
+    GrConfigConversionEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
                              PMConversion, const SkMatrix& matrix);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -64,7 +59,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    GrSwizzle       fSwizzle;
     PMConversion    fPMConversion;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
