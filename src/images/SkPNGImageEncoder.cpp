@@ -12,13 +12,14 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
-#include "SkImageEncoderFns.h"
+#include "SkICC.h"
 #include "SkMath.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
+#include "transform_scanline.h"
 
 #include "png.h"
 
@@ -39,7 +40,9 @@ static void sk_write_fn(png_structp png_ptr, png_bytep data, png_size_t len) {
     }
 }
 
-static void set_icc(png_structp png_ptr, png_infop info_ptr, sk_sp<SkData> icc) {
+static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkColorSpaceTransferFn& fn,
+                    const SkMatrix44& toXYZD50) {
+    sk_sp<SkData> icc = SkICC::WriteToICC(fn, toXYZD50);
 #if PNG_LIBPNG_VER_MAJOR > 1 || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 5)
     const char* name = "Skia";
     png_const_bytep iccPtr = icc->bytes();
@@ -348,14 +351,17 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
     }
 
     if (pixmap.colorSpace()) {
+        SkColorSpaceTransferFn fn;
+        SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
         if (pixmap.colorSpace()->isSRGB()) {
             png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_PERCEPTUAL);
-        } else {
-            sk_sp<SkData> icc = icc_from_color_space(*pixmap.colorSpace());
-            if (icc) {
-                set_icc(png_ptr, info_ptr, std::move(icc));
-            }
+        } else if (pixmap.colorSpace()->isNumericalTransferFn(&fn) &&
+                   pixmap.colorSpace()->toXYZD50(&toXYZD50))
+        {
+            set_icc(png_ptr, info_ptr, fn, toXYZD50);
         }
+
+        // TODO: Should we support writing ICC profiles for additional color spaces?
     }
 
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);

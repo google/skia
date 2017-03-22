@@ -1530,22 +1530,7 @@ DEF_TEST(Codec_InvalidAnimated, r) {
     }
 }
 
-static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap,
-                          const SkEncodeOptions& opts, SkEncodedImageFormat format) {
-    switch (format) {
-        case SkEncodedImageFormat::kPNG:
-            SkEncodeImageAsPNG(stream, pixmap, opts);
-            break;
-        case SkEncodedImageFormat::kJPEG:
-            SkEncodeImageAsJPEG(stream, pixmap, opts);
-            break;
-        default:
-            SkASSERT(false);
-            break;
-    }
-}
-
-static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) {
+DEF_TEST(Codec_EncodeICC, r) {
     // Test with sRGB color space.
     SkBitmap srgbBitmap;
     SkImageInfo srgbInfo = SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType);
@@ -1556,7 +1541,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
     SkDynamicMemoryWStream srgbBuf;
     SkEncodeOptions opts;
     opts.fColorBehavior = SkEncodeOptions::ColorBehavior::kCorrect;
-    encode_format(&srgbBuf, pixmap, opts, format);
+    SkEncodeImageAsPNG(&srgbBuf, pixmap, opts);
     sk_sp<SkData> srgbData = srgbBuf.detachAsData();
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::NewFromData(srgbData));
     REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
@@ -1566,7 +1551,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
     sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                    SkColorSpace::kDCIP3_D65_Gamut);
     pixmap.setColorSpace(p3);
-    encode_format(&p3Buf, pixmap, opts, format);
+    SkEncodeImageAsPNG(&p3Buf, pixmap, opts);
     sk_sp<SkData> p3Data = p3Buf.detachAsData();
     std::unique_ptr<SkCodec> p3Codec(SkCodec::NewFromData(p3Data));
     REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
@@ -1579,12 +1564,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
-            REPORTER_ASSERT(r, color_space_almost_equal(mat0.get(i, j), mat1.get(i, j)));
+            REPORTER_ASSERT(r, color_space_almost_equal(mat0.get(0, 0), mat1.get(0, 0)));
         }
     }
-}
-
-DEF_TEST(Codec_EncodeICC, r) {
-    test_encode_icc(r, SkEncodedImageFormat::kPNG);
-    test_encode_icc(r, SkEncodedImageFormat::kJPEG);
 }
