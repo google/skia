@@ -18,6 +18,7 @@
 #include "SkString.h"
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 constexpr SkColor gColors[] = {
     SK_ColorRED, SK_ColorYELLOW

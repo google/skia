@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkImageSource.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkPixelRef.h"
