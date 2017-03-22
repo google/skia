@@ -13,6 +13,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkString.h"
+#include "SkRandom.h"
 
 /**
  * In GM mode this draws an array of circles with different radii and different blur radii. Below

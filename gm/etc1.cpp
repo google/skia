@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkRandom.h"
 
 #if SK_SUPPORT_GPU

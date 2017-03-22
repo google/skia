@@ -13,6 +13,7 @@
 
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkTDArray.h"
 
 #define FILTER_WIDTH    SkIntToScalar(30)
 #define FILTER_HEIGHT   SkIntToScalar(30)

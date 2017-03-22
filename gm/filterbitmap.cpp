@@ -6,12 +6,12 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkGradientShader.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
-#include "sk_tool_utils.h"
 
 static void setTypeface(SkPaint* paint, const char name[], SkFontStyle style) {
     sk_tool_utils::set_portable_typeface(paint, name, style);
