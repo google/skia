@@ -252,6 +252,7 @@ skia_core_sources = [
   "$_src/core/SkPictureShader.cpp",
   "$_src/core/SkPictureShader.h",
   "$_src/core/SkPixelRef.cpp",
+  "$_src/core/SkPixelResourceRec.cpp",
   "$_src/core/SkPixmap.cpp",
   "$_src/core/SkPoint.cpp",
   "$_src/core/SkPoint3.cpp",

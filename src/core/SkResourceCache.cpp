@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
+#include "SkDiscardableMemory.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkMutex.h"
@@ -15,6 +17,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage)
 
@@ -81,8 +85,6 @@ void SkResourceCache::init() {
     fTotalByteLimit = 0;
     fDiscardableFactory = nullptr;
 }
-
-#include "SkDiscardableMemory.h"
 
 class SkOneShotDiscardablePixelRef : public SkPixelRef {
 public:

@@ -335,6 +335,7 @@ private:
     void cloneGenID(const SkPixelRef&);
 
     void setImmutableWithID(uint32_t genID);
+    friend class SkPixelResourceRec;
     friend class SkImage_Gpu;
     friend class SkImageCacherator;
     friend class SkSpecialImage_Gpu;
