@@ -16,6 +16,24 @@
       "revId": "f4308fbcdf6d5e282b881d9829a9bca5bcaf4f06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b86f1e7_2d3833c2",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-22T19:12:13Z",
+      "side": 1,
+      "message": ":) I figured that if we\u0027re going to be composing these things to generate complex behaviors, we ought to implement all possible optimizations.",
+      "parentUuid": "879aebc6_dd8ec89c",
+      "revId": "f4308fbcdf6d5e282b881d9829a9bca5bcaf4f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
