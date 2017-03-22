@@ -230,11 +230,9 @@
       "gl",
       "gldft",
       "glsrgb",
-      "glmsaa8",
       "gles",
       "glesdft",
       "glessrgb",
-      "glesmsaa4",
       "serialize-8888",
       "tiles_rt-8888",
       "pic-8888",
@@ -536,15 +534,7 @@
       "_",
       "image",
       "_",
-      ".SRW",
-      "glmsaa8",
-      "image",
-      "gen_codec_gpu",
-      "abnormal.wbmp",
-      "glesmsaa4",
-      "image",
-      "gen_codec_gpu",
-      "abnormal.wbmp"
+      ".SRW"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
