@@ -57,7 +57,7 @@ public:
      */
     static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRect&);
 
-    virtual ~GrConvexPolyEffect();
+    ~GrConvexPolyEffect() override;
 
     const char* name() const override { return "ConvexPoly"; }
 

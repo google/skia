@@ -26,7 +26,7 @@ struct SkUnixWindow {
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void*);
-    ~SkOSWindow();
+    ~SkOSWindow() override;
 
     void* getHWND() const { return (void*)fUnixWindow.fWin; }
     void* getDisplay() const { return (void*)fUnixWindow.fDisplay; }

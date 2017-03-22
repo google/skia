@@ -25,7 +25,7 @@ public:
         , fSize(0)
         , fUsage(GR_GL_STATIC_DRAW) {
     }
-    virtual ~GrBufferObj() {
+    ~GrBufferObj() override {
         delete[] fDataPtr;
     }
 

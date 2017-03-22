@@ -21,7 +21,7 @@ class GrContext;
 class GrSmallPathRenderer : public GrPathRenderer {
 public:
     GrSmallPathRenderer();
-    virtual ~GrSmallPathRenderer();
+    ~GrSmallPathRenderer() override;
 
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override {

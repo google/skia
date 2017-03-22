@@ -16,7 +16,7 @@ class SkPaint;
 
 class SK_API SkLayerRasterizer : public SkRasterizer {
 public:
-    virtual ~SkLayerRasterizer();
+    ~SkLayerRasterizer() override;
 
     class SK_API Builder {
     public:

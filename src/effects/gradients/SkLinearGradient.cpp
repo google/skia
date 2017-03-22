@@ -421,7 +421,7 @@ public:
         return sk_sp<GrFragmentProcessor>(new GrLinearGradient(args));
     }
 
-    virtual ~GrLinearGradient() { }
+    ~GrLinearGradient() override {}
 
     const char* name() const override { return "Linear Gradient"; }
 
@@ -446,7 +446,7 @@ class GrLinearGradient::GLSLLinearProcessor : public GrGradientEffect::GLSLProce
 public:
     GLSLLinearProcessor(const GrProcessor&) {}
 
-    virtual ~GLSLLinearProcessor() { }
+    ~GLSLLinearProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 

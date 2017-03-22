@@ -24,7 +24,7 @@ class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
 public:
     GrGLGpuCommandBuffer(GrGLGpu* gpu) : fGpu(gpu), fRenderTarget(nullptr) {}
 
-    virtual ~GrGLGpuCommandBuffer() {}
+    ~GrGLGpuCommandBuffer() override {}
 
     void end() override {}
 

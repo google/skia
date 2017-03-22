@@ -13,7 +13,7 @@
 
 class SkSVGPath final : public SkSVGShape {
 public:
-    virtual ~SkSVGPath() = default;
+    ~SkSVGPath() override = default;
     static sk_sp<SkSVGPath> Make() { return sk_sp<SkSVGPath>(new SkSVGPath()); }
 
     void setPath(const SkPath& path) { fPath = path; }

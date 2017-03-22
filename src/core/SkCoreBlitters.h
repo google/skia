@@ -85,7 +85,7 @@ class SkA8_Shader_Blitter : public SkShaderBlitter {
 public:
     SkA8_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
                         SkShader::Context* shaderContext);
-    virtual ~SkA8_Shader_Blitter();
+    ~SkA8_Shader_Blitter() override;
     void blitH(int x, int y, int width) override;
     void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override;
     void blitMask(const SkMask&, const SkIRect&) override;
@@ -156,7 +156,7 @@ class SkARGB32_Shader_Blitter : public SkShaderBlitter {
 public:
     SkARGB32_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
                             SkShader::Context* shaderContext);
-    virtual ~SkARGB32_Shader_Blitter();
+    ~SkARGB32_Shader_Blitter() override;
     void blitH(int x, int y, int width) override;
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;

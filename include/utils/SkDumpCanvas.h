@@ -22,7 +22,7 @@ public:
     class Dumper;
 
     explicit SkDumpCanvas(Dumper* = 0);
-    virtual ~SkDumpCanvas();
+    ~SkDumpCanvas() override;
 
     enum Verb {
         kNULL_Verb,

@@ -13,7 +13,7 @@
 
 class SkSVGLinearGradient : public SkSVGHiddenContainer {
 public:
-    virtual ~SkSVGLinearGradient() = default;
+    ~SkSVGLinearGradient() override = default;
     static sk_sp<SkSVGLinearGradient> Make() {
         return sk_sp<SkSVGLinearGradient>(new SkSVGLinearGradient());
     }

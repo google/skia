@@ -18,7 +18,7 @@ private:
 
 public:
     GMSampleView(GM*);
-    virtual ~GMSampleView();
+    ~GMSampleView() override;
 
     static SkEvent* NewShowSizeEvt(bool doShowSize);
 

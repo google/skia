@@ -31,7 +31,7 @@ public:
      *  Without mutex, will be not be thread safe.
      */
     DiscardableMemoryPool(size_t budget, SkBaseMutex* mutex = nullptr);
-    virtual ~DiscardableMemoryPool();
+    ~DiscardableMemoryPool() override;
 
     SkDiscardableMemory* create(size_t bytes) override;
 
@@ -80,7 +80,7 @@ class PoolDiscardableMemory : public SkDiscardableMemory {
 public:
     PoolDiscardableMemory(DiscardableMemoryPool* pool,
                             void* pointer, size_t bytes);
-    virtual ~PoolDiscardableMemory();
+    ~PoolDiscardableMemory() override;
     bool lock() override;
     void* data() override;
     void unlock() override;

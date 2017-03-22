@@ -31,7 +31,7 @@ public:
      * Create a new GrGLPathRendering object from a given GrGLGpu.
      */
     GrGLPathRendering(GrGLGpu* gpu);
-    virtual ~GrGLPathRendering();
+    ~GrGLPathRendering() override;
 
     // GrPathRendering implementations.
     GrPath* createPath(const SkPath&, const GrStyle&) override;

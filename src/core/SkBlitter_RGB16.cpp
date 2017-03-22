@@ -111,7 +111,7 @@ class SkRGB16_Shader_Blitter : public SkShaderBlitter {
 public:
     SkRGB16_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
                            SkShader::Context* shaderContext);
-    virtual ~SkRGB16_Shader_Blitter();
+    ~SkRGB16_Shader_Blitter() override;
     void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
                            const int16_t* runs) override;
@@ -133,7 +133,7 @@ class SkRGB16_Shader_Xfermode_Blitter : public SkShaderBlitter {
 public:
     SkRGB16_Shader_Xfermode_Blitter(const SkPixmap& device, const SkPaint& paint,
                                     SkShader::Context* shaderContext);
-    virtual ~SkRGB16_Shader_Xfermode_Blitter();
+    ~SkRGB16_Shader_Xfermode_Blitter() override;
     void blitH(int x, int y, int width) override;
     virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
                            const int16_t* runs) override;

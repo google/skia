@@ -20,7 +20,7 @@ class SVGFileView : public SampleView {
 public:
     SVGFileView(const SkString& path)
         : fPath(path), fLabel(SkStringPrintf("[%s]", SkOSPath::Basename(path.c_str()).c_str())) {}
-    virtual ~SVGFileView() = default;
+    ~SVGFileView() override = default;
 
 protected:
     void onOnceBeforeDraw() override {

@@ -30,7 +30,7 @@
 class SkPictureRecord : public SkCanvas {
 public:
     SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
-    virtual ~SkPictureRecord();
+    ~SkPictureRecord() override;
 
     const SkTDArray<const SkPicture* >& getPictureRefs() const {
         return fPictureRefs;

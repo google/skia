@@ -45,7 +45,7 @@ static bool draw_this_name(const SkString& name, const SkString& filter) {
 class OverView : public SkView {
 public:
     OverView(int count, const SkViewFactory* factories[]);
-    virtual ~OverView();
+    ~OverView() override;
 
 protected:
     bool onEvent(const SkEvent&) override;

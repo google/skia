@@ -295,7 +295,7 @@ public:
         return new TestResource(gpu, size);
     }
 
-    ~TestResource() {
+    ~TestResource() override {
         --fNumAlive;
         SkSafeUnref(fToDelete);
     }

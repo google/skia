@@ -37,7 +37,7 @@ public:
     : INHERITED(GetMyInfo(colorType)), fType(type), fReporter(reporter) {
         SkASSERT((fType <= kLast_TestType) && (fType >= 0));
     }
-    virtual ~TestImageGenerator() { }
+    ~TestImageGenerator() override {}
 
 protected:
     static SkImageInfo GetMyInfo(SkColorType colorType) {

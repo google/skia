@@ -29,7 +29,7 @@ class SkPDFFont;
 class SkPDFFont : public SkPDFDict {
 
 public:
-    virtual ~SkPDFFont();
+    ~SkPDFFont() override;
 
     /** Returns the typeface represented by this class. Returns nullptr for the
      *  default typeface.

@@ -40,7 +40,7 @@ class GrFragmentProcessor;
 class SK_API SkShader : public SkFlattenable {
 public:
     SkShader(const SkMatrix* localMatrix = NULL);
-    virtual ~SkShader();
+    ~SkShader() override;
 
     /**
      *  Returns the local matrix.

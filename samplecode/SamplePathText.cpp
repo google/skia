@@ -116,7 +116,7 @@ public:
         , fBackMatrices(kNumPaths) {
     }
 
-    ~MovingPathText() {
+    ~MovingPathText() override {
         fBackgroundAnimationTask.wait();
     }
 
@@ -227,7 +227,7 @@ public:
         : fFrontPaths(kNumPaths)
         , fBackPaths(kNumPaths) {}
 
-    ~WavyPathText() {
+    ~WavyPathText() override {
         fBackgroundAnimationTask.wait();
     }
 

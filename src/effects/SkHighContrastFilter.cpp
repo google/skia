@@ -158,7 +158,7 @@ public:
                                         1.0f - FLT_EPSILON);
     }
 
-    virtual ~SkHighContrast_Filter() { }
+    ~SkHighContrast_Filter() override {}
 
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;

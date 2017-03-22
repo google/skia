@@ -44,7 +44,7 @@ struct RRectBlurRec : public SkResourceCache::Rec {
         fValue.fData = data;
         fValue.fData->attachToCacheAndRef();
     }
-    ~RRectBlurRec() {
+    ~RRectBlurRec() override {
         fValue.fData->detachFromCacheAndUnref();
     }
 
@@ -138,7 +138,7 @@ struct RectsBlurRec : public SkResourceCache::Rec {
         fValue.fData = data;
         fValue.fData->attachToCacheAndRef();
     }
-    ~RectsBlurRec() {
+    ~RectsBlurRec() override {
         fValue.fData->detachFromCacheAndUnref();
     }
 

@@ -227,7 +227,7 @@ public:
                                         colorDimensions));
     }
 
-    virtual ~GrDisplacementMapEffect();
+    ~GrDisplacementMapEffect() override;
 
     SkDisplacementMapEffect::ChannelSelectorType xChannelSelector() const {
         return fXChannelSelector;

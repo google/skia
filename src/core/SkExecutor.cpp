@@ -56,7 +56,7 @@ public:
         }
     }
 
-    ~SkThreadPool() {
+    ~SkThreadPool() override {
         // Signal each thread that it's time to shut down.
         for (int i = 0; i < fThreads.count(); i++) {
             this->add(nullptr);

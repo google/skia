@@ -24,7 +24,7 @@ public:
         this->reset();
     }
 
-    virtual ~GrRectanizerPow2() { }
+    ~GrRectanizerPow2() override {}
 
     void reset() override {
         fNextStripY = 0;
