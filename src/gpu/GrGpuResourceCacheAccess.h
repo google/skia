@@ -63,6 +63,10 @@ private:
         SkASSERT(fResource->isPurgeable());
         fResource->fExternalFlushCntWhenBecamePurgeable = cnt;
     }
+    void setTimeWhenResourceBecomePurgeable() {
+        SkASSERT(fResource->isPurgeable());
+        fResource->fTimeWhenBecamePurgeable = GrStdSteadyClock::now();
+    }
     /**
      * Called by the cache to determine whether this resource has been puregable for more than
      * a threshold number of external flushes.
@@ -70,6 +74,14 @@ private:
     uint32_t flushCntWhenResourceBecamePurgeable() {
         SkASSERT(fResource->isPurgeable());
         return fResource->fExternalFlushCntWhenBecamePurgeable;
+    }
+    /**
+     * Called by the cache to determine whether this resource should be purged based on the length
+     * of time it has been available for purging.
+     */
+    GrStdSteadyClock::time_point timeWhenResourceBecamePurgeable() {
+        SkASSERT(fResource->isPurgeable());
+        return fResource->fTimeWhenBecamePurgeable;
     }
 
     int* accessCacheIndex() const { return &fResource->fCacheArrayIndex; }
