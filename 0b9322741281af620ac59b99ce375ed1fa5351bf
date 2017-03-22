@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b17499d_76dc99af",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-22T20:16:00Z",
+      "side": 1,
+      "message": "are treated*",
+      "range": {
+        "startLine": 360,
+        "startChar": 8,
+        "endLine": 360,
+        "endChar": 19
+      },
+      "revId": "0b9322741281af620ac59b99ce375ed1fa5351bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
