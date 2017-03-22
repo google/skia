@@ -78,6 +78,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fAvoidInstancedDrawsToFPTargets = false;
+    fForceOnlyOneOpPerGpuCmdBuffer = false;
 
     fPreferVRAMUseOverFlushes = true;
 }
