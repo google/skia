@@ -63,6 +63,7 @@ private:
     void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override;
 
     void addAdditionalCommandBuffer();
+    void addAdditionalRenderPass();
 
     struct InlineUploadInfo {
         InlineUploadInfo(GrOpFlushState* state, const GrDrawOp::DeferredUploadFn& upload)
@@ -73,17 +74,21 @@ private:
     };
 
     struct CommandBufferInfo {
-        const GrVkRenderPass*        fRenderPass;
-        GrVkSecondaryCommandBuffer*  fCommandBuffer;
-        VkClearValue                 fColorClearValue;
-        SkRect                       fBounds;
-        bool                         fIsEmpty;
-        bool                         fStartsWithClear;
-        SkTArray<InlineUploadInfo>   fPreDrawUploads;
+        const GrVkRenderPass*                  fRenderPass;
+        SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
+        VkClearValue                           fColorClearValue;
+        SkRect                                 fBounds;
+        bool                                   fIsEmpty;
+        bool                                   fStartsWithClear;
+        SkTArray<InlineUploadInfo>             fPreDrawUploads;
+
+        GrVkSecondaryCommandBuffer* currentCmdBuf() {
+            return fCommandBuffers.back();
+        }
     };
 
     SkTArray<CommandBufferInfo> fCommandBufferInfos;
-    int                         fCurrentCmdBuffer;
+    int                         fCurrentCmdInfo;
 
     GrVkGpu*                    fGpu;
     GrVkRenderTarget*           fRenderTarget;
@@ -92,6 +97,7 @@ private:
     VkAttachmentLoadOp          fVkStencilLoadOp;
     VkAttachmentStoreOp         fVkStencilStoreOp;
     GrColor4f                   fClearColor;
+    GrVkPipelineState*          fLastPipelineState;
 
     typedef GrGpuCommandBuffer INHERITED;
 };
