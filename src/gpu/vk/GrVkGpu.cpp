@@ -554,6 +554,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     size_t combinedBufferSize = width * bpp * height;
     int currentWidth = width;
     int currentHeight = height;
+    // The alignment must be at least 4 bytes and a multiple of the bytes per pixel of the image
+    // config. This works with the assumption that the bytes in pixel config is always a power of 2.
+    SkASSERT((bpp & (bpp - 1)) == 0);
+    const size_t alignmentMask = 0x3 | (bpp - 1);
     for (int currentMipLevel = 1; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
@@ -565,6 +569,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
             return false;
         }
         const size_t trimmedSize = currentWidth * bpp * currentHeight;
+        const size_t alignmentDiff = combinedBufferSize & alignmentMask;
+        if (alignmentDiff != 0) {
+           combinedBufferSize += alignmentMask - alignmentDiff + 1;
+        }
         individualMipOffsets.push_back(combinedBufferSize);
         combinedBufferSize += trimmedSize;
     }
