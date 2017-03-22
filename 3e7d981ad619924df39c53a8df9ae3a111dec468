@@ -22,6 +22,30 @@
       "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21c64d7e_a20bde10",
+        "filename": "include/core/SkRefCnt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-22T13:22:34Z",
+      "side": 1,
+      "message": "Yes, the removal of race_check(T* old_ptr) was the slight change.  I just copied that function to here (as this was the only caller) and I had added the std::ignore to the race_check method to get it to compile on non-framework builds.",
+      "parentUuid": "d0f255ad_147c8326",
+      "range": {
+        "startLine": 386,
+        "startChar": 8,
+        "endLine": 386,
+        "endChar": 19
+      },
+      "revId": "3e7d981ad619924df39c53a8df9ae3a111dec468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
