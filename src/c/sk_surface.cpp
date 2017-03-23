@@ -94,3 +94,22 @@ sk_surface_t* sk_surface_new_render_target(gr_context_t* context, bool budgeted,
     }
     return ToSurface(SkSurface::MakeRenderTarget(AsGrContext(context), (SkBudgeted)budgeted, info, sampleCount, surfProps).release());
 }
+
+void sk_surface_draw(sk_surface_t* surface, sk_canvas_t* canvas, float x, float y, const sk_paint_t* paint) {
+    AsSurface(surface)->draw(AsCanvas(canvas), x, y, AsPaint(paint));
+}
+
+bool sk_surface_peek_pixels(sk_surface_t* surface, sk_pixmap_t* pixmap) {
+    return AsSurface(surface)->peekPixels(AsPixmap(pixmap));
+}
+
+bool sk_surface_read_pixels(sk_surface_t* surface, sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) {
+    SkImageInfo info;
+    from_c(*dstInfo, &info);
+    return AsSurface(surface)->readPixels(info, dstPixels, dstRowBytes, srcX, srcY);
+}
+
+void sk_surface_get_props(sk_surface_t* surface, sk_surfaceprops_t* props) {
+    SkSurfaceProps skProps = AsSurface(surface)->props();
+    from_sk(&skProps, props);
+}

@@ -781,4 +781,11 @@ static inline void from_c(const sk_surfaceprops_t* cprops, SkSurfaceProps* props
     *props = SkSurfaceProps(cprops->flags, (SkPixelGeometry)cprops->pixelGeometry);
 }
 
+static inline void from_sk(const SkSurfaceProps* props, sk_surfaceprops_t* cprops) {
+    *cprops = {
+        (sk_pixelgeometry_t)props->pixelGeometry(),
+        (sk_surfaceprops_flags_t)props->flags()
+    };
+}
+
 #endif
