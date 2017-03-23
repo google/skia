@@ -22,6 +22,30 @@
       "revId": "d0e4cec2070d283c7fa996f090aa3e18f076939e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12cfbf3e_7e59c064",
+        "filename": "site/user/sample/color.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-23T20:17:29Z",
+      "side": 1,
+      "message": "Yes, thanks!  It\u0027s nice for the documentation to actually be true :).",
+      "parentUuid": "9e21bdbb_e0cffc2e",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 21
+      },
+      "revId": "d0e4cec2070d283c7fa996f090aa3e18f076939e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
