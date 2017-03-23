@@ -1610,9 +1610,14 @@ void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::isClipEmpty() const {
+    return fMCRec->fRasterClip.isEmpty();
+
+    // TODO: should we only use the conservative answer in a recording canvas?
+#if 0
     SkBaseDevice* dev = this->getTopDevice();
     // if no device we return true
     return !dev || dev->onGetClipType() == SkBaseDevice::kEmpty_ClipType;
+#endif
 }
 
 bool SkCanvas::isClipRect() const {

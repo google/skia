@@ -108,10 +108,8 @@ void SkConservativeClip::op(const SkRegion& rgn, SkRegion::Op op) {
 
 void SkConservativeClip::op(const SkIRect& devRect, SkRegion::Op op) {
     if (SkRegion::kIntersect_Op == op) {
-        if (devRect.isEmpty()) {
+        if (!fBounds.intersect(devRect)) {
             fBounds.setEmpty();
-        } else {
-            (void)fBounds.intersect(devRect);
         }
         return;
     }

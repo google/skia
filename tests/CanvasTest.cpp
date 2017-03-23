@@ -104,6 +104,18 @@ DEF_TEST(canvas_clipbounds, reporter) {
     }
 }
 
+// Will call proc with multiple styles of canse (recording, raster, pdf)
+//
+template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
+    proc(SkPictureRecorder().beginRecording(SkRect::MakeIWH(w, h)));
+
+    SkNullWStream stream;
+    proc(SkDocument::MakePDF(&stream)->beginPage(SkIntToScalar(w), SkIntToScalar(h)));
+
+    proc(SkSurface::MakeRasterN32Premul(w, h, nullptr)->getCanvas());
+}
+
+
 const SkIRect gBaseRestrictedR = { 0, 0, 10, 10 };
 
 static void test_restriction(skiatest::Reporter* reporter, SkCanvas* canvas) {
@@ -145,16 +157,18 @@ static void test_restriction(skiatest::Reporter* reporter, SkCanvas* canvas) {
  *  - raster : uses SkRasterClip in its device
  */
 DEF_TEST(canvas_clip_restriction, reporter) {
-    test_restriction(reporter, SkPictureRecorder().beginRecording(SkRect::Make(gBaseRestrictedR)));
+    multi_canvas_driver(gBaseRestrictedR.width(), gBaseRestrictedR.height(),
+                        [reporter](SkCanvas* canvas) { test_restriction(reporter, canvas); });
+}
 
-    SkNullWStream stream;
-    auto doc = SkDocument::MakePDF(&stream);
-    test_restriction(reporter, doc->beginPage(SkIntToScalar(gBaseRestrictedR.width()),
-                                              SkIntToScalar(gBaseRestrictedR.height())));
-
-    auto surf = SkSurface::MakeRasterN32Premul(gBaseRestrictedR.width(),
-                                               gBaseRestrictedR.height(), nullptr);
-    test_restriction(reporter, surf->getCanvas());
+DEF_TEST(canvas_empty_clip, reporter) {
+    multi_canvas_driver(50, 50, [reporter](SkCanvas* canvas) {
+        canvas->save();
+        canvas->clipRect({0, 0, 20, 40 });
+        REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
+        canvas->clipRect({30, 0, 50, 40 });
+        REPORTER_ASSERT(reporter, canvas->isClipEmpty());
+    });
 }
 
 static const int kWidth = 2, kHeight = 2;
