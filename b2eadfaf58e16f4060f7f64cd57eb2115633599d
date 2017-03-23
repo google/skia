@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87b497dd_07aa55c3",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T14:24:54Z",
+      "side": 1,
+      "message": "I withdraw this. It probably isn\u0027t worth the added complexity.",
+      "parentUuid": "bc852596_ae3025a2",
+      "range": {
+        "startLine": 32,
+        "startChar": 11,
+        "endLine": 32,
+        "endChar": 22
+      },
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "517bed60_1131d446",
         "filename": "src/utils/SkInsetConvexPolygon.cpp",
         "patchSetId": 11
@@ -133,6 +157,29 @@
       "writtenOn": "2017-03-23T13:38:44Z",
       "side": 1,
       "message": "Add comment: // s is the parametric intersection along \u0027s0\u0027 \u0026 \u0027t\u0027 is the same for \u0027s1\u0027\n?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b04bc04c_bd2b2c2c",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T14:24:54Z",
+      "side": 1,
+      "message": "SkAutoSTMalloc is a typed version of this. You could do:\n\nSkAutoSTMalloc\u003cN, EdgeData\u003e edgeData(polySize);\n\nwhere N ~\u003d 1024/sizeof(EdgeData).\n\nIt has operator[]\n\nAlso, I know in the past we\u0027ve had to use the preprocessor to reduce stack allocation sizes in GOOGLE3 builds because of smaller stack limits. Might want to check with dogben@ regarding this.",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 17
+      },
       "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -275,6 +322,24 @@
     },
     {
       "key": {
+        "uuid": "f1457dc8_e121fab0",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T14:24:54Z",
+      "side": 1,
+      "message": "There will be an initial move.",
+      "parentUuid": "ba1cf6c6_7f1c48ad",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70dbd543_cdde8064",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 11
@@ -286,6 +351,24 @@
       "writtenOn": "2017-03-23T14:10:45Z",
       "side": 1,
       "message": "Does this system always assume there is a close?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87af4ced_b8c051d6",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T14:24:54Z",
+      "side": 1,
+      "message": "The iter is constructed so that there will always be a close, right?",
+      "parentUuid": "70dbd543_cdde8064",
       "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
