@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "df002524_a64e7ea5",
+        "filename": "experimental/docs/paint.bmh",
+        "patchSetId": 16
+      },
+      "lineNbr": 1330,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-03-23T18:38:57Z",
+      "side": 1,
+      "message": "This is a note to myself to file a bug + investigate to see if this is true.\n #Deprecated here probably should be #ToDo",
+      "parentUuid": "5200475d_4072c2b3",
+      "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ff8a2911_19f5b6d1",
         "filename": "experimental/docs/paint.bmh",
         "patchSetId": 16
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-23T17:28:43Z",
       "side": 1,
       "message": "I suggest that the SkColorSetARGB() macro be the canonical way to construct a SkColor from four numbers.  We don\u0027t need to document the internal structure of SkColor if we just tell users to always use SkColorSetARGB and SkColorGet{A,R,G,B}.\n\nQuestion:  should we have a pointer to colorspace/gamut documentation here?  Is the paint\u0027s color relative to the surface\u0027s colorspace?   Is this the same or different for a SkColorShader",
+      "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34f85473_00eabafb",
+        "filename": "experimental/docs/paint.bmh",
+        "patchSetId": 16
+      },
+      "lineNbr": 1958,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-03-23T18:38:57Z",
+      "side": 1,
+      "message": "I would counter-argue that if \nsetColor(0xFF00FF00) is acceptable, then it is also acceptable to document the SkColor format.\n\nI\u0027m a long way from documenting color, but I would further argue that the concepts of conical source color formats and device-dependent color formats are not intuitive and deserve thorough documentation.\n\nYes, there should be a  #SeeAlso to #Topic Color_Space. I hope that the paint color is always treated identically to a shader -- e.g., a linear gradient with a single color should draw identically to a paint\u0027s color.",
+      "parentUuid": "ff8a2911_19f5b6d1",
       "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7b8ace1e_a8b4e554",
+        "filename": "experimental/docs/paint.bmh",
+        "patchSetId": 16
+      },
+      "lineNbr": 1967,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-03-23T18:38:57Z",
+      "side": 1,
+      "message": "Ditto with my earlier comment -- although adding green3 would also be nice.\n\nPart of my reasoning is that the example should say with code what the description says with words -- and as I alluded above, I disagree that hiding this implementation makes using Skia easier or more intuitive.",
+      "parentUuid": "8ce35f36_d36bfa5b",
+      "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1e228936_6038b029",
         "filename": "experimental/docs/paint.bmh",
         "patchSetId": 16
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-23T17:28:43Z",
       "side": 1,
       "message": "I think I remember that bungeman@ considers the canonical way of creating a SkTypeface is to go through the SkFontMgr interface.  https://fiddle.skia.org/c/@SkFontMgr_example\n\nI do not know if this is what our documentation should do instead of the factories inside SkTypeface.",
+      "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "125dc057_9f9cae7a",
+        "filename": "experimental/docs/paint.bmh",
+        "patchSetId": 16
+      },
+      "lineNbr": 3267,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-03-23T18:38:57Z",
+      "side": 1,
+      "message": "My hope is that examples like this one will encourage this kind of discussion. For the purposes of an example like this one, using SkFontMgr seems over the top.",
+      "parentUuid": "1e228936_6038b029",
       "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
