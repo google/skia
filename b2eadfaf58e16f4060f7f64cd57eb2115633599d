@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "517bed60_1131d446",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "SkScalarNearlyZero seems overkill here",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7c8f0ae_400df34b",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "Add comment: // Perpendicularly offset the line segment p0-p1 \u0027radius\u0027 units in the direction specified by \u0027dir\u0027\n?\nDo you want an assert that \u0027dir\u0027 is always either +1.0f or -1.0f ?\nMaybe: radius -\u003e dist ?\nShouldn\u0027t \u0027dir\u0027 be an int ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0915ceb_ab314328",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "Maybe: normal -\u003e perp ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc69cd0a_7939181b",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "Add comment: // s is the parametric intersection along \u0027s0\u0027 \u0026 \u0027t\u0027 is the same for \u0027s1\u0027\n?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc03ad9e_03305b47",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "Should this be ScalarMin rather than -1 ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a966daa2_a444f0b8",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "It seems like you could just make \u0027insetPolygon\u0027 exactly the right size here if you decremented a counter whenever you marked an edge invalid",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30b9970d_6ebfd4ca",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "It seems like we only want to check this if we have \u003e\u003d 3 points (and that we need a test for which the inset disappears).",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5bd9f02_55a6a263",
+        "filename": "src/utils/SkInsetConvexPolygon.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "Maybe a comment block? Particularly any winding assumptions, what happens if the inset disappears, error handling\n\n?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f47b6847_9e0a05fb",
+        "filename": "tests/InsetConvexPolyTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T13:38:44Z",
+      "side": 1,
+      "message": "time warp ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
