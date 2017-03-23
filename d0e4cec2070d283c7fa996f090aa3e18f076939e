@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e21bdbb_e0cffc2e",
+        "filename": "site/user/sample/color.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T17:23:40Z",
+      "side": 1,
+      "message": "\"The most common transfer function, sRGB, is actually free on GPU!\"?",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 21
+      },
+      "revId": "d0e4cec2070d283c7fa996f090aa3e18f076939e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
