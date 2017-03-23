@@ -38,14 +38,14 @@ private:
     void shadeSpanInternal(int x, int y, typename DstTraits<dstType, premul>::Type[],
                            int count) const;
 
-    const Interval* findInterval(SkScalar fx) const;
+    const Sk4fGradientInterval* findInterval(SkScalar fx) const;
 
     bool isFast() const { return fDstToPosClass == kLinear_MatrixClass; }
 
     static void D32_BlitBW(BlitState*, int x, int y, const SkPixmap& dst, int count);
     static void D64_BlitBW(BlitState*, int x, int y, const SkPixmap& dst, int count);
 
-    mutable const Interval*      fCachedInterval;
+    mutable const Sk4fGradientInterval* fCachedInterval;
 };
 
 #endif // Sk4fLinearGradient_DEFINED

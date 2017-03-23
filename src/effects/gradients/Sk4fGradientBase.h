@@ -17,6 +17,39 @@
 #include "SkShader.h"
 #include "SkTArray.h"
 
+struct Sk4fGradientInterval {
+    Sk4fGradientInterval(const Sk4f& c0, SkScalar p0,
+                         const Sk4f& c1, SkScalar p1);
+
+    bool contains(SkScalar t) const {
+        // True if t is in [p0,p1].  Note: this helper assumes a
+        // natural/increasing interval - so it's not usable in Sk4fLinearGradient.
+        SkASSERT(fP0 < fP1);
+        return t >= fP0 && t <= fP1;
+    }
+
+    SkPM4f   fC0, fDc;
+    SkScalar fP0, fP1;
+    bool     fZeroRamp;
+};
+
+class Sk4fGradientIntervalBuffer {
+public:
+    void init(const SkColor colors[], const SkScalar pos[], int count,
+              SkShader::TileMode tileMode, bool premulColors, SkScalar alpha, bool reverse);
+
+    const Sk4fGradientInterval* find(SkScalar t) const;
+    const Sk4fGradientInterval* findNext(SkScalar t, const Sk4fGradientInterval* prev,
+                                         bool increasing) const;
+
+    using BufferType = SkSTArray<8, Sk4fGradientInterval, true>;
+
+    const BufferType* operator->() const { return &fIntervals; }
+
+private:
+    BufferType fIntervals;
+};
+
 class SkGradientShaderBase::
 GradientShaderBase4fContext : public SkShader::Context {
 public:
@@ -31,35 +64,15 @@ public:
     bool isValid() const;
 
 protected:
-    struct Interval {
-        Interval(const Sk4f& c0, SkScalar p0,
-                 const Sk4f& c1, SkScalar p1);
-
-        bool isZeroRamp() const { return fZeroRamp; }
-
-        bool contains(SkScalar p) const {
-            // True if p is in [p0,p1].  Note: this helper assumes a
-            // natural/increasing interval - so it's not usable in Sk4fLinearGradient.
-            SkASSERT(fP0 < fP1);
-            return p >= fP0 && p <= fP1;
-        }
-
-        SkPM4f   fC0, fDc;
-        SkScalar fP0, fP1;
-        bool     fZeroRamp;
-    };
-
     virtual void mapTs(int x, int y, SkScalar ts[], int count) const = 0;
 
-    void buildIntervals(const SkGradientShaderBase&, const ContextRec&, bool reverse);
-
-    SkSTArray<8, Interval, true> fIntervals;
-    SkMatrix                     fDstToPos;
-    SkMatrix::MapXYProc          fDstToPosProc;
-    uint8_t                      fDstToPosClass;
-    uint8_t                      fFlags;
-    bool                         fDither;
-    bool                         fColorsArePremul;
+    Sk4fGradientIntervalBuffer fIntervals;
+    SkMatrix                   fDstToPos;
+    SkMatrix::MapXYProc        fDstToPosProc;
+    uint8_t                    fDstToPosClass;
+    uint8_t                    fFlags;
+    bool                       fDither;
+    bool                       fColorsArePremul;
 
 private:
     using INHERITED = SkShader::Context;
