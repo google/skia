@@ -396,7 +396,10 @@ int main(int argc, char** argv) {
 
             auto size = src->size();
             auto surface = SkSurface::MakeRasterN32Premul(size.width(), size.height());
-            src->draw(surface->getCanvas());
+
+            auto canvas = surface->getCanvas();
+            src->draw(canvas);
+            canvas->restoreToCount(0);
 
             if (!write_dir.empty()) {
                 auto image = surface->makeImageSnapshot();
