@@ -383,24 +383,6 @@ static SkBlurQuality blurMaskFilterFlags_as_quality(uint32_t blurMaskFilterFlags
             kHigh_SkBlurQuality : kLow_SkBlurQuality;
 }
 
-static uint32_t blurMaskFilterFlags_to_blurDrawLooperFlags(uint32_t bmf) {
-    const struct {
-        uint32_t fBlurMaskFilterFlag;
-        uint32_t fBlurDrawLooperFlag;
-    } pairs[] = {
-        { SkBlurMaskFilter::kIgnoreTransform_BlurFlag, SkBlurDrawLooper::kIgnoreTransform_BlurFlag },
-        { SkBlurMaskFilter::kHighQuality_BlurFlag,     SkBlurDrawLooper::kHighQuality_BlurFlag },
-    };
-
-    uint32_t bdl = 0;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pairs); ++i) {
-        if (bmf & pairs[i].fBlurMaskFilterFlag) {
-            bdl |= pairs[i].fBlurDrawLooperFlag;
-        }
-    }
-    return bdl;
-}
-
 static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
                                 SkBlurStyle style, uint32_t blurMaskFilterFlags) {
     if (kNormal_SkBlurStyle != style) {
@@ -410,13 +392,8 @@ static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
     const SkColor color = 0xFF335577;
     const SkScalar dx = 10;
     const SkScalar dy = -5;
-    const SkBlurQuality quality = blurMaskFilterFlags_as_quality(blurMaskFilterFlags);
-    uint32_t flags = blurMaskFilterFlags_to_blurDrawLooperFlags(blurMaskFilterFlags);
-
-    sk_sp<SkDrawLooper> lp(SkBlurDrawLooper::Make(color, sigma, dx, dy, flags));
-
-    const bool expectSuccess = sigma > 0 &&
-                               0 == (flags & SkBlurDrawLooper::kIgnoreTransform_BlurFlag);
+    sk_sp<SkDrawLooper> lp(SkBlurDrawLooper::Make(color, sigma, dx, dy));
+    const bool expectSuccess = sigma > 0;
 
     if (nullptr == lp) {
         REPORTER_ASSERT(reporter, sigma <= 0);
@@ -430,7 +407,7 @@ static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
             REPORTER_ASSERT(reporter, rec.fOffset.y() == dy);
             REPORTER_ASSERT(reporter, rec.fColor == color);
             REPORTER_ASSERT(reporter, rec.fStyle == style);
-            REPORTER_ASSERT(reporter, rec.fQuality == quality);
+            REPORTER_ASSERT(reporter, rec.fQuality == kLow_SkBlurQuality);
         }
     }
 }

@@ -23,22 +23,8 @@ class SkColorFilter;
 */
 class SK_API SkBlurDrawLooper : public SkDrawLooper {
 public:
-    enum BlurFlags {
-        kNone_BlurFlag = 0x00,
-        /**
-            The blur layer's dx/dy/radius aren't affected by the canvas
-            transform.
-        */
-        kIgnoreTransform_BlurFlag   = 0x01,
-        kOverrideColor_BlurFlag     = 0x02,
-        kHighQuality_BlurFlag       = 0x04,
-        /** mask for all blur flags */
-        kAll_BlurFlag               = 0x07
-    };
-
-    static sk_sp<SkDrawLooper> Make(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
-                                    uint32_t flags = kNone_BlurFlag) {
-        return sk_sp<SkDrawLooper>(new SkBlurDrawLooper(color, sigma, dx, dy, flags));
+    static sk_sp<SkDrawLooper> Make(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy) {
+        return sk_sp<SkDrawLooper>(new SkBlurDrawLooper(color, sigma, dx, dy));
     }
 
     SkDrawLooper::Context* makeContext(SkCanvas*, SkArenaAlloc*) const override;
@@ -47,8 +33,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurDrawLooper)
 
 protected:
-    SkBlurDrawLooper(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
-                     uint32_t flags);
+    SkBlurDrawLooper(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy);
 
     void flatten(SkWriteBuffer&) const override;
 
@@ -56,10 +41,8 @@ protected:
 
 private:
     sk_sp<SkMaskFilter>  fBlur;
-    sk_sp<SkColorFilter> fColorFilter;
     SkScalar        fDx, fDy, fSigma;
     SkColor         fBlurColor;
-    uint32_t        fBlurFlags;
 
     enum State {
         kBeforeEdge,
@@ -78,7 +61,7 @@ private:
         State fState;
     };
 
-    void init(SkScalar sigma, SkScalar dx, SkScalar dy, SkColor color, uint32_t flags);
+    void init(SkScalar sigma, SkScalar dx, SkScalar dy, SkColor color);
     void initEffects();
 
     typedef SkDrawLooper INHERITED;
