@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "e7bc7e25_3fee5b9b",
+        "filename": "bench/CubicKLMBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-23T15:28:10Z",
+      "side": 1,
+      "message": "I am assuming one of these is a serp and one a loop? Is there a need for the other cases above if not tested?",
+      "range": {
+        "startLine": 70,
+        "startChar": 2,
+        "endLine": 73,
+        "endChar": 78
+      },
+      "revId": "e099dbfa0ae5594e9760a2344d6b84e7b57ddae1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "485a94c6_7df2b0a7",
         "filename": "gm/beziereffects.cpp",
         "patchSetId": 2
@@ -18,6 +41,76 @@
         "startChar": 12,
         "endLine": 46,
         "endChar": 22
+      },
+      "revId": "e099dbfa0ae5594e9760a2344d6b84e7b57ddae1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a9f8d2e_a79f27c4",
+        "filename": "gm/beziereffects.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-23T15:28:10Z",
+      "side": 1,
+      "message": "Don\u0027t think it really matters either way. I\u0027d say we\u0027re mostly after having this match how a user would call the cubic stuff.",
+      "parentUuid": "485a94c6_7df2b0a7",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "e099dbfa0ae5594e9760a2344d6b84e7b57ddae1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bc5e910_145bfa2d",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-23T15:28:10Z",
+      "side": 1,
+      "message": "do we not get complaints that these values are 3.f, 6.f, etc?",
+      "range": {
+        "startLine": 663,
+        "startChar": 24,
+        "endLine": 663,
+        "endChar": 25
+      },
+      "revId": "e099dbfa0ae5594e9760a2344d6b84e7b57ddae1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b56a471_b9d38ef4",
+        "filename": "src/gpu/GrPathUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-23T15:28:10Z",
+      "side": 1,
+      "message": "t1 and t2",
+      "range": {
+        "startLine": 132,
+        "startChar": 25,
+        "endLine": 132,
+        "endChar": 34
       },
       "revId": "e099dbfa0ae5594e9760a2344d6b84e7b57ddae1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
