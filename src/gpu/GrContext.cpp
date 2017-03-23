@@ -870,14 +870,14 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
+    sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(texture, nullptr, matrix);
     if (kRGBA_half_GrPixelConfig == texture->config()) {
-        return GrFragmentProcessor::UnpremulOutput(
-                GrSimpleTextureEffect::Make(texture, nullptr, matrix));
+        return GrFragmentProcessor::UnpremulOutput(std::move(fp));
     } else {
         GrConfigConversionEffect::PMConversion pmToUPM =
             static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
         if (GrConfigConversionEffect::kPMConversionCnt != pmToUPM) {
-            return GrConfigConversionEffect::Make(texture, pmToUPM, matrix);
+            return GrConfigConversionEffect::Make(std::move(fp), pmToUPM);
         } else {
             return nullptr;
         }
@@ -889,16 +889,16 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrTextureProxy> 
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    if (kRGBA_half_GrPixelConfig == proxy->config()) {
-        return GrFragmentProcessor::UnpremulOutput(
-                GrSimpleTextureEffect::Make(this->resourceProvider(), std::move(proxy),
-                                            nullptr, matrix));
+    GrPixelConfig config = proxy->config();
+    sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(this->resourceProvider(),
+                                                                std::move(proxy), nullptr, matrix);
+    if (kRGBA_half_GrPixelConfig == config) {
+        return GrFragmentProcessor::UnpremulOutput(std::move(fp));
     } else {
         GrConfigConversionEffect::PMConversion pmToUPM =
             static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
         if (GrConfigConversionEffect::kPMConversionCnt != pmToUPM) {
-            return GrConfigConversionEffect::Make(this->resourceProvider(), std::move(proxy),
-                                                  pmToUPM, matrix);
+            return GrConfigConversionEffect::Make(std::move(fp), pmToUPM);
         } else {
             return nullptr;
         }
@@ -910,16 +910,16 @@ sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrTextureProxy> 
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    if (kRGBA_half_GrPixelConfig == proxy->config()) {
-        return GrFragmentProcessor::PremulOutput(
-                GrSimpleTextureEffect::Make(this->resourceProvider(), std::move(proxy),
-                                            nullptr, matrix));
+    GrPixelConfig config = proxy->config();
+    sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(this->resourceProvider(),
+                                                                std::move(proxy), nullptr, matrix);
+    if (kRGBA_half_GrPixelConfig == config) {
+        return GrFragmentProcessor::PremulOutput(std::move(fp));
     } else {
         GrConfigConversionEffect::PMConversion upmToPM =
             static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
         if (GrConfigConversionEffect::kPMConversionCnt != upmToPM) {
-            return GrConfigConversionEffect::Make(this->resourceProvider(), std::move(proxy),
-                                                  upmToPM, matrix);
+            return GrConfigConversionEffect::Make(std::move(fp), upmToPM);
         } else {
             return nullptr;
         }
