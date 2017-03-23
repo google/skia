@@ -486,6 +486,9 @@ def dm_flags(bot):
       blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
 
+  if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
+    match.append('~ImageStorageLoad') # skia:6358
+
   if 'Vivante' in bot:
     # This causes the bot to spin for >3.5 hours.
     blacklist(['_', 'gm', '_', 'scaled_tilemodes_npot'])
