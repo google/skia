@@ -70,6 +70,7 @@ var (
 // instances.
 func linuxGceDimensions() []string {
 	return []string{
+		"id:skia-vm-095",
 		"cpu:x86-64-avx2",
 		"gpu:none",
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX),
