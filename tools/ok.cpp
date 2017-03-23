@@ -26,6 +26,65 @@
 #include <stdlib.h>
 #include <thread>
 
+#if !defined(__has_include)
+    #define  __has_include(x) 0
+#endif
+
+static thread_local const char* tls_name = "";
+
+#if __has_include(<execinfo.h>) && __has_include(<fcntl.h>) && __has_include(<signal.h>)
+    #include <execinfo.h>
+    #include <fcntl.h>
+    #include <signal.h>
+
+    static int crash_stacktrace_fd = 2/*stderr*/;
+
+    static void setup_crash_handler() {
+        static void (*original_handlers[32])(int);
+
+        for (int sig : std::vector<int>{ SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV }) {
+            original_handlers[sig] = signal(sig, [](int sig) {
+                auto ez_write = [](const char* str) {
+                    write(crash_stacktrace_fd, str, strlen(str));
+                };
+                ez_write("\ncaught signal ");
+                switch (sig) {
+                #define CASE(s) case s: ez_write(#s); break
+                    CASE(SIGABRT);
+                    CASE(SIGBUS);
+                    CASE(SIGFPE);
+                    CASE(SIGILL);
+                    CASE(SIGSEGV);
+                #undef CASE
+                }
+                ez_write(" while running '");
+                ez_write(tls_name);
+                ez_write("'\n");
+
+                void* stack[128];
+                int frames = backtrace(stack, sizeof(stack)/sizeof(*stack));
+                backtrace_symbols_fd(stack, frames, crash_stacktrace_fd);
+                signal(sig, original_handlers[sig]);
+                raise(sig);
+            });
+        }
+    }
+
+    static void defer_crash_stacktraces() {
+        crash_stacktrace_fd = fileno(tmpfile());
+        atexit([] {
+            lseek(crash_stacktrace_fd, 0, SEEK_SET);
+            char buf[1024];
+            while (size_t bytes = read(crash_stacktrace_fd, buf, sizeof(buf))) {
+                write(2, buf, bytes);
+            }
+        });
+    }
+#else
+    static void setup_crash_handler() {}
+    static void defer_crash_stacktraces() {}
+#endif
+
 enum class Status { OK, Failed, Crashed, Skipped, None };
 
 struct Engine {
@@ -83,7 +142,7 @@ struct ThreadEngine : Engine {
     struct ForkEngine : Engine {
         bool spawn(std::function<Status(void)> fn) override {
             switch (fork()) {
-                case  0: exit((int)fn());
+                case  0: _exit((int)fn());
                 case -1: return false;
                 default: return true;
             }
@@ -227,6 +286,7 @@ struct {
 
 int main(int argc, char** argv) {
     SkGraphics::Init();
+    setup_crash_handler();
 
     int         jobs        {1};
     std::regex  match       {".*"};
@@ -279,9 +339,9 @@ int main(int argc, char** argv) {
     if (!stream) { return help(); }
 
     std::unique_ptr<Engine> engine;
-    if (jobs == 0) { engine.reset(new SerialEngine);               }
-    if (jobs  > 0) { engine.reset(new   ForkEngine);               }
-    if (jobs  < 0) { engine.reset(new ThreadEngine); jobs = -jobs; }
+    if (jobs == 0) { engine.reset(new SerialEngine);                            }
+    if (jobs  > 0) { engine.reset(new   ForkEngine); defer_crash_stacktraces(); }
+    if (jobs  < 0) { engine.reset(new ThreadEngine); jobs = -jobs;              }
 
     if (jobs == 1) { jobs = std::thread::hardware_concurrency(); }
 
@@ -328,6 +388,7 @@ int main(int argc, char** argv) {
             std::unique_ptr<Src> src{raw};
 
             auto name = src->name();
+            tls_name = name.c_str();
             if (!std::regex_match (name, match) ||
                 !std::regex_search(name, search)) {
                 return Status::Skipped;
