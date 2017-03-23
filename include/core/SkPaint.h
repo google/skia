@@ -707,7 +707,7 @@ public:
             A set flag indicates that the metric may be trusted.
         */
         enum FontMetricsFlags {
-            kUnderlineThinknessIsValid_Flag = 1 << 0,
+            kUnderlineThicknessIsValid_Flag = 1 << 0,
             kUnderlinePositionIsValid_Flag = 1 << 1,
         };
 
@@ -733,21 +733,21 @@ public:
          */
         SkScalar    fUnderlinePosition; //!< underline position, or 0 if cannot be determined
 
-        /**  If the fontmetrics has a valid underlinethickness, return true, and set the
+        /**  If the fontmetrics has a valid underline thickness, return true, and set the
                 thickness param to that value. If it doesn't return false and ignore the
                 thickness param.
         */
         bool hasUnderlineThickness(SkScalar* thickness) const {
-            if (SkToBool(fFlags & kUnderlineThinknessIsValid_Flag)) {
+            if (SkToBool(fFlags & kUnderlineThicknessIsValid_Flag)) {
                 *thickness = fUnderlineThickness;
                 return true;
             }
             return false;
         }
 
-        /**  If the fontmetrics has a valid underlineposition, return true, and set the
-                thickness param to that value. If it doesn't return false and ignore the
-                thickness param.
+        /**  If the fontmetrics has a valid underline position, return true, and set the
+                position param to that value. If it doesn't return false and ignore the
+                position param.
         */
         bool hasUnderlinePosition(SkScalar* position) const {
             if (SkToBool(fFlags & kUnderlinePositionIsValid_Flag)) {

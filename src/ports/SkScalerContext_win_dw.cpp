@@ -621,7 +621,7 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     metrics->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem;
     metrics->fUnderlinePosition = -(fTextSizeRender * SkIntToScalar(dwfm.underlinePosition) / upem);
 
-    metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+    metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 
     if (this->getDWriteTypeface()->fDWriteFontFace1.get()) {
