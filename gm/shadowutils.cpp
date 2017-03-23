@@ -19,7 +19,7 @@ void draw_shadow(SkCanvas* canvas, const SkPath& path, int height, SkColor color
                               color, flags, cache);
 }
 
-static constexpr int kW = 700;
+static constexpr int kW = 800;
 static constexpr int kH = 800;
 
 DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
@@ -38,6 +38,7 @@ DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
     paths.push_back().addRect(SkRect::MakeWH(50, 50));
     paths.push_back().addCircle(25, 25, 25);
     paths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
+    paths.push_back().addOval(SkRect::MakeWH(20, 60));
 
     static constexpr SkScalar kPad = 15.f;
     static constexpr SkPoint3 kLightPos = {250, 400, 500};
