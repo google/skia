@@ -51,20 +51,6 @@ public:
     static bool AddWH(const SkBitmapCacheDesc&, const SkBitmap& result,
                       SkResourceCache* localCache = nullptr);
 
-    /**
-     *  Search based on the bitmap's genID and subset. If found, returns true and
-     *  result will be set to the matching bitmap with its pixels already locked.
-     */
-    static bool Find(uint32_t genID, const SkIRect& subset, SkBitmap* result,
-                     SkResourceCache* localCache = nullptr);
-
-    /**
-     * The width and the height of the provided subset must be the same as the result bitmap ones.
-     * result must be marked isImmutable()
-     */
-    static bool Add(SkPixelRef*, const SkIRect& subset, const SkBitmap& result,
-                    SkResourceCache* localCache = nullptr);
-
     static bool Find(uint32_t genID, SkBitmap* result, SkResourceCache* localCache = nullptr);
     // todo: eliminate the need to specify ID, since it should == the bitmap's
     static void Add(uint32_t genID, const SkBitmap&, SkResourceCache* localCache = nullptr);

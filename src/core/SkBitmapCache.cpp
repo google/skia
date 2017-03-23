@@ -160,32 +160,6 @@ bool SkBitmapCache::AddWH(const SkBitmapCacheDesc& desc, const SkBitmap& result,
     return true;
 }
 
-bool SkBitmapCache::Find(uint32_t genID, const SkIRect& subset, SkBitmap* result,
-                         SkResourceCache* localCache) {
-    BitmapKey key(genID, SK_Scalar1, SK_Scalar1, subset);
-
-    return CHECK_LOCAL(localCache, find, Find, key, BitmapRec::Finder, result);
-}
-
-bool SkBitmapCache::Add(SkPixelRef* pr, const SkIRect& subset, const SkBitmap& result,
-                        SkResourceCache* localCache) {
-    SkASSERT(result.isImmutable());
-
-    if (subset.isEmpty()
-        || subset.top() < 0
-        || subset.left() < 0
-        || result.width() != subset.width()
-        || result.height() != subset.height()) {
-        return false;
-    } else {
-        BitmapRec* rec = new BitmapRec(pr->getGenerationID(), 1, 1, subset, result);
-
-        CHECK_LOCAL(localCache, add, Add, rec);
-        pr->notifyAddedToCache();
-        return true;
-    }
-}
-
 bool SkBitmapCache::Find(uint32_t genID, SkBitmap* result, SkResourceCache* localCache) {
     BitmapKey key(genID, SK_Scalar1, SK_Scalar1, SkIRect::MakeEmpty());
 
