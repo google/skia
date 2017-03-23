@@ -207,6 +207,91 @@
     },
     {
       "key": {
+        "uuid": "8911fff4_11dc9660",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T14:10:45Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6536af4_af892605",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T14:10:45Z",
+      "side": 1,
+      "message": "This comment could use some punctuation",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11f938c4_abe4b0a7",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T14:10:45Z",
+      "side": 1,
+      "message": "iter.conicWeight() -\u003e w ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba1cf6c6_7f1c48ad",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T14:10:45Z",
+      "side": 1,
+      "message": "Should we assert we don\u0027t see any move verbs ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70dbd543_cdde8064",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T14:10:45Z",
+      "side": 1,
+      "message": "Does this system always assume there is a close?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f47b6847_9e0a05fb",
         "filename": "tests/InsetConvexPolyTest.cpp",
         "patchSetId": 11
@@ -218,6 +303,40 @@
       "writtenOn": "2017-03-23T13:38:44Z",
       "side": 1,
       "message": "time warp ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdf14347_8129cc47",
+        "filename": "tests/InsetConvexPolyTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T14:10:45Z",
+      "side": 1,
+      "message": "Just return false here ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44278e16_d483d964",
+        "filename": "tests/InsetConvexPolyTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-23T14:10:45Z",
+      "side": 1,
+      "message": "Just return true here  ?",
       "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
