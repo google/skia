@@ -409,9 +409,7 @@ struct BezierVertex {
     SkPoint fPos;
     union {
         struct {
-            SkScalar fK;
-            SkScalar fL;
-            SkScalar fM;
+            SkScalar fKLM[3];
         } fConic;
         SkVector   fQuadCoord;
         struct {
@@ -526,15 +524,13 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
 // k, l, m are calculated in function GrPathUtils::getConicKLM
 static void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kQuadNumVertices],
                              const SkScalar weight) {
-    SkScalar klm[9];
+    SkMatrix klm;
 
-    GrPathUtils::getConicKLM(p, weight, klm);
+    GrPathUtils::getConicKLM(p, weight, &klm);
 
     for (int i = 0; i < kQuadNumVertices; ++i) {
-        const SkPoint pnt = verts[i].fPos;
-        verts[i].fConic.fK = pnt.fX * klm[0] + pnt.fY * klm[1] + klm[2];
-        verts[i].fConic.fL = pnt.fX * klm[3] + pnt.fY * klm[4] + klm[5];
-        verts[i].fConic.fM = pnt.fX * klm[6] + pnt.fY * klm[7] + klm[8];
+        const SkScalar pt3[3] = {verts[i].fPos.x(), verts[i].fPos.y(), 1.f};
+        klm.mapHomogeneousPoints(verts[i].fConic.fKLM, pt3, 1);
     }
 }
 
