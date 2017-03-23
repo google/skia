@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "045f44dc_809d148b",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-23T20:59:03Z",
+      "side": 0,
+      "message": "This code was still present,. That meant that we never found a preserving conversion pair, and we were always falling back to SW premul/unpremul. Oops.",
+      "revId": "e2dad1081cf4ad93a7466aaa2e3568da62abd94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e2bd6db_36055eb1",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-23T20:59:03Z",
+      "side": 0,
+      "message": "I originally intended to hoist this check to the calling code, and didn\u0027t. That meant that sRGB configs were now going through this code, but in a strange way. I\u0027ve restored that check in the GrContext code for now - I want to correctly handle sRGB premul in a separate change.",
+      "revId": "e2dad1081cf4ad93a7466aaa2e3568da62abd94a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
