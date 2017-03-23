@@ -194,11 +194,9 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, SkPMColor*, int*,
                                          int* rowsDecodedPtr) {
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        return kInvalidConversion;
-    }
-
-    if (!this->initializeColorXform(dstInfo)) {
+    if (!conversion_possible(dstInfo, this->getInfo()) ||
+        !this->initializeColorXform(dstInfo, options.fPremulBehavior))
+    {
         return kInvalidConversion;
     }
 

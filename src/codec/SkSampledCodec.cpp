@@ -75,6 +75,7 @@ SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void
     // Create an Options struct for the codec.
     SkCodec::Options codecOptions;
     codecOptions.fZeroInitialized = options.fZeroInitialized;
+    codecOptions.fPremulBehavior = SkTransferFunctionBehavior::kIgnore;
 
     SkIRect* subset = options.fSubset;
     if (!subset || subset->size() == this->codec()->getInfo().dimensions()) {
@@ -171,6 +172,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
     // Create options struct for the codec.
     SkCodec::Options sampledOptions;
     sampledOptions.fZeroInitialized = options.fZeroInitialized;
+    sampledOptions.fPremulBehavior = SkTransferFunctionBehavior::kIgnore;
 
     // FIXME: This was already called by onGetAndroidPixels. Can we reduce that?
     int sampleSize = options.fSampleSize;

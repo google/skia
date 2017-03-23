@@ -119,7 +119,7 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
 
     SkEncodeOptions options;
     if (bitmap.colorSpace()) {
-        options.fColorBehavior = SkEncodeOptions::ColorBehavior::kCorrect;
+        options.fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
     }
 
     switch (format) {

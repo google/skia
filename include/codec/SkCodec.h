@@ -249,9 +249,10 @@ public:
             , fSubset(nullptr)
             , fFrameIndex(0)
             , fHasPriorFrame(false)
+            , fPremulBehavior(SkTransferFunctionBehavior::kRespect)
         {}
 
-        ZeroInitialized             fZeroInitialized;
+        ZeroInitialized            fZeroInitialized;
         /**
          *  If not NULL, represents a subset of the original image to decode.
          *  Must be within the bounds returned by getInfo().
@@ -269,14 +270,14 @@ public:
          *  subset left and subset width to decode partial scanlines on calls
          *  to getScanlines().
          */
-        const SkIRect*              fSubset;
+        const SkIRect*             fSubset;
 
         /**
          *  The frame to decode.
          *
          *  Only meaningful for multi-frame images.
          */
-        size_t fFrameIndex;
+        size_t                     fFrameIndex;
 
         /**
          *  If true, the dst already contains the prior frame.
@@ -295,7 +296,15 @@ public:
          *  codec needs to first decode the prior frame (which in turn may need
          *  to decode its prior frame).
          */
-        bool   fHasPriorFrame;
+        bool                       fHasPriorFrame;
+
+        /**
+         *  Indicates whether we should do a linear premultiply or a legacy premultiply.
+         *
+         *  In the case where the dst SkColorSpace is nullptr, this flag is ignored and
+         *  we will always do a legacy premultiply.
+         */
+        SkTransferFunctionBehavior fPremulBehavior;
     };
 
     /**
@@ -781,7 +790,8 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    bool initializeColorXform(const SkImageInfo& dstInfo);
+    bool initializeColorXform(const SkImageInfo& dstInfo,
+                              SkTransferFunctionBehavior premulBehavior);
     SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
 
     virtual std::vector<FrameInfo> onGetFrameInfo() {

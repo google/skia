@@ -9,7 +9,7 @@
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorSpace.h"
-#include "SkColorSpaceXform.h"
+#include "SkColorSpaceXform_Base.h"
 #include "SkData.h"
 #include "SkGifCodec.h"
 #include "SkHalf.h"
@@ -474,11 +474,14 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
     }
 }
 
-bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo) {
+bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo,
+                                   SkTransferFunctionBehavior premulBehavior) {
     fColorXform = nullptr;
-    bool needsPremul = needs_premul(dstInfo, fEncodedInfo);
-    if (needs_color_xform(dstInfo, fSrcInfo, needsPremul)) {
-        fColorXform = SkColorSpaceXform::New(fSrcInfo.colorSpace(), dstInfo.colorSpace());
+    bool needsColorCorrectPremul = needs_premul(dstInfo, fEncodedInfo) &&
+                                   SkTransferFunctionBehavior::kRespect == premulBehavior;
+    if (needs_color_xform(dstInfo, fSrcInfo, needsColorCorrectPremul)) {
+        fColorXform = SkColorSpaceXform_Base::New(fSrcInfo.colorSpace(), dstInfo.colorSpace(),
+                                                  premulBehavior);
         if (!fColorXform) {
             return false;
         }

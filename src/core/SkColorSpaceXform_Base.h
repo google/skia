@@ -19,6 +19,9 @@ class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
     static constexpr int kDstGammaTableSize = 1024;
 
+    static std::unique_ptr<SkColorSpaceXform> New(SkColorSpace* srcSpace, SkColorSpace* dstSpace,
+                                                  SkTransferFunctionBehavior premulBehavior);
+
 protected:
     virtual bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
                          int count, SkAlphaType alphaType) const = 0;
@@ -61,22 +64,22 @@ private:
                        int count, SkAlphaType alphaType) const;
 
     SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
-                          SkColorSpace_XYZ* dstSpace);
+                          SkColorSpace_XYZ* dstSpace, SkTransferFunctionBehavior premulBehavior);
 
     // Contain pointers into storage or pointers into precomputed tables.
-    const float*         fSrcGammaTables[3];
-    SkAutoTMalloc<float> fSrcStorage;
-    const uint8_t*       fDstGammaTables[3];
-    sk_sp<SkData>        fDstStorage;
+    const float*               fSrcGammaTables[3];
+    SkAutoTMalloc<float>       fSrcStorage;
+    const uint8_t*             fDstGammaTables[3];
+    sk_sp<SkData>              fDstStorage;
 
     // Holds a 3x4 matrix.  Padding is useful for vector loading.
-    float                fSrcToDst[13];
+    float                      fSrcToDst[13];
 
-    SrcGamma             fSrcGamma;
-    DstGamma             fDstGamma;
-    bool                 fLinearBlending;
+    SrcGamma                   fSrcGamma;
+    DstGamma                   fDstGamma;
+    SkTransferFunctionBehavior fPremulBehavior;
 
-    friend class SkColorSpaceXform;
+    friend class SkColorSpaceXform_Base;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 

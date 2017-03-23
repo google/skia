@@ -181,7 +181,7 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& src, const SkEncodeOp
              src.colorSpace()->gammaIsLinear());
 
     SkPixmap pixmap = src;
-    if (SkEncodeOptions::ColorBehavior::kLegacy == opts.fColorBehavior) {
+    if (SkTransferFunctionBehavior::kIgnore == opts.fUnpremulBehavior) {
         pixmap.setColorSpace(nullptr);
     } else {
         if (!pixmap.colorSpace()) {
