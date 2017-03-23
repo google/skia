@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8efe7d2_0060cab9",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T20:00:45Z",
+      "side": 1,
+      "message": "This will reserve space for 1024 EdgeDatas, previously it was 1024 bytes / sizeof(EdgeData).",
+      "range": {
+        "startLine": 143,
+        "startChar": 19,
+        "endLine": 143,
+        "endChar": 23
+      },
+      "revId": "f8dd290ded432070783ac66af974d5d15dac406b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e229c1cc_a9817bd6",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T20:00:45Z",
+      "side": 1,
+      "message": "This constructor param should just be inputPolygonSize .",
+      "range": {
+        "startLine": 143,
+        "startChar": 44,
+        "endLine": 143,
+        "endChar": 53
+      },
+      "revId": "f8dd290ded432070783ac66af974d5d15dac406b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
