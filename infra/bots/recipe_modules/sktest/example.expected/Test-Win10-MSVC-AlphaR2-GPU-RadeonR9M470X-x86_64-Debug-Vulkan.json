@@ -369,12 +369,7 @@
       "_",
       "image",
       "_",
-      ".SRW",
-      "--match",
-      "~ComposedImageFilterBounds_Gpu",
-      "~CopySurface",
-      "~ImageFilterZeroBlurSigma_Gpu",
-      "~XfermodeImageFilterCroppedInput_Gpu"
+      ".SRW"
     ],
     "env": {
       "BUILDTYPE": "Debug_x64",
