@@ -95,7 +95,8 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
 
     bool needsDomain = false;
     if (copyParams.fFilter != GrSamplerParams::kNone_FilterMode) {
-        bool resizing = subset->width() != dstRect.width() || subset->height() != dstRect.height();
+        bool resizing = localRect.width()  != dstRect.width() ||
+                        localRect.height() != dstRect.height();
 
         if (GrResourceProvider::IsFunctionallyExact(inputProxy.get())) {
             needsDomain = subset && resizing;

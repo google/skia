@@ -102,9 +102,16 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
 
 GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams, bool willBeMipped,
                                                     SkColorSpace* dstColorSpace) {
-    sk_sp<GrTexture> original(this->refOriginalTexture(willBeMipped, dstColorSpace));
+    sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace));
     if (!original) {
         return nullptr;
     }
-    return CopyOnGpu(original.get(), nullptr, copyParams);
+
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(original), nullptr, copyParams);
+    if (!copy) {
+        return nullptr;
+    }
+
+    sk_sp<GrTexture> tex(SkSafeRef(copy->instantiate(fContext->resourceProvider())));
+    return tex.release();
 }
