@@ -60,32 +60,19 @@ protected:
         sk_sp<SkDrawLooper> shadowLoopers[] = {
               SkBlurDrawLooper::Make(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
-                                     SkIntToScalar(5), SkIntToScalar(10),
-                                     SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                     SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag),
+                                     SkIntToScalar(5), SkIntToScalar(10)),
               SkBlurDrawLooper::Make(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
-                                     SkIntToScalar(5), SkIntToScalar(10),
-                                     SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                     SkBlurDrawLooper::kOverrideColor_BlurFlag),
+                                     SkIntToScalar(5), SkIntToScalar(10)),
               SkBlurDrawLooper::Make(SK_ColorBLACK,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                                      SkIntToScalar(5),
-                                     SkIntToScalar(10),
-                                     SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag),
+                                     SkIntToScalar(10)),
               SkBlurDrawLooper::Make(0x7FFF0000,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
-                                     SkIntToScalar(-5), SkIntToScalar(-10),
-                                     SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                     SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag),
+                                     SkIntToScalar(-5), SkIntToScalar(-10)),
             SkBlurDrawLooper::Make(SK_ColorBLACK, SkIntToScalar(0),
-                                     SkIntToScalar(5), SkIntToScalar(5),
-                                     SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                     SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag),
+                                     SkIntToScalar(5), SkIntToScalar(5)),
         };
 
         constexpr struct {

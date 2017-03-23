@@ -19,45 +19,25 @@
 #include "SkStringUtils.h"
 
 SkBlurDrawLooper::SkBlurDrawLooper(SkColor color, SkScalar sigma,
-                                   SkScalar dx, SkScalar dy, uint32_t flags) {
-    this->init(sigma, dx, dy, color, flags);
+                                   SkScalar dx, SkScalar dy) {
+    this->init(sigma, dx, dy, color);
 }
 
 // only call from constructor
 void SkBlurDrawLooper::initEffects() {
-    SkASSERT(fBlurFlags <= kAll_BlurFlag);
     if (fSigma > 0) {
-        uint32_t flags = fBlurFlags & kIgnoreTransform_BlurFlag ?
-                            SkBlurMaskFilter::kIgnoreTransform_BlurFlag :
-                            SkBlurMaskFilter::kNone_BlurFlag;
-
-        flags |= fBlurFlags & kHighQuality_BlurFlag ?
-                    SkBlurMaskFilter::kHighQuality_BlurFlag :
-                    SkBlurMaskFilter::kNone_BlurFlag;
-
-        fBlur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, fSigma, flags);
+        fBlur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, fSigma,
+                                       SkBlurMaskFilter::kNone_BlurFlag);
     } else {
         fBlur = nullptr;
     }
-
-    if (fBlurFlags & kOverrideColor_BlurFlag) {
-        // Set alpha to 1 for the override since transparency will already
-        // be baked into the blurred mask.
-        SkColor opaqueColor = SkColorSetA(fBlurColor, 255);
-        //The SrcIn xfer mode will multiply 'color' by the incoming alpha
-        fColorFilter = SkColorFilter::MakeModeFilter(opaqueColor, SkBlendMode::kSrcIn);
-    } else {
-        fColorFilter = nullptr;
-    }
 }
 
-void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
-                            SkColor color, uint32_t flags) {
+void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy, SkColor color) {
     fSigma = sigma;
     fDx = dx;
     fDy = dy;
     fBlurColor = color;
-    fBlurFlags = flags;
 
     this->initEffects();
 }
@@ -67,8 +47,7 @@ sk_sp<SkFlattenable> SkBlurDrawLooper::CreateProc(SkReadBuffer& buffer) {
     const SkScalar sigma = buffer.readScalar();
     const SkScalar dx = buffer.readScalar();
     const SkScalar dy = buffer.readScalar();
-    const uint32_t flags = buffer.read32();
-    return Make(color, sigma, dx, dy, flags);
+    return Make(color, sigma, dx, dy);
 }
 
 void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {
@@ -76,11 +55,10 @@ void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fSigma);
     buffer.writeScalar(fDx);
     buffer.writeScalar(fDy);
-    buffer.write32(fBlurFlags);
 }
 
 bool SkBlurDrawLooper::asABlurShadow(BlurShadowRec* rec) const {
-    if (fSigma <= 0 || (fBlurFlags & fBlurFlags & kIgnoreTransform_BlurFlag)) {
+    if (fSigma <= 0) {
         return false;
     }
 
@@ -89,8 +67,7 @@ bool SkBlurDrawLooper::asABlurShadow(BlurShadowRec* rec) const {
         rec->fColor = fBlurColor;
         rec->fOffset.set(fDx, fDy);
         rec->fStyle = kNormal_SkBlurStyle;
-        rec->fQuality = (fBlurFlags & kHighQuality_BlurFlag) ?
-                        kHigh_SkBlurQuality : kLow_SkBlurQuality;
+        rec->fQuality = kLow_SkBlurQuality;
     }
     return true;
 }
@@ -126,15 +103,8 @@ bool SkBlurDrawLooper::BlurDrawLooperContext::next(SkCanvas* canvas,
             paint->setColor(fLooper->fBlurColor);
 #endif
             paint->setMaskFilter(fLooper->fBlur);
-            paint->setColorFilter(fLooper->fColorFilter);
             canvas->save();
-            if (fLooper->fBlurFlags & kIgnoreTransform_BlurFlag) {
-                SkMatrix transform(canvas->getTotalMatrix());
-                transform.postTranslate(fLooper->fDx, fLooper->fDy);
-                canvas->setMatrix(transform);
-            } else {
-                canvas->translate(fLooper->fDx, fLooper->fDy);
-            }
+            canvas->translate(fLooper->fDx, fLooper->fDy);
             fState = kAfterEdge;
             return true;
         case kAfterEdge:
@@ -160,19 +130,7 @@ void SkBlurDrawLooper::toString(SkString* str) const {
     str->append(" color: ");
     str->appendHex(fBlurColor);
 
-    str->append(" flags: (");
-    if (kNone_BlurFlag == fBlurFlags) {
-        str->append("None");
-    } else {
-        bool needsSeparator = false;
-        SkAddFlagToString(str, SkToBool(kIgnoreTransform_BlurFlag & fBlurFlags), "IgnoreTransform",
-                          &needsSeparator);
-        SkAddFlagToString(str, SkToBool(kOverrideColor_BlurFlag & fBlurFlags), "OverrideColor",
-                          &needsSeparator);
-        SkAddFlagToString(str, SkToBool(kHighQuality_BlurFlag & fBlurFlags), "HighQuality",
-                          &needsSeparator);
-    }
-    str->append(")");
+    str->append(" flags: (None)");
 
     // TODO: add optional "fBlurFilter->toString(str);" when SkMaskFilter::toString is added
     // alternatively we could cache the radius in SkBlurDrawLooper and just add it here
