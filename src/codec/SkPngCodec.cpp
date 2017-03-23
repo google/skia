@@ -1093,7 +1093,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     // interlaced scanline decoder may need to rewind.
     fSwizzler.reset(nullptr);
 
-    if (!this->initializeColorXform(dstInfo)) {
+    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
         return false;
     }
 

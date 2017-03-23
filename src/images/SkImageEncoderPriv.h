@@ -11,15 +11,7 @@
 #include "SkImageEncoder.h"
 
 struct SkEncodeOptions {
-    enum class ColorBehavior {
-         // Convert to a linear space before premultiplying or unpremultiplying.
-        kCorrect,
-
-        // Ignore the transfer function when premultiplying or unpremultiplying.
-        kLegacy,
-    };
-
-    ColorBehavior fColorBehavior = ColorBehavior::kLegacy;
+    SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
 };
 
 #ifdef SK_HAS_JPEG_LIBRARY

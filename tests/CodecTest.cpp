@@ -1555,7 +1555,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
     srgbBitmap.peekPixels(&pixmap);
     SkDynamicMemoryWStream srgbBuf;
     SkEncodeOptions opts;
-    opts.fColorBehavior = SkEncodeOptions::ColorBehavior::kCorrect;
+    opts.fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
     encode_format(&srgbBuf, pixmap, opts, format);
     sk_sp<SkData> srgbData = srgbBuf.detachAsData();
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::NewFromData(srgbData));

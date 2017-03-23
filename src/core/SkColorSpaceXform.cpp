@@ -292,6 +292,12 @@ void SkColorSpaceXform_Base::BuildDstGammaTables(const uint8_t* dstGammaTables[3
 
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace,
                                                           SkColorSpace* dstSpace) {
+    return SkColorSpaceXform_Base::New(srcSpace, dstSpace, SkTransferFunctionBehavior::kRespect);
+}
+
+std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform_Base::New(SkColorSpace* srcSpace,
+        SkColorSpace* dstSpace, SkTransferFunctionBehavior premulBehavior) {
+
     if (!srcSpace || !dstSpace) {
         // Invalid input
         return nullptr;
@@ -328,13 +334,13 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
     switch (csm) {
         case kNone_ColorSpaceMatch:
             return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
-                    <kNone_ColorSpaceMatch>(srcSpaceXYZ, srcToDst, dstSpaceXYZ));
+                    <kNone_ColorSpaceMatch>(srcSpaceXYZ, srcToDst, dstSpaceXYZ, premulBehavior));
         case kGamut_ColorSpaceMatch:
             return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
-                    <kGamut_ColorSpaceMatch>(srcSpaceXYZ, srcToDst, dstSpaceXYZ));
+                    <kGamut_ColorSpaceMatch>(srcSpaceXYZ, srcToDst, dstSpaceXYZ, premulBehavior));
         case kFull_ColorSpaceMatch:
             return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
-                    <kFull_ColorSpaceMatch>(srcSpaceXYZ, srcToDst, dstSpaceXYZ));
+                    <kFull_ColorSpaceMatch>(srcSpaceXYZ, srcToDst, dstSpaceXYZ, premulBehavior));
         default:
             SkASSERT(false);
             return nullptr;
@@ -931,8 +937,8 @@ static AI int num_tables(SkColorSpace_XYZ* space) {
 template <ColorSpaceMatch kCSM>
 SkColorSpaceXform_XYZ<kCSM>
 ::SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
-                        SkColorSpace_XYZ* dstSpace)
-    : fLinearBlending(!dstSpace->nonLinearBlending())
+                        SkColorSpace_XYZ* dstSpace, SkTransferFunctionBehavior premulBehavior)
+    : fPremulBehavior(premulBehavior)
 {
     fSrcToDst[ 0] = srcToDst.get(0, 0);
     fSrcToDst[ 1] = srcToDst.get(1, 0);
@@ -1227,7 +1233,8 @@ bool SkColorSpaceXform_XYZ<kCSM>
         }
     }
 
-    if (kPremul_SkAlphaType == alphaType && fLinearBlending) {
+    if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kRespect == fPremulBehavior)
+    {
         pipeline.append(SkRasterPipeline::premul);
     }
 
@@ -1249,7 +1256,8 @@ bool SkColorSpaceXform_XYZ<kCSM>
             break;
     }
 
-    if (kPremul_SkAlphaType == alphaType && !fLinearBlending) {
+    if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kIgnore == fPremulBehavior)
+    {
         pipeline.append(SkRasterPipeline::premul);
     }
 
@@ -1262,13 +1270,13 @@ bool SkColorSpaceXform_XYZ<kCSM>
             pipeline.append(SkRasterPipeline::store_8888, &dst);
             break;
         case kRGBA_F16_ColorFormat:
-            if (kLinear_DstGamma != fDstGamma || !fLinearBlending) {
+            if (kLinear_DstGamma != fDstGamma) {
                 return false;
             }
             pipeline.append(SkRasterPipeline::store_f16, &dst);
             break;
         case kRGBA_F32_ColorFormat:
-            if (kLinear_DstGamma != fDstGamma || !fLinearBlending) {
+            if (kLinear_DstGamma != fDstGamma) {
                 return false;
             }
             pipeline.append(SkRasterPipeline::store_f32, &dst);
@@ -1284,6 +1292,6 @@ bool SkColorSpaceXform_XYZ<kCSM>
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space) {
-    return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
-            <kNone_ColorSpaceMatch>(space, SkMatrix::I(), space));
+    return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ<kNone_ColorSpaceMatch>
+            (space, SkMatrix::I(), space, SkTransferFunctionBehavior::kRespect));
 }

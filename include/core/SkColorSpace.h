@@ -174,4 +174,17 @@ protected:
     SkColorSpace() {}
 };
 
+enum class SkTransferFunctionBehavior {
+    /**
+     *  Converts to a linear space before premultiplying, unpremultiplying, or blending.
+     */
+    kRespect,
+
+    /**
+     *  Premultiplies, unpremultiplies, and blends ignoring the transfer function.  Pixels are
+     *  treated as if they are linear, regardless of their transfer function encoding.
+     */
+    kIgnore,
+};
+
 #endif
