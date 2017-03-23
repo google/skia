@@ -86,7 +86,7 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, const SkEnco
             pixmap.colorSpace()->gammaIsLinear());
 
     SkPixmap src = pixmap;
-    if (SkEncodeOptions::ColorBehavior::kLegacy == opts.fColorBehavior) {
+    if (SkTransferFunctionBehavior::kIgnore == opts.fUnpremulBehavior) {
         src.setColorSpace(nullptr);
     } else {
         // kCorrect behavior requires a color space.  It's not actually critical in the

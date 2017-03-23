@@ -301,7 +301,7 @@ static inline bool needs_premul(const SkImageInfo& dstInfo, const SkEncodedInfo&
 }
 
 static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
-                                     bool needsPremul) {
+                                     bool needsColorCorrectPremul) {
     // We never perform a color xform in legacy mode.
     if (!dstInfo.colorSpace()) {
         return false;
@@ -313,10 +313,6 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageIn
     // Need a color xform when dst space does not match the src.
     bool srcDstNotEqual =
             !SkColorSpace_Base::EqualsIgnoreFlags(srcInfo.colorSpace(), dstInfo.colorSpace());
-
-    // We provide the option for both legacy premuls and color correct premuls.
-    bool needsColorCorrectPremul =
-            needsPremul && !as_CSB(dstInfo.colorSpace())->nonLinearBlending();
 
     return needsColorCorrectPremul || isF16 || srcDstNotEqual;
 }
