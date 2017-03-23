@@ -23,8 +23,10 @@ public:
      *  in order to correct the absolute texture coordinates.
      *  Places the color space of the texture in (*texColorSpace).
      */
-    GrTexture* refTextureForParams(const GrSamplerParams&, SkColorSpace* dstColorSpace,
-                                   sk_sp<SkColorSpace>* texColorSpace, SkScalar scaleAdjust[2]);
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams&,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* texColorSpace,
+                                                   SkScalar scaleAdjust[2]);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
@@ -62,8 +64,9 @@ protected:
      *  Subclass may override this if they can handle creating the texture more directly than
      *  by copying.
      */
-    virtual GrTexture* generateTextureForParams(const CopyParams&, bool willBeMipped,
-                                                SkColorSpace* dstColorSpace);
+    virtual sk_sp<GrTextureProxy> generateTextureProxyForParams(const CopyParams&,
+                                                                bool willBeMipped,
+                                                                SkColorSpace* dstColorSpace);
 
     GrContext* context() const { return fContext; }
 
