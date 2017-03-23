@@ -14,9 +14,10 @@
 #include "SkPicture.h"
 #include "SkSurface.h"
 #include "gm.h"
-#include <deque>
+#include <chrono>
 #include <functional>
 #include <future>
+#include <list>
 #include <map>
 #include <memory>
 #include <regex>
@@ -49,7 +50,7 @@ struct SerialEngine : Engine {
 };
 
 struct ThreadEngine : Engine {
-    std::deque<std::future<Status>> live;
+    std::list<std::future<Status>> live;
 
     bool spawn(std::function<Status(void)> fn) override {
         live.push_back(std::async(std::launch::async, fn));
@@ -60,9 +61,16 @@ struct ThreadEngine : Engine {
         if (live.empty()) {
             return Status::None;
         }
-        Status s = live.front().get();
-        live.pop_front();
-        return s;
+
+        for (;;) {
+            for (auto it = live.begin(); it != live.end(); it++) {
+                if (it->wait_for(std::chrono::seconds::zero()) == std::future_status::ready) {
+                    Status s = it->get();
+                    live.erase(it);
+                    return s;
+                }
+            }
+        }
     }
 };
 
