@@ -266,6 +266,135 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     return kDomain_DomainMode;
 }
 
+GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
+                                const SkRect& constraintRect,
+                                FilterConstraint filterConstraint,
+                                bool coordsLimitedToConstraintRect,
+                                GrTextureProxy*,
+                                const SkIRect* textureContentArea,
+                                const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
+                                SkRect* domainRect) {
+#if 0
+    SkASSERT(SkRect::MakeIWH(texW, texH).contains(constraintRect));
+    // We only expect a content area rect if there is some non-content area.
+    SkASSERT(!textureContentArea ||
+             (!textureContentArea->contains(SkIRect::MakeWH(texW, texH)) &&
+              SkRect::Make(*textureContentArea).contains(constraintRect)));
+
+    SkRect textureBounds = SkRect::MakeIWH(texW, texH);
+    // If the src rectangle contains the whole texture then no need for a domain.
+    if (constraintRect.contains(textureBounds)) {
+        return kNoDomain_DomainMode;
+    }
+
+    bool restrictFilterToRect = (filterConstraint == GrTextureProducer::kYes_FilterConstraint);
+
+    // If we can filter outside the constraint rect, and there is no non-content area of the
+    // texture, and we aren't going to generate sample coords outside the constraint rect then we
+    // don't need a domain.
+    if (!restrictFilterToRect && !textureContentArea && coordsLimitedToConstraintRect) {
+        return kNoDomain_DomainMode;
+    }
+
+    // Get the domain inset based on sampling mode (or bail if mipped)
+    SkScalar filterHalfWidth = 0.f;
+    if (filterModeOrNullForBicubic) {
+        switch (*filterModeOrNullForBicubic) {
+            case GrSamplerParams::kNone_FilterMode:
+                if (coordsLimitedToConstraintRect) {
+                    return kNoDomain_DomainMode;
+                } else {
+                    filterHalfWidth = 0.f;
+                }
+                break;
+            case GrSamplerParams::kBilerp_FilterMode:
+                filterHalfWidth = .5f;
+                break;
+            case GrSamplerParams::kMipMap_FilterMode:
+                if (restrictFilterToRect || textureContentArea) {
+                    // No domain can save us here.
+                    return kTightCopy_DomainMode;
+                }
+                return kNoDomain_DomainMode;
+        }
+    } else {
+        // bicubic does nearest filtering internally.
+        filterHalfWidth = 1.5f;
+    }
+
+    // Both bilerp and bicubic use bilinear filtering and so need to be clamped to the center
+    // of the edge texel. Pinning to the texel center has no impact on nearest mode and MIP-maps
+
+    static const SkScalar kDomainInset = 0.5f;
+    // Figure out the limits of pixels we're allowed to sample from.
+    // Unless we know the amount of outset and the texture matrix we have to conservatively enforce
+    // the domain.
+    if (restrictFilterToRect) {
+        *domainRect = constraintRect.makeInset(kDomainInset, kDomainInset);
+    } else if (textureContentArea) {
+        // If we got here then: there is a textureContentArea, the coords are limited to the
+        // constraint rect, and we're allowed to filter across the constraint rect boundary. So
+        // we check whether the filter would reach across the edge of the content area.
+        // We will only set the sides that are required.
+
+        domainRect->setLargest();
+        if (coordsLimitedToConstraintRect) {
+            // We may be able to use the fact that the texture coords are limited to the constraint
+            // rect in order to avoid having to add a domain.
+            bool needContentAreaConstraint = false;
+            if (textureContentArea->fLeft > 0 &&
+                textureContentArea->fLeft + filterHalfWidth > constraintRect.fLeft) {
+                domainRect->fLeft = textureContentArea->fLeft + kDomainInset;
+                needContentAreaConstraint = true;
+            }
+            if (textureContentArea->fTop > 0 &&
+                textureContentArea->fTop + filterHalfWidth > constraintRect.fTop) {
+                domainRect->fTop = textureContentArea->fTop + kDomainInset;
+                needContentAreaConstraint = true;
+            }
+            if (textureContentArea->fRight < texW &&
+                textureContentArea->fRight - filterHalfWidth < constraintRect.fRight) {
+                domainRect->fRight = textureContentArea->fRight - kDomainInset;
+                needContentAreaConstraint = true;
+            }
+            if (textureContentArea->fBottom < texH &&
+                textureContentArea->fBottom - filterHalfWidth < constraintRect.fBottom) {
+                domainRect->fBottom = textureContentArea->fBottom - kDomainInset;
+                needContentAreaConstraint = true;
+            }
+            if (!needContentAreaConstraint) {
+                return kNoDomain_DomainMode;
+            }
+        } else {
+            // Our sample coords for the texture are allowed to be outside the constraintRect so we
+            // don't consider it when computing the domain.
+            if (textureContentArea->fLeft != 0) {
+                domainRect->fLeft = textureContentArea->fLeft + kDomainInset;
+            }
+            if (textureContentArea->fTop != 0) {
+                domainRect->fTop = textureContentArea->fTop + kDomainInset;
+            }
+            if (textureContentArea->fRight != texW) {
+                domainRect->fRight = textureContentArea->fRight - kDomainInset;
+            }
+            if (textureContentArea->fBottom != texH) {
+                domainRect->fBottom = textureContentArea->fBottom - kDomainInset;
+            }
+        }
+    } else {
+        return kNoDomain_DomainMode;
+    }
+
+    if (domainRect->fLeft > domainRect->fRight) {
+        domainRect->fLeft = domainRect->fRight = SkScalarAve(domainRect->fLeft, domainRect->fRight);
+    }
+    if (domainRect->fTop > domainRect->fBottom) {
+        domainRect->fTop = domainRect->fBottom = SkScalarAve(domainRect->fTop, domainRect->fBottom);
+    }
+#endif
+    return kDomain_DomainMode;
+}
+
 sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
                                         GrTexture* texture,
                                         sk_sp<GrColorSpaceXform> colorSpaceXform,
