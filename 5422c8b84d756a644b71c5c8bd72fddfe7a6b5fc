@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5200475d_4072c2b3",
+        "filename": "experimental/docs/paint.bmh",
+        "patchSetId": 16
+      },
+      "lineNbr": 1330,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-23T17:28:43Z",
+      "side": 1,
+      "message": "Not clear to me that documenting deprecated features is useful for someone reading the documentation to find out how Skia works.",
+      "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff8a2911_19f5b6d1",
+        "filename": "experimental/docs/paint.bmh",
+        "patchSetId": 16
+      },
+      "lineNbr": 1958,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-23T17:28:43Z",
+      "side": 1,
+      "message": "I suggest that the SkColorSetARGB() macro be the canonical way to construct a SkColor from four numbers.  We don\u0027t need to document the internal structure of SkColor if we just tell users to always use SkColorSetARGB and SkColorGet{A,R,G,B}.\n\nQuestion:  should we have a pointer to colorspace/gamut documentation here?  Is the paint\u0027s color relative to the surface\u0027s colorspace?   Is this the same or different for a SkColorShader",
+      "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ce35f36_d36bfa5b",
+        "filename": "experimental/docs/paint.bmh",
+        "patchSetId": 16
+      },
+      "lineNbr": 1967,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-23T17:28:43Z",
+      "side": 1,
+      "message": "green3.setColor(SkColorSetARGB(a,r,g,b));",
+      "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e228936_6038b029",
+        "filename": "experimental/docs/paint.bmh",
+        "patchSetId": 16
+      },
+      "lineNbr": 3267,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-03-23T17:28:43Z",
+      "side": 1,
+      "message": "I think I remember that bungeman@ considers the canonical way of creating a SkTypeface is to go through the SkFontMgr interface.  https://fiddle.skia.org/c/@SkFontMgr_example\n\nI do not know if this is what our documentation should do instead of the factories inside SkTypeface.",
+      "revId": "5422c8b84d756a644b71c5c8bd72fddfe7a6b5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
