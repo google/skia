@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "bc852596_ae3025a2",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T13:43:30Z",
+      "side": 1,
+      "message": "SkPath computes this when it determines the convexity of the path. Perhaps we can just export it?",
+      "range": {
+        "startLine": 32,
+        "startChar": 11,
+        "endLine": 32,
+        "endChar": 22
+      },
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "517bed60_1131d446",
         "filename": "src/utils/SkInsetConvexPolygon.cpp",
         "patchSetId": 11
@@ -13,6 +36,29 @@
       "writtenOn": "2017-03-23T13:38:44Z",
       "side": 1,
       "message": "SkScalarNearlyZero seems overkill here",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "267a1af7_0d13fbfa",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T13:43:30Z",
+      "side": 1,
+      "message": "Isn\u0027t side an int?",
+      "range": {
+        "startLine": 41,
+        "startChar": 13,
+        "endLine": 41,
+        "endChar": 31
+      },
       "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -47,6 +93,29 @@
       "writtenOn": "2017-03-23T13:38:44Z",
       "side": 1,
       "message": "Maybe: normal -\u003e perp ?",
+      "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "154f7c21_7b83acea",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-23T13:43:30Z",
+      "side": 1,
+      "message": "Should we use setLength()? or maybe setLengthFast()?",
+      "range": {
+        "startLine": 58,
+        "startChar": 3,
+        "endLine": 59,
+        "endChar": 25
+      },
       "revId": "b2eadfaf58e16f4060f7f64cd57eb2115633599d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
