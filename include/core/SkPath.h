@@ -450,6 +450,13 @@ public:
         (x1,y1), and ending at (x2,y2). If no moveTo() call has been made for
         this contour, the first point is automatically set to (0,0).
 
+        If the starting point is (x0, y0), then this curve is defined as the
+        paramentric curve as `t` goes from 0 to 1:
+
+          s := 1 - t
+          x := (s * s * x0) + (2 * s * t * x1) + (t * t * x2)
+          y := (s * s * y0) + (2 * s * t * y1) + (t * t * y2)
+
         @param x1   The x-coordinate of the control point on a quadratic curve
         @param y1   The y-coordinate of the control point on a quadratic curve
         @param x2   The x-coordinate of the end point on a quadratic curve
@@ -483,6 +490,25 @@ public:
     */
     void rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2);
 
+    /** Add a weighted quadratic bezier from the last point, approaching control point
+        (x1,y1), and ending at (x2,y2). If no moveTo() call has been made for
+        this contour, the first point is automatically set to (0,0).
+
+        If the starting point is (x0, y0), then this curve is defined as the
+        paramentric curve as `t` goes from 0 to 1:
+
+          s := 1 - t
+          x := ((s * s * x0) + (w * 2 * s * t * x1) + (t * t * x2)) /
+               ((s * s) + (w * 2 * s * t) + (t * t))
+          y := ((s * s * y0) + (w * 2 * s * t * y1) + (t * t * y2)) /
+               ((s * s) + (w * 2 * s * t) + (t * t))
+
+        @param x1   The x-coordinate of the control point on a quadratic curve
+        @param y1   The y-coordinate of the control point on a quadratic curve
+        @param x2   The x-coordinate of the end point on a quadratic curve
+        @param y2   The y-coordinate of the end point on a quadratic curve
+        @param w    The weight of the control point (x1,y1)
+    */
     void conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                  SkScalar w);
     void conicTo(const SkPoint& p1, const SkPoint& p2, SkScalar w) {
@@ -494,6 +520,19 @@ public:
     /** Add a cubic bezier from the last point, approaching control points
         (x1,y1) and (x2,y2), and ending at (x3,y3). If no moveTo() call has been
         made for this contour, the first point is automatically set to (0,0).
+
+        If the starting point is (x0, y0), then this curve is defined as the
+        paramentric curve as `t` goes from 0 to 1:
+
+          s := 1 - t
+          x := (s * s * s * x0) +
+               (3 * s * s * t * x1) +
+               (3 * s * t * t * x2) +
+               (t * t * t * x3)
+          y := (s * s * s * y0) +
+               (3 * s * s * t * y1) +
+               (3 * s * t * t * y2) +
+               (t * t * t * y3)
 
         @param x1   The x-coordinate of the 1st control point on a cubic curve
         @param y1   The y-coordinate of the 1st control point on a cubic curve
