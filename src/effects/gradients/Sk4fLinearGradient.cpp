@@ -129,40 +129,41 @@ LinearGradient4fContext::LinearGradient4fContext(const SkLinearGradient& shader,
 
     // Our fast path expects interval points to be monotonically increasing in x.
     const bool reverseIntervals = this->isFast() && std::signbit(fDstToPos.getScaleX());
-    this->buildIntervals(shader, rec, reverseIntervals);
+    fIntervals.init(shader.fOrigColors, shader.fOrigPos, shader.fColorCount, shader.fTileMode,
+                    fColorsArePremul, rec.fPaint->getAlpha() * (1.0f / 255), reverseIntervals);
 
-    SkASSERT(fIntervals.count() > 0);
-    fCachedInterval = fIntervals.begin();
+    SkASSERT(fIntervals->count() > 0);
+    fCachedInterval = fIntervals->begin();
 }
 
-const SkGradientShaderBase::GradientShaderBase4fContext::Interval*
+const Sk4fGradientInterval*
 SkLinearGradient::LinearGradient4fContext::findInterval(SkScalar fx) const {
-    SkASSERT(in_range(fx, fIntervals.front().fP0, fIntervals.back().fP1));
+    SkASSERT(in_range(fx, fIntervals->front().fP0, fIntervals->back().fP1));
 
     if (1) {
         // Linear search, using the last scanline interval as a starting point.
-        SkASSERT(fCachedInterval >= fIntervals.begin());
-        SkASSERT(fCachedInterval < fIntervals.end());
+        SkASSERT(fCachedInterval >= fIntervals->begin());
+        SkASSERT(fCachedInterval < fIntervals->end());
         const int search_dir = fDstToPos.getScaleX() >= 0 ? 1 : -1;
         while (!in_range(fx, fCachedInterval->fP0, fCachedInterval->fP1)) {
             fCachedInterval += search_dir;
-            if (fCachedInterval >= fIntervals.end()) {
-                fCachedInterval = fIntervals.begin();
-            } else if (fCachedInterval < fIntervals.begin()) {
-                fCachedInterval = fIntervals.end() - 1;
+            if (fCachedInterval >= fIntervals->end()) {
+                fCachedInterval = fIntervals->begin();
+            } else if (fCachedInterval < fIntervals->begin()) {
+                fCachedInterval = fIntervals->end() - 1;
             }
         }
         return fCachedInterval;
     } else {
         // Binary search.  Seems less effective than linear + caching.
-        const Interval* i0 = fIntervals.begin();
-        const Interval* i1 = fIntervals.end() - 1;
+        const auto* i0 = fIntervals->begin();
+        const auto* i1 = fIntervals->end() - 1;
 
         while (i0 != i1) {
             SkASSERT(i0 < i1);
             SkASSERT(in_range(fx, i0->fP0, i1->fP1));
 
-            const Interval* i = i0 + ((i1 - i0) >> 1);
+            const auto* i = i0 + ((i1 - i0) >> 1);
 
             if (in_range(fx, i0->fP0, i->fP1)) {
                 i1 = i;
@@ -251,8 +252,8 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y,
                   &pt);
     const SkScalar fx = pinFx<tileMode>(pt.x());
     const SkScalar dx = fDstToPos.getScaleX();
-    LinearIntervalProcessor<dstType, premul, tileMode> proc(fIntervals.begin(),
-                                                            fIntervals.end() - 1,
+    LinearIntervalProcessor<dstType, premul, tileMode> proc(fIntervals->begin(),
+                                                            fIntervals->end() - 1,
                                                             this->findInterval(fx),
                                                             fx,
                                                             dx,
@@ -289,9 +290,9 @@ template<DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
 class SkLinearGradient::
 LinearGradient4fContext::LinearIntervalProcessor {
 public:
-    LinearIntervalProcessor(const Interval* firstInterval,
-                            const Interval* lastInterval,
-                            const Interval* i,
+    LinearIntervalProcessor(const Sk4fGradientInterval* firstInterval,
+                            const Sk4fGradientInterval* lastInterval,
+                            const Sk4fGradientInterval* i,
                             SkScalar fx,
                             SkScalar dx,
                             bool is_vertical)
@@ -349,10 +350,10 @@ public:
 
 private:
     void compute_interval_props(SkScalar t) {
-        fZeroRamp     = fIsVertical || fInterval->isZeroRamp();
+        fZeroRamp     = fIsVertical || fInterval->fZeroRamp;
         fCc           = DstTraits<dstType, premul>::load(fInterval->fC0);
 
-        if (fInterval->isZeroRamp()) {
+        if (fInterval->fZeroRamp) {
             fDcDx = 0;
         } else {
             const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fDc);
@@ -384,7 +385,7 @@ private:
         }
     }
 
-    const Interval* next_interval(const Interval* i) const {
+    const Sk4fGradientInterval* next_interval(const Sk4fGradientInterval* i) const {
         SkASSERT(i >= fFirstInterval);
         SkASSERT(i <= fLastInterval);
         i++;
@@ -419,11 +420,11 @@ private:
     SkScalar        fAdvX;      // remaining interval advance in dst
     bool            fZeroRamp;  // current interval color grad is 0
 
-    const Interval* fFirstInterval;
-    const Interval* fLastInterval;
-    const Interval* fInterval;  // current interval
-    const SkScalar  fDx;        // 'dx' for consistency with other impls; actually dt/dx
-    const bool      fIsVertical;
+    const Sk4fGradientInterval* fFirstInterval;
+    const Sk4fGradientInterval* fLastInterval;
+    const Sk4fGradientInterval* fInterval;  // current interval
+    const SkScalar              fDx;        // 'dx' for consistency with other impls; actually dt/dx
+    const bool                  fIsVertical;
 };
 
 void SkLinearGradient::
