@@ -138,7 +138,7 @@ class SK_API SkRefCnt : public SkRefCntBase {
     before unref(), in case the two pointers point to the same object.
  */
 
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || defined(SK_DEBUG)
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 // This version heuristically detects data races, since those otherwise result
 // in redundant reference count decrements, which are exceedingly
 // difficult to debug.
@@ -157,7 +157,7 @@ class SK_API SkRefCnt : public SkRefCntBase {
         dst = src;                      \
     } while (0)
 
-#else /* !(SK_BUILD_FOR_ANDROID_FRAMEWORK || SK_DEBUG) */
+#else /* !SK_BUILD_FOR_ANDROID_FRAMEWORK */
 
 #define SkRefCnt_SafeAssign(dst, src)   \
     do {                                \
