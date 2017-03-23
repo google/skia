@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3717ca70_50275ed0",
+        "filename": "src/effects/SkBlurDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-23T21:56:15Z",
+      "side": 0,
+      "message": "I\u0027m wondering if dropping this behavior will affect the framework...  In the new implementation, the looper won\u0027t quit if a mask filter is already installed.  Derek, do you have any idea?\n\nIf this is a problem, I think the best thing to do would be to change the framework to avoid setting a draw looper if there is already a mask filter.  But it would be good to not do anything at all if it\u0027s unnecessary.\nhttps://cs.corp.google.com/android/frameworks/base/core/jni/android/graphics/Paint.cpp?l\u003d972",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 13
+      },
+      "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
