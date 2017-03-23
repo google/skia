@@ -165,6 +165,10 @@ public:
         return paint ? &this->xform(*paint, lazy) : nullptr;
     }
 
+    SkImageInfo onImageInfo() const override {
+        return fTarget->imageInfo();
+    }
+
     void onDrawPaint(const SkPaint& paint) override {
         SkTLazy<SkPaint> lazy;
         fTarget->drawPaint(this->xform(paint, &lazy));
