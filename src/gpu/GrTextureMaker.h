@@ -43,8 +43,6 @@ protected:
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
      *  caching of the original if desired.
      */
-    virtual GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) = 0;
-
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
                                                           SkColorSpace* dstColorSpace) = 0;
 
@@ -59,7 +57,7 @@ protected:
      *
      *  The base-class handles general logic for this, and only needs access to the following
      *  method:
-     *  - refOriginalTexture()
+     *  - refOriginalTextureProxy()
      *
      *  Subclass may override this if they can handle creating the texture more directly than
      *  by copying.

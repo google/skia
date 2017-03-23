@@ -91,20 +91,6 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
-    SkAutoLockPixels alp(bitmap);
-    if (!bitmap.readyToDraw()) {
-        return nullptr;
-    }
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
-        return nullptr;
-    }
-    return GrUploadPixmapToTexture(ctx, pixmap, SkBudgeted::kYes);
-}
-
-
 sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceProvider,
                                                    const SkBitmap& bitmap) {
     SkAutoLockPixels alp(bitmap);
@@ -173,23 +159,6 @@ static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
     return pmap;
 }
 
-GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBudgeted budgeted) {
-    if (!SkImageInfoIsValid(pixmap.info())) {
-        return nullptr;
-    }
-
-    SkBitmap tmpBitmap;
-    SkPixmap tmpPixmap;
-    GrSurfaceDesc desc;
-
-    if (const SkPixmap* pmap = compute_desc(*ctx->caps(), pixmap, &desc, &tmpBitmap, &tmpPixmap)) {
-        return ctx->resourceProvider()->createTexture(desc, budgeted, pmap->addr(),
-                                                      pmap->rowBytes());
-    }
-
-    return nullptr;
-}
-
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
                                                    const SkPixmap& pixmap,
                                                    SkBudgeted budgeted) {
@@ -225,9 +194,9 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
     pixelRef->addGenIDChangeListener(new Invalidator(key));
 }
 
-GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                               SkColorSpace* dstColorSpace)
-{
+sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
+                                                               const SkBitmap& bitmap,
+                                                               SkColorSpace* dstColorSpace) {
     SkDestinationSurfaceColorMode colorMode = dstColorSpace
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
@@ -273,48 +242,29 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
     }
 
-    return ctx->resourceProvider()->createMipMappedTexture(desc,
-                                                           SkBudgeted::kYes,
-                                                           texels.get(),
-                                                           mipLevelCount,
-                                                           0, colorMode);
-}
-
-sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
-                                                               const SkBitmap& bitmap,
-                                                               SkColorSpace* dstColorSpace) {
-    sk_sp<GrTexture> tex(GrGenerateMipMapsAndUploadToTexture(ctx, bitmap, dstColorSpace));
+    sk_sp<GrTexture> tex(ctx->resourceProvider()->createMipMappedTexture(desc,
+                                                                         SkBudgeted::kYes,
+                                                                         texels.get(),
+                                                                         mipLevelCount,
+                                                                         0, colorMode));
 
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
-}
-
-GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
-                                   const GrMipLevel* texels, int mipLevelCount,
-                                   SkDestinationSurfaceColorMode colorMode) {
-    if (!SkImageInfoIsValid(info)) {
-        return nullptr;
-    }
-
-    const GrCaps* caps = ctx->caps();
-    return ctx->resourceProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
-                                                           SkBudgeted::kYes, texels,
-                                                           mipLevelCount, 0, colorMode);
 }
 
 sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImageInfo& info,
                                                    const GrMipLevel* texels,
                                                    int mipLevelCount,
                                                    SkDestinationSurfaceColorMode colorMode) {
-    sk_sp<GrTexture> tex(GrUploadMipMapToTexture(ctx, info, texels, mipLevelCount, colorMode));
+    if (!SkImageInfoIsValid(info)) {
+        return nullptr;
+    }
 
+    const GrCaps* caps = ctx->caps();
+    sk_sp<GrTexture> tex(ctx->resourceProvider()->createMipMappedTexture(
+                                                           GrImageInfoToSurfaceDesc(info, *caps),
+                                                           SkBudgeted::kYes, texels,
+                                                           mipLevelCount, 0, colorMode));
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
-}
-
-GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                    const GrSamplerParams& params, SkScalar scaleAdjust[2]) {
-    // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr,
-                                                                 nullptr, scaleAdjust);
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
@@ -353,14 +303,6 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
     }
 
     return proxy;
-}
-
-sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                           const GrSamplerParams& params, SkScalar scaleAdjust[2]) {
-    // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
-    GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr,
-                                                                           nullptr, scaleAdjust);
-    return sk_sp<GrTexture>(tex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
