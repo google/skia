@@ -1009,7 +1009,7 @@ void SkScalerContext_GDI::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     metrics->fUnderlineThickness = SkIntToScalar(otm.otmsUnderscoreSize);
     metrics->fUnderlinePosition = -SkIntToScalar(otm.otmsUnderscorePosition);
 
-    metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+    metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 
     metrics->fXHeight = SkIntToScalar(otm.otmsXHeight);
