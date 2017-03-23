@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aeeace8b_ab9f38e2",
+        "filename": "tools/ok.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-23T18:02:59Z",
+      "side": 1,
+      "message": "Yeah.  -j muscle memory is strong.\n\nI don\u0027t have strong opinions about what this variable is called, but it is kind of nice to keep symmetry with the command line.",
+      "parentUuid": "a8274d57_329d1890",
+      "range": {
+        "startLine": 255,
+        "startChar": 42,
+        "endLine": 255,
+        "endChar": 46
+      },
+      "revId": "5f6e33ae0c43150da0a33989c4880e1553c3af6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "faeebfde_39bf6967",
         "filename": "tools/ok.cpp",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-23T17:57:32Z",
       "side": 1,
       "message": "It seems like in threaded mode, the main thread could stall waiting for the .get() of a slow task. It should wait for any future to finish, not the next one in the queue. This does not seem to be a problem with processes. I don\u0027t know if we care, but it seems like a starvation point.",
+      "range": {
+        "startLine": 310,
+        "startChar": 33,
+        "endLine": 310,
+        "endChar": 41
+      },
+      "revId": "5f6e33ae0c43150da0a33989c4880e1553c3af6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a325074_e58b3c85",
+        "filename": "tools/ok.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-23T18:02:59Z",
+      "side": 1,
+      "message": "Good point.  I will give that a try.  Waiting for the front of the queue was just the easiest thing that\u0027s not too stupid.",
+      "parentUuid": "faeebfde_39bf6967",
       "range": {
         "startLine": 310,
         "startChar": 33,
