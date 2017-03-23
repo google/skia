@@ -81,6 +81,9 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     // Our default return state is to downgrade the request to Medium, w/ or w/o setting fBitmap
     // to a valid bitmap. If we succeed, we will set this to Low instead.
     fQuality = kMedium_SkFilterQuality;
+#ifdef SK_USE_MIP_FOR_DOWNSCALE_HQ
+    return false;
+#endif
 
     if (kN32_SkColorType != provider.info().colorType() || !cache_size_okay(provider, fInvMatrix) ||
         fInvMatrix.hasPerspective())
