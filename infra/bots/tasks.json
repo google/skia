@@ -7514,7 +7514,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:2"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -7681,7 +7681,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:2"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -7740,7 +7740,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:2"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -7848,7 +7848,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:2"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -13570,7 +13570,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:2"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -13737,7 +13737,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:2"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -13796,7 +13796,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:2"
+          "version": "version:4"
         }
       ],
       "dependencies": [
@@ -13904,7 +13904,7 @@
         {
           "name": "skia/bots/linux_vulkan_intel_driver_release",
           "path": "linux_vulkan_intel_driver_release",
-          "version": "version:2"
+          "version": "version:4"
         }
       ],
       "dependencies": [
