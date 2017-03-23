@@ -77,10 +77,7 @@ protected:
         p.setAntiAlias(true);
         p.setLooper(SkBlurDrawLooper::Make(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
-                                     SkIntToScalar(5), SkIntToScalar(10),
-                                     SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                     SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                     SkBlurDrawLooper::kHighQuality_BlurFlag));
+                                     SkIntToScalar(5), SkIntToScalar(10)));
         fPaints.push_back(p);
         }
 
