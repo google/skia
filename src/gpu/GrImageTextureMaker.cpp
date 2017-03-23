@@ -31,18 +31,6 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, SkImageCacherator* 
     }
 }
 
-GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) {
-    sk_sp<GrTextureProxy> proxy = fCacher->lockTextureProxy(this->context(), fOriginalKey,
-                                                            fClient, fCachingHint, willBeMipped,
-                                                            dstColorSpace);
-    if (!proxy) {
-        return nullptr;
-    }
-
-    sk_sp<GrTexture> tex(SkSafeRef(proxy->instantiate(this->context()->resourceProvider())));
-    return tex.release();
-}
-
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                    SkColorSpace* dstColorSpace) {
     return fCacher->lockTextureProxy(this->context(), fOriginalKey, fClient, fCachingHint,

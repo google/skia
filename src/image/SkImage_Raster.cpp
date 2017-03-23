@@ -198,11 +198,10 @@ sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrContext* context,
                                    fBitmap.alphaType(), fBitmap.bounds(),
                                    fPinnedUniqueID, fBitmap.colorSpace());
         tex.reset(adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust));
-    } else {
-        tex.reset(GrRefCachedBitmapTexture(context, fBitmap, params, scaleAdjust));
+        return GrSurfaceProxy::MakeWrapped(std::move(tex));
     }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return GrRefCachedBitmapTextureProxy(context, fBitmap, params, scaleAdjust);
 }
 #endif
 
@@ -226,8 +225,14 @@ bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        fPinnedTexture.reset(
-            GrRefCachedBitmapTexture(ctx, fBitmap, GrSamplerParams::ClampNoFilter(), nullptr));
+        sk_sp<GrTextureProxy> proxy = GrRefCachedBitmapTextureProxy(
+                                                                  ctx, fBitmap,
+                                                                  GrSamplerParams::ClampNoFilter(),
+                                                                  nullptr);
+        if (!proxy) {
+            return false;
+        }
+        fPinnedTexture.reset(SkSafeRef(proxy->instantiate(ctx->resourceProvider())));
         if (!fPinnedTexture) {
             return false;
         }

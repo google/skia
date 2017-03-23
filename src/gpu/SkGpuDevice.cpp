@@ -1053,9 +1053,9 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     SkASSERT(SkShader::kClamp_TileMode == params.getTileModeX() &&
              SkShader::kClamp_TileMode == params.getTileModeY());
 
-    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
-                                                         params, nullptr);
-    if (nullptr == texture) {
+    sk_sp<GrTextureProxy> proxy = GrRefCachedBitmapTextureProxy(fContext.get(), bitmap,
+                                                                params, nullptr);
+    if (!proxy) {
         return;
     }
     sk_sp<GrColorSpaceXform> colorSpaceXform =
@@ -1085,19 +1085,22 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
             domain.fTop = domain.fBottom = srcRect.centerY();
         }
         if (bicubic) {
-            fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix,
-                                       domain);
+            fp = GrBicubicEffect::Make(this->context()->resourceProvider(), std::move(proxy),
+                                       std::move(colorSpaceXform), texMatrix, domain);
         } else {
-            fp = GrTextureDomainEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix,
+            fp = GrTextureDomainEffect::Make(this->context()->resourceProvider(), std::move(proxy),
+                                             std::move(colorSpaceXform), texMatrix,
                                              domain, GrTextureDomain::kClamp_Mode,
                                              params.filterMode());
         }
     } else if (bicubic) {
         SkASSERT(GrSamplerParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, tileModes);
+        fp = GrBicubicEffect::Make(this->context()->resourceProvider(), std::move(proxy),
+                                   std::move(colorSpaceXform), texMatrix, tileModes);
     } else {
-        fp = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, params);
+        fp = GrSimpleTextureEffect::Make(this->context()->resourceProvider(), std::move(proxy),
+                                         std::move(colorSpaceXform), texMatrix, params);
     }
 
     GrPaint grPaint;

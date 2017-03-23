@@ -28,7 +28,6 @@ class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrPaint;
 class GrResourceProvider;
-class GrTexture;
 class GrTextureProxy;
 class GrUniqueKey;
 class SkBitmap;
@@ -204,9 +203,6 @@ GR_STATIC_ASSERT(SkXfermode::kCoeffCount == 10);
  *  performed on the absolute texture coordinates (e.g., if the texture is resized out to
  *  the next power of two). It can be null if the caller is sure the bitmap won't be resized.
  */
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
-                                    const GrSamplerParams&, SkScalar scaleAdjust[2]);
-
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
                                                     const SkBitmap&,
                                                     const GrSamplerParams&,
@@ -217,12 +213,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
  * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
  * compressed textures and yuv planes.
  */
-GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
-
 sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider*, const SkBitmap&);
-
-GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&,
-                                               SkColorSpace* dstColorSpace);
 
 sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const SkBitmap&,
                                                                SkColorSpace* dstColorSpace);
@@ -230,24 +221,16 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const
 /**
  * Creates a new texture for the pixmap.
  */
-GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted);
-
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider*,
                                                    const SkPixmap&, SkBudgeted);
 
 /**
  * Creates a new texture populated with the mipmap levels.
  */
-GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
-                                   int mipLevelCount, SkDestinationSurfaceColorMode colorMode);
-
 sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext*, const SkImageInfo&,
                                                    const GrMipLevel* texels,
                                                    int mipLevelCount,
                                                    SkDestinationSurfaceColorMode colorMode);
-
-sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
-                                           const GrSamplerParams&, SkScalar scaleAdjust[2]);
 
 // This is intended to replace:
 //    SkAutoLockPixels alp(bitmap, true);

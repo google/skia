@@ -28,7 +28,13 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
 
     if (!fContext->getGpu()->isACopyNeededForTextureParams(this->width(), this->height(), params,
                                                            &copyParams, scaleAdjust)) {
-        return this->refOriginalTexture(willBeMipped, dstColorSpace);
+        sk_sp<GrTextureProxy>proxy = this->refOriginalTextureProxy(willBeMipped, dstColorSpace);
+        if (!proxy) {
+            return nullptr;
+        }
+
+        sk_sp<GrTexture> tex(SkSafeRef(proxy->instantiate(fContext->resourceProvider())));
+        return tex.release();
     }
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey, dstColorSpace);

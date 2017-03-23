@@ -27,29 +27,6 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
     }
 }
 
-GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
-                                                    SkColorSpace* dstColorSpace) {
-    GrTexture* tex = nullptr;
-
-    if (fOriginalKey.isValid()) {
-        tex = this->context()->resourceProvider()->findAndRefTextureByUniqueKey(fOriginalKey);
-        if (tex) {
-            return tex;
-        }
-    }
-    if (willBeMipped) {
-        tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap, dstColorSpace);
-    }
-    if (!tex) {
-        tex = GrUploadBitmapToTexture(this->context(), fBitmap);
-    }
-    if (tex && fOriginalKey.isValid()) {
-        this->context()->resourceProvider()->assignUniqueKeyToTexture(fOriginalKey, tex);
-        GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
-    }
-    return tex;
-}
-
 sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                     SkColorSpace* dstColorSpace) {
     sk_sp<GrTextureProxy> proxy;
