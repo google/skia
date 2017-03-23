@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8274d57_329d1890",
+        "filename": "tools/ok.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-03-23T17:57:32Z",
+      "side": 1,
+      "message": "In my mind, this is workers, and jobs would be somethings workers do. Yet again an unfortunate precedent started by make.",
+      "range": {
+        "startLine": 255,
+        "startChar": 42,
+        "endLine": 255,
+        "endChar": 46
+      },
+      "revId": "5f6e33ae0c43150da0a33989c4880e1553c3af6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faeebfde_39bf6967",
+        "filename": "tools/ok.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-03-23T17:57:32Z",
+      "side": 1,
+      "message": "It seems like in threaded mode, the main thread could stall waiting for the .get() of a slow task. It should wait for any future to finish, not the next one in the queue. This does not seem to be a problem with processes. I don\u0027t know if we care, but it seems like a starvation point.",
+      "range": {
+        "startLine": 310,
+        "startChar": 33,
+        "endLine": 310,
+        "endChar": 41
+      },
+      "revId": "5f6e33ae0c43150da0a33989c4880e1553c3af6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
