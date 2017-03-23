@@ -341,8 +341,8 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
     } else {
         coverageInput = GrColor_WHITE;
     }
-    analysis.init(this->getSingleInstance().fColor, coverageInput, fProcessors, clip, caps);
-
+    fProcessors.analyzeAndEliminateFragmentProcessors(&analysis, this->getSingleInstance().fColor,
+                                                      coverageInput, clip, caps);
     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());
     SkASSERT(SkIsPow2(fInfo.fShapeTypes));
@@ -363,7 +363,7 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
     }
 
     GrColor overrideColor;
-    if (analysis.initialColorProcessorsToEliminate(&overrideColor)) {
+    if (analysis.getInputColorOverrideAndColorProcessorEliminationCount(&overrideColor) >= 0) {
         SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
         this->getSingleDraw().fInstance.fColor = overrideColor;
     }
