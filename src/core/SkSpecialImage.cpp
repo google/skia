@@ -401,7 +401,8 @@ public:
     }
 
     bool onGetROPixels(SkBitmap* dst) const override {
-        if (SkBitmapCache::Find(this->uniqueID(), dst)) {
+        const auto desc = SkBitmapCacheDesc::Make(this->uniqueID(), this->width(), this->height());
+        if (SkBitmapCache::Find(desc, dst)) {
             SkASSERT(dst->getGenerationID() == this->uniqueID());
             SkASSERT(dst->isImmutable());
             SkASSERT(dst->getPixels());
@@ -427,7 +428,7 @@ public:
         }
 
         dst->pixelRef()->setImmutableWithID(this->uniqueID());
-        SkBitmapCache::Add(this->uniqueID(), *dst);
+        SkBitmapCache::Add(desc, *dst);
         fAddedRasterVersionToCache.store(true);
         return true;
     }
