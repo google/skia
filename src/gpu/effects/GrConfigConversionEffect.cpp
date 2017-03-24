@@ -10,6 +10,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
+#include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -29,11 +30,10 @@ public:
 
         fragBuilder->codeAppendf("%s;", tmpDecl.c_str());
 
-        if (nullptr == args.fInputColor) {
-            // could optimize this case, but we aren't for now.
-            args.fInputColor = "vec4(1)";
-        }
-        fragBuilder->codeAppendf("%s = %s;", tmpVar.c_str(), args.fInputColor);
+        fragBuilder->codeAppendf("%s = ", tmpVar.c_str());
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], args.fTransformedCoords[0].c_str(),
+                                         args.fTransformedCoords[0].getType());
+        fragBuilder->codeAppend(";");
 
         switch (pmConversion) {
             case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
@@ -68,6 +68,10 @@ public:
                 break;
         }
         fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, tmpVar.c_str());
+
+        SkString modulate;
+        GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
+        fragBuilder->codeAppend(modulate.c_str());
     }
 
     static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,
@@ -83,11 +87,29 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrConfigConversionEffect::GrConfigConversionEffect(PMConversion pmConversion)
-        : INHERITED(kNone_OptimizationFlags)
+GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
+                                                   PMConversion pmConversion,
+                                                   const SkMatrix& matrix)
+        : INHERITED(texture, nullptr, matrix, kNone_OptimizationFlags)
         , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
+    // We expect to get here with non-BGRA/RGBA only if we're doing not doing a premul/unpremul
+    // conversion.
+    SkASSERT(kRGBA_8888_GrPixelConfig == texture->config() ||
+             kBGRA_8888_GrPixelConfig == texture->config());
+}
+
+GrConfigConversionEffect::GrConfigConversionEffect(GrResourceProvider* resourceProvider,
+                                                   sk_sp<GrTextureProxy> proxy,
+                                                   PMConversion pmConversion,
+                                                   const SkMatrix& matrix)
+        : INHERITED(resourceProvider, kNone_OptimizationFlags, proxy, nullptr, matrix)
+        , fPMConversion(pmConversion) {
+    this->initClassID<GrConfigConversionEffect>();
+    // We expect to get here with non-BGRA/RGBA only if we're doing not doing a premul/unpremul
+    // conversion.
+    SkASSERT(kRGBA_8888_GrPixelConfig == proxy->config() ||
+             kBGRA_8888_GrPixelConfig == proxy->config());
 }
 
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -108,7 +130,10 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
     PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
-    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(pmConv));
+    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(
+                            d->resourceProvider(),
+                            d->textureProxy(GrProcessorUnitTest::kSkiaPMTextureIdx),
+                            pmConv, GrTest::TestMatrix(d->fRandom)));
 }
 #endif
 
@@ -201,11 +226,14 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         GrPaint paint1;
         GrPaint paint2;
         GrPaint paint3;
-        sk_sp<GrFragmentProcessor> pmToUPM(new GrConfigConversionEffect(*pmToUPMRule));
-        sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(*upmToPMRule));
+        sk_sp<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
+                resourceProvider, dataProxy, *pmToUPMRule, SkMatrix::I()));
+        sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
+                resourceProvider, readRTC->asTextureProxyRef(), *upmToPMRule, SkMatrix::I()));
+        sk_sp<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(
+                resourceProvider, tempRTC->asTextureProxyRef(), *pmToUPMRule, SkMatrix::I()));
 
-        paint1.addColorTextureProcessor(resourceProvider, dataProxy, nullptr, SkMatrix::I());
-        paint1.addColorFragmentProcessor(pmToUPM);
+        paint1.addColorFragmentProcessor(std::move(pmToUPM1));
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kDstRect,
@@ -215,17 +243,13 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             continue;
         }
 
-        paint2.addColorTextureProcessor(resourceProvider, readRTC->asTextureProxyRef(), nullptr,
-                                        SkMatrix::I());
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kDstRect,
                                 kSrcRect);
 
-        paint3.addColorTextureProcessor(resourceProvider, tempRTC->asTextureProxyRef(), nullptr,
-                                        SkMatrix::I());
-        paint3.addColorFragmentProcessor(std::move(pmToUPM));
+        paint3.addColorFragmentProcessor(std::move(pmToUPM2));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kDstRect,
@@ -251,12 +275,28 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 }
 
-sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(sk_sp<GrFragmentProcessor> fp,
-                                                          PMConversion pmConversion) {
-    if (!fp) {
+sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrTexture* texture,
+                                                          PMConversion pmConversion,
+                                                          const SkMatrix& matrix) {
+    if (kRGBA_8888_GrPixelConfig != texture->config() &&
+        kBGRA_8888_GrPixelConfig != texture->config()) {
+        // The PM conversions assume colors are 0..255
         return nullptr;
     }
-    sk_sp<GrFragmentProcessor> ccFP(new GrConfigConversionEffect(pmConversion));
-    sk_sp<GrFragmentProcessor> fpPipeline[] = { fp, ccFP };
-    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
+    return sk_sp<GrFragmentProcessor>(
+        new GrConfigConversionEffect(texture, pmConversion, matrix));
+}
+
+sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrResourceProvider* resourceProvider,
+                                                          sk_sp<GrTextureProxy> proxy,
+                                                          PMConversion pmConversion,
+                                                          const SkMatrix& matrix) {
+    if (kRGBA_8888_GrPixelConfig != proxy->config() &&
+        kBGRA_8888_GrPixelConfig != proxy->config()) {
+        // The PM conversions assume colors are 0..255
+        return nullptr;
+    }
+    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(resourceProvider,
+                                                                   std::move(proxy),
+                                                                   pmConversion, matrix));
 }
