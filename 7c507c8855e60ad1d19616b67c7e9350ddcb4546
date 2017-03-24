@@ -94,6 +94,30 @@
       "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d215605_1f9f36e8",
+        "filename": "src/effects/SkBlurDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-24T20:15:40Z",
+      "side": 0,
+      "message": "Just looked more closely at the framework code...  I think there\u0027s no reason to add this special case.  Hwui doesn\u0027t use this looper implementation and doesn\u0027t ever even look at mask filters.  If anything, removing this case will make our the Skia software implementation behave more sanely and more similarly to the hardware renderer.\n\nI do think there is a relevant unit test to add to the framework though.  Working on that...",
+      "parentUuid": "19922fab_cb7c93e0",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 13
+      },
+      "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
