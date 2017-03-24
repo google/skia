@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2de3757d_e9ae92da",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-24T14:02:23Z",
+      "side": 1,
+      "message": "nit: This used to be inline in the header (before I added the nonLinearBlending check). Can we move it back?",
+      "revId": "8c4d6746cd77ce2b8919e980a489d7d37fcb718b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dd23cbb_3b95baf6",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-24T14:02:23Z",
+      "side": 1,
+      "message": "nit: Remove extra parens now?",
+      "revId": "8c4d6746cd77ce2b8919e980a489d7d37fcb718b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
