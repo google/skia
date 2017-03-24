@@ -37,8 +37,19 @@ SkData* SkCodecImageGenerator::onRefEncodedData(GrContext* ctx) {
 
 bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
         SkPMColor ctable[], int* ctableCount) {
-    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, nullptr, ctable,
-            ctableCount);
+    Options opts;
+    opts.fColorTable = ctable;
+    opts.fColorTableCount = ctableCount;
+    opts.fBehavior = SkTransferFunctionBehavior::kRespect;
+    return this->onGetPixels(info, pixels, rowBytes, opts);
+}
+
+bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                        const Options& opts) {
+    SkCodec::Options codecOpts;
+    codecOpts.fPremulBehavior = opts.fBehavior;
+    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, &codecOpts, opts.fColorTable,
+                                               opts.fColorTableCount);
     switch (result) {
         case SkCodec::kSuccess:
         case SkCodec::kIncompleteInput:

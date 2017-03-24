@@ -24,7 +24,9 @@ protected:
     SkData* onRefEncodedData(GrContext* ctx) override;
 
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
-            int* ctableCount) override;
+                     int* ctableCount) override;
+    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts)
+                     override;
 
     bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const override;
 
