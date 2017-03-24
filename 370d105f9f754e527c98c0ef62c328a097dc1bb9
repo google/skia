@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e2c6d29_f847aa86",
+        "filename": "src/gpu/GrGeometryProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-24T20:51:43Z",
+      "side": 1,
+      "message": "Similarly here, we can now decide what \"default\" means for vertex attributes. This preserves prior behavior.",
+      "revId": "370d105f9f754e527c98c0ef62c328a097dc1bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "237c9571_ca76dccf",
+        "filename": "src/gpu/glsl/GrGLSLVarying.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-24T20:51:43Z",
+      "side": 1,
+      "message": "We could decide that default for varying means high. I just left this as medium to match how it\u0027s been working.",
+      "revId": "370d105f9f754e527c98c0ef62c328a097dc1bb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
