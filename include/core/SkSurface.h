@@ -18,12 +18,11 @@ class GrContext;
 class GrRenderTarget;
 
 /**
- *  SkSurface represents the backend/results of drawing to a canvas. For raster
- *  drawing, the surface will be pixels, but (for example) when drawing into
- *  a PDF or Picture canvas, the surface stores the recorded commands.
+ *  SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
+ *  allocated either in CPU memory (a Raster surface) or on the GPU (a RenderTarget surface).
  *
- *  To draw into a canvas, first create the appropriate type of Surface, and
- *  then request the canvas from the surface.
+ *  SkSurface takes care of allocating a SkCanvas that will draw into the surface. Call
+ *  surface->getCanvas() to use that canvas (but don't delete it, it is owned by the surface).
  *
  *  SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
  *  of the requested dimensions are zero, then NULL will be returned.
