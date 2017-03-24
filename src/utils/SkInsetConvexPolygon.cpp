@@ -108,6 +108,33 @@ static bool compute_intersection(const InsetSegment& s0, const InsetSegment& s1,
     return true;
 }
 
+#ifdef SK_DEBUG
+static bool is_convex(const SkTDArray<SkPoint>& poly) {
+    if (poly.count() <= 3) {
+        return true;
+    }
+
+    SkVector v0 = poly[0] - poly[poly.count() - 1];
+    SkVector v1 = poly[1] - poly[poly.count() - 1];
+    SkScalar winding = v0.cross(v1);
+
+    for (int i = 0; i < poly.count() - 1; ++i) {
+        int j = i + 1;
+        int k = (i + 2) % poly.count();
+
+        SkVector v0 = poly[j] - poly[i];
+        SkVector v1 = poly[k] - poly[i];
+        SkScalar perpDot = v0.cross(v1);
+        int side = winding*perpDot;
+        if (side < 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+#endif
+
 // The objective here is to inset all of the edges by the given distance, and then
 // remove any invalid inset edges by detecting right-hand turns. In a ccw polygon,
 // we should only be making left-hand turns (for cw polygons, we use the winding
@@ -213,22 +240,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
             *insetPolygon->push() = edgeData[i].fIntersection;
         }
     }
-
-//#ifdef SK_DEBUG
-//    bool convex = true;
-//    for (int i = 0; i < insetPolygon->count(); ++i) {
-//        int j = (i + 1) % insetPolygon->count();
-//        int k = (i + 2) % insetPolygon->count();
-//
-//        int side = winding*compute_side((*insetPolygon)[i], (*insetPolygon)[j],
-//                                        (*insetPolygon)[k]);
-//        if (side < 0) {
-//            convex = false;
-//            break;
-//        }
-//    }
-//    SkASSERT(convex);
-//#endif
+    SkASSERT(is_convex(*insetPolygon));
 
     return (insetPolygon->count() >= 3);
 }
