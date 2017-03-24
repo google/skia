@@ -70,6 +70,30 @@
       "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19922fab_cb7c93e0",
+        "filename": "src/effects/SkBlurDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-24T15:18:05Z",
+      "side": 0,
+      "message": "I don\u0027t have a definitive branch date so lets add this code to android now along with a CTS test and then I\u0027m good if we delete this looper.",
+      "parentUuid": "f41b3356_4d5a5055",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 13
+      },
+      "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
