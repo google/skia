@@ -180,7 +180,8 @@ bool SkImageCacherator::directGeneratePixels(const SkImageInfo& info, void* pixe
 
 bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap, CachedFormat format) {
     return kNeedNewImageUniqueID != fUniqueIDs[format] &&
-        SkBitmapCache::Find(fUniqueIDs[format], bitmap) &&
+        SkBitmapCache::Find(SkBitmapCacheDesc::Make(fUniqueIDs[format],
+                                                    fInfo.width(), fInfo.height()), bitmap) &&
         check_output_bitmap(*bitmap, fUniqueIDs[format]);
 }
 
@@ -199,7 +200,8 @@ bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
     }
     bitmap->pixelRef()->setImmutableWithID(fUniqueIDs[format]);
     if (SkImage::kAllow_CachingHint == chint) {
-        SkBitmapCache::Add(fUniqueIDs[format], *bitmap);
+        SkBitmapCache::Add(SkBitmapCacheDesc::Make(fUniqueIDs[format],
+                                                   fInfo.width(), fInfo.height()), *bitmap);
         if (client) {
             as_IB(client)->notifyAddedToCache();
         }
@@ -259,7 +261,8 @@ bool SkImageCacherator::lockAsBitmap(GrContext* context, SkBitmap* bitmap, const
 
     bitmap->pixelRef()->setImmutableWithID(fUniqueIDs[format]);
     if (SkImage::kAllow_CachingHint == chint) {
-        SkBitmapCache::Add(fUniqueIDs[format], *bitmap);
+        SkBitmapCache::Add(SkBitmapCacheDesc::Make(fUniqueIDs[format],
+                                                   fInfo.width(), fInfo.height()), *bitmap);
         if (client) {
             as_IB(client)->notifyAddedToCache();
         }
