@@ -118,7 +118,7 @@ enum GrSLPrecision {
 
     // Default precision is medium. This is because on OpenGL ES 2 highp support is not
     // guaranteed. On (non-ES) OpenGL the specifiers have no effect on precision.
-    kDefault_GrSLPrecision = kMedium_GrSLPrecision,
+    kDefault_GrSLPrecision = kHigh_GrSLPrecision,
 
     kLast_GrSLPrecision = kHigh_GrSLPrecision
 };
