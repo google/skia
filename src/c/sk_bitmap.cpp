@@ -392,3 +392,8 @@ bool sk_bitmap_extract_alpha(sk_bitmap_t* cbitmap, sk_bitmap_t* cdst, const sk_p
     SkBitmap* dst = AsBitmap(cdst);
     return bmp->extractAlpha(dst, AsPaint(paint), AsIPoint(offset));
 }
+
+void sk_bitmap_notify_pixels_changed(sk_bitmap_t* cbitmap)
+{
+    AsBitmap(cbitmap)->notifyPixelsChanged();
+}
