@@ -176,7 +176,7 @@ struct Stream {
 struct Options {
     std::map<std::string, std::string> kv;
 
-    explicit Options(std::string str) {
+    explicit Options(std::string str = "") {
         std::string k,v, *curr = &k;
         for (auto c : str) {
             switch(c) {
@@ -191,7 +191,7 @@ struct Options {
         kv[k] = v;
     }
 
-    std::string lookup(std::string k, std::string fallback) {
+    std::string lookup(std::string k, std::string fallback = "") {
         for (auto it = kv.find(k); it != kv.end(); ) {
             return it->second;
         }
@@ -199,8 +199,18 @@ struct Options {
     }
 };
 
+template <typename T>
+static std::unique_ptr<T> move_unique(T& v) {
+    return std::unique_ptr<T>{new T{std::move(v)}};
+}
+
 struct GMStream : Stream {
     const skiagm::GMRegistry* registry = skiagm::GMRegistry::Head();
+
+    static std::unique_ptr<Stream> Create(Options) {
+        GMStream stream;
+        return move_unique(stream);
+    }
 
     struct GMSrc : Src {
         skiagm::GM* (*factory)(void*);
@@ -229,7 +239,7 @@ struct GMStream : Stream {
         GMSrc src;
         src.factory = registry->factory();
         registry = registry->next();
-        return std::unique_ptr<Src>{new GMSrc{std::move(src)}};
+        return move_unique(src);
     }
 };
 
@@ -237,11 +247,14 @@ struct SKPStream : Stream {
     std::string dir;
     std::vector<std::string> skps;
 
-    explicit SKPStream(Options options) : dir(options.lookup("dir", "skps")) {
-        SkOSFile::Iter it{dir.c_str(), ".skp"};
+    static std::unique_ptr<Stream> Create(Options options) {
+        SKPStream stream;
+        stream.dir = options.lookup("dir", "skps");
+        SkOSFile::Iter it{stream.dir.c_str(), ".skp"};
         for (SkString path; it.next(&path); ) {
-            skps.push_back(path.c_str());
+            stream.skps.push_back(path.c_str());
         }
+        return move_unique(stream);
     }
 
     struct SKPSrc : Src {
@@ -272,7 +285,36 @@ struct SKPStream : Stream {
         src.dir  = dir;
         src.path = skps.back();
         skps.pop_back();
-        return std::unique_ptr<Src>{new SKPSrc{std::move(src)}};
+        return move_unique(src);
+    }
+};
+
+struct Dst {
+    virtual ~Dst() {}
+    virtual SkCanvas* canvas() = 0;
+    virtual void write(std::string path_prefix) = 0;
+};
+
+struct SWDst : Dst {
+    sk_sp<SkSurface> surface;
+
+    static std::unique_ptr<Dst> Create(SkISize size, Options options) {
+        SkImageInfo info = SkImageInfo::MakeN32Premul(size.width(), size.height());
+        if (options.lookup("ct") == "565") { info = info.makeColorType(kRGB_565_SkColorType); }
+        if (options.lookup("ct") == "f16") { info = info.makeColorType(kRGBA_F16_SkColorType); }
+        SWDst dst;
+        dst.surface = SkSurface::MakeRaster(info);
+        return move_unique(dst);
+    }
+
+    SkCanvas* canvas() override {
+        return surface->getCanvas();
+    }
+
+    void write(std::string path_prefix) override {
+        auto image = surface->makeImageSnapshot();
+        sk_sp<SkData> png{image->encode()};
+        SkFILEWStream{(path_prefix + ".png").c_str()}.write(png->data(), png->size());
     }
 };
 
@@ -280,9 +322,17 @@ struct {
     const char* name;
     std::unique_ptr<Stream> (*factory)(Options);
 } streams[] = {
-    {"gm",  [](Options options) { return std::unique_ptr<Stream>{new GMStream}; }},
-    {"skp", [](Options options) { return std::unique_ptr<Stream>{new SKPStream{options}}; }},
+    {"gm",  GMStream::Create },
+    {"skp", SKPStream::Create },
 };
+
+struct {
+    const char* name;
+    std::unique_ptr<Dst> (*factory)(SkISize, Options);
+} dsts[] = {
+    {"sw",  SWDst::Create },
+};
+
 
 int main(int argc, char** argv) {
     SkGraphics::Init();
@@ -294,28 +344,37 @@ int main(int argc, char** argv) {
     std::string write_dir   {""};
 
     std::unique_ptr<Stream> stream;
+    std::unique_ptr<Dst> (*dst_factory)(SkISize, Options) = nullptr;
+    Options dst_options;
 
     auto help = [&] {
-        std::string stream_types;
-        for (auto st : streams) {
+        std::string stream_types, dst_types;
+        for (auto s : streams) {
             if (!stream_types.empty()) {
                 stream_types += ", ";
             }
-            stream_types += st.name;
+            stream_types += s.name;
+        }
+        for (auto d : dsts) {
+            if (!dst_types.empty()) {
+                dst_types += ", ";
+            }
+            dst_types += d.name;
         }
 
-        printf("%s [-j N] [-m regex] [-s regex] [-w dir] [-h] stream[:k=v,k=v,...]  \n"
-                "     -j: Run at most N processes at any time.                      \n"
-                "         If <0, use -N threads instead.                            \n"
-                "         If 0, use one thread in one process.                      \n"
-                "         If 1 (default) or -1, auto-detect N.                      \n"
-                "     -m: Run only names matching regex exactly.                    \n"
-                "     -s: Run only names matching regex anywhere.                   \n"
-                "     -w: If set, write .pngs into dir.                             \n"
-                "     -h: Print this message and exit.                              \n"
-                " stream: content to draw:  %s                                      \n"
-                "         Some streams have options, e.g. skp:dir=skps              \n",
-                argv[0], stream_types.c_str());
+        printf("%s [-j N] [-m regex] [-s regex] [-w dir] [-h] src[:k=v,...] dst[:k=v,...] \n"
+                "  -j: Run at most N processes at any time.                               \n"
+                "      If <0, use -N threads instead.                                     \n"
+                "      If 0, use one thread in one process.                               \n"
+                "      If 1 (default) or -1, auto-detect N.                               \n"
+                "  -m: Run only names matching regex exactly.                             \n"
+                "  -s: Run only names matching regex anywhere.                            \n"
+                "  -w: If set, write .pngs into dir.                                      \n"
+                "  -h: Print this message and exit.                                       \n"
+                " src: content to draw: %s                                                \n"
+                " dst: how to draw that content: %s                                       \n"
+                " Some srcs and dsts have options, e.g. skp:dir=skps sw:ct=565            \n",
+                argv[0], stream_types.c_str(), dst_types.c_str());
         return 1;
     };
 
@@ -326,17 +385,27 @@ int main(int argc, char** argv) {
         if (0 == strcmp("-w", argv[i])) { write_dir =      argv[++i] ; }
         if (0 == strcmp("-h", argv[i])) { return help(); }
 
-        for (auto st : streams) {
-            size_t len = strlen(st.name);
-            if (0 == strncmp(st.name, argv[i], len)) {
+        for (auto s : streams) {
+            size_t len = strlen(s.name);
+            if (0 == strncmp(s.name, argv[i], len)) {
                 switch (argv[i][len]) {
                     case  ':': len++;
-                    case '\0': stream = st.factory(Options{argv[i]+len});
+                    case '\0': stream = s.factory(Options{argv[i]+len});
+                }
+            }
+        }
+        for (auto d : dsts) {
+            size_t len = strlen(d.name);
+            if (0 == strncmp(d.name, argv[i], len)) {
+                switch (argv[i][len]) {
+                    case  ':': len++;
+                    case '\0': dst_factory = d.factory;
+                               dst_options = Options{argv[i]+len};
                 }
             }
         }
     }
-    if (!stream) { return help(); }
+    if (!stream || !dst_factory) { return help(); }
 
     std::unique_ptr<Engine> engine;
     if (jobs == 0) { engine.reset(new SerialEngine);                            }
@@ -394,19 +463,14 @@ int main(int argc, char** argv) {
                 return Status::Skipped;
             }
 
-            auto size = src->size();
-            auto surface = SkSurface::MakeRasterN32Premul(size.width(), size.height());
+            auto dst = dst_factory(src->size(), dst_options);
 
-            auto canvas = surface->getCanvas();
+            auto canvas = dst->canvas();
             src->draw(canvas);
             canvas->restoreToCount(0);
 
             if (!write_dir.empty()) {
-                auto image = surface->makeImageSnapshot();
-                sk_sp<SkData> png{image->encode()};
-
-                std::string path = write_dir + "/" + name + ".png";
-                SkFILEWStream{path.c_str()}.write(png->data(), png->size());
+                dst->write(write_dir + "/" + name);
             }
             return Status::OK;
         });
