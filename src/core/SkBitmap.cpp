@@ -709,7 +709,8 @@ bool SkBitmap::readPixels(const SkPixmap& dst, int srcX, int srcY) const {
     return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), srcX, srcY);
 }
 
-bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
+bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY,
+                           SkTransferFunctionBehavior behavior) {
     SkAutoPixmapUnlock dst;
     if (!this->requestLock(&dst)) {
         return false;
@@ -727,7 +728,7 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
     void* dstPixels = this->getAddr(rec.fX, rec.fY);
     const SkImageInfo dstInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes,
-                    src.ctable());
+                    src.ctable(), behavior);
     return true;
 }
 
@@ -848,7 +849,8 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
     }
     const SkPixmap& pmap = apl.pixmap();
     SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                    pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable());
+                    pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable(),
+                    SkTransferFunctionBehavior::kRespect);
     return true;
 }
 
