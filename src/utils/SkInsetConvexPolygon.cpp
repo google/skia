@@ -214,19 +214,19 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     }
 
 #ifdef SK_DEBUG
-    bool convex = true;
-    for (int i = 0; i < insetPolygon->count(); ++i) {
-        int j = (i + 1) % insetPolygon->count();
-        int k = (i + 2) % insetPolygon->count();
+    //bool convex = true;
+    //for (int i = 0; i < insetPolygon->count(); ++i) {
+    //    int j = (i + 1) % insetPolygon->count();
+    //    int k = (i + 2) % insetPolygon->count();
 
-        int side = winding*compute_side((*insetPolygon)[i], (*insetPolygon)[j],
-                                        (*insetPolygon)[k]);
-        if (side < 0) {
-            convex = false;
-            break;
-        }
-    }
-    SkASSERT(convex);
+    //    int side = winding*compute_side((*insetPolygon)[i], (*insetPolygon)[j],
+    //                                    (*insetPolygon)[k]);
+    //    if (side < 0) {
+    //        convex = false;
+    //        break;
+    //    }
+    //}
+    //SkASSERT(convex);
 #endif
 
     return (insetPolygon->count() >= 3);
