@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c7a094c_96ea3f9a",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-24T21:00:18Z",
+      "side": 1,
+      "message": "The long term plan is that all subclasses override the new version onGetPixels().  Then the other one can go away...",
+      "range": {
+        "startLine": 191,
+        "startChar": 4,
+        "endLine": 193,
+        "endChar": 49
+      },
+      "revId": "e3a406f20de17b2063eb865358d26b4cbff0c799",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
