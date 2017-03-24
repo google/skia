@@ -42,6 +42,8 @@ skia_utils_sources = [
   "$_src/utils/SkDumpCanvas.cpp",
   "$_src/utils/SkEventTracer.cpp",
   "$_src/utils/SkFloatUtils.h",
+  "$_src/utils/SkInsetConvexPolygon.cpp",
+  "$_src/utils/SkInsetConvexPolygon.h",
   "$_src/utils/SkInterpolator.cpp",
   "$_src/utils/SkMatrix22.cpp",
   "$_src/utils/SkMatrix22.h",
