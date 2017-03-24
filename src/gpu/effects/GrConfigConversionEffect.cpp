@@ -49,8 +49,19 @@ public:
                 fragBuilder->codeAppendf(
                     "%s = vec4(floor(%s.rgb * %s.a * 255.0 + 0.001) / 255.0, %s.a);",
                     tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str());
+                break;
+            case GrConfigConversionEffect::kMulByAlpha:
+                fragBuilder->codeAppendf(
+                    "%s = vec4(%s.rgb * %s.a, %s.a);",
+                    tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str());
+                break;
+            case GrConfigConversionEffect::kMulByAlpha_RoundToNearest:
+                fragBuilder->codeAppendf(
+                    "%s = vec4(floor(%s.rgb * %s.a * 255.0 + 0.5) / 255.0, %s.a);",
+                    tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str());
 
                 break;
+
             case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
                 fragBuilder->codeAppendf(
                     "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(%s.rgb / %s.a * 255.0) / 255.0, %s.a);",
@@ -63,6 +74,19 @@ public:
                     tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(),
                     tmpVar.c_str());
                 break;
+            case GrConfigConversionEffect::kDivByAlpha:
+                fragBuilder->codeAppendf(
+                    "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(%s.rgb / %s.a, %s.a);",
+                    tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(),
+                    tmpVar.c_str());
+                break;
+            case GrConfigConversionEffect::kDivByAlpha_RoundToNearest:
+                fragBuilder->codeAppendf(
+                    "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.rgb / %s.a * 255.0 + 0.5) / 255.0, %s.a);",
+                    tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(),
+                    tmpVar.c_str());
+                break;
+
             default:
                 SkFAIL("Unknown conversion op.");
                 break;
@@ -179,8 +203,26 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 
     static const PMConversion kConversionRules[][2] = {
+        {kDivByAlpha, kMulByAlpha},
         {kDivByAlpha_RoundDown_PMConversion, kMulByAlpha_RoundUp_PMConversion},
         {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha_RoundDown_PMConversion},
+        {kDivByAlpha_RoundToNearest, kMulByAlpha_RoundToNearest},
+
+        {kDivByAlpha, kMulByAlpha_RoundUp_PMConversion},
+        {kDivByAlpha, kMulByAlpha_RoundDown_PMConversion},
+        {kDivByAlpha, kMulByAlpha_RoundToNearest},
+
+        {kDivByAlpha_RoundDown_PMConversion, kMulByAlpha},
+        {kDivByAlpha_RoundDown_PMConversion, kMulByAlpha_RoundDown_PMConversion},
+        {kDivByAlpha_RoundDown_PMConversion, kMulByAlpha_RoundToNearest},
+
+        {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha},
+        {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha_RoundUp_PMConversion},
+        {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha_RoundToNearest},
+
+        {kDivByAlpha_RoundToNearest, kMulByAlpha},
+        {kDivByAlpha_RoundToNearest, kMulByAlpha_RoundUp_PMConversion},
+        {kDivByAlpha_RoundToNearest, kMulByAlpha_RoundDown_PMConversion},
     };
 
     bool failed = true;
@@ -248,6 +290,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     if (failed) {
         *pmToUPMRule = kPMConversionCnt;
         *upmToPMRule = kPMConversionCnt;
+        SkFAIL("No round trip conversion found!\n");
+        _exit(1);
+    } else {
+        SkDebugf("Round-trip conversion rule: (%d, %d)\n", *pmToUPMRule, *upmToPMRule);
+        _exit(0);
     }
 }
 
