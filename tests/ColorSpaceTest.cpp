@@ -311,13 +311,6 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), rgb4.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), rgb4.get()));
-
-    sk_sp<SkColorSpace> srgbFlag =
-            SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                  SkColorSpace::kSRGB_Gamut,
-                                  SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
-    REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), srgbFlag.get()));
-    REPORTER_ASSERT(r, SkColorSpace_Base::EqualsIgnoreFlags(srgb.get(), srgbFlag.get()));
 }
 
 static inline bool matrix_almost_equal(const SkMatrix44& a, const SkMatrix44& b) {
@@ -481,8 +474,6 @@ DEF_TEST(ColorSpace_MatrixHash, r) {
 
 DEF_TEST(ColorSpace_IsSRGB, r) {
     sk_sp<SkColorSpace> srgb0 = SkColorSpace::MakeSRGB();
-    sk_sp<SkColorSpace> srgb1 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-            SkColorSpace::kSRGB_Gamut, SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
 
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
@@ -495,6 +486,5 @@ DEF_TEST(ColorSpace_IsSRGB, r) {
     sk_sp<SkColorSpace> twoDotTwo = SkColorSpace::MakeRGB(fn, SkColorSpace::kSRGB_Gamut);
 
     REPORTER_ASSERT(r, srgb0->isSRGB());
-    REPORTER_ASSERT(r, srgb1->isSRGB());
     REPORTER_ASSERT(r, !twoDotTwo->isSRGB());
 }

@@ -306,14 +306,10 @@ static bool parse_option_gpu_color(const SkString& value,
     }
 
     const bool linearGamma = commands[0].equals("f16");
-    const bool nonLinearBlending = commands[0].equals("srgbnl");
     SkColorSpace::Gamut gamut = SkColorSpace::kSRGB_Gamut;
     SkColorSpace::RenderTargetGamma gamma = linearGamma ? SkColorSpace::kLinear_RenderTargetGamma
                                                         : SkColorSpace::kSRGB_RenderTargetGamma;
-    SkColorSpace::ColorSpaceFlags flags =
-            nonLinearBlending ? SkColorSpace::kNonLinearBlending_ColorSpaceFlag
-                              : (SkColorSpace::ColorSpaceFlags) 0;
-    *outColorSpace = SkColorSpace::MakeRGB(gamma, gamut, flags);
+    *outColorSpace = SkColorSpace::MakeRGB(gamma, gamut);
 
     if (commands.count() == 2) {
         if (commands[1].equals("srgb")) {
@@ -327,7 +323,7 @@ static bool parse_option_gpu_color(const SkString& value,
             };
             SkMatrix44 wideGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
             wideGamutRGBMatrix.set3x3RowMajorf(gWideGamutRGB_toXYZD50);
-            *outColorSpace = SkColorSpace::MakeRGB(gamma, wideGamutRGBMatrix, flags);
+            *outColorSpace = SkColorSpace::MakeRGB(gamma, wideGamutRGBMatrix);
         } else if (commands[1].equals("narrow")) {
             // NarrowGamut RGB (an artifically smaller than sRGB gamut)
             SkColorSpacePrimaries primaries ={
@@ -338,7 +334,7 @@ static bool parse_option_gpu_color(const SkString& value,
             };
             SkMatrix44 narrowGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
             primaries.toXYZD50(&narrowGamutRGBMatrix);
-            *outColorSpace = SkColorSpace::MakeRGB(gamma, narrowGamutRGBMatrix, flags);
+            *outColorSpace = SkColorSpace::MakeRGB(gamma, narrowGamutRGBMatrix);
         } else {
             // Unknown color gamut
             return false;

@@ -116,8 +116,7 @@ static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
     SkColorSpace* colorSpace = pixmap.colorSpace();
 
     if (caps.srgbSupport() &&
-        colorSpace && colorSpace->gammaCloseToSRGB() && !as_CSB(colorSpace)->nonLinearBlending() &&
-        !GrPixelConfigIsSRGB(desc->fConfig)) {
+        colorSpace && colorSpace->gammaCloseToSRGB() && !GrPixelConfigIsSRGB(desc->fConfig)) {
         // We were supplied an sRGB-like color space, but we don't have a suitable pixel config.
         // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
         // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
@@ -365,12 +364,10 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& c
         case kARGB_4444_SkColorType:
             return kRGBA_4444_GrPixelConfig;
         case kRGBA_8888_SkColorType:
-            return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB() &&
-                    !as_CSB(cs)->nonLinearBlending())
+            return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
         case kBGRA_8888_SkColorType:
-            return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB() &&
-                    !as_CSB(cs)->nonLinearBlending())
+            return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
         case kIndex_8_SkColorType:
             return kSkia8888_GrPixelConfig;
@@ -423,7 +420,7 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
 }
 
 GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace* colorSpace) {
-    if (!colorSpace || as_CSB(colorSpace)->nonLinearBlending()) {
+    if (!colorSpace) {
         return kRGBA_8888_GrPixelConfig;
     } else if (colorSpace->gammaIsLinear()) {
         return kRGBA_half_GrPixelConfig;

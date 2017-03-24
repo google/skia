@@ -318,7 +318,7 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform_Base::New(SkColorSpace* src
 
     ColorSpaceMatch csm = kNone_ColorSpaceMatch;
     SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
-    if (SkColorSpace_Base::EqualsIgnoreFlags(srcSpace, dstSpace)) {
+    if (SkColorSpace::Equals(srcSpace, dstSpace)) {
         srcToDst.setIdentity();
         csm = kFull_ColorSpaceMatch;
     } else {
