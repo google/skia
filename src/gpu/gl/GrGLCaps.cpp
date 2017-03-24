@@ -499,7 +499,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
-        kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
+        (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() &&
+         ctxInfo.driver() != kChromium_GrGLDriver)) {
         fUseDrawInsteadOfClear = true;
     }
 
