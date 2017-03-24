@@ -42,6 +42,7 @@ TEST_BUILDERS = {
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE',
+      'Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan',
       'Perf-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
       'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
       'Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release'
