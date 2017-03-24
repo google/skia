@@ -43,16 +43,7 @@ public:
      *  must faithfully represent the current contents, even if the surface
      *  is changed after this called (e.g. it is drawn to via its canvas).
      */
-#ifdef SK_SUPPORT_LEGACY_IMG_SNAPSHOT
-    // This entry point is never called but is just here so Android unit tests will compile
-    virtual sk_sp<SkImage> onNewImageSnapshot(SkBudgeted) { return nullptr; }
-
-    // This entry point should be pure virtual. It has a default implementation so Android
-    // unit tests will compile.
-    virtual sk_sp<SkImage> onNewImageSnapshot() { return nullptr; }
-#else
     virtual sk_sp<SkImage> onNewImageSnapshot() = 0;
-#endif
 
     /**
      *  Default implementation:
