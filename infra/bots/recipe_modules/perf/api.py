@@ -109,6 +109,24 @@ def nanobench_flags(bot):
     match.append('~tile_image_filter_tiled_64')  # skia:6082
   if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
     match.append('~native_image_to_raster_surface')  # skia:6401
+  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+    # skia:6398
+    match.append('~GM_varied_text_clipped_lcd')
+    match.append('~GM_varied_text_ignorable_clip_lcd')
+    match.append('~Xfermode_DstATop_aa')
+    match.append('~Xfermode_SrcIn_aa')
+    match.append('~Xfermode_SrcOut_aa')
+    match.append('~Xfermode_Src_aa')
+    match.append('~fontscaler_lcd')
+    match.append('~rotated_rects_aa_alternating_transparent_and_opaque_src')
+    match.append('~rotated_rects_aa_changing_transparent_src')
+    match.append('~rotated_rects_aa_same_transparent_src')
+    match.append('~shadermask_LCD_FF')
+    match.append('~srcmode_rects_1')
+    match.append('~text_16_LCD_88')
+    match.append('~text_16_LCD_BK')
+    match.append('~text_16_LCD_FF')
+    match.append('~text_16_LCD_WT')
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~hardstop') # skia:6037
 
