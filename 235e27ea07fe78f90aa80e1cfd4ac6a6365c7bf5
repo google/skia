@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f342696_79c67731",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-24T15:26:45Z",
+      "side": 1,
+      "message": "colorBehaviorFlag? colorFlag?\n\nHate to say this, but maybe it should actually be a flag?",
+      "range": {
+        "startLine": 13,
+        "startChar": 67,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "235e27ea07fe78f90aa80e1cfd4ac6a6365c7bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
