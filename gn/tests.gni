@@ -49,6 +49,7 @@ tests_sources = [
   "$_tests/DashPathEffectTest.cpp",
   "$_tests/DataRefTest.cpp",
   "$_tests/DequeTest.cpp",
+  "$_tests/DetermineDomainModeTest.cpp",
   "$_tests/DeviceLooperTest.cpp",
   "$_tests/DeviceTest.cpp",
   "$_tests/DFPathRendererTest.cpp",
