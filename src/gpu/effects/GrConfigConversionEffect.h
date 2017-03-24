@@ -22,8 +22,12 @@ public:
     enum PMConversion {
         kMulByAlpha_RoundUp_PMConversion = 0,
         kMulByAlpha_RoundDown_PMConversion,
+        kMulByAlpha,
+        kMulByAlpha_RoundToNearest,
         kDivByAlpha_RoundUp_PMConversion,
         kDivByAlpha_RoundDown_PMConversion,
+        kDivByAlpha,
+        kDivByAlpha_RoundToNearest,
 
         kPMConversionCnt
     };

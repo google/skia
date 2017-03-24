@@ -857,10 +857,10 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 
 void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     ASSERT_SINGLE_OWNER
-    if (SkToBool(kUnpremul_PixelOpsFlag & flags)) {
+    if (true) {
         if (!fDidTestPMConversions) {
-            test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
             fDidTestPMConversions = true;
+            test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
         }
     }
 }
