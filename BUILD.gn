@@ -747,6 +747,7 @@ if (skia_enable_tools) {
       sources = [
         "tools/fiddle/draw.cpp",
         "tools/fiddle/fiddle_main.cpp",
+        "tools/fiddle/native.cpp",
       ]
       deps = [
         ":skia",
