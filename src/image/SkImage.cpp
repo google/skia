@@ -312,7 +312,7 @@ sk_sp<SkImage> SkImage_Base::makeColorSpace(sk_sp<SkColorSpace> target) const {
     // (1) The color spaces are equal (nullptr is considered to be sRGB).
     // (2) The color type is kAlpha8.
     if ((!this->colorSpace() && target->isSRGB()) ||
-            SkColorSpace_Base::EqualsIgnoreFlags(this->colorSpace(), target.get()) ||
+            SkColorSpace::Equals(this->colorSpace(), target.get()) ||
             kAlpha_8_SkColorType == this->onImageInfo().colorType()) {
         return sk_ref_sp(const_cast<SkImage_Base*>(this));
     }

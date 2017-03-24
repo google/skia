@@ -311,8 +311,7 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageIn
     bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
 
     // Need a color xform when dst space does not match the src.
-    bool srcDstNotEqual =
-            !SkColorSpace_Base::EqualsIgnoreFlags(srcInfo.colorSpace(), dstInfo.colorSpace());
+    bool srcDstNotEqual = !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
 
     return needsColorCorrectPremul || isF16 || srcDstNotEqual;
 }

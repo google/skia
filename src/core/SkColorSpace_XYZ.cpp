@@ -10,9 +10,8 @@
 #include "SkColorSpaceXform_Base.h"
 #include "SkOpts.h"
 
-SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50,
-                                   uint32_t flags)
-    : INHERITED(nullptr, flags)
+SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
+    : INHERITED(nullptr)
     , fGammaNamed(gammaNamed)
     , fGammas(nullptr)
     , fToXYZD50(toXYZD50)
@@ -21,9 +20,8 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& to
 {}
 
 SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gammas,
-                                   const SkMatrix44& toXYZD50, sk_sp<SkData> profileData,
-                                   uint32_t flags)
-    : INHERITED(std::move(profileData), flags)
+                                   const SkMatrix44& toXYZD50, sk_sp<SkData> profileData)
+    : INHERITED(std::move(profileData))
     , fGammaNamed(gammaNamed)
     , fGammas(std::move(gammas))
     , fToXYZD50(toXYZD50)
@@ -88,14 +86,14 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() {
     if (this->gammaIsLinear()) {
         return sk_ref_sp(this);
     }
-    return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, fToXYZD50, fFlags);
+    return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, fToXYZD50);
 }
 
 sk_sp<SkColorSpace> SkColorSpace_XYZ::makeSRGBGamma() {
     if (this->gammaCloseToSRGB()) {
         return sk_ref_sp(this);
     }
-    return SkColorSpace_Base::MakeRGB(kSRGB_SkGammaNamed, fToXYZD50, fFlags);
+    return SkColorSpace_Base::MakeRGB(kSRGB_SkGammaNamed, fToXYZD50);
 }
 
 void SkColorSpace_XYZ::toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage,

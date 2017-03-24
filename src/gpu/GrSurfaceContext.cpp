@@ -30,5 +30,5 @@ GrSurfaceContext::GrSurfaceContext(GrContext* context,
 }
 
 bool GrSurfaceContext::isGammaCorrect() const {
-    return fColorSpace && !as_CSB(fColorSpace)->nonLinearBlending();
+    return fColorSpace;
 }

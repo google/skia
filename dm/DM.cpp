@@ -867,16 +867,11 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
 
     if (FLAGS_cpu) {
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        auto srgbColorSpaceNonLinearBlending = SkColorSpace::MakeRGB(
-                SkColorSpace::kSRGB_RenderTargetGamma,
-                SkColorSpace::kSRGB_Gamut,
-                SkColorSpace::kNonLinearBlending_ColorSpaceFlag);
         auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
 
         SINK("565",     RasterSink, kRGB_565_SkColorType);
         SINK("8888",    RasterSink, kN32_SkColorType);
         SINK("srgb",    RasterSink, kN32_SkColorType, srgbColorSpace);
-        SINK("srgbnl",  RasterSink, kN32_SkColorType, srgbColorSpaceNonLinearBlending);
         SINK("f16",     RasterSink, kRGBA_F16_SkColorType, srgbLinearColorSpace);
         SINK("pdf",     PDFSink);
         SINK("skp",     SKPSink);
