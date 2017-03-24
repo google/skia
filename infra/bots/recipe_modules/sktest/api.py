@@ -113,8 +113,7 @@ def dm_flags(bot):
                'angle_d3d9_es2',
                'angle_gl_es2']
     if sample_count is not '':
-      # Currently we only have 4 sample msaa angle configs
-      configs.append('angle_d3d11_es2_msaa4')
+      configs.append('angle_d3d11_es2_msaa' + sample_count)
 
   # Vulkan bot *only* runs the vk config.
   if 'Vulkan' in bot:
