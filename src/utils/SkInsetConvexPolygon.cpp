@@ -141,11 +141,12 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 
     SkAutoSTMalloc<64, EdgeData> edgeData(inputPolygonSize);
     for (int i = 0; i < inputPolygonSize; ++i) {
-        edgeData[i].fValid = true;
         int j = (i + 1) % inputPolygonSize;
         inset_edge(inputPolygonVerts[i], inputPolygonVerts[j], insetDistance, winding,
                    &edgeData[i].fInset);
+        edgeData[i].fIntersection = edgeData[i].fInset.fP0;
         edgeData[i].fTValue = SK_ScalarMin;
+        edgeData[i].fValid = true;
     }
 
     int prevIndex = inputPolygonSize - 1;
@@ -213,21 +214,21 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
         }
     }
 
-#ifdef SK_DEBUG
-    bool convex = true;
-    for (int i = 0; i < insetPolygon->count(); ++i) {
-        int j = (i + 1) % insetPolygon->count();
-        int k = (i + 2) % insetPolygon->count();
-
-        int side = winding*compute_side((*insetPolygon)[i], (*insetPolygon)[j],
-                                        (*insetPolygon)[k]);
-        if (side < 0) {
-            convex = false;
-            break;
-        }
-    }
-    SkASSERT(convex);
-#endif
+//#ifdef SK_DEBUG
+//    bool convex = true;
+//    for (int i = 0; i < insetPolygon->count(); ++i) {
+//        int j = (i + 1) % insetPolygon->count();
+//        int k = (i + 2) % insetPolygon->count();
+//
+//        int side = winding*compute_side((*insetPolygon)[i], (*insetPolygon)[j],
+//                                        (*insetPolygon)[k]);
+//        if (side < 0) {
+//            convex = false;
+//            break;
+//        }
+//    }
+//    SkASSERT(convex);
+//#endif
 
     return (insetPolygon->count() >= 3);
 }
