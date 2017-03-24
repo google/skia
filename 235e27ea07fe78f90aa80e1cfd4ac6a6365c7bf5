@@ -22,6 +22,30 @@
       "revId": "235e27ea07fe78f90aa80e1cfd4ac6a6365c7bf5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d436e1c6_bc772536",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-03-24T15:28:08Z",
+      "side": 1,
+      "message": "I just anticipate making decisions about decoding format based on gamut size. I\u0027d rather keep that heuristic isolated to cacherator for now...",
+      "parentUuid": "9f342696_79c67731",
+      "range": {
+        "startLine": 13,
+        "startChar": 67,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "235e27ea07fe78f90aa80e1cfd4ac6a6365c7bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
