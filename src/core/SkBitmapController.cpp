@@ -124,7 +124,7 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     const int dstH = SkScalarRoundToScalar(provider.height() / invScaleY);
     const SkBitmapCacheDesc desc = provider.makeCacheDesc(dstW, dstH);
 
-    if (!SkBitmapCache::Find(desc, &fResultBitmap)) {
+    if (!SkBitmapCache::FindWH(desc, &fResultBitmap)) {
         SkBitmap orig;
         if (!provider.asBitmap(&orig)) {
             return false;
@@ -141,7 +141,7 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
         SkASSERT(fResultBitmap.getPixels());
         fResultBitmap.setImmutable();
         if (!provider.isVolatile()) {
-            if (SkBitmapCache::Add(desc, fResultBitmap)) {
+            if (SkBitmapCache::AddWH(desc, fResultBitmap)) {
                 provider.notifyAddedToCache();
             }
         }
