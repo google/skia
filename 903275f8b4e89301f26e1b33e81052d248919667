@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8a64f36_c85fd687",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-24T13:41:01Z",
+      "side": 1,
+      "message": "would this be any cleaner to do this-\u003enumFragmentProcessors() - fColorFragmentProcessorCnt. Assuming the complier is smart enough to inline the inner call.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 99
+      },
+      "revId": "903275f8b4e89301f26e1b33e81052d248919667",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
