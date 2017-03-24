@@ -66,7 +66,9 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
                 *args.fCaps, *args.fAnalysis, hasMixedSamples, &args.fDstTexture));
     }
     GrColor overrideColor = GrColor_ILLEGAL;
-    int colorFPsToEliminate = args.fAnalysis->initialColorProcessorsToEliminate(&overrideColor);
+    int colorFPsToEliminate = SkTMax(
+            0,
+            args.fAnalysis->getInputColorOverrideAndColorProcessorEliminationCount(&overrideColor));
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 
