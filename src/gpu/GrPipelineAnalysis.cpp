@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrProcOptInfo.h"
+#include "GrPipelineAnalysis.h"
 #include "GrGeometryProcessor.h"
 #include "ops/GrDrawOp.h"
 
-void GrProcOptInfo::analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt) {
+void GrColorFragmentProcessorAnalysis::analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt) {
     for (int i = 0; i < cnt; ++i) {
         bool knowCurrentOutput = fProcessorsVisitedWithKnownOutput == fTotalProcessorsVisited;
         if (fUsesLocalCoords && !knowCurrentOutput &&

@@ -7,7 +7,7 @@
 
 #include "GrXferProcessor.h"
 #include "GrPipeline.h"
-#include "GrProcOptInfo.h"
+#include "GrPipelineAnalysis.h"
 #include "gl/GrGLCaps.h"
 
 GrXferProcessor::GrXferProcessor()

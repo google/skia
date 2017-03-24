@@ -74,14 +74,14 @@ GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType p
     this->setTransformedBounds(mesh.fVertices->bounds(), viewMatrix, HasAABloat::kNo, zeroArea);
 }
 
-void GrDrawVerticesOp::getFragmentProcessorAnalysisInputs(
-        FragmentProcessorAnalysisInputs* input) const {
+void GrDrawVerticesOp::getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                                          GrPipelineAnalysisCoverage* coverage) const {
     if (this->requiresPerVertexColors()) {
-        input->colorInput()->setToUnknown();
+        color->setToUnknown();
     } else {
-        input->colorInput()->setToConstant(fMeshes[0].fColor);
+        color->setToConstant(fMeshes[0].fColor);
     }
-    input->coverageInput()->setToSolidCoverage();
+    *coverage = GrPipelineAnalysisCoverage::kNone;
 }
 
 void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {

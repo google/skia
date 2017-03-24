@@ -11,7 +11,7 @@
 #include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
-#include "GrProcOptInfo.h"
+#include "GrPipelineAnalysis.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"

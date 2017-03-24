@@ -13,7 +13,7 @@
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
 #include "GrPrimitiveProcessor.h"
-#include "GrProcOptInfo.h"
+#include "GrPipelineAnalysis.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrScissorState.h"

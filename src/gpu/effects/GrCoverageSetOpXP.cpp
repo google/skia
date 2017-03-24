@@ -11,7 +11,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
-#include "GrProcOptInfo.h"
+#include "GrPipelineAnalysis.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
