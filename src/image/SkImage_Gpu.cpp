@@ -63,7 +63,8 @@ SkImageInfo SkImage_Gpu::onImageInfo() const {
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, CachingHint chint) const {
-    if (SkBitmapCache::Find(this->uniqueID(), dst)) {
+    const auto desc = SkBitmapCacheDesc::Make(this);
+    if (SkBitmapCache::Find(desc, dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
         SkASSERT(dst->getPixels());
@@ -86,7 +87,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, Cachin
 
     dst->pixelRef()->setImmutableWithID(this->uniqueID());
     if (kAllow_CachingHint == chint) {
-        SkBitmapCache::Add(this->uniqueID(), *dst);
+        SkBitmapCache::Add(desc, *dst);
         fAddedRasterVersionToCache.store(true);
     }
     return true;
