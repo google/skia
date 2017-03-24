@@ -174,9 +174,10 @@ public:
 private:
     AAStrokeRectOp() : INHERITED(ClassID()) {}
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fRects[0].fColor);
-        input->coverageInput()->setToUnknown();
+    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                            GrPipelineAnalysisCoverage* coverage) const override {
+        color->setToConstant(fRects[0].fColor);
+        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
     void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
     void onPrepareDraws(Target*) const override;
