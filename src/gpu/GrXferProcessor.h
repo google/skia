@@ -17,7 +17,7 @@
 
 class GrShaderCaps;
 class GrGLSLXferProcessor;
-class GrProcOptInfo;
+class GrColorFragmentProcessorAnalysis;
 
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
