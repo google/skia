@@ -421,8 +421,11 @@ protected:
             if (!fShowSpot) {
                 spotAlpha = 0;
             }
-            SkShadowUtils::DrawShadow(canvas, path, zValue, lightPos, lightWidth,
-                                      ambientAlpha, spotAlpha, SK_ColorBLACK);
+
+            SkShadowUtils::DrawPerspectiveShadow(canvas, path, 
+                                                 [zValue](SkScalar x, SkScalar y) -> SkScalar { return zValue; },
+                                                 lightPos, lightWidth,
+                                                 ambientAlpha, spotAlpha, SK_ColorBLACK);
         }
 #else
         if (fShowAmbient) {

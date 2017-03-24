@@ -559,3 +559,71 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         draw_shadow(factory, canvas, shadowedPath, color, cache);
     }
 }
+
+
+// Draw an offset spot shadow and outlining ambient shadow for the given path.
+void SkShadowUtils::DrawPerspectiveShadow(SkCanvas* canvas, const SkPath& path,
+                                          std::function<SkScalar(SkScalar, SkScalar)> heightFunc,
+                                          const SkPoint3& lightPos, SkScalar lightRadius,
+                                          SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
+                                          uint32_t flags) {
+    SkAutoCanvasRestore acr(canvas, true);
+    SkMatrix viewMatrix = canvas->getTotalMatrix();
+    canvas->resetMatrix();
+
+    bool transparent = SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+
+    if (ambientAlpha > 0) {
+        ambientAlpha = SkTMin(ambientAlpha, 1.f);
+        SkScalar radius = heightFunc(0,0) * kHeightFactor * kGeomFactor;
+        SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(heightFunc(0, 0)*kHeightFactor, 0.0f)));
+        // umbraColor is the interior value, penumbraColor the exterior value.
+        // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
+        // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
+        // the final alpha.
+        SkColor umbraColor =
+            SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, umbraAlpha * 255.9999f);
+        SkColor penumbraColor = SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, 0);
+
+        sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix, radius,
+                                                                      umbraColor, penumbraColor,
+                                                                      transparent);
+        SkPaint paint;
+        // Run the vertex color through a GaussianColorFilter and then modulate the grayscale result of
+        // that against our 'color' param.
+        paint.setColorFilter(SkColorFilter::MakeComposeFilter(
+            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
+            SkGaussianColorFilter::Make()));
+        canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
+    }
+
+    if (spotAlpha > 0) {
+        spotAlpha = SkTMin(spotAlpha, 1.f);
+        SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
+        SkScalar occluderHeight = heightFunc(center.fX, center.fY);
+        float zRatio = SkTPin( occluderHeight / (lightPos.fZ - occluderHeight), 0.0f, 0.95f);
+        SkScalar radius = lightRadius * zRatio;
+
+        // Compute the scale and translation for the spot shadow.
+        SkScalar scale = lightPos.fZ / (lightPos.fZ - occluderHeight);
+
+        viewMatrix.mapPoints(&center, 1);
+        SkVector offset = SkVector::Make(zRatio * (center.fX - lightPos.fX),
+                                         zRatio * (center.fY - lightPos.fY));
+        SkColor umbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 255);
+        SkColor penumbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 0);
+
+        sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix, scale, offset,
+                                                                   radius, umbraColor,
+                                                                   penumbraColor, transparent);
+        SkPaint paint;
+        // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
+        // result of that against our 'color' param.
+        paint.setColorFilter(SkColorFilter::MakeComposeFilter(
+            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
+            SkGaussianColorFilter::Make()));
+        canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
+    }
+
+
+}
