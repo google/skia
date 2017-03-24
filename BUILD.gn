@@ -692,10 +692,12 @@ component("skia") {
     sources += [
       "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkFontHost_mac.cpp",
+      "src/ports/SkFontHost_mac_objcpp.mm",
       "src/ports/SkImageEncoder_CG.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
     ]
     libs += [
+      "AppKit.framework",
       "ApplicationServices.framework",
       "OpenGL.framework",
     ]
@@ -705,6 +707,7 @@ component("skia") {
     sources += [
       "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkFontHost_mac.cpp",
+      "src/ports/SkFontHost_mac_objcpp.mm",
       "src/ports/SkImageEncoder_CG.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
     ]
@@ -714,6 +717,7 @@ component("skia") {
       "CoreText.framework",
       "ImageIO.framework",
       "MobileCoreServices.framework",
+      "UIKit.framework",
     ]
   }
 
