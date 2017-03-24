@@ -75,6 +75,7 @@ static const struct {
     { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
     { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },
     { "angle_d3d11_es2_msaa4", "gpu", "api=angle_d3d11_es2,samples=4" },
+    { "angle_d3d11_es2_msaa8", "gpu", "api=angle_d3d11_es2,samples=8" },
     { "angle_gl_es2",          "gpu", "api=angle_gl_es2" },
     { "angle_gl_es3",          "gpu", "api=angle_gl_es3" },
     { "commandbuffer",         "gpu", "api=commandbuffer" }
