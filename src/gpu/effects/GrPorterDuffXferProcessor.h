@@ -12,7 +12,7 @@
 #include "GrXferProcessor.h"
 #include "SkBlendMode.h"
 
-class GrProcOptInfo;
+class GrColorFragmentProcessorAnalysis;
 
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__) || defined(__clang)

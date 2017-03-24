@@ -43,8 +43,8 @@ protected:
     GrPipelineOptimizations initPipeline(const GrOpFlushState&, GrPipeline*);
     const GrProcessorSet::FragmentProcessorAnalysis& doFragmentProcessorAnalysis(
             const GrCaps& caps, const GrAppliedClip* clip) {
-        fProcessorSet.analyzeAndEliminateFragmentProcessors(&fAnalysis, fAnalysis.inputColor(),
-                                                            GrColor_WHITE, clip, caps);
+        fProcessorSet.analyzeAndEliminateFragmentProcessors(
+                &fAnalysis, fAnalysis.inputColor(), GrPipelineAnalysisCoverage::kNone, clip, caps);
         return fAnalysis;
     }
     const GrProcessorSet::FragmentProcessorAnalysis& fragmentProcessorAnalysis() const {
