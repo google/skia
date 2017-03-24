@@ -88,7 +88,7 @@ public:
     bool lockAsBitmapOnlyIfAlreadyCached(SkBitmap*, CachedFormat);
     // Call the underlying generator directly
     bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                              int srcX, int srcY);
+                              int srcX, int srcY, SkTransferFunctionBehavior behavior);
 
 private:
     // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing of one generator

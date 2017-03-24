@@ -45,6 +45,15 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return success;
 }
 
+bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                 const Options* opts) {
+    Options defaultOpts;
+    if (!opts) {
+        opts = &defaultOpts;
+    }
+    return this->onGetPixels(info, pixels, rowBytes, *opts);
+}
+
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     SkASSERT(kIndex_8_SkColorType != info.colorType());
     if (kIndex_8_SkColorType == info.colorType()) {
