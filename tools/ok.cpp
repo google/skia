@@ -204,90 +204,86 @@ static std::unique_ptr<T> move_unique(T& v) {
     return std::unique_ptr<T>{new T{std::move(v)}};
 }
 
-struct GMStream : Stream {
-    const skiagm::GMRegistry* registry = skiagm::GMRegistry::Head();
+static std::unique_ptr<Stream> create_gm_stream(Options) {
+    struct : Stream {
+        const skiagm::GMRegistry* registry = skiagm::GMRegistry::Head();
 
-    static std::unique_ptr<Stream> Create(Options) {
-        GMStream stream;
-        return move_unique(stream);
+        std::unique_ptr<Src> next() override {
+            if (!registry) {
+                return nullptr;
+            }
+
+            struct : Src {
+                skiagm::GM* (*factory)(void*);
+                std::unique_ptr<skiagm::GM> gm;
+
+                std::string name() override {
+                    gm.reset(factory(nullptr));
+                    return gm->getName();
+                }
+
+                SkISize size() override {
+                    return gm->getISize();
+                }
+
+                void draw(SkCanvas* canvas) override {
+                    canvas->clear(0xffffffff);
+                    canvas->concat(gm->getInitialTransform());
+                    gm->draw(canvas);
+                }
+            } src;
+
+            src.factory = registry->factory();
+            registry = registry->next();
+            return move_unique(src);
+        }
+    } stream;
+    return move_unique(stream);
+}
+
+static std::unique_ptr<Stream> create_skp_stream(Options options) {
+    struct : Stream {
+        std::string dir;
+        std::vector<std::string> skps;
+
+        std::unique_ptr<Src> next() override {
+            if (skps.empty()) {
+                return nullptr;
+            }
+            struct : Src {
+                std::string dir, path;
+                sk_sp<SkPicture> pic;
+
+                std::string name() override {
+                    return path;
+                }
+
+                SkISize size() override {
+                    auto skp = SkData::MakeFromFileName((dir+"/"+path).c_str());
+                    pic = SkPicture::MakeFromData(skp.get());
+                    return pic->cullRect().roundOut().size();
+                }
+
+                void draw(SkCanvas* canvas) override {
+                    canvas->clear(0xffffffff);
+                    pic->playback(canvas);
+                }
+            } src;
+
+            src.dir  = dir;
+            src.path = skps.back();
+            skps.pop_back();
+            return move_unique(src);
+        }
+    } stream;
+
+    stream.dir = options.lookup("dir", "skps");
+    SkOSFile::Iter it{stream.dir.c_str(), ".skp"};
+    for (SkString path; it.next(&path); ) {
+        stream.skps.push_back(path.c_str());
     }
-
-    struct GMSrc : Src {
-        skiagm::GM* (*factory)(void*);
-        std::unique_ptr<skiagm::GM> gm;
-
-        std::string name() override {
-            gm.reset(factory(nullptr));
-            return gm->getName();
-        }
-
-        SkISize size() override {
-            return gm->getISize();
-        }
-
-        void draw(SkCanvas* canvas) override {
-            canvas->clear(0xffffffff);
-            canvas->concat(gm->getInitialTransform());
-            gm->draw(canvas);
-        }
-    };
-
-    std::unique_ptr<Src> next() override {
-        if (!registry) {
-            return nullptr;
-        }
-        GMSrc src;
-        src.factory = registry->factory();
-        registry = registry->next();
-        return move_unique(src);
-    }
-};
-
-struct SKPStream : Stream {
-    std::string dir;
-    std::vector<std::string> skps;
-
-    static std::unique_ptr<Stream> Create(Options options) {
-        SKPStream stream;
-        stream.dir = options.lookup("dir", "skps");
-        SkOSFile::Iter it{stream.dir.c_str(), ".skp"};
-        for (SkString path; it.next(&path); ) {
-            stream.skps.push_back(path.c_str());
-        }
-        return move_unique(stream);
-    }
-
-    struct SKPSrc : Src {
-        std::string dir, path;
-        sk_sp<SkPicture> pic;
-
-        std::string name() override {
-            return path;
-        }
-
-        SkISize size() override {
-            auto skp = SkData::MakeFromFileName((dir+"/"+path).c_str());
-            pic = SkPicture::MakeFromData(skp.get());
-            return pic->cullRect().roundOut().size();
-        }
-
-        void draw(SkCanvas* canvas) override {
-            canvas->clear(0xffffffff);
-            pic->playback(canvas);
-        }
-    };
-
-    std::unique_ptr<Src> next() override {
-        if (skps.empty()) {
-            return nullptr;
-        }
-        SKPSrc src;
-        src.dir  = dir;
-        src.path = skps.back();
-        skps.pop_back();
-        return move_unique(src);
-    }
-};
+    return move_unique(stream);
+}
 
 struct Dst {
     virtual ~Dst() {}
@@ -295,42 +291,41 @@ struct Dst {
     virtual void write(std::string path_prefix) = 0;
 };
 
-struct SWDst : Dst {
-    sk_sp<SkSurface> surface;
+static std::unique_ptr<Dst> create_sw_dst(SkISize size, Options options) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(size.width(), size.height());
+    if (options.lookup("ct") == "565") { info = info.makeColorType(kRGB_565_SkColorType); }
+    if (options.lookup("ct") == "f16") { info = info.makeColorType(kRGBA_F16_SkColorType); }
+    struct : Dst {
+        sk_sp<SkSurface> surface;
 
-    static std::unique_ptr<Dst> Create(SkISize size, Options options) {
-        SkImageInfo info = SkImageInfo::MakeN32Premul(size.width(), size.height());
-        if (options.lookup("ct") == "565") { info = info.makeColorType(kRGB_565_SkColorType); }
-        if (options.lookup("ct") == "f16") { info = info.makeColorType(kRGBA_F16_SkColorType); }
-        SWDst dst;
-        dst.surface = SkSurface::MakeRaster(info);
-        return move_unique(dst);
-    }
+        SkCanvas* canvas() override {
+            return surface->getCanvas();
+        }
 
-    SkCanvas* canvas() override {
-        return surface->getCanvas();
-    }
+        void write(std::string path_prefix) override {
+            auto image = surface->makeImageSnapshot();
+            sk_sp<SkData> png{image->encode()};
+            SkFILEWStream{(path_prefix + ".png").c_str()}.write(png->data(), png->size());
+        }
+    } dst;
+    dst.surface = SkSurface::MakeRaster(info);
+    return move_unique(dst);
+}
 
-    void write(std::string path_prefix) override {
-        auto image = surface->makeImageSnapshot();
-        sk_sp<SkData> png{image->encode()};
-        SkFILEWStream{(path_prefix + ".png").c_str()}.write(png->data(), png->size());
-    }
-};
 
 struct {
     const char* name;
     std::unique_ptr<Stream> (*factory)(Options);
 } streams[] = {
-    {"gm",  GMStream::Create },
-    {"skp", SKPStream::Create },
+    {"gm",  create_gm_stream },
+    {"skp", create_skp_stream },
 };
 
 struct {
     const char* name;
     std::unique_ptr<Dst> (*factory)(SkISize, Options);
 } dsts[] = {
-    {"sw",  SWDst::Create },
+    {"sw",  create_sw_dst },
 };
 
 
