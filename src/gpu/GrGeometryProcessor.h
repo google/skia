@@ -51,6 +51,7 @@ protected:
      */
     const Attribute& addVertexAttrib(const char* name, GrVertexAttribType type,
                                      GrSLPrecision precision = kDefault_GrSLPrecision) {
+        precision = (kDefault_GrSLPrecision == precision) ? kMedium_GrSLPrecision : precision;
         fAttribs.emplace_back(name, type, precision);
         fVertexStride += fAttribs.back().fOffset;
         return fAttribs.back();
