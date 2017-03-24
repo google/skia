@@ -39,13 +39,11 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
 }
 
 GrProcessorSet::~GrProcessorSet() {
-    if (this->isPendingExecution()) {
-        for (auto fp : fFragmentProcessors) {
-            fp->completedExecution();
-        }
-    } else {
-        for (auto fp : fFragmentProcessors) {
-            fp->unref();
+    for (int i = fFragmentProcessorOffset; i < fFragmentProcessors.count(); ++i) {
+        if (this->isPendingExecution()) {
+            fFragmentProcessors[i]->completedExecution();
+        } else {
+            fFragmentProcessors[i]->unref();
         }
     }
 }
@@ -53,20 +51,24 @@ GrProcessorSet::~GrProcessorSet() {
 void GrProcessorSet::makePendingExecution() {
     SkASSERT(!(kPendingExecution_Flag & fFlags));
     fFlags |= kPendingExecution_Flag;
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+    for (int i = fFragmentProcessorOffset; i < fFragmentProcessors.count(); ++i) {
         fFragmentProcessors[i]->addPendingExecution();
         fFragmentProcessors[i]->unref();
     }
 }
 
 bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
+    int fpCount = this->numFragmentProcessors();
     if (((fFlags ^ that.fFlags) & ~kPendingExecution_Flag) ||
-        fFragmentProcessors.count() != that.fFragmentProcessors.count() ||
+        fpCount != that.numFragmentProcessors() ||
         fColorFragmentProcessorCnt != that.fColorFragmentProcessorCnt) {
         return false;
     }
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        if (!fFragmentProcessors[i]->isEqual(*that.fFragmentProcessors[i])) {
+
+    for (int i = 0; i < fpCount; ++i) {
+        int a = i + fFragmentProcessorOffset;
+        int b = i + that.fFragmentProcessorOffset;
+        if (!fFragmentProcessors[a]->isEqual(*that.fFragmentProcessors[b])) {
             return false;
         }
     }
@@ -87,7 +89,8 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(const GrPipelineInp
     fCompatibleWithCoverageAsAlpha = !coverageInput.isLCDCoverage();
     fValidInputColor = colorInput.isConstant(&fInputColor);
 
-    const GrFragmentProcessor* const* fps = processors.fFragmentProcessors.get();
+    const GrFragmentProcessor* const* fps =
+            processors.fFragmentProcessors.get() + processors.fFragmentProcessorOffset;
     colorInfo.analyzeProcessors(fps, processors.fColorFragmentProcessorCnt);
     fCompatibleWithCoverageAsAlpha &= colorInfo.allProcessorsCompatibleWithCoverageAsAlpha();
     fps += processors.fColorFragmentProcessorCnt;
@@ -146,4 +149,27 @@ GrProcessorSet::FragmentProcessorAnalysis::FragmentProcessorAnalysis(
         const GrPipelineInput& colorInput, const GrPipelineInput coverageInput, const GrCaps& caps)
         : FragmentProcessorAnalysis() {
     this->internalInit(colorInput, coverageInput, GrProcessorSet(GrPaint()), nullptr, caps);
+}
+
+void GrProcessorSet::analyzeAndEliminateFragmentProcessors(FragmentProcessorAnalysis* analysis,
+                                                           const GrPipelineInput& colorInput,
+                                                           const GrPipelineInput coverageInput,
+                                                           const GrAppliedClip* clip,
+                                                           const GrCaps& caps) {
+    analysis->init(colorInput, coverageInput, *this, clip, caps);
+    if (analysis->fInitialColorProcessorsToEliminate > 0) {
+        for (unsigned i = 0; i < analysis->fInitialColorProcessorsToEliminate; ++i) {
+            if (this->isPendingExecution()) {
+                fFragmentProcessors[i + fFragmentProcessorOffset]->completedExecution();
+            } else {
+                fFragmentProcessors[i + fFragmentProcessorOffset]->unref();
+            }
+            fFragmentProcessors[i + fFragmentProcessorOffset] = nullptr;
+        }
+        fFragmentProcessorOffset += analysis->fInitialColorProcessorsToEliminate;
+        fColorFragmentProcessorCnt -= analysis->fInitialColorProcessorsToEliminate;
+        SkASSERT(fFragmentProcessorOffset + fColorFragmentProcessorCnt <=
+                 fFragmentProcessors.count());
+        analysis->fInitialColorProcessorsToEliminate = 0;
+    }
 }

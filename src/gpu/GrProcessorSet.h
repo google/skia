@@ -32,16 +32,18 @@ public:
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
     int numCoverageFragmentProcessors() const {
-        return fFragmentProcessors.count() - fColorFragmentProcessorCnt;
+        return this->numFragmentProcessors() - fColorFragmentProcessorCnt;
     }
-    int numFragmentProcessors() const { return fFragmentProcessors.count(); }
+    int numFragmentProcessors() const {
+        return fFragmentProcessors.count() - fFragmentProcessorOffset;
+    }
 
     const GrFragmentProcessor* colorFragmentProcessor(int idx) const {
         SkASSERT(idx < fColorFragmentProcessorCnt);
-        return fFragmentProcessors[idx];
+        return fFragmentProcessors[idx + fFragmentProcessorOffset];
     }
     const GrFragmentProcessor* coverageFragmentProcessor(int idx) const {
-        return fFragmentProcessors[idx + fColorFragmentProcessorCnt];
+        return fFragmentProcessors[idx + fColorFragmentProcessorCnt + fFragmentProcessorOffset];
     }
 
     const GrXPFactory* xpFactory() const { return fXPFactory; }
@@ -90,12 +92,19 @@ public:
 
         bool isInitializedWithProcessorSet() const { return fIsInitializedWithProcessorSet; }
 
-        int initialColorProcessorsToEliminate(GrColor* newInputColor) const {
-            if (fInitialColorProcessorsToEliminate > 0) {
-                SkASSERT(fValidInputColor);
+        /**
+         * If the return is greater than or equal to zero then 'newInputColor' should be used as the
+         * input color to the GrPipeline derived from this processor set, replacing the GrDrawOp's
+         * initial color. If the return is less than zero then newInputColor has not been
+         * modified and no modification need be made to the pipeline's input color by the op.
+         */
+        int getInputColorOverrideAndColorProcessorEliminationCount(GrColor* newInputColor) const {
+            if (fValidInputColor) {
                 *newInputColor = fInputColor;
+                return fInitialColorProcessorsToEliminate;
             }
-            return fInitialColorProcessorsToEliminate;
+            SkASSERT(!fInitialColorProcessorsToEliminate);
+            return -1;
         }
 
         /**
@@ -151,12 +160,19 @@ public:
 
         GrColor fInputColor;
         GrColor fKnownOutputColor;
+
+        friend class GrProcessorSet;
     };
     GR_STATIC_ASSERT(sizeof(FragmentProcessorAnalysis) == 2 * sizeof(GrColor) + sizeof(uint32_t));
 
+    void analyzeAndEliminateFragmentProcessors(FragmentProcessorAnalysis*,
+                                               const GrPipelineInput& colorInput,
+                                               const GrPipelineInput coverageInput,
+                                               const GrAppliedClip*, const GrCaps&);
+
 private:
     // This absurdly large limit allows FragmentProcessorAnalysis and this to pack fields together.
-    static constexpr int kMaxColorProcessors = SK_MaxU16;
+    static constexpr int kMaxColorProcessors = UINT8_MAX;
 
     enum Flags : uint16_t {
         kUseDistanceVectorField_Flag = 0x1,
@@ -167,8 +183,9 @@ private:
 
     const GrXPFactory* fXPFactory = nullptr;
     SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
-    uint16_t fColorFragmentProcessorCnt;
-    uint16_t fFlags;
+    uint8_t fColorFragmentProcessorCnt;
+    uint8_t fFragmentProcessorOffset = 0;
+    uint8_t fFlags;
 };
 
 #endif
