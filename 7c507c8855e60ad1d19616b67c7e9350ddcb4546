@@ -46,6 +46,30 @@
       "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f41b3356_4d5a5055",
+        "filename": "src/effects/SkBlurDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-24T15:09:38Z",
+      "side": 0,
+      "message": "It\u0027s partially code clean-up.  Cleaning up this code will help us complete the implementation of SkColorSpaceXformCanvas which we need for Android (O release) and Chrome - this canvas needs to inspect all the SkPaints and do color xforms on them, incuding the paints that are hidden in draw loopers.\n\nTechnically, we don\u0027t need this for Android O because SkPaints are implicitly sRGB and the destination of the SkColorSpaceXformCanvas will be sRGB.  So the paint transform is no-op - it\u0027s ok if we miss some paints.\n\nThis does matter for Chrome though.\n\nWhen do we branch?  I\u0027d rather not wait too long.",
+      "parentUuid": "def14ca1_9063f16b",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 13
+      },
+      "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
