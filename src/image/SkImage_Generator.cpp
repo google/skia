@@ -60,7 +60,8 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
             // Try passing the caller's buffer directly down to the generator. If this fails we
             // may still succeed in the general case, as the generator may prefer some other
             // config, which we could then convert via SkBitmap::readPixels.
-            if (fCache.directGeneratePixels(dstInfo, dstPixels, dstRB, srcX, srcY)) {
+            if (fCache.directGeneratePixels(dstInfo, dstPixels, dstRB, srcX, srcY,
+                                            SkTransferFunctionBehavior::kRespect)) {
                 return true;
             }
             // else fall through
@@ -112,7 +113,10 @@ sk_sp<SkImage> SkImage_Generator::onMakeColorSpace(sk_sp<SkColorSpace> target) c
     }
     dst.allocPixels(dstInfo);
 
-    if (!fCache.directGeneratePixels(dstInfo, dst.getPixels(), dst.rowBytes(), 0, 0)) {
+    // Use kIgnore for transfer function behavior.  This is used by the SkColorSpaceXformCanvas,
+    // which wants to pre-xform the inputs but ignore the transfer function on blends.
+    if (!fCache.directGeneratePixels(dstInfo, dst.getPixels(), dst.rowBytes(), 0, 0,
+                                     SkTransferFunctionBehavior::kIgnore)) {
         return nullptr;
     }
 

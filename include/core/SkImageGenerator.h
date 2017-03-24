@@ -177,6 +177,23 @@ protected:
         return false;
     }
 
+    struct Options {
+        Options()
+            : fColorTable(nullptr)
+            , fColorTableCount(nullptr)
+            , fBehavior(SkTransferFunctionBehavior::kRespect)
+        {}
+
+        SkPMColor*                 fColorTable;
+        int*                       fColorTableCount;
+        SkTransferFunctionBehavior fBehavior;
+    };
+    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* opts);
+    virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                             const Options& opts) {
+        return this->onGetPixels(info, pixels, rowBytes, opts.fColorTable, opts.fColorTableCount);
+    }
+
 #if SK_SUPPORT_GPU
     virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
                                                     const SkIPoint&);
@@ -185,6 +202,8 @@ protected:
 private:
     const SkImageInfo fInfo;
     const uint32_t fUniqueID;
+
+    friend class SkImageCacherator;
 
     // This is our default impl, which may be different on different platforms.
     // It is called from NewFromEncoded() after it has checked for any runtime factory.

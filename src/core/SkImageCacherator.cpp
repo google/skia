@@ -166,14 +166,18 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap, const SkImageInfo& deco
 }
 
 bool SkImageCacherator::directGeneratePixels(const SkImageInfo& info, void* pixels, size_t rb,
-                                             int srcX, int srcY) {
+                                             int srcX, int srcY,
+                                             SkTransferFunctionBehavior behavior) {
     ScopedGenerator generator(fSharedGenerator);
     const SkImageInfo& genInfo = generator->getInfo();
     // Currently generators do not natively handle subsets, so check that first.
     if (srcX || srcY || genInfo.width() != info.width() || genInfo.height() != info.height()) {
         return false;
     }
-    return generator->getPixels(info, pixels, rb);
+
+    SkImageGenerator::Options opts;
+    opts.fBehavior = behavior;
+    return generator->getPixels(info, pixels, rb, &opts);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
