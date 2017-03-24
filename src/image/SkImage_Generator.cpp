@@ -106,7 +106,8 @@ sk_sp<SkImage> SkImage_Generator::onMakeColorSpace(sk_sp<SkColorSpace> target) c
     SkBitmap dst;
     SkImageInfo dstInfo = fCache.info().makeColorSpace(target);
     if (kIndex_8_SkColorType == dstInfo.colorType() ||
-        kGray_8_SkColorType == dstInfo.colorType()) {
+        kGray_8_SkColorType == dstInfo.colorType() ||
+        kRGB_565_SkColorType == dstInfo.colorType()) {
         dstInfo = dstInfo.makeColorType(kN32_SkColorType);
     }
     dst.allocPixels(dstInfo);
