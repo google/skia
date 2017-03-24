@@ -22,6 +22,30 @@
       "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "def14ca1_9063f16b",
+        "filename": "src/effects/SkBlurDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-24T14:30:26Z",
+      "side": 0,
+      "message": "It could be a problem so we may need to add that code to Android.  However, if this is just code cleanup and isn\u0027t intended to fix a larger issue I would rather that we wait until after we branch for the next android release before we land this.",
+      "parentUuid": "3717ca70_50275ed0",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 13
+      },
+      "revId": "7c507c8855e60ad1d19616b67c7e9350ddcb4546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
