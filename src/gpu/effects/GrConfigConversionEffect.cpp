@@ -248,6 +248,9 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     if (failed) {
         *pmToUPMRule = kPMConversionCnt;
         *upmToPMRule = kPMConversionCnt;
+        SkFAIL("No round trip conversion found!\n");
+    } else {
+        SkDebugf("Round-trip conversion rule: %d\n", *pmToUPMRule == kConversionRules[0][0] ? 0 : 1);
     }
 }
 
