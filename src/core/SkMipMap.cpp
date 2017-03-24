@@ -7,6 +7,7 @@
 
 #include "SkMipMap.h"
 #include "SkBitmap.h"
+#include "SkBitmapScaler.h"
 #include "SkColorPriv.h"
 #include "SkHalf.h"
 #include "SkMathPriv.h"
@@ -14,6 +15,8 @@
 #include "SkPM4fPriv.h"
 #include "SkSRGB.h"
 #include "SkTypes.h"
+
+SkBitmapScaler::ResizeMethod gMipScalerResizeMethod = SkBitmapScaler::RESIZE_BOX;
 
 //
 // ColorTypeFilter is the "Type" we pass to some downsample template functions.
@@ -556,14 +559,18 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode col
                                          SkIntToScalar(height) / src.height());
 
         const SkPixmap& dstPM = levels[i].fPixmap;
-        const void* srcBasePtr = srcPM.addr();
-        void* dstBasePtr = dstPM.writable_addr();
+        if (ct == kN32_SkColorType && gMipScalerResizeMethod != SkBitmapScaler::RESIZE_BOX) {
+            SkBitmapScaler::Resize(dstPM, srcPM, gMipScalerResizeMethod);
+        } else {
+            const void* srcBasePtr = srcPM.addr();
+            void* dstBasePtr = dstPM.writable_addr();
 
-        const size_t srcRB = srcPM.rowBytes();
-        for (int y = 0; y < height; y++) {
-            proc(dstBasePtr, srcBasePtr, srcRB, width);
-            srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
-            dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
+            const size_t srcRB = srcPM.rowBytes();
+            for (int y = 0; y < height; y++) {
+                proc(dstBasePtr, srcBasePtr, srcRB, width);
+                srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
+                dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
+            }
         }
         srcPM = dstPM;
         addr += height * rowBytes;
