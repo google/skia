@@ -1152,6 +1152,8 @@ if (skia_enable_tools) {
   test_app("ok") {
     sources = [
       "tools/ok.cpp",
+      "tools/ok_dsts.cpp",
+      "tools/ok_srcs.cpp",
     ]
     deps = [
       ":gm",
