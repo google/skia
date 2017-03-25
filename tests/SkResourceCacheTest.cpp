@@ -89,8 +89,8 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
     }
 
     for (int i = 0; i < N; ++i) {
-        const SkMipMap* mipmap = SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(src[i]),
-                                                           colorMode, cache);
+        const auto desc = SkBitmapCacheDesc::Make(src[i]);
+        const SkMipMap* mipmap = SkMipMapCache::FindAndRef(desc, colorMode, cache);
         if (cache) {
             // if cache is null, we're working on the global cache, and other threads might purge
             // it, making this check fragile.
@@ -100,7 +100,7 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
 
         src[i].reset(); // delete the underlying pixelref, which *should* remove us from the cache
 
-        mipmap = SkMipMapCache::FindAndRef(SkBitmapCacheDesc::Make(src[i]), colorMode, cache);
+        mipmap = SkMipMapCache::FindAndRef(desc, colorMode, cache);
         REPORTER_ASSERT(reporter, !mipmap);
     }
 }
@@ -156,14 +156,14 @@ static void test_discarded_image(skiatest::Reporter* reporter, const SkMatrix& t
         canvas->concat(transform);
         canvas->drawImage(image, 0, 0, &paint);
 
-        auto imageId = image->uniqueID();
+        const auto desc = SkBitmapCacheDesc::Make(image.get());
 
         // delete the image
         image.reset(nullptr);
 
         // all resources should have been purged
         SkBitmap result;
-        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(imageId, &result));
+        REPORTER_ASSERT(reporter, !SkBitmapCache::Find(desc, &result));
     }
 }
 
