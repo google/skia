@@ -9,25 +9,27 @@
 #include "SkSurface.h"
 
 struct SWDst : Dst {
+    SkImageInfo      info;
     sk_sp<SkSurface> surface;
 
-    static std::unique_ptr<Dst> Create(Options options, SkISize size) {
-        SkImageInfo info = SkImageInfo::MakeN32Premul(size.width(), size.height());
+    static std::unique_ptr<Dst> Create(Options options) {
+        SkImageInfo info = SkImageInfo::MakeN32Premul(0,0);
         if (options("ct") == "565") { info = info.makeColorType(kRGB_565_SkColorType); }
         if (options("ct") == "f16") { info = info.makeColorType(kRGBA_F16_SkColorType); }
+
         SWDst dst;
-        dst.surface = SkSurface::MakeRaster(info);
+        dst.info = info;
         return move_unique(dst);
     }
 
-    SkCanvas* canvas() override {
-        return surface->getCanvas();
+    bool draw(Src* src) override {
+        auto size = src->size();
+        surface = SkSurface::MakeRaster(info.makeWH(size.width(), size.height()));
+        return src->draw(surface->getCanvas());
     }
 
-    void write(std::string path_prefix) override {
-        auto image = surface->makeImageSnapshot();
-        sk_sp<SkData> png{image->encode()};
-        SkFILEWStream{(path_prefix + ".png").c_str()}.write(png->data(), png->size());
+    sk_sp<SkImage> image() override {
+        return surface->makeImageSnapshot();
     }
 };
 static Register sw{"sw", SWDst::Create};

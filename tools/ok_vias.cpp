@@ -8,30 +8,50 @@
 #include "ok.h"
 #include "SkPictureRecorder.h"
 
+static std::unique_ptr<Src> proxy(Src* original, std::function<bool(SkCanvas*)> fn) {
+    struct : Src {
+        Src*                           original;
+        std::function<bool(SkCanvas*)> fn;
+
+        std::string name() override { return original->name(); }
+        SkISize     size() override { return original->size(); }
+        bool draw(SkCanvas* canvas) override { return fn(canvas); }
+    } src;
+    src.original = original;
+    src.fn       = fn;
+    return move_unique(src);
+}
+
 struct ViaPic : Dst {
     std::unique_ptr<Dst> target;
-    SkPictureRecorder    rec;
+    bool                 rtree = false;
 
-    static std::unique_ptr<Dst> Create(Options options, SkISize size, std::unique_ptr<Dst> dst) {
-        SkBBHFactory* bbh = nullptr;
-        SkRTreeFactory rtree;
-
-        if (options("bbh") == "rtree") { bbh = &rtree; }
-
-        auto via = std::unique_ptr<ViaPic>(new ViaPic);
-        via->target = std::move(dst);
-        via->rec.beginRecording(SkRect::MakeSize(SkSize::Make(size)), bbh);
-        return std::move(via);
+    static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        ViaPic via;
+        via.target = std::move(dst);
+        if (options("bbh") == "rtree") { via.rtree = true; }
+        return move_unique(via);
     }
 
-    SkCanvas* canvas() override {
-        return rec.getRecordingCanvas();
-    }
+    bool draw(Src* src) override {
+        SkRTreeFactory factory;
+        SkPictureRecorder rec;
+        rec.beginRecording(SkRect::MakeSize(SkSize::Make(src->size())),
+                           rtree ? &factory : nullptr);
 
-    void write(std::string path_prefix) override {
+        if (!src->draw(rec.getRecordingCanvas())) {
+            return false;
+        }
         auto pic = rec.finishRecordingAsPicture();
-        pic->playback(target->canvas());
-        target->write(path_prefix);
+
+        return target->draw(proxy(src, [=](SkCanvas* canvas) {
+            pic->playback(canvas);
+            return true;
+        }).get());
+    }
+
+    sk_sp<SkImage> image() override {
+        return target->image();
     }
 };
 static Register via_pic{"via_pic", ViaPic::Create};

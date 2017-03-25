@@ -22,9 +22,9 @@ static std::unique_ptr<T> move_unique(T& v) {
 
 struct Src {
     virtual ~Src() {}
-    virtual std::string name()   = 0;  // ok always calls Src methods in order:
-    virtual SkISize     size()   = 0;  // name() -> size() -> draw(), possibly
-    virtual void draw(SkCanvas*) = 0;  // stopping after calling name().
+    virtual std::string name()   = 0;
+    virtual SkISize     size()   = 0;
+    virtual bool draw(SkCanvas*) = 0;
 };
 
 struct Stream {
@@ -34,8 +34,8 @@ struct Stream {
 
 struct Dst {
     virtual ~Dst() {}
-    virtual SkCanvas* canvas()                  = 0;
-    virtual void write(std::string path_prefix) = 0;  // All but the file extension.
+    virtual bool draw(Src*)        = 0;
+    virtual sk_sp<SkImage> image() = 0;
 };
 
 class Options {
@@ -47,12 +47,9 @@ public:
 
 // Create globals to register your new type of Stream or Dst.
 struct Register {
-    Register(const char* name,
-             std::unique_ptr<Stream> (*factory)(Options));
-    Register(const char* name,
-             std::unique_ptr<Dst> (*factory)(Options, SkISize));
-    Register(const char* name,
-             std::unique_ptr<Dst> (*factory)(Options, SkISize, std::unique_ptr<Dst>));
+    Register(const char* name, std::unique_ptr<Stream> (*factory)(Options));
+    Register(const char* name, std::unique_ptr<Dst>    (*factory)(Options));
+    Register(const char* name, std::unique_ptr<Dst>    (*factory)(Options, std::unique_ptr<Dst>));
 };
 
 #endif//ok_DEFINED

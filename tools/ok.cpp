@@ -163,13 +163,13 @@ static std::vector<StreamType> stream_types;
 
 struct DstType {
     const char* name;
-    std::unique_ptr<Dst> (*factory)(Options, SkISize);
+    std::unique_ptr<Dst> (*factory)(Options);
 };
 static std::vector<DstType> dst_types;
 
 struct ViaType {
     const char* name;
-    std::unique_ptr<Dst> (*factory)(Options, SkISize, std::unique_ptr<Dst>);
+    std::unique_ptr<Dst> (*factory)(Options, std::unique_ptr<Dst>);
 };
 static std::vector<ViaType> via_types;
 
@@ -182,9 +182,8 @@ int main(int argc, char** argv) {
     std::regex  search      {".*"};
     std::string write_dir   {""};
 
-    std::unique_ptr<Stream>                                             stream;
-    std::function<std::unique_ptr<Dst> (SkISize)>                       dst_factory;
-    std::function<std::unique_ptr<Dst> (SkISize, std::unique_ptr<Dst>)> via_factory;
+    std::unique_ptr<Stream>                   stream;
+    std::function<std::unique_ptr<Dst>(void)> dst_factory;
 
     auto help = [&] {
         std::string stream_names, dst_names, via_names;
@@ -208,7 +207,7 @@ int main(int argc, char** argv) {
         }
 
         printf("%s [-j N] [-m regex] [-s regex] [-w dir] [-h]                        \n"
-                "  src[:k=v,...] dst[:k=v,...] [via[:k=v,...]]                       \n"
+                "  src[:k=v,...] dst[:k=v,...] [via[:k=v,...] ...]                   \n"
                 "  -j: Run at most N processes at any time.                          \n"
                 "      If <0, use -N threads instead.                                \n"
                 "      If 0, use one thread in one process.                          \n"
@@ -219,7 +218,7 @@ int main(int argc, char** argv) {
                 "  -h: Print this message and exit.                                  \n"
                 " src: content to draw: %s                                           \n"
                 " dst: how to draw that content: %s                                  \n"
-                " via: front-patch the dst: %s                                       \n"
+                " via: front-patches to the dst: %s                                  \n"
                 " Some srcs, dsts and vias have options, e.g. skp:dir=skps sw:ct=565 \n",
                 argv[0], stream_names.c_str(), dst_names.c_str(), via_names.c_str());
         return 1;
@@ -246,8 +245,8 @@ int main(int argc, char** argv) {
             if (0 == strncmp(d.name, argv[i], len)) {
                 switch (argv[i][len]) {
                     case  ':': len++;
-                    case '\0': dst_factory = [=](SkISize size){
-                                   return d.factory(Options{argv[i]+len}, size);
+                    case '\0': dst_factory = [=]{
+                                   return d.factory(Options{argv[i]+len});
                                };
                 }
             }
@@ -255,10 +254,11 @@ int main(int argc, char** argv) {
         for (auto v : via_types) {
             size_t len = strlen(v.name);
             if (0 == strncmp(v.name, argv[i], len)) {
+                if (!dst_factory) { return help(); }
                 switch (argv[i][len]) {
                     case  ':': len++;
-                    case '\0': via_factory = [=](SkISize size, std::unique_ptr<Dst> dst) {
-                                   return v.factory(Options{argv[i]+len}, size, std::move(dst));
+                    case '\0': dst_factory = [=]{
+                                   return v.factory(Options{argv[i]+len}, dst_factory());
                                };
                 }
             }
@@ -322,18 +322,16 @@ int main(int argc, char** argv) {
                 return Status::Skipped;
             }
 
-            auto size = src->size();
-            auto dst = dst_factory(size);
-            if (via_factory) {
-                dst = via_factory(size, std::move(dst));
+            auto dst = dst_factory();
+            if (!dst->draw(src.get())) {
+                return Status::Failed;
             }
 
-            auto canvas = dst->canvas();
-            src->draw(canvas);
-            canvas->restoreToCount(0);
-
             if (!write_dir.empty()) {
-                dst->write(write_dir + "/" + name);
+                auto image = dst->image();
+                sk_sp<SkData> png{image->encode()};
+                SkFILEWStream{(write_dir + "/" + name + ".png").c_str()}
+                    .write(png->data(), png->size());
             }
             return Status::OK;
         });
@@ -348,16 +346,14 @@ int main(int argc, char** argv) {
 }
 
 
-Register::Register(const char* name,
-                   std::unique_ptr<Stream> (*factory)(Options)) {
+Register::Register(const char* name, std::unique_ptr<Stream> (*factory)(Options)) {
     stream_types.push_back(StreamType{name, factory});
 }
-Register::Register(const char* name,
-                   std::unique_ptr<Dst> (*factory)(Options, SkISize)) {
+Register::Register(const char* name, std::unique_ptr<Dst> (*factory)(Options)) {
     dst_types.push_back(DstType{name, factory});
 }
 Register::Register(const char* name,
-                   std::unique_ptr<Dst> (*factory)(Options, SkISize, std::unique_ptr<Dst>)) {
+                   std::unique_ptr<Dst> (*factory)(Options, std::unique_ptr<Dst>)) {
     via_types.push_back(ViaType{name, factory});
 }
 

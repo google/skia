@@ -23,19 +23,27 @@ struct GMStream : Stream {
         skiagm::GM* (*factory)(void*);
         std::unique_ptr<skiagm::GM> gm;
 
-        std::string name() override {
+        void init() {
+            if (gm) { return; }
             gm.reset(factory(nullptr));
+        }
+
+        std::string name() override {
+            this->init();
             return gm->getName();
         }
 
         SkISize size() override {
+            this->init();
             return gm->getISize();
         }
 
-        void draw(SkCanvas* canvas) override {
+        bool draw(SkCanvas* canvas) override {
+            this->init();
             canvas->clear(0xffffffff);
             canvas->concat(gm->getInitialTransform());
             gm->draw(canvas);
+            return true;
         }
     };
 
@@ -69,19 +77,26 @@ struct SKPStream : Stream {
         std::string dir, path;
         sk_sp<SkPicture> pic;
 
+        void init() {
+            if (pic) { return; }
+            auto skp = SkData::MakeFromFileName((dir+"/"+path).c_str());
+            pic = SkPicture::MakeFromData(skp.get());
+        }
+
         std::string name() override {
             return path;
         }
 
         SkISize size() override {
-            auto skp = SkData::MakeFromFileName((dir+"/"+path).c_str());
-            pic = SkPicture::MakeFromData(skp.get());
+            this->init();
             return pic->cullRect().roundOut().size();
         }
 
-        void draw(SkCanvas* canvas) override {
+        bool draw(SkCanvas* canvas) override {
+            this->init();
             canvas->clear(0xffffffff);
             pic->playback(canvas);
+            return true;
         }
     };
 
