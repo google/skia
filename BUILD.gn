@@ -1154,6 +1154,7 @@ if (skia_enable_tools) {
       "tools/ok.cpp",
       "tools/ok_dsts.cpp",
       "tools/ok_srcs.cpp",
+      "tools/ok_vias.cpp",
     ]
     deps = [
       ":gm",
