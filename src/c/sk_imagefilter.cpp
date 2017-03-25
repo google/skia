@@ -22,6 +22,7 @@
 #include "SkPictureImageFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
+#include "SkArithmeticImageFilter.h"
 
 #include "sk_imagefilter.h"
 
@@ -431,7 +432,7 @@ SK_API sk_imagefilter_t* sk_imagefilter_new_arithmetic(
     sk_imagefilter_t* foreground /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
-    sk_sp<SkImageFilter> filter = SkXfermodeImageFilter::MakeArithmetic(
+    sk_sp<SkImageFilter> filter = SkArithmeticImageFilter::Make(
         k1, k2, k3, k4,
         enforcePMColor,
         sk_ref_sp(AsImageFilter(background)),
