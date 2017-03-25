@@ -16,6 +16,53 @@
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 
+/*
+ *  RowMajor
+ *  0  1  2  3  4
+ *  5  6  7  8  9
+ * 10 11 12 13 14
+ * 15 16 17 18 19
+ *
+ *  ColMajor
+ *  0  4  8 12 16
+ *  1  5  9 13 17
+ *  2  6 10 14 18
+ *  3  7 11 15 19
+ */
+
+static void transpose_col_to_row_scale255(float dst[20], const float src[20]) {
+    float* dst0 = dst + 0;
+    float* dst1 = dst + 5;
+    float* dst2 = dst + 10;
+    float* dst3 = dst + 15;
+
+    for (int i = 0; i < 4; ++i) {
+        *dst0++ = *src++;
+        *dst1++ = *src++;
+        *dst2++ = *src++;
+        *dst3++ = *src++;
+    }
+    *dst0 = *src++ * 255;
+    *dst1 = *src++ * 255;
+    *dst2 = *src++ * 255;
+    *dst3 = *src++ * 255;
+}
+
+bool SkColorFilter::asColorMatrixRowMajor255(float rowMajor255[20]) const {
+    float colMajor[20];
+    if (this->onAsColorMatrix(colMajor)) {
+        if (rowMajor255) {
+            transpose_col_to_row_scale255(rowMajor255, colMajor);
+        }
+        return true;
+    }
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// needed for legacy row-major-255 [src] matrices. [dst] is col-major 0..1
+//
 static void transpose_and_scale01(float dst[20], const float src[20]) {
     const float* srcR = src + 0;
     const float* srcG = src + 5;
@@ -35,14 +82,12 @@ static void transpose_and_scale01(float dst[20], const float src[20]) {
     dst[19] = *srcA * (1/255.0f);
 }
 
-void SkColorMatrixFilterRowMajor255::initState() {
-    transpose_and_scale01(fTranspose, fMatrix);
-
-    const float* array = fMatrix;
+void SkColorMatrixFilter::initState() {
+    const float* array = fColMajor;
 
     // check if we have to munge Alpha
-    bool changesAlpha = (array[15] || array[16] || array[17] || (array[18] - 1) || array[19]);
-    bool usesAlpha = (array[3] || array[8] || array[13]);
+    bool changesAlpha = (array[3] || array[7] || array[11] || (array[15] - 1) || array[19]);
+    bool usesAlpha = (array[12] || array[13] || array[14]);
 
     if (changesAlpha || usesAlpha) {
         fFlags = changesAlpha ? 0 : kAlphaUnchanged_Flag;
@@ -53,12 +98,12 @@ void SkColorMatrixFilterRowMajor255::initState() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkColorMatrixFilterRowMajor255::SkColorMatrixFilterRowMajor255(const SkScalar array[20]) {
-    memcpy(fMatrix, array, 20 * sizeof(SkScalar));
+SkColorMatrixFilter::SkColorMatrixFilter(const float array[20]) {
+    memcpy(fColMajor, array, 20 * sizeof(float));
     this->initState();
 }
 
-uint32_t SkColorMatrixFilterRowMajor255::getFlags() const {
+uint32_t SkColorMatrixFilter::getFlags() const {
     return this->INHERITED::getFlags() | fFlags;
 }
 
@@ -133,8 +178,8 @@ struct SkPMColorAdaptor {
         return Sk4f_fromL32(c);
     }
 };
-void SkColorMatrixFilterRowMajor255::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
-    filter_span<SkPMColorAdaptor>(fTranspose, src, count, dst);
+void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
+    filter_span<SkPMColorAdaptor>(fColMajor, src, count, dst);
 }
 
 struct SkPM4fAdaptor {
@@ -151,28 +196,27 @@ struct SkPM4fAdaptor {
         return c.to4f();
     }
 };
-void SkColorMatrixFilterRowMajor255::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
-    filter_span<SkPM4fAdaptor>(fTranspose, src, count, dst);
+void SkColorMatrixFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+    filter_span<SkPM4fAdaptor>(fColMajor, src, count, dst);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkColorMatrixFilterRowMajor255::flatten(SkWriteBuffer& buffer) const {
-    SkASSERT(sizeof(fMatrix)/sizeof(SkScalar) == 20);
-    buffer.writeScalarArray(fMatrix, 20);
+void SkColorMatrixFilter::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeScalarArray(fColMajor, 20);
 }
 
-sk_sp<SkFlattenable> SkColorMatrixFilterRowMajor255::CreateProc(SkReadBuffer& buffer) {
-    SkScalar matrix[20];
-    if (buffer.readScalarArray(matrix, 20)) {
-        return sk_make_sp<SkColorMatrixFilterRowMajor255>(matrix);
+sk_sp<SkFlattenable> SkColorMatrixFilter::CreateProc(SkReadBuffer& buffer) {
+    float colMajor[20];
+    if (buffer.readScalarArray(colMajor, 20)) {
+        return sk_make_sp<SkColorMatrixFilter>(colMajor);
     }
     return nullptr;
 }
 
-bool SkColorMatrixFilterRowMajor255::asColorMatrix(SkScalar matrix[20]) const {
-    if (matrix) {
-        memcpy(matrix, fMatrix, 20 * sizeof(SkScalar));
+bool SkColorMatrixFilter::onAsColorMatrix(float colMajor[20]) const {
+    if (colMajor) {
+        memcpy(colMajor, fColMajor, 20 * sizeof(float));
     }
     return true;
 }
@@ -191,9 +235,9 @@ bool SkColorMatrixFilterRowMajor255::asColorMatrix(SkScalar matrix[20]) const {
 // Then the maximum value will be for R=255 if x>0 or R=0 if x<0, and the
 // minimum value will be for R=0 if x>0 or R=255 if x<0.
 // Same goes for all components.
-static bool component_needs_clamping(const SkScalar row[5]) {
-    SkScalar maxValue = row[4] / 255;
-    SkScalar minValue = row[4] / 255;
+static bool component_needs_clamping(const float row[5]) {
+    float maxValue = row[4] / 255;
+    float minValue = row[4] / 255;
     for (int i = 0; i < 4; ++i) {
         if (row[i] > 0)
             maxValue += row[i];
@@ -203,14 +247,16 @@ static bool component_needs_clamping(const SkScalar row[5]) {
     return (maxValue > 1) || (minValue < 0);
 }
 
-static bool needs_clamping(const SkScalar matrix[20]) {
+// TODO: rewrite this to be colMajor
+static bool needs_clamping(const float matrix[20]) {
     return component_needs_clamping(matrix)
         || component_needs_clamping(matrix+5)
         || component_needs_clamping(matrix+10)
         || component_needs_clamping(matrix+15);
 }
 
-static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkScalar inner[20]) {
+// TODO: rewrite this to be colMajor
+static void set_concat(float result[20], const float outer[20], const float inner[20]) {
     int index = 0;
     for (int j = 0; j < 20; j += 5) {
         for (int i = 0; i < 4; i++) {
@@ -231,39 +277,36 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
 //  End duplication
 //////
 
-bool SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
-                                                    SkColorSpace* dst,
-                                                    SkArenaAlloc* scratch,
-                                                    bool shaderIsOpaque) const {
+bool SkColorMatrixFilter::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst,
+                                         SkArenaAlloc* scratch, bool shaderIsOpaque) const {
     bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
     bool needsClamp0 = false,
          needsClamp1 = false;
     for (int i = 0; i < 4; i++) {
-        SkScalar min = fTranspose[i+16],
-                 max = fTranspose[i+16];
-        (fTranspose[i+ 0] < 0 ? min : max) += fTranspose[i+ 0];
-        (fTranspose[i+ 4] < 0 ? min : max) += fTranspose[i+ 4];
-        (fTranspose[i+ 8] < 0 ? min : max) += fTranspose[i+ 8];
-        (fTranspose[i+12] < 0 ? min : max) += fTranspose[i+12];
+        float min = fColMajor[i+16],
+              max = fColMajor[i+16];
+        (fColMajor[i+ 0] < 0 ? min : max) += fColMajor[i+ 0];
+        (fColMajor[i+ 4] < 0 ? min : max) += fColMajor[i+ 4];
+        (fColMajor[i+ 8] < 0 ? min : max) += fColMajor[i+ 8];
+        (fColMajor[i+12] < 0 ? min : max) += fColMajor[i+12];
         needsClamp0 = needsClamp0 || min < 0;
         needsClamp1 = needsClamp1 || max > 1;
     }
 
     if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
-    if (           true) { p->append(SkRasterPipeline::matrix_4x5, fTranspose); }
+    if (           true) { p->append(SkRasterPipeline::matrix_4x5, fColMajor); }
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
     if (    needsClamp0) { p->append(SkRasterPipeline::clamp_0); }
     if (    needsClamp1) { p->append(SkRasterPipeline::clamp_a); }
     return true;
 }
 
-sk_sp<SkColorFilter>
-SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) const {
-    SkScalar innerMatrix[20];
-    if (innerFilter->asColorMatrix(innerMatrix) && !needs_clamping(innerMatrix)) {
-        SkScalar concat[20];
-        set_concat(concat, fMatrix, innerMatrix);
-        return sk_make_sp<SkColorMatrixFilterRowMajor255>(concat);
+sk_sp<SkColorFilter> SkColorMatrixFilter::makeComposed(sk_sp<SkColorFilter> innerFilter) const {
+    float innerMatrix[20];
+    if (innerFilter->asColorMatrixColMajor(innerMatrix) && !needs_clamping(innerMatrix)) {
+        float concat[20];
+        set_concat(concat, fColMajor, innerMatrix);
+        return sk_make_sp<SkColorMatrixFilter>(concat);
     }
     return nullptr;
 }
@@ -277,7 +320,7 @@ SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) c
 
 class ColorMatrixEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(const SkScalar matrix[20]) {
+    static sk_sp<GrFragmentProcessor> Make(const float matrix[20]) {
         return sk_sp<GrFragmentProcessor>(new ColorMatrixEffect(matrix));
     }
 
@@ -347,8 +390,8 @@ public:
 private:
     // We could implement the constant input->constant output optimization but haven't. Other
     // optimizations would be matrix-dependent.
-    ColorMatrixEffect(const SkScalar matrix[20]) : INHERITED(kNone_OptimizationFlags) {
-        memcpy(fMatrix, matrix, sizeof(SkScalar) * 20);
+    ColorMatrixEffect(const float matrix[20]) : INHERITED(kNone_OptimizationFlags) {
+        memcpy(fMatrix, matrix, sizeof(float) * 20);
         this->initClassID<ColorMatrixEffect>();
     }
 
@@ -366,7 +409,7 @@ private:
         return 0 == memcmp(fMatrix, cme.fMatrix, sizeof(fMatrix));
     }
 
-    SkScalar fMatrix[20];
+    float fMatrix[20];
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -375,7 +418,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorMatrixEffect);
 
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
-    SkScalar colorMatrix[20];
+    float colorMatrix[20];
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix); ++i) {
         colorMatrix[i] = d->fRandom->nextSScalar1();
     }
@@ -383,20 +426,20 @@ sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d)
 }
 #endif
 
-sk_sp<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(
+sk_sp<GrFragmentProcessor> SkColorMatrixFilter::asFragmentProcessor(
                                                                   GrContext*, SkColorSpace*) const {
-    return ColorMatrixEffect::Make(fMatrix);
+    return ColorMatrixEffect::Make(fColMajor);
 }
 
 #endif
 
 #ifndef SK_IGNORE_TO_STRING
-void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
-    str->append("SkColorMatrixFilterRowMajor255: ");
+void SkColorMatrixFilter::toString(SkString* str) const {
+    str->append("SkColorMatrixFilter: ");
 
     str->append("matrix: (");
     for (int i = 0; i < 20; ++i) {
-        str->appendScalar(fMatrix[i]);
+        str->appendScalar(fColMajor[i]);
         if (i < 19) {
             str->append(", ");
         }
@@ -407,20 +450,12 @@ void SkColorMatrixFilterRowMajor255::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const SkScalar array[20]) {
-    return sk_sp<SkColorFilter>(new SkColorMatrixFilterRowMajor255(array));
+sk_sp<SkColorFilter> SkColorFilter::MakeMatrixColMajor(const float colMajor[20]) {
+    return sk_sp<SkColorFilter>(new SkColorMatrixFilter(colMajor));
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkColorFilter>
-SkColorMatrixFilterRowMajor255::MakeSingleChannelOutput(const SkScalar row[5]) {
-    SkASSERT(row);
-    auto cf = sk_make_sp<SkColorMatrixFilterRowMajor255>();
-    static_assert(sizeof(SkScalar) * 5 * 4 == sizeof(cf->fMatrix), "sizes don't match");
-    for (int i = 0; i < 4; ++i) {
-        memcpy(cf->fMatrix + 5 * i, row, sizeof(SkScalar) * 5);
-    }
-    cf->initState();
-    return cf;
+sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const float rowMajor[20]) {
+    float colMajor[20];
+    transpose_and_scale01(colMajor, rowMajor);
+    return sk_sp<SkColorFilter>(new SkColorMatrixFilter(colMajor));
 }

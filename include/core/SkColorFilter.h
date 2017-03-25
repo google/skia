@@ -41,8 +41,24 @@ public:
      *  If the filter can be represented by a 5x4 matrix, this
      *  returns true, and sets the matrix appropriately.
      *  If not, this returns false and ignores the parameter.
+     *
+     *  DEPRECATED -- use asColorMatrixColMajor
      */
-    virtual bool asColorMatrix(SkScalar matrix[20]) const;
+    bool asColorMatrixRowMajor255(SkScalar matrix[20]) const;
+
+#ifdef SK_SUPPORT_LEGACY_ASCOLORMATRIX_ROWMAJOR
+    bool asColorMatrix(SkScalar matrix[20]) const {
+        return this->asColorMatrixRowMajor255(matrix);
+    }
+#endif
+
+    /**
+     *  If the colorfilter can be represented by a color matrix, return true and set the
+     *  parameter to the column-major matrix.
+     */
+    bool asColorMatrixColMajor(float colMajor[20]) const {
+        return this->onAsColorMatrix(colMajor);
+    }
 
     /**
      *  If the filter can be represented by per-component table, return true,
@@ -129,10 +145,25 @@ public:
     static sk_sp<SkColorFilter> MakeComposeFilter(sk_sp<SkColorFilter> outer,
                                                   sk_sp<SkColorFilter> inner);
 
+    /**
+     *  Construct a color filter that transforms a color by a 4x5 matrix (column major).
+     *  It is defined to operate on unpremultiplied colors
+     *
+     *  The values in the matrix are addressed as follows:
+     *
+     *  [ 0  4   8  12  16 ] [ input_r ]   [ output_r ]
+     *  [ 1  5   9  13  17 ] [ input_g ] = [ output_g ]
+     *  [ 2  6  10  14  18 ] [ input_b ]   [ output_b ]
+     *  [ 3  7  11  15  19 ] [ input_a ]   [ output_a ]
+     *
+     *  After it is applied, the output components are clamped to [0..1]
+     */
+    static sk_sp<SkColorFilter> MakeMatrixColMajor(const float[20]);
+
     /** Construct a color filter that transforms a color by a 4x5 matrix. The matrix is in row-
      *  major order and the translation column is specified in unnormalized, 0...255, space.
      */
-    static sk_sp<SkColorFilter> MakeMatrixFilterRowMajor255(const SkScalar array[20]);
+    static sk_sp<SkColorFilter> MakeMatrixFilterRowMajor255(const float array[20]);
 
 #if SK_SUPPORT_GPU
     /**
@@ -162,6 +193,9 @@ protected:
 
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                                 bool shaderIsOpaque) const;
+
+    // Return true if col-major color-matrix
+    virtual bool onAsColorMatrix(float[20]) const { return false; }
 
 private:
     /*
