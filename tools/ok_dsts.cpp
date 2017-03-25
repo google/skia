@@ -11,7 +11,7 @@
 struct SWDst : Dst {
     sk_sp<SkSurface> surface;
 
-    static std::unique_ptr<Dst> Create(SkISize size, Options options) {
+    static std::unique_ptr<Dst> Create(Options options, SkISize size) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(size.width(), size.height());
         if (options("ct") == "565") { info = info.makeColorType(kRGB_565_SkColorType); }
         if (options("ct") == "f16") { info = info.makeColorType(kRGBA_F16_SkColorType); }
