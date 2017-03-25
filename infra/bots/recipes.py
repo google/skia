@@ -17,6 +17,11 @@ PER-REPO CONFIGURATION section to look like this one.
 
 import os
 
+# IMPORTANT: Do not alter the header or footer line for the
+# "PER-REPO CONFIGURATION" section below, or the autoroller will not be able
+# to automatically update this file! All lines between the header and footer
+# lines will be retained verbatim by the autoroller.
+
 #### PER-REPO CONFIGURATION (editable) ####
 # The root of the repository relative to the directory of this file.
 REPO_ROOT = os.path.join(os.pardir, os.pardir)
@@ -36,6 +41,7 @@ import subprocess
 import sys
 import time
 import traceback
+import urlparse
 
 from cStringIO import StringIO
 
@@ -72,7 +78,7 @@ def parse(repo_root, recipes_cfg_path):
       raise ValueError('could not find recipe_engine dep in %r'
                        % recipes_cfg_path)
     engine_url = engine['url']
-    engine_revision = engine['revision']
+    engine_revision = engine.get('revision', '')
     engine_subpath = engine.get('path_override', '')
     recipes_path = pb.get('recipes_path', '')
   else:
@@ -92,7 +98,7 @@ def parse(repo_root, recipes_cfg_path):
         b for b in protobuf.get('deps', [])
         if b.get('project_id') == ['recipe_engine'] ])
     engine_url = get_unique(engine_buf['url'])
-    engine_revision = get_unique(engine_buf['revision'])
+    engine_revision = get_unique(engine_buf.get('revision', ['']))
     engine_subpath = (get_unique(engine_buf.get('path_override', ['']))
                       .replace('/', os.path.sep))
     recipes_path = get_unique(protobuf.get('recipes_path', ['']))
@@ -202,9 +208,12 @@ def main():
   engine_url, engine_revision, engine_subpath, recipes_path = parse(
     repo_root, recipes_cfg_path)
 
-  deps_path = os.path.join(recipes_path, '.recipe_deps')
   engine_path = find_engine_override(sys.argv[1:])
+  if not engine_path and engine_url.startswith('file://'):
+    engine_path = urlparse.urlparse(engine_url).path
+
   if not engine_path:
+    deps_path = os.path.join(recipes_path, '.recipe_deps')
     # Ensure that we have the recipe engine cloned.
     engine_root_path = os.path.join(deps_path, 'recipe_engine')
     engine_path = os.path.join(engine_root_path, engine_subpath)
