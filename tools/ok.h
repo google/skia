@@ -47,8 +47,12 @@ public:
 
 // Create globals to register your new type of Stream or Dst.
 struct Register {
-    Register(const char* name, std::unique_ptr<Stream> (*factory)(Options));
-    Register(const char* name, std::unique_ptr<Dst>    (*factory)(SkISize, Options));
+    Register(const char* name,
+             std::unique_ptr<Stream> (*factory)(Options));
+    Register(const char* name,
+             std::unique_ptr<Dst> (*factory)(Options, SkISize));
+    Register(const char* name,
+             std::unique_ptr<Dst> (*factory)(Options, SkISize, std::unique_ptr<Dst>));
 };
 
 #endif//ok_DEFINED
