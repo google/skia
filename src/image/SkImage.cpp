@@ -92,6 +92,10 @@ sk_sp<SkColorSpace> SkImage::refColorSpace() const {
     return as_IB(this)->onImageInfo().refColorSpace();
 }
 
+SkColorType SkImage::colorType() const {
+    return as_IB(this)->onImageInfo().colorType();
+}
+
 sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
                                     const SkMatrix* localMatrix) const {
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);

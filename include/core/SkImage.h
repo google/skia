@@ -189,6 +189,11 @@ public:
     sk_sp<SkColorSpace> refColorSpace() const;
 
     /**
+     *  Returns the color type of the SkImage.
+     */
+    SkColorType colorType() const;
+
+    /**
      *  Returns true fi the image will be drawn as a mask, with no intrinsic color of its own.
      */
     bool isAlphaOnly() const;
