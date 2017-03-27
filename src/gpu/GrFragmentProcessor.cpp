@@ -8,13 +8,13 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrPipeline.h"
-#include "GrProcOptInfo.h"
+#include "GrPipelineAnalysis.h"
+#include "effects/GrConstColorProcessor.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "effects/GrConstColorProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
 
 GrFragmentProcessor::~GrFragmentProcessor() {
     // If we got here then our ref count must have reached zero, so we will have converted refs
@@ -466,7 +466,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
         return series[0];
     }
     // Run the through the series, do the invariant output processing, and look for eliminations.
-    GrProcOptInfo info;
+    GrColorFragmentProcessorAnalysis info;
     info.analyzeProcessors(sk_sp_address_as_pointer_address(series), cnt);
     SkTArray<sk_sp<GrFragmentProcessor>> replacementSeries;
     GrColor4f knownColor;

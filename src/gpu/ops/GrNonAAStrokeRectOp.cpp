@@ -102,9 +102,10 @@ public:
 private:
     NonAAStrokeRectOp() : INHERITED(ClassID()) {}
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fColor);
-        input->coverageInput()->setToSolidCoverage();
+    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                            GrPipelineAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = GrPipelineAnalysisCoverage::kNone;
     }
 
     void onPrepareDraws(Target* target) const override {

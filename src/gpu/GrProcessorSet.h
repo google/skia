@@ -10,7 +10,7 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrPaint.h"
-#include "GrPipelineInput.h"
+#include "GrPipelineAnalysis.h"
 #include "SkTemplates.h"
 
 class GrAppliedClip;
@@ -79,16 +79,16 @@ public:
                 : fIsInitializedWithProcessorSet(false)
                 , fCompatibleWithCoverageAsAlpha(true)
                 , fValidInputColor(false)
-                , fOutputCoverageType(static_cast<unsigned>(CoverageType::kNone))
+                , fOutputCoverageType(static_cast<unsigned>(GrPipelineAnalysisCoverage::kNone))
                 , fOutputColorType(static_cast<unsigned>(ColorType::kUnknown))
                 , fInitialColorProcessorsToEliminate(0) {}
 
         // This version is used by a unit test that assumes no clip, no processors, and no PLS.
-        FragmentProcessorAnalysis(const GrPipelineInput& colorInput,
-                                  const GrPipelineInput coverageInput, const GrCaps&);
+        FragmentProcessorAnalysis(const GrPipelineAnalysisColor&, GrPipelineAnalysisCoverage,
+                                  const GrCaps&);
 
-        void init(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
-                  const GrProcessorSet&, const GrAppliedClip*, const GrCaps&);
+        void init(const GrPipelineAnalysisColor&, GrPipelineAnalysisCoverage, const GrProcessorSet&,
+                  const GrAppliedClip*, const GrCaps&);
 
         bool isInitializedWithProcessorSet() const { return fIsInitializedWithProcessorSet; }
 
@@ -132,19 +132,19 @@ public:
             }
             return constant;
         }
-        bool hasCoverage() const { return CoverageType::kNone != this->outputCoverageType(); }
-        bool hasLCDCoverage() const { return CoverageType::kLCD == this->outputCoverageType(); }
+        GrPipelineAnalysisCoverage outputCoverageType() const {
+            return static_cast<GrPipelineAnalysisCoverage>(fOutputCoverageType);
+        }
+        bool hasCoverage() const {
+            return this->outputCoverageType() != GrPipelineAnalysisCoverage::kNone;
+        }
 
     private:
         enum class ColorType : unsigned { kUnknown, kOpaqueConstant, kConstant, kOpaque };
-        enum class CoverageType : unsigned { kNone, kSingleChannel, kLCD };
 
-        CoverageType outputCoverageType() const {
-            return static_cast<CoverageType>(fOutputCoverageType);
-        }
         ColorType outputColorType() const { return static_cast<ColorType>(fOutputColorType); }
 
-        void internalInit(const GrPipelineInput& colorInput, const GrPipelineInput coverageInput,
+        void internalInit(const GrPipelineAnalysisColor&, const GrPipelineAnalysisCoverage,
                           const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
 
         // MSVS 2015 won't pack a bool with an unsigned.
@@ -166,8 +166,8 @@ public:
     GR_STATIC_ASSERT(sizeof(FragmentProcessorAnalysis) == 2 * sizeof(GrColor) + sizeof(uint32_t));
 
     void analyzeAndEliminateFragmentProcessors(FragmentProcessorAnalysis*,
-                                               const GrPipelineInput& colorInput,
-                                               const GrPipelineInput coverageInput,
+                                               const GrPipelineAnalysisColor& colorInput,
+                                               const GrPipelineAnalysisCoverage coverageInput,
                                                const GrAppliedClip*, const GrCaps&);
 
 private:

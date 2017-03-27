@@ -180,9 +180,10 @@ public:
     }
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fColor);
-        input->coverageInput()->setToUnknown();
+    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                            GrPipelineAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {

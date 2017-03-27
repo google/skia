@@ -172,9 +172,10 @@ private:
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fPaths[0].fColor);
-        input->coverageInput()->setToUnknown();
+    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                            GrPipelineAnalysisCoverage* coverage) const override {
+        color->setToConstant(fPaths[0].fColor);
+        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {

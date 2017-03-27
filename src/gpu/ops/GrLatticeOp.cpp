@@ -61,9 +61,10 @@ public:
     }
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToUnknown();
-        input->coverageInput()->setToSolidCoverage();
+    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                            GrPipelineAnalysisCoverage* coverage) const override {
+        color->setToUnknown();
+        *coverage = GrPipelineAnalysisCoverage::kNone;
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& analysioptimizations) override {

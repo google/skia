@@ -64,9 +64,10 @@ protected:
     SkRect  fRect;
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToUnknown();
-        input->coverageInput()->setToUnknown();
+    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                            GrPipelineAnalysisCoverage* coverage) const override {
+        color->setToUnknown();
+        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {

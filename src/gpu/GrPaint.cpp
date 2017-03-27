@@ -6,7 +6,6 @@
  */
 
 #include "GrPaint.h"
-#include "GrProcOptInfo.h"
 #include "GrXferProcessor.h"
 #include "effects/GrCoverageSetOpXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"

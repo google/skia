@@ -334,12 +334,12 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
 
 bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) {
     GrProcessorSet::FragmentProcessorAnalysis analysis;
-    GrPipelineInput coverageInput;
+    GrPipelineAnalysisCoverage coverageInput;
     if (GrAAType::kCoverage == fInfo.aaType() ||
         (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        coverageInput = GrPipelineInput();
+        coverageInput = GrPipelineAnalysisCoverage::kSingleChannel;
     } else {
-        coverageInput = GrColor_WHITE;
+        coverageInput = GrPipelineAnalysisCoverage::kNone;
     }
     fProcessors.analyzeAndEliminateFragmentProcessors(&analysis, this->getSingleInstance().fColor,
                                                       coverageInput, clip, caps);
@@ -470,18 +470,18 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
     state->gpu()->handleDirtyContext();
 
     GrProcessorSet::FragmentProcessorAnalysis analysis;
-    GrPipelineInput coverageInput;
+    GrPipelineAnalysisCoverage coverageInput;
     if (GrAAType::kCoverage == fInfo.aaType() ||
         (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        coverageInput = GrPipelineInput();
+        coverageInput = GrPipelineAnalysisCoverage::kSingleChannel;
     } else {
-        coverageInput = GrColor_WHITE;
+        coverageInput = GrPipelineAnalysisCoverage::kNone;
     }
-    GrPipelineInput colorInput;
+    GrPipelineAnalysisColor colorInput;
     if (fDrawColorsAreSame) {
         colorInput = fHeadDraw->fInstance.fColor;
     } else if (fDrawColorsAreOpaque) {
-        colorInput = GrPipelineInput::Opaque::kYes;
+        colorInput = GrPipelineAnalysisColor::Opaque::kYes;
     }
     const GrAppliedClip* clip = state->drawOpArgs().fAppliedClip;
     analysis.init(colorInput, coverageInput, fProcessors, clip, state->caps());

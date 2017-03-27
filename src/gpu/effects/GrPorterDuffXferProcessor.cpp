@@ -10,8 +10,8 @@
 #include "GrBlend.h"
 #include "GrCaps.h"
 #include "GrPipeline.h"
+#include "GrPipelineAnalysis.h"
 #include "GrProcessor.h"
-#include "GrProcOptInfo.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLBlend.h"
@@ -19,7 +19,6 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLXferProcessor.h"
-#include <utility>
 
 /**
  * Wraps the shader outputs and HW blend state that comprise a Porter Duff blend mode with coverage.
@@ -736,7 +735,7 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(
         bool hasMixedSamples,
         const DstTexture* dstTexture) const {
     BlendFormula blendFormula;
-    if (analysis.hasLCDCoverage()) {
+    if (analysis.outputCoverageType() == GrPipelineAnalysisCoverage::kLCD) {
         if (SkBlendMode::kSrcOver == fBlendMode && analysis.hasKnownOutputColor() &&
             !caps.shaderCaps()->dualSourceBlendingSupport() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
@@ -775,7 +774,7 @@ bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps,
     // When we have four channel coverage we always need to read the dst in order to correctly
     // blend. The one exception is when we are using srcover mode and we know the input color into
     // the XP.
-    if (analysis.hasLCDCoverage()) {
+    if (analysis.outputCoverageType() == GrPipelineAnalysisCoverage::kLCD) {
         if (SkBlendMode::kSrcOver == fBlendMode && analysis.hasKnownOutputColor() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
@@ -838,7 +837,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
     // doing lcd blending we will just use our global SimpleSrcOverXP. This slightly differs from
     // the general case where we convert a src-over blend that has solid coverage and an opaque
     // color to src-mode, which allows disabling of blending.
-    if (!analysis.hasLCDCoverage()) {
+    if (analysis.outputCoverageType() != GrPipelineAnalysisCoverage::kLCD) {
         // We return nullptr here, which our caller interprets as meaning "use SimpleSrcOverXP".
         // We don't simply return the address of that XP here because our caller would have to unref
         // it and since it is a global object and GrProgramElement's ref-cnting system is not thread
@@ -880,7 +879,7 @@ bool GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(const GrCaps& caps,
     // When we have four channel coverage we always need to read the dst in order to correctly
     // blend. The one exception is when we are using srcover mode and we know the input color
     // into the XP.
-    if (analysis.hasLCDCoverage()) {
+    if (analysis.outputCoverageType() == GrPipelineAnalysisCoverage::kLCD) {
         if (analysis.hasKnownOutputColor() && !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
         }

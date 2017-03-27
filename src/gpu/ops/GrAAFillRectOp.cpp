@@ -203,9 +203,10 @@ public:
     }
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(this->first()->color());
-        input->coverageInput()->setToUnknown();
+    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                            GrPipelineAnalysisCoverage* coverage) const override {
+        color->setToConstant(this->first()->color());
+        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
     void onPrepareDraws(Target* target) const override {
