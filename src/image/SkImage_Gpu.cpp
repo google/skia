@@ -62,7 +62,12 @@ SkImageInfo SkImage_Gpu::onImageInfo() const {
     return SkImageInfo::Make(fProxy->width(), fProxy->height(), ct, fAlphaType, fColorSpace);
 }
 
-bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, CachingHint chint) const {
+static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> colorSpace) {
+    return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
+}
+
+bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
+                              CachingHint chint) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
@@ -70,12 +75,15 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, Cachin
         return true;
     }
 
-    if (!dst->tryAllocPixels(this->onImageInfo())) {
+    SkImageInfo ii = make_info(this->width(), this->height(), this->alphaType(),
+                               sk_ref_sp(dstColorSpace));
+    if (!dst->tryAllocPixels(ii)) {
         return false;
     }
 
-    sk_sp<GrSurfaceContext> sContext =
-            fContext->contextPriv().makeWrappedSurfaceContext(fProxy, fColorSpace);
+    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+                                                                                    fProxy,
+                                                                                    fColorSpace);
     if (!sContext) {
         return false;
     }
@@ -193,8 +201,9 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
 
-    sk_sp<GrSurfaceContext> sContext =
-            fContext->contextPriv().makeWrappedSurfaceContext(fProxy, fColorSpace);
+    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+                                                                                    fProxy,
+                                                                                    fColorSpace);
     if (!sContext) {
         return false;
     }
