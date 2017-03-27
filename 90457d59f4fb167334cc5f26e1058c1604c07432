@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63cb339a_4032c04b",
+        "filename": "samplecode/SampleAndroidShadows.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-27T16:47:47Z",
+      "side": 1,
+      "message": "Doesn\u0027t matter to me, but you could leave this off and the return type will be implicit from the body.",
+      "range": {
+        "startLine": 430,
+        "startChar": 77,
+        "endLine": 430,
+        "endChar": 88
+      },
+      "revId": "90457d59f4fb167334cc5f26e1058c1604c07432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4430563_153185a4",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-27T16:47:47Z",
+      "side": 1,
+      "message": "Here we are tightening the arrays while creating the SkVertices. Perhaps for the uncached case we should just move ownership into the SkVertices since they only last a frame. Just something to think about, not a request for this CL.",
+      "range": {
+        "startLine": 32,
+        "startChar": 27,
+        "endLine": 32,
+        "endChar": 35
+      },
+      "revId": "90457d59f4fb167334cc5f26e1058c1604c07432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b11e9753_49624097",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-27T16:47:47Z",
+      "side": 1,
+      "message": "I see these are moved from the other file, but I either never understood where they came from or forgot.",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 39
+      },
+      "revId": "90457d59f4fb167334cc5f26e1058c1604c07432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
