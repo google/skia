@@ -34,6 +34,24 @@
       "revId": "afcdf7a475087d4ae05eec5dcf3608621c11677e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc03f357_9bc4b24a",
+        "filename": "tests/DetermineDomainModeTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-27T14:21:01Z",
+      "side": 1,
+      "message": "It still seems simpler than duplicating the enum values to me.",
+      "parentUuid": "0c125a40_baa654e9",
+      "revId": "afcdf7a475087d4ae05eec5dcf3608621c11677e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
