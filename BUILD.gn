@@ -1113,6 +1113,7 @@ if (skia_enable_tools) {
               ]
     deps = [
       ":experimental_svg_model",
+      ":flags",
       ":gm",
       ":tool_utils",
       ":views",

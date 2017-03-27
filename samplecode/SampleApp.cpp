@@ -91,6 +91,17 @@ public:
     }
 };
 
+extern SampleView* CreateSamplePathFinderView(const char filename[]);
+
+class PathFinderFactory : public SkViewFactory {
+    SkString fFilename;
+public:
+    PathFinderFactory(const SkString& filename) : fFilename(filename) {}
+    SkView* operator() () const override {
+        return CreateSamplePathFinderView(fFilename.c_str());
+    }
+};
+
 extern SampleView* CreateSampleSVGFileView(const SkString& filename);
 
 class SVGFileFactory : public SkViewFactory {
@@ -726,6 +737,7 @@ static void restrict_samples(SkTDArray<const SkViewFactory*>& factories, const S
 DEFINE_string(slide, "", "Start on this sample.");
 DEFINE_string(pictureDir, "", "Read pictures from here.");
 DEFINE_string(picture, "", "Path to single picture.");
+DEFINE_string(pathfinder, "", "SKP file with a single path to isolate.");
 DEFINE_string(svg, "", "Path to single SVG file.");
 DEFINE_string(svgDir, "", "Read SVGs from here.");
 DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to show.");
@@ -764,6 +776,11 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkString path(FLAGS_picture[0]);
         fCurrIndex = fSamples.count();
         *fSamples.append() = new PictFileFactory(path);
+    }
+    if (!FLAGS_pathfinder.isEmpty()) {
+        SkString path(FLAGS_pathfinder[0]);
+        fCurrIndex = fSamples.count();
+        *fSamples.append() = new PathFinderFactory(path);
     }
     if (!FLAGS_svg.isEmpty()) {
         SkString path(FLAGS_svg[0]);
