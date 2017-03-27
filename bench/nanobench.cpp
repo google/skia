@@ -279,7 +279,6 @@ static int clamp_loops(int loops) {
 }
 
 static bool write_canvas_png(Target* target, const SkString& filename) {
-
     if (filename.isEmpty()) {
         return false;
     }

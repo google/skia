@@ -45,3 +45,22 @@ SkTaskGroup::Enabler::Enabler(int threads) {
         SkExecutor::SetDefault(fThreadPool.get());
     }
 }
+
+SkTaskQueue::SkTaskQueue() : fPending(0) {
+    fExecutor = SkExecutor::MakeThreadPool(1);
+}
+
+void SkTaskQueue::add(std::function<void(void)> fn) {
+    fPending.fetch_add(+1, std::memory_order_relaxed);
+    fExecutor->add([=] {
+        fn();
+        fPending.fetch_add(-1, std::memory_order_release);
+        fDone.signal();
+    });
+}
+
+void SkTaskQueue::wait() {
+    while (fPending.load(std::memory_order_acquire) > 0) {
+        fDone.wait();
+    }
+}

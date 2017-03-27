@@ -21,6 +21,8 @@
 #include "SkSpecialImage.h"
 #include "SkSurface.h"
 
+int gSkThreadCnt = 0;
+
 class SkColorTable;
 
 static bool valid_for_bitmap_device(const SkImageInfo& info,
@@ -71,9 +73,11 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     : INHERITED(bitmap.info(), SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
     , fBitmap(bitmap)
     , fRCStack(bitmap.width(), bitmap.height())
+    , fThreadCnt(0)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
+    updateThreadCnt(gSkThreadCnt);
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
@@ -86,9 +90,11 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
     , fBitmap(bitmap)
     , fRasterHandle(hndl)
     , fRCStack(bitmap.width(), bitmap.height())
+    , fThreadCnt(0)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
+    updateThreadCnt(gSkThreadCnt);
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
@@ -136,6 +142,7 @@ void SkBitmapDevice::setNewSize(const SkISize& size) {
     this->privateResize(fBitmap.info().width(), fBitmap.info().height());
 
     fRCStack.setNewSize(size.fWidth, size.fHeight);
+    updateThreadBounds();
 }
 
 void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
@@ -190,6 +197,82 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct DrawState {
+    SkPixmap fPixmap;
+    SkRasterClip fClip;
+    SkMatrix fCTM;
+    DrawState(const SkDraw& draw) : fPixmap(draw.fDst), fClip(*draw.fRC), fCTM(*draw.fMatrix) {}
+};
+
+void SkBitmapDevice::startThreadedDraw() {
+    for(int i = 0; i < fThreadCnt; ++i) {
+        while (fDrawAvailable[i].try_wait()) {} // clear the semaphore
+        fDrawQueue.reset(); // clear the queue
+        fFutureDraws.push_back(std::async(std::launch::async, [this, i](){
+            int j = 0;
+            while (true) {
+                fDrawAvailable[i].wait();
+                int leftChild = (i + 1) * 2 - 1;
+                int rightChild = leftChild + 1;
+                if (leftChild < fThreadCnt)
+                    fDrawAvailable[leftChild].signal();
+                if (rightChild < fThreadCnt)
+                    fDrawAvailable[rightChild].signal();
+                if (j < fDrawQueue.count()) {
+                    // SkDebugf("j = %d, func exist? %d\n", j, (bool)(fDrawQueue[j])); // TODO TEST
+                    if (!fDrawQueue[j]) { // TODO TEST
+                        SkDebugf("Abort: func doesn't exist, queue count = %d\n", fDrawQueue.count());
+                        SK_ABORT("Abort");
+                    }
+                    fDrawQueue[j++](i);
+                } else {
+                    SkASSERT(fIsFinishing.load());
+                    break;
+                }
+            }
+        }));
+    }
+}
+
+void SkBitmapDevice::finishThreadedDraw() {
+    fIsFinishing = true;
+    fDrawAvailable[0].signal();
+    for(auto& futureDraw : fFutureDraws)
+        futureDraw.wait();
+    fFutureDraws.clear();
+    fDrawQueue.reset();
+    fIsFinishing = false;
+}
+
+void SkBitmapDevice::flush() {
+    finishThreadedDraw();
+    startThreadedDraw();
+}
+
+void SkBitmapDevice::updateThreadBounds() {
+    int h = (fBitmap.height() + fThreadCnt - 1) / std::max(fThreadCnt, 1);
+    int w = fBitmap.width();
+    int top = 0;
+    for(int tid = 0; tid < fThreadCnt; ++tid, top += h)
+        fThreadBounds[tid] = SkIRect::MakeLTRB(0, top, w, top + h);
+}
+
+void SkBitmapDevice::updateThreadCnt(int threadCnt) {
+    finishThreadedDraw();
+    if (threadCnt != fThreadCnt) {
+        if (fThreadCnt != 0) {
+            delete [] fThreadBounds;
+            // delete [] fQueues;
+            fThreadCnt = 0;
+        }
+        fThreadBounds = new SkIRect[threadCnt];
+        // fQueues = new SkTaskQueue[threadCnt];
+        fThreadCnt = threadCnt;
+    }
+    updateThreadBounds();
+    startThreadedDraw();
+}
+
 #ifdef SK_USE_DEVICE_CLIPPING
 class ModifiedDraw : public SkDraw {
 public:
@@ -203,17 +286,52 @@ public:
 #define PREPARE_DRAW(draw)  draw
 #endif
 
+#define THREADED_DRAW(draw, contentBounds, action, ...)                         \
+    if (fThreadCnt > 0) {                                                       \
+        DrawState ds(draw);                                                     \
+        SkIRect trueBounds = contentBounds;                                     \
+        if (!contentBounds.isLargest()) {                                       \
+            SkRect oldBounds = SkRect::MakeFromIRect(contentBounds);            \
+            SkRect newBounds;                                                   \
+            draw.fMatrix->mapRect(&newBounds, oldBounds);                       \
+            trueBounds = newBounds.roundOut();                                  \
+            if (false && trueBounds != contentBounds) {                         \
+                oldBounds.dump();                                               \
+                SkRect::MakeFromIRect(trueBounds).dump();                       \
+                SkDebugf("\n");                                                 \
+            }                                                                   \
+        }                                                                       \
+        fDrawQueue.push_back([this, ds, trueBounds, __VA_ARGS__](int tid){      \
+            const SkIRect& bounds = fThreadBounds[tid];                         \
+            if (SkIRect::Intersects(bounds, trueBounds)) {                      \
+                SkDraw d;                                                       \
+                d.fDst = ds.fPixmap;                                            \
+                SkRasterClip clip(ds.fClip);                                    \
+                clip.op(bounds, SkRegion::kIntersect_Op);                       \
+                d.fRC = &clip;                                                  \
+                d.fMatrix = &ds.fCTM;                                           \
+                d.action(__VA_ARGS__);                                          \
+            }                                                                   \
+        });                                                                     \
+        if (fThreadCnt > 0)                                                     \
+            fDrawAvailable[0].signal();                                         \
+    } else {                                                                    \
+        PREPARE_DRAW(draw).action(__VA_ARGS__);                                 \
+    }
+
 void SkBitmapDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawPaint(paint);
+    THREADED_DRAW(draw, SkIRect::MakeLargest(), drawPaint, paint);
 }
 
 void SkBitmapDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
                                 const SkPoint pts[], const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawPoints(mode, count, pts, paint, nullptr);
+    // TODO better content bounds
+    auto nptr = nullptr;
+    THREADED_DRAW(draw, SkIRect::MakeLargest(), drawPoints, mode, count, pts, paint, nptr);
 }
 
 void SkBitmapDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawRect(r, paint);
+    THREADED_DRAW(draw, r.roundOut(), drawRect, r, paint);
 }
 
 void SkBitmapDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
@@ -233,20 +351,23 @@ void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const S
     // required to override drawRRect.
     this->drawPath(draw, path, paint, nullptr, true);
 #else
-    PREPARE_DRAW(draw).drawRRect(rrect, paint);
+    THREADED_DRAW(draw, rrect.rect().roundOut(), drawRRect, rrect, paint);
 #endif
 }
 
 void SkBitmapDevice::drawPath(const SkDraw& draw, const SkPath& path,
                               const SkPaint& paint, const SkMatrix* prePathMatrix,
                               bool pathIsMutable) {
-    PREPARE_DRAW(draw).drawPath(path, paint, prePathMatrix, pathIsMutable);
+    THREADED_DRAW(draw, path.getBounds().roundOut(),
+                  drawPath, path, paint, prePathMatrix, pathIsMutable);
 }
 
 void SkBitmapDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint& paint) {
     LogDrawScaleFactor(SkMatrix::Concat(*draw.fMatrix, matrix), paint.getFilterQuality());
-    PREPARE_DRAW(draw).drawBitmap(bitmap, matrix, nullptr, paint);
+    // TODO Better content bounds
+    auto nptr = nullptr;
+    THREADED_DRAW(draw, SkIRect::MakeLargest(), drawBitmap, bitmap, matrix, nptr, paint);
 }
 
 static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& paint) {
@@ -335,7 +456,9 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         // matrix with the CTM, and try to call drawSprite if it can. If not,
         // it will make a shader and call drawRect, as we do below.
         if (CanApplyDstMatrixAsCTM(matrix, paint)) {
-            PREPARE_DRAW(draw).drawBitmap(*bitmapPtr, matrix, dstPtr, paint);
+            // TODO Better content bounds
+            auto bitmap = *bitmapPtr;
+            THREADED_DRAW(draw, SkIRect::MakeLargest(), drawBitmap, bitmap, matrix, dstPtr, paint);
             return;
         }
     }
@@ -365,19 +488,26 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkBitmapDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                                 int x, int y, const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawSprite(bitmap, x, y, paint);
+    THREADED_DRAW(draw, SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()),
+                  drawSprite, bitmap, x, y, paint);
 }
 
 void SkBitmapDevice::drawText(const SkDraw& draw, const void* text, size_t len,
                               SkScalar x, SkScalar y, const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawText((const char*)text, len, x, y, paint, &fSurfaceProps);
+    const char* t = (const char*)text;
+    auto props = &fSurfaceProps;
+    // TODO Better content bounds
+    THREADED_DRAW(draw, SkIRect::MakeLargest(), drawText, t, len, x, y, paint, props);
 }
 
 void SkBitmapDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
                                  const SkScalar xpos[], int scalarsPerPos,
                                  const SkPoint& offset, const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
-                                   paint, &fSurfaceProps);
+    const char* t = (const char*)text;
+    auto props = &fSurfaceProps;
+    // TODO Better content bounds
+    THREADED_DRAW(draw, SkIRect::MakeLargest(),
+                  drawPosText, t, len, xpos, scalarsPerPos, offset, paint, props);
 }
 
 void SkBitmapDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
@@ -386,14 +516,16 @@ void SkBitmapDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode
                                   const SkColor colors[], SkBlendMode bmode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
-    PREPARE_DRAW(draw).drawVertices(vmode, vertexCount, verts, textures, colors, bmode,
-                      indices, indexCount, paint);
+    THREADED_DRAW(draw, SkIRect::MakeLargest(), drawVertices, vmode, vertexCount, verts, textures,
+                  colors, bmode, indices, indexCount, paint);
 }
 
 void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
                                 int x, int y, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
-    PREPARE_DRAW(draw).drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
+    auto bitmap = static_cast<SkBitmapDevice*>(device)->fBitmap;
+    THREADED_DRAW(draw, SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()),
+                  drawSprite, bitmap, x, y, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -20,6 +20,11 @@
 #include "SkScalar.h"
 #include "SkSize.h"
 #include "SkSurfaceProps.h"
+#include "SkTaskGroup.h"
+
+#include <atomic>
+#include <vector>
+#include <future>
 
 class SkDraw;
 class SkImageFilterCache;
@@ -34,8 +39,14 @@ class SkSurface;
 struct SkPoint;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+extern int gSkThreadCnt;
+
 class SK_API SkBitmapDevice : public SkBaseDevice {
 public:
+    // delete all SkTaskQueues
+    ~SkBitmapDevice() { updateThreadCnt(0); }
+
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,
@@ -61,9 +72,13 @@ public:
     static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
                                   SkRasterHandleAllocator* = nullptr);
 
+    void updateThreadCnt(int threadCnt);
+
 protected:
     bool onShouldDisableLCD(const SkPaint&) const override;
     void* getRasterHandle() const override { return fRasterHandle; }
+
+    void flush() override;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -114,7 +129,7 @@ protected:
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
@@ -161,6 +176,23 @@ private:
     SkRasterClipStack  fRCStack;
 
     void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
+
+    int                                 fThreadCnt;
+    std::vector<std::future<void>>      fFutureDraws;
+    SkIRect*                            fThreadBounds;
+
+    static constexpr int MAX_THREAD = 32;
+
+    // TODO reserve 10000 to temporarily solve the read i while writing i+1 problem
+    SkTArray<std::function<void(int)>> fDrawQueue{100000};
+    std::atomic<bool> fIsFinishing{false};
+    SkSemaphore fDrawAvailable[MAX_THREAD];
+
+
+    void updateThreadBounds();
+
+    void finishThreadedDraw();
+    void startThreadedDraw();
 
     typedef SkBaseDevice INHERITED;
 };

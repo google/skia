@@ -39,6 +39,8 @@ class SkViewFactory;
 class SampleWindow : public SkOSWindow {
     SkTDArray<const SkViewFactory*> fSamples;
 public:
+    int fThreadCnt = 0;
+
     enum DeviceType {
         kRaster_DeviceType,
 #if SK_SUPPORT_GPU

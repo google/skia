@@ -148,13 +148,14 @@ protected:
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
 
-        canvas->save();
+        // canvas->save();
 
-        SkPath path;
-        path.addCircle(100, 100, 30);
-        path.setFillType(SkPath::kInverseWinding_FillType);
-        canvas->drawPath(path, p);
-        canvas->restore();
+        // SkPath path;
+        // path.addCircle(100, 100, 30);
+        // path.setFillType(SkPath::kInverseWinding_FillType);
+        // canvas->drawPath(path, p);
+        canvas->drawRect({100, 100, 200, 200}, p);
+        // canvas->restore();
     }
 
 private:
