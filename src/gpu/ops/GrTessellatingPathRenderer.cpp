@@ -180,9 +180,10 @@ public:
     }
 
 private:
-    void getFragmentProcessorAnalysisInputs(FragmentProcessorAnalysisInputs* input) const override {
-        input->colorInput()->setToConstant(fColor);
-        input->coverageInput()->setToUnknown();
+    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                            GrPipelineAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -206,6 +207,7 @@ private:
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
         static constexpr int kClipBoundsCnt = sizeof(fDevClipBounds) / sizeof(uint32_t);
+
         int shapeKeyDataCnt = fShape.unstyledKeySize();
         SkASSERT(shapeKeyDataCnt >= 0);
         GrUniqueKey::Builder builder(&key, kDomain, shapeKeyDataCnt + kClipBoundsCnt);
