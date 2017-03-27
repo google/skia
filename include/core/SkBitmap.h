@@ -657,7 +657,9 @@ public:
      *  This is logically the same as creating a bitmap around src, and calling readPixels on it
      *  with this bitmap as the dst.
      */
-    bool writePixels(const SkPixmap& src, int dstX, int dstY);
+    bool writePixels(const SkPixmap& src, int dstX, int dstY) {
+        return this->writePixels(src, dstX, dstY, SkTransferFunctionBehavior::kRespect);
+    }
     bool writePixels(const SkPixmap& src) {
         return this->writePixels(src, 0, 0);
     }
@@ -777,6 +779,8 @@ private:
     uint32_t                  fRowBytes;
     uint8_t                   fFlags;
 
+    bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
+
     /*  Unreference any pixelrefs or colortables
     */
     void freePixels();
@@ -785,6 +789,7 @@ private:
     static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
     static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
 
+    friend class SkImage_Raster;
     friend class SkReadBuffer;        // unflatten, rawpixels
     friend class SkBinaryWriteBuffer; // rawpixels
     friend struct SkBitmapProcState;

@@ -374,7 +374,9 @@ sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) cons
         src.setColorSpace(SkColorSpace::MakeSRGB());
     }
 
-    SkAssertResult(dst.writePixels(src));
+    // Use kIgnore for transfer function behavior.  This is used by the SkColorSpaceXformCanvas,
+    // which wants to pre-xform the inputs but ignore the transfer function on blends.
+    SkAssertResult(dst.writePixels(src, 0, 0, SkTransferFunctionBehavior::kIgnore));
     dst.setImmutable();
     return SkImage::MakeFromBitmap(dst);
 }
