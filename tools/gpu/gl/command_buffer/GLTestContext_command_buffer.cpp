@@ -108,8 +108,6 @@ static void load_command_buffer_functions() {
                                             gfCreateContext && gfDestroyContext && gfMakeCurrent &&
                                             gfSwapBuffers && gfGetProcAddress;
 
-        } else {
-            SkDebugf("Could not load %s.\n", libName);
         }
     }
 }
@@ -159,8 +157,6 @@ CommandBufferGLTestContext::CommandBufferGLTestContext(CommandBufferGLTestContex
 
     load_command_buffer_once();
     if (!gfFunctionsLoadedSuccessfully) {
-        static SkOnce once;
-        once([] { SkDebugf("Command Buffer: Could not load EGL functions.\n"); });
         return;
     }
 

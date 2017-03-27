@@ -802,27 +802,6 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkDeferredCanvas.h"
-#include "SkDumpCanvas.h"
-
-DEF_TEST(DeferredCanvas, r) {
-    SkDebugfDumper dumper;
-    SkDumpCanvas dumpC(&dumper);
-
-    SkDeferredCanvas canvas(&dumpC, SkDeferredCanvas::kEager);
-
-    SkPaint paint;
-//    paint.setShader(SkShader::MakeColorShader(SK_ColorRED));
-
-    canvas.save();
-    canvas.clipRect(SkRect::MakeWH(55, 55));
-    canvas.translate(10, 20);
-    canvas.drawRect(SkRect::MakeWH(50, 50), paint);
-    canvas.restore();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "SkCanvasStack.h"
 #include "SkNWayCanvas.h"
 
