@@ -166,7 +166,9 @@ GrGLSLFragmentProcessor* AARectEffect::onCreateGLSLInstance() const  {
 class GrGLConvexPolyEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLConvexPolyEffect() {
-        fPrevEdges[0] = SK_ScalarNaN;
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fPrevEdges); ++i) {
+            fPrevEdges[i] = SK_ScalarNaN;
+        }
     }
 
     void emitCode(EmitArgs&) override;
