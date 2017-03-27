@@ -481,14 +481,14 @@ public:
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
     // GrResourceProvider::wrap methods.
-    bool isACopyNeededForTextureParams(GrTexture* texture, const GrSamplerParams& params,
+    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerParams& params,
                                        GrTextureProducer::CopyParams* copyParams,
                                        SkScalar scaleAdjust[2]) const {
-        if (this->isACopyNeededForTextureParams(texture->width(), texture->height(), params,
+        if (this->isACopyNeededForTextureParams(proxy->width(), proxy->height(), params,
                                                 copyParams, scaleAdjust)) {
             return true;
         }
-        return this->onIsACopyNeededForTextureParams(texture, params, copyParams, scaleAdjust);
+        return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
     }
 
     // This is only to be used in GL-specific tests.
@@ -550,7 +550,7 @@ private:
 
     virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
 
-    virtual bool onIsACopyNeededForTextureParams(GrTexture* texture, const GrSamplerParams&,
+    virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerParams&,
                                                  GrTextureProducer::CopyParams*,
                                                  SkScalar scaleAdjust[2]) const {
         return false;

@@ -72,16 +72,9 @@ public:
 
     /** Assigns a unique key to the texture. The texture will be findable via this key using
     findTextureByUniqueKey(). If an existing texture has this key, it's key will be removed. */
-    void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
-        SkASSERT(key.isValid());
-        this->assignUniqueKeyToResource(key, texture);
-    }
-
-    /** Finds a texture by unique key. If the texture is found it is ref'ed and returned. */
-    GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
-
     void assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy*);
 
+    /** Finds a texture by unique key. If the texture is found it is ref'ed and returned. */
     sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey& key);
 
     /**
@@ -257,6 +250,12 @@ public:
 
 private:
     GrTexture* internalCreateApproxTexture(const GrSurfaceDesc& desc, uint32_t scratchTextureFlags);
+
+    GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
+    void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
+        SkASSERT(key.isValid());
+        this->assignUniqueKeyToResource(key, texture);
+    }
 
     GrTexture* refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
 

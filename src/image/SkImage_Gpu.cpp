@@ -106,16 +106,10 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
     if (texColorSpace) {
         *texColorSpace = this->fColorSpace;
     }
-    GrTexture* texture = fProxy->instantiate(fContext->resourceProvider());
-    if (!texture) {
-        return nullptr;
-    }
 
-    GrTextureAdjuster adjuster(fContext, texture, this->alphaType(), this->bounds(),
+    GrTextureAdjuster adjuster(fContext, fProxy, this->alphaType(), this->bounds(),
                                this->uniqueID(), this->fColorSpace.get());
-    sk_sp<GrTexture> tex(adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust));
-
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return adjuster.refTextureProxySafeForParams(params, nullptr, scaleAdjust);
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -390,18 +384,18 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
                                        std::move(imageColorSpace));
 }
 
-static sk_sp<SkImage> create_image_from_maker(GrContext* context,
-                                              GrTextureMaker* maker, SkAlphaType at, uint32_t id,
+static sk_sp<SkImage> create_image_from_maker(GrContext* context, GrTextureMaker* maker,
+                                              SkAlphaType at, uint32_t id,
                                               SkColorSpace* dstColorSpace) {
     sk_sp<SkColorSpace> texColorSpace;
-    sk_sp<GrTexture> texture(maker->refTextureForParams(GrSamplerParams::ClampNoFilter(),
-                                                        dstColorSpace, &texColorSpace, nullptr));
-    if (!texture) {
+    sk_sp<GrTextureProxy> proxy(maker->refTextureProxyForParams(GrSamplerParams::ClampNoFilter(),
+                                                                dstColorSpace,
+                                                                &texColorSpace, nullptr));
+    if (!proxy) {
         return nullptr;
     }
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture));
-    return sk_make_sp<SkImage_Gpu>(context, id, at, std::move(proxy),
-                                   std::move(texColorSpace), SkBudgeted::kNo);
+    return sk_make_sp<SkImage_Gpu>(context, id, at,
+                                   std::move(proxy), std::move(texColorSpace), SkBudgeted::kNo);
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const {

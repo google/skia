@@ -15,6 +15,12 @@
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
+    // If the proxy is already instantiated, return its backing GrTexture; if not,
+    // return null
+    const GrTexture* peekTexture() const {
+        return fProxy->fTarget ? fProxy->fTarget->asTexture() : nullptr;
+    }
+
     // Beware! This call is only guaranteed to tell you if the proxy in question has
     // any pending IO in its current state. It won't tell you about the IO state in the
     // future when the proxy is actually used/instantiated.

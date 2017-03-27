@@ -29,28 +29,6 @@ public:
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix,
-                                           const SkShader::TileMode tileModes[2]) {
-        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(tex, std::move(colorSpaceXform),
-                                                              matrix, tileModes));
-    }
-
-    /**
-     * Create a Mitchell filter effect with a texture matrix and a domain.
-     */
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix,
-                                           const SkRect& domain) {
-        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(tex, std::move(colorSpaceXform),
-                                                              matrix, domain));
-    }
-
-    /**
-     * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
-     */
     static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
                                            sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -85,11 +63,6 @@ public:
                                  GrSamplerParams::FilterMode* filterMode);
 
 private:
-    GrBicubicEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix &matrix,
-                    const SkShader::TileMode tileModes[2]);
-    GrBicubicEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix &matrix,
-                    const SkRect& domain);
-
     GrBicubicEffect(GrResourceProvider*, sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
                     const SkMatrix &matrix, const SkShader::TileMode tileModes[2]);
     GrBicubicEffect(GrResourceProvider*, sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,

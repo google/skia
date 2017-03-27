@@ -119,20 +119,8 @@ protected:
         kTightCopy_DomainMode
     };
 
-    static GrTexture* CopyOnGpu(GrTexture* inputTexture, const SkIRect* subset,
-                                const CopyParams& copyParams);
-
     static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
                                            const SkIRect* subset, const CopyParams& copyParams);
-
-    static DomainMode DetermineDomainMode(
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        int texW, int texH,
-        const SkIRect* textureContentArea,
-        const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
-        SkRect* domainRect);
 
     static DomainMode DetermineDomainMode(
         const SkRect& constraintRect,
@@ -142,14 +130,6 @@ protected:
         const SkIRect* textureContentArea,
         const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
         SkRect* domainRect);
-
-    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
-        GrTexture* texture,
-        sk_sp<GrColorSpaceXform> colorSpaceXform,
-        const SkMatrix& textureMatrix,
-        DomainMode domainMode,
-        const SkRect& domain,
-        const GrSamplerParams::FilterMode* filterOrNullForBicubic);
 
     static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
         GrResourceProvider*,

@@ -55,7 +55,9 @@ public:
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&,
                                                     SkColorSpace*, sk_sp<SkColorSpace>*,
                                                     SkScalar scaleAdjust[2]) const = 0;
-    virtual sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
+    virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
+        return nullptr;
+    }
     virtual GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
                                                GrSurfaceOrigin* origin) const {
         return 0;
