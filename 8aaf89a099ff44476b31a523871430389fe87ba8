@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7e3cb369_f2a1fd7d",
+        "filename": "samplecode/SamplePathFinder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-27T16:40:55Z",
+      "side": 1,
+      "message": "e.g. --pathfinderTrail xxxxXxxxxx\n\nYou can dump the trail to your current path with \u0027D\u0027, and the next time you launch send that trail to \u0027--pathfinderTrail\u0027. That way you can make a code change and then start back up right where you were before, without having to do the binary search again.",
+      "parentUuid": "925cdab8_998ba0ff",
+      "range": {
+        "startLine": 17,
+        "startChar": 14,
+        "endLine": 17,
+        "endChar": 29
+      },
+      "revId": "8aaf89a099ff44476b31a523871430389fe87ba8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2c5d2db6_b22a6d2b",
         "filename": "samplecode/SamplePathFinder.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "8aaf89a099ff44476b31a523871430389fe87ba8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29a2afef_a5e2d786",
+        "filename": "samplecode/SamplePathFinder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-27T16:40:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c5d2db6_b22a6d2b",
+      "range": {
+        "startLine": 23,
+        "startChar": 20,
+        "endLine": 23,
+        "endChar": 33
+      },
+      "revId": "8aaf89a099ff44476b31a523871430389fe87ba8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "cc4dc558_204b92c7",
+        "filename": "samplecode/SamplePathFinder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-27T16:40:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86d6b1f5_a66b63b2",
+      "range": {
+        "startLine": 35,
+        "startChar": 22,
+        "endLine": 35,
+        "endChar": 29
+      },
+      "revId": "8aaf89a099ff44476b31a523871430389fe87ba8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52eef93f_f8a67313",
         "filename": "samplecode/SamplePathFinder.cpp",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "8aaf89a099ff44476b31a523871430389fe87ba8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a8c3c61_34dfeb03",
+        "filename": "samplecode/SamplePathFinder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-03-27T16:40:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52eef93f_f8a67313",
+      "range": {
+        "startLine": 40,
+        "startChar": 22,
+        "endLine": 40,
+        "endChar": 28
+      },
+      "revId": "8aaf89a099ff44476b31a523871430389fe87ba8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
