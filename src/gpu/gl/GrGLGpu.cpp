@@ -20,6 +20,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrShaderCaps.h"
 #include "GrSurfacePriv.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "SkAutoMalloc.h"
@@ -4421,13 +4422,20 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
-bool GrGLGpu::onIsACopyNeededForTextureParams(GrTexture* texture,
+bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
                                               const GrSamplerParams& textureParams,
                                               GrTextureProducer::CopyParams* copyParams,
                                               SkScalar scaleAdjust[2]) const {
+    const GrTexture* texture = proxy->priv().peekTexture();
+    if (!texture) {
+        // The only way to get and EXTERNAL or RECTANGLE texture in Ganesh is to wrap them.
+        // In that case the proxy should already be instantiated.
+        return false;
+    }
+
     if (textureParams.isTiled() ||
         GrSamplerParams::kMipMap_FilterMode == textureParams.filterMode()) {
-        GrGLTexture* glTexture = static_cast<GrGLTexture*>(texture);
+        const GrGLTexture* glTexture = static_cast<const GrGLTexture*>(texture);
         if (GR_GL_TEXTURE_EXTERNAL == glTexture->target() ||
             GR_GL_TEXTURE_RECTANGLE == glTexture->target()) {
             copyParams->fFilter = GrSamplerParams::kNone_FilterMode;

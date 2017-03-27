@@ -627,12 +627,10 @@ sk_sp<GrTextureProxy> SkImageCacherator::lockAsTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex(GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(
-                                                                                  params,
+    return GrImageTextureMaker(ctx, this, client, chint).refTextureProxyForParams(params,
                                                                                   dstColorSpace,
                                                                                   texColorSpace,
-                                                                                  scaleAdjust));
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+                                                                                  scaleAdjust);
 }
 
 #endif
