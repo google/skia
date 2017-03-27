@@ -87,6 +87,5 @@ DEF_TEST(Interpolator, reporter) {
                             SkUnitCubicInterp(val, t[0], t[1], t[2], t[3])));
         }
         ++i;
-        SkDebugf("\n");
     }
 }
