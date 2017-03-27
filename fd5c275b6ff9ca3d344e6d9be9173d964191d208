@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97b44dd2_00136624",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-27T16:16:35Z",
+      "side": 1,
+      "message": "Please replace and add bug to commit message.",
+      "range": {
+        "startLine": 378,
+        "startChar": 35,
+        "endLine": 378,
+        "endChar": 49
+      },
+      "revId": "fd5c275b6ff9ca3d344e6d9be9173d964191d208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
