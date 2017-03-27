@@ -100,7 +100,9 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     rt = gpu->wrapBackendRenderTarget(desc);
     REPORTER_ASSERT(reporter, rt);
 
-    gpu->deleteTestingOnlyBackendTexture(backendObj, true);
+    // When we wrapBackendRenderTarget it is always borrowed, so we must make sure to free the
+    // resource when we're done.
+    gpu->deleteTestingOnlyBackendTexture(backendObj, false);
 }
 
 void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
