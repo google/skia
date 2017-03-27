@@ -11,7 +11,7 @@
 #define SkTemplates_DEFINED
 
 #include "SkMath.h"
-#include "SkMemory.h"
+#include "SkMalloc.h"
 #include "SkTLogic.h"
 #include "SkTypes.h"
 #include <limits.h>

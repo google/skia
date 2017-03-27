@@ -8,7 +8,7 @@
 #include "SkRWBuffer.h"
 
 #include "SkAtomics.h"
-#include "SkMemory.h"
+#include "SkMalloc.h"
 #include "SkStream.h"
 
 // Force small chunks to be a page's worth

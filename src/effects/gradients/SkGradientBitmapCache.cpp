@@ -8,7 +8,7 @@
 
 #include "SkGradientBitmapCache.h"
 
-#include "SkMemory.h"
+#include "SkMalloc.h"
 
 struct SkGradientBitmapCache::Entry {
     Entry*      fPrev;

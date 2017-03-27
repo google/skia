@@ -7,7 +7,7 @@
 
 #include "SkVarAlloc.h"
 
-#include "SkMemory.h"
+#include "SkMalloc.h"
 
 struct SkVarAlloc::Block {
     Block* prev;

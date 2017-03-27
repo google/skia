@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkMemory.h"
+#include "SkMalloc.h"
 
 #include "SkTypes.h"
 #include "mozilla/mozalloc.h"

@@ -9,7 +9,7 @@
 
 #include "SkFixed.h"
 #include "SkMath.h"
-#include "SkMemory.h"
+#include "SkMalloc.h"
 #include "SkTSearch.h"
 
 SkInterpolatorBase::SkInterpolatorBase() {

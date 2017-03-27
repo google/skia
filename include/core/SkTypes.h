@@ -35,8 +35,8 @@
 
 #include <string.h>
 // TODO(herb): remove after chromuim skia/ext/SkMemory_new_handler.cpp
-// has been updated to point to private/SkMemory.h
-#include "../private/SkMemory.h"
+// has been updated to point to private/SkMalloc.h
+#include "../private/SkMalloc.h"
 
 // enable to test new device-base clipping
 //#define SK_USE_DEVICE_CLIPPING
