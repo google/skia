@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "6e1965e5_3c5ec1f1",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-27T17:11:52Z",
+      "side": 1,
+      "message": "I was thinking something along those lines.",
+      "parentUuid": "36b51503_178c2f69",
+      "range": {
+        "startLine": 32,
+        "startChar": 27,
+        "endLine": 32,
+        "endChar": 35
+      },
+      "revId": "90457d59f4fb167334cc5f26e1058c1604c07432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b11e9753_49624097",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 5
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "They are magic numbers from HWUI -- I don\u0027t know what they mean either, in any sort of physical way.",
       "parentUuid": "b11e9753_49624097",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 39
+      },
+      "revId": "90457d59f4fb167334cc5f26e1058c1604c07432",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7958f47_063eb52e",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-27T17:11:52Z",
+      "side": 1,
+      "message": "yay!",
+      "parentUuid": "fd90424c_1e67f32e",
       "range": {
         "startLine": 249,
         "startChar": 0,
