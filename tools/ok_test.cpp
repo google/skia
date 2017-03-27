@@ -10,22 +10,44 @@
 
 struct TestStream : Stream {
     const skiatest::TestRegistry* registry = skiatest::TestRegistry::Head();
+    bool extended = false, verbose = false;
 
-    static std::unique_ptr<Stream> Create(Options) {
+    static std::unique_ptr<Stream> Create(Options options) {
         TestStream stream;
+        if (options("extended") != "") { stream.extended = true; }
+        if (options("verbose" ) != "") { stream.verbose  = true; }
+
         return move_unique(stream);
     }
 
     struct TestSrc : Src {
         skiatest::Test test {"", false, nullptr};
+        bool extended, verbose;
 
         std::string name() override { return test.name; }
         SkISize     size() override { return {0,0}; }
 
         bool draw(SkCanvas*) override {
-            // TODO(mtklein): reporter, GrContext, return false on failure.
-            test.proc(nullptr, nullptr);
-            return true;
+            // TODO(mtklein): GrContext
+
+            struct : public skiatest::Reporter {
+                bool ok = true;
+                const char* name;
+                bool extended, verbose_;
+
+                void reportFailed(const skiatest::Failure& failure) override {
+                    SkDebugf("%s: %s\n", name, failure.toString().c_str());
+                    ok = false;
+                }
+                bool allowExtendedTest() const override { return extended; }
+                bool           verbose() const override { return verbose_; }
+            } reporter;
+            reporter.name     = test.name;
+            reporter.extended = extended;
+            reporter.verbose_ = verbose;
+
+            test.proc(&reporter, nullptr);
+            return reporter.ok;
         }
     };
 
@@ -35,6 +57,8 @@ struct TestStream : Stream {
         }
         TestSrc src;
         src.test = registry->factory();
+        src.extended = extended;
+        src.verbose  = verbose;
         registry = registry->next();
         return move_unique(src);
     }
