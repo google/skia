@@ -41,8 +41,9 @@ struct Dst {
 class Options {
     std::map<std::string, std::string> kv;
 public:
-    explicit Options(std::string str = "");
-    std::string operator()(std::string k, std::string fallback = "") const;
+    explicit Options(std::string = "");
+    std::string& operator[](std::string k);
+    std::string  operator()(std::string k, std::string fallback = "") const;
 };
 
 // Create globals to register your new type of Stream or Dst.

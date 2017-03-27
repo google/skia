@@ -364,7 +364,7 @@ Options::Options(std::string str) {
     std::string k,v, *curr = &k;
     for (auto c : str) {
         switch(c) {
-            case ',': this->kv[k] = v;
+            case ',': (*this)[k] = v;
                       curr = &(k = "");
                       break;
             case '=': curr = &(v = "");
@@ -372,8 +372,10 @@ Options::Options(std::string str) {
             default: *curr += c;
         }
     }
-    this->kv[k] = v;
+    (*this)[k] = v;
 }
+
+std::string& Options::operator[](std::string k) { return this->kv[k]; }
 
 std::string Options::operator()(std::string k, std::string fallback) const {
     for (auto it = kv.find(k); it != kv.end(); ) {
