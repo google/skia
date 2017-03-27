@@ -412,5 +412,9 @@ private:
 
 std::unique_ptr<SkCanvas> SkCreateColorSpaceXformCanvas(SkCanvas* target,
                                                         sk_sp<SkColorSpace> targetCS) {
+    if (target->imageInfo().colorSpace()) {
+        target->androidFramework_setLegacy();
+    }
+
     return skstd::make_unique<SkColorSpaceXformCanvas>(target, std::move(targetCS));
 }

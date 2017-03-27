@@ -153,10 +153,10 @@ bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
 }
 
 bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
-    const SkImageInfo info = fBitmap.info();
+    const SkImageInfo info = this->imageInfo();
     if (fBitmap.getPixels() && (kUnknown_SkColorType != info.colorType())) {
         SkColorTable* ctable = nullptr;
-        pmap->reset(fBitmap.info(), fBitmap.getPixels(), fBitmap.rowBytes(), ctable);
+        pmap->reset(info, fBitmap.getPixels(), fBitmap.rowBytes(), ctable);
         return true;
     }
     return false;
@@ -398,7 +398,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y,
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter::OutputProperties outputProperties(fBitmap.colorSpace());
+        SkImageFilter::OutputProperties outputProperties(this->imageInfo().colorSpace());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
         sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
@@ -422,7 +422,8 @@ sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
 
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkImage* image) {
     return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(image->width(), image->height()),
-                                         image->makeNonTextureImage(), fBitmap.colorSpace());
+                                         image->makeNonTextureImage(),
+                                         this->imageInfo().colorSpace());
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial() {

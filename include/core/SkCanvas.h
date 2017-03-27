@@ -1602,6 +1602,7 @@ private:
     friend class SkDeferredCanvas;  // For use of resetForNextPicture
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
+    friend std::unique_ptr<SkCanvas> SkCreateColorSpaceXformCanvas(SkCanvas*, sk_sp<SkColorSpace>);
 
     enum InitFlags {
         kDefault_InitFlags                  = 0,
@@ -1658,6 +1659,11 @@ private:
      *  If the clip is empty, this will return false.
      */
     bool androidFramework_isClipAA() const;
+
+    /**
+     *  Allows the Android framework to use legacy behavior on canvases that have color spaces.
+     */
+    void androidFramework_setLegacy();
 
     /**
      *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows

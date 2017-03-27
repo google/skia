@@ -116,6 +116,9 @@ public:
     void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
         this->onSetDeviceClipRestriction(mutableClipRestriction);
     }
+    void androidFramework_setLegacy() {
+        fInfo = fInfo.makeColorSpace(nullptr);
+    }
     bool clipIsWideOpen() const;
 
     const SkMatrix& ctm() const { return fCTM; }
@@ -377,7 +380,7 @@ private:
     }
 
     SkIPoint             fOrigin;
-    const SkImageInfo    fInfo;
+    SkImageInfo          fInfo;
     const SkSurfaceProps fSurfaceProps;
     SkMatrix             fCTM;
 

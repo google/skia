@@ -1586,6 +1586,12 @@ bool SkCanvas::androidFramework_isClipAA() const {
     return containsAA;
 }
 
+void SkCanvas::androidFramework_setLegacy() {
+    if (SkBaseDevice* device = this->getDevice()) {
+        return device->androidFramework_setLegacy();
+    }
+}
+
 class RgnAccumulator {
     SkRegion* fRgn;
 public:
