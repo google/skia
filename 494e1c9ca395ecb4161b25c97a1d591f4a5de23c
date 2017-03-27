@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ee25794_bd4ea272",
+        "filename": "src/gpu/GrPaint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "needed?",
+      "range": {
+        "startLine": 9,
+        "startChar": 10,
+        "endLine": 9,
+        "endChar": 28
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "809c6486_54cb42ea",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "needed?",
+      "range": {
+        "startLine": 13,
+        "startChar": 10,
+        "endLine": 13,
+        "endChar": 28
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9afd81d0_bd6836ef",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "needed?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 31
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05fc8f45_e2a2956c",
+        "filename": "src/gpu/GrXferProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "same question as the forward declare above",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 31
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e024368_17b86c1b",
+        "filename": "src/gpu/GrXferProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "is this just a convenience declaration here? Doesn\u0027t look like it used in this base class.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 39
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21e3ff37_317ef66f",
+        "filename": "src/gpu/effects/GrCoverageSetOpXP.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "Is this needed?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 31
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ffa18fa_d8d9459a",
+        "filename": "src/gpu/effects/GrCoverageSetOpXP.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "needed?",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 38
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31834109_83d8ac4a",
+        "filename": "src/gpu/effects/GrDisableColorXP.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "is this needed?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 39
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e355a1d4_80b3dd1a",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "what\u0027s this include for?",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37d68246_e88f06f2",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-27T14:43:59Z",
+      "side": 1,
+      "message": "needed?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 39
+      },
+      "revId": "494e1c9ca395ecb4161b25c97a1d591f4a5de23c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
