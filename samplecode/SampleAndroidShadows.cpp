@@ -421,8 +421,15 @@ protected:
             if (!fShowSpot) {
                 spotAlpha = 0;
             }
-            SkShadowUtils::DrawShadow(canvas, path, zValue, lightPos, lightWidth,
+
+            SkShadowUtils::DrawShadow(canvas, path,
+                                      zValue,
+                                      lightPos, lightWidth,
                                       ambientAlpha, spotAlpha, SK_ColorBLACK);
+            //SkShadowUtils::DrawUncachedShadow(canvas, path,
+            //                                  [zValue](SkScalar, SkScalar) { return zValue; },
+            //                                  lightPos, lightWidth,
+            //                                  ambientAlpha, spotAlpha, SK_ColorBLACK);
         }
 #else
         if (fShowAmbient) {
