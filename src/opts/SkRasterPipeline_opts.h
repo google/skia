@@ -1133,6 +1133,17 @@ STAGE_CTX(linear_gradient_2stops, const SkPM4f*) {
     a = SkNf_fma(t, dc.a(), c0.a());
 }
 
+STAGE_CTX(linear_gradient_few_stops, const SkPM4f*) {
+    auto t = r;
+    SkPM4f c0 = ctx[0],
+           dc = ctx[1];
+
+    r = SkNf_fma(t, dc.r(), c0.r());
+    g = SkNf_fma(t, dc.g(), c0.g());
+    b = SkNf_fma(t, dc.b(), c0.b());
+    a = SkNf_fma(t, dc.a(), c0.a());
+}
+
 STAGE_CTX(byte_tables, const void*) {
     struct Tables { const uint8_t *r, *g, *b, *a; };
     auto tables = (const Tables*)ctx;
