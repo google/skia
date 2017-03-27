@@ -22,8 +22,7 @@
  */
 class SkBaseShadowTessellator {
 public:
-    SkBaseShadowTessellator(SkScalar radius, SkColor umbraColor, SkColor penumbraColor,
-                            bool transparent);
+    SkBaseShadowTessellator(SkShadowTessellator::HeightFunc, bool transparent);
     virtual ~SkBaseShadowTessellator() {}
 
     sk_sp<SkVertices> releaseVertices() {
@@ -52,6 +51,8 @@ protected:
     void addArc(const SkVector& nextNormal);
     void finishArcAndAddEdge(const SkVector& nextPoint, const SkVector& nextNormal);
     virtual void addEdge(const SkVector& nextPoint, const SkVector& nextNormal) = 0;
+
+    SkShadowTessellator::HeightFunc fHeightFunc;
 
     // first three points
     SkTDArray<SkPoint>  fInitPoints;
@@ -108,14 +109,12 @@ static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScala
     *n = SkScalarFloorToInt(steps);
 }
 
-SkBaseShadowTessellator::SkBaseShadowTessellator(SkScalar radius, SkColor umbraColor,
-                                                 SkColor penumbraColor, bool transparent)
-        : fFirstVertex(-1)
+SkBaseShadowTessellator::SkBaseShadowTessellator(SkShadowTessellator::HeightFunc heightFunc,
+                                                 bool transparent)
+        : fHeightFunc(heightFunc)
+        , fFirstVertex(-1)
         , fSucceeded(false)
         , fTransparent(transparent)
-        , fUmbraColor(umbraColor)
-        , fPenumbraColor(penumbraColor)
-        , fRadius(radius)
         , fDirection(1)
         , fPrevUmbraIndex(-1) {
     fInitPoints.setReserve(3);
@@ -235,8 +234,8 @@ void SkBaseShadowTessellator::finishArcAndAddEdge(const SkPoint& nextPoint,
 class SkAmbientShadowTessellator : public SkBaseShadowTessellator {
 public:
     SkAmbientShadowTessellator(const SkPath& path, const SkMatrix& ctm,
-                               SkScalar radius, SkColor umbraColor,
-                               SkColor penumbraColor, bool transparent);
+                               SkShadowTessellator::HeightFunc heightFunc,
+                               SkScalar ambientAlpha, bool transparent);
 
 private:
     void handleLine(const SkPoint& p) override;
@@ -247,13 +246,27 @@ private:
     typedef SkBaseShadowTessellator INHERITED;
 };
 
+static const float kHeightFactor = 1.0f / 128.0f;
+static const float kGeomFactor = 64.0f;
+
 SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
                                                        const SkMatrix& ctm,
-                                                       SkScalar radius,
-                                                       SkColor umbraColor,
-                                                       SkColor penumbraColor,
+                                                       SkShadowTessellator::HeightFunc heightFunc,
+                                                       SkScalar ambientAlpha,
                                                        bool transparent)
-        : INHERITED(radius, umbraColor, penumbraColor, transparent) {
+        : INHERITED(heightFunc, transparent) {
+    // Set radius and colors
+    // TODO: vary colors and radius based on heightFunc
+    SkScalar occluderHeight = heightFunc(0, 0);
+    fRadius = occluderHeight * kHeightFactor * kGeomFactor;
+    SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
+    // umbraColor is the interior value, penumbraColor the exterior value.
+    // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
+    // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
+    // the final alpha.
+    fUmbraColor = SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, umbraAlpha * 255.9999f);
+    fPenumbraColor = SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, 0);
+
     // Outer ring: 3*numPts
     // Middle ring: numPts
     fPositions.setReserve(4 * path.countPoints());
@@ -269,7 +282,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     SkPath::Verb verb;
     if (fTransparent) {
         *fPositions.push() = SkPoint::Make(0, 0);
-        *fColors.push() = umbraColor;
+        *fColors.push() = fUmbraColor;
         fCentroidCount = 0;
     }
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
@@ -435,9 +448,9 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
 class SkSpotShadowTessellator : public SkBaseShadowTessellator {
 public:
     SkSpotShadowTessellator(const SkPath& path, const SkMatrix& ctm,
-                            SkScalar scale, const SkVector& translate,
-                            SkScalar radius, SkColor umbraColor, SkColor penumbraColor,
-                            bool transparent);
+                            SkShadowTessellator::HeightFunc heightFunc,
+                            const SkPoint3& lightPos, SkScalar lightRadius,
+                            SkScalar spotAlpha, bool transparent);
 
 private:
     void computeClipAndPathPolygons(const SkPath& path, const SkMatrix& ctm,
@@ -470,14 +483,31 @@ private:
 };
 
 SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMatrix& ctm,
-                                                 SkScalar scale, const SkVector& translate,
-                                                 SkScalar radius, SkColor umbraColor,
-                                                 SkColor penumbraColor, bool transparent)
-        : INHERITED(radius, umbraColor, penumbraColor, transparent)
+                                                 SkShadowTessellator::HeightFunc heightFunc,
+                                                 const SkPoint3& lightPos, SkScalar lightRadius,
+                                                 SkScalar spotAlpha, bool transparent)
+        : INHERITED(heightFunc, transparent)
         , fCurrClipPoint(0)
         , fPrevUmbraOutside(false)
         , fFirstUmbraOutside(false)
         , fValidUmbra(true) {
+
+    // Set radius and colors
+    // TODO: vary colors and radius based on heightFunc
+    SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
+    SkScalar occluderHeight = heightFunc(center.fX, center.fY);
+    float zRatio = SkTPin(occluderHeight / (lightPos.fZ - occluderHeight), 0.0f, 0.95f);
+    SkScalar radius = lightRadius * zRatio;
+    fRadius = radius;
+    fUmbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 255);
+    fPenumbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 0);
+
+    // Compute the scale and translation for the spot shadow.
+    SkScalar scale = lightPos.fZ / (lightPos.fZ - occluderHeight);
+    ctm.mapPoints(&center, 1);
+    SkVector translate = SkVector::Make(zRatio * (center.fX - lightPos.fX),
+                                        zRatio * (center.fY - lightPos.fY));
+
     // TODO: calculate these reserves better
     // Penumbra ring: 3*numPts
     // Umbra ring: numPts
@@ -993,17 +1023,17 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkVertices> SkShadowTessellator::MakeAmbient(const SkPath& path, const SkMatrix& ctm,
-                                                   SkScalar radius, SkColor umbra, SkColor penumbra,
+                                                   HeightFunc heightFunc, SkScalar ambientAlpha,
                                                    bool transparent) {
-    SkAmbientShadowTessellator ambientTess(path, ctm, radius, umbra, penumbra, transparent);
+    SkAmbientShadowTessellator ambientTess(path, ctm, heightFunc, ambientAlpha, transparent);
     return ambientTess.releaseVertices();
 }
 
 sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, const SkMatrix& ctm,
-                                                SkScalar scale, const SkVector& translate,
-                                                SkScalar radius, SkColor umbraColor,
-                                                SkColor penumbraColor, bool transparent) {
-    SkSpotShadowTessellator spotTess(path, ctm, scale, translate, radius, umbraColor,
-                                     penumbraColor, transparent);
+                                                HeightFunc heightFunc,
+                                                const SkPoint3& lightPos, SkScalar lightRadius,
+                                                SkScalar spotAlpha, bool transparent) {
+    SkSpotShadowTessellator spotTess(path, ctm, heightFunc, lightPos, lightRadius,
+                                     spotAlpha, transparent);
     return spotTess.releaseVertices();
 }
