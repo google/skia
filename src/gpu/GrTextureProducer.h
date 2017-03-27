@@ -73,6 +73,8 @@ public:
     virtual SkAlphaType alphaType() const = 0;
 
 protected:
+    friend class GrTextureProducer_TestAccess;
+
     GrTextureProducer(int width, int height, bool isAlphaOnly)
         : fWidth(width)
         , fHeight(height)
@@ -128,6 +130,15 @@ protected:
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
         int texW, int texH,
+        const SkIRect* textureContentArea,
+        const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
+        SkRect* domainRect);
+
+    static DomainMode DetermineDomainMode(
+        const SkRect& constraintRect,
+        FilterConstraint filterConstraint,
+        bool coordsLimitedToConstraintRect,
+        GrTextureProxy*,
         const SkIRect* textureContentArea,
         const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
         SkRect* domainRect);
