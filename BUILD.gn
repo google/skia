@@ -969,11 +969,13 @@ if (skia_enable_tools) {
     deps = [
       ":experimental_svg_model",
       ":flags",
-      ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
       "//third_party/libpng",
       "//third_party/zlib",
+    ]
+    public_deps = [
+      ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
   }
 
@@ -1155,11 +1157,13 @@ if (skia_enable_tools) {
       "tools/ok.cpp",
       "tools/ok_dsts.cpp",
       "tools/ok_srcs.cpp",
+      "tools/ok_test.cpp",
       "tools/ok_vias.cpp",
     ]
     deps = [
       ":gm",
       ":skia",
+      ":tests",
     ]
   }
 
