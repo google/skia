@@ -628,58 +628,87 @@ void append_point_to_contour(const SkPoint& p, VertexList* contour, SkArenaAlloc
     contour->append(v);
 }
 
-void generate_quadratic_points(const SkPoint& p0,
-                               const SkPoint& p1,
-                               const SkPoint& p2,
-                               SkScalar tolSqd,
-                               VertexList* contour,
-                               int pointsLeft,
-                               SkArenaAlloc& alloc) {
-    SkScalar d = p1.distanceToLineSegmentBetweenSqd(p0, p2);
-    if (pointsLeft < 2 || d < tolSqd || !SkScalarIsFinite(d)) {
-        append_point_to_contour(p2, contour, alloc);
-        return;
-    }
-
-    const SkPoint q[] = {
-        { SkScalarAve(p0.fX, p1.fX), SkScalarAve(p0.fY, p1.fY) },
-        { SkScalarAve(p1.fX, p2.fX), SkScalarAve(p1.fY, p2.fY) },
-    };
-    const SkPoint r = { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) };
-
-    pointsLeft >>= 1;
-    generate_quadratic_points(p0, q[0], r, tolSqd, contour, pointsLeft, alloc);
-    generate_quadratic_points(r, q[1], p2, tolSqd, contour, pointsLeft, alloc);
+SkScalar quad_error_at(const SkPoint pts[3], SkScalar t, SkScalar u) {
+    SkQuadCoeff quad(pts);
+    SkPoint p0 = to_point(quad.eval(t - 0.5f * u));
+    SkPoint mid = to_point(quad.eval(t));
+    SkPoint p1 = to_point(quad.eval(t + 0.5f * u));
+    return mid.distanceToLineSegmentBetweenSqd(p0, p1);
 }
 
-void generate_cubic_points(const SkPoint& p0,
-                           const SkPoint& p1,
-                           const SkPoint& p2,
-                           const SkPoint& p3,
-                           SkScalar tolSqd,
-                           VertexList* contour,
-                           int pointsLeft,
-                           SkArenaAlloc& alloc) {
-    SkScalar d1 = p1.distanceToLineSegmentBetweenSqd(p0, p3);
-    SkScalar d2 = p2.distanceToLineSegmentBetweenSqd(p0, p3);
-    if (pointsLeft < 2 || (d1 < tolSqd && d2 < tolSqd) ||
-        !SkScalarIsFinite(d1) || !SkScalarIsFinite(d2)) {
-        append_point_to_contour(p3, contour, alloc);
-        return;
+SkScalar cubic_error_at(const SkPoint pts[4], SkScalar t, SkScalar u) {
+    SkCubicCoeff cubic(pts);
+    SkPoint p0 = to_point(cubic.eval(t - 0.5f * u));
+    SkPoint mid = to_point(cubic.eval(t));
+    SkPoint p1 = to_point(cubic.eval(t + 0.5f * u));
+    return mid.distanceToLineSegmentBetweenSqd(p0, p1);
+}
+
+void append_quadratic_to_contour(const SkPoint pts[3], SkScalar toleranceSqd, VertexList* contour,
+                                 SkArenaAlloc& alloc) {
+    SkQuadCoeff quad(pts);
+    Sk2s aa = quad.fA * quad.fA;
+    SkScalar denom = 2.0f * (aa[0] + aa[1]);
+    Sk2s ab = quad.fA * quad.fB;
+    SkScalar t = denom ? (-ab[0] - ab[1]) / denom : 0.0f;
+    int nPoints = 1;
+    SkScalar u;
+    // Test possible subdivision values only at the point of maximum curvature.
+    // If it passes the flatness metric there, it'll pass everywhere.
+    for (;;) {
+        u = 1.0f / nPoints;
+        if (quad_error_at(pts, t, u) < toleranceSqd) {
+            break;
+        }
+        nPoints++;
     }
-    const SkPoint q[] = {
-        { SkScalarAve(p0.fX, p1.fX), SkScalarAve(p0.fY, p1.fY) },
-        { SkScalarAve(p1.fX, p2.fX), SkScalarAve(p1.fY, p2.fY) },
-        { SkScalarAve(p2.fX, p3.fX), SkScalarAve(p2.fY, p3.fY) }
-    };
-    const SkPoint r[] = {
-        { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) },
-        { SkScalarAve(q[1].fX, q[2].fX), SkScalarAve(q[1].fY, q[2].fY) }
-    };
-    const SkPoint s = { SkScalarAve(r[0].fX, r[1].fX), SkScalarAve(r[0].fY, r[1].fY) };
-    pointsLeft >>= 1;
-    generate_cubic_points(p0, q[0], r[0], s, tolSqd, contour, pointsLeft, alloc);
-    generate_cubic_points(s, r[1], q[2], p3, tolSqd, contour, pointsLeft, alloc);
+    for (int j = 1; j <= nPoints; j++) {
+        append_point_to_contour(to_point(quad.eval(j * u)), contour, alloc);
+#if LOGGING_ENABLED
+        SkScalar err = quad_error_at(pts, j * u, u);
+        if (err > toleranceSqd) {
+            LOG("got quad error %g at %g\n", err, j * u);
+        }
+#endif
+    }
+}
+
+bool cubic_passes_tolerance(const SkPoint pts[3], const SkScalar* t, int n, SkScalar u, SkScalar toleranceSqd) {
+    for (int i = 0; i < n; ++i) {
+        if (cubic_error_at(pts, t[i], u) > toleranceSqd) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void append_cubic_to_contour(const SkPoint pts[4], SkScalar toleranceSqd, VertexList* contour,
+                             SkArenaAlloc& alloc) {
+    SkScalar t[5];
+    int nRoots = SkFindCubicMaxCurvature(pts, t);
+    t[nRoots++] = 0.0;
+    t[nRoots++] = 1.0;
+    // Test possible subdivision values only at the points of maximum curvature.
+    // If it passes the flatness metric there, it'll pass everywhere.
+    int nPoints = 1;
+    SkScalar u;
+    for (;;) {
+        u = 1.0f / nPoints;
+        if (cubic_passes_tolerance(pts, t, nRoots, u, toleranceSqd)) {
+            break;
+        }
+        nPoints++;
+    }
+    SkCubicCoeff cubic(pts);
+    for (int j = 1; j <= nPoints; j++) {
+        append_point_to_contour(to_point(cubic.eval(j * u)), contour, alloc);
+#if LOGGING_ENABLED
+        SkScalar err = cubic_error_at(pts, j * u, u);
+        if (err > toleranceSqd) {
+            LOG("got cubic error %g at %g\n", err, j * u);
+        }
+#endif
+    }
 }
 
 // Stage 1: convert the input path to a set of linear contours (linked list of Vertices).
@@ -708,9 +737,7 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                 SkScalar weight = iter.conicWeight();
                 const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
                 for (int i = 0; i < converter.countQuads(); ++i) {
-                    int pointsLeft = GrPathUtils::quadraticPointCount(quadPts, tolerance);
-                    generate_quadratic_points(quadPts[0], quadPts[1], quadPts[2], toleranceSqd,
-                                              contour, pointsLeft, alloc);
+                    append_quadratic_to_contour(quadPts, toleranceSqd, contour, alloc);
                     quadPts += 2;
                 }
                 *isLinear = false;
@@ -727,16 +754,12 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                 break;
             }
             case SkPath::kQuad_Verb: {
-                int pointsLeft = GrPathUtils::quadraticPointCount(pts, tolerance);
-                generate_quadratic_points(pts[0], pts[1], pts[2], toleranceSqd, contour,
-                                          pointsLeft, alloc);
+                append_quadratic_to_contour(pts, toleranceSqd, contour, alloc);
                 *isLinear = false;
                 break;
             }
             case SkPath::kCubic_Verb: {
-                int pointsLeft = GrPathUtils::cubicPointCount(pts, tolerance);
-                generate_cubic_points(pts[0], pts[1], pts[2], pts[3], toleranceSqd, contour,
-                                      pointsLeft, alloc);
+                append_cubic_to_contour(pts, toleranceSqd, contour, alloc);
                 *isLinear = false;
                 break;
             }
