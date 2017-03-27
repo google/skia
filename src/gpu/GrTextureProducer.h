@@ -132,6 +132,15 @@ protected:
         const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
         SkRect* domainRect);
 
+    static DomainMode DetermineDomainMode(
+        const SkRect& constraintRect,
+        FilterConstraint filterConstraint,
+        bool coordsLimitedToConstraintRect,
+        GrTextureProxy*,
+        const SkIRect* textureContentArea,
+        const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
+        SkRect* domainRect);
+
     static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
         GrTexture* texture,
         sk_sp<GrColorSpaceXform> colorSpaceXform,
