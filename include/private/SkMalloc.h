@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkMemory_DEFINED
-#define SkMemory_DEFINED
+#ifndef SkMalloc_DEFINED
+#define SkMalloc_DEFINED
 
 #include <cstddef>
 #include <cstring>
@@ -81,4 +81,4 @@ static inline void* sk_careful_memcpy(void* dst, const void* src, size_t len) {
     return dst;
 }
 
-#endif  //SkMemory_DEFINED
+#endif  // SkMalloc_DEFINED

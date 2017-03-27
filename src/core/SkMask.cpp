@@ -7,7 +7,7 @@
 
 #include "SkMask.h"
 
-#include "SkMemory.h"
+#include "SkMalloc.h"
 
 //#define TRACK_SKMASK_LIFETIME
 

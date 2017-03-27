@@ -10,7 +10,7 @@
 #include "SkFixed.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_android_parser.h"
-#include "SkMemory.h"
+#include "SkMalloc.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
