@@ -16,6 +16,24 @@
       "revId": "afcdf7a475087d4ae05eec5dcf3608621c11677e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c125a40_baa654e9",
+        "filename": "tests/DetermineDomainModeTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-03-27T14:15:59Z",
+      "side": 1,
+      "message": "I\u0027ve uploaded a version that uses \"using\". We still need something in the \"TestAccess\" class to make the type public.",
+      "parentUuid": "738c1300_45fd87f7",
+      "revId": "afcdf7a475087d4ae05eec5dcf3608621c11677e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
