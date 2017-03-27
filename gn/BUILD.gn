@@ -147,14 +147,19 @@ config("default") {
     cflags += [
       "-fstrict-aliasing",
       "-fPIC",
-      "-fvisibility=hidden",
       "-Werror",
     ]
     cflags_cc += [
       "-std=c++11",
       "-fno-threadsafe-statics",
-      "-fvisibility-inlines-hidden",
     ]
+
+    # The main idea is to slim the exported API, but these flags also improve link time on Mac.
+    # These would make stack traces worse on Linux, so we don't just set them willy-nilly.
+    if (is_component_build || is_mac) {
+      cflags += [ "-fvisibility=hidden" ]
+      cflags_cc += [ "-fvisibility-inlines-hidden" ]
+    }
   }
 
   if (current_cpu == "arm") {
