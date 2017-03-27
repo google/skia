@@ -13,6 +13,8 @@
 #include "SkTArray.h"
 #include "SkThreadUtils.h"
 
+#include <vector>
+
 #if defined(_MSC_VER)
     #include <windows.h>
     static int num_cores() {
@@ -49,7 +51,12 @@ void SkExecutor::SetDefault(SkExecutor* executor) {
 // An SkThreadPool is an executor that runs work on a fixed pool of OS threads.
 class SkThreadPool final : public SkExecutor {
 public:
+    static const int QS = 1 << 20;
+    static const int QSM = QS - 1;
+
     explicit SkThreadPool(int threads) {
+        fHead = fTail = 0;
+        // fWork.reserve(QS);
         for (int i = 0; i < threads; i++) {
             fThreads.emplace_back(new SkThread(&Loop, this));
             fThreads.back()->start();
@@ -67,11 +74,19 @@ public:
         }
     }
 
+    // In the future, we could add an enum to control whether the work is added to the front
+    // or back of the deque.
     virtual void add(std::function<void(void)> work) override {
         // Add some work to our pile of work to do.
         {
             SkAutoExclusive lock(fWorkLock);
-            fWork.emplace_back(std::move(work));
+            if (fWork.count() < QS) {
+                fWork.emplace_back(std::move(work));
+                fTail++;
+            } else {
+                fWork[fTail] = work;
+                fTail = (fTail + 1) & QSM;
+            }
         }
         // Tell the Loop() threads to pick it up.
         fWorkAvailable.signal(1);
@@ -90,9 +105,10 @@ private:
         std::function<void(void)> work;
         {
             SkAutoExclusive lock(fWorkLock);
-            SkASSERT(!fWork.empty());        // TODO: if (fWork.empty()) { return true; } ?
-            work = std::move(fWork.back());
-            fWork.pop_back();
+            if (fHead != fTail) {
+                work = fWork[fHead]; // std::move is slow so I removed it
+                fHead = (fHead + 1) & QSM;
+            }
         }
 
         if (!work) {
@@ -113,6 +129,7 @@ private:
     // Both SkMutex and SkSpinlock can work here.
     using Lock = SkMutex;
 
+    int                                 fHead, fTail;
     SkTArray<std::unique_ptr<SkThread>> fThreads;
     SkTArray<std::function<void(void)>> fWork;
     Lock                                fWorkLock;

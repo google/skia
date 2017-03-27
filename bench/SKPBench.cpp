@@ -9,14 +9,15 @@
 #include "SkCommandLineFlags.h"
 #include "SkMultiPictureDraw.h"
 #include "SkSurface.h"
+#include "SkTaskGroup.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #endif
 
 // These CPU tile sizes are not good per se, but they are similar to what Chrome uses.
-DEFINE_int32(CPUbenchTileW, 256, "Tile width  used for CPU SKP playback.");
-DEFINE_int32(CPUbenchTileH, 256, "Tile height used for CPU SKP playback.");
+DEFINE_int32(CPUbenchTileW, 512, "Tile width  used for CPU SKP playback.");
+DEFINE_int32(CPUbenchTileH, 512, "Tile height used for CPU SKP playback.");
 
 DEFINE_int32(GPUbenchTileW, 1600, "Tile width  used for GPU SKP playback.");
 DEFINE_int32(GPUbenchTileH, 512, "Tile height used for GPU SKP playback.");
@@ -146,6 +147,12 @@ void SKPBench::drawMPDPicture() {
 }
 
 void SKPBench::drawPicture() {
+    // SkTaskGroup().batch(fTileRects.count(), [&](int j) {
+    //     const SkMatrix trans = SkMatrix::MakeTrans(-fTileRects[j].fLeft / fScale,
+    //                                                -fTileRects[j].fTop / fScale);
+    //     fSurfaces[j]->getCanvas()->drawPicture(fPic.get(), &trans, nullptr);
+    //     fSurfaces[j]->getCanvas()->flush();
+    // });
     for (int j = 0; j < fTileRects.count(); ++j) {
         const SkMatrix trans = SkMatrix::MakeTrans(-fTileRects[j].fLeft / fScale,
                                                    -fTileRects[j].fTop / fScale);

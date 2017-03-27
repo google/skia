@@ -142,6 +142,8 @@ sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(SkBudgeted) {
         cpm = kAlways_SkCopyPixelsMode;
     }
 
+    this->getCachedCanvas()->flush();
+
     // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
     // Lock the shared pixel ref to ensure peekPixels() is usable.
     return SkMakeImageFromRasterBitmap(fBitmap, cpm);

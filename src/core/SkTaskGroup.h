@@ -10,6 +10,7 @@
 
 #include "SkExecutor.h"
 #include "SkTypes.h"
+#include "SkSemaphore.h"
 #include <atomic>
 #include <functional>
 
@@ -39,6 +40,27 @@ public:
 private:
     std::atomic<int32_t> fPending;
     SkExecutor&          fExecutor;
+};
+
+// A single threaded FIFO task queue. The wait function would just wait rather than using another
+// thread to execute the task in this thread (hence the order is always maintained).
+// This is not inheriting SkTaskGroup to save some vtable jumps.
+class SkTaskQueue : SkNoncopyable {
+public:
+    SkTaskQueue();
+    ~SkTaskQueue() { this->wait(); }
+
+    // Add a task to this SkTaskGroup.
+    void add(std::function<void(void)> fn);
+
+    // Block until all Tasks previously add()ed to this SkTaskQueue have run.
+    // You may safely reuse this SkTaskGroup after wait() returns.
+    void wait();
+
+private:
+    SkSemaphore                 fDone;
+    std::atomic<int32_t>        fPending;
+    std::unique_ptr<SkExecutor> fExecutor;
 };
 
 #endif//SkTaskGroup_DEFINED

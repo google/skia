@@ -11,6 +11,7 @@
 #include "Resources.h"
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkCommandLineFlags.h"
@@ -1821,6 +1822,13 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             if (this->sendAnimatePulse()) {
                 this->inval(nullptr);
             }
+            break;
+        case '+':
+            SkDebugf("ThreadCnt: %d\n", ++gSkThreadCnt);
+            break;
+        case '-':
+            gSkThreadCnt = std::max(0, gSkThreadCnt - 1);
+            SkDebugf("ThreadCnt: %d\n", gSkThreadCnt);
             break;
         case 'A':
             if (gSkUseAnalyticAA.load() && !gSkForceAnalyticAA.load()) {
