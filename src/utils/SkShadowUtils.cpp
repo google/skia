@@ -92,14 +92,13 @@ uint64_t resource_cache_shared_id() {
 
 /** Factory for an ambient shadow mesh with particular shadow properties. */
 struct AmbientVerticesFactory {
-    SkScalar fRadius = SK_ScalarNaN;  // NaN so that isCompatible will always fail until init'ed.
-    SkColor fUmbraColor;
-    SkColor fPenumbraColor;
+    SkScalar fOccluderHeight = SK_ScalarNaN;  // NaN so that isCompatible will fail until init'ed.
+    SkScalar fAmbientAlpha;
     bool fTransparent;
 
     bool isCompatible(const AmbientVerticesFactory& that, SkVector* translate) const {
-        if (fRadius != that.fRadius || fUmbraColor != that.fUmbraColor ||
-            fPenumbraColor != that.fPenumbraColor || fTransparent != that.fTransparent) {
+        if (fOccluderHeight != that.fOccluderHeight || fAmbientAlpha != that.fAmbientAlpha ||
+            fTransparent != that.fTransparent) {
             return false;
         }
         translate->set(0, 0);
@@ -107,8 +106,10 @@ struct AmbientVerticesFactory {
     }
 
     sk_sp<SkVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
-        return SkShadowTessellator::MakeAmbient(path, ctm, fRadius, fUmbraColor, fPenumbraColor,
-                                                fTransparent);
+        SkScalar z = fOccluderHeight;
+        return SkShadowTessellator::MakeAmbient(path, ctm,
+                                                [z](SkScalar, SkScalar) { return z; },
+                                                fAmbientAlpha, fTransparent);
     }
 };
 
@@ -123,17 +124,17 @@ struct SpotVerticesFactory {
         kOpaqueCoversUmbra
     };
 
-    SkScalar fRadius = SK_ScalarNaN;  // NaN so that isCompatible will always fail until init'ed.
-    SkColor fUmbraColor;
-    SkColor fPenumbraColor;
-    SkScalar fScale;
     SkVector fOffset;
+    SkScalar fOccluderHeight = SK_ScalarNaN; // NaN so that isCompatible will fail until init'ed.
+    SkPoint3 fDevLightPos;
+    SkScalar fLightRadius;
+    SkScalar fSpotAlpha;
     OccluderType fOccluderType;
 
     bool isCompatible(const SpotVerticesFactory& that, SkVector* translate) const {
-        if (fRadius != that.fRadius || fUmbraColor != that.fUmbraColor ||
-            fPenumbraColor != that.fPenumbraColor || fOccluderType != that.fOccluderType ||
-            fScale != that.fScale) {
+        if (fOccluderHeight != that.fOccluderHeight || fDevLightPos.fZ != that.fDevLightPos.fZ ||
+            fLightRadius != that.fLightRadius || fSpotAlpha != that.fSpotAlpha ||
+            fOccluderType != that.fOccluderType) {
             return false;
         }
         switch (fOccluderType) {
@@ -158,8 +159,11 @@ struct SpotVerticesFactory {
 
     sk_sp<SkVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
         bool transparent = OccluderType::kTransparent == fOccluderType;
-        return SkShadowTessellator::MakeSpot(path, ctm, fScale, fOffset, fRadius, fUmbraColor,
-                                             fPenumbraColor, transparent);
+        SkScalar z = fOccluderHeight;
+        return SkShadowTessellator::MakeSpot(path, ctm,
+                                             [z](SkScalar, SkScalar) -> SkScalar { return z; },
+                                             fDevLightPos, fLightRadius,
+                                             fSpotAlpha, transparent);
     }
 };
 
@@ -450,9 +454,6 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
 }
 }
 
-static const float kHeightFactor = 1.0f / 128.0f;
-static const float kGeomFactor = 64.0f;
-
 // Draw an offset spot shadow and outlining ambient shadow for the given path.
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar occluderHeight,
                                const SkPoint3& devLightPos, SkScalar lightRadius,
@@ -489,15 +490,8 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
     if (ambientAlpha > 0) {
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
         AmbientVerticesFactory factory;
-        factory.fRadius = occluderHeight * kHeightFactor * kGeomFactor;
-        SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
-        // umbraColor is the interior value, penumbraColor the exterior value.
-        // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
-        // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
-        // the final alpha.
-        factory.fUmbraColor =
-                SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, umbraAlpha * 255.9999f);
-        factory.fPenumbraColor = SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, 0);
+        factory.fOccluderHeight = occluderHeight;
+        factory.fAmbientAlpha = ambientAlpha;
         factory.fTransparent = transparent;
 
         draw_shadow(factory, canvas, shadowedPath, color, cache);
@@ -507,17 +501,19 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         spotAlpha = SkTMin(spotAlpha, 1.f);
         SpotVerticesFactory factory;
         float zRatio = SkTPin(occluderHeight / (devLightPos.fZ - occluderHeight), 0.0f, 0.95f);
-        factory.fRadius = lightRadius * zRatio;
+        SkScalar radius = lightRadius * zRatio;
 
         // Compute the scale and translation for the spot shadow.
-        factory.fScale = devLightPos.fZ / (devLightPos.fZ - occluderHeight);
+        SkScalar scale = devLightPos.fZ / (devLightPos.fZ - occluderHeight);
 
         SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
         viewMatrix.mapPoints(&center, 1);
         factory.fOffset = SkVector::Make(zRatio * (center.fX - devLightPos.fX),
                                          zRatio * (center.fY - devLightPos.fY));
-        factory.fUmbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 255);
-        factory.fPenumbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 0);
+        factory.fOccluderHeight = occluderHeight;
+        factory.fDevLightPos = devLightPos;
+        factory.fLightRadius = lightRadius;
+        factory.fSpotAlpha = spotAlpha;
 
         SkRRect rrect;
         if (transparent) {
@@ -527,13 +523,13 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
             if (shadowedPath.isRRect(&rrect)) {
                 SkRRect devRRect;
                 if (rrect.transform(viewMatrix, &devRRect)) {
-                    SkScalar s = 1.f - factory.fScale;
+                    SkScalar s = 1.f - scale;
                     SkScalar w = devRRect.width();
                     SkScalar h = devRRect.height();
                     SkScalar hw = w / 2.f;
                     SkScalar hh = h / 2.f;
-                    SkScalar umbraInsetX = s * hw + factory.fRadius;
-                    SkScalar umbraInsetY = s * hh + factory.fRadius;
+                    SkScalar umbraInsetX = s * hw + radius;
+                    SkScalar umbraInsetY = s * hh + radius;
                     // The umbra is inset by radius along the diagonal, so adjust for that.
                     SkScalar d = 1.f / SkScalarSqrt(hw * hw + hh * hh);
                     umbraInsetX *= hw * d;
@@ -557,5 +553,47 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
             factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
         }
         draw_shadow(factory, canvas, shadowedPath, color, cache);
+    }
+}
+
+// Draw an offset spot shadow and outlining ambient shadow for the given path,
+// without caching and using a function based on local position to compute the height.
+void SkShadowUtils::DrawUncachedShadow(SkCanvas* canvas, const SkPath& path,
+                                       std::function<SkScalar(SkScalar, SkScalar)> heightFunc,
+                                       const SkPoint3& lightPos, SkScalar lightRadius,
+                                       SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
+                                       uint32_t flags) {
+    SkAutoCanvasRestore acr(canvas, true);
+    SkMatrix viewMatrix = canvas->getTotalMatrix();
+    canvas->resetMatrix();
+
+    bool transparent = SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+
+    if (ambientAlpha > 0) {
+        ambientAlpha = SkTMin(ambientAlpha, 1.f);
+        sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
+                                                                      heightFunc, ambientAlpha,
+                                                                      transparent);
+        SkPaint paint;
+        // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
+        // result of that against our 'color' param.
+        paint.setColorFilter(SkColorFilter::MakeComposeFilter(
+            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
+            SkGaussianColorFilter::Make()));
+        canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
+    }
+
+    if (spotAlpha > 0) {
+        spotAlpha = SkTMin(spotAlpha, 1.f);
+        sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix, heightFunc,
+                                                                   lightPos, lightRadius,
+                                                                   spotAlpha, transparent);
+        SkPaint paint;
+        // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
+        // result of that against our 'color' param.
+        paint.setColorFilter(SkColorFilter::MakeComposeFilter(
+            SkColorFilter::MakeModeFilter(color, SkBlendMode::kModulate),
+            SkGaussianColorFilter::Make()));
+        canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
     }
 }
