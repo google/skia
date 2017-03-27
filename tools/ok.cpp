@@ -267,7 +267,17 @@ int main(int argc, char** argv) {
             }
         }
     }
-    if (!stream || !dst_factory) { return help(); }
+    if (!stream) { return help(); }
+    if (!dst_factory) {
+        // A default Dst that's enough for unit tests and not much else.
+        dst_factory = []{
+            struct : Dst {
+                bool draw(Src* src) override { return src->draw(nullptr); }
+                sk_sp<SkImage> image() override { return nullptr; }
+            } dst;
+            return move_unique(dst);
+        };
+    }
 
     std::unique_ptr<Engine> engine;
     if (jobs == 0) { engine.reset(new SerialEngine);                            }
