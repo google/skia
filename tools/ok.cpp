@@ -38,6 +38,9 @@ static thread_local const char* tls_name = "";
 
         for (int sig : std::vector<int>{ SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV }) {
             original_handlers[sig] = signal(sig, [](int sig) {
+                // To prevent interlaced output, lock the stacktrace log file until we die.
+                lockf(crash_stacktrace_fd, F_LOCK, 0);
+
                 auto ez_write = [](const char* str) {
                     write(crash_stacktrace_fd, str, strlen(str));
                 };
