@@ -271,10 +271,8 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
                                                     const GrSamplerParams& params,
                                                     SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
-    sk_sp<GrTexture> tex(GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr,
-                                                                               nullptr,
-                                                                               scaleAdjust));
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, nullptr,
+                                                                      nullptr, scaleAdjust);
 }
 
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvider,
