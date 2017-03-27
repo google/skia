@@ -12,8 +12,6 @@
 #include "GrXferProcessor.h"
 #include "SkRegion.h"
 
-class GrProcOptInfo;
-
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic push

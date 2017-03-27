@@ -46,24 +46,25 @@ SkString GrAtlasTextOp::dumpInfo() const {
     return str;
 }
 
-void GrAtlasTextOp::getFragmentProcessorAnalysisInputs(
-        FragmentProcessorAnalysisInputs* input) const {
+void GrAtlasTextOp::getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
+                                                       GrPipelineAnalysisCoverage* coverage) const {
     if (kColorBitmapMask_MaskType == fMaskType) {
-        input->colorInput()->setToUnknown();
+        color->setToUnknown();
     } else {
-        input->colorInput()->setToConstant(fColor);
+        color->setToConstant(fColor);
     }
     switch (fMaskType) {
         case kGrayscaleDistanceField_MaskType:
         case kGrayscaleCoverageMask_MaskType:
-            input->coverageInput()->setToUnknown();
+            *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
             break;
         case kLCDCoverageMask_MaskType:
         case kLCDDistanceField_MaskType:
-            input->coverageInput()->setToLCDCoverage();
+            *coverage = GrPipelineAnalysisCoverage::kLCD;
             break;
         case kColorBitmapMask_MaskType:
-            input->coverageInput()->setToSolidCoverage();
+            *coverage = GrPipelineAnalysisCoverage::kNone;
+            break;
     }
 }
 

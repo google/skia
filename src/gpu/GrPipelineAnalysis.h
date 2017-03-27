@@ -5,27 +5,73 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrProcOptInfo_DEFINED
-#define GrProcOptInfo_DEFINED
+#ifndef GrPipelineAnalysis_DEFINED
+#define GrPipelineAnalysis_DEFINED
 
 #include "GrColor.h"
-#include "GrPipelineInput.h"
 
 class GrDrawOp;
 class GrFragmentProcessor;
 class GrPrimitiveProcessor;
 
-/**
- * GrProcOptInfo gathers invariant data from a set of processor stages.It is used to recognize
- * optimizations related to eliminating stages and vertex attributes that aren't necessary for a
- * draw.
- */
-class GrProcOptInfo {
+class GrPipelineAnalysisColor {
 public:
-    GrProcOptInfo() = default;
+    enum class Opaque {
+        kNo,
+        kYes,
+    };
 
-    GrProcOptInfo(const GrPipelineInput& input) : GrProcOptInfo() {
-        fAllProcessorsCompatibleWithCoverageAsAlpha = !input.isLCDCoverage();
+    GrPipelineAnalysisColor(Opaque opaque = Opaque::kNo)
+            : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0) {}
+
+    GrPipelineAnalysisColor(GrColor color) { this->setToConstant(color); }
+
+    void setToConstant(GrColor color) {
+        fColor = color;
+        if (GrColorIsOpaque(color)) {
+            fFlags = kColorIsKnown_Flag | kIsOpaque_Flag;
+        } else {
+            fFlags = kColorIsKnown_Flag;
+        }
+    }
+
+    void setToUnknown() { fFlags = 0; }
+
+    void setToUnknownOpaque() { fFlags = kIsOpaque_Flag; }
+
+    bool isOpaque() const { return SkToBool(kIsOpaque_Flag & fFlags); }
+
+    bool isConstant(GrColor* color) const {
+        if (kColorIsKnown_Flag & fFlags) {
+            *color = fColor;
+            return true;
+        }
+        return false;
+    }
+
+private:
+    enum Flags {
+        kColorIsKnown_Flag = 0x1,
+        kIsOpaque_Flag = 0x2,
+    };
+    uint32_t fFlags;
+    GrColor fColor;
+};
+
+enum class GrPipelineAnalysisCoverage { kNone, kSingleChannel, kLCD };
+
+/**
+ * GrColorFragmentProcessorAnalysis gathers invariant data from a set of color fragment processor.
+ * It is used to recognize optimizations that can simplify the generated shader or make blending
+ * more effecient.
+ */
+class GrColorFragmentProcessorAnalysis {
+public:
+    GrColorFragmentProcessorAnalysis() = default;
+
+    GrColorFragmentProcessorAnalysis(const GrPipelineAnalysisColor& input)
+            : GrColorFragmentProcessorAnalysis() {
+        fAllProcessorsCompatibleWithCoverageAsAlpha = true;
         fIsOpaque = input.isOpaque();
         GrColor color;
         if (input.isConstant(&color)) {
@@ -34,7 +80,9 @@ public:
         }
     }
 
-    void reset(const GrPipelineInput& input) { *this = GrProcOptInfo(input); }
+    void reset(const GrPipelineAnalysisColor& input) {
+        *this = GrColorFragmentProcessorAnalysis(input);
+    }
 
     /**
      * Runs through a series of processors and updates calculated values. This can be called
@@ -80,14 +128,12 @@ public:
         return SkTMax(0, fProcessorsVisitedWithKnownOutput);
     }
 
-    bool hasKnownOutputColor(GrColor* knownOutputColor = nullptr) const {
+    GrPipelineAnalysisColor outputColor() const {
         if (fProcessorsVisitedWithKnownOutput != fTotalProcessorsVisited) {
-            return false;
+            return GrPipelineAnalysisColor(fIsOpaque ? GrPipelineAnalysisColor::Opaque::kYes
+                                                     : GrPipelineAnalysisColor::Opaque::kNo);
         }
-        if (knownOutputColor) {
-            *knownOutputColor = fLastKnownOutputColor.toGrColor();
-        }
-        return true;
+        return GrPipelineAnalysisColor(fLastKnownOutputColor.toGrColor());
     }
 
 private:
