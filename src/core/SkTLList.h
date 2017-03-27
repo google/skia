@@ -10,7 +10,7 @@
 
 #include "SkTInternalLList.h"
 
-#include "SkMemory.h"
+#include "SkMalloc.h"
 #include "SkTypes.h"
 #include <utility>
 

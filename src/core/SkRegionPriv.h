@@ -12,7 +12,7 @@
 #include "SkRegion.h"
 
 #include "SkAtomics.h"
-#include "SkMemory.h"
+#include "SkMalloc.h"
 
 inline bool SkRegionValueIsSentinel(int32_t value) {
     return value == (int32_t)SkRegion::kRunTypeSentinel;
