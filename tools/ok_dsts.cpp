@@ -33,3 +33,8 @@ struct SWDst : Dst {
     }
 };
 static Register sw{"sw", SWDst::Create};
+
+static Register _565{"565", [](Options options) {
+    options["ct"] = "565";
+    return SWDst::Create(options);
+}};
