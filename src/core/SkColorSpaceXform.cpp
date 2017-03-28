@@ -1067,6 +1067,7 @@ bool SkColorSpaceXform_XYZ<kCSM>
     }
 
     if (kRGBA_F32_ColorFormat == dstColorFormat ||
+        kBGR_565_ColorFormat == dstColorFormat ||
         kRGBA_F32_ColorFormat == srcColorFormat ||
         kRGBA_F16_ColorFormat == srcColorFormat ||
         kRGBA_U16_BE_ColorFormat == srcColorFormat ||
@@ -1219,6 +1220,8 @@ bool SkColorSpaceXform_XYZ<kCSM>
                     break;
             }
             break;
+        default:
+            return false;
     }
 
     if (kNone_ColorSpaceMatch == kCSM) {
@@ -1280,6 +1283,12 @@ bool SkColorSpaceXform_XYZ<kCSM>
                 return false;
             }
             pipeline.append(SkRasterPipeline::store_f32, &dst);
+            break;
+        case kBGR_565_ColorFormat:
+            if (kOpaque_SkAlphaType != alphaType) {
+                return false;
+            }
+            pipeline.append(SkRasterPipeline::store_565, &dst);
             break;
         default:
             return false;
