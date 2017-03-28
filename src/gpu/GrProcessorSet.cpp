@@ -9,6 +9,7 @@
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
 #include "GrPipelineAnalysis.h"
+#include "GrXferProcessor.h"
 
 GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
     fXPFactory = paint.fXPFactory;
@@ -87,7 +88,7 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
         const GrFragmentProcessor* clipFP,
         const GrCaps& caps) {
     GrColorFragmentProcessorAnalysis colorInfo(colorInput);
-    fCompatibleWithCoverageAsAlpha = GrPipelineAnalysisCoverage::kLCD != coverageInput;
+    fCompatibleWithCoverageAsAlpha = GrPipelineAnalysisCoverage::kSingleChannel == coverageInput;
     fValidInputColor = colorInput.isConstant(&fInputColor);
 
     const GrFragmentProcessor* const* fps =
@@ -97,7 +98,7 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
     fps += processors.fColorFragmentProcessorCnt;
     int n = processors.numCoverageFragmentProcessors();
     bool hasCoverageFP = n > 0;
-    fUsesLocalCoords = colorInfo.usesLocalCoords();
+    bool coverageUsesLocalCoords = false;
     for (int i = 0; i < n; ++i) {
         if (!fps[i]->compatibleWithCoverageAsAlpha()) {
             fCompatibleWithCoverageAsAlpha = false;
@@ -105,12 +106,12 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
             // compatible with the coverage-as-alpha optimization.
             GrCapsDebugf(&caps, "Coverage FP is not compatible with coverage as alpha.\n");
         }
-        fUsesLocalCoords |= fps[i]->usesLocalCoords();
+        coverageUsesLocalCoords |= fps[i]->usesLocalCoords();
     }
 
     if (clipFP) {
         fCompatibleWithCoverageAsAlpha &= clipFP->compatibleWithCoverageAsAlpha();
-        fUsesLocalCoords |= clipFP->usesLocalCoords();
+        coverageUsesLocalCoords |= clipFP->usesLocalCoords();
         hasCoverageFP = true;
     }
     fInitialColorProcessorsToEliminate = colorInfo.initialProcessorsToEliminate(&fInputColor);
@@ -126,12 +127,40 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
         fOutputColorType = static_cast<unsigned>(ColorType::kUnknown);
     }
 
+    GrPipelineAnalysisCoverage outputCoverage;
     if (GrPipelineAnalysisCoverage::kLCD == coverageInput) {
-        fOutputCoverageType = static_cast<unsigned>(GrPipelineAnalysisCoverage::kLCD);
+        outputCoverage = GrPipelineAnalysisCoverage::kLCD;
     } else if (hasCoverageFP || GrPipelineAnalysisCoverage::kSingleChannel == coverageInput) {
-        fOutputCoverageType = static_cast<unsigned>(GrPipelineAnalysisCoverage::kSingleChannel);
+        outputCoverage = GrPipelineAnalysisCoverage::kSingleChannel;
     } else {
-        fOutputCoverageType = static_cast<unsigned>(GrPipelineAnalysisCoverage::kNone);
+        outputCoverage = GrPipelineAnalysisCoverage::kNone;
+    }
+    fOutputCoverageType = static_cast<unsigned>(outputCoverage);
+
+    GrXPFactory::AnalysisProperties props = GrXPFactory::GetAnalysisProperties(
+            processors.fXPFactory, colorInfo.outputColor(), outputCoverage, caps);
+    if (!processors.numCoverageFragmentProcessors() &&
+        GrPipelineAnalysisCoverage::kNone == coverageInput) {
+        fCanCombineOverlappedStencilAndCover = SkToBool(
+                props & GrXPFactory::AnalysisProperties::kCanCombineOverlappedStencilAndCover);
+    } else {
+        // If we have non-clipping coverage processors we don't try to merge stencil steps as its
+        // unclear whether it will be correct. We don't expect this to happen in practice.
+        fCanCombineOverlappedStencilAndCover = false;
+    }
+    fRequiresDstTexture = SkToBool(props & GrXPFactory::AnalysisProperties::kRequiresDstTexture);
+    fIgnoresInputColor = SkToBool(props & GrXPFactory::AnalysisProperties::kIgnoresInputColor);
+    fCompatibleWithCoverageAsAlpha &=
+            SkToBool(props & GrXPFactory::AnalysisProperties::kCompatibleWithAlphaAsCoverage);
+    if (props & GrXPFactory::AnalysisProperties::kIgnoresInputColor) {
+        fInitialColorProcessorsToEliminate = processors.numColorFragmentProcessors();
+        // If the output of the last color stage is known then the kIgnoresInputColor optimization
+        // may depend upon it being the input to the xp. Otherwise we preserve the existing input
+        // color status.
+        fValidInputColor |= outputColor.isConstant(&fInputColor);
+        fUsesLocalCoords = coverageUsesLocalCoords;
+    } else {
+        fUsesLocalCoords = coverageUsesLocalCoords | colorInfo.usesLocalCoords();
     }
 }
 
@@ -149,9 +178,12 @@ void GrProcessorSet::FragmentProcessorAnalysis::init(const GrPipelineAnalysisCol
 GrProcessorSet::FragmentProcessorAnalysis::FragmentProcessorAnalysis(
         const GrPipelineAnalysisColor& colorInput,
         const GrPipelineAnalysisCoverage coverageInput,
+        const GrXPFactory* factory,
         const GrCaps& caps)
         : FragmentProcessorAnalysis() {
-    this->internalInit(colorInput, coverageInput, GrProcessorSet(GrPaint()), nullptr, caps);
+    GrPaint paint;
+    paint.setXPFactory(factory);
+    this->internalInit(colorInput, coverageInput, GrProcessorSet(std::move(paint)), nullptr, caps);
 }
 
 void GrProcessorSet::analyzeAndEliminateFragmentProcessors(

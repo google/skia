@@ -367,13 +367,10 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
         SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
         this->getSingleDraw().fInstance.fColor = overrideColor;
     }
-    fInfo.fCannotTweakAlphaForCoverage =
-            !analysis.isCompatibleWithCoverageAsAlpha() ||
-            !GrXPFactory::CompatibleWithCoverageAsAlpha(fProcessors.xpFactory(),
-                                                        analysis.isOutputColorOpaque());
+    fInfo.fCannotTweakAlphaForCoverage = !analysis.isCompatibleWithCoverageAsAlpha();
 
     fInfo.fUsesLocalCoords = analysis.usesLocalCoords();
-    return GrXPFactory::WillNeedDstTexture(fProcessors.xpFactory(), caps, analysis);
+    return analysis.requiresDstTexture();
 }
 
 void InstancedRendering::Op::wasRecorded() {
