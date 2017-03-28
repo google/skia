@@ -241,9 +241,20 @@ bool SkImageCacherator::lockAsBitmap(GrContext* context, SkBitmap* bitmap, const
         return false;
     }
 
-    if (!bitmap->tryAllocPixels(cacheInfo)) {
-        bitmap->reset();
-        return false;
+    const auto desc = SkBitmapCacheDesc::Make(fUniqueIDs[format], fInfo.width(), fInfo.height());
+    SkBitmapCache::RecPtr rec;
+    SkPixmap pmap;
+    if (SkImage::kAllow_CachingHint == chint) {
+        rec = SkBitmapCache::Alloc(desc, cacheInfo, &pmap);
+        if (!rec) {
+            bitmap->reset();
+            return false;
+        }
+    } else {
+        if (!bitmap->tryAllocPixels(cacheInfo)) {
+            bitmap->reset();
+            return false;
+        }
     }
 
     sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
@@ -254,15 +265,13 @@ bool SkImageCacherator::lockAsBitmap(GrContext* context, SkBitmap* bitmap, const
         return false;
     }
 
-    if (!sContext->readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(), 0, 0)) {
+    if (!sContext->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), 0, 0)) {
         bitmap->reset();
         return false;
     }
 
-    bitmap->pixelRef()->setImmutableWithID(fUniqueIDs[format]);
-    if (SkImage::kAllow_CachingHint == chint) {
-        SkBitmapCache::Add(SkBitmapCacheDesc::Make(fUniqueIDs[format],
-                                                   fInfo.width(), fInfo.height()), *bitmap);
+    if (rec) {
+        SkBitmapCache::Add(std::move(rec), bitmap);
         if (client) {
             as_IB(client)->notifyAddedToCache();
         }

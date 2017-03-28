@@ -409,10 +409,11 @@ public:
             return true;
         }
 
+        SkPixmap pmap;
         SkImageInfo info = SkImageInfo::MakeN32(this->width(), this->height(),
                                                 this->alphaType(), fColorSpace);
-
-        if (!dst->tryAllocPixels(info)) {
+        auto rec = SkBitmapCache::Alloc(desc, info, &pmap);
+        if (!rec) {
             return false;
         }
 
@@ -422,13 +423,13 @@ public:
             return false;
         }
 
-        if (!texture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
-                                 dst->getPixels(), dst->rowBytes())) {
+        if (!texture->readPixels(0, 0, pmap.width(), pmap.height(), kSkia8888_GrPixelConfig,
+                                 pmap.writable_addr(), pmap.rowBytes())) {
             return false;
         }
 
-        dst->pixelRef()->setImmutableWithID(this->uniqueID());
-        SkBitmapCache::Add(desc, *dst);
+//        dst->pixelRef()->setImmutableWithID(this->uniqueID());
+        SkBitmapCache::Add(std::move(rec), dst);
         fAddedRasterVersionToCache.store(true);
         return true;
     }
