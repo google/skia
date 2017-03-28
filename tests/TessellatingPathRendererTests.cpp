@@ -313,7 +313,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
         return;
     }
 
-    ctx->flush();
+    ctx->flush(nullptr);
     test_path(ctx, rtc.get(), create_path_0());
     test_path(ctx, rtc.get(), create_path_1());
     test_path(ctx, rtc.get(), create_path_2());
