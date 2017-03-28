@@ -1734,7 +1734,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     GrPrimitiveType primType = gVertexMode2PrimitiveType[vmode];
 
     SkAutoSTMalloc<128, GrColor> convertedColors(0);
-    if (colors) {
+ /*   if (colors) {
         // need to convert byte order and from non-PM to PM. TODO: Keep unpremul until after
         // interpolation.
         convertedColors.reset(vertexCount);
@@ -1742,7 +1742,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
             convertedColors[i] = SkColorToPremulGrColor(colors[i]);
         }
         colors = convertedColors.get();
-    }
+    } */
     GrPaint grPaint;
     if (texs && paint.getShader()) {
         if (colors) {
