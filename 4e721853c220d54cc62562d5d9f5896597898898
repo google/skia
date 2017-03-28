@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "425790c3_f2bb9369",
+        "filename": "include/effects/SkBlurDrawLooper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-28T18:34:33Z",
+      "side": 1,
+      "message": "just import SkDrawLooper",
+      "range": {
+        "startLine": 12,
+        "startChar": 10,
+        "endLine": 12,
+        "endChar": 27
+      },
+      "revId": "4e721853c220d54cc62562d5d9f5896597898898",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8501df5d_e2b4766f",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-03-28T18:34:33Z",
+      "side": 1,
+      "message": "is this for the framework only?  either way add some context as to why we need to handle this differently.",
+      "range": {
+        "startLine": 67,
+        "startChar": 7,
+        "endLine": 67,
+        "endChar": 27
+      },
+      "revId": "4e721853c220d54cc62562d5d9f5896597898898",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
