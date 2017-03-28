@@ -193,7 +193,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     // freeing the tempData between calls.
     this->freeTempResources(gpu);
 
-    this->setRenderTargetState(pipeline);
+    this->setRenderTargetState(pipeline.getRenderTarget());
 
     SkSTArray<8, const GrProcessor::TextureSampler*> textureBindings;
 
@@ -354,16 +354,14 @@ void GrVkPipelineState::writeSamplers(
     }
 }
 
-void GrVkPipelineState::setRenderTargetState(const GrPipeline& pipeline) {
+void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != pipeline.getRenderTarget()->height()) {
-        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
-                                  SkIntToScalar(pipeline.getRenderTarget()->height()));
+        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
+        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
     }
 
     // set RT adjustment
-    const GrRenderTarget* rt = pipeline.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
