@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268484f2_6714b31d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-28T12:43:29Z",
+      "side": 1,
+      "message": "Why don\u0027t we make this !defined(SK_BUILD_FOR_WIN) to parallel the logic where it\u0027s used exactly?",
+      "revId": "6430e55dc2ad1a2ec42961fa852f01d26d3d1893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
