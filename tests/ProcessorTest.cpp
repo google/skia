@@ -212,7 +212,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 REPORTER_ASSERT(reporter, 1 == writeCnt);
             }
 
-            context->flush();
+            context->flush(nullptr);
 
             testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
             REPORTER_ASSERT(reporter, 1 == refCnt);

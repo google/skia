@@ -83,7 +83,7 @@ public:
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
         SkString string;
-        string.appendf("RT: %d\n", pipeline.getRenderTarget()->uniqueID().asUInt());
+        string.appendf("RT: %d\n", pipeline.getRenderTargetProxy()->uniqueID().asUInt());
         string.append("ColorStages:\n");
         for (int i = 0; i < pipeline.numColorFragmentProcessors(); i++) {
             string.appendf("\t\t%s\n\t\t%s\n",

@@ -107,6 +107,14 @@ protected:
         return SkToBool(fPendingWrites | fPendingReads);
     }
 
+    bool internalHasPendingWrite() const {
+        if (fTarget) {
+            return fTarget->internalHasPendingWrite();
+        }
+
+        return SkToBool(fPendingWrites);
+    }
+
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
     GrSurface* fTarget;
@@ -195,6 +203,10 @@ public:
 
     class UniqueID {
     public:
+        static UniqueID InvalidID() {
+            return UniqueID(uint32_t(SK_InvalidUniqueID));
+        }
+
         // wrapped
         explicit UniqueID(const GrGpuResource::UniqueID& id) : fID(id.asUInt()) { }
         // deferred
@@ -209,10 +221,13 @@ public:
             return !(*this == other);
         }
 
+        void makeInvalid() { fID = SK_InvalidUniqueID; }
         bool isInvalid() const { return SK_InvalidUniqueID == fID; }
 
     private:
-        const uint32_t fID;
+        explicit UniqueID(uint32_t id) : fID(id) {}
+
+        uint32_t fID;
     };
 
     /*
@@ -327,6 +342,10 @@ protected:
     // Methods made available via GrSurfaceProxyPriv
     bool hasPendingIO() const {
         return this->internalHasPendingIO();
+    }
+
+    bool hasPendingWrite() const {
+        return this->internalHasPendingWrite();
     }
 
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
