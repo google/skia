@@ -122,7 +122,7 @@ protected:
     void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextSamplerIdx);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);
+    void setRenderTargetState(const GrPrimitiveProcessor&, const GrRenderTarget*);
 
     // Helper for setData() that binds textures and texel buffers to the appropriate texture units
     void bindTextures(const GrProcessor&, bool allowSRGBInputs, int* nextSamplerIdx);
