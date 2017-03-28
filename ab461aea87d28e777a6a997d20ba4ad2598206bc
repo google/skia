@@ -1,0 +1,464 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5184e218_649d847b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: Cast no longer needed?",
+      "range": {
+        "startLine": 521,
+        "startChar": 22,
+        "endLine": 521,
+        "endChar": 36
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84a73ded_123846db",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 537,
+        "startChar": 22,
+        "endLine": 537,
+        "endChar": 36
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c28f251_e2e4a7eb",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: fclose can fail: IMO it\u0027s better to provide a close method and assert in the destructor that close has been called.",
+      "range": {
+        "startLine": 23,
+        "startChar": 8,
+        "endLine": 23,
+        "endChar": 21
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "031ab707_cb25090e",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: Should check return value; however, b should probably be uint8_t, otherwise arguments \u003e 0x7F will make the return value indistinguishable from an error.",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 17
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b668348_c2360da0",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: Should check return value.",
+      "range": {
+        "startLine": 38,
+        "startChar": 12,
+        "endLine": 38,
+        "endChar": 17
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14677fd6_92015b73",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: maybe document that size is in bytes.",
+      "range": {
+        "startLine": 42,
+        "startChar": 9,
+        "endLine": 42,
+        "endChar": 14
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77ae1c05_4b50cc0b",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "Based on http://www.cplusplus.com/reference/cstdio/fwrite/, the return value is the third argument to fwrite on success, not the second.",
+      "range": {
+        "startLine": 45,
+        "startChar": 16,
+        "endLine": 45,
+        "endChar": 31
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e90b54c8_82c634ba",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: unnecessary cast",
+      "range": {
+        "startLine": 521,
+        "startChar": 23,
+        "endLine": 521,
+        "endChar": 36
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c063c7e_0d551411",
+        "filename": "src/sksl/SkSLOutputStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "Overloaded virtual functions are a \"sharp edge\" in C++. In this case, even if the compiler chooses the \"wrong\" overload, the worst that will happen is that the const char* is copied into a String, so maybe not a big deal.",
+      "range": {
+        "startLine": 21,
+        "startChar": 17,
+        "endLine": 21,
+        "endChar": 22
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8744190f_1718dc5f",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: auto newBuffer \u003d std::unique_ptr\u003cchar[]\u003e(new char[size]); or std::vector\u003cchar\u003e newBuffer(size);",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 40
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35b0c827_e29431f1",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: More efficient to call .append; otherwise you\u0027re copying s1 again.",
+      "range": {
+        "startLine": 97,
+        "startChar": 4,
+        "endLine": 97,
+        "endChar": 16
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cee8dbf_39a10cff",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: result could be outside the range of int",
+      "range": {
+        "startLine": 128,
+        "startChar": 21,
+        "endLine": 128,
+        "endChar": 28
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad694f3c_c560e3c6",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: also assert on errno after strtoul, atoi, and atol.",
+      "range": {
+        "startLine": 129,
+        "startChar": 8,
+        "endLine": 129,
+        "endChar": 24
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b699ee4_fbeaaaa3",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: assert buffer.good()",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 18
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ddbd625_e11359ac",
+        "filename": "src/sksl/SkSLStringStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "You might want to profile this to see how much it slows things down.",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 18
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6a7deba_9410e8ea",
+        "filename": "src/sksl/SkSLStringStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "Is this calling an overload on the superclass of String?",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 28
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32c0059a_c2544584",
+        "filename": "src/sksl/SkSLStringStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "nit: char?",
+      "range": {
+        "startLine": 29,
+        "startChar": 10,
+        "endLine": 29,
+        "endChar": 14
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e19d316_3d1c3e4a",
+        "filename": "src/sksl/SkSLUtil.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "Declaration was removed.",
+      "range": {
+        "startLine": 20,
+        "startChar": 7,
+        "endLine": 20,
+        "endChar": 30
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f6bea24_4662fae5",
+        "filename": "src/sksl/SkSLUtil.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "Are #ifdef SKIA and #ifndef SKSL_STANDALONE equivalent?",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 11
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d80a2bf_2328c53e",
+        "filename": "src/sksl/SkSLUtil.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-28T20:22:32Z",
+      "side": 1,
+      "message": "Since StandaloneShaderCaps has no state and requires no initialization, this is fine. If you ever want to add state to it, there are some sharp edges with global class vars.",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 43
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
