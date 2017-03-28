@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 #include "SkArenaAlloc.h"
+#include "SkBlurDrawLooper.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkReadBuffer.h"
@@ -61,8 +63,15 @@ static SkColor xferColor(SkColor src, SkColor dst, SkBlendMode mode) {
 // text/length parameters of a draw[Pos]Text call.
 void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
         SkPaint* dst, const SkPaint& src, const LayerInfo& info) {
-
-    dst->setColor(xferColor(src.getColor(), dst->getColor(), (SkBlendMode)info.fColorMode));
+    SkColor srcColor = src.getColor();
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // The framework may respect the alpha value on the original paint.
+    // Match this legacy behavior.
+    if (SkColorGetA(srcColor) == 255) {
+        srcColor = SkColorSetA(srcColor, dst->getAlpha());
+    }
+#endif
+    dst->setColor(xferColor(srcColor, dst->getColor(), (SkBlendMode)info.fColorMode));
 
     BitFlags bits = info.fPaintBits;
     SkPaint::TextEncoding encoding = dst->getTextEncoding();
@@ -355,4 +364,29 @@ sk_sp<SkDrawLooper> SkLayerDrawLooper::Builder::detach() {
     fTopRec = nullptr;
 
     return sk_sp<SkDrawLooper>(looper);
+}
+
+sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy)
+{
+    sk_sp<SkMaskFilter> blur = nullptr;
+    if (sigma > 0.0f) {
+        blur = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma, SkBlurMaskFilter::kNone_BlurFlag);
+    }
+
+    SkLayerDrawLooper::Builder builder;
+
+    // First layer
+    SkLayerDrawLooper::LayerInfo defaultLayer;
+    builder.addLayer(defaultLayer);
+
+    // Blur layer
+    SkLayerDrawLooper::LayerInfo blurInfo;
+    blurInfo.fColorMode = SkBlendMode::kSrc;
+    blurInfo.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit;
+    blurInfo.fOffset = SkVector::Make(dx, dy);
+    SkPaint* paint = builder.addLayer(blurInfo);
+    paint->setMaskFilter(std::move(blur));
+    paint->setColor(color);
+
+    return builder.detach();
 }
