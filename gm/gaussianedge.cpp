@@ -9,7 +9,7 @@
 #include "SkRRect.h"
 #include "SkGaussianEdgeShader.h"
 
-//#define VIZ 1
+#define VIZ 1
 
 #ifdef VIZ
 #include "SkStroke.h"

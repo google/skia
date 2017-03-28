@@ -34,7 +34,7 @@ public:
     bool isConfigured() const { return fNumInvocations; }
 
 private:
-    void onFinalize() override;
+    void onFinalize(GrRenderTarget*) override;
 
     int fNumInvocations;
 

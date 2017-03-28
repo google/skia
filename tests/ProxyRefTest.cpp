@@ -86,7 +86,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped(GrResourceProvider* provider) {
     sk_sp<GrTexture> tex(provider->createTexture(desc, SkBudgeted::kNo));
 
     // Flush the IOWrite from the initial discard or it will confuse the later ref count checks
-    tex->flushWrites();
+    tex->flushWrites13();
 
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }

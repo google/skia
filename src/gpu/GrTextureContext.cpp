@@ -76,17 +76,17 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::copy");
 
+#ifndef ENABLE_MDB
+    // We can't yet fully defer copies to textures, so GrTextureContext::copySurface will
+    // execute the copy immediately. Ensure the data is ready.
+    fContext->flushSurfaceWrites(srcProxy);
+#endif
+
     // TODO: defer instantiation until flush time
     sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->resourceProvider())));
     if (!src) {
         return false;
     }
-
-#ifndef ENABLE_MDB
-    // We can't yet fully defer copies to textures, so GrTextureContext::copySurface will
-    // execute the copy immediately. Ensure the data is ready.
-    src->flushWrites();
-#endif
 
     // TODO: this needs to be fixed up since it ends the deferrable of the GrTexture
     sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->resourceProvider())));

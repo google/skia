@@ -188,12 +188,12 @@ static void append_texture_bindings(const GrProcessor& processor,
 
 void GrVkPipelineState::setData(GrVkGpu* gpu,
                                 const GrPrimitiveProcessor& primProc,
-                                const GrPipeline& pipeline) {
+                                const GrPipeline& pipeline, GrRenderTarget* rt) {
     // This is here to protect against someone calling setData multiple times in a row without
     // freeing the tempData between calls.
     this->freeTempResources(gpu);
 
-    this->setRenderTargetState(pipeline);
+    this->setRenderTargetState(pipeline, rt);
 
     SkSTArray<8, const GrProcessor::TextureSampler*> textureBindings;
 
@@ -354,16 +354,14 @@ void GrVkPipelineState::writeSamplers(
     }
 }
 
-void GrVkPipelineState::setRenderTargetState(const GrPipeline& pipeline) {
+void GrVkPipelineState::setRenderTargetState(const GrPipeline& pipeline, const GrRenderTarget* rt) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != pipeline.getRenderTarget()->height()) {
-        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
-                                  SkIntToScalar(pipeline.getRenderTarget()->height()));
+        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
+        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
     }
 
     // set RT adjustment
-    const GrRenderTarget* rt = pipeline.getRenderTarget();
     SkISize size;
     size.set(rt->width(), rt->height());
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
@@ -498,7 +496,7 @@ uint32_t get_blend_info_key(const GrPipeline& pipeline) {
 
 bool GrVkPipelineState::Desc::Build(Desc* desc,
                                     const GrPrimitiveProcessor& primProc,
-                                    const GrPipeline& pipeline,
+                                    const GrPipeline& pipeline, GrRenderTarget* rt,
                                     const GrStencilSettings& stencil,
                                     GrPrimitiveType primitiveType,
                                     const GrShaderCaps& caps) {
@@ -508,7 +506,7 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
     }
 
     GrProcessorKeyBuilder b(&desc->key());
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.getRenderTarget();
+    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)rt;
     vkRT->simpleRenderPass()->genKey(&b);
 
     stencil.genKey(&b);

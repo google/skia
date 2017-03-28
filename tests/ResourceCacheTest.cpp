@@ -245,7 +245,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     adopted.reset(nullptr);
     adoptedAndCached.reset(nullptr);
 
-    context->flush();
+    context->flush(nullptr);
 
     bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[0]);
     bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[1]);
@@ -1226,7 +1226,7 @@ static void test_flush(skiatest::Reporter* reporter) {
 
     // Verify that calling flush() on a GrContext with nothing to do will not trigger resource
     // eviction.
-    context->flush();
+    context->flush(nullptr);
     for (int i = 0; i < 10; ++i) {
         TestResource* r = new TestResource(context->getGpu());
         GrUniqueKey k;
@@ -1236,7 +1236,7 @@ static void test_flush(skiatest::Reporter* reporter) {
     }
     REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
     for (int i = 0; i < 10 * kFlushCount; ++i) {
-        context->flush();
+        context->flush(nullptr);
     }
     REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
 }
@@ -1327,7 +1327,7 @@ static void test_time_purge(skiatest::Reporter* reporter) {
 
         // Verify that calling flush() on a GrContext with nothing to do will not trigger resource
         // eviction
-        context->flush();
+        context->flush(nullptr);
         for (int i = 0; i < 10; ++i) {
             TestResource* r = new TestResource(context->getGpu());
             GrUniqueKey k;
@@ -1336,7 +1336,7 @@ static void test_time_purge(skiatest::Reporter* reporter) {
             r->unref();
         }
         REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
-        context->flush();
+        context->flush(nullptr);
         REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
         cache->purgeResourcesNotUsedSince(nowish());
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());

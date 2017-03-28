@@ -768,7 +768,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
     }
 }
 
-
+#if 0
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInfo) {
     GrGpu* gpu = ctxInfo.grContext()->getGpu();
     if (!gpu) {
@@ -797,6 +797,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
         }
     }
 }
+#endif
+
 #endif
 
 static void test_surface_creation_and_snapshot_with_color_space(
