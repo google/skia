@@ -304,14 +304,14 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // does not provide a row-by-row API.  This is a shame particularly when we do not want
     // 8888, since we will need to create another image sized buffer.
     SkAutoTMalloc<uint32_t> pixels;
-    bool is8888 = (kRGBA_8888_SkColorType == dstInfo.colorType()) ||
-                  (kBGRA_8888_SkColorType == dstInfo.colorType());
-    void* webpDst = is8888 ? dst : pixels.reset(dstInfo.width() * dstInfo.height());
-    size_t webpRowBytes = is8888 ? rowBytes : dstInfo.width() * sizeof(uint32_t);
-    size_t totalBytes = is8888 ? dstInfo.getSafeSize(webpRowBytes)
-                               : webpRowBytes * dstInfo.height();
+    bool needsCopy = this->colorXform() && kRGBA_8888_SkColorType != dstInfo.colorType() &&
+                                           kBGRA_8888_SkColorType != dstInfo.colorType();
+    void* webpDst = needsCopy ? pixels.reset(dstInfo.width() * dstInfo.height()) : dst;
+    size_t webpRowBytes = needsCopy ? dstInfo.width() * sizeof(uint32_t) : rowBytes;
+    size_t totalBytes = needsCopy ? webpRowBytes * dstInfo.height()
+                                  : dstInfo.getSafeSize(webpRowBytes);
     size_t dstBpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
-    size_t webpBpp = sizeof(uint32_t);
+    size_t webpBpp = needsCopy ? sizeof(uint32_t) : dstBpp;
 
     size_t offset = dstX * webpBpp + dstY * webpRowBytes;
     config.output.u.RGBA.rgba = SkTAddOffset<uint8_t>(webpDst, offset);
