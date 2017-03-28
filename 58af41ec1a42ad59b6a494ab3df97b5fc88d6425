@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "362685ee_d67287ec",
+        "filename": "tools/ok_test.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T11:46:48Z",
+      "side": 1,
+      "message": "This is defined without SK_SUPPORT_GPU?",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 52,
+        "endChar": 41
+      },
+      "revId": "58af41ec1a42ad59b6a494ab3df97b5fc88d6425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
