@@ -35,25 +35,21 @@ public:
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static bool WillSrcOverNeedDstTexture(const GrCaps&, const FragmentProcessorAnalysis&);
-    static bool SrcOverIsCompatibleWithCoverageAsAlpha() { return true; }
-    static bool SrcOverCanCombineOverlappedStencilAndCover(bool colorIsOpaque) {
-        return colorIsOpaque;
-    }
+    static AnalysisProperties SrcOverAnalysisProperties(const GrPipelineAnalysisColor&,
+                                                        const GrPipelineAnalysisCoverage&,
+                                                        const GrCaps&);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
-
-    bool canCombineOverlappedStencilAndCover(bool colorIsOpaque) const override;
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const FragmentProcessorAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override;
-
-    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override;
+    AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
+                                          const GrPipelineAnalysisCoverage&,
+                                          const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);

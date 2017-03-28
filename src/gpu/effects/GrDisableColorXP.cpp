@@ -29,10 +29,6 @@ public:
 private:
     DisableColorXP();
 
-    GrXferProcessor::OptFlags onGetOptimizations(const FragmentProcessorAnalysis&) const override {
-        return GrXferProcessor::kIgnoreColor_OptFlag;
-    }
-
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
