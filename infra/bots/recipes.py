@@ -32,15 +32,12 @@ RECIPES_CFG = os.path.join('infra', 'config', 'recipes.cfg')
 BOOTSTRAP_VERSION = 1
 
 import argparse
-import ast
 import json
 import logging
 import random
-import re
 import subprocess
 import sys
 import time
-import traceback
 import urlparse
 
 from cStringIO import StringIO
@@ -68,95 +65,20 @@ def parse(repo_root, recipes_cfg_path):
       `recipe_modules`)
   """
   with open(recipes_cfg_path, 'rU') as fh:
-    data = fh.read()
+    pb = json.load(fh)
 
-  if data.lstrip().startswith('{'):
-    pb = json.loads(data)
-    engine = next(
-      (d for d in pb['deps'] if d['project_id'] == 'recipe_engine'), None)
-    if engine is None:
-      raise ValueError('could not find recipe_engine dep in %r'
-                       % recipes_cfg_path)
-    engine_url = engine['url']
-    engine_revision = engine.get('revision', '')
-    engine_subpath = engine.get('path_override', '')
-    recipes_path = pb.get('recipes_path', '')
-  else:
-    def get_unique(things):
-      if len(things) == 1:
-        return things[0]
-      elif len(things) == 0:
-        raise ValueError("Expected to get one thing, but dinna get none.")
-      else:
-        logging.warn('Expected to get one thing, but got a bunch: %s\n%s' %
-                     (things, traceback.format_stack()))
-        return things[0]
-
-    protobuf = parse_textpb(StringIO(data))
-
-    engine_buf = get_unique([
-        b for b in protobuf.get('deps', [])
-        if b.get('project_id') == ['recipe_engine'] ])
-    engine_url = get_unique(engine_buf['url'])
-    engine_revision = get_unique(engine_buf.get('revision', ['']))
-    engine_subpath = (get_unique(engine_buf.get('path_override', ['']))
-                      .replace('/', os.path.sep))
-    recipes_path = get_unique(protobuf.get('recipes_path', ['']))
+  engine = next(
+    (d for d in pb['deps'] if d['project_id'] == 'recipe_engine'), None)
+  if engine is None:
+    raise ValueError('could not find recipe_engine dep in %r'
+                     % recipes_cfg_path)
+  engine_url = engine['url']
+  engine_revision = engine.get('revision', '')
+  engine_subpath = engine.get('path_override', '')
+  recipes_path = pb.get('recipes_path', '')
 
   recipes_path = os.path.join(repo_root, recipes_path.replace('/', os.path.sep))
   return engine_url, engine_revision, engine_subpath, recipes_path
-
-
-def parse_textpb(fh):
-  """Parse the protobuf text format just well enough to understand recipes.cfg.
-
-  We don't use the protobuf library because we want to be as self-contained
-  as possible in this bootstrap, so it can be simply vendored into a client
-  repo.
-
-  We assume all fields are repeated since we don't have a proto spec to work
-  with.
-
-  Args:
-    fh: a filehandle containing the text format protobuf.
-  Returns:
-    A recursive dictionary of lists.
-  """
-  def parse_atom(field, text):
-    if text == 'true':
-      return True
-    if text == 'false':
-      return False
-
-    # repo_type is an enum. Since it does not have quotes,
-    # invoking literal_eval would fail.
-    if field == 'repo_type':
-      return text
-
-    return ast.literal_eval(text)
-
-  ret = {}
-  for line in fh:
-    line = line.strip()
-    m = re.match(r'(\w+)\s*:\s*(.*)', line)
-    if m:
-      ret.setdefault(m.group(1), []).append(parse_atom(m.group(1), m.group(2)))
-      continue
-
-    m = re.match(r'(\w+)\s*{', line)
-    if m:
-      subparse = parse_textpb(fh)
-      ret.setdefault(m.group(1), []).append(subparse)
-      continue
-
-    if line == '}':
-      return ret
-    if line == '':
-      continue
-
-    raise ValueError('Could not understand line: <%s>' % line)
-
-  return ret
 
 
 def _subprocess_call(argv, **kwargs):
