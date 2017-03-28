@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76e55746_06e90421",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-28T20:58:58Z",
+      "side": 1,
+      "message": "Might want to add notes that we should keep these for dlopen().  Someone might come along and spring clean them away, and everything will still compile and link, right?",
+      "revId": "c7bd198312963f9309d1544197dc687015aed000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "954f158a_1efdc901",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-28T20:58:58Z",
+      "side": 1,
+      "message": "I think we can just return a pointer and get the same effect?",
+      "revId": "c7bd198312963f9309d1544197dc687015aed000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff989597_7adc2ebf",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-28T20:58:58Z",
+      "side": 1,
+      "message": "I\u0027ve got a slight preference for \"static const\" over \"static constexpr\", keeping constexpr in reserve for places that really can\u0027t work without it.  That\u0027s mostly a familiarity thing, I guess, and to make it so that if you see constexpr, you know it means business.",
+      "range": {
+        "startLine": 332,
+        "startChar": 11,
+        "endLine": 332,
+        "endChar": 20
+      },
+      "revId": "c7bd198312963f9309d1544197dc687015aed000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
