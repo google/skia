@@ -28,8 +28,8 @@ struct VarDeclaration {
     , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
 
-    SkString description() const {
-        SkString result = fVar->fName;
+    String description() const {
+        String result = fVar->fName;
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
@@ -58,12 +58,12 @@ struct VarDeclarations : public ProgramElement {
     , fBaseType(*baseType)
     , fVars(std::move(vars)) {}
 
-    SkString description() const override {
+    String description() const override {
         if (!fVars.size()) {
-            return SkString();
+            return String();
         }
-        SkString result = fVars[0].fVar->fModifiers.description() + fBaseType.description() + " ";
-        SkString separator;
+        String result = fVars[0].fVar->fModifiers.description() + fBaseType.description() + " ";
+        String separator;
         for (const auto& var : fVars) {
             result += separator;
             separator = ", ";

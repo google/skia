@@ -24,8 +24,8 @@ struct IfStatement : public Statement {
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {}
 
-    SkString description() const override {
-        SkString result = "if (" + fTest->description() + ") " + fIfTrue->description();
+    String description() const override {
+        String result = "if (" + fTest->description() + ") " + fIfTrue->description();
         if (fIfFalse) {
             result += " else " + fIfFalse->description();
         }

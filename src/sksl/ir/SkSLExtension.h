@@ -16,15 +16,15 @@ namespace SkSL {
  * An extension declaration. 
  */
 struct Extension : public ProgramElement {
-    Extension(Position position, SkString name)
+    Extension(Position position, String name)
     : INHERITED(position, kExtension_Kind) 
     , fName(std::move(name)) {}
 
-    SkString description() const override {
+    String description() const override {
         return "#extension " + fName + " : enable";
     }
 
-    const SkString fName;
+    const String fName;
 
     typedef ProgramElement INHERITED;
 };

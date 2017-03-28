@@ -26,17 +26,17 @@ class Context;
 class Type : public Symbol {
 public:
     struct Field {
-        Field(Modifiers modifiers, SkString name, const Type* type)
+        Field(Modifiers modifiers, String name, const Type* type)
         : fModifiers(modifiers)
         , fName(std::move(name))
         , fType(std::move(type)) {}
 
-        const SkString description() const {
+        const String description() const {
             return fType->description() + " " + fName + ";";
         }
 
         Modifiers fModifiers;
-        SkString fName;
+        String fName;
         const Type* fType;
     };
 
@@ -53,24 +53,24 @@ public:
 
     // Create an "other" (special) type with the given name. These types cannot be directly
     // referenced from user code.
-    Type(SkString name)
+    Type(String name)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kOther_Kind) {}
 
     // Create a generic type which maps to the listed types.
-    Type(SkString name, std::vector<const Type*> types)
+    Type(String name, std::vector<const Type*> types)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kGeneric_Kind)
     , fCoercibleTypes(std::move(types)) {}
 
     // Create a struct type with the given fields.
-    Type(Position position, SkString name, std::vector<Field> fields)
+    Type(Position position, String name, std::vector<Field> fields)
     : INHERITED(position, kType_Kind, std::move(name))
     , fTypeKind(kStruct_Kind)
     , fFields(std::move(fields)) {}
 
     // Create a scalar type.
-    Type(SkString name, bool isNumber)
+    Type(String name, bool isNumber)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fIsNumber(isNumber)
@@ -78,7 +78,7 @@ public:
     , fRows(1) {}
 
     // Create a scalar type which can be coerced to the listed types.
-    Type(SkString name, bool isNumber, std::vector<const Type*> coercibleTypes)
+    Type(String name, bool isNumber, std::vector<const Type*> coercibleTypes)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fIsNumber(isNumber)
@@ -87,11 +87,11 @@ public:
     , fRows(1) {}
 
     // Create a vector type.
-    Type(SkString name, const Type& componentType, int columns)
+    Type(String name, const Type& componentType, int columns)
     : Type(name, kVector_Kind, componentType, columns) {}
 
     // Create a vector or array type.
-    Type(SkString name, Kind kind, const Type& componentType, int columns)
+    Type(String name, Kind kind, const Type& componentType, int columns)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kind)
     , fComponentType(&componentType)
@@ -100,7 +100,7 @@ public:
     , fDimensions(SpvDim1D) {}
 
     // Create a matrix type.
-    Type(SkString name, const Type& componentType, int columns, int rows)
+    Type(String name, const Type& componentType, int columns, int rows)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kMatrix_Kind)
     , fComponentType(&componentType)
@@ -109,7 +109,7 @@ public:
     , fDimensions(SpvDim1D) {}
 
     // Create a sampler type.
-    Type(SkString name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
+    Type(String name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
          bool isSampled)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kSampler_Kind)
@@ -119,11 +119,11 @@ public:
     , fIsMultisampled(isMultisampled)
     , fIsSampled(isSampled) {}
 
-    SkString name() const {
+    String name() const {
         return fName;
     }
 
-    SkString description() const override {
+    String description() const override {
         return fName;
     }
 

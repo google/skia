@@ -23,7 +23,7 @@ struct IntLiteral : public Expression {
     : INHERITED(position, kIntLiteral_Kind, type ? *type : *context.fInt_Type)
     , fValue(value) {}
 
-    virtual SkString description() const override {
+    virtual String description() const override {
         return to_string(fValue);
     }
 

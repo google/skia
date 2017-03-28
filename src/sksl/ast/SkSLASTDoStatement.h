@@ -22,7 +22,7 @@ struct ASTDoStatement : public ASTStatement {
     , fStatement(std::move(statement))
     , fTest(std::move(test)) {}
 
-    SkString description() const override {
+    String description() const override {
         return "do " + fStatement->description() + " while (" + fTest->description() + ");";
     }
 

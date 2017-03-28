@@ -21,7 +21,7 @@ struct VarDeclarationsStatement : public Statement {
     : INHERITED(decl->fPosition, kVarDeclarations_Kind)
     , fDeclaration(std::move(decl)) {}
 
-    SkString description() const override {
+    String description() const override {
         return fDeclaration->description();
     }
 

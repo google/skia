@@ -21,7 +21,7 @@ namespace SkSL {
  * A function declaration (not a definition -- does not contain a body).
  */
 struct FunctionDeclaration : public Symbol {
-    FunctionDeclaration(Position position, SkString name, 
+    FunctionDeclaration(Position position, String name, 
                         std::vector<const Variable*> parameters, const Type& returnType)
     : INHERITED(position, kFunctionDeclaration_Kind, std::move(name))
     , fDefined(false)
@@ -29,9 +29,9 @@ struct FunctionDeclaration : public Symbol {
     , fParameters(std::move(parameters))
     , fReturnType(returnType) {}
 
-    SkString description() const override {
-        SkString result = fReturnType.description() + " " + fName + "(";
-        SkString separator;
+    String description() const override {
+        String result = fReturnType.description() + " " + fName + "(";
+        String separator;
         for (auto p : fParameters) {
             result += separator;
             separator = ", ";

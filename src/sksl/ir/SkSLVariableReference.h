@@ -67,7 +67,7 @@ struct VariableReference : public Expression {
         fRefKind = refKind;
     }
 
-    SkString description() const override {
+    String description() const override {
         return fVariable.fName;
     }
 

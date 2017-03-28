@@ -28,8 +28,8 @@ struct ForStatement : public Statement {
     , fNext(std::move(next))
     , fStatement(std::move(statement)) {}
 
-    SkString description() const override {
-        SkString result("for (");
+    String description() const override {
+        String result("for (");
         if (fInitializer) {
             result += fInitializer->description();
         } 

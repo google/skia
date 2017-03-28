@@ -19,8 +19,8 @@ struct ASTDiscardStatement : public ASTStatement {
     ASTDiscardStatement(Position position)
     : INHERITED(position, kDiscard_Kind) {}
 
-    SkString description() const override {
-        return SkString("discard;");
+    String description() const override {
+        return String("discard;");
     }
 
     typedef ASTStatement INHERITED;

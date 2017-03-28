@@ -16,15 +16,15 @@ namespace SkSL {
  * An identifier in an expression context. 
  */
 struct ASTIdentifier : public ASTExpression {
-    ASTIdentifier(Position position, SkString text)
+    ASTIdentifier(Position position, String text)
     : INHERITED(position, kIdentifier_Kind)
     , fText(std::move(text)) {}
 
-    SkString description() const override {
+    String description() const override {
         return fText;
     }
 
-    const SkString fText;
+    const String fText;
 
     typedef ASTExpression INHERITED;
 };

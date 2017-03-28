@@ -24,7 +24,7 @@ struct ASTBinaryExpression : public ASTExpression {
     , fOperator(op.fKind)
     , fRight(std::move(right)) {}
 
-    SkString description() const override {
+    String description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }

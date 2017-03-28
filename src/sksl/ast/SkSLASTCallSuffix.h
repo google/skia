@@ -21,9 +21,9 @@ struct ASTCallSuffix : public ASTSuffix {
     : INHERITED(position, ASTSuffix::kCall_Kind)
     , fArguments(std::move(arguments)) {}
 
-    SkString description() const override {
-        SkString result("(");
-        SkString separator;
+    String description() const override {
+        String result("(");
+        String separator;
         for (size_t i = 0; i < fArguments.size(); ++i) {
             result += separator;
             separator = ", ";

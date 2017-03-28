@@ -20,8 +20,8 @@ struct ASTBlock : public ASTStatement {
     : INHERITED(position, kBlock_Kind)
     , fStatements(std::move(statements)) {}
 
-    SkString description() const override {
-        SkString result("{");
+    String description() const override {
+        String result("{");
         for (size_t i = 0; i < fStatements.size(); i++) {
             result += "\n";
             result += fStatements[i]->description();

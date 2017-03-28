@@ -18,7 +18,7 @@ namespace SkSL {
  */
 class CodeGenerator {
 public:
-    CodeGenerator(const Program* program, ErrorReporter* errors, SkWStream* out)
+    CodeGenerator(const Program* program, ErrorReporter* errors, OutputStream* out)
     : fProgram(*program)
     , fErrors(*errors)
     , fOut(out) {}
@@ -31,7 +31,7 @@ protected:
 
     const Program& fProgram;
     ErrorReporter& fErrors;
-    SkWStream* fOut;
+    OutputStream* fOut;
 };
 
 } // namespace

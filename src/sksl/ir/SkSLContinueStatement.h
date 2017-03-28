@@ -20,8 +20,8 @@ struct ContinueStatement : public Statement {
     ContinueStatement(Position position)
     : INHERITED(position, kContinue_Kind) {}
 
-    SkString description() const override {
-        return SkString("continue;");
+    String description() const override {
+        return String("continue;");
     }
 
     typedef Statement INHERITED;

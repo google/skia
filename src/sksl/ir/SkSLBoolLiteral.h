@@ -21,8 +21,8 @@ struct BoolLiteral : public Expression {
     : INHERITED(position, kBoolLiteral_Kind, *context.fBool_Type)
     , fValue(value) {}
 
-    SkString description() const override {
-        return SkString(fValue ? "true" : "false");
+    String description() const override {
+        return String(fValue ? "true" : "false");
     }
 
     bool isConstant() const override {

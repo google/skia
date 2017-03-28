@@ -22,7 +22,7 @@ struct ASTWhileStatement : public ASTStatement {
     , fTest(std::move(test))
     , fStatement(std::move(statement)) {}
 
-    SkString description() const override {
+    String description() const override {
         return "while (" + fTest->description() + ") " + fStatement->description();
     }
 
