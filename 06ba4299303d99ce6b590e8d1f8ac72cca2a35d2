@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "c1de7346_339107ad",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-28T19:38:24Z",
+      "side": 1,
+      "message": "Why this change here? In previous world we accept both kSingle and kNone. I would assume having no coverage would work just as well.",
+      "parentUuid": "4a801421_31183efe",
+      "range": {
+        "startLine": 91,
+        "startChar": 37,
+        "endLine": 91,
+        "endChar": 96
+      },
+      "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c55af331_96cf7851",
         "filename": "src/gpu/effects/GrCustomXfermode.cpp",
         "patchSetId": 2
@@ -64,6 +88,29 @@
         "startChar": 5,
         "endLine": 252,
         "endChar": 71
+      },
+      "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aadaa0d6_608ff2b0",
+        "filename": "src/gpu/effects/GrDisableColorXP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-28T19:38:24Z",
+      "side": 1,
+      "message": "ignore color as well?",
+      "range": {
+        "startLine": 30,
+        "startChar": 15,
+        "endLine": 30,
+        "endChar": 66
       },
       "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
