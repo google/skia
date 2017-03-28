@@ -35,17 +35,15 @@ struct TestStream : Stream {
 
             struct : public skiatest::Reporter {
                 bool ok = true;
-                const char* name;
                 bool extended, verbose_;
 
                 void reportFailed(const skiatest::Failure& failure) override {
-                    SkDebugf("%s: %s\n", name, failure.toString().c_str());
+                    ok_log(failure.toString().c_str());
                     ok = false;
                 }
                 bool allowExtendedTest() const override { return extended; }
                 bool           verbose() const override { return verbose_; }
             } reporter;
-            reporter.name     = test.name;
             reporter.extended = extended;
             reporter.verbose_ = verbose;
 
