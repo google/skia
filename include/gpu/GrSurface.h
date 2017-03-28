@@ -166,11 +166,6 @@ public:
                                  rowBytes, pixelOpsFlags);
     }
 
-    /**
-     * After this returns any pending writes to the surface will be issued to the backend 3D API.
-     */
-    void flushWrites();
-
     /** Access methods that are only to be used within Skia code. */
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;

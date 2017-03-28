@@ -65,28 +65,28 @@ static void check_refs(skiatest::Reporter* reporter,
     SkASSERT(proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
 }
 
-static sk_sp<GrSurfaceProxy> make_deferred(GrResourceProvider* provider) {
+static sk_sp<GrSurfaceProxy> make_deferred(GrContext* context) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return GrSurfaceProxy::MakeDeferred(provider, desc,
+    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
                                         SkBackingFit::kApprox, SkBudgeted::kYes);
 }
 
-static sk_sp<GrSurfaceProxy> make_wrapped(GrResourceProvider* provider) {
+static sk_sp<GrSurfaceProxy> make_wrapped(GrContext* context) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    sk_sp<GrTexture> tex(provider->createTexture(desc, SkBudgeted::kNo));
+    sk_sp<GrTexture> tex(context->resourceProvider()->createTexture(desc, SkBudgeted::kNo));
 
     // Flush the IOWrite from the initial discard or it will confuse the later ref count checks
-    tex->flushWrites();
+    context->flushSurfaceWrites(tex.get());
 
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
@@ -100,7 +100,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
     for (auto make : { make_deferred, make_wrapped }) {
         // A single write
         {
-            sk_sp<GrSurfaceProxy> sProxy((*make)(provider));
+            sk_sp<GrSurfaceProxy> sProxy((*make)(ctxInfo.grContext()));
 
             GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(sProxy.get());
 
@@ -120,7 +120,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
         // A single read
         {
-            sk_sp<GrSurfaceProxy> sProxy((*make)(provider));
+            sk_sp<GrSurfaceProxy> sProxy((*make)(ctxInfo.grContext()));
 
             GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(sProxy.get());
 
@@ -140,7 +140,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
         // A single read/write pair
         {
-            sk_sp<GrSurfaceProxy> sProxy((*make)(provider));
+            sk_sp<GrSurfaceProxy> sProxy((*make)(ctxInfo.grContext()));
 
             GrPendingIOResource<GrSurfaceProxy, kRW_GrIOType> fRW(sProxy.get());
 
@@ -160,7 +160,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
         // Multiple normal refs
         {
-            sk_sp<GrSurfaceProxy> sProxy((*make)(provider));
+            sk_sp<GrSurfaceProxy> sProxy((*make)(ctxInfo.grContext()));
             sProxy->ref();
             sProxy->ref();
 
@@ -181,7 +181,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
         // Continue using (reffing) proxy after instantiation
         {
-            sk_sp<GrSurfaceProxy> sProxy((*make)(provider));
+            sk_sp<GrSurfaceProxy> sProxy((*make)(ctxInfo.grContext()));
             sProxy->ref();
 
             GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(sProxy.get());
