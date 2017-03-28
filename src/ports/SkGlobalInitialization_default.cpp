@@ -11,7 +11,6 @@
 #include "../../src/effects/SkArithmeticModePriv.h"
 #include "SkArcToPathEffect.h"
 #include "SkBitmapSourceDeserializer.h"
-#include "SkBlurDrawLooper.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -74,7 +73,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SkRRectsGaussianEdgeMaskFilter::InitializeFlattenables();
 
     // DrawLooper
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurDrawLooper)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
 
     // Rasterizer
