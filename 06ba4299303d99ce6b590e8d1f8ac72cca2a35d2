@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a44f7673_cfefd46a",
+        "filename": "include/gpu/GrBlend.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T15:21:58Z",
+      "side": 1,
+      "message": "The old impl of GrXP::onGetOptimizations() set the kCanTweakAlpha flag based on this same logic. I\u0027ve folded it into this computation so that the new analysisProperties() function can just use the field on the blend formula\u0027s canTweakAlphaForCoverage() to set the coverage-as-alpha bit rather than also looking at  modifiesDst().",
+      "range": {
+        "startLine": 227,
+        "startChar": 4,
+        "endLine": 227,
+        "endChar": 62
+      },
+      "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a801421_31183efe",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T15:21:58Z",
+      "side": 1,
+      "message": "If the coverage is not kSingleChannel then allowing the op to do coverage-as-alpha is a non-starter.",
+      "range": {
+        "startLine": 91,
+        "startChar": 37,
+        "endLine": 91,
+        "endChar": 96
+      },
+      "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c55af331_96cf7851",
+        "filename": "src/gpu/effects/GrCustomXfermode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T15:21:58Z",
+      "side": 1,
+      "message": "I really moved this giant comment to a different (new) function, the diff is showing it as moving the code around the comment.",
+      "range": {
+        "startLine": 252,
+        "startChar": 5,
+        "endLine": 252,
+        "endChar": 71
+      },
+      "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "511c3261_5c9aa100",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T15:21:58Z",
+      "side": 1,
+      "message": "This is related to the change in GrBlend.h which makes GR_BLEND_CAN_TWEAK_ALPHA_FOR_COVERAGE return true when the dst isn\u0027t modified. When the dst isn\u0027t modified the output type is none.",
+      "range": {
+        "startLine": 86,
+        "startChar": 45,
+        "endLine": 86,
+        "endChar": 78
+      },
+      "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7bd9341_96414c12",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T15:21:58Z",
+      "side": 1,
+      "message": "made this a static inline so it can be used as GrPorterDuffFactory::analysisProperties() and SrcOverAnalysisProperties. The compiler should be able to perform constant propagation for the the latter.",
+      "range": {
+        "startLine": 730,
+        "startChar": 0,
+        "endLine": 730,
+        "endChar": 13
+      },
+      "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "883f023d_72c8e5bf",
+        "filename": "tests/GrPorterDuffTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T15:21:58Z",
+      "side": 1,
+      "message": "Here and a bunch of other places in this file change have changed expectations for can-tweak-alpha. This now comes from FragmentProcessorAnalysis which restricts it to only being enabled when the input coverage is single-channel. Here the intput coverage is LCD.",
+      "range": {
+        "startLine": 123,
+        "startChar": 28,
+        "endLine": 123,
+        "endChar": 63
+      },
+      "revId": "06ba4299303d99ce6b590e8d1f8ac72cca2a35d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
