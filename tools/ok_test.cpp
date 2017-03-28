@@ -28,7 +28,6 @@ struct TestStream : Stream {
         SkISize     size() override { return {0,0}; }
 
         bool draw(SkCanvas*) override {
-            // TODO(mtklein): GrContext
 
             struct : public skiatest::Reporter {
                 bool ok = true;
@@ -46,7 +45,10 @@ struct TestStream : Stream {
             reporter.extended = extended;
             reporter.verbose_ = verbose;
 
-            test.proc(&reporter, nullptr);
+            GrContextOptions options;
+            sk_gpu_test::GrContextFactory factory(options);
+
+            test.proc(&reporter, &factory);
             return reporter.ok;
         }
     };
