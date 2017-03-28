@@ -408,12 +408,10 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             }
             return true;
         case kRGB_565_SkColorType:
-            if (this->colorXform()) {
-                return false;
-            }
-
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
+            } else if (this->colorXform()) {
+                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             } else {
                 fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
                 fDecoderMgr->dinfo()->out_color_space = JCS_RGB565;
@@ -627,8 +625,8 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
     }
 
     size_t xformBytes = 0;
-    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
-        SkASSERT(this->colorXform());
+    if (this->colorXform() && (kRGBA_F16_SkColorType == dstInfo.colorType() ||
+                               kRGB_565_SkColorType == dstInfo.colorType())) {
         xformBytes = dstWidth * sizeof(uint32_t);
     }
 

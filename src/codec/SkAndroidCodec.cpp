@@ -191,8 +191,10 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
         }
         case kRGBA_F16_SkColorType:
             return SkColorSpace::MakeSRGBLinear();
+        case kRGB_565_SkColorType:
+            return SkColorSpace::MakeSRGB();
         default:
-            // Color correction not supported for k565 and kGray.
+            // Color correction not supported for kGray.
             return nullptr;
     }
 }
