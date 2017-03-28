@@ -38,6 +38,10 @@
 
 #include "SkSLCompiler.h"
 
+#if defined(SK_BUILD_FOR_UNIX)
+#include <unistd.h>
+#endif //SK_BUILD_FOR_UNIX
+
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RET(this->vkInterface(), RET, X)
 #define VK_CALL_ERRCHECK(X) GR_VK_CALL_ERRCHECK(this->vkInterface(), X)
