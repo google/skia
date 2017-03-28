@@ -8,6 +8,10 @@
 #include "ok.h"
 #include "Test.h"
 
+#if SK_SUPPORT_GPU
+    #include "GrContextFactory.h"
+#endif
+
 struct TestStream : Stream {
     const skiatest::TestRegistry* registry = skiatest::TestRegistry::Head();
     bool extended = false, verbose = false;
@@ -28,7 +32,6 @@ struct TestStream : Stream {
         SkISize     size() override { return {0,0}; }
 
         bool draw(SkCanvas*) override {
-            // TODO(mtklein): GrContext
 
             struct : public skiatest::Reporter {
                 bool ok = true;
@@ -46,7 +49,14 @@ struct TestStream : Stream {
             reporter.extended = extended;
             reporter.verbose_ = verbose;
 
-            test.proc(&reporter, nullptr);
+            sk_gpu_test::GrContextFactory* factory = nullptr;
+        #if SK_SUPPORT_GPU
+            GrContextOptions options;
+            sk_gpu_test::GrContextFactory a_real_factory(options);
+            factory = &a_real_factory;
+        #endif
+
+            test.proc(&reporter, factory);
             return reporter.ok;
         }
     };
