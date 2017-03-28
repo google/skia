@@ -267,9 +267,8 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
         }
     }
 
-    // If we are not decoding to F16, we can color xform now and store the results
-    // in the color table.
-    if (this->colorXform() && kRGBA_F16_SkColorType != dstInfo.colorType()) {
+    if (this->colorXform() &&
+            !apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color())) {
         const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
         const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
         const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),

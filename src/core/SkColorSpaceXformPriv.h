@@ -96,6 +96,8 @@ static inline SkColorSpaceXform::ColorFormat select_xform_format(SkColorType col
 #else
             return SkColorSpaceXform::kBGRA_8888_ColorFormat;
 #endif
+        case kRGB_565_SkColorType:
+            return SkColorSpaceXform::kBGR_565_ColorFormat;
         default:
             SkASSERT(false);
             return SkColorSpaceXform::kRGBA_8888_ColorFormat;
