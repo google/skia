@@ -1329,7 +1329,7 @@ int main(int argc, char** argv) {
         gSkForceAnalyticAA = true;
     }
 
-    if (FLAGS_verbose) {
+    if (true || FLAGS_verbose) {
         gVLog = stderr;
     } else if (!FLAGS_writePath.isEmpty()) {
         sk_mkdir(FLAGS_writePath[0]);
