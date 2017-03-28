@@ -39,7 +39,7 @@ struct TestStream : Stream {
                 bool extended, verbose_;
 
                 void reportFailed(const skiatest::Failure& failure) override {
-                    SkDebugf("%s: %s\n", name, failure.toString().c_str());
+                    ok_log(failure.toString().c_str());
                     ok = false;
                 }
                 bool allowExtendedTest() const override { return extended; }
