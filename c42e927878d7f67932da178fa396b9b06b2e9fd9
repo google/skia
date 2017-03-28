@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9feff530_6d354b3c",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1799,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T22:49:10Z",
+      "side": 1,
+      "message": "It seems like this could be either origin given the code in GrGLCaps so long as the src and dst of the blit agree.",
+      "range": {
+        "startLine": 1799,
+        "startChar": 7,
+        "endLine": 1799,
+        "endChar": 58
+      },
+      "revId": "c42e927878d7f67932da178fa396b9b06b2e9fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86f0b368_68153919",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1803,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T22:49:10Z",
+      "side": 1,
+      "message": "This is clever :)",
+      "range": {
+        "startLine": 1800,
+        "startChar": 0,
+        "endLine": 1803,
+        "endChar": 27
+      },
+      "revId": "c42e927878d7f67932da178fa396b9b06b2e9fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
