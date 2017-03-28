@@ -9,6 +9,9 @@
 #define GrMemoryPool_DEFINED
 
 #include "GrTypes.h"
+#ifdef SK_DEBUG
+#include "SkTHash.h"
+#endif
 
 /**
  * Allocates memory in blocks and parcels out space in the blocks for allocation
@@ -94,6 +97,7 @@ private:
     struct AllocHeader {
 #ifdef SK_DEBUG
         uint32_t fSentinal;      ///< known value to check for memory stomping (e.g., (CD)*)
+        int32_t fID;             ///< ID that can be used to track down leaks by clients.
 #endif
         BlockHeader* fHeader;    ///< pointer back to the block header in which an alloc resides
     };
@@ -105,6 +109,7 @@ private:
 #ifdef SK_DEBUG
     int                               fAllocationCnt;
     int                               fAllocBlockCnt;
+    SkTHashSet<int32_t>               fAllocatedIDs;
 #endif
 
 protected:
