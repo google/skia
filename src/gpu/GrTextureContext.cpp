@@ -85,7 +85,7 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
 #ifndef ENABLE_MDB
     // We can't yet fully defer copies to textures, so GrTextureContext::copySurface will
     // execute the copy immediately. Ensure the data is ready.
-    src->flushWrites();
+    fContext->flushSurfaceWrites(src.get());
 #endif
 
     // TODO: this needs to be fixed up since it ends the deferrable of the GrTexture
