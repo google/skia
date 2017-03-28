@@ -79,13 +79,15 @@ public:
                 : fIsInitializedWithProcessorSet(false)
                 , fCompatibleWithCoverageAsAlpha(true)
                 , fValidInputColor(false)
+                , fRequiresDstTexture(false)
+                , fCanCombineOverlappedStencilAndCover(true)
                 , fOutputCoverageType(static_cast<unsigned>(GrPipelineAnalysisCoverage::kNone))
                 , fOutputColorType(static_cast<unsigned>(ColorType::kUnknown))
                 , fInitialColorProcessorsToEliminate(0) {}
 
-        // This version is used by a unit test that assumes no clip, no processors, and no PLS.
+        // This version is used by a unit test that assumes no clip and no fragment processors.
         FragmentProcessorAnalysis(const GrPipelineAnalysisColor&, GrPipelineAnalysisCoverage,
-                                  const GrCaps&);
+                                  const GrXPFactory*, const GrCaps&);
 
         void init(const GrPipelineAnalysisColor&, GrPipelineAnalysisCoverage, const GrProcessorSet&,
                   const GrAppliedClip*, const GrCaps&);
@@ -119,6 +121,8 @@ public:
         }
 
         bool usesLocalCoords() const { return fUsesLocalCoords; }
+        bool requiresDstTexture() const { return fRequiresDstTexture; }
+        bool canCombineOverlappedStencilAndCover() const { return fCanCombineOverlappedStencilAndCover; }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
         bool isOutputColorOpaque() const {
             return ColorType::kOpaque == this->outputColorType() ||
@@ -154,11 +158,16 @@ public:
         PackedBool fUsesLocalCoords : 1;
         PackedBool fCompatibleWithCoverageAsAlpha : 1;
         PackedBool fValidInputColor : 1;
+        PackedBool fRequiresDstTexture : 1;
+        PackedBool fCanCombineOverlappedStencilAndCover : 1;
+        // Do we need these?
         unsigned fOutputCoverageType : 2;
         unsigned fOutputColorType : 2;
-        unsigned fInitialColorProcessorsToEliminate : 32 - 8;
+
+        unsigned fInitialColorProcessorsToEliminate : 30 - 8;
 
         GrColor fInputColor;
+        // Do we need this?
         GrColor fKnownOutputColor;
 
         friend class GrProcessorSet;

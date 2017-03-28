@@ -59,18 +59,18 @@ static void test4(SkCanvas* canvas) {
 }
 
 constexpr SkBlendMode gModes[] = {
-    SkBlendMode::kClear,
-    SkBlendMode::kSrc,
-    SkBlendMode::kDst,
-    SkBlendMode::kSrcOver,
-    SkBlendMode::kDstOver,
-    SkBlendMode::kSrcIn,
+    //SkBlendMode::kClear,
+    //SkBlendMode::kSrc,
+    //SkBlendMode::kDst,
+    //SkBlendMode::kSrcOver,
+    //SkBlendMode::kDstOver,
+    //SkBlendMode::kSrcIn,
     SkBlendMode::kDstIn,
-    SkBlendMode::kSrcOut,
-    SkBlendMode::kDstOut,
-    SkBlendMode::kSrcATop,
-    SkBlendMode::kDstATop,
-    SkBlendMode::kXor,
+    //SkBlendMode::kSrcOut,
+    //SkBlendMode::kDstOut,
+    //SkBlendMode::kSrcATop,
+    //SkBlendMode::kDstATop,
+    //SkBlendMode::kXor,
 };
 
 const int gWidth = 64;
@@ -137,11 +137,11 @@ namespace skiagm {
                 test4(canvas);
             }
             const SkRect bounds = SkRect::MakeWH(W, H);
-            constexpr SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
+            constexpr SkAlpha gAlphaValue[] = { 0xFF/*, 0x88, 0x88*/ };
 
             canvas->translate(SkIntToScalar(4), SkIntToScalar(4));
 
-            for (int alpha = 0; alpha < 4; ++alpha) {
+            for (int alpha = 0; alpha < 1; ++alpha) {
                 canvas->save();
                 canvas->save();
                 for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); ++i) {

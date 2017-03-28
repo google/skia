@@ -122,7 +122,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     if (args.fAnalysis->usesLocalCoords()) {
         optimizations.fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
     }
-    if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
+    if (args.fAnalysis->isCompatibleWithCoverageAsAlpha()) {
         optimizations.fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
     }
     return optimizations;

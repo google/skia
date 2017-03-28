@@ -41,9 +41,11 @@ public:
 
     bool isOpaque() const { return SkToBool(kIsOpaque_Flag & fFlags); }
 
-    bool isConstant(GrColor* color) const {
+    bool isConstant(GrColor* color = nullptr) const {
         if (kColorIsKnown_Flag & fFlags) {
-            *color = fColor;
+            if (color) {
+                *color = fColor;
+            }
             return true;
         }
         return false;

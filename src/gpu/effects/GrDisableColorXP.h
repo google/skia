@@ -24,11 +24,10 @@ public:
 private:
     constexpr GrDisableColorXPFactory() {}
 
-    bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
-        return false;
+    AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
+                                          const GrPipelineAnalysisCoverage&, const GrCaps&) const override {
+        return AnalysisProperties::kCompatibleWithAlphaAsCoverage;
     }
-
-    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return true; }
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const FragmentProcessorAnalysis&,
