@@ -23,8 +23,8 @@ struct SwitchCase : public Statement {
     , fValue(std::move(value))
     , fStatements(std::move(statements)) {}
 
-    SkString description() const override {
-        SkString result;
+    String description() const override {
+        String result;
         if (fValue) {
             result.appendf("case %s:\n", fValue->description().c_str());
         } else {
