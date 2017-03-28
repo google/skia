@@ -46,6 +46,8 @@
 #include "SkTypeface_mac.h"
 #include "SkUtils.h"
 
+#include <dlfcn.h>
+
 // Experimental code to use a global lock whenever we access CG, to see if this reduces
 // crashes in Chrome
 #define USE_GLOBAL_MUTEX_FOR_CG_ACCESS
@@ -311,6 +313,68 @@ struct CGFloatIdentity {
     CGFloat operator()(CGFloat s) { return s; }
 };
 
+/** Returns the [-1, 1] CTFontDescriptor weights for the
+ *  <0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000> CSS weights.
+ *
+ *  It is assumed that the values will be interpolated linearly between these points.
+ *  NSFontWeightXXX were added in 10.11, appear in 10.10, but do not appear in 10.9.
+ *  The actual values appear to be stable, but they may change in the future without notice.
+ */
+static CGFloat(&get_NSFontWeight_mapping())[11] {
+#ifdef SK_BUILD_FOR_MAC
+    // From <AppKit/AppKit.h>
+    static constexpr struct {
+        CGFloat defaultValue;
+        const char* name;
+    } nsFontWeightLoaderInfos[] = {
+        { -0.80f, "NSFontWeightUltraLight" },
+        { -0.60f, "NSFontWeightThin" },
+        { -0.40f, "NSFontWeightLight" },
+        {  0.00f, "NSFontWeightRegular" },
+        {  0.23f, "NSFontWeightMedium" },
+        {  0.30f, "NSFontWeightSemibold" },
+        {  0.40f, "NSFontWeightBold" },
+        {  0.56f, "NSFontWeightHeavy" },
+        {  0.62f, "NSFontWeightBlack" },
+    };
+#endif
+#ifdef SK_BUILD_FOR_IOS
+    // From <UIKit/UIKit.h>
+    static constexpr struct {
+        CGFloat defaultValue;
+        const char* name;
+    } nsFontWeightLoaderInfos[] = {
+        { -0.80f, "UIFontWeightUltraLight" },
+        { -0.60f, "UIFontWeightThin" },
+        { -0.40f, "UIFontWeightLight" },
+        {  0.00f, "UIFontWeightRegular" },
+        {  0.23f, "UIFontWeightMedium" },
+        {  0.30f, "UIFontWeightSemibold" },
+        {  0.40f, "UIFontWeightBold" },
+        {  0.56f, "UIFontWeightHeavy" },
+        {  0.62f, "UIFontWeightBlack" },
+    };
+#endif
+
+    static_assert(SK_ARRAY_COUNT(nsFontWeightLoaderInfos) == 9, "");
+    static CGFloat nsFontWeights[11];
+    static SkOnce once;
+    once([&] {
+        size_t i = 0;
+        nsFontWeights[i++] = -1.00;
+        for (const auto& nsFontWeightLoaderInfo : nsFontWeightLoaderInfos) {
+            void* nsFontWeightValuePtr = dlsym(RTLD_DEFAULT, nsFontWeightLoaderInfo.name);
+            if (nsFontWeightValuePtr) {
+                nsFontWeights[i++] = *(static_cast<CGFloat*>(nsFontWeightValuePtr));
+            } else {
+                nsFontWeights[i++] = nsFontWeightLoaderInfo.defaultValue;
+            }
+        }
+        nsFontWeights[i++] = 1.00;
+    });
+    return nsFontWeights;
+}
+
 /** Convert the [0, 1000] CSS weight to [-1, 1] CTFontDescriptor weight (for system fonts).
  *
  *  The -1 to 1 weights reported by CTFontDescriptors have different mappings depending on if the
@@ -322,31 +386,15 @@ static CGFloat fontstyle_to_ct_weight(int fontstyleWeight) {
     // Note that Mac supports the old OS2 version A so 0 through 10 are as if multiplied by 100.
     // However, on this end we can't tell, so this is ignored.
 
-    /** This mapping for native fonts is determined by running the following in an .mm file
-     *  #include <AppKit/AppKit>
-     *  printf("{  100, % #.2f },\n", NSFontWeightUltraLight);
-     *  printf("{  200, % #.2f },\n", NSFontWeightThin);
-     *  printf("{  300, % #.2f },\n", NSFontWeightLight);
-     *  printf("{  400, % #.2f },\n", NSFontWeightRegular);
-     *  printf("{  500, % #.2f },\n", NSFontWeightMedium);
-     *  printf("{  600, % #.2f },\n", NSFontWeightSemibold);
-     *  printf("{  700, % #.2f },\n", NSFontWeightBold);
-     *  printf("{  800, % #.2f },\n", NSFontWeightHeavy);
-     *  printf("{  900, % #.2f },\n", NSFontWeightBlack);
-     */
-    static constexpr Interpolator::Mapping nativeWeightMappings[] = {
-        {    0, -1.00 },
-        {  100, -0.80 },
-        {  200, -0.60 },
-        {  300, -0.40 },
-        {  400,  0.00 },
-        {  500,  0.23 },
-        {  600,  0.30 },
-        {  700,  0.40 },
-        {  800,  0.56 },
-        {  900,  0.62 },
-        { 1000,  1.00 },
-    };
+    static Interpolator::Mapping nativeWeightMappings[11];
+    static SkOnce once;
+    once([&] {
+        CGFloat(&nsFontWeights)[11] = get_NSFontWeight_mapping();
+        for (int i = 0; i < 11; ++i) {
+            nativeWeightMappings[i].src_val = i * 100;
+            nativeWeightMappings[i].dst_val = nsFontWeights[i];
+        }
+    });
     static constexpr Interpolator nativeInterpolator(
             nativeWeightMappings, SK_ARRAY_COUNT(nativeWeightMappings));
 
@@ -385,31 +433,15 @@ static int ct_weight_to_fontstyle(CGFloat cgWeight, bool fromDataProvider) {
     static constexpr Interpolator dataProviderInterpolator(
             dataProviderWeightMappings, SK_ARRAY_COUNT(dataProviderWeightMappings));
 
-    /** This mapping for native fonts is determined by running the following in an .mm file
-     *  #include <AppKit/AppKit>
-     *  printf("{ % #.2f,  100 },\n", NSFontWeightUltraLight);
-     *  printf("{ % #.2f,  200 },\n", NSFontWeightThin);
-     *  printf("{ % #.2f,  300 },\n", NSFontWeightLight);
-     *  printf("{ % #.2f,  400 },\n", NSFontWeightRegular);
-     *  printf("{ % #.2f,  500 },\n", NSFontWeightMedium);
-     *  printf("{ % #.2f,  600 },\n", NSFontWeightSemibold);
-     *  printf("{ % #.2f,  700 },\n", NSFontWeightBold);
-     *  printf("{ % #.2f,  800 },\n", NSFontWeightHeavy);
-     *  printf("{ % #.2f,  900 },\n", NSFontWeightBlack);
-     */
-    static constexpr Interpolator::Mapping nativeWeightMappings[] = {
-        { -1.00,    0 },
-        { -0.80,  100 },
-        { -0.60,  200 },
-        { -0.40,  300 },
-        {  0.00,  400 },
-        {  0.23,  500 },
-        {  0.30,  600 },
-        {  0.40,  700 },
-        {  0.56,  800 },
-        {  0.62,  900 },
-        {  1.00, 1000 },
-    };
+    static Interpolator::Mapping nativeWeightMappings[11];
+    static SkOnce once;
+    once([&] {
+        CGFloat(&nsFontWeights)[11] = get_NSFontWeight_mapping();
+        for (int i = 0; i < 11; ++i) {
+            nativeWeightMappings[i].src_val = nsFontWeights[i];
+            nativeWeightMappings[i].dst_val = i * 100;
+        }
+    });
     static constexpr Interpolator nativeInterpolator(
             nativeWeightMappings, SK_ARRAY_COUNT(nativeWeightMappings));
 
