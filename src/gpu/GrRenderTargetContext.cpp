@@ -1743,7 +1743,7 @@ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineB
     args.fCaps = this->caps();
     args.fAnalysis = &analysis;
 
-    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), analysis)) {
+    if (analysis.requiresDstTexture()) {
         this->setupDstTexture(rt, clip, bounds, &args.fDstTexture);
         if (!args.fDstTexture.texture()) {
             return SK_InvalidUniqueID;

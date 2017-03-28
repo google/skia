@@ -35,11 +35,12 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstInShader(const GrCaps&, const FragmentProcessorAnalysis&) const override {
-        return false;
+    AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
+                                          const GrPipelineAnalysisCoverage&,
+                                          const GrCaps&) const override {
+        return AnalysisProperties::kIgnoresInputColor;
     }
 
-    bool compatibleWithCoverageAsAlpha(bool colorIsOpaque) const override { return false; }
 
     GR_DECLARE_XP_FACTORY_TEST;
 

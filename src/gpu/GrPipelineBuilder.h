@@ -65,20 +65,6 @@ public:
 
     /// @}
 
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Blending
-    ////
-
-    /**
-     * Checks whether the xp will need destination in a texture to correctly blend.
-     */
-    bool willXPNeedDstTexture(const GrCaps& caps,
-                              const GrProcessorSet::FragmentProcessorAnalysis& analysis) const {
-        return GrXPFactory::WillNeedDstTexture(fProcessors.xpFactory(), caps, analysis);
-    }
-
-    /// @}
-
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Stencil

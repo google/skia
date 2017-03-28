@@ -29,8 +29,7 @@ protected:
         return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
     }
     bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
-        return GrXPFactory::WillNeedDstTexture(fProcessorSet.xpFactory(), caps,
-                                               this->doFragmentProcessorAnalysis(caps, clip));
+        return this->doFragmentProcessorAnalysis(caps, clip).requiresDstTexture();
     }
 
     void wasRecorded() override { fProcessorSet.makePendingExecution(); }

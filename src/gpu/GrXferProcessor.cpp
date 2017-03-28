@@ -29,11 +29,6 @@ GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture,
     }
 }
 
-GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(
-        const FragmentProcessorAnalysis& analysis) const {
-    return this->onGetOptimizations(analysis);
-}
-
 bool GrXferProcessor::hasSecondaryOutput() const {
     if (!this->willReadDstColor()) {
         return this->onHasSecondaryOutput();
@@ -175,31 +170,23 @@ SkString GrXferProcessor::BlendInfo::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrXPFactory::WillNeedDstTexture(const GrXPFactory* factory, const GrCaps& caps,
-                                     const GrProcessorSet::FragmentProcessorAnalysis& analysis) {
-    bool result;
+GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
+        const GrXPFactory* factory,
+        const GrPipelineAnalysisColor& color,
+        const GrPipelineAnalysisCoverage& coverage,
+        const GrCaps& caps) {
+    AnalysisProperties result;
     if (factory) {
-        result = !caps.shaderCaps()->dstReadInShaderSupport() &&
-                 factory->willReadDstInShader(caps, analysis);
+        result = factory->analysisProperties(color, coverage, caps);
     } else {
-        result = GrPorterDuffXPFactory::WillSrcOverNeedDstTexture(caps, analysis);
+        result = GrPorterDuffXPFactory::SrcOverAnalysisProperties(color, coverage, caps);
+    }
+    SkASSERT(!(result & AnalysisProperties::kRequiresDstTexture));
+    if ((result & AnalysisProperties::kReadsDstInShader) &&
+        !caps.shaderCaps()->dstReadInShaderSupport()) {
+        result |= AnalysisProperties::kRequiresDstTexture;
     }
     return result;
-}
-
-bool GrXPFactory::CompatibleWithCoverageAsAlpha(const GrXPFactory* factory, bool colorIsOpaque) {
-    if (factory) {
-        return factory->compatibleWithCoverageAsAlpha(colorIsOpaque);
-    }
-    return GrPorterDuffXPFactory::SrcOverIsCompatibleWithCoverageAsAlpha();
-}
-
-bool GrXPFactory::CanCombineOverlappedStencilAndCover(const GrXPFactory* factory,
-                                                      bool colorIsOpaque) {
-    if (factory) {
-        return factory->canCombineOverlappedStencilAndCover(colorIsOpaque);
-    }
-    return GrPorterDuffXPFactory::SrcOverCanCombineOverlappedStencilAndCover(colorIsOpaque);
 }
 
 GrXferProcessor* GrXPFactory::createXferProcessor(const FragmentProcessorAnalysis& analysis,
@@ -207,7 +194,7 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const FragmentProcessorAnalysi
                                                   const DstTexture* dstTexture,
                                                   const GrCaps& caps) const {
 #ifdef SK_DEBUG
-    if (this->willReadDstInShader(caps, analysis)) {
+    if (analysis.requiresDstTexture()) {
         if (!caps.shaderCaps()->dstReadInShaderSupport()) {
             SkASSERT(dstTexture && dstTexture->texture());
         } else {

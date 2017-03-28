@@ -212,6 +212,9 @@ struct GrTBlendModifiesDst : skstd::bool_constant<
  *
  * By inspection we can see this will work as long as dstCoeff has a 1, and any other term in
  * dstCoeff references S.
+ *
+ * Moreover, if the blend doesn't modify the dst at all then it is ok to arbitrarily modify the src
+ * color so folding in coverage is allowed.
  */
 template<GrBlendEquation Equation, GrBlendCoeff SrcCoeff, GrBlendCoeff DstCoeff>
 struct GrTBlendCanTweakAlphaForCoverage : skstd::bool_constant<
@@ -220,7 +223,8 @@ struct GrTBlendCanTweakAlphaForCoverage : skstd::bool_constant<
       !GR_BLEND_COEFF_REFS_SRC(SrcCoeff) &&
       (kOne_GrBlendCoeff == DstCoeff ||
        kISC_GrBlendCoeff == DstCoeff ||
-       kISA_GrBlendCoeff == DstCoeff))> {};
+       kISA_GrBlendCoeff == DstCoeff)) ||
+    !GrTBlendModifiesDst<Equation, SrcCoeff, DstCoeff>::value> {};
 
 #define GR_BLEND_CAN_TWEAK_ALPHA_FOR_COVERAGE(EQUATION, SRC_COEFF, DST_COEFF) \
     GrTBlendCanTweakAlphaForCoverage<EQUATION, SRC_COEFF, DST_COEFF>::value

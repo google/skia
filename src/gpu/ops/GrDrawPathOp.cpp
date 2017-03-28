@@ -148,13 +148,7 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         GrPathRendering::kWinding_FillType != that->fillType()) {
         return false;
     }
-    // If we have non-clipping coverage processors we don't try to merge as its unclear whether it
-    // will be correct. We don't expect this to happen in practice.
-    if (this->processors().numCoverageFragmentProcessors()) {
-        return false;
-    }
-    bool opaque = this->fragmentProcessorAnalysis().isOutputColorOpaque();
-    if (!GrXPFactory::CanCombineOverlappedStencilAndCover(this->processors().xpFactory(), opaque)) {
+    if (!this->fragmentProcessorAnalysis().canCombineOverlappedStencilAndCover()) {
         return false;
     }
     fTotalPathCount += that->fTotalPathCount;
