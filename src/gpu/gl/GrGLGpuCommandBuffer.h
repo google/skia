@@ -48,11 +48,12 @@ private:
     void onSubmit() override {}
 
     void onDraw(const GrPipeline& pipeline,
+                GrRenderTarget* rt,
                 const GrPrimitiveProcessor& primProc,
                 const GrMesh* mesh,
                 int meshCount,
                 const SkRect& bounds) override {
-        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt);
         if (!fRenderTarget) {
             fRenderTarget = target;
         }

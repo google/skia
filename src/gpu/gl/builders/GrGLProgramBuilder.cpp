@@ -94,7 +94,7 @@ bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
     if (outInputs->fFlipY) {
         GrProgramDesc* d = this->desc();
         d->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().getRenderTarget()->origin()));
+                                                     this->pipeline().getRenderTargetProxy()->origin()));
         d->finalize();
     }
 
@@ -115,7 +115,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     // compile shaders and bind attributes / uniforms
     SkSL::Program::Settings settings;
     settings.fCaps = this->gpu()->glCaps().shaderCaps();
-    settings.fFlipY = this->pipeline().getRenderTarget()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->pipeline().getRenderTargetProxy()->origin() != kTopLeft_GrSurfaceOrigin;
     SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
     if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete,

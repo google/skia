@@ -69,15 +69,15 @@ void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps,
     this->onGetGLSLProcessorKey(caps, b);
 }
 
-GrXferBarrierType GrXferProcessor::xferBarrierType(const GrRenderTarget* rt,
+GrXferBarrierType GrXferProcessor::xferBarrierType(const GrRenderTargetProxy* rtp,
                                                    const GrCaps& caps) const {
-    SkASSERT(rt);
-    if (static_cast<const GrSurface*>(rt) == this->getDstTexture()) {
+    SkASSERT(rtp);
+    if (rtp == this->getDstTextureProxy()) {
         // Texture barriers are required when a shader reads and renders to the same texture.
         SkASSERT(caps.textureBarrierSupport());
         return kTexture_GrXferBarrierType;
     }
-    return this->onXferBarrier(rt, caps);
+    return this->onXferBarrier(rtp, caps);
 }
 
 #ifdef SK_DEBUG

@@ -157,18 +157,18 @@ public:
         this->onStencilPath(args, path);
     }
 
-    void drawPath(const GrPipeline& pipeline,
+    void drawPath1(const GrPipeline& pipeline,
                   const GrPrimitiveProcessor& primProc,
                   const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
                   const GrPath* path) {
         fGpu->handleDirtyContext();
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
+            fGpu->xferBarrier(pipeline.getRenderTargetProxy()->instantiate(nullptr), barrierType);
         }
         this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
     }
 
-    void drawPaths(const GrPipeline& pipeline,
+    void drawPaths1(const GrPipeline& pipeline,
                    const GrPrimitiveProcessor& primProc,
                    const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
                    const GrPathRange* pathRange,
@@ -179,7 +179,7 @@ public:
                    int count) {
         fGpu->handleDirtyContext();
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
+            fGpu->xferBarrier(pipeline.getRenderTargetProxy()->instantiate(nullptr), barrierType);
         }
 #ifdef SK_DEBUG
         pathRange->assertPathsLoaded(indices, indexType, count);

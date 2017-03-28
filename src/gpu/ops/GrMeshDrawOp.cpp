@@ -60,9 +60,14 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
 }
 
 void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
+    GrRenderTarget* rt = this->pipeline()->getRenderTargetProxy()->instantiate(nullptr);
+    if (!rt) {
+        return;
+    }
+
     SkASSERT(!state->drawOpArgs().fAppliedClip);
     SkASSERT(!state->drawOpArgs().fDstTexture.texture());
-    SkASSERT(state->drawOpArgs().fRenderTarget == this->pipeline()->getRenderTarget());
+    SkASSERT(state->drawOpArgs().fRenderTargetProxy == this->pipeline()->getRenderTargetProxy());
     int currUploadIdx = 0;
     int currMeshIdx = 0;
 
@@ -73,7 +78,7 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
         while (currUploadIdx < fInlineUploads.count() &&
                fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
             state->commandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload,
-                                                 this->pipeline()->getRenderTarget());
+                                                 rt);
         }
         const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
         state->commandBuffer()->draw(*this->pipeline(), *draw.fGeometryProcessor.get(),

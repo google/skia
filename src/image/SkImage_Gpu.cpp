@@ -452,6 +452,7 @@ std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncode
     desc.fConfig = texture->config();
     desc.fSampleCnt = 0;
 
+    context->prepareSurfaceForExternalIO(as_IB(textureImage)->asTextureProxyRef().get());
     auto textureData = texture->texturePriv().detachBackendTexture();
     SkASSERT(textureData);
 
@@ -858,7 +859,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> colorSpace) con
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
 
-    if (!renderTargetContext->accessRenderTarget()) {
+    if (!renderTargetContext->asTextureProxyRef()) {
         return nullptr;
     }
 

@@ -1939,7 +1939,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     if (blendInfo.fWriteColor) {
         // Swizzle the blend to match what the shader will output.
         const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
-            pipeline.getRenderTarget()->config());
+            pipeline.getRenderTargetProxy()->config());
         this->flushBlend(blendInfo, swizzle);
     }
 
