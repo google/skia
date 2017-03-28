@@ -46,6 +46,30 @@
       "revId": "58af41ec1a42ad59b6a494ab3df97b5fc88d6425",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b7f9217_6a00ef64",
+        "filename": "tools/ok_test.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-28T12:38:43Z",
+      "side": 1,
+      "message": "Yeah, we can rely on that.  It has to be at least declared in Test.h to be able to be passed as an argument to test.proc  (skiatest::TestProc).",
+      "parentUuid": "79662a1b_3a129ca6",
+      "range": {
+        "startLine": 52,
+        "startChar": 12,
+        "endLine": 52,
+        "endChar": 41
+      },
+      "revId": "58af41ec1a42ad59b6a494ab3df97b5fc88d6425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
