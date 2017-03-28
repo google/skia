@@ -321,8 +321,11 @@ static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaTy
 }
 
 static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
-    // We will apply the color xform when reading the color table, unless F16 is requested.
-    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
+    // We will apply the color xform when reading the color table if a form of 8888 is requested.
+    return SkEncodedInfo::kPalette_Color != srcColor ||
+           (kRGBA_8888_SkColorType != dstColorType &&
+            kBGRA_8888_SkColorType != dstColorType &&
+            kIndex_8_SkColorType != dstColorType);
 }
 
 /*
@@ -353,7 +356,7 @@ static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo
         case kIndex_8_SkColorType:
             return kIndex_8_SkColorType == src.colorType();
         case kRGB_565_SkColorType:
-            return kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src, false);
+            return kOpaque_SkAlphaType == src.alphaType();
         case kGray_8_SkColorType:
             return kGray_8_SkColorType == src.colorType() &&
                    kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src, false);

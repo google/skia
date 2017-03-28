@@ -65,6 +65,12 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
             }
             pipeline.append(SkRasterPipeline::store_f32, &dst);
             break;
+        case kBGR_565_ColorFormat:
+            if (kOpaque_SkAlphaType != alphaType) {
+                return false;
+            }
+            pipeline.append(SkRasterPipeline::store_565, &dst);
+            break;
         default:
             return false;
     }

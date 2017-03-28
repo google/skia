@@ -34,6 +34,8 @@ public:
 
         kRGBA_F16_ColorFormat,
         kRGBA_F32_ColorFormat,
+
+        kBGR_565_ColorFormat,      // Dst only, kOpaque only
     };
 
     /**
