@@ -973,6 +973,109 @@ CODE const uint32_t sk_linear_gradient_2stops_aarch64[] = {
   0x4eb01e00,                             //mov           v0.16b, v16.16b
   0xd61f0060,                             //br            x3
 };
+
+CODE const uint32_t sk_linear_gradient_few_stops_aarch64[] = {
+  0xd105c3ff,                             //sub           sp, sp, #0x170
+  0xa9145bfc,                             //stp           x28, x22, [sp, #320]
+  0xa91553f5,                             //stp           x21, x20, [sp, #336]
+  0xa9167bf3,                             //stp           x19, x30, [sp, #352]
+  0xad019fe6,                             //stp           q6, q7, [sp, #48]
+  0xad0097e4,                             //stp           q4, q5, [sp, #16]
+  0x3d8003e0,                             //str           q0, [sp]
+  0xaa0103f4,                             //mov           x20, x1
+  0xf9400281,                             //ldr           x1, [x20]
+  0xaa0203f3,                             //mov           x19, x2
+  0xaa0003f5,                             //mov           x21, x0
+  0x910143e0,                             //add           x0, sp, #0x50
+  0x321c0fe2,                             //orr           w2, wzr, #0xf0
+  0x910143f6,                             //add           x22, sp, #0x50
+  0x94000000,                             //bl            0 <memcpy>
+  0xf9402be8,                             //ldr           x8, [sp, #80]
+  0xf1000d1f,                             //cmp           x8, #0x3
+  0x54000a42,                             //b.cs          e3c <sk_linear_gradient_few_stops_aarch64+0x18c>  // b.hs, b.nlast
+  0x910382c9,                             //add           x9, x22, #0xe0
+  0x9103b2ca,                             //add           x10, x22, #0xec
+  0x9103a2cb,                             //add           x11, x22, #0xe8
+  0x910392cc,                             //add           x12, x22, #0xe4
+  0x4d40c943,                             //ld1r          {v3.4s}, [x10]
+  0x4d40c962,                             //ld1r          {v2.4s}, [x11]
+  0x4d40c981,                             //ld1r          {v1.4s}, [x12]
+  0x4d40c920,                             //ld1r          {v0.4s}, [x9]
+  0xb40006a8,                             //cbz           x8, dec <sk_linear_gradient_few_stops_aarch64+0x13c>
+  0x3dc003fc,                             //ldr           q28, [sp]
+  0x910143e9,                             //add           x9, sp, #0x50
+  0x6f00e406,                             //movi          v6.2d, #0x0
+  0x6f00e404,                             //movi          v4.2d, #0x0
+  0x6f00e405,                             //movi          v5.2d, #0x0
+  0x91005129,                             //add           x9, x9, #0x14
+  0x6f00e407,                             //movi          v7.2d, #0x0
+  0xd100312a,                             //sub           x10, x9, #0xc
+  0x4d40c950,                             //ld1r          {v16.4s}, [x10]
+  0xd100212b,                             //sub           x11, x9, #0x8
+  0x4d40c971,                             //ld1r          {v17.4s}, [x11]
+  0xd100112a,                             //sub           x10, x9, #0x4
+  0xaa0903eb,                             //mov           x11, x9
+  0x4d40c952,                             //ld1r          {v18.4s}, [x10]
+  0x9100512a,                             //add           x10, x9, #0x14
+  0x4ea31c75,                             //mov           v21.16b, v3.16b
+  0x6e3ce603,                             //fcmge         v3.4s, v16.4s, v28.4s
+  0x4ddfc973,                             //ld1r          {v19.4s}, [x11], #4
+  0x4d40c954,                             //ld1r          {v20.4s}, [x10]
+  0x4ea61cdb,                             //mov           v27.16b, v6.16b
+  0x4ea31c66,                             //mov           v6.16b, v3.16b
+  0x9100212a,                             //add           x10, x9, #0x8
+  0x6e7b1e26,                             //bsl           v6.16b, v17.16b, v27.16b
+  0x4d40c951,                             //ld1r          {v17.4s}, [x10]
+  0x4ea71cf6,                             //mov           v22.16b, v7.16b
+  0x4ea31c67,                             //mov           v7.16b, v3.16b
+  0x9100312a,                             //add           x10, x9, #0xc
+  0x4ea01c10,                             //mov           v16.16b, v0.16b
+  0x4ea51cb8,                             //mov           v24.16b, v5.16b
+  0x4ea31c65,                             //mov           v5.16b, v3.16b
+  0x4ea31c60,                             //mov           v0.16b, v3.16b
+  0x6e761e47,                             //bsl           v7.16b, v18.16b, v22.16b
+  0x4d40c952,                             //ld1r          {v18.4s}, [x10]
+  0x9100412a,                             //add           x10, x9, #0x10
+  0x6e781e65,                             //bsl           v5.16b, v19.16b, v24.16b
+  0x4d40c953,                             //ld1r          {v19.4s}, [x10]
+  0x6e701e20,                             //bsl           v0.16b, v17.16b, v16.16b
+  0x4d40c970,                             //ld1r          {v16.4s}, [x11]
+  0x4ea11c37,                             //mov           v23.16b, v1.16b
+  0x4ea21c59,                             //mov           v25.16b, v2.16b
+  0x4ea41c9a,                             //mov           v26.16b, v4.16b
+  0x4ea31c64,                             //mov           v4.16b, v3.16b
+  0x4ea31c61,                             //mov           v1.16b, v3.16b
+  0x4ea31c62,                             //mov           v2.16b, v3.16b
+  0x6e751e83,                             //bsl           v3.16b, v20.16b, v21.16b
+  0x6e771e41,                             //bsl           v1.16b, v18.16b, v23.16b
+  0x6e791e62,                             //bsl           v2.16b, v19.16b, v25.16b
+  0xd1000508,                             //sub           x8, x8, #0x1
+  0x6e7a1e04,                             //bsl           v4.16b, v16.16b, v26.16b
+  0x91009129,                             //add           x9, x9, #0x24
+  0xb5fffaa8,                             //cbnz          x8, d38 <sk_linear_gradient_few_stops_aarch64+0x88>
+  0x14000006,                             //b             e00 <sk_linear_gradient_few_stops_aarch64+0x150>
+  0x3dc003fc,                             //ldr           q28, [sp]
+  0x6f00e407,                             //movi          v7.2d, #0x0
+  0x6f00e405,                             //movi          v5.2d, #0x0
+  0x6f00e404,                             //movi          v4.2d, #0x0
+  0x6f00e406,                             //movi          v6.2d, #0x0
+  0x4e3cccc0,                             //fmla          v0.4s, v6.4s, v28.4s
+  0x4e3ccce1,                             //fmla          v1.4s, v7.4s, v28.4s
+  0xf9400683,                             //ldr           x3, [x20, #8]
+  0x4e3ccca2,                             //fmla          v2.4s, v5.4s, v28.4s
+  0x4e3ccc83,                             //fmla          v3.4s, v4.4s, v28.4s
+  0x91004281,                             //add           x1, x20, #0x10
+  0xaa1503e0,                             //mov           x0, x21
+  0xaa1303e2,                             //mov           x2, x19
+  0xad4097e4,                             //ldp           q4, q5, [sp, #16]
+  0xad419fe6,                             //ldp           q6, q7, [sp, #48]
+  0xa9567bf3,                             //ldp           x19, x30, [sp, #352]
+  0xa95553f5,                             //ldp           x21, x20, [sp, #336]
+  0xa9545bfc,                             //ldp           x28, x22, [sp, #320]
+  0x9105c3ff,                             //add           sp, sp, #0x170
+  0xd61f0060,                             //br            x3
+  0xd4200020,                             //brk           #0x1
+};
 #elif defined(__arm__)
 
 CODE const uint32_t sk_start_pipeline_vfp4[] = {
@@ -2071,6 +2174,114 @@ CODE const uint32_t sk_linear_gradient_2stops_vfp4[] = {
   0xf22001b0,                             //vorr          d0, d16, d16
   0xe12fff1c,                             //bx            ip
 };
+
+CODE const uint32_t sk_linear_gradient_few_stops_vfp4[] = {
+  0xe92d48f0,                             //push          {r4, r5, r6, r7, fp, lr}
+  0xed2d8b0a,                             //vpush         {d8-d12}
+  0xe24dd0f0,                             //sub           sp, sp, #240
+  0xe1a06001,                             //mov           r6, r1
+  0xe1a0700d,                             //mov           r7, sp
+  0xe5961000,                             //ldr           r1, [r6]
+  0xe1a04002,                             //mov           r4, r2
+  0xe1a05000,                             //mov           r5, r0
+  0xe1a00007,                             //mov           r0, r7
+  0xe3a020ec,                             //mov           r2, #236
+  0xeeb08b47,                             //vmov.f64      d8, d7
+  0xeeb09b46,                             //vmov.f64      d9, d6
+  0xeeb0ab45,                             //vmov.f64      d10, d5
+  0xeeb0bb44,                             //vmov.f64      d11, d4
+  0xf220c110,                             //vorr          d12, d0, d0
+  0xebfffffe,                             //bl            0 <__aeabi_memcpy>
+  0xe59d0000,                             //ldr           r0, [sp]
+  0xe3500003,                             //cmp           r0, #3
+  0x2a000054,                             //bcs           1090 <sk_linear_gradient_few_stops_vfp4+0x1a0>
+  0xe28710dc,                             //add           r1, r7, #220
+  0xe3500000,                             //cmp           r0, #0
+  0xf4a10c9f,                             //vld1.32       {d0[]}, [r1 :32]
+  0xe28710e0,                             //add           r1, r7, #224
+  0xf4a11c9f,                             //vld1.32       {d1[]}, [r1 :32]
+  0xe28710e4,                             //add           r1, r7, #228
+  0xf4a12c9f,                             //vld1.32       {d2[]}, [r1 :32]
+  0xe28710e8,                             //add           r1, r7, #232
+  0xf4a13c9f,                             //vld1.32       {d3[]}, [r1 :32]
+  0x0a000036,                             //beq           1040 <sk_linear_gradient_few_stops_vfp4+0x150>
+  0xf2c00010,                             //vmov.i32      d16, #0
+  0xe2871024,                             //add           r1, r7, #36
+  0xf2c05010,                             //vmov.i32      d21, #0
+  0xf2c06010,                             //vmov.i32      d22, #0
+  0xf2c07010,                             //vmov.i32      d23, #0
+  0xe2413018,                             //sub           r3, r1, #24
+  0xf4e12c9f,                             //vld1.32       {d18[]}, [r1 :32]
+  0xe2812024,                             //add           r2, r1, #36
+  0xe2500001,                             //subs          r0, r0, #1
+  0xf4e3cc9f,                             //vld1.32       {d28[]}, [r3 :32]
+  0xe2413014,                             //sub           r3, r1, #20
+  0xf4e34c9f,                             //vld1.32       {d20[]}, [r3 :32]
+  0xe241300c,                             //sub           r3, r1, #12
+  0xf4e33c9f,                             //vld1.32       {d19[]}, [r3 :32]
+  0xe2413020,                             //sub           r3, r1, #32
+  0xf4e31c9f,                             //vld1.32       {d17[]}, [r3 :32]
+  0xe2413008,                             //sub           r3, r1, #8
+  0xf3411e8c,                             //vcge.f32      d17, d17, d12
+  0xf4e3bc9f,                             //vld1.32       {d27[]}, [r3 :32]
+  0xe2413004,                             //sub           r3, r1, #4
+  0xf4e3ac9f,                             //vld1.32       {d26[]}, [r3 :32]
+  0xe2413010,                             //sub           r3, r1, #16
+  0xf26191b1,                             //vorr          d25, d17, d17
+  0xe241101c,                             //sub           r1, r1, #28
+  0xf26181b1,                             //vorr          d24, d17, d17
+  0xf4e3dc9f,                             //vld1.32       {d29[]}, [r3 :32]
+  0xf35a9192,                             //vbsl          d25, d26, d2
+  0xf261a1b1,                             //vorr          d26, d17, d17
+  0xf3528193,                             //vbsl          d24, d18, d3
+  0xf35ba191,                             //vbsl          d26, d27, d1
+  0xf261b1b1,                             //vorr          d27, d17, d17
+  0xf26121b1,                             //vorr          d18, d17, d17
+  0xf353b190,                             //vbsl          d27, d19, d0
+  0xf26131b1,                             //vorr          d19, d17, d17
+  0xf35d21b5,                             //vbsl          d18, d29, d21
+  0xf4e15c9f,                             //vld1.32       {d21[]}, [r1 :32]
+  0xf35431b6,                             //vbsl          d19, d20, d22
+  0xe1a01002,                             //mov           r1, r2
+  0xf26141b1,                             //vorr          d20, d17, d17
+  0xf35511b0,                             //vbsl          d17, d21, d16
+  0xf35c41b7,                             //vbsl          d20, d28, d23
+  0xf26101b1,                             //vorr          d16, d17, d17
+  0xf22831b8,                             //vorr          d3, d24, d24
+  0xf26251b2,                             //vorr          d21, d18, d18
+  0xf22921b9,                             //vorr          d2, d25, d25
+  0xf26361b3,                             //vorr          d22, d19, d19
+  0xf22a11ba,                             //vorr          d1, d26, d26
+  0xf26471b4,                             //vorr          d23, d20, d20
+  0xf22b01bb,                             //vorr          d0, d27, d27
+  0x1affffd2,                             //bne           f78 <sk_linear_gradient_few_stops_vfp4+0x88>
+  0xf22b01bb,                             //vorr          d0, d27, d27
+  0xf22a11ba,                             //vorr          d1, d26, d26
+  0xf22921b9,                             //vorr          d2, d25, d25
+  0xf22831b8,                             //vorr          d3, d24, d24
+  0xea000003,                             //b             1050 <sk_linear_gradient_few_stops_vfp4+0x160>
+  0xf2c04010,                             //vmov.i32      d20, #0
+  0xf2c03010,                             //vmov.i32      d19, #0
+  0xf2c02010,                             //vmov.i32      d18, #0
+  0xf2c01010,                             //vmov.i32      d17, #0
+  0xf20c0c31,                             //vfma.f32      d0, d12, d17
+  0xe5963004,                             //ldr           r3, [r6, #4]
+  0xf20c1c34,                             //vfma.f32      d1, d12, d20
+  0xe2861008,                             //add           r1, r6, #8
+  0xf20c2c33,                             //vfma.f32      d2, d12, d19
+  0xe1a00005,                             //mov           r0, r5
+  0xf20c3c32,                             //vfma.f32      d3, d12, d18
+  0xe1a02004,                             //mov           r2, r4
+  0xeeb04b4b,                             //vmov.f64      d4, d11
+  0xeeb05b4a,                             //vmov.f64      d5, d10
+  0xeeb06b49,                             //vmov.f64      d6, d9
+  0xeeb07b48,                             //vmov.f64      d7, d8
+  0xe28dd0f0,                             //add           sp, sp, #240
+  0xecbd8b0a,                             //vpop          {d8-d12}
+  0xe8bd48f0,                             //pop           {r4, r5, r6, r7, fp, lr}
+  0xe12fff13,                             //bx            r3
+  0xe7ffdefe,                             //udf           #65006
+};
 #elif defined(__x86_64__)
 
 CODE const uint8_t sk_start_pipeline_hsw[] = {
@@ -2585,7 +2796,7 @@ CODE const uint8_t sk_lerp_565_hsw[] = {
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
-  233,255,255,255,225,                    //jmpq          ffffffffe20006cc <_sk_linear_gradient_2stops_hsw+0xffffffffe1fff4f0>
+  233,255,255,255,225,                    //jmpq          ffffffffe20006cc <_sk_linear_gradient_few_stops_hsw+0xffffffffe1fff4a3>
   255,                                    //(bad)
   255,                                    //(bad)
   255,                                    //(bad)
@@ -3367,6 +3578,76 @@ CODE const uint8_t sk_linear_gradient_2stops_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   197,124,41,192,                         //vmovaps       %ymm8,%ymm0
   255,224,                                //jmpq          *%rax
+};
+
+CODE const uint8_t sk_linear_gradient_few_stops_hsw[] = {
+  72,129,236,248,0,0,0,                   //sub           $0xf8,%rsp
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  197,252,16,136,208,0,0,0,               //vmovups       0xd0(%rax),%ymm1
+  197,252,17,140,36,208,0,0,0,            //vmovups       %ymm1,0xd0(%rsp)
+  197,252,16,136,192,0,0,0,               //vmovups       0xc0(%rax),%ymm1
+  197,252,17,140,36,192,0,0,0,            //vmovups       %ymm1,0xc0(%rsp)
+  197,252,16,136,160,0,0,0,               //vmovups       0xa0(%rax),%ymm1
+  197,252,17,140,36,160,0,0,0,            //vmovups       %ymm1,0xa0(%rsp)
+  197,252,16,136,128,0,0,0,               //vmovups       0x80(%rax),%ymm1
+  197,252,17,140,36,128,0,0,0,            //vmovups       %ymm1,0x80(%rsp)
+  197,252,16,8,                           //vmovups       (%rax),%ymm1
+  197,252,16,80,32,                       //vmovups       0x20(%rax),%ymm2
+  197,252,16,88,64,                       //vmovups       0x40(%rax),%ymm3
+  197,124,16,64,96,                       //vmovups       0x60(%rax),%ymm8
+  197,124,17,68,36,96,                    //vmovups       %ymm8,0x60(%rsp)
+  197,252,17,92,36,64,                    //vmovups       %ymm3,0x40(%rsp)
+  197,252,17,84,36,32,                    //vmovups       %ymm2,0x20(%rsp)
+  197,252,17,12,36,                       //vmovups       %ymm1,(%rsp)
+  76,139,4,36,                            //mov           (%rsp),%r8
+  73,131,248,3,                           //cmp           $0x3,%r8
+  15,131,241,0,0,0,                       //jae           139f <_sk_linear_gradient_few_stops_hsw+0x176>
+  196,98,125,24,140,36,236,0,0,0,         //vbroadcastss  0xec(%rsp),%ymm9
+  196,98,125,24,148,36,232,0,0,0,         //vbroadcastss  0xe8(%rsp),%ymm10
+  196,98,125,24,156,36,228,0,0,0,         //vbroadcastss  0xe4(%rsp),%ymm11
+  196,98,125,24,132,36,224,0,0,0,         //vbroadcastss  0xe0(%rsp),%ymm8
+  77,133,192,                             //test          %r8,%r8
+  15,132,140,0,0,0,                       //je            136b <_sk_linear_gradient_few_stops_hsw+0x142>
+  72,141,68,36,40,                        //lea           0x28(%rsp),%rax
+  196,65,28,87,228,                       //vxorps        %ymm12,%ymm12,%ymm12
+  197,228,87,219,                         //vxorps        %ymm3,%ymm3,%ymm3
+  197,236,87,210,                         //vxorps        %ymm2,%ymm2,%ymm2
+  197,244,87,201,                         //vxorps        %ymm1,%ymm1,%ymm1
+  196,98,125,24,104,224,                  //vbroadcastss  -0x20(%rax),%ymm13
+  196,65,124,194,237,2,                   //vcmpleps      %ymm13,%ymm0,%ymm13
+  196,98,125,24,112,228,                  //vbroadcastss  -0x1c(%rax),%ymm14
+  196,67,29,74,230,208,                   //vblendvps     %ymm13,%ymm14,%ymm12,%ymm12
+  196,98,125,24,112,232,                  //vbroadcastss  -0x18(%rax),%ymm14
+  196,195,117,74,206,208,                 //vblendvps     %ymm13,%ymm14,%ymm1,%ymm1
+  196,98,125,24,112,236,                  //vbroadcastss  -0x14(%rax),%ymm14
+  196,195,109,74,214,208,                 //vblendvps     %ymm13,%ymm14,%ymm2,%ymm2
+  196,98,125,24,112,240,                  //vbroadcastss  -0x10(%rax),%ymm14
+  196,195,101,74,222,208,                 //vblendvps     %ymm13,%ymm14,%ymm3,%ymm3
+  196,98,125,24,112,244,                  //vbroadcastss  -0xc(%rax),%ymm14
+  196,67,61,74,198,208,                   //vblendvps     %ymm13,%ymm14,%ymm8,%ymm8
+  196,98,125,24,112,248,                  //vbroadcastss  -0x8(%rax),%ymm14
+  196,67,37,74,222,208,                   //vblendvps     %ymm13,%ymm14,%ymm11,%ymm11
+  196,98,125,24,112,252,                  //vbroadcastss  -0x4(%rax),%ymm14
+  196,67,45,74,214,208,                   //vblendvps     %ymm13,%ymm14,%ymm10,%ymm10
+  196,98,125,24,48,                       //vbroadcastss  (%rax),%ymm14
+  196,67,53,74,206,208,                   //vblendvps     %ymm13,%ymm14,%ymm9,%ymm9
+  72,131,192,36,                          //add           $0x24,%rax
+  73,255,200,                             //dec           %r8
+  117,140,                                //jne           12f5 <_sk_linear_gradient_few_stops_hsw+0xcc>
+  235,17,                                 //jmp           137c <_sk_linear_gradient_few_stops_hsw+0x153>
+  197,244,87,201,                         //vxorps        %ymm1,%ymm1,%ymm1
+  197,236,87,210,                         //vxorps        %ymm2,%ymm2,%ymm2
+  197,228,87,219,                         //vxorps        %ymm3,%ymm3,%ymm3
+  196,65,28,87,228,                       //vxorps        %ymm12,%ymm12,%ymm12
+  196,66,125,184,196,                     //vfmadd231ps   %ymm12,%ymm0,%ymm8
+  196,194,125,168,203,                    //vfmadd213ps   %ymm11,%ymm0,%ymm1
+  196,194,125,168,210,                    //vfmadd213ps   %ymm10,%ymm0,%ymm2
+  196,194,125,168,217,                    //vfmadd213ps   %ymm9,%ymm0,%ymm3
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  197,124,41,192,                         //vmovaps       %ymm8,%ymm0
+  72,129,196,248,0,0,0,                   //add           $0xf8,%rsp
+  255,224,                                //jmpq          *%rax
+  15,11,                                  //ud2
 };
 
 CODE const uint8_t sk_start_pipeline_avx[] = {
@@ -5092,6 +5373,80 @@ CODE const uint8_t sk_linear_gradient_2stops_avx[] = {
   255,224,                                //jmpq          *%rax
 };
 
+CODE const uint8_t sk_linear_gradient_few_stops_avx[] = {
+  72,129,236,248,0,0,0,                   //sub           $0xf8,%rsp
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  197,252,16,136,208,0,0,0,               //vmovups       0xd0(%rax),%ymm1
+  197,252,17,140,36,208,0,0,0,            //vmovups       %ymm1,0xd0(%rsp)
+  197,252,16,136,192,0,0,0,               //vmovups       0xc0(%rax),%ymm1
+  197,252,17,140,36,192,0,0,0,            //vmovups       %ymm1,0xc0(%rsp)
+  197,252,16,136,160,0,0,0,               //vmovups       0xa0(%rax),%ymm1
+  197,252,17,140,36,160,0,0,0,            //vmovups       %ymm1,0xa0(%rsp)
+  197,252,16,136,128,0,0,0,               //vmovups       0x80(%rax),%ymm1
+  197,252,17,140,36,128,0,0,0,            //vmovups       %ymm1,0x80(%rsp)
+  197,252,16,8,                           //vmovups       (%rax),%ymm1
+  197,252,16,80,32,                       //vmovups       0x20(%rax),%ymm2
+  197,252,16,88,64,                       //vmovups       0x40(%rax),%ymm3
+  197,124,16,64,96,                       //vmovups       0x60(%rax),%ymm8
+  197,124,17,68,36,96,                    //vmovups       %ymm8,0x60(%rsp)
+  197,252,17,92,36,64,                    //vmovups       %ymm3,0x40(%rsp)
+  197,252,17,84,36,32,                    //vmovups       %ymm2,0x20(%rsp)
+  197,252,17,12,36,                       //vmovups       %ymm1,(%rsp)
+  76,139,4,36,                            //mov           (%rsp),%r8
+  73,131,248,3,                           //cmp           $0x3,%r8
+  15,131,4,1,0,0,                         //jae           1bb0 <_sk_linear_gradient_few_stops_avx+0x189>
+  196,226,125,24,156,36,236,0,0,0,        //vbroadcastss  0xec(%rsp),%ymm3
+  196,226,125,24,148,36,232,0,0,0,        //vbroadcastss  0xe8(%rsp),%ymm2
+  196,226,125,24,140,36,228,0,0,0,        //vbroadcastss  0xe4(%rsp),%ymm1
+  196,98,125,24,132,36,224,0,0,0,         //vbroadcastss  0xe0(%rsp),%ymm8
+  77,133,192,                             //test          %r8,%r8
+  15,132,143,0,0,0,                       //je            1b6c <_sk_linear_gradient_few_stops_avx+0x145>
+  72,141,68,36,40,                        //lea           0x28(%rsp),%rax
+  196,65,28,87,228,                       //vxorps        %ymm12,%ymm12,%ymm12
+  196,65,52,87,201,                       //vxorps        %ymm9,%ymm9,%ymm9
+  196,65,36,87,219,                       //vxorps        %ymm11,%ymm11,%ymm11
+  196,65,44,87,210,                       //vxorps        %ymm10,%ymm10,%ymm10
+  196,98,125,24,104,224,                  //vbroadcastss  -0x20(%rax),%ymm13
+  196,65,124,194,237,2,                   //vcmpleps      %ymm13,%ymm0,%ymm13
+  196,98,125,24,112,228,                  //vbroadcastss  -0x1c(%rax),%ymm14
+  196,67,29,74,230,208,                   //vblendvps     %ymm13,%ymm14,%ymm12,%ymm12
+  196,98,125,24,112,232,                  //vbroadcastss  -0x18(%rax),%ymm14
+  196,67,45,74,214,208,                   //vblendvps     %ymm13,%ymm14,%ymm10,%ymm10
+  196,98,125,24,112,236,                  //vbroadcastss  -0x14(%rax),%ymm14
+  196,67,37,74,222,208,                   //vblendvps     %ymm13,%ymm14,%ymm11,%ymm11
+  196,98,125,24,112,240,                  //vbroadcastss  -0x10(%rax),%ymm14
+  196,67,53,74,206,208,                   //vblendvps     %ymm13,%ymm14,%ymm9,%ymm9
+  196,98,125,24,112,244,                  //vbroadcastss  -0xc(%rax),%ymm14
+  196,67,61,74,198,208,                   //vblendvps     %ymm13,%ymm14,%ymm8,%ymm8
+  196,98,125,24,112,248,                  //vbroadcastss  -0x8(%rax),%ymm14
+  196,195,117,74,206,208,                 //vblendvps     %ymm13,%ymm14,%ymm1,%ymm1
+  196,98,125,24,112,252,                  //vbroadcastss  -0x4(%rax),%ymm14
+  196,195,109,74,214,208,                 //vblendvps     %ymm13,%ymm14,%ymm2,%ymm2
+  196,98,125,24,48,                       //vbroadcastss  (%rax),%ymm14
+  196,195,101,74,222,208,                 //vblendvps     %ymm13,%ymm14,%ymm3,%ymm3
+  72,131,192,36,                          //add           $0x24,%rax
+  73,255,200,                             //dec           %r8
+  117,140,                                //jne           1af6 <_sk_linear_gradient_few_stops_avx+0xcf>
+  235,20,                                 //jmp           1b80 <_sk_linear_gradient_few_stops_avx+0x159>
+  196,65,44,87,210,                       //vxorps        %ymm10,%ymm10,%ymm10
+  196,65,36,87,219,                       //vxorps        %ymm11,%ymm11,%ymm11
+  196,65,52,87,201,                       //vxorps        %ymm9,%ymm9,%ymm9
+  196,65,28,87,228,                       //vxorps        %ymm12,%ymm12,%ymm12
+  197,28,89,224,                          //vmulps        %ymm0,%ymm12,%ymm12
+  196,65,60,88,196,                       //vaddps        %ymm12,%ymm8,%ymm8
+  197,44,89,208,                          //vmulps        %ymm0,%ymm10,%ymm10
+  197,172,88,201,                         //vaddps        %ymm1,%ymm10,%ymm1
+  197,36,89,208,                          //vmulps        %ymm0,%ymm11,%ymm10
+  197,172,88,210,                         //vaddps        %ymm2,%ymm10,%ymm2
+  197,180,89,192,                         //vmulps        %ymm0,%ymm9,%ymm0
+  197,252,88,219,                         //vaddps        %ymm3,%ymm0,%ymm3
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  197,124,41,192,                         //vmovaps       %ymm8,%ymm0
+  72,129,196,248,0,0,0,                   //add           $0xf8,%rsp
+  255,224,                                //jmpq          *%rax
+  15,11,                                  //ud2
+};
+
 CODE const uint8_t sk_start_pipeline_sse41[] = {
   65,87,                                  //push          %r15
   65,86,                                  //push          %r14
@@ -6275,6 +6630,108 @@ CODE const uint8_t sk_linear_gradient_2stops_sse41[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   65,15,40,192,                           //movaps        %xmm8,%xmm0
   255,224,                                //jmpq          *%rax
+};
+
+CODE const uint8_t sk_linear_gradient_few_stops_sse41[] = {
+  65,87,                                  //push          %r15
+  65,86,                                  //push          %r14
+  65,84,                                  //push          %r12
+  83,                                     //push          %rbx
+  72,129,236,72,1,0,0,                    //sub           $0x148,%rsp
+  15,41,124,36,64,                        //movaps        %xmm7,0x40(%rsp)
+  15,41,116,36,48,                        //movaps        %xmm6,0x30(%rsp)
+  15,41,108,36,32,                        //movaps        %xmm5,0x20(%rsp)
+  15,41,100,36,16,                        //movaps        %xmm4,0x10(%rsp)
+  15,41,4,36,                             //movaps        %xmm0,(%rsp)
+  73,137,214,                             //mov           %rdx,%r14
+  73,137,255,                             //mov           %rdi,%r15
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  73,137,244,                             //mov           %rsi,%r12
+  72,141,92,36,80,                        //lea           0x50(%rsp),%rbx
+  186,240,0,0,0,                          //mov           $0xf0,%edx
+  72,137,223,                             //mov           %rbx,%rdi
+  72,137,198,                             //mov           %rax,%rsi
+  232,0,0,0,0,                            //callq         10c4 <_sk_linear_gradient_few_stops_sse41+0x46>
+  72,139,3,                               //mov           (%rbx),%rax
+  72,131,248,3,                           //cmp           $0x3,%rax
+  15,131,58,1,0,0,                        //jae           120b <_sk_linear_gradient_few_stops_sse41+0x18d>
+  15,40,188,36,48,1,0,0,                  //movaps        0x130(%rsp),%xmm7
+  68,15,40,199,                           //movaps        %xmm7,%xmm8
+  69,15,198,192,255,                      //shufps        $0xff,%xmm8,%xmm8
+  68,15,40,207,                           //movaps        %xmm7,%xmm9
+  69,15,198,201,170,                      //shufps        $0xaa,%xmm9,%xmm9
+  68,15,40,215,                           //movaps        %xmm7,%xmm10
+  69,15,198,210,85,                       //shufps        $0x55,%xmm10,%xmm10
+  15,198,255,0,                           //shufps        $0x0,%xmm7,%xmm7
+  72,133,192,                             //test          %rax,%rax
+  15,132,168,0,0,0,                       //je            11a9 <_sk_linear_gradient_few_stops_sse41+0x12b>
+  72,141,76,36,120,                       //lea           0x78(%rsp),%rcx
+  15,87,228,                              //xorps         %xmm4,%xmm4
+  15,87,219,                              //xorps         %xmm3,%xmm3
+  15,87,210,                              //xorps         %xmm2,%xmm2
+  15,87,201,                              //xorps         %xmm1,%xmm1
+  68,15,40,28,36,                         //movaps        (%rsp),%xmm11
+  243,15,16,113,224,                      //movss         -0x20(%rcx),%xmm6
+  243,15,16,105,228,                      //movss         -0x1c(%rcx),%xmm5
+  15,198,246,0,                           //shufps        $0x0,%xmm6,%xmm6
+  65,15,40,195,                           //movaps        %xmm11,%xmm0
+  15,194,198,2,                           //cmpleps       %xmm6,%xmm0
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,229,                       //blendvps      %xmm0,%xmm5,%xmm4
+  243,15,16,105,232,                      //movss         -0x18(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,205,                       //blendvps      %xmm0,%xmm5,%xmm1
+  243,15,16,105,236,                      //movss         -0x14(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,213,                       //blendvps      %xmm0,%xmm5,%xmm2
+  243,15,16,105,240,                      //movss         -0x10(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,221,                       //blendvps      %xmm0,%xmm5,%xmm3
+  243,15,16,105,244,                      //movss         -0xc(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,253,                       //blendvps      %xmm0,%xmm5,%xmm7
+  243,15,16,105,248,                      //movss         -0x8(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,68,15,56,20,213,                    //blendvps      %xmm0,%xmm5,%xmm10
+  243,15,16,105,252,                      //movss         -0x4(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,68,15,56,20,205,                    //blendvps      %xmm0,%xmm5,%xmm9
+  243,15,16,41,                           //movss         (%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,68,15,56,20,197,                    //blendvps      %xmm0,%xmm5,%xmm8
+  72,131,193,36,                          //add           $0x24,%rcx
+  72,255,200,                             //dec           %rax
+  15,133,112,255,255,255,                 //jne           1117 <_sk_linear_gradient_few_stops_sse41+0x99>
+  235,17,                                 //jmp           11ba <_sk_linear_gradient_few_stops_sse41+0x13c>
+  15,87,201,                              //xorps         %xmm1,%xmm1
+  15,87,210,                              //xorps         %xmm2,%xmm2
+  15,87,219,                              //xorps         %xmm3,%xmm3
+  15,87,228,                              //xorps         %xmm4,%xmm4
+  68,15,40,28,36,                         //movaps        (%rsp),%xmm11
+  65,15,89,227,                           //mulps         %xmm11,%xmm4
+  15,88,231,                              //addps         %xmm7,%xmm4
+  65,15,89,203,                           //mulps         %xmm11,%xmm1
+  65,15,88,202,                           //addps         %xmm10,%xmm1
+  65,15,89,211,                           //mulps         %xmm11,%xmm2
+  65,15,88,209,                           //addps         %xmm9,%xmm2
+  65,15,89,219,                           //mulps         %xmm11,%xmm3
+  65,15,88,216,                           //addps         %xmm8,%xmm3
+  76,137,230,                             //mov           %r12,%rsi
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  76,137,255,                             //mov           %r15,%rdi
+  76,137,242,                             //mov           %r14,%rdx
+  15,40,196,                              //movaps        %xmm4,%xmm0
+  15,40,100,36,16,                        //movaps        0x10(%rsp),%xmm4
+  15,40,108,36,32,                        //movaps        0x20(%rsp),%xmm5
+  15,40,116,36,48,                        //movaps        0x30(%rsp),%xmm6
+  15,40,124,36,64,                        //movaps        0x40(%rsp),%xmm7
+  72,129,196,72,1,0,0,                    //add           $0x148,%rsp
+  91,                                     //pop           %rbx
+  65,92,                                  //pop           %r12
+  65,94,                                  //pop           %r14
+  65,95,                                  //pop           %r15
+  255,224,                                //jmpq          *%rax
+  15,11,                                  //ud2
 };
 
 CODE const uint8_t sk_start_pipeline_sse2[] = {
@@ -7504,6 +7961,131 @@ CODE const uint8_t sk_linear_gradient_2stops_sse2[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   65,15,40,192,                           //movaps        %xmm8,%xmm0
   255,224,                                //jmpq          *%rax
+};
+
+CODE const uint8_t sk_linear_gradient_few_stops_sse2[] = {
+  65,87,                                  //push          %r15
+  65,86,                                  //push          %r14
+  65,84,                                  //push          %r12
+  83,                                     //push          %rbx
+  72,129,236,72,1,0,0,                    //sub           $0x148,%rsp
+  15,41,124,36,64,                        //movaps        %xmm7,0x40(%rsp)
+  15,41,116,36,48,                        //movaps        %xmm6,0x30(%rsp)
+  15,41,108,36,32,                        //movaps        %xmm5,0x20(%rsp)
+  15,41,100,36,16,                        //movaps        %xmm4,0x10(%rsp)
+  15,41,4,36,                             //movaps        %xmm0,(%rsp)
+  73,137,214,                             //mov           %rdx,%r14
+  73,137,255,                             //mov           %rdi,%r15
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  73,137,244,                             //mov           %rsi,%r12
+  72,141,92,36,80,                        //lea           0x50(%rsp),%rbx
+  186,240,0,0,0,                          //mov           $0xf0,%edx
+  72,137,223,                             //mov           %rbx,%rdi
+  72,137,198,                             //mov           %rax,%rsi
+  232,0,0,0,0,                            //callq         1179 <_sk_linear_gradient_few_stops_sse2+0x46>
+  72,139,3,                               //mov           (%rbx),%rax
+  72,131,248,3,                           //cmp           $0x3,%rax
+  15,131,113,1,0,0,                       //jae           12f7 <_sk_linear_gradient_few_stops_sse2+0x1c4>
+  15,40,180,36,48,1,0,0,                  //movaps        0x130(%rsp),%xmm6
+  68,15,40,198,                           //movaps        %xmm6,%xmm8
+  69,15,198,192,255,                      //shufps        $0xff,%xmm8,%xmm8
+  68,15,40,206,                           //movaps        %xmm6,%xmm9
+  69,15,198,201,170,                      //shufps        $0xaa,%xmm9,%xmm9
+  15,40,254,                              //movaps        %xmm6,%xmm7
+  15,198,255,85,                          //shufps        $0x55,%xmm7,%xmm7
+  15,198,246,0,                           //shufps        $0x0,%xmm6,%xmm6
+  72,133,192,                             //test          %rax,%rax
+  15,132,229,0,0,0,                       //je            1299 <_sk_linear_gradient_few_stops_sse2+0x166>
+  72,141,76,36,120,                       //lea           0x78(%rsp),%rcx
+  15,87,192,                              //xorps         %xmm0,%xmm0
+  15,87,219,                              //xorps         %xmm3,%xmm3
+  15,87,210,                              //xorps         %xmm2,%xmm2
+  15,87,201,                              //xorps         %xmm1,%xmm1
+  68,15,40,20,36,                         //movaps        (%rsp),%xmm10
+  243,15,16,105,224,                      //movss         -0x20(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  65,15,40,226,                           //movaps        %xmm10,%xmm4
+  15,194,229,2,                           //cmpleps       %xmm5,%xmm4
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,232,                              //andnps        %xmm0,%xmm5
+  243,15,16,65,228,                       //movss         -0x1c(%rcx),%xmm0
+  15,198,192,0,                           //shufps        $0x0,%xmm0,%xmm0
+  15,84,196,                              //andps         %xmm4,%xmm0
+  15,86,197,                              //orps          %xmm5,%xmm0
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,233,                              //andnps        %xmm1,%xmm5
+  243,15,16,73,232,                       //movss         -0x18(%rcx),%xmm1
+  15,198,201,0,                           //shufps        $0x0,%xmm1,%xmm1
+  15,84,204,                              //andps         %xmm4,%xmm1
+  15,86,205,                              //orps          %xmm5,%xmm1
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,234,                              //andnps        %xmm2,%xmm5
+  243,15,16,81,236,                       //movss         -0x14(%rcx),%xmm2
+  15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
+  15,84,212,                              //andps         %xmm4,%xmm2
+  15,86,213,                              //orps          %xmm5,%xmm2
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,235,                              //andnps        %xmm3,%xmm5
+  243,15,16,89,240,                       //movss         -0x10(%rcx),%xmm3
+  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
+  15,84,220,                              //andps         %xmm4,%xmm3
+  15,86,221,                              //orps          %xmm5,%xmm3
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,238,                              //andnps        %xmm6,%xmm5
+  243,15,16,113,244,                      //movss         -0xc(%rcx),%xmm6
+  15,198,246,0,                           //shufps        $0x0,%xmm6,%xmm6
+  15,84,244,                              //andps         %xmm4,%xmm6
+  15,86,245,                              //orps          %xmm5,%xmm6
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,239,                              //andnps        %xmm7,%xmm5
+  243,15,16,121,248,                      //movss         -0x8(%rcx),%xmm7
+  15,198,255,0,                           //shufps        $0x0,%xmm7,%xmm7
+  15,84,252,                              //andps         %xmm4,%xmm7
+  15,86,253,                              //orps          %xmm5,%xmm7
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  65,15,85,233,                           //andnps        %xmm9,%xmm5
+  243,68,15,16,73,252,                    //movss         -0x4(%rcx),%xmm9
+  69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
+  68,15,84,204,                           //andps         %xmm4,%xmm9
+  68,15,86,205,                           //orps          %xmm5,%xmm9
+  243,15,16,41,                           //movss         (%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  15,84,236,                              //andps         %xmm4,%xmm5
+  65,15,85,224,                           //andnps        %xmm8,%xmm4
+  68,15,40,196,                           //movaps        %xmm4,%xmm8
+  68,15,86,197,                           //orps          %xmm5,%xmm8
+  72,131,193,36,                          //add           $0x24,%rcx
+  72,255,200,                             //dec           %rax
+  15,133,51,255,255,255,                  //jne           11ca <_sk_linear_gradient_few_stops_sse2+0x97>
+  235,17,                                 //jmp           12aa <_sk_linear_gradient_few_stops_sse2+0x177>
+  15,87,201,                              //xorps         %xmm1,%xmm1
+  15,87,210,                              //xorps         %xmm2,%xmm2
+  15,87,219,                              //xorps         %xmm3,%xmm3
+  15,87,192,                              //xorps         %xmm0,%xmm0
+  68,15,40,20,36,                         //movaps        (%rsp),%xmm10
+  65,15,89,194,                           //mulps         %xmm10,%xmm0
+  15,88,198,                              //addps         %xmm6,%xmm0
+  65,15,89,202,                           //mulps         %xmm10,%xmm1
+  15,88,207,                              //addps         %xmm7,%xmm1
+  65,15,89,210,                           //mulps         %xmm10,%xmm2
+  65,15,88,209,                           //addps         %xmm9,%xmm2
+  65,15,89,218,                           //mulps         %xmm10,%xmm3
+  65,15,88,216,                           //addps         %xmm8,%xmm3
+  76,137,230,                             //mov           %r12,%rsi
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  76,137,255,                             //mov           %r15,%rdi
+  76,137,242,                             //mov           %r14,%rdx
+  15,40,100,36,16,                        //movaps        0x10(%rsp),%xmm4
+  15,40,108,36,32,                        //movaps        0x20(%rsp),%xmm5
+  15,40,116,36,48,                        //movaps        0x30(%rsp),%xmm6
+  15,40,124,36,64,                        //movaps        0x40(%rsp),%xmm7
+  72,129,196,72,1,0,0,                    //add           $0x148,%rsp
+  91,                                     //pop           %rbx
+  65,92,                                  //pop           %r12
+  65,94,                                  //pop           %r14
+  65,95,                                  //pop           %r15
+  255,224,                                //jmpq          *%rax
+  15,11,                                  //ud2
 };
 #elif defined(_M_X64)
 
@@ -8829,6 +9411,76 @@ CODE const uint8_t sk_linear_gradient_2stops_hsw[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   197,124,41,192,                         //vmovaps       %ymm8,%ymm0
   255,224,                                //jmpq          *%rax
+};
+
+CODE const uint8_t sk_linear_gradient_few_stops_hsw[] = {
+  72,129,236,248,0,0,0,                   //sub           $0xf8,%rsp
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  197,252,16,136,208,0,0,0,               //vmovups       0xd0(%rax),%ymm1
+  197,252,17,140,36,208,0,0,0,            //vmovups       %ymm1,0xd0(%rsp)
+  197,252,16,136,192,0,0,0,               //vmovups       0xc0(%rax),%ymm1
+  197,252,17,140,36,192,0,0,0,            //vmovups       %ymm1,0xc0(%rsp)
+  197,252,16,136,160,0,0,0,               //vmovups       0xa0(%rax),%ymm1
+  197,252,17,140,36,160,0,0,0,            //vmovups       %ymm1,0xa0(%rsp)
+  197,252,16,136,128,0,0,0,               //vmovups       0x80(%rax),%ymm1
+  197,252,17,140,36,128,0,0,0,            //vmovups       %ymm1,0x80(%rsp)
+  197,252,16,8,                           //vmovups       (%rax),%ymm1
+  197,252,16,80,32,                       //vmovups       0x20(%rax),%ymm2
+  197,252,16,88,64,                       //vmovups       0x40(%rax),%ymm3
+  197,124,16,64,96,                       //vmovups       0x60(%rax),%ymm8
+  197,124,17,68,36,96,                    //vmovups       %ymm8,0x60(%rsp)
+  197,252,17,92,36,64,                    //vmovups       %ymm3,0x40(%rsp)
+  197,252,17,84,36,32,                    //vmovups       %ymm2,0x20(%rsp)
+  197,252,17,12,36,                       //vmovups       %ymm1,(%rsp)
+  76,139,4,36,                            //mov           (%rsp),%r8
+  73,131,248,3,                           //cmp           $0x3,%r8
+  15,131,241,0,0,0,                       //jae           1433 <_sk_linear_gradient_few_stops_hsw+0x176>
+  196,98,125,24,140,36,236,0,0,0,         //vbroadcastss  0xec(%rsp),%ymm9
+  196,98,125,24,148,36,232,0,0,0,         //vbroadcastss  0xe8(%rsp),%ymm10
+  196,98,125,24,156,36,228,0,0,0,         //vbroadcastss  0xe4(%rsp),%ymm11
+  196,98,125,24,132,36,224,0,0,0,         //vbroadcastss  0xe0(%rsp),%ymm8
+  77,133,192,                             //test          %r8,%r8
+  15,132,140,0,0,0,                       //je            13ff <_sk_linear_gradient_few_stops_hsw+0x142>
+  72,141,68,36,40,                        //lea           0x28(%rsp),%rax
+  196,65,28,87,228,                       //vxorps        %ymm12,%ymm12,%ymm12
+  197,228,87,219,                         //vxorps        %ymm3,%ymm3,%ymm3
+  197,236,87,210,                         //vxorps        %ymm2,%ymm2,%ymm2
+  197,244,87,201,                         //vxorps        %ymm1,%ymm1,%ymm1
+  196,98,125,24,104,224,                  //vbroadcastss  -0x20(%rax),%ymm13
+  196,65,124,194,237,2,                   //vcmpleps      %ymm13,%ymm0,%ymm13
+  196,98,125,24,112,228,                  //vbroadcastss  -0x1c(%rax),%ymm14
+  196,67,29,74,230,208,                   //vblendvps     %ymm13,%ymm14,%ymm12,%ymm12
+  196,98,125,24,112,232,                  //vbroadcastss  -0x18(%rax),%ymm14
+  196,195,117,74,206,208,                 //vblendvps     %ymm13,%ymm14,%ymm1,%ymm1
+  196,98,125,24,112,236,                  //vbroadcastss  -0x14(%rax),%ymm14
+  196,195,109,74,214,208,                 //vblendvps     %ymm13,%ymm14,%ymm2,%ymm2
+  196,98,125,24,112,240,                  //vbroadcastss  -0x10(%rax),%ymm14
+  196,195,101,74,222,208,                 //vblendvps     %ymm13,%ymm14,%ymm3,%ymm3
+  196,98,125,24,112,244,                  //vbroadcastss  -0xc(%rax),%ymm14
+  196,67,61,74,198,208,                   //vblendvps     %ymm13,%ymm14,%ymm8,%ymm8
+  196,98,125,24,112,248,                  //vbroadcastss  -0x8(%rax),%ymm14
+  196,67,37,74,222,208,                   //vblendvps     %ymm13,%ymm14,%ymm11,%ymm11
+  196,98,125,24,112,252,                  //vbroadcastss  -0x4(%rax),%ymm14
+  196,67,45,74,214,208,                   //vblendvps     %ymm13,%ymm14,%ymm10,%ymm10
+  196,98,125,24,48,                       //vbroadcastss  (%rax),%ymm14
+  196,67,53,74,206,208,                   //vblendvps     %ymm13,%ymm14,%ymm9,%ymm9
+  72,131,192,36,                          //add           $0x24,%rax
+  73,255,200,                             //dec           %r8
+  117,140,                                //jne           1389 <_sk_linear_gradient_few_stops_hsw+0xcc>
+  235,17,                                 //jmp           1410 <_sk_linear_gradient_few_stops_hsw+0x153>
+  197,244,87,201,                         //vxorps        %ymm1,%ymm1,%ymm1
+  197,236,87,210,                         //vxorps        %ymm2,%ymm2,%ymm2
+  197,228,87,219,                         //vxorps        %ymm3,%ymm3,%ymm3
+  196,65,28,87,228,                       //vxorps        %ymm12,%ymm12,%ymm12
+  196,66,125,184,196,                     //vfmadd231ps   %ymm12,%ymm0,%ymm8
+  196,194,125,168,203,                    //vfmadd213ps   %ymm11,%ymm0,%ymm1
+  196,194,125,168,210,                    //vfmadd213ps   %ymm10,%ymm0,%ymm2
+  196,194,125,168,217,                    //vfmadd213ps   %ymm9,%ymm0,%ymm3
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  197,124,41,192,                         //vmovaps       %ymm8,%ymm0
+  72,129,196,248,0,0,0,                   //add           $0xf8,%rsp
+  255,224,                                //jmpq          *%rax
+  15,11,                                  //ud2
 };
 
 CODE const uint8_t sk_start_pipeline_avx[] = {
@@ -10582,6 +11234,80 @@ CODE const uint8_t sk_linear_gradient_2stops_avx[] = {
   255,224,                                //jmpq          *%rax
 };
 
+CODE const uint8_t sk_linear_gradient_few_stops_avx[] = {
+  72,129,236,248,0,0,0,                   //sub           $0xf8,%rsp
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  197,252,16,136,208,0,0,0,               //vmovups       0xd0(%rax),%ymm1
+  197,252,17,140,36,208,0,0,0,            //vmovups       %ymm1,0xd0(%rsp)
+  197,252,16,136,192,0,0,0,               //vmovups       0xc0(%rax),%ymm1
+  197,252,17,140,36,192,0,0,0,            //vmovups       %ymm1,0xc0(%rsp)
+  197,252,16,136,160,0,0,0,               //vmovups       0xa0(%rax),%ymm1
+  197,252,17,140,36,160,0,0,0,            //vmovups       %ymm1,0xa0(%rsp)
+  197,252,16,136,128,0,0,0,               //vmovups       0x80(%rax),%ymm1
+  197,252,17,140,36,128,0,0,0,            //vmovups       %ymm1,0x80(%rsp)
+  197,252,16,8,                           //vmovups       (%rax),%ymm1
+  197,252,16,80,32,                       //vmovups       0x20(%rax),%ymm2
+  197,252,16,88,64,                       //vmovups       0x40(%rax),%ymm3
+  197,124,16,64,96,                       //vmovups       0x60(%rax),%ymm8
+  197,124,17,68,36,96,                    //vmovups       %ymm8,0x60(%rsp)
+  197,252,17,92,36,64,                    //vmovups       %ymm3,0x40(%rsp)
+  197,252,17,84,36,32,                    //vmovups       %ymm2,0x20(%rsp)
+  197,252,17,12,36,                       //vmovups       %ymm1,(%rsp)
+  76,139,4,36,                            //mov           (%rsp),%r8
+  73,131,248,3,                           //cmp           $0x3,%r8
+  15,131,4,1,0,0,                         //jae           1c48 <_sk_linear_gradient_few_stops_avx+0x189>
+  196,226,125,24,156,36,236,0,0,0,        //vbroadcastss  0xec(%rsp),%ymm3
+  196,226,125,24,148,36,232,0,0,0,        //vbroadcastss  0xe8(%rsp),%ymm2
+  196,226,125,24,140,36,228,0,0,0,        //vbroadcastss  0xe4(%rsp),%ymm1
+  196,98,125,24,132,36,224,0,0,0,         //vbroadcastss  0xe0(%rsp),%ymm8
+  77,133,192,                             //test          %r8,%r8
+  15,132,143,0,0,0,                       //je            1c04 <_sk_linear_gradient_few_stops_avx+0x145>
+  72,141,68,36,40,                        //lea           0x28(%rsp),%rax
+  196,65,28,87,228,                       //vxorps        %ymm12,%ymm12,%ymm12
+  196,65,52,87,201,                       //vxorps        %ymm9,%ymm9,%ymm9
+  196,65,36,87,219,                       //vxorps        %ymm11,%ymm11,%ymm11
+  196,65,44,87,210,                       //vxorps        %ymm10,%ymm10,%ymm10
+  196,98,125,24,104,224,                  //vbroadcastss  -0x20(%rax),%ymm13
+  196,65,124,194,237,2,                   //vcmpleps      %ymm13,%ymm0,%ymm13
+  196,98,125,24,112,228,                  //vbroadcastss  -0x1c(%rax),%ymm14
+  196,67,29,74,230,208,                   //vblendvps     %ymm13,%ymm14,%ymm12,%ymm12
+  196,98,125,24,112,232,                  //vbroadcastss  -0x18(%rax),%ymm14
+  196,67,45,74,214,208,                   //vblendvps     %ymm13,%ymm14,%ymm10,%ymm10
+  196,98,125,24,112,236,                  //vbroadcastss  -0x14(%rax),%ymm14
+  196,67,37,74,222,208,                   //vblendvps     %ymm13,%ymm14,%ymm11,%ymm11
+  196,98,125,24,112,240,                  //vbroadcastss  -0x10(%rax),%ymm14
+  196,67,53,74,206,208,                   //vblendvps     %ymm13,%ymm14,%ymm9,%ymm9
+  196,98,125,24,112,244,                  //vbroadcastss  -0xc(%rax),%ymm14
+  196,67,61,74,198,208,                   //vblendvps     %ymm13,%ymm14,%ymm8,%ymm8
+  196,98,125,24,112,248,                  //vbroadcastss  -0x8(%rax),%ymm14
+  196,195,117,74,206,208,                 //vblendvps     %ymm13,%ymm14,%ymm1,%ymm1
+  196,98,125,24,112,252,                  //vbroadcastss  -0x4(%rax),%ymm14
+  196,195,109,74,214,208,                 //vblendvps     %ymm13,%ymm14,%ymm2,%ymm2
+  196,98,125,24,48,                       //vbroadcastss  (%rax),%ymm14
+  196,195,101,74,222,208,                 //vblendvps     %ymm13,%ymm14,%ymm3,%ymm3
+  72,131,192,36,                          //add           $0x24,%rax
+  73,255,200,                             //dec           %r8
+  117,140,                                //jne           1b8e <_sk_linear_gradient_few_stops_avx+0xcf>
+  235,20,                                 //jmp           1c18 <_sk_linear_gradient_few_stops_avx+0x159>
+  196,65,44,87,210,                       //vxorps        %ymm10,%ymm10,%ymm10
+  196,65,36,87,219,                       //vxorps        %ymm11,%ymm11,%ymm11
+  196,65,52,87,201,                       //vxorps        %ymm9,%ymm9,%ymm9
+  196,65,28,87,228,                       //vxorps        %ymm12,%ymm12,%ymm12
+  197,28,89,224,                          //vmulps        %ymm0,%ymm12,%ymm12
+  196,65,60,88,196,                       //vaddps        %ymm12,%ymm8,%ymm8
+  197,44,89,208,                          //vmulps        %ymm0,%ymm10,%ymm10
+  197,172,88,201,                         //vaddps        %ymm1,%ymm10,%ymm1
+  197,36,89,208,                          //vmulps        %ymm0,%ymm11,%ymm10
+  197,172,88,210,                         //vaddps        %ymm2,%ymm10,%ymm2
+  197,180,89,192,                         //vmulps        %ymm0,%ymm9,%ymm0
+  197,252,88,219,                         //vaddps        %ymm3,%ymm0,%ymm3
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  197,124,41,192,                         //vmovaps       %ymm8,%ymm0
+  72,129,196,248,0,0,0,                   //add           $0xf8,%rsp
+  255,224,                                //jmpq          *%rax
+  15,11,                                  //ud2
+};
+
 CODE const uint8_t sk_start_pipeline_sse41[] = {
   65,87,                                  //push          %r15
   65,86,                                  //push          %r14
@@ -11792,6 +12518,108 @@ CODE const uint8_t sk_linear_gradient_2stops_sse41[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   65,15,40,192,                           //movaps        %xmm8,%xmm0
   255,224,                                //jmpq          *%rax
+};
+
+CODE const uint8_t sk_linear_gradient_few_stops_sse41[] = {
+  65,87,                                  //push          %r15
+  65,86,                                  //push          %r14
+  65,84,                                  //push          %r12
+  83,                                     //push          %rbx
+  72,129,236,72,1,0,0,                    //sub           $0x148,%rsp
+  15,41,124,36,64,                        //movaps        %xmm7,0x40(%rsp)
+  15,41,116,36,48,                        //movaps        %xmm6,0x30(%rsp)
+  15,41,108,36,32,                        //movaps        %xmm5,0x20(%rsp)
+  15,41,100,36,16,                        //movaps        %xmm4,0x10(%rsp)
+  15,41,4,36,                             //movaps        %xmm0,(%rsp)
+  73,137,214,                             //mov           %rdx,%r14
+  73,137,255,                             //mov           %rdi,%r15
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  73,137,244,                             //mov           %rsi,%r12
+  72,141,92,36,80,                        //lea           0x50(%rsp),%rbx
+  186,240,0,0,0,                          //mov           $0xf0,%edx
+  72,137,223,                             //mov           %rbx,%rdi
+  72,137,198,                             //mov           %rax,%rsi
+  232,0,0,0,0,                            //callq         1157 <_sk_linear_gradient_few_stops_sse41+0x46>
+  72,139,3,                               //mov           (%rbx),%rax
+  72,131,248,3,                           //cmp           $0x3,%rax
+  15,131,58,1,0,0,                        //jae           129e <_sk_linear_gradient_few_stops_sse41+0x18d>
+  15,40,188,36,48,1,0,0,                  //movaps        0x130(%rsp),%xmm7
+  68,15,40,199,                           //movaps        %xmm7,%xmm8
+  69,15,198,192,255,                      //shufps        $0xff,%xmm8,%xmm8
+  68,15,40,207,                           //movaps        %xmm7,%xmm9
+  69,15,198,201,170,                      //shufps        $0xaa,%xmm9,%xmm9
+  68,15,40,215,                           //movaps        %xmm7,%xmm10
+  69,15,198,210,85,                       //shufps        $0x55,%xmm10,%xmm10
+  15,198,255,0,                           //shufps        $0x0,%xmm7,%xmm7
+  72,133,192,                             //test          %rax,%rax
+  15,132,168,0,0,0,                       //je            123c <_sk_linear_gradient_few_stops_sse41+0x12b>
+  72,141,76,36,120,                       //lea           0x78(%rsp),%rcx
+  15,87,228,                              //xorps         %xmm4,%xmm4
+  15,87,219,                              //xorps         %xmm3,%xmm3
+  15,87,210,                              //xorps         %xmm2,%xmm2
+  15,87,201,                              //xorps         %xmm1,%xmm1
+  68,15,40,28,36,                         //movaps        (%rsp),%xmm11
+  243,15,16,113,224,                      //movss         -0x20(%rcx),%xmm6
+  243,15,16,105,228,                      //movss         -0x1c(%rcx),%xmm5
+  15,198,246,0,                           //shufps        $0x0,%xmm6,%xmm6
+  65,15,40,195,                           //movaps        %xmm11,%xmm0
+  15,194,198,2,                           //cmpleps       %xmm6,%xmm0
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,229,                       //blendvps      %xmm0,%xmm5,%xmm4
+  243,15,16,105,232,                      //movss         -0x18(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,205,                       //blendvps      %xmm0,%xmm5,%xmm1
+  243,15,16,105,236,                      //movss         -0x14(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,213,                       //blendvps      %xmm0,%xmm5,%xmm2
+  243,15,16,105,240,                      //movss         -0x10(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,221,                       //blendvps      %xmm0,%xmm5,%xmm3
+  243,15,16,105,244,                      //movss         -0xc(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,15,56,20,253,                       //blendvps      %xmm0,%xmm5,%xmm7
+  243,15,16,105,248,                      //movss         -0x8(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,68,15,56,20,213,                    //blendvps      %xmm0,%xmm5,%xmm10
+  243,15,16,105,252,                      //movss         -0x4(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,68,15,56,20,205,                    //blendvps      %xmm0,%xmm5,%xmm9
+  243,15,16,41,                           //movss         (%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  102,68,15,56,20,197,                    //blendvps      %xmm0,%xmm5,%xmm8
+  72,131,193,36,                          //add           $0x24,%rcx
+  72,255,200,                             //dec           %rax
+  15,133,112,255,255,255,                 //jne           11aa <_sk_linear_gradient_few_stops_sse41+0x99>
+  235,17,                                 //jmp           124d <_sk_linear_gradient_few_stops_sse41+0x13c>
+  15,87,201,                              //xorps         %xmm1,%xmm1
+  15,87,210,                              //xorps         %xmm2,%xmm2
+  15,87,219,                              //xorps         %xmm3,%xmm3
+  15,87,228,                              //xorps         %xmm4,%xmm4
+  68,15,40,28,36,                         //movaps        (%rsp),%xmm11
+  65,15,89,227,                           //mulps         %xmm11,%xmm4
+  15,88,231,                              //addps         %xmm7,%xmm4
+  65,15,89,203,                           //mulps         %xmm11,%xmm1
+  65,15,88,202,                           //addps         %xmm10,%xmm1
+  65,15,89,211,                           //mulps         %xmm11,%xmm2
+  65,15,88,209,                           //addps         %xmm9,%xmm2
+  65,15,89,219,                           //mulps         %xmm11,%xmm3
+  65,15,88,216,                           //addps         %xmm8,%xmm3
+  76,137,230,                             //mov           %r12,%rsi
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  76,137,255,                             //mov           %r15,%rdi
+  76,137,242,                             //mov           %r14,%rdx
+  15,40,196,                              //movaps        %xmm4,%xmm0
+  15,40,100,36,16,                        //movaps        0x10(%rsp),%xmm4
+  15,40,108,36,32,                        //movaps        0x20(%rsp),%xmm5
+  15,40,116,36,48,                        //movaps        0x30(%rsp),%xmm6
+  15,40,124,36,64,                        //movaps        0x40(%rsp),%xmm7
+  72,129,196,72,1,0,0,                    //add           $0x148,%rsp
+  91,                                     //pop           %rbx
+  65,92,                                  //pop           %r12
+  65,94,                                  //pop           %r14
+  65,95,                                  //pop           %r15
+  255,224,                                //jmpq          *%rax
+  15,11,                                  //ud2
 };
 
 CODE const uint8_t sk_start_pipeline_sse2[] = {
@@ -13048,5 +13876,130 @@ CODE const uint8_t sk_linear_gradient_2stops_sse2[] = {
   72,173,                                 //lods          %ds:(%rsi),%rax
   65,15,40,192,                           //movaps        %xmm8,%xmm0
   255,224,                                //jmpq          *%rax
+};
+
+CODE const uint8_t sk_linear_gradient_few_stops_sse2[] = {
+  65,87,                                  //push          %r15
+  65,86,                                  //push          %r14
+  65,84,                                  //push          %r12
+  83,                                     //push          %rbx
+  72,129,236,72,1,0,0,                    //sub           $0x148,%rsp
+  15,41,124,36,64,                        //movaps        %xmm7,0x40(%rsp)
+  15,41,116,36,48,                        //movaps        %xmm6,0x30(%rsp)
+  15,41,108,36,32,                        //movaps        %xmm5,0x20(%rsp)
+  15,41,100,36,16,                        //movaps        %xmm4,0x10(%rsp)
+  15,41,4,36,                             //movaps        %xmm0,(%rsp)
+  73,137,214,                             //mov           %rdx,%r14
+  73,137,255,                             //mov           %rdi,%r15
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  73,137,244,                             //mov           %rsi,%r12
+  72,141,92,36,80,                        //lea           0x50(%rsp),%rbx
+  186,240,0,0,0,                          //mov           $0xf0,%edx
+  72,137,223,                             //mov           %rbx,%rdi
+  72,137,198,                             //mov           %rax,%rsi
+  232,0,0,0,0,                            //callq         120c <_sk_linear_gradient_few_stops_sse2+0x46>
+  72,139,3,                               //mov           (%rbx),%rax
+  72,131,248,3,                           //cmp           $0x3,%rax
+  15,131,113,1,0,0,                       //jae           138a <_sk_linear_gradient_few_stops_sse2+0x1c4>
+  15,40,180,36,48,1,0,0,                  //movaps        0x130(%rsp),%xmm6
+  68,15,40,198,                           //movaps        %xmm6,%xmm8
+  69,15,198,192,255,                      //shufps        $0xff,%xmm8,%xmm8
+  68,15,40,206,                           //movaps        %xmm6,%xmm9
+  69,15,198,201,170,                      //shufps        $0xaa,%xmm9,%xmm9
+  15,40,254,                              //movaps        %xmm6,%xmm7
+  15,198,255,85,                          //shufps        $0x55,%xmm7,%xmm7
+  15,198,246,0,                           //shufps        $0x0,%xmm6,%xmm6
+  72,133,192,                             //test          %rax,%rax
+  15,132,229,0,0,0,                       //je            132c <_sk_linear_gradient_few_stops_sse2+0x166>
+  72,141,76,36,120,                       //lea           0x78(%rsp),%rcx
+  15,87,192,                              //xorps         %xmm0,%xmm0
+  15,87,219,                              //xorps         %xmm3,%xmm3
+  15,87,210,                              //xorps         %xmm2,%xmm2
+  15,87,201,                              //xorps         %xmm1,%xmm1
+  68,15,40,20,36,                         //movaps        (%rsp),%xmm10
+  243,15,16,105,224,                      //movss         -0x20(%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  65,15,40,226,                           //movaps        %xmm10,%xmm4
+  15,194,229,2,                           //cmpleps       %xmm5,%xmm4
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,232,                              //andnps        %xmm0,%xmm5
+  243,15,16,65,228,                       //movss         -0x1c(%rcx),%xmm0
+  15,198,192,0,                           //shufps        $0x0,%xmm0,%xmm0
+  15,84,196,                              //andps         %xmm4,%xmm0
+  15,86,197,                              //orps          %xmm5,%xmm0
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,233,                              //andnps        %xmm1,%xmm5
+  243,15,16,73,232,                       //movss         -0x18(%rcx),%xmm1
+  15,198,201,0,                           //shufps        $0x0,%xmm1,%xmm1
+  15,84,204,                              //andps         %xmm4,%xmm1
+  15,86,205,                              //orps          %xmm5,%xmm1
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,234,                              //andnps        %xmm2,%xmm5
+  243,15,16,81,236,                       //movss         -0x14(%rcx),%xmm2
+  15,198,210,0,                           //shufps        $0x0,%xmm2,%xmm2
+  15,84,212,                              //andps         %xmm4,%xmm2
+  15,86,213,                              //orps          %xmm5,%xmm2
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,235,                              //andnps        %xmm3,%xmm5
+  243,15,16,89,240,                       //movss         -0x10(%rcx),%xmm3
+  15,198,219,0,                           //shufps        $0x0,%xmm3,%xmm3
+  15,84,220,                              //andps         %xmm4,%xmm3
+  15,86,221,                              //orps          %xmm5,%xmm3
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,238,                              //andnps        %xmm6,%xmm5
+  243,15,16,113,244,                      //movss         -0xc(%rcx),%xmm6
+  15,198,246,0,                           //shufps        $0x0,%xmm6,%xmm6
+  15,84,244,                              //andps         %xmm4,%xmm6
+  15,86,245,                              //orps          %xmm5,%xmm6
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  15,85,239,                              //andnps        %xmm7,%xmm5
+  243,15,16,121,248,                      //movss         -0x8(%rcx),%xmm7
+  15,198,255,0,                           //shufps        $0x0,%xmm7,%xmm7
+  15,84,252,                              //andps         %xmm4,%xmm7
+  15,86,253,                              //orps          %xmm5,%xmm7
+  15,40,236,                              //movaps        %xmm4,%xmm5
+  65,15,85,233,                           //andnps        %xmm9,%xmm5
+  243,68,15,16,73,252,                    //movss         -0x4(%rcx),%xmm9
+  69,15,198,201,0,                        //shufps        $0x0,%xmm9,%xmm9
+  68,15,84,204,                           //andps         %xmm4,%xmm9
+  68,15,86,205,                           //orps          %xmm5,%xmm9
+  243,15,16,41,                           //movss         (%rcx),%xmm5
+  15,198,237,0,                           //shufps        $0x0,%xmm5,%xmm5
+  15,84,236,                              //andps         %xmm4,%xmm5
+  65,15,85,224,                           //andnps        %xmm8,%xmm4
+  68,15,40,196,                           //movaps        %xmm4,%xmm8
+  68,15,86,197,                           //orps          %xmm5,%xmm8
+  72,131,193,36,                          //add           $0x24,%rcx
+  72,255,200,                             //dec           %rax
+  15,133,51,255,255,255,                  //jne           125d <_sk_linear_gradient_few_stops_sse2+0x97>
+  235,17,                                 //jmp           133d <_sk_linear_gradient_few_stops_sse2+0x177>
+  15,87,201,                              //xorps         %xmm1,%xmm1
+  15,87,210,                              //xorps         %xmm2,%xmm2
+  15,87,219,                              //xorps         %xmm3,%xmm3
+  15,87,192,                              //xorps         %xmm0,%xmm0
+  68,15,40,20,36,                         //movaps        (%rsp),%xmm10
+  65,15,89,194,                           //mulps         %xmm10,%xmm0
+  15,88,198,                              //addps         %xmm6,%xmm0
+  65,15,89,202,                           //mulps         %xmm10,%xmm1
+  15,88,207,                              //addps         %xmm7,%xmm1
+  65,15,89,210,                           //mulps         %xmm10,%xmm2
+  65,15,88,209,                           //addps         %xmm9,%xmm2
+  65,15,89,218,                           //mulps         %xmm10,%xmm3
+  65,15,88,216,                           //addps         %xmm8,%xmm3
+  76,137,230,                             //mov           %r12,%rsi
+  72,173,                                 //lods          %ds:(%rsi),%rax
+  76,137,255,                             //mov           %r15,%rdi
+  76,137,242,                             //mov           %r14,%rdx
+  15,40,100,36,16,                        //movaps        0x10(%rsp),%xmm4
+  15,40,108,36,32,                        //movaps        0x20(%rsp),%xmm5
+  15,40,116,36,48,                        //movaps        0x30(%rsp),%xmm6
+  15,40,124,36,64,                        //movaps        0x40(%rsp),%xmm7
+  72,129,196,72,1,0,0,                    //add           $0x148,%rsp
+  91,                                     //pop           %rbx
+  65,92,                                  //pop           %r12
+  65,94,                                  //pop           %r14
+  65,95,                                  //pop           %r15
+  255,224,                                //jmpq          *%rax
+  15,11,                                  //ud2
 };
 #endif

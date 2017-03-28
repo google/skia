@@ -8,6 +8,8 @@
 #include "SkJumper.h"
 #include <string.h>
 
+#include <stdio.h>
+
 #define SI static inline
 
 template <typename T, typename P>
@@ -1144,4 +1146,40 @@ STAGE(linear_gradient_2stops) {
     g = mad(t, c.dc[1], c.c0[1]);
     b = mad(t, c.dc[2], c.c0[2]);
     a = mad(t, c.dc[3], c.c0[3]);
+}
+
+STAGE(linear_gradient_few_stops) {
+    constexpr size_t N = 6;
+    struct stop { float pos, f[4], b[4]; };
+    struct Ctx { size_t n; stop stops[N]; float start[4]; };
+
+    auto c = ctx.load<Ctx>();
+    //printf("c.n %zu\n", c.n);
+    F fr = 0;
+    F br = c.start[0];
+    F fg = 0;
+    F bg = c.start[1];
+    F fb = 0;
+    F bb = c.start[2];
+    F fa = 0;
+    F ba = c.start[3];
+    auto t = r;
+    //if (c.n > 2) {
+    //    __builtin_trap();
+    //}
+    for (size_t i = 0; i < c.n; i++) {
+        fr = if_then_else(t <= c.stops[i].pos, c.stops[i].f[0], fr);
+        fg = if_then_else(t <= c.stops[i].pos, c.stops[i].f[1], fg);
+        fb = if_then_else(t <= c.stops[i].pos, c.stops[i].f[2], fb);
+        fa = if_then_else(t <= c.stops[i].pos, c.stops[i].f[3], fa);
+        br = if_then_else(t <= c.stops[i].pos, c.stops[i].b[0], br);
+        bg = if_then_else(t <= c.stops[i].pos, c.stops[i].b[1], bg);
+        bb = if_then_else(t <= c.stops[i].pos, c.stops[i].b[2], bb);
+        ba = if_then_else(t <= c.stops[i].pos, c.stops[i].b[3], ba);
+    }
+
+    r = mad(t, fr, br);
+    g = mad(t, fg, bg);
+    b = mad(t, fb, bb);
+    a = mad(t, fa, ba);
 }
