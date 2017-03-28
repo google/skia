@@ -369,9 +369,7 @@
       "_",
       "image",
       "_",
-      ".SRW",
-      "--match",
-      "~GPUMemorySize"
+      ".SRW"
     ],
     "env": {
       "BUILDTYPE": "Debug_x64",
