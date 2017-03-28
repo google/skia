@@ -52,37 +52,32 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     bool isHWAA = kHWAntialias_Flag & args.fFlags;
 
     // Create XferProcessor from DS's XPFactory
-    bool hasMixedSamples = args.fRenderTarget->isMixedSampled() && (isHWAA || isStencilEnabled());
-    const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
-    sk_sp<GrXferProcessor> xferProcessor;
-    if (xpFactory) {
-        xferProcessor.reset(xpFactory->createXferProcessor(*args.fAnalysis, hasMixedSamples,
-                                                           &args.fDstTexture, *args.fCaps));
-        SkASSERT(xferProcessor);
-    } else {
-        // This may return nullptr in the common case of src-over implemented using hw blending.
-        xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
-                *args.fCaps, *args.fAnalysis, hasMixedSamples, &args.fDstTexture));
+    {
+        bool hasMixedSamples =
+                args.fRenderTarget->isMixedSampled() && (isHWAA || this->isStencilEnabled());
+        sk_sp<GrXferProcessor> xferProcessor;
+        const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
+        if (xpFactory) {
+            xferProcessor.reset(xpFactory->createXferProcessor(*args.fAnalysis, hasMixedSamples,
+                                                               &args.fDstTexture, *args.fCaps));
+            SkASSERT(xferProcessor);
+        } else {
+            // This may return nullptr in the common case of src-over implemented using hw blending.
+            xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
+                    *args.fCaps, *args.fAnalysis, hasMixedSamples, &args.fDstTexture));
+        }
+        fXferProcessor.reset(xferProcessor.get());
     }
+
+    // This is for the legacy GrPipeline creation in GrMeshDrawOp where analysis does not
+    // eliminate fragment processors from GrProcessorSet.
     GrColor overrideColor = GrColor_ILLEGAL;
     int colorFPsToEliminate =
             args.fAnalysis->getInputColorOverrideAndColorProcessorEliminationCount(&overrideColor);
     colorFPsToEliminate = SkTMax(colorFPsToEliminate, 0);
-
-    GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
-
-    const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
-                                                       &GrPorterDuffXPFactory::SimpleSrcOverXP();
-    optFlags = xpForOpts->getOptimizations(*args.fAnalysis);
-
-    // No need to have an override color if it isn't even going to be used.
-    if (SkToBool(GrXferProcessor::kIgnoreColor_OptFlag & optFlags)) {
+    if (args.fAnalysis->isInputColorIgnored()) {
+        // No need to have an override color if it isn't even going to be used.
         overrideColor = GrColor_ILLEGAL;
-    }
-
-    fXferProcessor.reset(xferProcessor.get());
-
-    if ((optFlags & GrXferProcessor::kIgnoreColor_OptFlag)) {
         colorFPsToEliminate = args.fProcessors->numColorFragmentProcessors();
     }
 
@@ -122,7 +117,7 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
     if (args.fAnalysis->usesLocalCoords()) {
         optimizations.fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
     }
-    if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
+    if (args.fAnalysis->isCompatibleWithCoverageAsAlpha()) {
         optimizations.fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
     }
     return optimizations;
