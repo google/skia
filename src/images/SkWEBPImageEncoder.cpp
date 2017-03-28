@@ -26,18 +26,14 @@
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 
-// A WebP decoder only, on top of (subset of) libwebp
+// A WebP encoder only, on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:
 //   http://code.google.com/speed/webp/
 //   http://www.webmproject.org/code/#libwebp_webp_image_decoder_library
 //   http://review.webmproject.org/gitweb?p=libwebp.git
 
-#include <stdio.h>
-extern "C" {
-// If moving libwebp out of skia source tree, path for webp headers must be
-// updated accordingly. Here, we enforce using local copy in webp sub-directory.
 #include "webp/encode.h"
-}
+#include "webp/mux.h"
 
 static transform_scanline_proc choose_proc(const SkImageInfo& info) {
     const bool isGammaEncoded = info.gammaCloseToSRGB();
@@ -177,7 +173,12 @@ static bool do_encode(SkWStream* stream, const SkPixmap& srcPixmap, const SkEnco
     pic.width = pixmap.width();
     pic.height = pixmap.height();
     pic.writer = stream_writer;
-    pic.custom_ptr = (void*)stream;
+
+    // If there is no need to embed an ICC profile, we write directly to the input stream.
+    // Otherwise, we will first encode to |tmp| and use a mux to add the ICC chunk.
+    sk_sp<SkData> icc = pixmap.colorSpace() ? icc_from_color_space(*pixmap.colorSpace()) : nullptr;
+    SkDynamicMemoryWStream tmp;
+    pic.custom_ptr = icc ? (void*)&tmp : (void*)stream;
 
     const uint8_t* src = (uint8_t*)pixmap.addr();
     const int rgbStride = pic.width * bpp;
@@ -203,8 +204,34 @@ static bool do_encode(SkWStream* stream, const SkPixmap& srcPixmap, const SkEnco
 
     ok = ok && WebPEncode(&webp_config, &pic);
     WebPPictureFree(&pic);
+    if (!ok) {
+        return false;
+    }
 
-    return ok;
+    if (icc) {
+        sk_sp<SkData> encodedData = tmp.detachAsData();
+        WebPData encoded = { encodedData->bytes(), encodedData->size() };
+        WebPData iccChunk = { icc->bytes(), icc->size() };
+
+        SkAutoTCallVProc<WebPMux, WebPMuxDelete> mux(WebPMuxNew());
+        if (WEBP_MUX_OK != WebPMuxSetImage(mux.get(), &encoded, 0)) {
+            return false;
+        }
+
+        if (WEBP_MUX_OK != WebPMuxSetChunk(mux.get(), "ICCP", &iccChunk, 0)) {
+            return false;
+        }
+
+        WebPData assembled;
+        if (WEBP_MUX_OK != WebPMuxAssemble(mux, &assembled)) {
+            return false;
+        }
+
+        stream->write(assembled.bytes, assembled.size);
+        WebPDataClear(&assembled);
+    }
+
+    return true;
 }
 
 bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& src, int quality) {
