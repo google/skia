@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #include "SkSLType.h"
 #include "SkSLContext.h"
 
@@ -22,7 +22,7 @@ bool Type::determineCoercionCost(const Type& other, int* outCost) const {
         return false;
     }
     if (this->kind() == kMatrix_Kind) {
-        if (this->columns() == other.columns() && 
+        if (this->columns() == other.columns() &&
             this->rows() == other.rows()) {
             return this->componentType().determineCoercionCost(other.componentType(), outCost);
         }
