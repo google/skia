@@ -610,7 +610,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         region.bufferRowLength = currentWidth;
         region.bufferImageHeight = currentHeight;
         region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
-        region.imageOffset = { left, flipY ? tex->height() - top - currentHeight : top, 0 };
+        region.imageOffset = { left, top, 0 };
         region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
 
         currentWidth = SkTMax(1, currentWidth/2);
