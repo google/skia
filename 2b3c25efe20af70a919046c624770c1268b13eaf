@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98c00813_f2bcbccd",
+        "filename": "src/gpu/GrMemoryPool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-28T18:42:04Z",
+      "side": 1,
+      "message": "The idea is to add a conditional breakpoint here (e.g. break when allocData-\u003efID \u003d\u003d 7523) after the first run prints the leaked ID(s).",
+      "revId": "2b3c25efe20af70a919046c624770c1268b13eaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
