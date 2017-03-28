@@ -22,6 +22,7 @@ declare_args() {
 
   msvc = 2015
 
+  extra_asmflags = []
   extra_cflags = []
   extra_cflags_c = []
   extra_cflags_cc = []
@@ -406,6 +407,7 @@ config("warnings_except_public_headers") {
 }
 
 config("extra_flags") {
+  asmflags = extra_asmflags
   cflags = extra_cflags
   cflags_c = extra_cflags_c
   cflags_cc = extra_cflags_cc
