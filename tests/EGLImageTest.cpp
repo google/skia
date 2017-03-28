@@ -81,7 +81,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     ///////////////////////////////// CONTEXT 1 ///////////////////////////////////
 
     // Use GL Context 1 to create a texture unknown to GrContext.
-    context1->flush();
+    context1->flush(nullptr);
     GrGpu* gpu1 = context1->getGpu();
     static const int kSize = 100;
     backendTexture1 = reinterpret_cast<const GrGLTextureInfo*>(

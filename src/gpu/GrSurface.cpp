@@ -163,9 +163,9 @@ bool GrSurface::readPixels(SkColorSpace* srcColorSpace, int left, int top, int w
                                       dstColorSpace, buffer, rowBytes, pixelOpsFlags);
 }
 
-void GrSurface::flushWrites() {
+void GrSurface::flushWrites13() {
     if (!this->wasDestroyed()) {
-        this->getContext()->flushSurfaceWrites(this);
+        this->getContext()->flushSurfaceWrites(nullptr);
     }
 }
 

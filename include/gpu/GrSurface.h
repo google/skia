@@ -169,7 +169,7 @@ public:
     /**
      * After this returns any pending writes to the surface will be issued to the backend 3D API.
      */
-    void flushWrites();
+    void flushWrites13();
 
     /** Access methods that are only to be used within Skia code. */
     inline GrSurfacePriv surfacePriv();

@@ -14,6 +14,7 @@
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTextureContext.h"
 #include "GrTextureOpList.h"
 #include "SkSurface_Gpu.h"
@@ -69,7 +70,8 @@ void GrDrawingManager::reset() {
     fFlushState.reset();
 }
 
-void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
+// MDB TODO: make use of the 'proxy' parameter.
+void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType type) {
     if (fFlushing || this->wasAbandoned()) {
         return;
     }
@@ -171,20 +173,23 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     fFlushing = false;
 }
 
-void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
+void GrDrawingManager::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     if (this->wasAbandoned()) {
         return;
     }
-    SkASSERT(surface);
-    SkASSERT(surface->getContext() == fContext);
+    SkASSERT(proxy);
 
-    if (surface->surfacePriv().hasPendingIO()) {
-        this->flush();
+    if (proxy->priv().hasPendingIO()) {
+        this->flush(proxy);
     }
 
-    GrRenderTarget* rt = surface->asRenderTarget();
-    if (fContext->getGpu() && rt) {
-        fContext->getGpu()->resolveRenderTarget(rt);
+    GrSurface* surface = proxy->instantiate(fContext->resourceProvider());
+    if (!surface) {
+        return;
+    }
+
+    if (fContext->getGpu() && surface->asRenderTarget()) {
+        fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget());
     }
 }
 
