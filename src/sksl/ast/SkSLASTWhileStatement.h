@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTWHILESTATEMENT
 #define SKSL_ASTWHILESTATEMENT
 
@@ -16,13 +16,13 @@ namespace SkSL {
  * A 'while' statement.
  */
 struct ASTWhileStatement : public ASTStatement {
-    ASTWhileStatement(Position position, std::unique_ptr<ASTExpression> test, 
+    ASTWhileStatement(Position position, std::unique_ptr<ASTExpression> test,
                       std::unique_ptr<ASTStatement> statement)
     : INHERITED(position, kWhile_Kind)
     , fTest(std::move(test))
     , fStatement(std::move(statement)) {}
 
-    SkString description() const override {
+    String description() const override {
         return "while (" + fTest->description() + ") " + fStatement->description();
     }
 
