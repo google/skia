@@ -403,10 +403,6 @@ def dm_flags(bot):
                   '~bitmapfilters', # skia:6132
                   '~GrContextFactory_abandon']) #skia:6209
 
-  if 'Vulkan' in bot and 'GTX1070' in bot and 'Win' in bot:
-    # skia:6092
-    match.append('~GPUMemorySize')
-
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Ubuntu' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
 
