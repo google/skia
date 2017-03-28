@@ -6,8 +6,9 @@
  */
 
 #include "gm.h"
-#include "SkRRect.h"
+#include "SkColorFilter.h"
 #include "SkGaussianEdgeShader.h"
+#include "SkRRect.h"
 
 //#define VIZ 1
 
@@ -118,8 +119,10 @@ protected:
 
             SkPaint basePaint;
             basePaint.setAntiAlias(true);
-            basePaint.setShader(SkGaussianEdgeShader::Make());
             basePaint.setColor(SkColorSetARGB(255, (4 * blurRad) >> 8, (4 * blurRad) & 0xff, 0));
+            basePaint.setShader(SkGaussianEdgeShader::Make());
+            basePaint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorRED,
+                                                                   SkBlendMode::kModulate));
 
             //----
             paints[0] = basePaint;
