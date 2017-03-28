@@ -31,55 +31,70 @@ static thread_local const char* tls_name = "";
     #include <fcntl.h>
     #include <signal.h>
 
-    static int crash_stacktrace_fd = 2/*stderr*/;
+    static int log_fd = 2/*stderr*/;
+
+    static void log(const char* msg) {
+        write(log_fd, msg, strlen(msg));
+    }
 
     static void setup_crash_handler() {
         static void (*original_handlers[32])(int);
-
         for (int sig : std::vector<int>{ SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV }) {
             original_handlers[sig] = signal(sig, [](int sig) {
-                // To prevent interlaced output, lock the stacktrace log file until we die.
-                lockf(crash_stacktrace_fd, F_LOCK, 0);
+                lockf(log_fd, F_LOCK, 0);
+                    log("\ncaught signal ");
+                    switch (sig) {
+                    #define CASE(s) case s: log(#s); break
+                        CASE(SIGABRT);
+                        CASE(SIGBUS);
+                        CASE(SIGFPE);
+                        CASE(SIGILL);
+                        CASE(SIGSEGV);
+                    #undef CASE
+                    }
+                    log(" while running '");
+                    log(tls_name);
+                    log("'\n");
 
-                auto ez_write = [](const char* str) {
-                    write(crash_stacktrace_fd, str, strlen(str));
-                };
-                ez_write("\ncaught signal ");
-                switch (sig) {
-                #define CASE(s) case s: ez_write(#s); break
-                    CASE(SIGABRT);
-                    CASE(SIGBUS);
-                    CASE(SIGFPE);
-                    CASE(SIGILL);
-                    CASE(SIGSEGV);
-                #undef CASE
-                }
-                ez_write(" while running '");
-                ez_write(tls_name);
-                ez_write("'\n");
+                    void* stack[128];
+                    int frames = backtrace(stack, sizeof(stack)/sizeof(*stack));
+                    backtrace_symbols_fd(stack, frames, log_fd);
+                lockf(log_fd, F_ULOCK, 0);
 
-                void* stack[128];
-                int frames = backtrace(stack, sizeof(stack)/sizeof(*stack));
-                backtrace_symbols_fd(stack, frames, crash_stacktrace_fd);
                 signal(sig, original_handlers[sig]);
                 raise(sig);
             });
         }
     }
 
-    static void defer_crash_stacktraces() {
-        crash_stacktrace_fd = fileno(tmpfile());
+    static void defer_logging() {
+        log_fd = fileno(tmpfile());
         atexit([] {
-            lseek(crash_stacktrace_fd, 0, SEEK_SET);
+            lseek(log_fd, 0, SEEK_SET);
             char buf[1024];
-            while (size_t bytes = read(crash_stacktrace_fd, buf, sizeof(buf))) {
+            while (size_t bytes = read(log_fd, buf, sizeof(buf))) {
                 write(2, buf, bytes);
             }
         });
     }
+
+    void ok_log(const char* msg) {
+        lockf(log_fd, F_LOCK, 0);
+            log("[");
+            log(tls_name);
+            log("]\t");
+            log(msg);
+            log("\n");
+        lockf(log_fd, F_ULOCK, 0);
+    }
+
 #else
     static void setup_crash_handler() {}
-    static void defer_crash_stacktraces() {}
+    static void defer_logging() {}
+
+    void ok_log(const char* msg) {
+        fprintf(stderr, "%s\n", msg);
+    }
 #endif
 
 enum class Status { OK, Failed, Crashed, Skipped, None };
@@ -280,9 +295,9 @@ int main(int argc, char** argv) {
     }
 
     std::unique_ptr<Engine> engine;
-    if (jobs == 0) { engine.reset(new SerialEngine);                            }
-    if (jobs  > 0) { engine.reset(new   ForkEngine); defer_crash_stacktraces(); }
-    if (jobs  < 0) { engine.reset(new ThreadEngine); jobs = -jobs;              }
+    if (jobs == 0) { engine.reset(new SerialEngine);                  }
+    if (jobs  > 0) { engine.reset(new   ForkEngine); defer_logging(); }
+    if (jobs  < 0) { engine.reset(new ThreadEngine); jobs = -jobs;    }
 
     if (jobs == 1) { jobs = std::thread::hardware_concurrency(); }
 

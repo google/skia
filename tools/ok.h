@@ -20,6 +20,8 @@ static std::unique_ptr<T> move_unique(T& v) {
     return std::unique_ptr<T>{new T{std::move(v)}};
 }
 
+void ok_log(const char*);
+
 struct Src {
     virtual ~Src() {}
     virtual std::string name()   = 0;
