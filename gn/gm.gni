@@ -29,6 +29,7 @@ gm_sources = [
   "$_gm/bigrrectaaeffect.cpp",
   "$_gm/bigtext.cpp",
   "$_gm/bigtileimagefilter.cpp",
+  "$_gm/bitmapcolorspace.cpp",
   "$_gm/bitmapcopy.cpp",
   "$_gm/bitmapfilters.cpp",
   "$_gm/bitmapimage.cpp",
