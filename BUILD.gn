@@ -696,6 +696,7 @@ component("skia") {
       "src/ports/SkImageGeneratorCG.cpp",
     ]
     libs += [
+      "AppKit.framework",
       "ApplicationServices.framework",
       "OpenGL.framework",
     ]
@@ -714,6 +715,7 @@ component("skia") {
       "CoreText.framework",
       "ImageIO.framework",
       "MobileCoreServices.framework",
+      "UIKit.framework",
     ]
   }
 
