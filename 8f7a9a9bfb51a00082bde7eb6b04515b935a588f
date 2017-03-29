@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e817d442_9b1ccc20",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1230,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-29T22:53:18Z",
+      "side": 1,
+      "message": "We should probably always clamp?  Or invert this into a list of exceptions?  Without some sort of rendering intent bit from the client, I\u0027m not sure I understand why we\u0027d want any exceptions to clamping.",
+      "revId": "8f7a9a9bfb51a00082bde7eb6b04515b935a588f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
