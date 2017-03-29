@@ -62,11 +62,9 @@ static void convert_to_index666(const SkBitmap& src, SkBitmap* dst) {
             }
         }
     }
-    SkColorTable* ctable = new SkColorTable(storage, 216);
     dst->allocPixels(SkImageInfo::Make(src.width(), src.height(),
                                        kIndex_8_SkColorType, kOpaque_SkAlphaType),
-                     nullptr, ctable);
-    ctable->unref();
+                     SkColorTable::Make(storage, 216));
 
     SkAutoLockPixels alps(src);
     SkAutoLockPixels alpd(*dst);
