@@ -466,6 +466,7 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
 
     state->gpu()->handleDirtyContext();
 
+    // TODO: Don't reanalyze the processors.
     GrProcessorSet::FragmentProcessorAnalysis analysis;
     GrPipelineAnalysisCoverage coverageInput;
     if (GrAAType::kCoverage == fInfo.aaType() ||
@@ -485,7 +486,8 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
 
     GrPipeline pipeline;
     GrPipeline::InitArgs args;
-    args.fAnalysis = &analysis;
+    args.fInputColor = analysis.outputColor();
+    args.fInputCoverage = analysis.outputCoverage();
     args.fAppliedClip = clip;
     args.fCaps = &state->caps();
     args.fProcessors = &fProcessors;
