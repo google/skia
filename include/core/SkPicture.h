@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+compilation failure
+
 #ifndef SkPicture_DEFINED
 #define SkPicture_DEFINED
 
