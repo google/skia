@@ -50,24 +50,6 @@ static GrSLPrecision compute_precision(const GrShaderCaps* caps,
     return precision;
 }
 
-void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
-                             GrSamplerParams::FilterMode filter, bool normalize) {
-    SkASSERT(texture);
-    SkASSERT(!fInProcessor);
-
-    fMatrix = m;
-    fTexture = texture;
-    fNormalize = normalize;
-    fReverseY = kBottomLeft_GrSurfaceOrigin == texture->origin();
-
-    if (texture->getContext()) {
-        fPrecision = compute_precision(texture->getContext()->caps()->shaderCaps(),
-                                       texture->width(), texture->height(), filter);
-    } else {
-        fPrecision = kDefault_GrSLPrecision;
-    }
-}
-
 void GrCoordTransform::reset(GrResourceProvider* resourceProvider, const SkMatrix& m,
                              GrTextureProxy* proxy,
                              GrSamplerParams::FilterMode filter, bool normalize) {
@@ -78,7 +60,7 @@ void GrCoordTransform::reset(GrResourceProvider* resourceProvider, const SkMatri
     // MDB TODO: just GrCaps is needed for this method
     // MDB TODO: once all the coord transforms take a proxy just store it here and
     // instantiate later
-    fTexture = proxy->instantiate(resourceProvider);
+    fProxy = proxy;
     fNormalize = normalize;
     fReverseY = kBottomLeft_GrSurfaceOrigin == proxy->origin();
 

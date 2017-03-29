@@ -10,7 +10,6 @@
 
 #include "GrProcessor.h"
 #include "SkMatrix.h"
-#include "GrTexture.h"
 #include "GrTypes.h"
 #include "GrShaderVar.h"
 
@@ -23,7 +22,7 @@ class GrTextureProxy;
 class GrCoordTransform : SkNoncopyable {
 public:
     GrCoordTransform()
-        : fTexture(nullptr)
+        : fProxy(nullptr)
         , fNormalize(false)
         , fReverseY(false)
         , fPrecision(kDefault_GrSLPrecision) {
@@ -35,12 +34,6 @@ public:
      * from the texture size and filter. The texture origin also implies whether a y-reversal should
      * be performed.
      */
-    GrCoordTransform(const GrTexture* texture, GrSamplerParams::FilterMode filter) {
-        SkASSERT(texture);
-        SkDEBUGCODE(fInProcessor = false);
-        this->reset(SkMatrix::I(), texture, filter);
-    }
-
     GrCoordTransform(GrResourceProvider* resourceProvider, GrTextureProxy* proxy,
                      GrSamplerParams::FilterMode filter) {
         SkASSERT(proxy);
@@ -52,13 +45,6 @@ public:
      * Create a transformation from a matrix. The precision is inferred from the texture size and
      * filter. The texture origin also implies whether a y-reversal should be performed.
      */
-    GrCoordTransform(const SkMatrix& m, const GrTexture* texture,
-                     GrSamplerParams::FilterMode filter) {
-        SkASSERT(texture);
-        SkDEBUGCODE(fInProcessor = false);
-        this->reset(m, texture, filter);
-    }
-
     GrCoordTransform(GrResourceProvider* resourceProvider, const SkMatrix& m,
                      GrTextureProxy* proxy, GrSamplerParams::FilterMode filter) {
         SkASSERT(proxy);
@@ -74,17 +60,13 @@ public:
         this->reset(m, precision);
     }
 
-    // MDB TODO: rm the GrTexture* flavor of reset
-    void reset(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter,
-               bool normalize = true);
-
     void reset(GrResourceProvider*, const SkMatrix&, GrTextureProxy*,
                GrSamplerParams::FilterMode filter, bool normalize = true);
 
     void reset(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkASSERT(!fInProcessor);
         fMatrix = m;
-        fTexture = nullptr;
+        fProxy = nullptr;
         fNormalize = false;
         fReverseY = false;
         fPrecision = precision;
@@ -93,7 +75,7 @@ public:
     GrCoordTransform& operator= (const GrCoordTransform& that) {
         SkASSERT(!fInProcessor);
         fMatrix = that.fMatrix;
-        fTexture = that.fTexture;
+        fProxy = that.fProxy;
         fNormalize = that.fNormalize;
         fReverseY = that.fReverseY;
         fPrecision = that.fPrecision;
@@ -118,16 +100,16 @@ public:
         }
 
         if (fNormalize) {
-            SkASSERT(fTexture && that.fTexture);
-            return fTexture->width() == that.fTexture->width() &&
-                   fTexture->height() == that.fTexture->height();
+//            SkASSERT(fTexture && that.fTexture);
+//            return fTexture->width() == that.fTexture->width() &&
+//                   fTexture->height() == that.fTexture->height();
         }
 
         return true;
     }
 
     const SkMatrix& getMatrix() const { return fMatrix; }
-    const GrTexture* texture() const { return fTexture; }
+    const GrTextureProxy* proxy() const { return fProxy; }
     bool normalize() const { return fNormalize; }
     bool reverseY() const { return fReverseY; }
     GrSLPrecision precision() const { return fPrecision; }
@@ -139,7 +121,7 @@ private:
     bool operator!=(const GrCoordTransform& that) const;
 
     SkMatrix                fMatrix;
-    const GrTexture*        fTexture;
+    const GrTextureProxy*   fProxy;
     bool                    fNormalize;
     bool                    fReverseY;
     GrSLPrecision           fPrecision;
