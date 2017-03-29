@@ -91,8 +91,12 @@ static K kConstants = {
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
 using StageFn = void(void);
 
-// TODO: maybe don't need this wrapper anymore.
-#define ASM(name, suffix) sk_##name##_##suffix
+// Some platforms expect C "name" maps to asm "_name", others to "name".
+#if defined(__APPLE__)
+    #define ASM(name, suffix)  sk_##name##_##suffix
+#else
+    #define ASM(name, suffix) _sk_##name##_##suffix
+#endif
 
 extern "C" {
 

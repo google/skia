@@ -71,7 +71,15 @@ subprocess.check_call(clang + cflags + vfp4 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'vfp4.o'])
 
-def parse_object_file(dot_o, array_type, target=None):
+def parse_object_file(dot_o, directive, target=None):
+  globl, label, comment = '.globl', ':', '// '
+  if 'win' in dot_o:
+    globl, label, comment = 'PUBLIC', ' LABEL PROC', '; '
+
+  dehex = lambda h: '0x'+h
+  if directive != '.long':
+    dehex = lambda h: str(int(h,16))
+
   cmd = [objdump]
   if target:
     cmd += ['--target', target]
@@ -84,7 +92,6 @@ def parse_object_file(dot_o, array_type, target=None):
       assert snippet not in section_headers
 
   # Ok.  Let's disassemble.
-  active = False
   disassemble = ['-d', '--insn-width=10', dot_o]
   for line in subprocess.check_output(cmd + disassemble).split('\n'):
     line = line.strip()
@@ -95,11 +102,9 @@ def parse_object_file(dot_o, array_type, target=None):
     # E.g. 00000000000003a4 <_load_f16>:
     m = re.match('''[0-9a-f]+ <_?(.*)>:''', line)
     if m:
-      if active:
-        print '};'
       print
-      print 'CODE const', array_type, m.group(1) + '[] = {'
-      active = True
+      print globl + ' _' + m.group(1)
+      print '_' + m.group(1) + label
       continue
 
     columns = line.split('\t')
@@ -113,54 +118,50 @@ def parse_object_file(dot_o, array_type, target=None):
         inst, args = columns[2].split(' ', 1)
     code, inst, args = code.strip(), inst.strip(), args.strip()
 
-    dehex = lambda x: '0x'+x
-    if array_type == 'uint8_t':
-      dehex = lambda x: str(int(x, 16))
+    hexed = ','.join(dehex(x) for x in code.split(' '))
+    print '  ' + directive + '  ' + hexed + ' '*(36-len(hexed)) + \
+          comment + inst + (' '*(14-len(inst)) + args if args else '')
 
-    hexed = ''.join(dehex(x) + ',' for x in code.split(' '))
-    print '  ' + hexed + ' '*(40-len(hexed)) + \
-          '//' + inst  + (' '*(14-len(inst)) + args if args else '')
-  print '};'
+sys.stdout = open('src/jumper/SkJumper_generated.S', 'w')
 
-sys.stdout = open('src/jumper/SkJumper_generated.cpp', 'w')
+print '''# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 
-print '''/*
- * Copyright 2017 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
-
-// This file is generated semi-automatically with this command:
-//   $ src/jumper/build_stages.py
-
-#include <stdint.h>
-
-#if defined(_MSC_VER)
-    #pragma section("code", read,execute)
-    #define CODE extern "C" __declspec(allocate("code"))
-#elif defined(__MACH__)
-    #define CODE extern "C" __attribute__((section("__TEXT,__text")))
-#else
-    #define CODE extern "C" __attribute__((section(".text")))
-#endif
+# This file is generated semi-automatically with this command:
+#   $ src/jumper/build_stages.py
 '''
+print '.text'
 print '#if defined(__aarch64__)'
-parse_object_file('aarch64.o', 'uint32_t')
+print '.balign 4'
+parse_object_file('aarch64.o', '.long')
 
 print '#elif defined(__arm__)'
-parse_object_file('vfp4.o', 'uint32_t', target='elf32-littlearm')
+print '.balign 4'
+parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
-parse_object_file('hsw.o',   'uint8_t')
-parse_object_file('avx.o',   'uint8_t')
-parse_object_file('sse41.o', 'uint8_t')
-parse_object_file('sse2.o',  'uint8_t')
-
-print '#elif defined(_M_X64)'
-parse_object_file('win_hsw.o',   'uint8_t')
-parse_object_file('win_avx.o',   'uint8_t')
-parse_object_file('win_sse41.o', 'uint8_t')
-parse_object_file('win_sse2.o',  'uint8_t')
+parse_object_file('hsw.o',   '.byte')
+parse_object_file('avx.o',   '.byte')
+parse_object_file('sse41.o', '.byte')
+parse_object_file('sse2.o',  '.byte')
 
 print '#endif'
+
+sys.stdout = open('src/jumper/SkJumper_generated_win.S', 'w')
+print '''; Copyright 2017 Google Inc.
+;
+; Use of this source code is governed by a BSD-style license that can be
+; found in the LICENSE file.
+
+; This file is generated semi-automatically with this command:
+;   $ src/jumper/build_stages.py
+'''
+
+print '_text SEGMENT'
+parse_object_file('win_hsw.o',   'DB')
+parse_object_file('win_avx.o',   'DB')
+parse_object_file('win_sse41.o', 'DB')
+parse_object_file('win_sse2.o',  'DB')
+print 'END'
