@@ -16,6 +16,24 @@
       "revId": "8f7a9a9bfb51a00082bde7eb6b04515b935a588f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a76ef56_aaa7df0c",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1230,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-29T22:56:18Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll at least invert it.  Android definitely wants unclamped F16.  I\u0027ve heard no strong feelings about F32.  I kind of like unclamped given that we are not losing any information - the client/we can go ahead and clamp later if they/we want.",
+      "parentUuid": "e817d442_9b1ccc20",
+      "revId": "8f7a9a9bfb51a00082bde7eb6b04515b935a588f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
