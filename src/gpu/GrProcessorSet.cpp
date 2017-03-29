@@ -119,8 +119,7 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
 
     GrPipelineAnalysisColor outputColor = colorInfo.outputColor();
     if (outputColor.isConstant(&fKnownOutputColor)) {
-        fOutputColorType = static_cast<unsigned>(outputColor.isOpaque() ? ColorType::kOpaqueConstant
-                                                                        : ColorType::kConstant);
+        fOutputColorType = static_cast<unsigned>(ColorType::kConstant);
     } else if (outputColor.isOpaque()) {
         fOutputColorType = static_cast<unsigned>(ColorType::kOpaque);
     } else {

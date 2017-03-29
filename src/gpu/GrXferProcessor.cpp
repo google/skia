@@ -189,21 +189,11 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
     return result;
 }
 
-GrXferProcessor* GrXPFactory::createXferProcessor(const FragmentProcessorAnalysis& analysis,
+GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysisColor& color,
+                                                  GrPipelineAnalysisCoverage coverage,
                                                   bool hasMixedSamples,
                                                   const DstTexture* dstTexture,
                                                   const GrCaps& caps) const {
-#ifdef SK_DEBUG
-    if (analysis.requiresDstTexture()) {
-        if (!caps.shaderCaps()->dstReadInShaderSupport()) {
-            SkASSERT(dstTexture && dstTexture->texture());
-        } else {
-            SkASSERT(!dstTexture || !dstTexture->texture());
-        }
-    } else {
-        SkASSERT(!dstTexture || !dstTexture->texture());
-    }
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
-#endif
-    return this->onCreateXferProcessor(caps, analysis, hasMixedSamples, dstTexture);
+    return this->onCreateXferProcessor(caps, color, coverage, hasMixedSamples, dstTexture);
 }
