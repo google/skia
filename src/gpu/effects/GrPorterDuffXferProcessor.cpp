@@ -521,7 +521,7 @@ GrGLSLXferProcessor* ShaderPDXferProcessor::createGLSLInstance() const {
 
 class PDLCDXferProcessor : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(SkBlendMode xfermode, const FragmentProcessorAnalysis& analysis);
+    static GrXferProcessor* Create(SkBlendMode xfermode, const GrPipelineAnalysisColor& inputColor);
 
     ~PDLCDXferProcessor() override;
 
@@ -603,12 +603,12 @@ PDLCDXferProcessor::PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha)
 }
 
 GrXferProcessor* PDLCDXferProcessor::Create(SkBlendMode xfermode,
-                                            const FragmentProcessorAnalysis& analysis) {
+                                            const GrPipelineAnalysisColor& color) {
     if (SkBlendMode::kSrcOver != xfermode) {
         return nullptr;
     }
     GrColor blendConstant;
-    if (!analysis.hasKnownOutputColor(&blendConstant)) {
+    if (!color.isConstant(&blendConstant)) {
         return nullptr;
     }
     blendConstant = GrUnpremulColor(blendConstant);
@@ -698,25 +698,26 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
     }
 }
 
-GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(
-        const GrCaps& caps,
-        const FragmentProcessorAnalysis& analysis,
-        bool hasMixedSamples,
-        const DstTexture* dstTexture) const {
+GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
+                                                              const GrPipelineAnalysisColor& color,
+                                                              GrPipelineAnalysisCoverage coverage,
+                                                              bool hasMixedSamples,
+                                                              const DstTexture* dstTexture) const {
     BlendFormula blendFormula;
-    if (analysis.outputCoverageType() == GrPipelineAnalysisCoverage::kLCD) {
-        if (SkBlendMode::kSrcOver == fBlendMode && analysis.hasKnownOutputColor() &&
+    if (coverage == GrPipelineAnalysisCoverage::kLCD) {
+        if (SkBlendMode::kSrcOver == fBlendMode && color.isConstant() &&
             !caps.shaderCaps()->dualSourceBlendingSupport() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             // If we don't have dual source blending or in shader dst reads, we fall back to this
             // trick for rendering SrcOver LCD text instead of doing a dst copy.
             SkASSERT(!dstTexture || !dstTexture->texture());
-            return PDLCDXferProcessor::Create(fBlendMode, analysis);
+            return PDLCDXferProcessor::Create(fBlendMode, color);
         }
         blendFormula = get_lcd_blend_formula(fBlendMode);
     } else {
-        blendFormula = get_blend_formula(analysis.isOutputColorOpaque(), analysis.hasCoverage(),
-                                         hasMixedSamples, fBlendMode);
+        blendFormula =
+                get_blend_formula(color.isOpaque(), GrPipelineAnalysisCoverage::kNone != coverage,
+                                  hasMixedSamples, fBlendMode);
     }
 
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
@@ -809,15 +810,15 @@ const GrXferProcessor& GrPorterDuffXPFactory::SimpleSrcOverXP() {
 
 GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const GrCaps& caps,
-        const FragmentProcessorAnalysis& analysis,
+        const GrPipelineAnalysisColor& color,
+        GrPipelineAnalysisCoverage coverage,
         bool hasMixedSamples,
         const GrXferProcessor::DstTexture* dstTexture) {
-
     // We want to not make an xfer processor if possible. Thus for the simple case where we are not
     // doing lcd blending we will just use our global SimpleSrcOverXP. This slightly differs from
     // the general case where we convert a src-over blend that has solid coverage and an opaque
     // color to src-mode, which allows disabling of blending.
-    if (analysis.outputCoverageType() != GrPipelineAnalysisCoverage::kLCD) {
+    if (coverage != GrPipelineAnalysisCoverage::kLCD) {
         // We return nullptr here, which our caller interprets as meaning "use SimpleSrcOverXP".
         // We don't simply return the address of that XP here because our caller would have to unref
         // it and since it is a global object and GrProgramElement's ref-cnting system is not thread
@@ -825,13 +826,13 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         return nullptr;
     }
 
-    if (analysis.hasKnownOutputColor() && !caps.shaderCaps()->dualSourceBlendingSupport() &&
+    if (color.isConstant() && !caps.shaderCaps()->dualSourceBlendingSupport() &&
         !caps.shaderCaps()->dstReadInShaderSupport()) {
         // If we don't have dual source blending or in shader dst reads, we fall
         // back to this trick for rendering SrcOver LCD text instead of doing a
         // dst copy.
         SkASSERT(!dstTexture || !dstTexture->texture());
-        return PDLCDXferProcessor::Create(SkBlendMode::kSrcOver, analysis);
+        return PDLCDXferProcessor::Create(SkBlendMode::kSrcOver, color);
     }
 
     BlendFormula blendFormula;

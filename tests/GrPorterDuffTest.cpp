@@ -66,7 +66,8 @@ public:
             fCompatibleWithCoverageAsAlpha = analysis.isCompatibleWithCoverageAsAlpha();
             fCanCombineOverlappedStencilAndCover = analysis.canCombineOverlappedStencilAndCover();
             fIgnoresInputColor = analysis.isInputColorIgnored();
-            sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(analysis, false, nullptr, caps));
+            sk_sp<GrXferProcessor> xp(
+                    xpf->createXferProcessor(inputColor, inputCoverage, false, nullptr, caps));
             TEST_ASSERT(!analysis.requiresDstTexture());
             GetXPOutputTypes(xp.get(), &fPrimaryOutputType, &fSecondaryOutputType);
             xp->getBlendInfo(&fBlendInfo);
@@ -987,39 +988,12 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 }
 
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
-    class TestLCDCoverageOp : public GrMeshDrawOp {
-    public:
-        DEFINE_OP_CLASS_ID
-
-        TestLCDCoverageOp() : INHERITED(ClassID()) {}
-
-        const char* name() const override { return "Test LCD Text Op"; }
-
-    private:
-        void getFragmentProcessorAnalysisInputs(
-                GrPipelineAnalysisColor* color,
-                GrPipelineAnalysisCoverage* coverage) const override {
-            color->setToConstant(GrColorPackRGBA(123, 45, 67, 221));
-            *coverage = GrPipelineAnalysisCoverage::kLCD;
-        }
-
-        void applyPipelineOptimizations(const PipelineOptimizations&) override {}
-        bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
-        void onPrepareDraws(Target*) const override {}
-
-        typedef GrMeshDrawOp INHERITED;
-    } testLCDCoverageOp;
-
-    GrProcessorSet::FragmentProcessorAnalysis analysis;
-    testLCDCoverageOp.analyzeProcessors(&analysis, GrProcessorSet(GrPaint()), nullptr, caps);
-
-    SkASSERT(analysis.hasKnownOutputColor());
-    SkASSERT(analysis.outputCoverageType() == GrPipelineAnalysisCoverage::kLCD);
-
-    TEST_ASSERT(!analysis.requiresDstTexture());
-
     const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
-    sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(analysis, false, nullptr, caps));
+    GrPipelineAnalysisColor color = GrColorPackRGBA(123, 45, 67, 221);
+    GrPipelineAnalysisCoverage coverage = GrPipelineAnalysisCoverage::kLCD;
+    SkASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
+               GrXPFactory::AnalysisProperties::kRequiresDstTexture));
+    sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(color, coverage, false, nullptr, caps));
     if (!xp) {
         ERRORF(reporter, "Failed to create an XP with LCD coverage.");
         return;
@@ -1072,8 +1046,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                                                                      caps);
                 GrXferProcessor::DstTexture* dstTexture =
                         analysis.requiresDstTexture() ? &fakeDstTexture : nullptr;
-                sk_sp<GrXferProcessor> xp(
-                        xpf->createXferProcessor(analysis, false, dstTexture, caps));
+                sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(colorInput, coverageType, false,
+                                                                   dstTexture, caps));
                 if (!xp) {
                     ERRORF(reporter, "Failed to create an XP without dual source blending.");
                     return;
