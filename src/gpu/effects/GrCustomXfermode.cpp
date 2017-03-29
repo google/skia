@@ -350,6 +350,9 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
            AnalysisProperties::kReadsDstInShader;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);
 #if GR_TEST_UTILS
 const GrXPFactory* CustomXPFactory::TestGet(GrProcessorTestData* d) {

@@ -20,17 +20,19 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrClearOp> Make(const GrFixedClip& clip, GrColor color,
-                                           GrRenderTarget* rt) {
-        std::unique_ptr<GrClearOp> op(new GrClearOp(clip, color, rt));
-        if (!op->fRenderTarget) {
+                                           GrRenderTargetProxy* rtp) {
+        std::unique_ptr<GrClearOp> op(new GrClearOp(clip, color, rtp));
+        if (!op->fRenderTargetProxy) {
             return nullptr; // The clip did not contain any pixels within the render target.
         }
         return op;
     }
 
-    static std::unique_ptr<GrClearOp> Make(const SkIRect& rect, GrColor color, GrRenderTarget* rt,
+    static std::unique_ptr<GrClearOp> Make(const SkIRect& rect,
+                                           GrColor color,
+                                           GrRenderTargetProxy* rtp,
                                            bool fullScreen) {
-        return std::unique_ptr<GrClearOp>(new GrClearOp(rect, color, rt, fullScreen));
+        return std::unique_ptr<GrClearOp>(new GrClearOp(rect, color, rtp, fullScreen));
     }
 
     const char* name() const override { return "Clear"; }
@@ -42,7 +44,7 @@ public:
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         }
         string.appendf("], Color: 0x%08x, RT: %d", fColor,
-                                                   fRenderTarget.get()->uniqueID().asUInt());
+                                                   fRenderTargetProxy.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -50,11 +52,11 @@ public:
     void setColor(GrColor color) { fColor = color; }
 
 private:
-    GrClearOp(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt)
+    GrClearOp(const GrFixedClip& clip, GrColor color, GrRenderTargetProxy* rtp)
         : INHERITED(ClassID())
         , fClip(clip)
         , fColor(color) {
-        SkIRect rtRect = SkIRect::MakeWH(rt->width(), rt->height());
+        SkIRect rtRect = SkIRect::MakeWH(rtp->width(), rtp->height());
         if (fClip.scissorEnabled()) {
             // Don't let scissors extend outside the RT. This may improve op combining.
             if (!fClip.intersect(rtRect)) {
@@ -66,14 +68,14 @@ private:
         }
         this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
                         HasAABloat::kNo, IsZeroArea::kNo);
-        fRenderTarget.reset(rt);
+        fRenderTargetProxy.reset(rtp);
     }
 
-    GrClearOp(const SkIRect& rect, GrColor color, GrRenderTarget* rt, bool fullScreen)
+    GrClearOp(const SkIRect& rect, GrColor color, GrRenderTargetProxy* rtp, bool fullScreen)
         : INHERITED(ClassID())
         , fClip(GrFixedClip(rect))
         , fColor(color)
-        , fRenderTarget(rt) {
+        , fRenderTargetProxy(rtp) {
         if (fullScreen) {
             fClip.disableScissor();
         }
@@ -85,7 +87,7 @@ private:
         // contains the old clear, or when the new clear is a subset of the old clear and is the
         // same color.
         GrClearOp* cb = t->cast<GrClearOp>();
-        SkASSERT(cb->fRenderTarget == fRenderTarget);
+        SkASSERT(cb->fRenderTargetProxy == fRenderTargetProxy);
         if (fClip.windowRectsState() != cb->fClip.windowRectsState()) {
             return false;
         }
@@ -110,12 +112,17 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        state->commandBuffer()->clear(fRenderTarget.get(), fClip, fColor);
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
+        state->commandBuffer()->clear(rt, fClip, fColor);
     }
 
-    GrFixedClip                                             fClip;
-    GrColor                                                 fColor;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+    GrFixedClip                                               fClip;
+    GrColor                                                   fColor;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrOp INHERITED;
 };
