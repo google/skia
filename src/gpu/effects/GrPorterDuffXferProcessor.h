@@ -24,7 +24,8 @@ public:
     /** Because src-over is so common we special case it for performance reasons. If this returns
         null then the SimpleSrcOverXP() below should be used. */
     static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
-                                                       const FragmentProcessorAnalysis&,
+                                                       const GrPipelineAnalysisColor& color,
+                                                       GrPipelineAnalysisCoverage coverage,
                                                        bool hasMixedSamples,
                                                        const GrXferProcessor::DstTexture*);
 
@@ -42,9 +43,8 @@ public:
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const FragmentProcessorAnalysis&,
-                                           bool hasMixedSamples,
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrPipelineAnalysisColor&,
+                                           GrPipelineAnalysisCoverage, bool hasMixedSamples,
                                            const DstTexture*) const override;
 
     AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
