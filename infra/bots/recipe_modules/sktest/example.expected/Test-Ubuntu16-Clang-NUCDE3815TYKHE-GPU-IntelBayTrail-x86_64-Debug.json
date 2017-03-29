@@ -536,7 +536,8 @@
       "_",
       ".SRW",
       "--match",
-      "~ImageStorageLoad"
+      "~ImageStorageLoad",
+      "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

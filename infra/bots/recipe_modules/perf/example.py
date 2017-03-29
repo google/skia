@@ -39,6 +39,7 @@ TEST_BUILDERS = {
        '_AbandonGpuContext'),
       'Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan',
       'Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release',
+      'Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE',
