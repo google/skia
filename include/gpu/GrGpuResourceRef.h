@@ -10,6 +10,7 @@
 
 #include "GrGpuResource.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetProxy.h"
 #include "GrTexture.h"
 #include "SkRefCnt.h"
 
