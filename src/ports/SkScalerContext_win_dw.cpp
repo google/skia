@@ -341,7 +341,6 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
 
     // DirectWrite2 allows for grayscale hinting.
     fAntiAliasMode = DWRITE_TEXT_ANTIALIAS_MODE_CLEARTYPE;
-#ifndef SK_IGNORE_DW_GRAY_FIX
     if (typeface->fFactory2 && typeface->fDWriteFontFace2 &&
         SkMask::kA8_Format == fRec.fMaskFormat &&
         !(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag))
@@ -350,7 +349,6 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextureType = DWRITE_TEXTURE_ALIASED_1x1;
         fAntiAliasMode = DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE;
     }
-#endif
 
     // DirectWrite2 allows hinting to be disabled.
     fGridFitMode = DWRITE_GRID_FIT_MODE_ENABLED;
