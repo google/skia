@@ -612,6 +612,30 @@
     },
     {
       "key": {
+        "uuid": "4165a8a4_80453769",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-29T22:24:20Z",
+      "side": 1,
+      "message": "Ah, sorry, should be !buffer.fail()",
+      "parentUuid": "a1ea32d6_d49aabe0",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 18
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ddbd625_e11359ac",
         "filename": "src/sksl/SkSLStringStream.h",
         "patchSetId": 7
@@ -703,6 +727,30 @@
       "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67fa9c18_74bd9d5e",
+        "filename": "src/sksl/SkSLStringStream.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-29T22:24:20Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6bf439fe_a2e3ae22",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 28
+      },
+      "revId": "ab461aea87d28e777a6a997d20ba4ad2598206bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
