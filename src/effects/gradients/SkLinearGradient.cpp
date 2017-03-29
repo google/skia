@@ -140,11 +140,27 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
     const SkPM4f  pmc0 = premulGrad ? c0.premul() : SkPM4f::From4f(Sk4f::Load(&c0)),
                   pmc1 = premulGrad ? c1.premul() : SkPM4f::From4f(Sk4f::Load(&c1));
 
-    auto* c0_and_dc = alloc->makeArrayDefault<SkPM4f>(2);
-    c0_and_dc[0] = pmc0;
-    c0_and_dc[1] = SkPM4f::From4f(pmc1.to4f() - pmc0.to4f());
+    struct stop { float pos, f[4], b[4]; };
+    struct Ctx { size_t n; stop *stops; float start[4]; };
+    auto* stopsArray = alloc->makeArrayDefault<stop>(2);
 
-    p->append(SkRasterPipeline::linear_gradient_2stops, c0_and_dc);
+    auto* ctx = alloc->make<Ctx>();
+    ctx->n = 2;
+    ctx->stops = stopsArray;
+    memcpy(&ctx->start, pmc0.fVec, sizeof(ctx->start));
+    ctx->stops[0].pos = 0;
+    auto dc = SkPM4f::From4f(pmc1.to4f() - pmc0.to4f());
+    memcpy(&ctx->stops[0].f, &dc, sizeof(ctx->stops[0].f));
+    memcpy(&ctx->stops[0].b, &pmc0.fVec, sizeof(ctx->stops[0].b));
+    ctx->stops[1].pos = 1;
+    memset(&ctx->stops[1].f, 0, sizeof(ctx->stops[1].f));
+    memcpy(&ctx->stops[1].b, &pmc1.fVec, sizeof(ctx->stops[1].b));
+
+    //auto* c0_and_dc = alloc->makeArrayDefault<SkPM4f>(2);
+    //c0_and_dc[0] = pmc0;
+    //c0_and_dc[1] = SkPM4f::From4f(pmc1.to4f() - pmc0.to4f());
+
+    p->append(SkRasterPipeline::linear_gradient_few_stops, ctx);
 
     if (!premulGrad && !this->colorsAreOpaque()) {
         p->append(SkRasterPipeline::premul);
