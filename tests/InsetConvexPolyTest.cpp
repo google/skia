@@ -23,8 +23,7 @@ static bool is_convex(const SkTDArray<SkPoint>& poly) {
         SkVector v0 = poly[j] - poly[i];
         SkVector v1 = poly[k] - poly[i];
         SkScalar perpDot = v0.cross(v1);
-        int side = winding*perpDot;
-        if (side < 0) {
+        if (winding*perpDot < 0) {
             return false;
         }
     }
