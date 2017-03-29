@@ -31,16 +31,10 @@ public:
     }
 
     /**
-     * Create a transformation that maps [0, 1] to a texture's boundaries. The precision is inferred
-     * from the texture size and filter. The texture origin also implies whether a y-reversal should
+     * Create a transformation that maps [0, 1] to a proxy's boundaries. The precision is inferred
+     * from the proxy size and filter. The proxy origin also implies whether a y-reversal should
      * be performed.
      */
-    GrCoordTransform(const GrTexture* texture, GrSamplerParams::FilterMode filter) {
-        SkASSERT(texture);
-        SkDEBUGCODE(fInProcessor = false);
-        this->reset(SkMatrix::I(), texture, filter);
-    }
-
     GrCoordTransform(GrResourceProvider* resourceProvider, GrTextureProxy* proxy,
                      GrSamplerParams::FilterMode filter) {
         SkASSERT(proxy);
@@ -49,16 +43,9 @@ public:
     }
 
     /**
-     * Create a transformation from a matrix. The precision is inferred from the texture size and
-     * filter. The texture origin also implies whether a y-reversal should be performed.
+     * Create a transformation from a matrix. The precision is inferred from the proxy size and
+     * filter. The proxy origin also implies whether a y-reversal should be performed.
      */
-    GrCoordTransform(const SkMatrix& m, const GrTexture* texture,
-                     GrSamplerParams::FilterMode filter) {
-        SkASSERT(texture);
-        SkDEBUGCODE(fInProcessor = false);
-        this->reset(m, texture, filter);
-    }
-
     GrCoordTransform(GrResourceProvider* resourceProvider, const SkMatrix& m,
                      GrTextureProxy* proxy, GrSamplerParams::FilterMode filter) {
         SkASSERT(proxy);
@@ -73,10 +60,6 @@ public:
         SkDEBUGCODE(fInProcessor = false);
         this->reset(m, precision);
     }
-
-    // MDB TODO: rm the GrTexture* flavor of reset
-    void reset(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter,
-               bool normalize = true);
 
     void reset(GrResourceProvider*, const SkMatrix&, GrTextureProxy*,
                GrSamplerParams::FilterMode filter, bool normalize = true);

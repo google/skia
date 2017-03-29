@@ -87,18 +87,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
-                                                   PMConversion pmConversion,
-                                                   const SkMatrix& matrix)
-        : INHERITED(texture, nullptr, matrix, kNone_OptimizationFlags)
-        , fPMConversion(pmConversion) {
-    this->initClassID<GrConfigConversionEffect>();
-    // We expect to get here with non-BGRA/RGBA only if we're doing not doing a premul/unpremul
-    // conversion.
-    SkASSERT(kRGBA_8888_GrPixelConfig == texture->config() ||
-             kBGRA_8888_GrPixelConfig == texture->config());
-}
-
 GrConfigConversionEffect::GrConfigConversionEffect(GrResourceProvider* resourceProvider,
                                                    sk_sp<GrTextureProxy> proxy,
                                                    PMConversion pmConversion,
@@ -273,18 +261,6 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         *pmToUPMRule = kPMConversionCnt;
         *upmToPMRule = kPMConversionCnt;
     }
-}
-
-sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrTexture* texture,
-                                                          PMConversion pmConversion,
-                                                          const SkMatrix& matrix) {
-    if (kRGBA_8888_GrPixelConfig != texture->config() &&
-        kBGRA_8888_GrPixelConfig != texture->config()) {
-        // The PM conversions assume colors are 0..255
-        return nullptr;
-    }
-    return sk_sp<GrFragmentProcessor>(
-        new GrConfigConversionEffect(texture, pmConversion, matrix));
 }
 
 sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrResourceProvider* resourceProvider,
