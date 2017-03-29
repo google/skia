@@ -478,6 +478,8 @@ void SkMask_FreeImage(uint8_t* image) {
     SkMask::FreeImage(image);
 }
 
+#include "SkSafeMath.h"
+
 bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
                          SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
                          SkIPoint* margin, bool force_quality) {
@@ -524,10 +526,15 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
     if (margin) {
         margin->set(padx, pady);
     }
-    dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
-                     src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
-
-    dst->fRowBytes = dst->fBounds.width();
+    if (!SkSafeMath::Subtract(&dst->fBounds.fLeft,    src.fBounds.left(),   padx) ||
+        !SkSafeMath::Subtract(&dst->fBounds.fTop,     src.fBounds.top(),    pady) ||
+        !SkSafeMath::Add(     &dst->fBounds.fRight,   src.fBounds.right(),  padx) ||
+        !SkSafeMath::Add(     &dst->fBounds.fBottom,  src.fBounds.bottom(), pady)) {
+        return false;
+    }
+    if (!SkSafeMath::Subtract(&dst->fRowBytes, dst->fBounds.right(), dst->fBounds.left())) {
+        return false;
+    }
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = nullptr;
 
