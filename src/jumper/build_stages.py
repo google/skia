@@ -72,7 +72,7 @@ subprocess.check_call(clang + cflags + vfp4 +
                       ['-o', 'vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
-  globl, label, comment = '.globl', ':', '// '
+  globl, label, comment = '.private_extern', ':', '// '
   if 'win' in dot_o:
     globl, label, comment = 'PUBLIC', ' LABEL PROC', '; '
 
