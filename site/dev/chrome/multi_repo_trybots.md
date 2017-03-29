@@ -13,7 +13,7 @@ If the Skia patch is already in Rietveld and there are no associated Chromium
 changes, then it is possible to just run the Chromium trybots. This will apply
 the Skia patch and run the bot.
 
-Skia and Chromium changes
+Skia in Rietveld and Chromium changes
 -------------------------
 If the Skia patch is already in Rietveld and there are associated Chromium
 changes, then in the Chromium CL add the following to
@@ -52,6 +52,23 @@ Note that if your local skia patch in `third_party/skia` isn't clean (e.g., you
 already applied some patch to it), then `gclient runhooks` won't successfully
 run. In that case, run `git reset --hard` inside `third_party/skia` before
 `gclient runhooks`.
+
+Skia in Gerrit and Chromium changes
+-----------------
+
+In this case, you can simply put the commit id of your Gerrit CL to Chromium's
+DEPS file since all Gerrit changes are kept in the project's repository.
+
+* Rebase your patch on top of latest Skia or the latest
+hash of Skia that has rolled in Chromium.
+* Upload your CL to gerrit
+* Switch to the old UI in your Skia CL, then extract the gerrit commit id.
+* Replace the current 'skia_revision' in Chromium's DEPS file with the id you
+  extracted from Gerrit.
+* Afterwards, run `gclient sync` to sync Skia to this commit id or upload your
+Chromium change to the bots and they will sync to the Skia commit id with your
+gerrit change.
+
 
 Arbitrary changes
 -----------------
