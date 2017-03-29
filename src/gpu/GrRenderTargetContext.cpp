@@ -1334,16 +1334,7 @@ void GrRenderTargetContext::prepareForExternalIO() {
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::prepareForExternalIO");
 
-    // Deferral of the VRAM resources must end in this instance anyway
-    sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
-    if (!rt) {
-        return;
-    }
-
-    ASSERT_OWNED_RESOURCE(rt);
-
-    this->drawingManager()->prepareSurfaceForExternalIO(rt.get());
+    this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get());
 }
 
 void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
