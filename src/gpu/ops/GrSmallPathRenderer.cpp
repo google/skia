@@ -205,7 +205,7 @@ private:
         *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fShapes[0].fColor);
         fUsesLocalCoords = optimizations.readsLocalCoords();
     }

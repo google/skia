@@ -51,7 +51,7 @@ private:
 
     void onPrepareDraws(Target*) const override;
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
+    void applyPipelineOptimizations(const PipelineOptimizations&) override;
 
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }

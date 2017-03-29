@@ -84,7 +84,7 @@ void GrDrawVerticesOp::getFragmentProcessorAnalysisInputs(
     *coverage = GrPipelineAnalysisCoverage::kNone;
 }
 
-void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
+void GrDrawVerticesOp::applyPipelineOptimizations(const PipelineOptimizations& optimizations) {
     SkASSERT(fMeshes.count() == 1);
     GrColor overrideColor;
     if (optimizations.getOverrideColorIfSet(&overrideColor)) {

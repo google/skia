@@ -68,7 +68,7 @@ void GrAtlasTextOp::getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* 
     }
 }
 
-void GrAtlasTextOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
+void GrAtlasTextOp::applyPipelineOptimizations(const PipelineOptimizations& optimizations) {
     optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
 
     fColor = fGeoData[0].fColor;

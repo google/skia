@@ -161,7 +161,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
         fNeedsLocalCoords = optimizations.readsLocalCoords();
     }

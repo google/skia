@@ -101,7 +101,7 @@ public:
 private:
     void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor*,
                                             GrPipelineAnalysisCoverage*) const override;
-    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
+    void applyPipelineOptimizations(const PipelineOptimizations&) override;
 
     struct FlushInfo {
         sk_sp<const GrBuffer> fVertexBuffer;
