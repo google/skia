@@ -48,11 +48,6 @@ SkSurfaceProps::SkSurfaceProps(uint32_t flags, SkPixelGeometry pg)
     : fFlags(flags), fPixelGeometry(pg)
 {}
 
-SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps& other)
-    : fFlags(other.fFlags)
-    , fPixelGeometry(other.fPixelGeometry)
-{}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* props)

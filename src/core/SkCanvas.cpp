@@ -7,6 +7,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkBitmapDevice.h"
+#include "SkThreadedBMPDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasPriv.h"
 #include "SkClipStack.h"
@@ -729,7 +730,13 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
 {
     inc_canvas();
 
-    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
+    SkBaseDevice* rawDevice;
+    if (fProps.getThreads() > 0)
+        rawDevice = new SkThreadedBMPDevice(bitmap, fProps);
+    else
+        rawDevice = new SkBitmapDevice(bitmap, fProps);
+
+    sk_sp<SkBaseDevice> device(rawDevice);
     this->init(device.get(), kDefault_InitFlags);
 }
 
@@ -1495,7 +1502,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edge
     AutoValidateClip avc(this);
 
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    
+
     FOR_EACH_TOP_DEVICE(device->clipRRect(rrect, op, isAA));
 
     fMCRec->fRasterClip.op(rrect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
@@ -1532,7 +1539,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     AutoValidateClip avc(this);
 
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    
+
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;

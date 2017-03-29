@@ -31,6 +31,8 @@ skia_core_sources = [
   "$_src/core/SkBitmapController.cpp",
   "$_src/core/SkBitmapDevice.cpp",
   "$_src/core/SkBitmapDevice.h",
+  "$_src/core/SkThreadedBMPDevice.cpp",
+  "$_src/core/SkThreadedBMPDevice.h",
   "$_src/core/SkBitmapFilter.h",
   "$_src/core/SkBitmapProcShader.cpp",
   "$_src/core/SkBitmapProcShader.h",

@@ -63,7 +63,7 @@ public:
     };
     SkSurfaceProps(InitType);
     SkSurfaceProps(uint32_t flags, InitType);
-    SkSurfaceProps(const SkSurfaceProps& other);
+    SkSurfaceProps(const SkSurfaceProps& other) = default;
 
     uint32_t flags() const { return fFlags; }
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
@@ -72,9 +72,13 @@ public:
         return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
     }
 
+    int getThreads() const { return fThreads; }
+    void setThreads(int threads) { fThreads = threads; }
+
 private:
     SkSurfaceProps();
 
+    int             fThreads = 0;
     uint32_t        fFlags;
     SkPixelGeometry fPixelGeometry;
 };

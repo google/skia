@@ -1819,12 +1819,26 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         return true;
     }
 
+    SkSurfaceProps surfaceProps = gSampleWindow->getSurfaceProps();
+
     switch (uni) {
         case 27:    // ESC
             gAnimTimer.stop();
             if (this->sendAnimatePulse()) {
                 this->inval(nullptr);
             }
+            break;
+        case '+':
+            surfaceProps.setThreads(surfaceProps.getThreads() + 1);
+            gSampleWindow->setSurfaceProps(surfaceProps);
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
+        case '-':
+            surfaceProps.setThreads(std::max(0, surfaceProps.getThreads() - 1));
+            gSampleWindow->setSurfaceProps(surfaceProps);
+            this->inval(nullptr);
+            this->updateTitle();
             break;
         case ' ':
             gAnimTimer.togglePauseResume();
@@ -2190,6 +2204,10 @@ void SampleWindow::updateTitle() {
     }
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
+
+    if (gSampleWindow->getSurfaceProps().getThreads()) {
+        title.prependf("[T%d] ", gSampleWindow->getSurfaceProps().getThreads());
+    }
 
     if (gSkUseAnalyticAA) {
         if (gSkForceAnalyticAA) {
