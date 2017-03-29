@@ -381,6 +381,10 @@ skia_core_sources = [
   #        "$_src/image/SkSurface_Gpu.cpp",
   "$_src/image/SkSurface_Raster.cpp",
 
+  "$_src/jumper/SkJumper.cpp",
+  "$_src/jumper/SkJumper_generated.cpp",
+  "$_src/jumper/SkJumper_stages.cpp",
+
   "$_src/pipe/SkPipeCanvas.cpp",
   "$_src/pipe/SkPipeReader.cpp",
 
