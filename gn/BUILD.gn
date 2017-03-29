@@ -502,7 +502,11 @@ toolchain("msvc") {
   }
 
   tool("asm") {
-    command = "$env_setup$bin/ml64.exe /nologo /c /Fo {{output}} {{source}}"
+    _ml = "ml"
+    if (target_cpu == "x64") {
+      _ml += "64"
+    }
+    command = "$env_setup$bin/$_ml.exe /nologo /c /Fo {{output}} {{source}}"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
