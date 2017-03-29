@@ -2488,7 +2488,9 @@ protected:
             }
 
             double value = defDouble;
-            for (int j = 0; j < position.coordinateCount; ++j) {
+            // The position may be over specified. If there are multiple values for a given axis,
+            // use the last one since that's what css-fonts-4 requires.
+            for (int j = position.coordinateCount; j --> 0;) {
                 if (position.coordinates[j].axis == tagLong) {
                     value = SkTPin(SkScalarToDouble(position.coordinates[j].value),
                                    minDouble, maxDouble);
