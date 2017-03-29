@@ -66,7 +66,8 @@ public:
             fCompatibleWithCoverageAsAlpha = analysis.isCompatibleWithCoverageAsAlpha();
             fCanCombineOverlappedStencilAndCover = analysis.canCombineOverlappedStencilAndCover();
             fIgnoresInputColor = analysis.isInputColorIgnored();
-            sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(analysis, false, nullptr, caps));
+            sk_sp<GrXferProcessor> xp(
+                    xpf->createXferProcessor(inputColor, inputCoverage, false, nullptr, caps));
             TEST_ASSERT(!analysis.requiresDstTexture());
             GetXPOutputTypes(xp.get(), &fPrimaryOutputType, &fSecondaryOutputType);
             xp->getBlendInfo(&fBlendInfo);
@@ -1013,13 +1014,15 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     GrProcessorSet::FragmentProcessorAnalysis analysis;
     testLCDCoverageOp.analyzeProcessors(&analysis, GrProcessorSet(GrPaint()), nullptr, caps);
 
-    SkASSERT(analysis.hasKnownOutputColor());
-    SkASSERT(analysis.outputCoverageType() == GrPipelineAnalysisCoverage::kLCD);
+    SkASSERT(analysis.outputColor().isConstant());
+    SkASSERT(analysis.outputCoverage() == GrPipelineAnalysisCoverage::kLCD);
 
     TEST_ASSERT(!analysis.requiresDstTexture());
 
     const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
-    sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(analysis, false, nullptr, caps));
+
+    sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(
+            analysis.outputColor(), analysis.outputCoverage(), false, nullptr, caps));
     if (!xp) {
         ERRORF(reporter, "Failed to create an XP with LCD coverage.");
         return;
@@ -1072,8 +1075,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                                                                      caps);
                 GrXferProcessor::DstTexture* dstTexture =
                         analysis.requiresDstTexture() ? &fakeDstTexture : nullptr;
-                sk_sp<GrXferProcessor> xp(
-                        xpf->createXferProcessor(analysis, false, dstTexture, caps));
+                sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(colorInput, coverageType, false,
+                                                                   dstTexture, caps));
                 if (!xp) {
                     ERRORF(reporter, "Failed to create an XP without dual source blending.");
                     return;

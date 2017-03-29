@@ -128,27 +128,24 @@ public:
         }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
         bool isInputColorIgnored() const { return fIgnoresInputColor; }
-        bool isOutputColorOpaque() const {
-            return ColorType::kOpaque == this->outputColorType() ||
-                   ColorType::kOpaqueConstant == this->outputColorType();
-        }
-        bool hasKnownOutputColor(GrColor* color = nullptr) const {
-            bool constant = ColorType::kConstant == this->outputColorType() ||
-                            ColorType::kOpaqueConstant == this->outputColorType();
-            if (constant && color) {
-                *color = fKnownOutputColor;
-            }
-            return constant;
-        }
-        GrPipelineAnalysisCoverage outputCoverageType() const {
+        GrPipelineAnalysisCoverage outputCoverage() const {
             return static_cast<GrPipelineAnalysisCoverage>(fOutputCoverageType);
         }
-        bool hasCoverage() const {
-            return this->outputCoverageType() != GrPipelineAnalysisCoverage::kNone;
+        GrPipelineAnalysisColor outputColor() const {
+            switch (this->outputColorType()) {
+                case ColorType::kConstant:
+                    return fKnownOutputColor;
+                case ColorType::kOpaque:
+                    return GrPipelineAnalysisColor::Opaque::kYes;
+                case ColorType::kUnknown:
+                    return GrPipelineAnalysisColor::Opaque::kNo;
+            }
+            SkFAIL("Unexpected color type");
+            return GrPipelineAnalysisColor::Opaque::kNo;
         }
 
     private:
-        enum class ColorType : unsigned { kUnknown, kOpaqueConstant, kConstant, kOpaque };
+        enum class ColorType : unsigned { kUnknown, kConstant, kOpaque };
 
         ColorType outputColorType() const { return static_cast<ColorType>(fOutputColorType); }
 
