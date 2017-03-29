@@ -15,6 +15,7 @@
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
 
+#if 0
 static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t expectedValue,
                        uint32_t* actualValue, int* failX, int* failY) {
     int w = rect.width();
@@ -41,7 +42,9 @@ static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t
     }
     return true;
 }
+#endif
 
+#if 0
 // TODO: this test does this thorough purging of the rendertargets b.c. right now
 // the clear optimizations rely on the rendertarget's uniqueID. It can be
 // relaxed when we switch that over to using rendertargetcontext ids (although
@@ -233,4 +236,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
                failX, failY);
     }
 }
+#endif
+
 #endif

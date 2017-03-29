@@ -66,11 +66,11 @@ public:
 
 protected:
     void onStencilPath(const StencilPathArgs&, const GrPath*) override;
-    void onDrawPath(const GrPipeline&,
+    void onDrawPath(const GrPipeline&, GrRenderTarget*,
                     const GrPrimitiveProcessor&,
                     const GrStencilSettings&,
                     const GrPath*) override;
-    void onDrawPaths(const GrPipeline&,
+    void onDrawPaths(const GrPipeline&, GrRenderTarget*,
                      const GrPrimitiveProcessor&,
                      const GrStencilSettings&,
                      const GrPathRange*,

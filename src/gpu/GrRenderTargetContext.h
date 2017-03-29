@@ -360,11 +360,13 @@ public:
 
     GrRenderTarget* instantiate();
 
-    GrRenderTarget* accessRenderTarget() {
+#if 1
+    GrRenderTarget* accessRenderTarget2() {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
         return fRenderTargetProxy->instantiate(fContext->resourceProvider());
     }
+#endif
 
     GrSurfaceProxy* asSurfaceProxy() override { return fRenderTargetProxy.get(); }
     const GrSurfaceProxy* asSurfaceProxy() const override { return fRenderTargetProxy.get(); }
@@ -378,16 +380,18 @@ public:
 
     GrRenderTargetContext* asRenderTargetContext() override { return this; }
 
-    sk_sp<GrTexture> asTexture() {
-        if (!this->accessRenderTarget()) {
+#if 1
+    sk_sp<GrTexture> asTexture2() {
+        if (!this->accessRenderTarget2()) {
             return nullptr;
         }
 
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
         // It's usage should migrate to asTextureProxyRef
-        return sk_ref_sp(this->accessRenderTarget()->asTexture());
+        return sk_ref_sp(this->accessRenderTarget2()->asTexture());
     }
+#endif
 
     // Provides access to functions that aren't part of the public API.
     GrRenderTargetContextPriv priv();
