@@ -13,6 +13,7 @@ is_skia_dev_build = is_skia_standalone && !is_official_build
 
 declare_args() {
   skia_use_angle = false
+  skia_use_egl = false
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
@@ -411,6 +412,9 @@ optional("gpu") {
   libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp" ]
+  } else if (skia_use_egl) {
+    sources += [ "src/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp" ]
+    libs += [ "EGL" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
     libs += [
@@ -856,7 +860,7 @@ if (skia_enable_tools) {
       ]
       libs = []
 
-      if (is_android) {
+      if (is_android || skia_use_egl) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
       } else if (is_ios) {
         sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
