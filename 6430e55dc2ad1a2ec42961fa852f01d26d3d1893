@@ -52,6 +52,24 @@
       "revId": "6430e55dc2ad1a2ec42961fa852f01d26d3d1893",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88317b52_a1d92250",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-29T13:53:42Z",
+      "side": 1,
+      "message": "Sure, that all makes sense. In this case, the function sleep() is called when !defined(SK_BUILD_FOR_WIN), so if we\u0027re going to guard its header with anything, there\u0027s really no reason to diverge.",
+      "parentUuid": "4319946e_925b61ad",
+      "revId": "6430e55dc2ad1a2ec42961fa852f01d26d3d1893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
