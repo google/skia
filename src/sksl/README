@@ -1,7 +1,7 @@
 Overview
 ========
 
-SkSL ("Skia Shading Language") is a variant of GLSL which is used as Skia's 
+SkSL ("Skia Shading Language") is a variant of GLSL which is used as Skia's
 internal shading language. SkSL is, at its heart, a single standardized version
 of GLSL which avoids all of the various version and dialect differences found
 in GLSL "in the wild", but it does bring a few of its own changes to the table.
@@ -15,7 +15,7 @@ Differences from GLSL
 SkSL is based on GLSL 4.5. For the most part, write SkSL exactly as you would
 desktop GLSL, and the SkSL compiler will take care of version and dialect
 differences (for instance, you always use "in" and "out", and skslc will handle
-translating them to "varying" and "attribute" as appropriate). Be aware of the 
+translating them to "varying" and "attribute" as appropriate). Be aware of the
 following differences between SkSL and GLSL:
 
 * GLSL caps can be referenced via the syntax 'sk_Caps.<name>', e.g.
@@ -36,11 +36,11 @@ following differences between SkSL and GLSL:
 * use sk_VertexID instead of gl_VertexID
 * the fragment coordinate is sk_FragCoord, and is always relative to the upper
   left.
-* lowp, mediump, and highp are always permitted (but will only be respected if 
+* lowp, mediump, and highp are always permitted (but will only be respected if
   you run on a device which supports them)
 * you do not need to include ".0" to make a number a float (meaning that
   "vec2(x, y) * 4" is perfectly legal in SkSL, unlike GLSL where it would often
-  have to be expressed "vec2(x, y) * 4.0". There is no performance penalty for 
+  have to be expressed "vec2(x, y) * 4.0". There is no performance penalty for
   this, as the number is converted to a float at compile time)
 * type suffixes on numbers (1.0f, 0xFFu) are both unnecessary and unsupported
 * creating a smaller vector from a larger vector (e.g. vec2(vec3(1))) is
