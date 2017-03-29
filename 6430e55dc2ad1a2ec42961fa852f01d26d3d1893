@@ -16,6 +16,24 @@
       "revId": "6430e55dc2ad1a2ec42961fa852f01d26d3d1893",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e06906e_518dc14c",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 6065
+      },
+      "writtenOn": "2017-03-29T01:22:47Z",
+      "side": 1,
+      "message": "If you think thats better I\u0027m happy to do it. For reference, my logic here was that unistd.h is a posix header and therefore available on Unix platforms. I wasn\u0027t really clear if not being windows was equivalent to being posixy (for example is unistd.h available on iOS?).",
+      "parentUuid": "268484f2_6714b31d",
+      "revId": "6430e55dc2ad1a2ec42961fa852f01d26d3d1893",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
