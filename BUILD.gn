@@ -700,6 +700,8 @@ component("skia") {
       "src/ports/SkImageGeneratorCG.cpp",
     ]
     libs += [
+      # AppKit symbols NSFontWeightXXX may be dlsym'ed.
+      "AppKit.framework",
       "ApplicationServices.framework",
       "OpenGL.framework",
     ]
@@ -718,6 +720,9 @@ component("skia") {
       "CoreText.framework",
       "ImageIO.framework",
       "MobileCoreServices.framework",
+
+      # UIKit symbols UIFontWeightXXX may be dlsym'ed.
+      "UIKit.framework",
     ]
   }
 
