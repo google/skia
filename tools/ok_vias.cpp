@@ -5,17 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "ok.h"
+#include "SkOSFile.h"
 #include "SkPictureRecorder.h"
+#include "ok.h"
+#include <regex>
 
-static std::unique_ptr<Src> proxy(Src* original, std::function<bool(SkCanvas*)> fn) {
+static std::unique_ptr<Src> proxy(Src* original, std::function<Status(SkCanvas*)> fn) {
     struct : Src {
-        Src*                           original;
-        std::function<bool(SkCanvas*)> fn;
+        Src*                             original;
+        std::function<Status(SkCanvas*)> fn;
 
         std::string name() override { return original->name(); }
         SkISize     size() override { return original->size(); }
-        bool draw(SkCanvas* canvas) override { return fn(canvas); }
+        Status draw(SkCanvas* canvas) override { return fn(canvas); }
     } src;
     src.original = original;
     src.fn       = fn;
@@ -33,20 +35,20 @@ struct ViaPic : Dst {
         return move_unique(via);
     }
 
-    bool draw(Src* src) override {
+    Status draw(Src* src) override {
         SkRTreeFactory factory;
         SkPictureRecorder rec;
         rec.beginRecording(SkRect::MakeSize(SkSize::Make(src->size())),
                            rtree ? &factory : nullptr);
 
-        if (!src->draw(rec.getRecordingCanvas())) {
-            return false;
+        for (auto status = src->draw(rec.getRecordingCanvas()); status != Status::OK; ) {
+            return status;
         }
         auto pic = rec.finishRecordingAsPicture();
 
         return target->draw(proxy(src, [=](SkCanvas* canvas) {
             pic->playback(canvas);
-            return true;
+            return Status::OK;
         }).get());
     }
 
@@ -54,4 +56,64 @@ struct ViaPic : Dst {
         return target->image();
     }
 };
-static Register via_pic{"via_pic", ViaPic::Create};
+static Register via_pic{"via_pic", "record then play back an SkPicture", ViaPic::Create};
+
+struct Png : Dst {
+    std::unique_ptr<Dst> target;
+    std::string          dir;
+
+    static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        Png via;
+        via.target = std::move(dst);
+        via.dir    = options("dir", "ok");
+        return move_unique(via);
+    }
+
+    Status draw(Src* src) override {
+        for (auto status = target->draw(src); status != Status::OK; ) {
+            return status;
+        }
+
+        auto image = target->image();
+        sk_sp<SkData> png{image->encode()};
+
+        sk_mkdir(dir.c_str());
+        SkFILEWStream{(dir + "/" + src->name() + ".png").c_str()}
+            .write(png->data(), png->size());
+        return Status::OK;
+    }
+
+    sk_sp<SkImage> image() override {
+        return target->image();
+    }
+};
+static Register png{"png", "dump PNGs to dir=ok" , Png::Create};
+
+struct Filter : Dst {
+    std::unique_ptr<Dst> target;
+    std::regex match, search;
+
+    static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        Filter via;
+        via.target = std::move(dst);
+        via.match  = options("match",  ".*");
+        via.search = options("search", ".*");
+        return move_unique(via);
+    }
+
+    Status draw(Src* src) override {
+        auto name = src->name();
+        if (!std::regex_match (name, match) ||
+            !std::regex_search(name, search)) {
+            return Status::Skipped;
+        }
+        return target->draw(src);
+    }
+
+    sk_sp<SkImage> image() override {
+        return target->image();
+    }
+};
+struct Register filter{"filter",
+                       "run only srcs matching match=.* exactly and search=.* somewhere",
+                       Filter::Create};

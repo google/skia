@@ -10,21 +10,20 @@
 //   * ok is entirely opt-in.  No more maintaining huge --blacklists.
 
 #include "SkGraphics.h"
-#include "SkOSFile.h"
 #include "ok.h"
 #include <chrono>
 #include <future>
 #include <list>
-#include <regex>
 #include <stdio.h>
 #include <stdlib.h>
 #include <thread>
+#include <vector>
 
 #if !defined(__has_include)
     #define  __has_include(x) 0
 #endif
 
-static thread_local const char* tls_name = "";
+static thread_local const char* tls_currently_running = "";
 
 #if __has_include(<execinfo.h>) && __has_include(<fcntl.h>) && __has_include(<signal.h>)
     #include <execinfo.h>
@@ -53,7 +52,7 @@ static thread_local const char* tls_name = "";
                     #undef CASE
                     }
                     log(" while running '");
-                    log(tls_name);
+                    log(tls_currently_running);
                     log("'\n");
 
                     void* stack[128];
@@ -81,7 +80,7 @@ static thread_local const char* tls_name = "";
     void ok_log(const char* msg) {
         lockf(log_fd, F_LOCK, 0);
             log("[");
-            log(tls_name);
+            log(tls_currently_running);
             log("]\t");
             log(msg);
             log("\n");
@@ -96,8 +95,6 @@ static thread_local const char* tls_name = "";
         fprintf(stderr, "%s\n", msg);
     }
 #endif
-
-enum class Status { OK, Failed, Crashed, Skipped, None };
 
 struct Engine {
     virtual ~Engine() {}
@@ -174,55 +171,54 @@ struct ThreadEngine : Engine {
 #endif
 
 struct StreamType {
-    const char* name;
+    const char *name, *help;
     std::unique_ptr<Stream> (*factory)(Options);
 };
 static std::vector<StreamType> stream_types;
 
 struct DstType {
-    const char* name;
+    const char *name, *help;
     std::unique_ptr<Dst> (*factory)(Options);
 };
 static std::vector<DstType> dst_types;
 
 struct ViaType {
-    const char* name;
+    const char *name, *help;
     std::unique_ptr<Dst> (*factory)(Options, std::unique_ptr<Dst>);
 };
 static std::vector<ViaType> via_types;
+
+template <typename T>
+static std::string help_for(std::vector<T> registered) {
+    std::string help;
+    for (auto r : registered) {
+        help += "\n    ";
+        help += r.name;
+        help += ": ";
+        help += r.help;
+    }
+    return help;
+}
 
 int main(int argc, char** argv) {
     SkGraphics::Init();
     setup_crash_handler();
 
-    int         jobs        {1};
-    std::regex  match       {".*"};
-    std::regex  search      {".*"};
-    std::string write_dir   {""};
-
+    int                                       jobs{1};
     std::unique_ptr<Stream>                   stream;
-    std::function<std::unique_ptr<Dst>(void)> dst_factory;
+    std::function<std::unique_ptr<Dst>(void)> dst_factory = []{
+        // A default Dst that's enough for unit tests and not much else.
+        struct : Dst {
+            Status draw(Src* src)  override { return src->draw(nullptr); }
+            sk_sp<SkImage> image() override { return nullptr; }
+        } dst;
+        return move_unique(dst);
+    };
 
     auto help = [&] {
-        std::string stream_names, dst_names, via_names;
-        for (auto s : stream_types) {
-            if (!stream_names.empty()) {
-                stream_names += ", ";
-            }
-            stream_names += s.name;
-        }
-        for (auto d : dst_types) {
-            if (!dst_names.empty()) {
-                dst_names += ", ";
-            }
-            dst_names += d.name;
-        }
-        for (auto v : via_types) {
-            if (!via_names.empty()) {
-                via_names += ", ";
-            }
-            via_names += v.name;
-        }
+        std::string stream_help = help_for(stream_types),
+                       dst_help = help_for(   dst_types),
+                       via_help = help_for(   via_types);
 
         printf("%s [-j N] [-m regex] [-s regex] [-w dir] [-h]                        \n"
                 "  src[:k=v,...] dst[:k=v,...] [via[:k=v,...] ...]                   \n"
@@ -230,23 +226,17 @@ int main(int argc, char** argv) {
                 "      If <0, use -N threads instead.                                \n"
                 "      If 0, use one thread in one process.                          \n"
                 "      If 1 (default) or -1, auto-detect N.                          \n"
-                "  -m: Run only names matching regex exactly.                        \n"
-                "  -s: Run only names matching regex anywhere.                       \n"
-                "  -w: If set, write .pngs into dir.                                 \n"
                 "  -h: Print this message and exit.                                  \n"
-                " src: content to draw: %s                                           \n"
-                " dst: how to draw that content: %s                                  \n"
-                " via: front-patches to the dst: %s                                  \n"
-                " Some srcs, dsts and vias have options, e.g. skp:dir=skps sw:ct=565 \n",
-                argv[0], stream_names.c_str(), dst_names.c_str(), via_names.c_str());
+                " src: content to draw%s                                             \n"
+                " dst: how to draw that content%s                                    \n"
+                " via: wrappers around dst%s                                         \n"
+                " Most srcs, dsts and vias have options, e.g. skp:dir=skps sw:ct=565 \n",
+                argv[0], stream_help.c_str(), dst_help.c_str(), via_help.c_str());
         return 1;
     };
 
     for (int i = 1; i < argc; i++) {
-        if (0 == strcmp("-j", argv[i])) { jobs      = atoi(argv[++i]); }
-        if (0 == strcmp("-m", argv[i])) { match     =      argv[++i] ; }
-        if (0 == strcmp("-s", argv[i])) { search    =      argv[++i] ; }
-        if (0 == strcmp("-w", argv[i])) { write_dir =      argv[++i] ; }
+        if (0 == strcmp("-j", argv[i])) { jobs = atoi(argv[++i]); }
         if (0 == strcmp("-h", argv[i])) { return help(); }
 
         for (auto s : stream_types) {
@@ -283,16 +273,6 @@ int main(int argc, char** argv) {
         }
     }
     if (!stream) { return help(); }
-    if (!dst_factory) {
-        // A default Dst that's enough for unit tests and not much else.
-        dst_factory = []{
-            struct : Dst {
-                bool draw(Src* src) override { return src->draw(nullptr); }
-                sk_sp<SkImage> image() override { return nullptr; }
-            } dst;
-            return move_unique(dst);
-        };
-    }
 
     std::unique_ptr<Engine> engine;
     if (jobs == 0) { engine.reset(new SerialEngine);                  }
@@ -300,10 +280,6 @@ int main(int argc, char** argv) {
     if (jobs  < 0) { engine.reset(new ThreadEngine); jobs = -jobs;    }
 
     if (jobs == 1) { jobs = std::thread::hardware_concurrency(); }
-
-    if (!write_dir.empty()) {
-        sk_mkdir(write_dir.c_str());
-    }
 
     int ok = 0, failed = 0, crashed = 0, skipped = 0;
 
@@ -343,25 +319,10 @@ int main(int argc, char** argv) {
         spawn([=] {
             std::unique_ptr<Src> src{raw};
 
-            auto name = src->name();
-            tls_name = name.c_str();
-            if (!std::regex_match (name, match) ||
-                !std::regex_search(name, search)) {
-                return Status::Skipped;
-            }
+            std::string name = src->name();
+            tls_currently_running = name.c_str();
 
-            auto dst = dst_factory();
-            if (!dst->draw(src.get())) {
-                return Status::Failed;
-            }
-
-            if (!write_dir.empty()) {
-                auto image = dst->image();
-                sk_sp<SkData> png{image->encode()};
-                SkFILEWStream{(write_dir + "/" + name + ".png").c_str()}
-                    .write(png->data(), png->size());
-            }
-            return Status::OK;
+            return dst_factory()->draw(src.get());
         });
     }
 
@@ -374,15 +335,17 @@ int main(int argc, char** argv) {
 }
 
 
-Register::Register(const char* name, std::unique_ptr<Stream> (*factory)(Options)) {
-    stream_types.push_back(StreamType{name, factory});
+Register::Register(const char* name, const char* help,
+                   std::unique_ptr<Stream> (*factory)(Options)) {
+    stream_types.push_back(StreamType{name, help, factory});
 }
-Register::Register(const char* name, std::unique_ptr<Dst> (*factory)(Options)) {
-    dst_types.push_back(DstType{name, factory});
+Register::Register(const char* name, const char* help,
+                   std::unique_ptr<Dst> (*factory)(Options)) {
+    dst_types.push_back(DstType{name, help, factory});
 }
-Register::Register(const char* name,
+Register::Register(const char* name, const char* help,
                    std::unique_ptr<Dst> (*factory)(Options, std::unique_ptr<Dst>)) {
-    via_types.push_back(ViaType{name, factory});
+    via_types.push_back(ViaType{name, help, factory});
 }
 
 Options::Options(std::string str) {

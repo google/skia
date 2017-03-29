@@ -38,12 +38,12 @@ struct GMStream : Stream {
             return gm->getISize();
         }
 
-        bool draw(SkCanvas* canvas) override {
+        Status draw(SkCanvas* canvas) override {
             this->init();
             canvas->clear(0xffffffff);
             canvas->concat(gm->getInitialTransform());
             gm->draw(canvas);
-            return true;
+            return Status::OK;
         }
     };
 
@@ -57,7 +57,7 @@ struct GMStream : Stream {
         return move_unique(src);
     }
 };
-static Register gm{"gm", GMStream::Create};
+static Register gm{"gm", "draw GMs linked into this binary", GMStream::Create};
 
 struct SKPStream : Stream {
     std::string dir;
@@ -92,11 +92,11 @@ struct SKPStream : Stream {
             return pic->cullRect().roundOut().size();
         }
 
-        bool draw(SkCanvas* canvas) override {
+        Status draw(SkCanvas* canvas) override {
             this->init();
             canvas->clear(0xffffffff);
             pic->playback(canvas);
-            return true;
+            return Status::OK;
         }
     };
 
@@ -111,4 +111,4 @@ struct SKPStream : Stream {
         return move_unique(src);
     }
 };
-static Register skp{"skp", SKPStream::Create};
+static Register skp{"skp", "draw SKPs from dir=skps", SKPStream::Create};

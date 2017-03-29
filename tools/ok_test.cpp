@@ -31,15 +31,15 @@ struct TestStream : Stream {
         std::string name() override { return test.name; }
         SkISize     size() override { return {0,0}; }
 
-        bool draw(SkCanvas*) override {
+        Status draw(SkCanvas*) override {
 
             struct : public skiatest::Reporter {
-                bool ok = true;
+                Status status = Status::OK;
                 bool extended, verbose_;
 
                 void reportFailed(const skiatest::Failure& failure) override {
                     ok_log(failure.toString().c_str());
-                    ok = false;
+                    status = Status::Failed;
                 }
                 bool allowExtendedTest() const override { return extended; }
                 bool           verbose() const override { return verbose_; }
@@ -55,7 +55,7 @@ struct TestStream : Stream {
         #endif
 
             test.proc(&reporter, factory);
-            return reporter.ok;
+            return reporter.status;
         }
     };
 
@@ -71,7 +71,7 @@ struct TestStream : Stream {
         return move_unique(src);
     }
 };
-static Register test{"test", TestStream::Create};
+static Register test{"test", "run unit tests linked into this binary", TestStream::Create};
 
 // Hey, now why were these defined in DM.cpp?  That's kind of weird.
 namespace skiatest {
