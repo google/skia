@@ -6,10 +6,16 @@
 # This file is generated semi-automatically with this command:
 #   $ src/jumper/build_stages.py
 
+#if defined(__MACH__)
+    #define HIDDEN .private_extern
+#else
+    #define HIDDEN .hidden
+#endif
 .text
 #if defined(__aarch64__)
 .balign 4
 
+HIDDEN _sk_start_pipeline_aarch64
 .globl _sk_start_pipeline_aarch64
 _sk_start_pipeline_aarch64:
   .long  0xa9bd5bf7                          // stp           x23, x22, [sp, #-48]!
@@ -47,10 +53,12 @@ _sk_start_pipeline_aarch64:
   .long  0xa8c35bf7                          // ldp           x23, x22, [sp], #48
   .long  0xd65f03c0                          // ret
 
+HIDDEN _sk_just_return_aarch64
 .globl _sk_just_return_aarch64
 _sk_just_return_aarch64:
   .long  0xd65f03c0                          // ret
 
+HIDDEN _sk_seed_shader_aarch64
 .globl _sk_seed_shader_aarch64
 _sk_seed_shader_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -71,6 +79,7 @@ _sk_seed_shader_aarch64:
   .long  0x6f00e407                          // movi          v7.2d, #0x0
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_constant_color_aarch64
 .globl _sk_constant_color_aarch64
 _sk_constant_color_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -81,6 +90,7 @@ _sk_constant_color_aarch64:
   .long  0x4e1c0463                          // dup           v3.4s, v3.s[3]
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_clear_aarch64
 .globl _sk_clear_aarch64
 _sk_clear_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -90,6 +100,7 @@ _sk_clear_aarch64:
   .long  0x6f00e403                          // movi          v3.2d, #0x0
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_plus__aarch64
 .globl _sk_plus__aarch64
 _sk_plus__aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -99,6 +110,7 @@ _sk_plus__aarch64:
   .long  0x4e27d463                          // fadd          v3.4s, v3.4s, v7.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_srcover_aarch64
 .globl _sk_srcover_aarch64
 _sk_srcover_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -110,6 +122,7 @@ _sk_srcover_aarch64:
   .long  0x4e27ce03                          // fmla          v3.4s, v16.4s, v7.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_dstover_aarch64
 .globl _sk_dstover_aarch64
 _sk_dstover_aarch64:
   .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
@@ -129,6 +142,7 @@ _sk_dstover_aarch64:
   .long  0x4eb31e63                          // mov           v3.16b, v19.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_clamp_0_aarch64
 .globl _sk_clamp_0_aarch64
 _sk_clamp_0_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -139,6 +153,7 @@ _sk_clamp_0_aarch64:
   .long  0x4e30f463                          // fmax          v3.4s, v3.4s, v16.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_clamp_1_aarch64
 .globl _sk_clamp_1_aarch64
 _sk_clamp_1_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -149,6 +164,7 @@ _sk_clamp_1_aarch64:
   .long  0x4eb0f463                          // fmin          v3.4s, v3.4s, v16.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_clamp_a_aarch64
 .globl _sk_clamp_a_aarch64
 _sk_clamp_a_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -159,6 +175,7 @@ _sk_clamp_a_aarch64:
   .long  0x4ea3f442                          // fmin          v2.4s, v2.4s, v3.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_set_rgb_aarch64
 .globl _sk_set_rgb_aarch64
 _sk_set_rgb_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -169,6 +186,7 @@ _sk_set_rgb_aarch64:
   .long  0x4d40c921                          // ld1r          {v1.4s}, [x9]
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_swap_rb_aarch64
 .globl _sk_swap_rb_aarch64
 _sk_swap_rb_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -177,6 +195,7 @@ _sk_swap_rb_aarch64:
   .long  0x4eb01e02                          // mov           v2.16b, v16.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_swap_aarch64
 .globl _sk_swap_aarch64
 _sk_swap_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -194,6 +213,7 @@ _sk_swap_aarch64:
   .long  0x4eb01e07                          // mov           v7.16b, v16.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_move_src_dst_aarch64
 .globl _sk_move_src_dst_aarch64
 _sk_move_src_dst_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -203,6 +223,7 @@ _sk_move_src_dst_aarch64:
   .long  0x4ea31c67                          // mov           v7.16b, v3.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_move_dst_src_aarch64
 .globl _sk_move_dst_src_aarch64
 _sk_move_dst_src_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -212,6 +233,7 @@ _sk_move_dst_src_aarch64:
   .long  0x4ea71ce3                          // mov           v3.16b, v7.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_premul_aarch64
 .globl _sk_premul_aarch64
 _sk_premul_aarch64:
   .long  0xf8408423                          // ldr           x3, [x1], #8
@@ -220,6 +242,7 @@ _sk_premul_aarch64:
   .long  0x6e23dc42                          // fmul          v2.4s, v2.4s, v3.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_unpremul_aarch64
 .globl _sk_unpremul_aarch64
 _sk_unpremul_aarch64:
   .long  0x4f03f611                          // fmov          v17.4s, #1.000000000000000000e+00
@@ -232,6 +255,7 @@ _sk_unpremul_aarch64:
   .long  0x6e22de02                          // fmul          v2.4s, v16.4s, v2.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_from_srgb_aarch64
 .globl _sk_from_srgb_aarch64
 _sk_from_srgb_aarch64:
   .long  0x52a7d328                          // mov           w8, #0x3e990000
@@ -274,6 +298,7 @@ _sk_from_srgb_aarch64:
   .long  0x6e721e22                          // bsl           v2.16b, v17.16b, v18.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_to_srgb_aarch64
 .globl _sk_to_srgb_aarch64
 _sk_to_srgb_aarch64:
   .long  0x52a828e8                          // mov           w8, #0x41470000
@@ -348,6 +373,7 @@ _sk_to_srgb_aarch64:
   .long  0x6e701e42                          // bsl           v2.16b, v18.16b, v16.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_scale_1_float_aarch64
 .globl _sk_scale_1_float_aarch64
 _sk_scale_1_float_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -358,6 +384,7 @@ _sk_scale_1_float_aarch64:
   .long  0x4f909063                          // fmul          v3.4s, v3.4s, v16.s[0]
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_scale_u8_aarch64
 .globl _sk_scale_u8_aarch64
 _sk_scale_u8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -383,6 +410,7 @@ _sk_scale_u8_aarch64:
   .long  0x6e23de03                          // fmul          v3.4s, v16.4s, v3.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_lerp_1_float_aarch64
 .globl _sk_lerp_1_float_aarch64
 _sk_lerp_1_float_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -401,6 +429,7 @@ _sk_lerp_1_float_aarch64:
   .long  0x4f901243                          // fmla          v3.4s, v18.4s, v16.s[0]
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_lerp_u8_aarch64
 .globl _sk_lerp_u8_aarch64
 _sk_lerp_u8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -434,6 +463,7 @@ _sk_lerp_u8_aarch64:
   .long  0x4e31ce03                          // fmla          v3.4s, v16.4s, v17.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_lerp_565_aarch64
 .globl _sk_lerp_565_aarch64
 _sk_lerp_565_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -475,6 +505,7 @@ _sk_lerp_565_aarch64:
   .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_load_tables_aarch64
 .globl _sk_load_tables_aarch64
 _sk_load_tables_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -532,6 +563,7 @@ _sk_load_tables_aarch64:
   .long  0x6e1c0622                          // mov           v2.s[3], v17.s[0]
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_load_a8_aarch64
 .globl _sk_load_a8_aarch64
 _sk_load_a8_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -556,6 +588,7 @@ _sk_load_a8_aarch64:
   .long  0x6f00e402                          // movi          v2.2d, #0x0
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_store_a8_aarch64
 .globl _sk_store_a8_aarch64
 _sk_store_a8_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
@@ -578,6 +611,7 @@ _sk_store_a8_aarch64:
   .long  0x91004021                          // add           x1, x1, #0x10
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_load_565_aarch64
 .globl _sk_load_565_aarch64
 _sk_load_565_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -610,6 +644,7 @@ _sk_load_565_aarch64:
   .long  0x4f03f603                          // fmov          v3.4s, #1.000000000000000000e+00
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_store_565_aarch64
 .globl _sk_store_565_aarch64
 _sk_store_565_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
@@ -634,6 +669,7 @@ _sk_store_565_aarch64:
   .long  0x91004021                          // add           x1, x1, #0x10
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_load_8888_aarch64
 .globl _sk_load_8888_aarch64
 _sk_load_8888_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -660,6 +696,7 @@ _sk_load_8888_aarch64:
   .long  0x6e22de42                          // fmul          v2.4s, v18.4s, v2.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_store_8888_aarch64
 .globl _sk_store_8888_aarch64
 _sk_store_8888_aarch64:
   .long  0x52a86fea                          // mov           w10, #0x437f0000
@@ -686,6 +723,7 @@ _sk_store_8888_aarch64:
   .long  0x91004021                          // add           x1, x1, #0x10
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_load_f16_aarch64
 .globl _sk_load_f16_aarch64
 _sk_load_f16_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -698,6 +736,7 @@ _sk_load_f16_aarch64:
   .long  0x0e217a63                          // fcvtl         v3.4s, v19.4h
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_store_f16_aarch64
 .globl _sk_store_f16_aarch64
 _sk_store_f16_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
@@ -712,6 +751,7 @@ _sk_store_f16_aarch64:
   .long  0x91004021                          // add           x1, x1, #0x10
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_store_f32_aarch64
 .globl _sk_store_f32_aarch64
 _sk_store_f32_aarch64:
   .long  0xf9400028                          // ldr           x8, [x1]
@@ -722,6 +762,7 @@ _sk_store_f32_aarch64:
   .long  0x91004021                          // add           x1, x1, #0x10
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_clamp_x_aarch64
 .globl _sk_clamp_x_aarch64
 _sk_clamp_x_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -733,6 +774,7 @@ _sk_clamp_x_aarch64:
   .long  0x4eb0f400                          // fmin          v0.4s, v0.4s, v16.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_clamp_y_aarch64
 .globl _sk_clamp_y_aarch64
 _sk_clamp_y_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -744,6 +786,7 @@ _sk_clamp_y_aarch64:
   .long  0x4eb0f421                          // fmin          v1.4s, v1.4s, v16.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_repeat_x_aarch64
 .globl _sk_repeat_x_aarch64
 _sk_repeat_x_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -757,6 +800,7 @@ _sk_repeat_x_aarch64:
   .long  0x4eb1f400                          // fmin          v0.4s, v0.4s, v17.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_repeat_y_aarch64
 .globl _sk_repeat_y_aarch64
 _sk_repeat_y_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -770,6 +814,7 @@ _sk_repeat_y_aarch64:
   .long  0x4eb1f421                          // fmin          v1.4s, v1.4s, v17.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_mirror_x_aarch64
 .globl _sk_mirror_x_aarch64
 _sk_mirror_x_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -788,6 +833,7 @@ _sk_mirror_x_aarch64:
   .long  0x4eb0f400                          // fmin          v0.4s, v0.4s, v16.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_mirror_y_aarch64
 .globl _sk_mirror_y_aarch64
 _sk_mirror_y_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -806,6 +852,7 @@ _sk_mirror_y_aarch64:
   .long  0x4eb0f421                          // fmin          v1.4s, v1.4s, v16.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_luminance_to_alpha_aarch64
 .globl _sk_luminance_to_alpha_aarch64
 _sk_luminance_to_alpha_aarch64:
   .long  0x52a7cb28                          // mov           w8, #0x3e590000
@@ -827,6 +874,7 @@ _sk_luminance_to_alpha_aarch64:
   .long  0x6f00e402                          // movi          v2.2d, #0x0
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_matrix_2x3_aarch64
 .globl _sk_matrix_2x3_aarch64
 _sk_matrix_2x3_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -846,6 +894,7 @@ _sk_matrix_2x3_aarch64:
   .long  0x4eb11e21                          // mov           v1.16b, v17.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_matrix_3x4_aarch64
 .globl _sk_matrix_3x4_aarch64
 _sk_matrix_3x4_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -876,6 +925,7 @@ _sk_matrix_3x4_aarch64:
   .long  0x4eb21e42                          // mov           v2.16b, v18.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_matrix_4x5_aarch64
 .globl _sk_matrix_4x5_aarch64
 _sk_matrix_4x5_aarch64:
   .long  0xf9400029                          // ldr           x9, [x1]
@@ -921,6 +971,7 @@ _sk_matrix_4x5_aarch64:
   .long  0x4eb31e63                          // mov           v3.16b, v19.16b
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_matrix_perspective_aarch64
 .globl _sk_matrix_perspective_aarch64
 _sk_matrix_perspective_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -948,6 +999,7 @@ _sk_matrix_perspective_aarch64:
   .long  0x6e32de80                          // fmul          v0.4s, v20.4s, v18.4s
   .long  0xd61f0060                          // br            x3
 
+HIDDEN _sk_linear_gradient_2stops_aarch64
 .globl _sk_linear_gradient_2stops_aarch64
 _sk_linear_gradient_2stops_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
@@ -965,6 +1017,7 @@ _sk_linear_gradient_2stops_aarch64:
 #elif defined(__arm__)
 .balign 4
 
+HIDDEN _sk_start_pipeline_vfp4
 .globl _sk_start_pipeline_vfp4
 _sk_start_pipeline_vfp4:
   .long  0xe92d41f0                          // push          {r4, r5, r6, r7, r8, lr}
@@ -995,10 +1048,12 @@ _sk_start_pipeline_vfp4:
   .long  0xe1a00004                          // mov           r0, r4
   .long  0xe8bd81f0                          // pop           {r4, r5, r6, r7, r8, pc}
 
+HIDDEN _sk_just_return_vfp4
 .globl _sk_just_return_vfp4
 _sk_just_return_vfp4:
   .long  0xe12fff1e                          // bx            lr
 
+HIDDEN _sk_seed_shader_vfp4
 .globl _sk_seed_shader_vfp4
 _sk_seed_shader_vfp4:
   .long  0xee800b90                          // vdup.32       d16, r0
@@ -1020,6 +1075,7 @@ _sk_seed_shader_vfp4:
   .long  0xf2807010                          // vmov.i32      d7, #0
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_constant_color_vfp4
 .globl _sk_constant_color_vfp4
 _sk_constant_color_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -1031,6 +1087,7 @@ _sk_constant_color_vfp4:
   .long  0xf3bc3c21                          // vdup.32       d3, d17[1]
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_clear_vfp4
 .globl _sk_clear_vfp4
 _sk_clear_vfp4:
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -1040,6 +1097,7 @@ _sk_clear_vfp4:
   .long  0xf2803010                          // vmov.i32      d3, #0
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_plus__vfp4
 .globl _sk_plus__vfp4
 _sk_plus__vfp4:
   .long  0xf2000d04                          // vadd.f32      d0, d0, d4
@@ -1049,6 +1107,7 @@ _sk_plus__vfp4:
   .long  0xf2033d07                          // vadd.f32      d3, d3, d7
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_srcover_vfp4
 .globl _sk_srcover_vfp4
 _sk_srcover_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -1060,6 +1119,7 @@ _sk_srcover_vfp4:
   .long  0xf2073c30                          // vfma.f32      d3, d7, d16
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_dstover_vfp4
 .globl _sk_dstover_vfp4
 _sk_dstover_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -1079,6 +1139,7 @@ _sk_dstover_vfp4:
   .long  0xf22331b3                          // vorr          d3, d19, d19
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_clamp_0_vfp4
 .globl _sk_clamp_0_vfp4
 _sk_clamp_0_vfp4:
   .long  0xf2c00010                          // vmov.i32      d16, #0
@@ -1089,6 +1150,7 @@ _sk_clamp_0_vfp4:
   .long  0xf2033f20                          // vmax.f32      d3, d3, d16
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_clamp_1_vfp4
 .globl _sk_clamp_1_vfp4
 _sk_clamp_1_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -1099,6 +1161,7 @@ _sk_clamp_1_vfp4:
   .long  0xf2233f20                          // vmin.f32      d3, d3, d16
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_clamp_a_vfp4
 .globl _sk_clamp_a_vfp4
 _sk_clamp_a_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -1109,6 +1172,7 @@ _sk_clamp_a_vfp4:
   .long  0xf2222f03                          // vmin.f32      d2, d2, d3
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_set_rgb_vfp4
 .globl _sk_set_rgb_vfp4
 _sk_set_rgb_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
@@ -1121,6 +1185,7 @@ _sk_set_rgb_vfp4:
   .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_swap_rb_vfp4
 .globl _sk_swap_rb_vfp4
 _sk_swap_rb_vfp4:
   .long  0xeef00b40                          // vmov.f64      d16, d0
@@ -1129,6 +1194,7 @@ _sk_swap_rb_vfp4:
   .long  0xeeb02b60                          // vmov.f64      d2, d16
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_swap_vfp4
 .globl _sk_swap_vfp4
 _sk_swap_vfp4:
   .long  0xeef00b43                          // vmov.f64      d16, d3
@@ -1146,6 +1212,7 @@ _sk_swap_vfp4:
   .long  0xeeb07b60                          // vmov.f64      d7, d16
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_move_src_dst_vfp4
 .globl _sk_move_src_dst_vfp4
 _sk_move_src_dst_vfp4:
   .long  0xeeb04b40                          // vmov.f64      d4, d0
@@ -1155,6 +1222,7 @@ _sk_move_src_dst_vfp4:
   .long  0xeeb07b43                          // vmov.f64      d7, d3
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_move_dst_src_vfp4
 .globl _sk_move_dst_src_vfp4
 _sk_move_dst_src_vfp4:
   .long  0xeeb00b44                          // vmov.f64      d0, d4
@@ -1164,6 +1232,7 @@ _sk_move_dst_src_vfp4:
   .long  0xeeb03b47                          // vmov.f64      d3, d7
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_premul_vfp4
 .globl _sk_premul_vfp4
 _sk_premul_vfp4:
   .long  0xf3000d13                          // vmul.f32      d0, d0, d3
@@ -1172,6 +1241,7 @@ _sk_premul_vfp4:
   .long  0xf3022d13                          // vmul.f32      d2, d2, d3
   .long  0xe12fff13                          // bx            r3
 
+HIDDEN _sk_unpremul_vfp4
 .globl _sk_unpremul_vfp4
 _sk_unpremul_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
@@ -1189,6 +1259,7 @@ _sk_unpremul_vfp4:
   .long  0xe12fff13                          // bx            r3
   .long  0xe320f000                          // nop           {0}
 
+HIDDEN _sk_from_srgb_vfp4
 .globl _sk_from_srgb_vfp4
 _sk_from_srgb_vfp4:
   .long  0xeddf3b20                          // vldr          d19, [pc, #128]
@@ -1234,6 +1305,7 @@ _sk_from_srgb_vfp4:
   .long  0x3b23d70a                          // .word         0x3b23d70a
   .long  0x3b23d70a                          // .word         0x3b23d70a
 
+HIDDEN _sk_to_srgb_vfp4
 .globl _sk_to_srgb_vfp4
 _sk_to_srgb_vfp4:
   .long  0xf3fb0582                          // vrsqrte.f32   d16, d2
@@ -1311,6 +1383,7 @@ _sk_to_srgb_vfp4:
   .long  0x3b8ce704                          // .word         0x3b8ce704
   .long  0x3b8ce704                          // .word         0x3b8ce704
 
+HIDDEN _sk_scale_1_float_vfp4
 .globl _sk_scale_1_float_vfp4
 _sk_scale_1_float_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -1322,6 +1395,7 @@ _sk_scale_1_float_vfp4:
   .long  0xf3003d93                          // vmul.f32      d3, d16, d3
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_scale_u8_vfp4
 .globl _sk_scale_u8_vfp4
 _sk_scale_u8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
@@ -1347,6 +1421,7 @@ _sk_scale_u8_vfp4:
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
+HIDDEN _sk_lerp_1_float_vfp4
 .globl _sk_lerp_1_float_vfp4
 _sk_lerp_1_float_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -1366,6 +1441,7 @@ _sk_lerp_1_float_vfp4:
   .long  0xf2033cb4                          // vfma.f32      d3, d19, d20
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_lerp_u8_vfp4
 .globl _sk_lerp_u8_vfp4
 _sk_lerp_u8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
@@ -1399,6 +1475,7 @@ _sk_lerp_u8_vfp4:
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
+HIDDEN _sk_lerp_565_vfp4
 .globl _sk_lerp_565_vfp4
 _sk_lerp_565_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
@@ -1446,6 +1523,7 @@ _sk_lerp_565_vfp4:
   .long  0x3d042108                          // .word         0x3d042108
   .long  0x3d042108                          // .word         0x3d042108
 
+HIDDEN _sk_load_tables_vfp4
 .globl _sk_load_tables_vfp4
 _sk_load_tables_vfp4:
   .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
@@ -1489,6 +1567,7 @@ _sk_load_tables_vfp4:
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
+HIDDEN _sk_load_a8_vfp4
 .globl _sk_load_a8_vfp4
 _sk_load_a8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
@@ -1514,6 +1593,7 @@ _sk_load_a8_vfp4:
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
+HIDDEN _sk_store_a8_vfp4
 .globl _sk_store_a8_vfp4
 _sk_store_a8_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
@@ -1535,6 +1615,7 @@ _sk_store_a8_vfp4:
   .long  0x437f0000                          // .word         0x437f0000
   .long  0x437f0000                          // .word         0x437f0000
 
+HIDDEN _sk_load_565_vfp4
 .globl _sk_load_565_vfp4
 _sk_load_565_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
@@ -1572,6 +1653,7 @@ _sk_load_565_vfp4:
   .long  0x3d042108                          // .word         0x3d042108
   .long  0x3d042108                          // .word         0x3d042108
 
+HIDDEN _sk_store_565_vfp4
 .globl _sk_store_565_vfp4
 _sk_store_565_vfp4:
   .long  0xf2c30f1f                          // vmov.f32      d16, #31
@@ -1601,6 +1683,7 @@ _sk_store_565_vfp4:
   .long  0x427c0000                          // .word         0x427c0000
   .long  0x427c0000                          // .word         0x427c0000
 
+HIDDEN _sk_load_8888_vfp4
 .globl _sk_load_8888_vfp4
 _sk_load_8888_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -1628,6 +1711,7 @@ _sk_load_8888_vfp4:
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
+HIDDEN _sk_store_8888_vfp4
 .globl _sk_store_8888_vfp4
 _sk_store_8888_vfp4:
   .long  0xeddf0b1a                          // vldr          d16, [pc, #104]
@@ -1661,6 +1745,7 @@ _sk_store_8888_vfp4:
   .long  0x437f0000                          // .word         0x437f0000
   .long  0x437f0000                          // .word         0x437f0000
 
+HIDDEN _sk_load_f16_vfp4
 .globl _sk_load_f16_vfp4
 _sk_load_f16_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -1678,6 +1763,7 @@ _sk_load_f16_vfp4:
   .long  0xf22131b1                          // vorr          d3, d17, d17
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_store_f16_vfp4
 .globl _sk_store_f16_vfp4
 _sk_store_f16_vfp4:
   .long  0xeef00b41                          // vmov.f64      d16, d1
@@ -1697,6 +1783,7 @@ _sk_store_f16_vfp4:
   .long  0xe1a01003                          // mov           r1, r3
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_store_f32_vfp4
 .globl _sk_store_f32_vfp4
 _sk_store_f32_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
@@ -1708,6 +1795,7 @@ _sk_store_f32_vfp4:
   .long  0xe1a01003                          // mov           r1, r3
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_clamp_x_vfp4
 .globl _sk_clamp_x_vfp4
 _sk_clamp_x_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -1720,6 +1808,7 @@ _sk_clamp_x_vfp4:
   .long  0xf2200fa1                          // vmin.f32      d0, d16, d17
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_clamp_y_vfp4
 .globl _sk_clamp_y_vfp4
 _sk_clamp_y_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -1732,6 +1821,7 @@ _sk_clamp_y_vfp4:
   .long  0xf2201fa1                          // vmin.f32      d1, d16, d17
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_repeat_x_vfp4
 .globl _sk_repeat_x_vfp4
 _sk_repeat_x_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
@@ -1759,6 +1849,7 @@ _sk_repeat_x_vfp4:
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
+HIDDEN _sk_repeat_y_vfp4
 .globl _sk_repeat_y_vfp4
 _sk_repeat_y_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
@@ -1786,6 +1877,7 @@ _sk_repeat_y_vfp4:
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
+HIDDEN _sk_mirror_x_vfp4
 .globl _sk_mirror_x_vfp4
 _sk_mirror_x_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
@@ -1817,6 +1909,7 @@ _sk_mirror_x_vfp4:
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
+HIDDEN _sk_mirror_y_vfp4
 .globl _sk_mirror_y_vfp4
 _sk_mirror_y_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
@@ -1848,6 +1941,7 @@ _sk_mirror_y_vfp4:
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
+HIDDEN _sk_luminance_to_alpha_vfp4
 .globl _sk_luminance_to_alpha_vfp4
 _sk_luminance_to_alpha_vfp4:
   .long  0xeddf0b0a                          // vldr          d16, [pc, #40]
@@ -1869,6 +1963,7 @@ _sk_luminance_to_alpha_vfp4:
   .long  0x3d93dd98                          // .word         0x3d93dd98
   .long  0x3d93dd98                          // .word         0x3d93dd98
 
+HIDDEN _sk_matrix_2x3_vfp4
 .globl _sk_matrix_2x3_vfp4
 _sk_matrix_2x3_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
@@ -1894,6 +1989,7 @@ _sk_matrix_2x3_vfp4:
   .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_matrix_3x4_vfp4
 .globl _sk_matrix_3x4_vfp4
 _sk_matrix_3x4_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
@@ -1937,6 +2033,7 @@ _sk_matrix_3x4_vfp4:
   .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_matrix_4x5_vfp4
 .globl _sk_matrix_4x5_vfp4
 _sk_matrix_4x5_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
@@ -2004,6 +2101,7 @@ _sk_matrix_4x5_vfp4:
   .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_matrix_perspective_vfp4
 .globl _sk_matrix_perspective_vfp4
 _sk_matrix_perspective_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
@@ -2041,6 +2139,7 @@ _sk_matrix_perspective_vfp4:
   .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
+HIDDEN _sk_linear_gradient_2stops_vfp4
 .globl _sk_linear_gradient_2stops_vfp4
 _sk_linear_gradient_2stops_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -2063,6 +2162,7 @@ _sk_linear_gradient_2stops_vfp4:
   .long  0xe12fff1c                          // bx            ip
 #elif defined(__x86_64__)
 
+HIDDEN _sk_start_pipeline_hsw
 .globl _sk_start_pipeline_hsw
 _sk_start_pipeline_hsw:
   .byte  65,87                               // push          %r15
@@ -2122,10 +2222,12 @@ _sk_start_pipeline_hsw:
   .byte  197,248,119                         // vzeroupper
   .byte  195                                 // retq
 
+HIDDEN _sk_just_return_hsw
 .globl _sk_just_return_hsw
 _sk_just_return_hsw:
   .byte  195                                 // retq
 
+HIDDEN _sk_seed_shader_hsw
 .globl _sk_seed_shader_hsw
 _sk_seed_shader_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2151,6 +2253,7 @@ _sk_seed_shader_hsw:
   .byte  197,196,87,255                      // vxorps        %ymm7,%ymm7,%ymm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_constant_color_hsw
 .globl _sk_constant_color_hsw
 _sk_constant_color_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2161,6 +2264,7 @@ _sk_constant_color_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clear_hsw
 .globl _sk_clear_hsw
 _sk_clear_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2170,6 +2274,7 @@ _sk_clear_hsw:
   .byte  197,228,87,219                      // vxorps        %ymm3,%ymm3,%ymm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_plus__hsw
 .globl _sk_plus__hsw
 _sk_plus__hsw:
   .byte  197,252,88,196                      // vaddps        %ymm4,%ymm0,%ymm0
@@ -2179,6 +2284,7 @@ _sk_plus__hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_srcover_hsw
 .globl _sk_srcover_hsw
 _sk_srcover_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -2192,6 +2298,7 @@ _sk_srcover_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_dstover_hsw
 .globl _sk_dstover_hsw
 _sk_dstover_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -2205,6 +2312,7 @@ _sk_dstover_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_0_hsw
 .globl _sk_clamp_0_hsw
 _sk_clamp_0_hsw:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
@@ -2215,6 +2323,7 @@ _sk_clamp_0_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_1_hsw
 .globl _sk_clamp_1_hsw
 _sk_clamp_1_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -2227,6 +2336,7 @@ _sk_clamp_1_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_a_hsw
 .globl _sk_clamp_a_hsw
 _sk_clamp_a_hsw:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -2239,6 +2349,7 @@ _sk_clamp_a_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_set_rgb_hsw
 .globl _sk_set_rgb_hsw
 _sk_set_rgb_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2248,6 +2359,7 @@ _sk_set_rgb_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_swap_rb_hsw
 .globl _sk_swap_rb_hsw
 _sk_swap_rb_hsw:
   .byte  197,124,40,192                      // vmovaps       %ymm0,%ymm8
@@ -2256,6 +2368,7 @@ _sk_swap_rb_hsw:
   .byte  197,124,41,194                      // vmovaps       %ymm8,%ymm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_swap_hsw
 .globl _sk_swap_hsw
 _sk_swap_hsw:
   .byte  197,124,40,195                      // vmovaps       %ymm3,%ymm8
@@ -2273,6 +2386,7 @@ _sk_swap_hsw:
   .byte  197,124,41,199                      // vmovaps       %ymm8,%ymm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_move_src_dst_hsw
 .globl _sk_move_src_dst_hsw
 _sk_move_src_dst_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2282,6 +2396,7 @@ _sk_move_src_dst_hsw:
   .byte  197,252,40,251                      // vmovaps       %ymm3,%ymm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_move_dst_src_hsw
 .globl _sk_move_dst_src_hsw
 _sk_move_dst_src_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2291,6 +2406,7 @@ _sk_move_dst_src_hsw:
   .byte  197,252,40,223                      // vmovaps       %ymm7,%ymm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_premul_hsw
 .globl _sk_premul_hsw
 _sk_premul_hsw:
   .byte  197,252,89,195                      // vmulps        %ymm3,%ymm0,%ymm0
@@ -2299,6 +2415,7 @@ _sk_premul_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_unpremul_hsw
 .globl _sk_unpremul_hsw
 _sk_unpremul_hsw:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
@@ -2314,6 +2431,7 @@ _sk_unpremul_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_from_srgb_hsw
 .globl _sk_from_srgb_hsw
 _sk_from_srgb_hsw:
   .byte  184,145,131,158,61                  // mov           $0x3d9e8391,%eax
@@ -2354,6 +2472,7 @@ _sk_from_srgb_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_to_srgb_hsw
 .globl _sk_to_srgb_hsw
 _sk_to_srgb_hsw:
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
@@ -2405,6 +2524,7 @@ _sk_to_srgb_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_scale_1_float_hsw
 .globl _sk_scale_1_float_hsw
 _sk_scale_1_float_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2416,6 +2536,7 @@ _sk_scale_1_float_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_scale_u8_hsw
 .globl _sk_scale_u8_hsw
 _sk_scale_u8_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -2451,6 +2572,7 @@ _sk_scale_u8_hsw:
   .byte  196,65,249,110,193                  // vmovq         %r9,%xmm8
   .byte  235,167                             // jmp           48b <_sk_scale_u8_hsw+0x14>
 
+HIDDEN _sk_lerp_1_float_hsw
 .globl _sk_lerp_1_float_hsw
 _sk_lerp_1_float_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2466,6 +2588,7 @@ _sk_lerp_1_float_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_lerp_u8_hsw
 .globl _sk_lerp_u8_hsw
 _sk_lerp_u8_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -2505,6 +2628,7 @@ _sk_lerp_u8_hsw:
   .byte  196,65,249,110,193                  // vmovq         %r9,%xmm8
   .byte  235,147                             // jmp           527 <_sk_lerp_u8_hsw+0x14>
 
+HIDDEN _sk_lerp_565_hsw
 .globl _sk_lerp_565_hsw
 _sk_lerp_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2594,6 +2718,7 @@ _sk_lerp_565_hsw:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_load_tables_hsw
 .globl _sk_load_tables_hsw
 _sk_load_tables_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -2639,6 +2764,7 @@ _sk_load_tables_hsw:
   .byte  196,194,125,140,25                  // vpmaskmovd    (%r9),%ymm0,%ymm3
   .byte  233,99,255,255,255                  // jmpq          6fa <_sk_load_tables_hsw+0x1a>
 
+HIDDEN _sk_load_a8_hsw
 .globl _sk_load_a8_hsw
 _sk_load_a8_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -2673,6 +2799,7 @@ _sk_load_a8_hsw:
   .byte  196,193,249,110,193                 // vmovq         %r9,%xmm0
   .byte  235,173                             // jmp           7ab <_sk_load_a8_hsw+0x14>
 
+HIDDEN _sk_store_a8_hsw
 .globl _sk_store_a8_hsw
 _sk_store_a8_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2733,6 +2860,7 @@ _sk_store_a8_hsw:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_load_565_hsw
 .globl _sk_load_565_hsw
 _sk_load_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2817,6 +2945,7 @@ _sk_load_565_hsw:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_store_565_hsw
 .globl _sk_store_565_hsw
 _sk_store_565_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -2887,6 +3016,7 @@ _sk_store_565_hsw:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_load_8888_hsw
 .globl _sk_load_8888_hsw
 _sk_load_8888_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -2929,6 +3059,7 @@ _sk_load_8888_hsw:
   .byte  196,194,125,140,25                  // vpmaskmovd    (%r9),%ymm0,%ymm3
   .byte  233,116,255,255,255                 // jmpq          ae6 <_sk_load_8888_hsw+0x1a>
 
+HIDDEN _sk_store_8888_hsw
 .globl _sk_store_8888_hsw
 _sk_store_8888_hsw:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -2968,6 +3099,7 @@ _sk_store_8888_hsw:
   .byte  196,66,53,142,1                     // vpmaskmovd    %ymm8,%ymm9,(%r9)
   .byte  235,211                             // jmp           bdf <_sk_store_8888_hsw+0x6d>
 
+HIDDEN _sk_load_f16_hsw
 .globl _sk_load_f16_hsw
 _sk_load_f16_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3023,6 +3155,7 @@ _sk_load_f16_hsw:
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
   .byte  233,65,255,255,255                  // jmpq          c2d <_sk_load_f16_hsw+0x21>
 
+HIDDEN _sk_store_f16_hsw
 .globl _sk_store_f16_hsw
 _sk_store_f16_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3066,6 +3199,7 @@ _sk_store_f16_hsw:
   .byte  197,121,214,68,248,48               // vmovq         %xmm8,0x30(%rax,%rdi,8)
   .byte  235,181                             // jmp           d4d <_sk_store_f16_hsw+0x61>
 
+HIDDEN _sk_store_f32_hsw
 .globl _sk_store_f32_hsw
 _sk_store_f32_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3110,6 +3244,7 @@ _sk_store_f32_hsw:
   .byte  196,67,125,25,68,128,96,1           // vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
   .byte  235,171                             // jmp           e01 <_sk_store_f32_hsw+0x69>
 
+HIDDEN _sk_clamp_x_hsw
 .globl _sk_clamp_x_hsw
 _sk_clamp_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3122,6 +3257,7 @@ _sk_clamp_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_y_hsw
 .globl _sk_clamp_y_hsw
 _sk_clamp_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3134,6 +3270,7 @@ _sk_clamp_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_repeat_x_hsw
 .globl _sk_repeat_x_hsw
 _sk_repeat_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3147,6 +3284,7 @@ _sk_repeat_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_repeat_y_hsw
 .globl _sk_repeat_y_hsw
 _sk_repeat_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3160,6 +3298,7 @@ _sk_repeat_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_mirror_x_hsw
 .globl _sk_mirror_x_hsw
 _sk_mirror_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3181,6 +3320,7 @@ _sk_mirror_x_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_mirror_y_hsw
 .globl _sk_mirror_y_hsw
 _sk_mirror_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3202,6 +3342,7 @@ _sk_mirror_y_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_luminance_to_alpha_hsw
 .globl _sk_luminance_to_alpha_hsw
 _sk_luminance_to_alpha_hsw:
   .byte  184,208,179,89,62                   // mov           $0x3e59b3d0,%eax
@@ -3222,6 +3363,7 @@ _sk_luminance_to_alpha_hsw:
   .byte  197,236,87,210                      // vxorps        %ymm2,%ymm2,%ymm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_2x3_hsw
 .globl _sk_matrix_2x3_hsw
 _sk_matrix_2x3_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3240,6 +3382,7 @@ _sk_matrix_2x3_hsw:
   .byte  197,124,41,201                      // vmovaps       %ymm9,%ymm1
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_3x4_hsw
 .globl _sk_matrix_3x4_hsw
 _sk_matrix_3x4_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3270,6 +3413,7 @@ _sk_matrix_3x4_hsw:
   .byte  197,124,41,210                      // vmovaps       %ymm10,%ymm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_4x5_hsw
 .globl _sk_matrix_4x5_hsw
 _sk_matrix_4x5_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3316,6 +3460,7 @@ _sk_matrix_4x5_hsw:
   .byte  197,124,41,219                      // vmovaps       %ymm11,%ymm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_perspective_hsw
 .globl _sk_matrix_perspective_hsw
 _sk_matrix_perspective_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3340,6 +3485,7 @@ _sk_matrix_perspective_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_linear_gradient_2stops_hsw
 .globl _sk_linear_gradient_2stops_hsw
 _sk_linear_gradient_2stops_hsw:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3359,6 +3505,7 @@ _sk_linear_gradient_2stops_hsw:
   .byte  197,124,41,192                      // vmovaps       %ymm8,%ymm0
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_start_pipeline_avx
 .globl _sk_start_pipeline_avx
 _sk_start_pipeline_avx:
   .byte  65,87                               // push          %r15
@@ -3418,10 +3565,12 @@ _sk_start_pipeline_avx:
   .byte  197,248,119                         // vzeroupper
   .byte  195                                 // retq
 
+HIDDEN _sk_just_return_avx
 .globl _sk_just_return_avx
 _sk_just_return_avx:
   .byte  195                                 // retq
 
+HIDDEN _sk_seed_shader_avx
 .globl _sk_seed_shader_avx
 _sk_seed_shader_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3450,6 +3599,7 @@ _sk_seed_shader_avx:
   .byte  197,196,87,255                      // vxorps        %ymm7,%ymm7,%ymm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_constant_color_avx
 .globl _sk_constant_color_avx
 _sk_constant_color_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3460,6 +3610,7 @@ _sk_constant_color_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clear_avx
 .globl _sk_clear_avx
 _sk_clear_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3469,6 +3620,7 @@ _sk_clear_avx:
   .byte  197,228,87,219                      // vxorps        %ymm3,%ymm3,%ymm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_plus__avx
 .globl _sk_plus__avx
 _sk_plus__avx:
   .byte  197,252,88,196                      // vaddps        %ymm4,%ymm0,%ymm0
@@ -3478,6 +3630,7 @@ _sk_plus__avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_srcover_avx
 .globl _sk_srcover_avx
 _sk_srcover_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -3496,6 +3649,7 @@ _sk_srcover_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_dstover_avx
 .globl _sk_dstover_avx
 _sk_dstover_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -3514,6 +3668,7 @@ _sk_dstover_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_0_avx
 .globl _sk_clamp_0_avx
 _sk_clamp_0_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
@@ -3524,6 +3679,7 @@ _sk_clamp_0_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_1_avx
 .globl _sk_clamp_1_avx
 _sk_clamp_1_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -3537,6 +3693,7 @@ _sk_clamp_1_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_a_avx
 .globl _sk_clamp_a_avx
 _sk_clamp_a_avx:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -3550,6 +3707,7 @@ _sk_clamp_a_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_set_rgb_avx
 .globl _sk_set_rgb_avx
 _sk_set_rgb_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3559,6 +3717,7 @@ _sk_set_rgb_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_swap_rb_avx
 .globl _sk_swap_rb_avx
 _sk_swap_rb_avx:
   .byte  197,124,40,192                      // vmovaps       %ymm0,%ymm8
@@ -3567,6 +3726,7 @@ _sk_swap_rb_avx:
   .byte  197,124,41,194                      // vmovaps       %ymm8,%ymm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_swap_avx
 .globl _sk_swap_avx
 _sk_swap_avx:
   .byte  197,124,40,195                      // vmovaps       %ymm3,%ymm8
@@ -3584,6 +3744,7 @@ _sk_swap_avx:
   .byte  197,124,41,199                      // vmovaps       %ymm8,%ymm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_move_src_dst_avx
 .globl _sk_move_src_dst_avx
 _sk_move_src_dst_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3593,6 +3754,7 @@ _sk_move_src_dst_avx:
   .byte  197,252,40,251                      // vmovaps       %ymm3,%ymm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_move_dst_src_avx
 .globl _sk_move_dst_src_avx
 _sk_move_dst_src_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3602,6 +3764,7 @@ _sk_move_dst_src_avx:
   .byte  197,252,40,223                      // vmovaps       %ymm7,%ymm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_premul_avx
 .globl _sk_premul_avx
 _sk_premul_avx:
   .byte  197,252,89,195                      // vmulps        %ymm3,%ymm0,%ymm0
@@ -3610,6 +3773,7 @@ _sk_premul_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_unpremul_avx
 .globl _sk_unpremul_avx
 _sk_unpremul_avx:
   .byte  196,65,60,87,192                    // vxorps        %ymm8,%ymm8,%ymm8
@@ -3626,6 +3790,7 @@ _sk_unpremul_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_from_srgb_avx
 .globl _sk_from_srgb_avx
 _sk_from_srgb_avx:
   .byte  184,145,131,158,61                  // mov           $0x3d9e8391,%eax
@@ -3675,6 +3840,7 @@ _sk_from_srgb_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_to_srgb_avx
 .globl _sk_to_srgb_avx
 _sk_to_srgb_avx:
   .byte  197,124,82,192                      // vrsqrtps      %ymm0,%ymm8
@@ -3738,6 +3904,7 @@ _sk_to_srgb_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_scale_1_float_avx
 .globl _sk_scale_1_float_avx
 _sk_scale_1_float_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3749,6 +3916,7 @@ _sk_scale_1_float_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_scale_u8_avx
 .globl _sk_scale_u8_avx
 _sk_scale_u8_avx:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -3788,6 +3956,7 @@ _sk_scale_u8_avx:
   .byte  196,65,249,110,193                  // vmovq         %r9,%xmm8
   .byte  235,143                             // jmp           556 <_sk_scale_u8_avx+0x14>
 
+HIDDEN _sk_lerp_1_float_avx
 .globl _sk_lerp_1_float_avx
 _sk_lerp_1_float_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3807,6 +3976,7 @@ _sk_lerp_1_float_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_lerp_u8_avx
 .globl _sk_lerp_u8_avx
 _sk_lerp_u8_avx:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -3854,6 +4024,7 @@ _sk_lerp_u8_avx:
   .byte  196,65,249,110,193                  // vmovq         %r9,%xmm8
   .byte  233,104,255,255,255                 // jmpq          61a <_sk_lerp_u8_avx+0x14>
 
+HIDDEN _sk_lerp_565_avx
 .globl _sk_lerp_565_avx
 _sk_lerp_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -3957,6 +4128,7 @@ _sk_lerp_565_avx:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_load_tables_avx
 .globl _sk_load_tables_avx
 _sk_load_tables_avx:
   .byte  85                                  // push          %rbp
@@ -4132,6 +4304,7 @@ _sk_load_tables_avx:
   .byte  128,255,255                         // cmp           $0xff,%bh
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_load_a8_avx
 .globl _sk_load_a8_avx
 _sk_load_a8_avx:
   .byte  73,137,200                          // mov           %rcx,%r8
@@ -4170,6 +4343,7 @@ _sk_load_a8_avx:
   .byte  196,193,249,110,193                 // vmovq         %r9,%xmm0
   .byte  235,149                             // jmp           b6c <_sk_load_a8_avx+0x14>
 
+HIDDEN _sk_store_a8_avx
 .globl _sk_store_a8_avx
 _sk_store_a8_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4231,6 +4405,7 @@ _sk_store_a8_avx:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_load_565_avx
 .globl _sk_load_565_avx
 _sk_load_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4325,6 +4500,7 @@ _sk_load_565_avx:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_store_565_avx
 .globl _sk_store_565_avx
 _sk_store_565_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4402,6 +4578,7 @@ _sk_store_565_avx:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_load_8888_avx
 .globl _sk_load_8888_avx
 _sk_load_8888_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4490,6 +4667,7 @@ _sk_load_8888_avx:
   .byte  128,255,255                         // cmp           $0xff,%bh
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_store_8888_avx
 .globl _sk_store_8888_avx
 _sk_store_8888_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4572,6 +4750,7 @@ _sk_store_8888_avx:
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
 
+HIDDEN _sk_load_f16_avx
 .globl _sk_load_f16_avx
 _sk_load_f16_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4659,6 +4838,7 @@ _sk_load_f16_avx:
   .byte  197,225,87,219                      // vxorpd        %xmm3,%xmm3,%xmm3
   .byte  233,160,254,255,255                 // jmpq          11e1 <_sk_load_f16_avx+0x25>
 
+HIDDEN _sk_store_f16_avx
 .globl _sk_store_f16_avx
 _sk_store_f16_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4722,6 +4902,7 @@ _sk_store_f16_avx:
   .byte  196,65,121,214,68,248,48            // vmovq         %xmm8,0x30(%r8,%rdi,8)
   .byte  235,174                             // jmp           1413 <_sk_store_f16_avx+0xd2>
 
+HIDDEN _sk_store_f32_avx
 .globl _sk_store_f32_avx
 _sk_store_f32_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4766,6 +4947,7 @@ _sk_store_f32_avx:
   .byte  196,67,125,25,68,128,96,1           // vextractf128  $0x1,%ymm8,0x60(%r8,%rax,4)
   .byte  235,171                             // jmp           14ce <_sk_store_f32_avx+0x69>
 
+HIDDEN _sk_clamp_x_avx
 .globl _sk_clamp_x_avx
 _sk_clamp_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4781,6 +4963,7 @@ _sk_clamp_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_y_avx
 .globl _sk_clamp_y_avx
 _sk_clamp_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4796,6 +4979,7 @@ _sk_clamp_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_repeat_x_avx
 .globl _sk_repeat_x_avx
 _sk_repeat_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4813,6 +4997,7 @@ _sk_repeat_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_repeat_y_avx
 .globl _sk_repeat_y_avx
 _sk_repeat_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4830,6 +5015,7 @@ _sk_repeat_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_mirror_x_avx
 .globl _sk_mirror_x_avx
 _sk_mirror_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4857,6 +5043,7 @@ _sk_mirror_x_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_mirror_y_avx
 .globl _sk_mirror_y_avx
 _sk_mirror_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4884,6 +5071,7 @@ _sk_mirror_y_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_luminance_to_alpha_avx
 .globl _sk_luminance_to_alpha_avx
 _sk_luminance_to_alpha_avx:
   .byte  184,208,179,89,62                   // mov           $0x3e59b3d0,%eax
@@ -4909,6 +5097,7 @@ _sk_luminance_to_alpha_avx:
   .byte  197,236,87,210                      // vxorps        %ymm2,%ymm2,%ymm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_2x3_avx
 .globl _sk_matrix_2x3_avx
 _sk_matrix_2x3_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4930,6 +5119,7 @@ _sk_matrix_2x3_avx:
   .byte  197,124,41,192                      // vmovaps       %ymm8,%ymm0
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_3x4_avx
 .globl _sk_matrix_3x4_avx
 _sk_matrix_3x4_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -4968,6 +5158,7 @@ _sk_matrix_3x4_avx:
   .byte  197,124,41,201                      // vmovaps       %ymm9,%ymm1
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_4x5_avx
 .globl _sk_matrix_4x5_avx
 _sk_matrix_4x5_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5029,6 +5220,7 @@ _sk_matrix_4x5_avx:
   .byte  197,124,41,210                      // vmovaps       %ymm10,%ymm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_perspective_avx
 .globl _sk_matrix_perspective_avx
 _sk_matrix_perspective_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5059,6 +5251,7 @@ _sk_matrix_perspective_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_linear_gradient_2stops_avx
 .globl _sk_linear_gradient_2stops_avx
 _sk_linear_gradient_2stops_avx:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5082,6 +5275,7 @@ _sk_linear_gradient_2stops_avx:
   .byte  197,124,41,192                      // vmovaps       %ymm8,%ymm0
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_start_pipeline_sse41
 .globl _sk_start_pipeline_sse41
 _sk_start_pipeline_sse41:
   .byte  65,87                               // push          %r15
@@ -5124,10 +5318,12 @@ _sk_start_pipeline_sse41:
   .byte  65,95                               // pop           %r15
   .byte  195                                 // retq
 
+HIDDEN _sk_just_return_sse41
 .globl _sk_just_return_sse41
 _sk_just_return_sse41:
   .byte  195                                 // retq
 
+HIDDEN _sk_seed_shader_sse41
 .globl _sk_seed_shader_sse41
 _sk_seed_shader_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5155,6 +5351,7 @@ _sk_seed_shader_sse41:
   .byte  15,87,255                           // xorps         %xmm7,%xmm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_constant_color_sse41
 .globl _sk_constant_color_sse41
 _sk_constant_color_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5169,6 +5366,7 @@ _sk_constant_color_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clear_sse41
 .globl _sk_clear_sse41
 _sk_clear_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5178,6 +5376,7 @@ _sk_clear_sse41:
   .byte  15,87,219                           // xorps         %xmm3,%xmm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_plus__sse41
 .globl _sk_plus__sse41
 _sk_plus__sse41:
   .byte  15,88,196                           // addps         %xmm4,%xmm0
@@ -5187,6 +5386,7 @@ _sk_plus__sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_srcover_sse41
 .globl _sk_srcover_sse41
 _sk_srcover_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -5207,6 +5407,7 @@ _sk_srcover_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_dstover_sse41
 .globl _sk_dstover_sse41
 _sk_dstover_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -5224,6 +5425,7 @@ _sk_dstover_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_0_sse41
 .globl _sk_clamp_0_sse41
 _sk_clamp_0_sse41:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -5234,6 +5436,7 @@ _sk_clamp_0_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_1_sse41
 .globl _sk_clamp_1_sse41
 _sk_clamp_1_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -5246,6 +5449,7 @@ _sk_clamp_1_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_a_sse41
 .globl _sk_clamp_a_sse41
 _sk_clamp_a_sse41:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -5258,6 +5462,7 @@ _sk_clamp_a_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_set_rgb_sse41
 .globl _sk_set_rgb_sse41
 _sk_set_rgb_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5270,6 +5475,7 @@ _sk_set_rgb_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_swap_rb_sse41
 .globl _sk_swap_rb_sse41
 _sk_swap_rb_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -5278,6 +5484,7 @@ _sk_swap_rb_sse41:
   .byte  65,15,40,208                        // movaps        %xmm8,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_swap_sse41
 .globl _sk_swap_sse41
 _sk_swap_sse41:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
@@ -5295,6 +5502,7 @@ _sk_swap_sse41:
   .byte  65,15,40,248                        // movaps        %xmm8,%xmm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_move_src_dst_sse41
 .globl _sk_move_src_dst_sse41
 _sk_move_src_dst_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5304,6 +5512,7 @@ _sk_move_src_dst_sse41:
   .byte  15,40,251                           // movaps        %xmm3,%xmm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_move_dst_src_sse41
 .globl _sk_move_dst_src_sse41
 _sk_move_dst_src_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5313,6 +5522,7 @@ _sk_move_dst_src_sse41:
   .byte  15,40,223                           // movaps        %xmm7,%xmm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_premul_sse41
 .globl _sk_premul_sse41
 _sk_premul_sse41:
   .byte  15,89,195                           // mulps         %xmm3,%xmm0
@@ -5321,6 +5531,7 @@ _sk_premul_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_unpremul_sse41
 .globl _sk_unpremul_sse41
 _sk_unpremul_sse41:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -5336,6 +5547,7 @@ _sk_unpremul_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_from_srgb_sse41
 .globl _sk_from_srgb_sse41
 _sk_from_srgb_sse41:
   .byte  184,145,131,158,61                  // mov           $0x3d9e8391,%eax
@@ -5392,6 +5604,7 @@ _sk_from_srgb_sse41:
   .byte  65,15,40,208                        // movaps        %xmm8,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_to_srgb_sse41
 .globl _sk_to_srgb_sse41
 _sk_to_srgb_sse41:
   .byte  72,131,236,24                       // sub           $0x18,%rsp
@@ -5471,6 +5684,7 @@ _sk_to_srgb_sse41:
   .byte  72,131,196,24                       // add           $0x18,%rsp
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_scale_1_float_sse41
 .globl _sk_scale_1_float_sse41
 _sk_scale_1_float_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5483,6 +5697,7 @@ _sk_scale_1_float_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_scale_u8_sse41
 .globl _sk_scale_u8_sse41
 _sk_scale_u8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5500,6 +5715,7 @@ _sk_scale_u8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_lerp_1_float_sse41
 .globl _sk_lerp_1_float_sse41
 _sk_lerp_1_float_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5520,6 +5736,7 @@ _sk_lerp_1_float_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_lerp_u8_sse41
 .globl _sk_lerp_u8_sse41
 _sk_lerp_u8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5545,6 +5762,7 @@ _sk_lerp_u8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_lerp_565_sse41
 .globl _sk_lerp_565_sse41
 _sk_lerp_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5592,6 +5810,7 @@ _sk_lerp_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_tables_sse41
 .globl _sk_load_tables_sse41
 _sk_load_tables_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5655,6 +5874,7 @@ _sk_load_tables_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_a8_sse41
 .globl _sk_load_a8_sse41
 _sk_load_a8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5671,6 +5891,7 @@ _sk_load_a8_sse41:
   .byte  15,87,210                           // xorps         %xmm2,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_a8_sse41
 .globl _sk_store_a8_sse41
 _sk_store_a8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5686,6 +5907,7 @@ _sk_store_a8_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_565_sse41
 .globl _sk_load_565_sse41
 _sk_load_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5724,6 +5946,7 @@ _sk_load_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_565_sse41
 .globl _sk_store_565_sse41
 _sk_store_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5750,6 +5973,7 @@ _sk_store_565_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_8888_sse41
 .globl _sk_load_8888_sse41
 _sk_load_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5780,6 +6004,7 @@ _sk_load_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_8888_sse41
 .globl _sk_store_8888_sse41
 _sk_store_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5808,6 +6033,7 @@ _sk_store_8888_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_f16_sse41
 .globl _sk_load_f16_sse41
 _sk_load_f16_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5847,6 +6073,7 @@ _sk_load_f16_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_f16_sse41
 .globl _sk_store_f16_sse41
 _sk_store_f16_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5877,6 +6104,7 @@ _sk_store_f16_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_f32_sse41
 .globl _sk_store_f32_sse41
 _sk_store_f32_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5904,6 +6132,7 @@ _sk_store_f32_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_x_sse41
 .globl _sk_clamp_x_sse41
 _sk_clamp_x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5918,6 +6147,7 @@ _sk_clamp_x_sse41:
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_y_sse41
 .globl _sk_clamp_y_sse41
 _sk_clamp_y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5932,6 +6162,7 @@ _sk_clamp_y_sse41:
   .byte  65,15,40,200                        // movaps        %xmm8,%xmm1
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_repeat_x_sse41
 .globl _sk_repeat_x_sse41
 _sk_repeat_x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5948,6 +6179,7 @@ _sk_repeat_x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_repeat_y_sse41
 .globl _sk_repeat_y_sse41
 _sk_repeat_y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5964,6 +6196,7 @@ _sk_repeat_y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_mirror_x_sse41
 .globl _sk_mirror_x_sse41
 _sk_mirror_x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -5988,6 +6221,7 @@ _sk_mirror_x_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_mirror_y_sse41
 .globl _sk_mirror_y_sse41
 _sk_mirror_y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6012,6 +6246,7 @@ _sk_mirror_y_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_luminance_to_alpha_sse41
 .globl _sk_luminance_to_alpha_sse41
 _sk_luminance_to_alpha_sse41:
   .byte  184,208,179,89,62                   // mov           $0x3e59b3d0,%eax
@@ -6034,6 +6269,7 @@ _sk_luminance_to_alpha_sse41:
   .byte  15,87,210                           // xorps         %xmm2,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_2x3_sse41
 .globl _sk_matrix_2x3_sse41
 _sk_matrix_2x3_sse41:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
@@ -6062,6 +6298,7 @@ _sk_matrix_2x3_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_3x4_sse41
 .globl _sk_matrix_3x4_sse41
 _sk_matrix_3x4_sse41:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
@@ -6113,6 +6350,7 @@ _sk_matrix_3x4_sse41:
   .byte  65,15,40,210                        // movaps        %xmm10,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_4x5_sse41
 .globl _sk_matrix_4x5_sse41
 _sk_matrix_4x5_sse41:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
@@ -6195,6 +6433,7 @@ _sk_matrix_4x5_sse41:
   .byte  65,15,40,219                        // movaps        %xmm11,%xmm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_perspective_sse41
 .globl _sk_matrix_perspective_sse41
 _sk_matrix_perspective_sse41:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -6236,6 +6475,7 @@ _sk_matrix_perspective_sse41:
   .byte  65,15,40,201                        // movaps        %xmm9,%xmm1
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_linear_gradient_2stops_sse41
 .globl _sk_linear_gradient_2stops_sse41
 _sk_linear_gradient_2stops_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6267,6 +6507,7 @@ _sk_linear_gradient_2stops_sse41:
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_start_pipeline_sse2
 .globl _sk_start_pipeline_sse2
 _sk_start_pipeline_sse2:
   .byte  65,87                               // push          %r15
@@ -6309,10 +6550,12 @@ _sk_start_pipeline_sse2:
   .byte  65,95                               // pop           %r15
   .byte  195                                 // retq
 
+HIDDEN _sk_just_return_sse2
 .globl _sk_just_return_sse2
 _sk_just_return_sse2:
   .byte  195                                 // retq
 
+HIDDEN _sk_seed_shader_sse2
 .globl _sk_seed_shader_sse2
 _sk_seed_shader_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6340,6 +6583,7 @@ _sk_seed_shader_sse2:
   .byte  15,87,255                           // xorps         %xmm7,%xmm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_constant_color_sse2
 .globl _sk_constant_color_sse2
 _sk_constant_color_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6354,6 +6598,7 @@ _sk_constant_color_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clear_sse2
 .globl _sk_clear_sse2
 _sk_clear_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6363,6 +6608,7 @@ _sk_clear_sse2:
   .byte  15,87,219                           // xorps         %xmm3,%xmm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_plus__sse2
 .globl _sk_plus__sse2
 _sk_plus__sse2:
   .byte  15,88,196                           // addps         %xmm4,%xmm0
@@ -6372,6 +6618,7 @@ _sk_plus__sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_srcover_sse2
 .globl _sk_srcover_sse2
 _sk_srcover_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -6392,6 +6639,7 @@ _sk_srcover_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_dstover_sse2
 .globl _sk_dstover_sse2
 _sk_dstover_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -6409,6 +6657,7 @@ _sk_dstover_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_0_sse2
 .globl _sk_clamp_0_sse2
 _sk_clamp_0_sse2:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -6419,6 +6668,7 @@ _sk_clamp_0_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_1_sse2
 .globl _sk_clamp_1_sse2
 _sk_clamp_1_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -6431,6 +6681,7 @@ _sk_clamp_1_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_a_sse2
 .globl _sk_clamp_a_sse2
 _sk_clamp_a_sse2:
   .byte  184,0,0,128,63                      // mov           $0x3f800000,%eax
@@ -6443,6 +6694,7 @@ _sk_clamp_a_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_set_rgb_sse2
 .globl _sk_set_rgb_sse2
 _sk_set_rgb_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6455,6 +6707,7 @@ _sk_set_rgb_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_swap_rb_sse2
 .globl _sk_swap_rb_sse2
 _sk_swap_rb_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -6463,6 +6716,7 @@ _sk_swap_rb_sse2:
   .byte  65,15,40,208                        // movaps        %xmm8,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_swap_sse2
 .globl _sk_swap_sse2
 _sk_swap_sse2:
   .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
@@ -6480,6 +6734,7 @@ _sk_swap_sse2:
   .byte  65,15,40,248                        // movaps        %xmm8,%xmm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_move_src_dst_sse2
 .globl _sk_move_src_dst_sse2
 _sk_move_src_dst_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6489,6 +6744,7 @@ _sk_move_src_dst_sse2:
   .byte  15,40,251                           // movaps        %xmm3,%xmm7
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_move_dst_src_sse2
 .globl _sk_move_dst_src_sse2
 _sk_move_dst_src_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6498,6 +6754,7 @@ _sk_move_dst_src_sse2:
   .byte  15,40,223                           // movaps        %xmm7,%xmm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_premul_sse2
 .globl _sk_premul_sse2
 _sk_premul_sse2:
   .byte  15,89,195                           // mulps         %xmm3,%xmm0
@@ -6506,6 +6763,7 @@ _sk_premul_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_unpremul_sse2
 .globl _sk_unpremul_sse2
 _sk_unpremul_sse2:
   .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
@@ -6521,6 +6779,7 @@ _sk_unpremul_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_from_srgb_sse2
 .globl _sk_from_srgb_sse2
 _sk_from_srgb_sse2:
   .byte  184,145,131,158,61                  // mov           $0x3d9e8391,%eax
@@ -6578,6 +6837,7 @@ _sk_from_srgb_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_to_srgb_sse2
 .globl _sk_to_srgb_sse2
 _sk_to_srgb_sse2:
   .byte  68,15,82,192                        // rsqrtps       %xmm0,%xmm8
@@ -6645,6 +6905,7 @@ _sk_to_srgb_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_scale_1_float_sse2
 .globl _sk_scale_1_float_sse2
 _sk_scale_1_float_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6657,6 +6918,7 @@ _sk_scale_1_float_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_scale_u8_sse2
 .globl _sk_scale_u8_sse2
 _sk_scale_u8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6677,6 +6939,7 @@ _sk_scale_u8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_lerp_1_float_sse2
 .globl _sk_lerp_1_float_sse2
 _sk_lerp_1_float_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6697,6 +6960,7 @@ _sk_lerp_1_float_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_lerp_u8_sse2
 .globl _sk_lerp_u8_sse2
 _sk_lerp_u8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6725,6 +6989,7 @@ _sk_lerp_u8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_lerp_565_sse2
 .globl _sk_lerp_565_sse2
 _sk_lerp_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6774,6 +7039,7 @@ _sk_lerp_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_tables_sse2
 .globl _sk_load_tables_sse2
 _sk_load_tables_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6845,6 +7111,7 @@ _sk_load_tables_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_a8_sse2
 .globl _sk_load_a8_sse2
 _sk_load_a8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6864,6 +7131,7 @@ _sk_load_a8_sse2:
   .byte  15,87,210                           // xorps         %xmm2,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_a8_sse2
 .globl _sk_store_a8_sse2
 _sk_store_a8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6881,6 +7149,7 @@ _sk_store_a8_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_565_sse2
 .globl _sk_load_565_sse2
 _sk_load_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6921,6 +7190,7 @@ _sk_load_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_565_sse2
 .globl _sk_store_565_sse2
 _sk_store_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6949,6 +7219,7 @@ _sk_store_565_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_8888_sse2
 .globl _sk_load_8888_sse2
 _sk_load_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -6979,6 +7250,7 @@ _sk_load_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_8888_sse2
 .globl _sk_store_8888_sse2
 _sk_store_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7007,6 +7279,7 @@ _sk_store_8888_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_load_f16_sse2
 .globl _sk_load_f16_sse2
 _sk_load_f16_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7048,6 +7321,7 @@ _sk_load_f16_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_f16_sse2
 .globl _sk_store_f16_sse2
 _sk_store_f16_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7078,6 +7352,7 @@ _sk_store_f16_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_store_f32_sse2
 .globl _sk_store_f32_sse2
 _sk_store_f32_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7105,6 +7380,7 @@ _sk_store_f32_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_x_sse2
 .globl _sk_clamp_x_sse2
 _sk_clamp_x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7119,6 +7395,7 @@ _sk_clamp_x_sse2:
   .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_clamp_y_sse2
 .globl _sk_clamp_y_sse2
 _sk_clamp_y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7133,6 +7410,7 @@ _sk_clamp_y_sse2:
   .byte  65,15,40,200                        // movaps        %xmm8,%xmm1
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_repeat_x_sse2
 .globl _sk_repeat_x_sse2
 _sk_repeat_x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7156,6 +7434,7 @@ _sk_repeat_x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_repeat_y_sse2
 .globl _sk_repeat_y_sse2
 _sk_repeat_y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7179,6 +7458,7 @@ _sk_repeat_y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_mirror_x_sse2
 .globl _sk_mirror_x_sse2
 _sk_mirror_x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7210,6 +7490,7 @@ _sk_mirror_x_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_mirror_y_sse2
 .globl _sk_mirror_y_sse2
 _sk_mirror_y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
@@ -7241,6 +7522,7 @@ _sk_mirror_y_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_luminance_to_alpha_sse2
 .globl _sk_luminance_to_alpha_sse2
 _sk_luminance_to_alpha_sse2:
   .byte  184,208,179,89,62                   // mov           $0x3e59b3d0,%eax
@@ -7263,6 +7545,7 @@ _sk_luminance_to_alpha_sse2:
   .byte  15,87,210                           // xorps         %xmm2,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_2x3_sse2
 .globl _sk_matrix_2x3_sse2
 _sk_matrix_2x3_sse2:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
@@ -7291,6 +7574,7 @@ _sk_matrix_2x3_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_3x4_sse2
 .globl _sk_matrix_3x4_sse2
 _sk_matrix_3x4_sse2:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
@@ -7342,6 +7626,7 @@ _sk_matrix_3x4_sse2:
   .byte  65,15,40,210                        // movaps        %xmm10,%xmm2
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_4x5_sse2
 .globl _sk_matrix_4x5_sse2
 _sk_matrix_4x5_sse2:
   .byte  68,15,40,201                        // movaps        %xmm1,%xmm9
@@ -7424,6 +7709,7 @@ _sk_matrix_4x5_sse2:
   .byte  65,15,40,219                        // movaps        %xmm11,%xmm3
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_matrix_perspective_sse2
 .globl _sk_matrix_perspective_sse2
 _sk_matrix_perspective_sse2:
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
@@ -7465,6 +7751,7 @@ _sk_matrix_perspective_sse2:
   .byte  65,15,40,201                        // movaps        %xmm9,%xmm1
   .byte  255,224                             // jmpq          *%rax
 
+HIDDEN _sk_linear_gradient_2stops_sse2
 .globl _sk_linear_gradient_2stops_sse2
 _sk_linear_gradient_2stops_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
