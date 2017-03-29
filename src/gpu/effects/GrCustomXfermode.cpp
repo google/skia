@@ -100,7 +100,7 @@ public:
 private:
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrXferBarrierType onXferBarrier(const GrRenderTarget*, const GrCaps&) const override;
+    GrXferBarrierType onXferBarrier(const GrCaps&) const override;
 
     void onGetBlendInfo(BlendInfo*) const override;
 
@@ -187,7 +187,7 @@ bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
     return fMode == s.fMode && fHWBlendEquation == s.fHWBlendEquation;
 }
 
-GrXferBarrierType CustomXP::onXferBarrier(const GrRenderTarget* rt, const GrCaps& caps) const {
+GrXferBarrierType CustomXP::onXferBarrier(const GrCaps& caps) const {
     if (this->hasHWBlendEquation() && !caps.advancedCoherentBlendEquationSupport()) {
         return kBlend_GrXferBarrierType;
     }

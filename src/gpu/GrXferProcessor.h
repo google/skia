@@ -209,7 +209,7 @@ private:
      * that a kTexture type barrier is required is handled by the base class and need not be
      * considered by subclass overrides of this function.
      */
-    virtual GrXferBarrierType onXferBarrier(const GrRenderTarget*, const GrCaps&) const {
+    virtual GrXferBarrierType onXferBarrier(const GrCaps&) const {
         return kNone_GrXferBarrierType;
     }
 

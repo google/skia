@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxyPriv.h"
@@ -416,14 +417,13 @@ public:
             return false;
         }
 
-        // Reading back to an SkBitmap ends deferral
-        GrTexture* texture = fTextureProxy->instantiate(fContext->resourceProvider());
-        if (!texture) {
+        sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+                                                                          fTextureProxy, nullptr);
+        if (!sContext) {
             return false;
         }
 
-        if (!texture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
-                                 dst->getPixels(), dst->rowBytes())) {
+        if (!sContext->readPixels(info, dst->getPixels(), dst->rowBytes(), 0, 0)) {
             return false;
         }
 
