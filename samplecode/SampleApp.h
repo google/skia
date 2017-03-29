@@ -210,6 +210,8 @@ private:
     bool fUseDeferredCanvas;
     WallTimer fTimer;
     double fMeasureFPS_Time;
+    double fCumulativeFPS_Time;
+    int    fCumulativeFPS_Count;
     bool fMagnify;
     int fTilingMode;
 

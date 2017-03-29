@@ -8,10 +8,19 @@
 #ifndef SkBitmapDevice_DEFINED
 #define SkBitmapDevice_DEFINED
 
+#define SK_ENABLE_THREADED_DRAW
+
+#ifdef SK_ENABLE_THREADED_DRAW
+extern int gSkThreadCnt;
+
+class SkThreadedAccelerator;
+#endif
+
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkDevice.h"
+#include "SkDraw.h"
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
 #include "SkRasterClip.h"
@@ -60,9 +69,13 @@ public:
     static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
                                   SkRasterHandleAllocator* = nullptr);
 
+    ~SkBitmapDevice();
+
 protected:
     bool onShouldDisableLCD(const SkPaint&) const override;
     void* getRasterHandle() const override { return fRasterHandle; }
+
+    void flush() override;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -111,7 +124,7 @@ protected:
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
@@ -140,11 +153,17 @@ private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
+    friend class SkThreadedDraw;
+    friend class SkThreadedAccelerator;
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
     friend class SkSurface_Raster;
+    friend class DrawState; // for SetDrawDst
 
-    class BDDraw;
+    class BDDraw : public SkDraw {
+    public:
+        BDDraw(SkBitmapDevice* dev);
+    };
 
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
@@ -160,6 +179,18 @@ private:
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
+
+#ifdef SK_ENABLE_THREADED_DRAW
+    SkThreadedAccelerator* fAccelerator;
+#endif
+
+    static inline void SetDrawDst(SkBitmapDevice* dev, SkPixmap& fDst) {
+        // we need fDst to be set, and if we're actually drawing, to dirty the genID
+        if (!dev->accessPixels(&fDst)) {
+            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
+            fDst.reset(dev->imageInfo(), nullptr, 0);
+        }
+    }
 
     typedef SkBaseDevice INHERITED;
 };

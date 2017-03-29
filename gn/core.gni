@@ -118,6 +118,8 @@ skia_core_sources = [
   "$_src/core/SkDocument.cpp",
   "$_src/core/SkDraw.cpp",
   "$_src/core/SkDraw.h",
+  "$_src/core/SkThreadedDraw.h",
+  "$_src/core/SkThreadedDraw.cpp",
   "$_src/core/SkDrawable.cpp",
   "$_src/core/SkDrawLooper.cpp",
   "$_src/core/SkDrawProcs.h",

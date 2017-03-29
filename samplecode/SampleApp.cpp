@@ -11,6 +11,7 @@
 #include "Resources.h"
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkCommandLineFlags.h"
@@ -1453,6 +1454,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         orig->flush();
         fTimer.end();
         fMeasureFPS_Time += fTimer.fWall;
+        fCumulativeFPS_Time += fTimer.fWall;
+        fCumulativeFPS_Count += FPS_REPEAT_COUNT;
     }
 }
 
@@ -1831,6 +1834,17 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             if (this->sendAnimatePulse()) {
                 this->inval(nullptr);
             }
+            break;
+        case '+':
+            SkDebugf("ThreadCnt: %d\n", ++gSkThreadCnt);
+            break;
+        case '-':
+            gSkThreadCnt = std::max(0, gSkThreadCnt - 1);
+            SkDebugf("ThreadCnt: %d\n", gSkThreadCnt);
+            break;
+        case '0':
+            fCumulativeFPS_Time = 0;
+            fCumulativeFPS_Count = 0;
             break;
         case 'A':
             if (gSkUseAnalyticAA.load() && !gSkForceAnalyticAA.load()) {
@@ -2238,6 +2252,7 @@ void SampleWindow::updateTitle() {
 
     if (fMeasureFPS) {
         title.appendf(" %8.4f ms", fMeasureFPS_Time / (float)FPS_REPEAT_COUNT);
+        title.appendf("-> %4.4f ms", fCumulativeFPS_Time / (float)fCumulativeFPS_Count);
     }
 
 #if SK_SUPPORT_GPU
