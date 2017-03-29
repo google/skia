@@ -40,7 +40,8 @@ public:
     }
 
     void initPipeline(const GrPipeline::InitArgs& args) {
-        this->applyPipelineOptimizations(fPipeline.init(args));
+        fPipeline.init(args);
+        this->applyPipelineOptimizations(PipelineOptimizations(*args.fAnalysis));
     }
 
     /**
@@ -58,6 +59,62 @@ public:
 
 protected:
     GrMeshDrawOp(uint32_t classID);
+    /**
+     * This is a legacy class only used by GrMeshDrawOp and will be removed. It presents some
+     * aspects of GrProcessorSet::FragmentProcessorAnalysis to GrMeshDrawOp subclasses.
+     */
+    class PipelineOptimizations {
+    public:
+        PipelineOptimizations(const GrProcessorSet::FragmentProcessorAnalysis& analysis) {
+            fFlags = 0;
+            if (analysis.getInputColorOverrideAndColorProcessorEliminationCount(&fOverrideColor) >=
+                0) {
+                fFlags |= kUseOverrideColor_Flag;
+            }
+            if (analysis.usesLocalCoords()) {
+                fFlags |= kReadsLocalCoords_Flag;
+            }
+            if (analysis.isCompatibleWithCoverageAsAlpha()) {
+                fFlags |= kCanTweakAlphaForCoverage_Flag;
+            }
+        }
+
+        /** Does the pipeline require access to (implicit or explicit) local coordinates? */
+        bool readsLocalCoords() const { return SkToBool(kReadsLocalCoords_Flag & fFlags); }
+
+        /** Does the pipeline allow the GrPrimitiveProcessor to combine color and coverage into one
+            color output ? */
+        bool canTweakAlphaForCoverage() const {
+            return SkToBool(kCanTweakAlphaForCoverage_Flag & fFlags);
+        }
+
+        /** Does the pipeline require the GrPrimitiveProcessor to specify a specific color (and if
+            so get the color)? */
+        bool getOverrideColorIfSet(GrColor* overrideColor) const {
+            if (SkToBool(kUseOverrideColor_Flag & fFlags)) {
+                if (overrideColor) {
+                    *overrideColor = fOverrideColor;
+                }
+                return true;
+            }
+            return false;
+        }
+
+    private:
+        enum {
+            // If this is not set the primitive processor need not produce local coordinates
+            kReadsLocalCoords_Flag = 0x1,
+            // If this flag is set then the primitive processor may produce color*coverage as
+            // its color output (and not output a separate coverage).
+            kCanTweakAlphaForCoverage_Flag = 0x2,
+            // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
+            // output color. If not set fOverrideColor is to be ignored.
+            kUseOverrideColor_Flag = 0x4,
+        };
+
+        uint32_t fFlags;
+        GrColor fOverrideColor;
+    };
 
     /** Helper for rendering instances using an instanced index index buffer. This class creates the
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
@@ -111,7 +168,7 @@ private:
      * After GrPipeline analysis is complete this is called so that the op can use the analysis
      * results when constructing its GrPrimitiveProcessor.
      */
-    virtual void applyPipelineOptimizations(const GrPipelineOptimizations&) = 0;
+    virtual void applyPipelineOptimizations(const PipelineOptimizations&) = 0;
 
     void onPrepare(GrOpFlushState* state) final;
     void onExecute(GrOpFlushState* state) final;

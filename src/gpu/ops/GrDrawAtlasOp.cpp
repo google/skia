@@ -12,7 +12,7 @@
 #include "SkRSXform.h"
 #include "SkRandom.h"
 
-void GrDrawAtlasOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
+void GrDrawAtlasOp::applyPipelineOptimizations(const PipelineOptimizations& optimizations) {
     SkASSERT(fGeoData.count() == 1);
     if (optimizations.getOverrideColorIfSet(&fGeoData[0].fColor) && fHasColors) {
         size_t vertexStride =

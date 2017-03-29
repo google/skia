@@ -67,7 +67,7 @@ private:
         *coverage = GrPipelineAnalysisCoverage::kNone;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& analysioptimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& analysioptimizations) override {
         analysioptimizations.getOverrideColorIfSet(&fPatches[0].fColor);
     }
 

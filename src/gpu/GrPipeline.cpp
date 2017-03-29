@@ -18,7 +18,7 @@
 
 #include "ops/GrOp.h"
 
-GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
+void GrPipeline::init(const InitArgs& args) {
     SkASSERT(args.fAnalysis);
     SkASSERT(args.fRenderTarget);
 
@@ -106,21 +106,6 @@ GrPipelineOptimizations GrPipeline::init(const InitArgs& args) {
             fFragmentProcessors[currFPIdx].reset(fp);
         }
     }
-
-    // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
-    GrPipelineOptimizations optimizations;
-    optimizations.fFlags = 0;
-    if (GrColor_ILLEGAL != overrideColor) {
-        optimizations.fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
-        optimizations.fOverrideColor = overrideColor;
-    }
-    if (args.fAnalysis->usesLocalCoords()) {
-        optimizations.fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
-    }
-    if (args.fAnalysis->isCompatibleWithCoverageAsAlpha()) {
-        optimizations.fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
-    }
-    return optimizations;
 }
 
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
