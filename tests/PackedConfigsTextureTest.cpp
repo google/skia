@@ -99,7 +99,7 @@ template <typename T>
 void runTest(skiatest::Reporter* reporter, GrContext* context,
              T val1, T val2, int arraySize, GrPixelConfig config) {
     SkTDArray<T> controlPixelData;
-    // We will read back into an 8888 buffer since 565/4444 read backes aren't supported
+    // We will read back into an 8888 buffer since 565/4444 read backs aren't supported
     SkTDArray<GrColor> readBuffer;
     controlPixelData.setCount(arraySize);
     readBuffer.setCount(arraySize);
@@ -115,8 +115,7 @@ void runTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
         desc.fConfig = config;
-        desc.fOrigin = 0 == origin ?
-            kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
+        desc.fOrigin = 0 == origin ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
         sk_sp<GrTexture> fpTexture(context->resourceProvider()->createTexture(
             desc, SkBudgeted::kNo, controlPixelData.begin(), 0));
         SkASSERT(fpTexture);

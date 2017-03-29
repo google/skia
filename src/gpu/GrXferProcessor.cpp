@@ -71,7 +71,7 @@ GrXferBarrierType GrXferProcessor::xferBarrierType(const GrRenderTarget* rt,
         SkASSERT(caps.textureBarrierSupport());
         return kTexture_GrXferBarrierType;
     }
-    return this->onXferBarrier(rt, caps);
+    return this->onXferBarrier(caps);
 }
 
 #ifdef SK_DEBUG

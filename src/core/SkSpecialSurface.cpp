@@ -136,7 +136,7 @@ public:
     ~SkSpecialSurface_Gpu() override { }
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
-        if (!fRenderTargetContext->asTexture()) {
+        if (!fRenderTargetContext->asTextureProxy()) {
             return nullptr;
         }
         sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeDeferredFromGpu(
