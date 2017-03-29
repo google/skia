@@ -22,6 +22,30 @@
       "revId": "a2cedff029dcae604ce39b119d08c01ed6ad2ce8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "504bfb21_e880e54e",
+        "filename": "src/sksl/ast/SkSLASTNode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-03-29T21:07:52Z",
+      "side": 0,
+      "message": "I deleted all references to SkString, in favor of SkSL::String. This *should* have been replaced with an include of SkSLString, but I missed it because it wasn\u0027t causing the compilation to fail.",
+      "parentUuid": "155ab504_e7c1f06f",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 21
+      },
+      "revId": "a2cedff029dcae604ce39b119d08c01ed6ad2ce8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
