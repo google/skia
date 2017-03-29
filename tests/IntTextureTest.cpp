@@ -221,6 +221,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     }
     texture->writePixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, testData.get());
 
+    sk_sp<GrTextureProxy> intTextureProxy = GrSurfaceProxy::MakeWrapped(sk_ref_sp(texture));
+    texture = nullptr; // unused from here on out
+
     sk_sp<GrRenderTargetContext> rtContext = context->makeRenderTargetContext(
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
 
@@ -234,7 +237,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     };
 
     for (auto filter : kNamedFilters) {
-        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture, nullptr,
+        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(context->resourceProvider(),
+                                                                  intTextureProxy, nullptr,
                                                                   SkMatrix::I(),
                                                                   filter.fMode));
         REPORTER_ASSERT(reporter, fp);

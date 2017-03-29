@@ -474,9 +474,10 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempRTC) {
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
+            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(sk_ref_sp(src->asTexture()));
             sk_sp<GrFragmentProcessor> fp;
             if (unpremul) {
-                fp = this->createPMToUPMEffect(src->asTexture(), textureMatrix);
+                fp = this->createPMToUPMEffect(proxy, textureMatrix);
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
                 if (fp) {
                     unpremul = false; // we no longer need to do this on CPU after the read back.
@@ -487,7 +488,8 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                 }
             }
             if (!fp && tempRTC) {
-                fp = GrSimpleTextureEffect::Make(src->asTexture(), nullptr, textureMatrix);
+                fp = GrSimpleTextureEffect::Make(this->resourceProvider(), std::move(proxy),
+                                                 nullptr, textureMatrix);
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
             }
             if (fp) {
@@ -861,25 +863,6 @@ void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
         if (!fDidTestPMConversions) {
             test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
             fDidTestPMConversions = true;
-        }
-    }
-}
-
-sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
-                                                          const SkMatrix& matrix) {
-    ASSERT_SINGLE_OWNER
-    // We should have already called this->testPMConversionsIfNecessary().
-    SkASSERT(fDidTestPMConversions);
-    if (kRGBA_half_GrPixelConfig == texture->config()) {
-        return GrFragmentProcessor::UnpremulOutput(
-                GrSimpleTextureEffect::Make(texture, nullptr, matrix));
-    } else {
-        GrConfigConversionEffect::PMConversion pmToUPM =
-            static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
-        if (GrConfigConversionEffect::kPMConversionCnt != pmToUPM) {
-            return GrConfigConversionEffect::Make(texture, pmToUPM, matrix);
-        } else {
-            return nullptr;
         }
     }
 }

@@ -32,18 +32,6 @@ public:
 
 protected:
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          OptimizationFlags optFlags);
-    /** clamp mode */
-    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          GrSamplerParams::FilterMode filterMode, OptimizationFlags optFlags);
-    GrSingleTextureEffect(GrTexture*,
-                          sk_sp<GrColorSpaceXform>,
-                          const SkMatrix&,
-                          const GrSamplerParams&,
-                          OptimizationFlags optFlags);
-
-    /** unfiltered, clamp mode */
     GrSingleTextureEffect(GrResourceProvider*, OptimizationFlags, sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix&);
     /** clamp mode */

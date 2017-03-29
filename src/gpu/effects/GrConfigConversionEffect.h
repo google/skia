@@ -30,8 +30,6 @@ public:
         kPMConversionCnt
     };
 
-    static sk_sp<GrFragmentProcessor> Make(GrTexture*, PMConversion, const SkMatrix&);
-
     static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, sk_sp<GrTextureProxy>,
                                            PMConversion, const SkMatrix&);
 
@@ -48,8 +46,6 @@ public:
                                                PMConversion* PMToUPMRule,
                                                PMConversion* UPMToPMRule);
 private:
-    GrConfigConversionEffect(GrTexture*, PMConversion, const SkMatrix& matrix);
-
     GrConfigConversionEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
                              PMConversion, const SkMatrix& matrix);
 
