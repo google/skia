@@ -22,7 +22,7 @@ struct SWDst : Dst {
         return move_unique(dst);
     }
 
-    bool draw(Src* src) override {
+    Status draw(Src* src) override {
         auto size = src->size();
         surface = SkSurface::MakeRaster(info.makeWH(size.width(), size.height()));
         return src->draw(surface->getCanvas());
@@ -32,9 +32,9 @@ struct SWDst : Dst {
         return surface->makeImageSnapshot();
     }
 };
-static Register sw{"sw", SWDst::Create};
+static Register sw{"sw", "draw with the software backend", SWDst::Create};
 
-static Register _565{"565", [](Options options) {
+static Register _565{"565", "alias for sw:ct=565", [](Options options) {
     options["ct"] = "565";
     return SWDst::Create(options);
 }};

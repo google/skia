@@ -22,11 +22,13 @@ static std::unique_ptr<T> move_unique(T& v) {
 
 void ok_log(const char*);
 
+enum class Status { OK, Failed, Crashed, Skipped, None };
+
 struct Src {
     virtual ~Src() {}
-    virtual std::string name()   = 0;
-    virtual SkISize     size()   = 0;
-    virtual bool draw(SkCanvas*) = 0;
+    virtual std::string name()     = 0;
+    virtual SkISize     size()     = 0;
+    virtual Status draw(SkCanvas*) = 0;
 };
 
 struct Stream {
@@ -36,7 +38,7 @@ struct Stream {
 
 struct Dst {
     virtual ~Dst() {}
-    virtual bool draw(Src*)        = 0;
+    virtual Status draw(Src*)      = 0;
     virtual sk_sp<SkImage> image() = 0;
 };
 
@@ -50,9 +52,10 @@ public:
 
 // Create globals to register your new type of Stream or Dst.
 struct Register {
-    Register(const char* name, std::unique_ptr<Stream> (*factory)(Options));
-    Register(const char* name, std::unique_ptr<Dst>    (*factory)(Options));
-    Register(const char* name, std::unique_ptr<Dst>    (*factory)(Options, std::unique_ptr<Dst>));
+    Register(const char* name, const char* help, std::unique_ptr<Stream> (*factory)(Options));
+    Register(const char* name, const char* help, std::unique_ptr<Dst>    (*factory)(Options));
+    Register(const char* name, const char* help,
+             std::unique_ptr<Dst>(*factory)(Options, std::unique_ptr<Dst>));
 };
 
 #endif//ok_DEFINED
