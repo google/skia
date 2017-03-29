@@ -1,0 +1,172 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "SkColorFilter.h"
+#include "SkColorSpaceXformer.h"
+#include "SkColorSpaceXform_Base.h"
+#include "SkDrawLooper.h"
+#include "SkGradientShader.h"
+#include "SkImage_Base.h"
+
+sk_sp<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpace> dst) {
+    std::unique_ptr<SkColorSpaceXform> fromSRGB = SkColorSpaceXform_Base::New(
+            SkColorSpace::MakeSRGB().get(), dst.get(), SkTransferFunctionBehavior::kIgnore);
+    if (!fromSRGB) {
+        return nullptr;
+    }
+
+    return sk_sp<SkColorSpaceXformer>(new SkColorSpaceXformer(std::move(dst), std::move(fromSRGB)));
+}
+
+SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst,
+                                         std::unique_ptr<SkColorSpaceXform> fromSRGB)
+    : fDst(std::move(dst))
+    , fFromSRGB(std::move(fromSRGB))
+{}
+
+sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) const {
+    return as_IB(src)->makeColorSpace(fDst);
+}
+
+void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) const {
+    SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
+                                    SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
+                                    n, kUnpremul_SkAlphaType));
+}
+
+SkColor SkColorSpaceXformer::apply(SkColor srgb) const {
+    SkColor xformed;
+    this->apply(&xformed, &srgb, 1);
+    return xformed;
+}
+
+// TODO: Is this introspection going to be enough, or do we need a new SkShader method?
+sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) const {
+    SkColor color;
+    if (shader->isConstant() && shader->asLuminanceColor(&color)) {
+        return SkShader::MakeColorShader(this->apply(color));
+    }
+
+    SkShader::TileMode xy[2];
+    SkMatrix local;
+    if (auto img = shader->isAImage(&local, xy)) {
+        return this->apply(img)->makeShader(xy[0], xy[1], &local);
+    }
+
+    SkShader::ComposeRec compose;
+    if (shader->asACompose(&compose)) {
+        auto A = this->apply(compose.fShaderA),
+             B = this->apply(compose.fShaderB);
+        if (A && B) {
+            return SkShader::MakeComposeShader(std::move(A), std::move(B), compose.fBlendMode);
+        }
+    }
+
+    SkShader::GradientInfo gradient;
+    sk_bzero(&gradient, sizeof(gradient));
+    if (auto type = shader->asAGradient(&gradient)) {
+        SkSTArray<8, SkColor>  colors(gradient.fColorCount);
+        SkSTArray<8, SkScalar>    pos(gradient.fColorCount);
+
+        gradient.fColors       = colors.begin();
+        gradient.fColorOffsets =    pos.begin();
+        shader->asAGradient(&gradient);
+
+        SkSTArray<8, SkColor> xformed(gradient.fColorCount);
+        this->apply(xformed.begin(), gradient.fColors, gradient.fColorCount);
+
+        switch (type) {
+            case SkShader::kNone_GradientType:
+            case SkShader::kColor_GradientType:
+                SkASSERT(false);  // Should be unreachable.
+                break;
+
+            case SkShader::kLinear_GradientType:
+                return SkGradientShader::MakeLinear(gradient.fPoint,
+                                                    xformed.begin(),
+                                                    gradient.fColorOffsets,
+                                                    gradient.fColorCount,
+                                                    gradient.fTileMode,
+                                                    gradient.fGradientFlags,
+                                                    &shader->getLocalMatrix());
+            case SkShader::kRadial_GradientType:
+                return SkGradientShader::MakeRadial(gradient.fPoint[0],
+                                                    gradient.fRadius[0],
+                                                    xformed.begin(),
+                                                    gradient.fColorOffsets,
+                                                    gradient.fColorCount,
+                                                    gradient.fTileMode,
+                                                    gradient.fGradientFlags,
+                                                    &shader->getLocalMatrix());
+            case SkShader::kSweep_GradientType:
+                return SkGradientShader::MakeSweep(gradient.fPoint[0].fX,
+                                                   gradient.fPoint[0].fY,
+                                                   xformed.begin(),
+                                                   gradient.fColorOffsets,
+                                                   gradient.fColorCount,
+                                                   gradient.fGradientFlags,
+                                                   &shader->getLocalMatrix());
+            case SkShader::kConical_GradientType:
+                return SkGradientShader::MakeTwoPointConical(gradient.fPoint[0],
+                                                             gradient.fRadius[0],
+                                                             gradient.fPoint[1],
+                                                             gradient.fRadius[1],
+                                                             xformed.begin(),
+                                                             gradient.fColorOffsets,
+                                                             gradient.fColorCount,
+                                                             gradient.fTileMode,
+                                                             gradient.fGradientFlags,
+                                                             &shader->getLocalMatrix());
+        }
+    }
+
+    return nullptr;
+}
+
+const SkPaint& SkColorSpaceXformer::apply(SkTLazy<SkPaint>* dst, const SkPaint& src) const {
+    const SkPaint* result = &src;
+    auto get_dst = [&] {
+        if (!dst->isValid()) {
+            dst->init(src);
+            result = dst->get();
+        }
+        return dst->get();
+    };
+
+    // All SkColorSpaces have the same black point.
+    if (src.getColor() & 0xffffff) {
+        get_dst()->setColor(this->apply(src.getColor()));
+    }
+
+    if (auto shader = src.getShader()) {
+        if (auto replacement = this->apply(shader)) {
+            get_dst()->setShader(std::move(replacement));
+        }
+    }
+
+    // As far as I know, SkModeColorFilter is the only color filter that holds a color.
+    if (auto cf = src.getColorFilter()) {
+        SkColor color;
+        SkBlendMode mode;
+        if (cf->asColorMode(&color, &mode)) {
+            get_dst()->setColorFilter(SkColorFilter::MakeModeFilter(this->apply(color), mode));
+        }
+    }
+
+    if (auto looper = src.getDrawLooper()) {
+        get_dst()->setDrawLooper(looper->makeColorSpace(this));
+    }
+
+    // TODO:
+    //    - image filters?
+
+    return *result;
+}
+
+const SkPaint* SkColorSpaceXformer::apply(SkTLazy<SkPaint>* dst, const SkPaint* src) const {
+    return src ? &this->apply(dst, *src) : nullptr;
+}

@@ -81,6 +81,8 @@ public:
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
 
 protected:
+    sk_sp<SkDrawLooper> onMakeColorSpace(const SkColorSpaceXformer*) const override;
+
     SkLayerDrawLooper();
 
     void flatten(SkWriteBuffer&) const override;

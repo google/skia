@@ -8,12 +8,14 @@
 #include "SkBlurDrawLooper.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXformer.h"
 #include "SkColor.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkLayerDrawLooper.h"
 #include "SkString.h"
 #include "SkStringUtils.h"
+#include "SkTLazy.h"
 #include "SkUnPreMultiply.h"
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
@@ -204,6 +206,39 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         bsRec->fQuality = maskBlur.fQuality;
     }
     return true;
+}
+
+sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(const SkColorSpaceXformer* xformer) const {
+    if (!fCount) {
+        return sk_ref_sp(const_cast<SkLayerDrawLooper*>(this));
+    }
+
+    SkLayerDrawLooper* looper = new SkLayerDrawLooper();
+    looper->fCount = fCount;
+
+    Rec* oldRec = fRecs;
+    Rec* newTopRec = new Rec();
+    newTopRec->fInfo = oldRec->fInfo;
+    SkTLazy<SkPaint> newTopPaint;
+    newTopRec->fPaint = xformer->apply(&newTopPaint, oldRec->fPaint);
+    newTopRec->fNext = nullptr;
+
+    Rec* prevNewRec = newTopRec;
+    oldRec = oldRec->fNext;
+    while (oldRec) {
+        Rec* newRec = new Rec();
+        newRec->fInfo = oldRec->fInfo;
+        SkTLazy<SkPaint> newPaint;
+        newRec->fPaint = xformer->apply(&newPaint, oldRec->fPaint);
+        newRec->fNext = nullptr;
+        prevNewRec->fNext = newRec;
+
+        prevNewRec = newRec;
+        oldRec = oldRec->fNext;
+    }
+
+    looper->fRecs = newTopRec;
+    return sk_sp<SkDrawLooper>(looper);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

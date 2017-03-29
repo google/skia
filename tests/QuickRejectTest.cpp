@@ -22,6 +22,10 @@ public:
         return alloc->make<TestDrawLooperContext>();
     }
 
+    sk_sp<SkDrawLooper> onMakeColorSpace(const SkColorSpaceXformer*) const override {
+        return nullptr;
+    }
+
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
         str->append("TestLooper:");
@@ -44,6 +48,7 @@ private:
             }
             return false;
         }
+
     private:
         bool fOnce;
     };
