@@ -31,9 +31,8 @@ private:
                AnalysisProperties::kIgnoresInputColor;
     }
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const FragmentProcessorAnalysis&,
-                                           bool hasMixedSamples,
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrPipelineAnalysisColor&,
+                                           GrPipelineAnalysisCoverage, bool hasMixedSamples,
                                            const DstTexture* dstTexture) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;

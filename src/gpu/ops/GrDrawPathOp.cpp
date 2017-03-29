@@ -38,6 +38,7 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
                     0xffff>()
     };
     GrPipeline::InitArgs args;
+    auto analysis = this->fragmentProcessorAnalysis();
     args.fProcessors = &this->processors();
     args.fFlags = GrAA::kYes == fAA ? GrPipeline::kHWAntialias_Flag : 0;
     args.fUserStencil = &kCoverPass;
@@ -45,8 +46,8 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     args.fRenderTarget = state.drawOpArgs().fRenderTarget;
     args.fCaps = &state.caps();
     args.fDstTexture = state.drawOpArgs().fDstTexture;
-    args.fAnalysis =
-            &this->doFragmentProcessorAnalysis(state.caps(), state.drawOpArgs().fAppliedClip);
+    args.fInputColor = analysis.outputColor();
+    args.fInputCoverage = analysis.outputCoverage();
 
     return pipeline->init(args);
 }

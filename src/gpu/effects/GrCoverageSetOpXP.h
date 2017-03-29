@@ -30,9 +30,8 @@ public:
 private:
     constexpr GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps&,
-                                           const FragmentProcessorAnalysis&,
-                                           bool hasMixedSamples,
+    GrXferProcessor* onCreateXferProcessor(const GrCaps&, const GrPipelineAnalysisColor&,
+                                           GrPipelineAnalysisCoverage, bool hasMixedSamples,
                                            const DstTexture*) const override;
 
     AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,

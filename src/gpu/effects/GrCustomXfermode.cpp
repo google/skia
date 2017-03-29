@@ -213,9 +213,8 @@ public:
             : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
 
 private:
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const FragmentProcessorAnalysis&,
-                                           bool hasMixedSamples,
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrPipelineAnalysisColor&,
+                                           GrPipelineAnalysisCoverage, bool hasMixedSamples,
                                            const DstTexture*) const override;
 
     AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
@@ -234,11 +233,12 @@ private:
 #endif
 
 GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                        const FragmentProcessorAnalysis& analysis,
+                                                        const GrPipelineAnalysisColor&,
+                                                        GrPipelineAnalysisCoverage coverage,
                                                         bool hasMixedSamples,
                                                         const DstTexture* dstTexture) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.outputCoverageType(), caps)) {
+    if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }

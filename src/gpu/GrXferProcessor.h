@@ -268,7 +268,8 @@ public:
 
     typedef GrXferProcessor::DstTexture DstTexture;
 
-    GrXferProcessor* createXferProcessor(const FragmentProcessorAnalysis&,
+    GrXferProcessor* createXferProcessor(const GrPipelineAnalysisColor&,
+                                         GrPipelineAnalysisCoverage,
                                          bool hasMixedSamples,
                                          const DstTexture*,
                                          const GrCaps& caps) const;
@@ -293,7 +294,8 @@ protected:
 
 private:
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                                   const FragmentProcessorAnalysis&,
+                                                   const GrPipelineAnalysisColor&,
+                                                   GrPipelineAnalysisCoverage,
                                                    bool hasMixedSamples,
                                                    const DstTexture*) const = 0;
 

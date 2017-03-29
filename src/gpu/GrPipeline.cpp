@@ -19,7 +19,10 @@
 #include "ops/GrOp.h"
 
 void GrPipeline::init(const InitArgs& args) {
-    SkASSERT(args.fAnalysis);
+    if (args.fAnalysis) {
+        SkASSERT(args.fAnalysis->outputColor() == args.fInputColor);
+        SkASSERT(args.fAnalysis->outputCoverage() == args.fInputCoverage);
+    }
     SkASSERT(args.fRenderTarget);
 
     fRenderTarget.reset(args.fRenderTarget);
@@ -58,27 +61,33 @@ void GrPipeline::init(const InitArgs& args) {
         sk_sp<GrXferProcessor> xferProcessor;
         const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
         if (xpFactory) {
-            xferProcessor.reset(xpFactory->createXferProcessor(*args.fAnalysis, hasMixedSamples,
+            xferProcessor.reset(xpFactory->createXferProcessor(args.fInputColor,
+                                                               args.fInputCoverage, hasMixedSamples,
                                                                &args.fDstTexture, *args.fCaps));
             SkASSERT(xferProcessor);
         } else {
             // This may return nullptr in the common case of src-over implemented using hw blending.
             xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
-                    *args.fCaps, *args.fAnalysis, hasMixedSamples, &args.fDstTexture));
+                    *args.fCaps, args.fInputColor, args.fInputCoverage, hasMixedSamples,
+                    &args.fDstTexture));
         }
         fXferProcessor.reset(xferProcessor.get());
     }
 
-    // This is for the legacy GrPipeline creation in GrMeshDrawOp where analysis does not
-    // eliminate fragment processors from GrProcessorSet.
-    GrColor overrideColor = GrColor_ILLEGAL;
-    int colorFPsToEliminate =
-            args.fAnalysis->getInputColorOverrideAndColorProcessorEliminationCount(&overrideColor);
-    colorFPsToEliminate = SkTMax(colorFPsToEliminate, 0);
-    if (args.fAnalysis->isInputColorIgnored()) {
-        // No need to have an override color if it isn't even going to be used.
-        overrideColor = GrColor_ILLEGAL;
-        colorFPsToEliminate = args.fProcessors->numColorFragmentProcessors();
+    // This is for the legacy GrPipeline creation in GrMeshDrawOp where analysis does not eliminate
+    // fragment processors from GrProcessorSet.
+    int colorFPsToEliminate = 0;
+    if (args.fAnalysis) {
+        GrColor overrideColor = GrColor_ILLEGAL;
+        colorFPsToEliminate =
+                args.fAnalysis->getInputColorOverrideAndColorProcessorEliminationCount(
+                        &overrideColor);
+        colorFPsToEliminate = SkTMax(colorFPsToEliminate, 0);
+        if (args.fAnalysis->isInputColorIgnored()) {
+            // No need to have an override color if it isn't even going to be used.
+            overrideColor = GrColor_ILLEGAL;
+            colorFPsToEliminate = args.fProcessors->numColorFragmentProcessors();
+        }
     }
 
     // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline, possibly removing some of the

@@ -51,6 +51,13 @@ public:
         return false;
     }
 
+    bool operator==(const GrPipelineAnalysisColor& that) const {
+        if (fFlags != that.fFlags) {
+            return false;
+        }
+        return (kColorIsKnown_Flag & fFlags) ? fColor == that.fColor : true;
+    }
+
 private:
     enum Flags {
         kColorIsKnown_Flag = 0x1,

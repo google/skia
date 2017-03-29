@@ -1742,6 +1742,8 @@ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineB
     args.fRenderTarget = rt;
     args.fCaps = this->caps();
     args.fAnalysis = &analysis;
+    args.fInputColor = analysis.outputColor();
+    args.fInputCoverage = analysis.outputCoverage();
 
     if (analysis.requiresDstTexture()) {
         this->setupDstTexture(rt, clip, bounds, &args.fDstTexture);
