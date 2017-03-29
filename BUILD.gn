@@ -31,7 +31,6 @@ declare_args() {
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
-  skia_enable_jumper = is_skia_dev_build
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
@@ -513,20 +512,6 @@ optional("raw") {
   ]
 }
 
-optional("jumper") {
-  enabled = skia_enable_jumper
-  public_defines = [ "SK_JUMPER" ]
-  sources = [
-    "src/jumper/SkJumper.cpp",
-    "src/jumper/SkJumper_stages.cpp",
-  ]
-  if (is_win && target_cpu == "x64") {
-    sources += [ "src/jumper/SkJumper_generated_win.S" ]
-  } else if (!is_win) {
-    sources += [ "src/jumper/SkJumper_generated.S" ]
-  }
-}
-
 optional("typeface_freetype") {
   enabled = skia_use_freetype
 
@@ -586,7 +571,6 @@ component("skia") {
     ":gpu",
     ":hsw",
     ":jpeg",
-    ":jumper",
     ":none",
     ":pdf",
     ":png",
