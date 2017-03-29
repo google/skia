@@ -167,9 +167,11 @@ print '''; Copyright 2017 Google Inc.
 ;   $ src/jumper/build_stages.py
 '''
 
+print 'IFDEF RAX'
 print '_text SEGMENT'
 parse_object_file('win_hsw.o',   'DB')
 parse_object_file('win_avx.o',   'DB')
 parse_object_file('win_sse41.o', 'DB')
 parse_object_file('win_sse2.o',  'DB')
+print 'ENDIF'
 print 'END'

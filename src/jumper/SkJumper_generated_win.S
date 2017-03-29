@@ -6,6 +6,7 @@
 ; This file is generated semi-automatically with this command:
 ;   $ src/jumper/build_stages.py
 
+IFDEF RAX
 _text SEGMENT
 
 PUBLIC _sk_start_pipeline_hsw
@@ -5550,4 +5551,5 @@ _sk_linear_gradient_2stops_sse2 LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  65,15,40,192                        ; movaps        %xmm8,%xmm0
   DB  255,224                             ; jmpq          *%rax
+ENDIF
 END

@@ -520,9 +520,9 @@ optional("jumper") {
     "src/jumper/SkJumper.cpp",
     "src/jumper/SkJumper_stages.cpp",
   ]
-  if (is_win && target_cpu == "x64") {
+  if (is_win) {
     sources += [ "src/jumper/SkJumper_generated_win.S" ]
-  } else if (!is_win) {
+  } else {
     sources += [ "src/jumper/SkJumper_generated.S" ]
   }
 }
