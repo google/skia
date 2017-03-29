@@ -540,3 +540,13 @@ skia_core_sources = [
   "$_src/pathops/SkPathWriter.h",
   "$_src/pathops/SkReduceOrder.h",
 ]
+
+skia_core_sources += [
+  "$_src/jumper/SkJumper.cpp",
+  "$_src/jumper/SkJumper_stages.cpp",
+]
+if (is_win) {
+  skia_core_sources += [ "$_src/jumper/SkJumper_generated_win.S" ]
+} else {
+  skia_core_sources += [ "$_src/jumper/SkJumper_generated.S" ]
+}
