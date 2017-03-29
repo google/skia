@@ -3365,9 +3365,13 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
         }
     }
     if (GrGLCaps::kRectsMustMatchForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples() &&
-            (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop)) {
-            return false;
+        if (srcRT && srcRT->numColorSamples()) {
+            if (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop) {
+                return false;
+            }
+            if (dst->origin() != src->origin()) {
+                return false;
+            }
         }
     }
     return true;

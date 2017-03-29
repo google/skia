@@ -5,11 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include <functional>
+#include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkSurface.h"
 #include "SkTaskGroup.h"
-#include <functional>
+#include "SkUtils.h"
+#include "Test.h"
+
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrResourceProvider.h"
+#include "GrSurfaceContext.h"
+#include "GrSurfaceProxy.h"
+#include "GrTexture.h"
+#endif
 
 struct Results { int diffs, diffs_0x00, diffs_0xff, diffs_by_1; };
 
@@ -66,3 +79,76 @@ DEF_TEST(Blend_byte_multiply, r) {
     };
     for (auto multiply : perfect) { REPORTER_ASSERT(r, test(multiply).diffs == 0); }
 }
+
+#if SK_SUPPORT_GPU
+namespace {
+static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
+        GrContext* context, int sampleCnt, GrPixelConfig config, GrBackendObject* outTexture) {
+    const int kWidth = 10;
+    const int kHeight = 10;
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
+    sk_memset32(pixels.get(), SK_ColorBLACK, kWidth * kHeight);
+    GrBackendTextureDesc desc;
+    desc.fConfig = config;
+    desc.fWidth = kWidth;
+    desc.fHeight = kHeight;
+    desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(pixels.get(), kWidth,
+                                                                             kHeight, config, true);
+    desc.fSampleCnt = sampleCnt;
+    sk_sp<SkSurface> surface =
+            SkSurface::MakeFromBackendTextureAsRenderTarget(context, desc, nullptr);
+    if (!surface) {
+        context->getGpu()->deleteTestingOnlyBackendTexture(desc.fTextureHandle);
+        return nullptr;
+    }
+    *outTexture = desc.fTextureHandle;
+    return surface;
+}
+}
+
+// Tests blending to a surface with no texture available.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    for (int sampleCnt : {0, 4, 8}) {
+        GrBackendObject textureObject;
+        // BGRA forces a framebuffer blit on ES2.
+        sk_sp<SkSurface> surface = create_gpu_surface_backend_texture_as_render_target(
+                context, sampleCnt, kBGRA_8888_GrPixelConfig, &textureObject);
+
+        if (!surface && sampleCnt > 0) {
+            // Some platforms don't support MSAA.
+            continue;
+        }
+        REPORTER_ASSERT(reporter, !!surface);
+
+        SkCanvas* canvas = surface->getCanvas();
+        SkPaint black_paint;
+        black_paint.setColor(SK_ColorBLACK);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, 10, 10), black_paint);
+
+        // Blend with hard light, which will force a readback.
+        SkPaint white_paint;
+        white_paint.setColor(SK_ColorWHITE);
+        white_paint.setBlendMode(SkBlendMode::kHardLight);
+        canvas->drawRect(SkRect::MakeXYWH(5, 5, 5, 5), white_paint);
+
+        // Read back the pixel at 6,6 and make sure it is not black.
+        SkBitmap bitmap;
+        REPORTER_ASSERT(reporter, bitmap.tryAllocN32Pixels(10, 10));
+        bitmap.lockPixels();
+        REPORTER_ASSERT(reporter, surface->readPixels(bitmap.info(), bitmap.getPixels(),
+                                                      bitmap.rowBytes(), 0, 0));
+
+        REPORTER_ASSERT(reporter,
+                        *((uint32_t*)bitmap.getPixels() + 3 * bitmap.width() + 3) == SK_ColorBLACK);
+        REPORTER_ASSERT(reporter,
+                        *((uint32_t*)bitmap.getPixels() + 7 * bitmap.width() + 7) != SK_ColorBLACK);
+
+        bitmap.unlockPixels();
+        surface.reset();
+        context->getGpu()->deleteTestingOnlyBackendTexture(textureObject);
+    }
+}
+#endif

@@ -1026,7 +1026,8 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fBlitFramebufferFlags = kNoScalingOrMirroring_BlitFramebufferFlag |
                                     kResolveMustBeFull_BlitFrambufferFlag |
                                     kNoMSAADst_BlitFramebufferFlag |
-                                    kNoFormatConversion_BlitFramebufferFlag;
+                                    kNoFormatConversion_BlitFramebufferFlag |
+                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
         }
     } else {
         if (fUsesMixedSamples) {
@@ -2068,7 +2069,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 #endif
 }
 
-bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc,
+                                  bool* rectsMustMatch) const {
+    // By default, we don't require rects to match.
+    *rectsMustMatch = false;
+
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTexture() && this->isConfigRenderable(src->config(), false)) {
@@ -2093,6 +2098,14 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc
         originForBlitFramebuffer = src->origin();
     }
 
+    bool rectsMustMatchForBlitFramebuffer = false;
+    if (src->numColorSamples() &&
+        (this->blitFramebufferSupportFlags() & kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
+        rectsMustMatchForBlitFramebuffer = false;
+        // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
+    }
+
     // Check for format issues with glCopyTexSubImage2D
     if (this->bgraIsInternalFormat() && kBGRA_8888_GrPixelConfig == src->config()) {
         // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
@@ -2100,6 +2113,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc
         if (this->canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
             desc->fOrigin = originForBlitFramebuffer;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
+            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
             return true;
         }
         return false;
