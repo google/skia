@@ -27,8 +27,7 @@ SkString GrDrawPathOp::dumpInfo() const {
     return string;
 }
 
-GrPipelineOptimizations GrDrawPathOpBase::initPipeline(const GrOpFlushState& state,
-                                                       GrPipeline* pipeline) {
+void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pipeline) {
     static constexpr GrUserStencilSettings kCoverPass{
             GrUserStencilSettings::StaticInit<
                     0x0000,
@@ -65,11 +64,9 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
 //////////////////////////////////////////////////////////////////////////////
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {
-    GrColor color = this->color();
     GrPipeline pipeline;
-    GrPipelineOptimizations optimizations = this->initPipeline(*state, &pipeline);
-    optimizations.getOverrideColorIfSet(&color);
-    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(color, this->viewMatrix()));
+    this->initPipeline(*state, &pipeline);
+    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);

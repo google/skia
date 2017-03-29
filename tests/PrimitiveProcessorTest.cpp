@@ -46,7 +46,7 @@ private:
         *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations&) override {}
+    void applyPipelineOptimizations(const PipelineOptimizations&) override {}
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
     void onPrepareDraws(Target* target) const override {
         class GP : public GrGeometryProcessor {
