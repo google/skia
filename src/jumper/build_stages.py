@@ -72,9 +72,9 @@ subprocess.check_call(clang + cflags + vfp4 +
                       ['-o', 'vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
-  globl, label, comment = '.globl', ':', '// '
+  label, comment = ':', '// '
   if 'win' in dot_o:
-    globl, label, comment = 'PUBLIC', ' LABEL PROC', '; '
+    label, comment = ' LABEL PROC', '; '
 
   dehex = lambda h: '0x'+h
   if directive != '.long':
@@ -103,7 +103,7 @@ def parse_object_file(dot_o, directive, target=None):
     m = re.match('''[0-9a-f]+ <_?(.*)>:''', line)
     if m:
       print
-      print globl + ' _' + m.group(1)
+      print 'PUBLIC _' + m.group(1)
       print '_' + m.group(1) + label
       continue
 
@@ -132,6 +132,12 @@ print '''# Copyright 2017 Google Inc.
 # This file is generated semi-automatically with this command:
 #   $ src/jumper/build_stages.py
 '''
+print '#if defined(__MACH__)'
+print '    #define PUBLIC .private_extern'
+print '#else'
+print '    #define PUBLIC .hidden'
+print '#endif'
+
 print '.text'
 print '#if defined(__aarch64__)'
 print '.balign 4'
