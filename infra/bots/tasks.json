@@ -4440,7 +4440,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
-        "device_os:NRD90M_G930AUCU4BQA6",
+        "device_os:NRD90M_G930AUCS4BQC2",
         "device_type:heroqlteatt",
         "os:Android",
         "pool:Skia"
@@ -4490,7 +4490,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
-        "device_os:NRD90M_G930AUCU4BQA6",
+        "device_os:NRD90M_G930AUCS4BQC2",
         "device_type:heroqlteatt",
         "os:Android",
         "pool:Skia"
@@ -10223,7 +10223,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
-        "device_os:NRD90M_G930AUCU4BQA6",
+        "device_os:NRD90M_G930AUCS4BQC2",
         "device_type:heroqlteatt",
         "os:Android",
         "pool:Skia"
@@ -10273,7 +10273,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
-        "device_os:NRD90M_G930AUCU4BQA6",
+        "device_os:NRD90M_G930AUCS4BQC2",
         "device_type:heroqlteatt",
         "os:Android",
         "pool:Skia"
