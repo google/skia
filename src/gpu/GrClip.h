@@ -36,7 +36,7 @@ public:
      * conservative bounds of the clip. A return value of false indicates that the draw can be
      * skipped as it is fully clipped out.
      */
-    virtual bool apply(GrContext*, GrRenderTargetContext*, bool useHWAA,
+    virtual bool apply1(GrContext*, GrRenderTargetContext*, bool useHWAA,
                        bool hasUserStencilSettings, GrAppliedClip* result,
                        SkRect* bounds) const = 0;
 
@@ -143,7 +143,7 @@ private:
             *isIntersectionOfRects = true;
         }
     }
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip*,
+    bool apply1(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip*,
                SkRect*) const final {
         return true;
     }

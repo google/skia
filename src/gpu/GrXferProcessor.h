@@ -111,7 +111,7 @@ public:
      * Returns whether this XP will require an Xfer barrier on the given rt. If true, outBarrierType
      * is updated to contain the type of barrier needed.
      */
-    GrXferBarrierType xferBarrierType(const GrRenderTarget* rt, const GrCaps& caps) const;
+    GrXferBarrierType xferBarrierType(const GrRenderTargetProxy* rtp, const GrCaps& caps) const;
 
     struct BlendInfo {
         void reset() {
@@ -141,6 +141,7 @@ public:
      * extentions that support framebuffer fetching and thus don't need a copy of the dst texture.
      */
     const GrTexture* getDstTexture() const { return fDstTexture.texture(); }
+    const GrTextureProxy* getDstTextureProxy() const { return nullptr; } //fDstTexture.texture(); }
 
     /**
      * Returns the offset in device coords to use when accessing the dst texture to get the dst

@@ -34,6 +34,7 @@ class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
 class GrSamplerParams;
+class GrSurfaceProxy;
 class GrTextBlobCache;
 class GrTextContext;
 class GrTextureProxy;
@@ -242,8 +243,11 @@ public:
     /**
      * Call to ensure all drawing to the context has been issued to the
      * underlying 3D API.
+     * The 'proxy' parameter is a hint. If it is supplied the context need only guarantee that
+     * the draws required for that proxy are flushed but it could do more. If no 'proxy' is
+     * provided then all current work will be flushed.
      */
-    void flush();
+    void flush(GrSurfaceProxy* = nullptr);
 
    /**
     * These flags can be used with the read/write pixels functions below.
@@ -310,13 +314,13 @@ public:
     /**
      * After this returns any pending writes to the surface will have been issued to the backend 3D API.
      */
-    void flushSurfaceWrites(GrSurface* surface);
+    void flushSurfaceWrites(GrSurfaceProxy*);
 
     /**
      * After this returns any pending reads or writes to the surface will have been issued to the
      * backend 3D API.
      */
-    void flushSurfaceIO(GrSurface* surface);
+    void flushSurfaceIO(GrSurfaceProxy*);
 
     /**
      * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
@@ -326,7 +330,7 @@ public:
      * GrContext will detect when it must perform a resolve before reading pixels back from the
      * surface or using it as a texture.
      */
-    void prepareSurfaceForExternalIO(GrSurface*);
+    void prepareSurfaceForExternalIO(GrSurfaceProxy*);
 
     /**
      * An ID associated with this context, guaranteed to be unique.
