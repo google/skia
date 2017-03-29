@@ -22,11 +22,9 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 
 void SkRasterPipeline::run(size_t x, size_t n) const {
     if (!fStages.empty()) {
-    #if defined(SK_JUMPER)
         if (this->run_with_jumper(x, n)) {
             return;
         }
-    #endif
         SkOpts::run_pipeline(x,n, fStages.data(), SkToInt(fStages.size()));
     }
 }
