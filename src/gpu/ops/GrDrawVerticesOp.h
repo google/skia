@@ -72,7 +72,7 @@ private:
 
     void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
                                             GrPipelineAnalysisCoverage* coverage) const override;
-    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
+    void applyPipelineOptimizations(const PipelineOptimizations&) override;
     void onPrepareDraws(Target*) const override;
 
     sk_sp<GrGeometryProcessor> makeGP(bool* hasColorAttribute, bool* hasLocalCoordAttribute) const;

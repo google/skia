@@ -148,7 +148,7 @@ private:
         *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fCircles[0].fColor);
         if (!optimizations.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
@@ -569,7 +569,7 @@ private:
         *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
         if (!optimizations.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();

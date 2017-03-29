@@ -193,7 +193,7 @@ public:
         return str;
     }
 
-    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
         GrColor color;
         if (optimizations.getOverrideColorIfSet(&color)) {
             this->first()->setColor(color);

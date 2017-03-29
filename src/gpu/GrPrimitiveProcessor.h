@@ -33,63 +33,6 @@
 
 class GrGLSLPrimitiveProcessor;
 
-struct GrInitInvariantOutput;
-
-/*
- * This class allows the GrPipeline to communicate information about the pipeline to a GrOp which
- * inform its decisions for GrPrimitiveProcessor setup. These are not properly part of the pipeline
- * because they reflect the specific inputs that the op provided to perform the analysis (e.g. that
- * the GrGeometryProcessor would output an opaque color).
- *
- * The pipeline analysis that produced this may have decided to elide some GrProcessors. However,
- * those elisions may depend upon changing the color output by the GrGeometryProcessor used by the
- * GrDrawOp. The op must check getOverrideColorIfSet() for this.
- */
-class GrPipelineOptimizations {
-public:
-    /** Does the pipeline require access to (implicit or explicit) local coordinates? */
-    bool readsLocalCoords() const {
-        return SkToBool(kReadsLocalCoords_Flag & fFlags);
-    }
-
-    /** Does the pipeline allow the GrPrimitiveProcessor to combine color and coverage into one
-        color output ? */
-    bool canTweakAlphaForCoverage() const {
-        return SkToBool(kCanTweakAlphaForCoverage_Flag & fFlags);
-    }
-
-    /** Does the pipeline require the GrPrimitiveProcessor to specify a specific color (and if
-        so get the color)? */
-    bool getOverrideColorIfSet(GrColor* overrideColor) const {
-        if (SkToBool(kUseOverrideColor_Flag & fFlags)) {
-            if (overrideColor) {
-                *overrideColor = fOverrideColor;
-            }
-            return true;
-        }
-        return false;
-    }
-
-private:
-    enum {
-        // If this is not set the primitive processor need not produce local coordinates
-        kReadsLocalCoords_Flag = 0x1,
-
-        // If this flag is set then the primitive processor may produce color*coverage as
-        // its color output (and not output a separate coverage).
-        kCanTweakAlphaForCoverage_Flag = 0x2,
-
-        // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
-        // output color. If not set fOverrideColor is to be ignored.
-        kUseOverrideColor_Flag = 0x4,
-    };
-
-    uint32_t    fFlags;
-    GrColor     fOverrideColor;
-
-    friend class GrPipeline; // To initialize this
-};
-
 /*
  * GrPrimitiveProcessor defines an interface which all subclasses must implement.  All
  * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage

@@ -12,7 +12,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
-#include "GrPrimitiveProcessor.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrScissorState.h"
@@ -79,7 +78,7 @@ public:
     GrPipeline(GrRenderTarget*, SkBlendMode);
 
     /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
-    GrPipelineOptimizations init(const InitArgs&);
+    void init(const InitArgs&);
 
     /** True if the pipeline has been initialized. */
     bool isInitialized() const { return SkToBool(fRenderTarget.get()); }

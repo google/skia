@@ -179,7 +179,7 @@ private:
         color->setToConstant(fRects[0].fColor);
         *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
     }
-    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
+    void applyPipelineOptimizations(const PipelineOptimizations&) override;
     void onPrepareDraws(Target*) const override;
 
     static const int kMiterIndexCnt = 3 * 24;
@@ -230,7 +230,7 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-void AAStrokeRectOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
+void AAStrokeRectOp::applyPipelineOptimizations(const PipelineOptimizations& optimizations) {
     optimizations.getOverrideColorIfSet(&fRects[0].fColor);
 
     fUsesLocalCoords = optimizations.readsLocalCoords();

@@ -1003,7 +1003,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
             *coverage = GrPipelineAnalysisCoverage::kLCD;
         }
 
-        void applyPipelineOptimizations(const GrPipelineOptimizations&) override {}
+        void applyPipelineOptimizations(const PipelineOptimizations&) override {}
         bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
         void onPrepareDraws(Target*) const override {}
 

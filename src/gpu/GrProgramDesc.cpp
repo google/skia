@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "GrProgramDesc.h"
-
-#include "GrProcessor.h"
 #include "GrPipeline.h"
+#include "GrPrimitiveProcessor.h"
+#include "GrProcessor.h"
 #include "GrRenderTargetPriv.h"
 #include "GrShaderCaps.h"
 #include "GrTexturePriv.h"

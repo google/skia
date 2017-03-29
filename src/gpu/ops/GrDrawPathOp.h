@@ -39,7 +39,7 @@ protected:
     GrColor color() const { return fAnalysis.inputColor(); }
     GrPathRendering::FillType fillType() const { return fFillType; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
-    GrPipelineOptimizations initPipeline(const GrOpFlushState&, GrPipeline*);
+    void initPipeline(const GrOpFlushState&, GrPipeline*);
     const GrProcessorSet::FragmentProcessorAnalysis& doFragmentProcessorAnalysis(
             const GrCaps& caps, const GrAppliedClip* clip) {
         fProcessorSet.analyzeAndEliminateFragmentProcessors(
