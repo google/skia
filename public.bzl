@@ -62,6 +62,7 @@ BASE_SRCS_ALL = struct(
         "src/**/*.h",
         "src/**/*.cpp",
         "src/**/*.inc",
+        "src/jumper/SkJumper_generated.S",
 
         # Third Party
         "third_party/etc1/*.cpp",
@@ -83,7 +84,6 @@ BASE_SRCS_ALL = struct(
         "src/gpu/gl/mac/*",
         "src/gpu/gl/win/*",
         "src/images/*",
-        "src/jumper/*",
         "src/opts/**/*",
         "src/ports/**/*",
         "src/utils/android/**/*",
