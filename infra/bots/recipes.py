@@ -67,11 +67,15 @@ def parse(repo_root, recipes_cfg_path):
   with open(recipes_cfg_path, 'rU') as fh:
     pb = json.load(fh)
 
-  engine = next(
-    (d for d in pb['deps'] if d['project_id'] == 'recipe_engine'), None)
-  if engine is None:
-    raise ValueError('could not find recipe_engine dep in %r'
-                     % recipes_cfg_path)
+  if pb['api_version'] == 1:
+    # TODO(iannucci): remove when we only support version 2
+    engine = next(
+      (d for d in pb['deps'] if d['project_id'] == 'recipe_engine'), None)
+    if engine is None:
+      raise ValueError('could not find recipe_engine dep in %r'
+                       % recipes_cfg_path)
+  else:
+    engine = pb['deps']['recipe_engine']
   engine_url = engine['url']
   engine_revision = engine.get('revision', '')
   engine_subpath = engine.get('path_override', '')
