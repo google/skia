@@ -1855,7 +1855,9 @@ bool SkTypeface_FreeType::Scanner::scanFont(
         const SkScalar axisMin = SkFixedToScalar(axisDefinition.fMinimum);
         const SkScalar axisMax = SkFixedToScalar(axisDefinition.fMaximum);
         axisValues[i] = axisDefinition.fDefault;
-        for (int j = 0; j < position.coordinateCount; ++j) {
+        // The position may be over specified. If there are multiple values for a given axis,
+        // use the last one since that's what css-fonts-4 requires.
+        for (int j = position.coordinateCount; j --> 0;) {
             const auto& coordinate = position.coordinates[j];
             if (axisDefinition.fTag == coordinate.axis) {
                 const SkScalar axisValue = SkTPin(coordinate.value, axisMin, axisMax);

@@ -96,10 +96,14 @@ DEF_TEST(TypefaceAxes, reporter) {
         REPORT_FAILURE(reporter, "distortable", SkString());
         return;
     }
+    constexpr int numberOfAxesInDistortable = 1;
 
     sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    // The position may be over specified. If there are multiple values for a given axis,
+    // ensure the last one since that's what css-fonts-4 requires.
     const SkFontArguments::VariationPosition::Coordinate position[] = {
-        { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 }
+        { SkSetFourByteTag('w','g','h','t'), 1.618033988749895f },
+        { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 },
     };
     SkFontArguments params;
     params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
@@ -110,17 +114,17 @@ DEF_TEST(TypefaceAxes, reporter) {
     if (count == -1) {
         return;
     }
-    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(position));
+    REPORTER_ASSERT(reporter, count == numberOfAxesInDistortable);
 
-    SkFontArguments::VariationPosition::Coordinate positionRead[SK_ARRAY_COUNT(position)];
+    SkFontArguments::VariationPosition::Coordinate positionRead[numberOfAxesInDistortable];
     count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
-    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(position));
+    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(positionRead));
 
-    REPORTER_ASSERT(reporter, positionRead[0].axis == position[0].axis);
+    REPORTER_ASSERT(reporter, positionRead[0].axis == position[1].axis);
 
     // Convert to fixed for "almost equal".
     SkFixed fixedRead = SkScalarToFixed(positionRead[0].value);
-    SkFixed fixedOriginal = SkScalarToFixed(position[0].value);
+    SkFixed fixedOriginal = SkScalarToFixed(position[1].value);
     REPORTER_ASSERT(reporter, fixedRead == fixedOriginal);
 }
 
