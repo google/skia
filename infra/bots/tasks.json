@@ -4640,7 +4640,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
-        "device_os:MRA58K",
+        "device_os:NRD90M",
         "device_type:foster",
         "os:Android",
         "pool:Skia"
@@ -4690,7 +4690,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:MRA58K",
+        "device_os:NRD90M",
         "device_type:foster",
         "os:Android",
         "pool:Skia"
@@ -4740,7 +4740,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
-        "device_os:MRA58K",
+        "device_os:NRD90M",
         "device_type:foster",
         "os:Android",
         "pool:Skia"
@@ -4790,7 +4790,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:MRA58K",
+        "device_os:NRD90M",
         "device_type:foster",
         "os:Android",
         "pool:Skia"
@@ -10481,7 +10481,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
-        "device_os:MRA58K",
+        "device_os:NRD90M",
         "device_type:foster",
         "os:Android",
         "pool:Skia"
@@ -10531,7 +10531,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:MRA58K",
+        "device_os:NRD90M",
         "device_type:foster",
         "os:Android",
         "pool:Skia"
@@ -10581,7 +10581,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
-        "device_os:MRA58K",
+        "device_os:NRD90M",
         "device_type:foster",
         "os:Android",
         "pool:Skia"
@@ -10631,7 +10631,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:MRA58K",
+        "device_os:NRD90M",
         "device_type:foster",
         "os:Android",
         "pool:Skia"
