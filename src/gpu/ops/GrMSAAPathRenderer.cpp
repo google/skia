@@ -223,7 +223,8 @@ public:
         int contourCount;
         int maxLineVertices;
         int maxQuadVertices;
-        ComputeWorstCasePointCount(path, &contourCount, &maxLineVertices, &maxQuadVertices);
+        ComputeWorstCasePointCount(path, viewMatrix, &contourCount, &maxLineVertices,
+                                   &maxQuadVertices);
         bool isIndexed = contourCount > 1;
         if (isIndexed &&
             (maxLineVertices > kMaxIndexedVertexCnt || maxQuadVertices > kMaxIndexedVertexCnt)) {
@@ -269,8 +270,9 @@ private:
         optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
     }
 
-    static void ComputeWorstCasePointCount(const SkPath& path, int* subpaths,
+    static void ComputeWorstCasePointCount(const SkPath& path, const SkMatrix& m, int* subpaths,
                                            int* outLinePointCount, int* outQuadPointCount) {
+        SkScalar tolerance = GrPathUtils::scaleToleranceToSrc(kTolerance, m, path.getBounds());
         int linePointCount = 0;
         int quadPointCount = 0;
         *subpaths = 1;
@@ -289,7 +291,7 @@ private:
                 case SkPath::kConic_Verb: {
                     SkScalar weight = iter.conicWeight();
                     SkAutoConicToQuads converter;
-                    converter.computeQuads(pts, weight, kTolerance);
+                    converter.computeQuads(pts, weight, tolerance);
                     int quadPts = converter.countQuads();
                     linePointCount += quadPts;
                     quadPointCount += 3 * quadPts;
@@ -300,7 +302,7 @@ private:
                     break;
                 case SkPath::kCubic_Verb: {
                     SkSTArray<15, SkPoint, true> quadPts;
-                    GrPathUtils::convertCubicToQuads(pts, kTolerance, &quadPts);
+                    GrPathUtils::convertCubicToQuads(pts, tolerance, &quadPts);
                     int count = quadPts.count();
                     linePointCount += count / 3;
                     quadPointCount += count;
@@ -486,6 +488,8 @@ private:
                     SkColor color,
                     bool isIndexed) const {
         {
+            const SkScalar tolerance = GrPathUtils::scaleToleranceToSrc(kTolerance, m,
+                                                                        path.getBounds());
             uint16_t subpathIdxStart = (uint16_t) (lines.nextVertex - lines.vertices);
 
             SkPoint pts[4];
@@ -518,7 +522,7 @@ private:
                     case SkPath::kConic_Verb: {
                         SkScalar weight = iter.conicWeight();
                         SkAutoConicToQuads converter;
-                        const SkPoint* quadPts = converter.computeQuads(pts, weight, kTolerance);
+                        const SkPoint* quadPts = converter.computeQuads(pts, weight, tolerance);
                         for (int i = 0; i < converter.countQuads(); ++i) {
                             add_quad(lines, quads, quadPts + i * 2, color, isIndexed,
                                      subpathIdxStart);
@@ -531,7 +535,7 @@ private:
                     }
                     case SkPath::kCubic_Verb: {
                         SkSTArray<15, SkPoint, true> quadPts;
-                        GrPathUtils::convertCubicToQuads(pts, kTolerance, &quadPts);
+                        GrPathUtils::convertCubicToQuads(pts, tolerance, &quadPts);
                         int count = quadPts.count();
                         for (int i = 0; i < count; i += 3) {
                             add_quad(lines, quads, &quadPts[i], color, isIndexed, subpathIdxStart);
