@@ -854,10 +854,22 @@
         "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug"
       ]
     },
+    "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan"
+      ]
+    },
     "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release"
+      ]
+    },
+    "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan"
       ]
     },
     "Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug": {
@@ -1599,10 +1611,22 @@
         "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug"
       ]
     },
+    "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan"
+      ]
+    },
     "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release"
+      ]
+    },
+    "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan"
       ]
     },
     "Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug": {
@@ -7518,6 +7542,65 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_debug",
+          "path": "linux_vulkan_intel_driver_debug",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:8086:22b1",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release": {
       "cipd_packages": [
         {
@@ -7557,6 +7640,65 @@
         "swarm_perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:8086:22b1",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -13682,6 +13824,65 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_debug",
+          "path": "linux_vulkan_intel_driver_debug",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:8086:22b1",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release": {
       "cipd_packages": [
         {
@@ -13721,6 +13922,65 @@
         "swarm_test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:23"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:42"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:5"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:8086:22b1",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -17178,6 +17438,36 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan": {
+      "dependencies": [
+        "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release": {
       "dependencies": [
         "Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release"
@@ -19728,6 +20018,36 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan": {
+      "dependencies": [
+        "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release": {
       "dependencies": [
         "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release"
@@ -19744,6 +20064,36 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan": {
+      "dependencies": [
+        "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
