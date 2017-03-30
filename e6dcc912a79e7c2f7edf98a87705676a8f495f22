@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4c778b08_0a6496fb",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-03-30T14:43:56Z",
+      "side": 1,
+      "message": "Actually, it compiles just fine, which of course is not cool. Turns out this file is only used from SkSLMain, which is only compiled when SKSL_STANDALONE is set, which caused ASSERT to be a noop. Clearly that\u0027s not good, so SKSL_STANDALONE now asserts properly.",
+      "parentUuid": "004de902_39b1c305",
+      "range": {
+        "startLine": 23,
+        "startChar": 16,
+        "endLine": 23,
+        "endChar": 20
+      },
+      "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "733075ac_371fdae7",
         "filename": "src/sksl/SkSLFileOutputStream.h",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2eeda3c_8cd5cb62",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-03-30T14:43:56Z",
+      "side": 1,
+      "message": "Errr... yes.",
+      "parentUuid": "733075ac_371fdae7",
+      "range": {
+        "startLine": 33,
+        "startChar": 20,
+        "endLine": 33,
+        "endChar": 22
+      },
+      "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a51b97f7_7c97e696",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-03-30T14:43:56Z",
+      "side": 1,
+      "message": "Apparently I was drunk while writing this code.",
+      "parentUuid": "8173715e_22f6c0df",
+      "range": {
+        "startLine": 42,
+        "startChar": 18,
+        "endLine": 42,
+        "endChar": 20
+      },
+      "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d429040b_32e5e0a0",
         "filename": "src/sksl/SkSLFileOutputStream.h",
         "patchSetId": 8
@@ -91,6 +163,30 @@
       "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b8faf61_80325031",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-03-30T14:43:56Z",
+      "side": 1,
+      "message": "Added an isValid() check.",
+      "parentUuid": "d429040b_32e5e0a0",
+      "range": {
+        "startLine": 58,
+        "startChar": 12,
+        "endLine": 58,
+        "endChar": 25
+      },
+      "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "23397c2b_97b9f122",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-03-30T14:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "261dc2f3_83ca8040",
+      "range": {
+        "startLine": 847,
+        "startChar": 8,
+        "endLine": 847,
+        "endChar": 25
+      },
+      "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "13b0c647_36fff2df",
         "filename": "src/sksl/SkSLString.cpp",
         "patchSetId": 8
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "27931c7b_b68a9766",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-03-30T14:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13b0c647_36fff2df",
+      "range": {
+        "startLine": 164,
+        "startChar": 58,
+        "endLine": 164,
+        "endChar": 63
+      },
+      "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df570112_a440da84",
         "filename": "src/sksl/SkSLString.h",
         "patchSetId": 8
@@ -160,6 +304,30 @@
       "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f615274_e798c1d1",
+        "filename": "src/sksl/SkSLString.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-03-30T14:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df570112_a440da84",
+      "range": {
+        "startLine": 22,
+        "startChar": 6,
+        "endLine": 22,
+        "endChar": 12
+      },
+      "revId": "e6dcc912a79e7c2f7edf98a87705676a8f495f22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
