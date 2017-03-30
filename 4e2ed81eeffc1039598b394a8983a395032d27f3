@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "96cd234a_ee925c92",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T16:07:15Z",
+      "side": 1,
+      "message": "Yup, sgtm.  Of course, I can\u0027t use skstd::make_unique with my private constructor...",
+      "parentUuid": "74b8d27c_ff3c3613",
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "99756aa6_9a4c89cc",
         "filename": "src/core/SkColorSpaceXformer.cpp",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2017-03-30T15:44:33Z",
       "side": 1,
       "message": "a.k.a. if (result \u003d\u003d \u0026src)",
+      "range": {
+        "startLine": 132,
+        "startChar": 12,
+        "endLine": 132,
+        "endChar": 21
+      },
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fae1790a_af8e0a12",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T16:07:15Z",
+      "side": 1,
+      "message": "Of course, that\u0027s nicer.",
+      "parentUuid": "99756aa6_9a4c89cc",
       "range": {
         "startLine": 132,
         "startChar": 12,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "e59169a5_e5d1bc4a",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T16:07:15Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "be8af49c_b40b480f",
+      "range": {
+        "startLine": 21,
+        "startChar": 45,
+        "endLine": 21,
+        "endChar": 50
+      },
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03669c70_6435b7b5",
         "filename": "src/core/SkColorSpaceXformer.h",
         "patchSetId": 2
@@ -79,6 +145,24 @@
       "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "858976fe_2fb9d061",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T16:07:15Z",
+      "side": 1,
+      "message": "Yeah, I just feel better with this constructor being private.  Extra clear that you shouldn\u0027t use it.",
+      "parentUuid": "03669c70_6435b7b5",
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "56289a40_e9207d26",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T16:07:15Z",
+      "side": 1,
+      "message": "sgtm, same issue with the sk helper and private constructors though.",
+      "parentUuid": "c30a72c1_2f13f055",
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fee53bfc_7099e995",
         "filename": "tests/QuickRejectTest.cpp",
         "patchSetId": 2
@@ -110,6 +212,24 @@
       "writtenOn": "2017-03-30T15:44:33Z",
       "side": 1,
       "message": "Think it makes sense to default implement onMakeColorspace(), as return sk_ref_sp(const_cast(this))?",
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97b1f0b6_d49cb58f",
+        "filename": "tests/QuickRejectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T16:07:15Z",
+      "side": 1,
+      "message": "I could be convinced, but I lean towards forcing anyone who is writing a draw looper to think about implementing this...",
+      "parentUuid": "fee53bfc_7099e995",
       "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
