@@ -6,7 +6,7 @@
  */
 
 #include "InstancedRendering.h"
-
+#include "GrAppliedClip.h"
 #include "GrCaps.h"
 #include "GrOpFlushState.h"
 #include "GrPipeline.h"
@@ -122,8 +122,6 @@ std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
     op->fInfo.setAAType(aaType);
     op->fInfo.fShapeTypes = GetShapeFlag(type);
     op->fInfo.fCannotDiscard = true;
-    op->fDrawColorsAreOpaque = GrColorIsOpaque(color);
-    op->fDrawColorsAreSame = true;
     Instance& instance = op->getSingleInstance();
     instance.fInfo = (int)type << kShapeType_InfoBit;
 
@@ -343,6 +341,8 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
     }
     fProcessors.analyzeAndEliminateFragmentProcessors(&analysis, this->getSingleInstance().fColor,
                                                       coverageInput, clip, caps);
+    fAnalysisColor = analysis.outputColor();
+
     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());
     SkASSERT(SkIsPow2(fInfo.fShapeTypes));
@@ -407,9 +407,7 @@ bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps
     this->joinBounds(*that);
     fInfo = combinedInfo;
     fPixelLoad += that->fPixelLoad;
-    fDrawColorsAreOpaque = fDrawColorsAreOpaque && that->fDrawColorsAreOpaque;
-    fDrawColorsAreSame = fDrawColorsAreSame && that->fDrawColorsAreSame &&
-                         fHeadDraw->fInstance.fColor == that->fHeadDraw->fInstance.fColor;
+    fAnalysisColor = GrPipelineAnalysisColor::Combine(fAnalysisColor, that->fAnalysisColor);
     // Adopt the other op's draws.
     fNumDraws += that->fNumDraws;
     fNumChangesInGeometry += that->fNumChangesInGeometry;
@@ -466,28 +464,20 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
 
     state->gpu()->handleDirtyContext();
 
-    // TODO: Don't reanalyze the processors.
-    GrProcessorSet::FragmentProcessorAnalysis analysis;
-    GrPipelineAnalysisCoverage coverageInput;
-    if (GrAAType::kCoverage == fInfo.aaType() ||
-        (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        coverageInput = GrPipelineAnalysisCoverage::kSingleChannel;
-    } else {
-        coverageInput = GrPipelineAnalysisCoverage::kNone;
-    }
-    GrPipelineAnalysisColor colorInput;
-    if (fDrawColorsAreSame) {
-        colorInput = fHeadDraw->fInstance.fColor;
-    } else if (fDrawColorsAreOpaque) {
-        colorInput = GrPipelineAnalysisColor::Opaque::kYes;
-    }
     const GrAppliedClip* clip = state->drawOpArgs().fAppliedClip;
-    analysis.init(colorInput, coverageInput, fProcessors, clip, state->caps());
+    GrPipelineAnalysisCoverage coverage;
+    if (GrAAType::kCoverage == fInfo.aaType() ||
+        (clip && clip->clipCoverageFragmentProcessor()) ||
+        (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
+        coverage = GrPipelineAnalysisCoverage::kSingleChannel;
+    } else {
+        coverage = GrPipelineAnalysisCoverage::kNone;
+    }
 
     GrPipeline pipeline;
     GrPipeline::InitArgs args;
-    args.fInputColor = analysis.outputColor();
-    args.fInputCoverage = analysis.outputCoverage();
+    args.fInputColor = fAnalysisColor;
+    args.fInputCoverage = coverage;
     args.fAppliedClip = clip;
     args.fCaps = &state->caps();
     args.fProcessors = &fProcessors;
