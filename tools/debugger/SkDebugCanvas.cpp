@@ -362,7 +362,8 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(1);
         for (int i = 0; i < childrenBounds.count(); i++) {
-            if (childrenBounds[i].fRenderTargetUniqueID != rtID) {
+            SkASSERT(childrenBounds[i].sameDecision(rtID, rtc->asSurfaceProxy()->uniqueID()));
+            if (childrenBounds[i].fResourceUniqueID != rtID) {
                 // offscreen draw, ignore for now
                 continue;
             }
