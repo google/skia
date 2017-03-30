@@ -42,8 +42,8 @@ struct Modifiers {
     : fLayout(layout)
     , fFlags(flags) {}
 
-    String description() const {
-        String result = fLayout.description();
+    SkString description() const {
+        SkString result = fLayout.description();
         if (fFlags & kUniform_Flag) {
             result += "uniform ";
         }

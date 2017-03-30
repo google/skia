@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+ 
 #ifndef SKSL_ASTSUFFIXEXPRESSION
 #define SKSL_ASTSUFFIXEXPRESSION
 
@@ -22,7 +22,7 @@ struct ASTSuffixExpression : public ASTExpression {
     , fBase(std::move(base))
     , fSuffix(std::move(suffix)) {}
 
-    String description() const override {
+    SkString description() const override {
         return fBase->description() + fSuffix->description();
     }
 
