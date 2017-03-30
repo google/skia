@@ -1227,9 +1227,8 @@ bool SkColorSpaceXform_XYZ<kCSM>
     if (kNone_ColorSpaceMatch == kCSM) {
         pipeline.append(SkRasterPipeline::matrix_3x4, fSrcToDst);
 
-        if (kRGBA_8888_ColorFormat == dstColorFormat ||
-            kBGRA_8888_ColorFormat == dstColorFormat ||
-            kBGR_565_ColorFormat == dstColorFormat)
+        if (kRGBA_F16_ColorFormat != dstColorFormat &&
+            kRGBA_F32_ColorFormat != dstColorFormat)
         {
             bool need_clamp_0, need_clamp_1;
             analyze_3x4_matrix(fSrcToDst, &need_clamp_0, &need_clamp_1);
