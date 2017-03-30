@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74b8d27c_ff3c3613",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T15:44:33Z",
+      "side": 1,
+      "message": "It\u0027s probably a little warmer and fuzzier to do\n\n  auto xformer \u003d skstd::make_unique\u003cSkColorSpaceXformer\u003e();\n  xformer-\u003e...;\n  xformer-\u003e...;\n  return std::move(xformer);\n\nThat way there\u0027s never an unowned pointer floating around.",
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99756aa6_9a4c89cc",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T15:44:33Z",
+      "side": 1,
+      "message": "a.k.a. if (result \u003d\u003d \u0026src)",
+      "range": {
+        "startLine": 132,
+        "startChar": 12,
+        "endLine": 132,
+        "endChar": 21
+      },
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be8af49c_b40b480f",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T15:44:33Z",
+      "side": 1,
+      "message": "You can probably just drop const from the rest of the methods too.  It\u0027s not like anyone can really be expected to use a const SkColorSpaceXformer while apply(SkPaint) are non-const.",
+      "range": {
+        "startLine": 21,
+        "startChar": 45,
+        "endLine": 21,
+        "endChar": 50
+      },
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03669c70_6435b7b5",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T15:44:33Z",
+      "side": 1,
+      "message": "This is fine, but I think unnecessary?",
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c30a72c1_2f13f055",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T15:44:33Z",
+      "side": 1,
+      "message": "Same deal here, probably nicer to start\n\n  auto looper \u003d sk_make_sp\u003cSkLayerDrawLooper\u003e();",
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fee53bfc_7099e995",
+        "filename": "tests/QuickRejectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T15:44:33Z",
+      "side": 1,
+      "message": "Think it makes sense to default implement onMakeColorspace(), as return sk_ref_sp(const_cast(this))?",
+      "revId": "4e2ed81eeffc1039598b394a8983a395032d27f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
