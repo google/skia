@@ -219,8 +219,8 @@ const GrXPFactory* GrCoverageSetOpXPFactory::Get(SkRegion::Op regionOp, bool inv
 }
 
 GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                                 const GrPipelineAnalysisColor&,
-                                                                 GrPipelineAnalysisCoverage,
+                                                                 const GrProcessorAnalysisColor&,
+                                                                 GrProcessorAnalysisCoverage,
                                                                  bool hasMixedSamples,
                                                                  const DstTexture*) const {
     // We don't support inverting coverage with mixed samples. We don't expect to ever want this in

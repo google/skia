@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPipelineAnalysis_DEFINED
-#define GrPipelineAnalysis_DEFINED
+#ifndef GrProcessorAnalysis_DEFINED
+#define GrProcessorAnalysis_DEFINED
 
 #include "GrColor.h"
 
@@ -14,17 +14,17 @@ class GrDrawOp;
 class GrFragmentProcessor;
 class GrPrimitiveProcessor;
 
-class GrPipelineAnalysisColor {
+class GrProcessorAnalysisColor {
 public:
     enum class Opaque {
         kNo,
         kYes,
     };
 
-    GrPipelineAnalysisColor(Opaque opaque = Opaque::kNo)
+    GrProcessorAnalysisColor(Opaque opaque = Opaque::kNo)
             : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0) {}
 
-    GrPipelineAnalysisColor(GrColor color) { this->setToConstant(color); }
+    GrProcessorAnalysisColor(GrColor color) { this->setToConstant(color); }
 
     void setToConstant(GrColor color) {
         fColor = color;
@@ -51,7 +51,7 @@ public:
         return false;
     }
 
-    bool operator==(const GrPipelineAnalysisColor& that) const {
+    bool operator==(const GrProcessorAnalysisColor& that) const {
         if (fFlags != that.fFlags) {
             return false;
         }
@@ -59,9 +59,9 @@ public:
     }
 
     /** The returned value reflects the common properties of the two inputs. */
-    static GrPipelineAnalysisColor Combine(const GrPipelineAnalysisColor& a,
-                                           const GrPipelineAnalysisColor& b) {
-        GrPipelineAnalysisColor result;
+    static GrProcessorAnalysisColor Combine(const GrProcessorAnalysisColor& a,
+                                            const GrProcessorAnalysisColor& b) {
+        GrProcessorAnalysisColor result;
         uint32_t commonFlags = a.fFlags & b.fFlags;
         if ((kColorIsKnown_Flag & commonFlags) && a.fColor == b.fColor) {
             result.fColor = a.fColor;
@@ -81,7 +81,7 @@ private:
     GrColor fColor;
 };
 
-enum class GrPipelineAnalysisCoverage { kNone, kSingleChannel, kLCD };
+enum class GrProcessorAnalysisCoverage { kNone, kSingleChannel, kLCD };
 
 /**
  * GrColorFragmentProcessorAnalysis gathers invariant data from a set of color fragment processor.
@@ -92,7 +92,7 @@ class GrColorFragmentProcessorAnalysis {
 public:
     GrColorFragmentProcessorAnalysis() = default;
 
-    GrColorFragmentProcessorAnalysis(const GrPipelineAnalysisColor& input)
+    GrColorFragmentProcessorAnalysis(const GrProcessorAnalysisColor& input)
             : GrColorFragmentProcessorAnalysis() {
         fAllProcessorsCompatibleWithCoverageAsAlpha = true;
         fIsOpaque = input.isOpaque();
@@ -103,7 +103,7 @@ public:
         }
     }
 
-    void reset(const GrPipelineAnalysisColor& input) {
+    void reset(const GrProcessorAnalysisColor& input) {
         *this = GrColorFragmentProcessorAnalysis(input);
     }
 
@@ -151,12 +151,12 @@ public:
         return SkTMax(0, fProcessorsVisitedWithKnownOutput);
     }
 
-    GrPipelineAnalysisColor outputColor() const {
+    GrProcessorAnalysisColor outputColor() const {
         if (fProcessorsVisitedWithKnownOutput != fTotalProcessorsVisited) {
-            return GrPipelineAnalysisColor(fIsOpaque ? GrPipelineAnalysisColor::Opaque::kYes
-                                                     : GrPipelineAnalysisColor::Opaque::kNo);
+            return GrProcessorAnalysisColor(fIsOpaque ? GrProcessorAnalysisColor::Opaque::kYes
+                                                      : GrProcessorAnalysisColor::Opaque::kNo);
         }
-        return GrPipelineAnalysisColor(fLastKnownOutputColor.toGrColor());
+        return GrProcessorAnalysisColor(fLastKnownOutputColor.toGrColor());
     }
 
 private:

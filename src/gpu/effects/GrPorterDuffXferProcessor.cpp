@@ -10,8 +10,8 @@
 #include "GrBlend.h"
 #include "GrCaps.h"
 #include "GrPipeline.h"
-#include "GrPipelineAnalysis.h"
 #include "GrProcessor.h"
+#include "GrProcessorAnalysis.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "glsl/GrGLSLBlend.h"
@@ -521,7 +521,8 @@ GrGLSLXferProcessor* ShaderPDXferProcessor::createGLSLInstance() const {
 
 class PDLCDXferProcessor : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(SkBlendMode xfermode, const GrPipelineAnalysisColor& inputColor);
+    static GrXferProcessor* Create(SkBlendMode xfermode,
+                                   const GrProcessorAnalysisColor& inputColor);
 
     ~PDLCDXferProcessor() override;
 
@@ -603,7 +604,7 @@ PDLCDXferProcessor::PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha)
 }
 
 GrXferProcessor* PDLCDXferProcessor::Create(SkBlendMode xfermode,
-                                            const GrPipelineAnalysisColor& color) {
+                                            const GrProcessorAnalysisColor& color) {
     if (SkBlendMode::kSrcOver != xfermode) {
         return nullptr;
     }
@@ -699,12 +700,12 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
 }
 
 GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                              const GrPipelineAnalysisColor& color,
-                                                              GrPipelineAnalysisCoverage coverage,
+                                                              const GrProcessorAnalysisColor& color,
+                                                              GrProcessorAnalysisCoverage coverage,
                                                               bool hasMixedSamples,
                                                               const DstTexture* dstTexture) const {
     BlendFormula blendFormula;
-    if (coverage == GrPipelineAnalysisCoverage::kLCD) {
+    if (coverage == GrProcessorAnalysisCoverage::kLCD) {
         if (SkBlendMode::kSrcOver == fBlendMode && color.isConstant() &&
             !caps.shaderCaps()->dualSourceBlendingSupport() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
@@ -716,7 +717,7 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
         blendFormula = get_lcd_blend_formula(fBlendMode);
     } else {
         blendFormula =
-                get_blend_formula(color.isOpaque(), GrPipelineAnalysisCoverage::kNone != coverage,
+                get_blend_formula(color.isOpaque(), GrProcessorAnalysisCoverage::kNone != coverage,
                                   hasMixedSamples, fBlendMode);
     }
 
@@ -729,11 +730,11 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
 }
 
 static inline GrXPFactory::AnalysisProperties analysis_properties(
-        const GrPipelineAnalysisColor& color, const GrPipelineAnalysisCoverage& coverage,
+        const GrProcessorAnalysisColor& color, const GrProcessorAnalysisCoverage& coverage,
         const GrCaps& caps, SkBlendMode mode) {
     using AnalysisProperties = GrXPFactory::AnalysisProperties;
     AnalysisProperties props = AnalysisProperties::kNone;
-    bool hasCoverage = GrPipelineAnalysisCoverage::kNone != coverage;
+    bool hasCoverage = GrProcessorAnalysisCoverage::kNone != coverage;
     auto formula = gBlendTable[color.isOpaque()][hasCoverage][(int)mode];
     if (formula.canTweakAlphaForCoverage()) {
         props |= AnalysisProperties::kCompatibleWithAlphaAsCoverage;
@@ -744,7 +745,7 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
         // affect the formula used. However, we don't expect to have mixed samples without dual
         // source blending.
         SkASSERT(!caps.usesMixedSamples());
-        if (GrPipelineAnalysisCoverage::kLCD == coverage) {
+        if (GrProcessorAnalysisCoverage::kLCD == coverage) {
             // Check for special case of srcover with a known color which can be done using the
             // blend constant.
             if (SkBlendMode::kSrcOver == mode && color.isConstant()) {
@@ -771,8 +772,8 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
 }
 
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::analysisProperties(
-        const GrPipelineAnalysisColor& color,
-        const GrPipelineAnalysisCoverage& coverage,
+        const GrProcessorAnalysisColor& color,
+        const GrProcessorAnalysisCoverage& coverage,
         const GrCaps& caps) const {
     return analysis_properties(color, coverage, caps, fBlendMode);
 }
@@ -810,15 +811,15 @@ const GrXferProcessor& GrPorterDuffXPFactory::SimpleSrcOverXP() {
 
 GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const GrCaps& caps,
-        const GrPipelineAnalysisColor& color,
-        GrPipelineAnalysisCoverage coverage,
+        const GrProcessorAnalysisColor& color,
+        GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples,
         const GrXferProcessor::DstTexture* dstTexture) {
     // We want to not make an xfer processor if possible. Thus for the simple case where we are not
     // doing lcd blending we will just use our global SimpleSrcOverXP. This slightly differs from
     // the general case where we convert a src-over blend that has solid coverage and an opaque
     // color to src-mode, which allows disabling of blending.
-    if (coverage != GrPipelineAnalysisCoverage::kLCD) {
+    if (coverage != GrProcessorAnalysisCoverage::kLCD) {
         // We return nullptr here, which our caller interprets as meaning "use SimpleSrcOverXP".
         // We don't simply return the address of that XP here because our caller would have to unref
         // it and since it is a global object and GrProgramElement's ref-cnting system is not thread
@@ -851,8 +852,8 @@ sk_sp<GrXferProcessor> GrPorterDuffXPFactory::CreateNoCoverageXP(SkBlendMode ble
 }
 
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::SrcOverAnalysisProperties(
-        const GrPipelineAnalysisColor& color,
-        const GrPipelineAnalysisCoverage& coverage,
+        const GrProcessorAnalysisColor& color,
+        const GrProcessorAnalysisCoverage& coverage,
         const GrCaps& caps) {
     return analysis_properties(color, coverage, caps, SkBlendMode::kSrcOver);
 }

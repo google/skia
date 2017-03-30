@@ -48,8 +48,6 @@ GR_STATIC_ASSERT(SkToBool(kNone_GrXferBarrierType) == false);
  */
 class GrXferProcessor : public GrProcessor {
 public:
-    using FragmentProcessorAnalysis = GrProcessorSet::FragmentProcessorAnalysis;
-
     /**
      * A texture that contains the dst pixel values and an integer coord offset from device space
      * to the space of the texture. Depending on GPU capabilities a DstTexture may be used by a
@@ -264,12 +262,10 @@ private:
 #endif
 class GrXPFactory {
 public:
-    using FragmentProcessorAnalysis = GrProcessorSet::FragmentProcessorAnalysis;
-
     typedef GrXferProcessor::DstTexture DstTexture;
 
-    GrXferProcessor* createXferProcessor(const GrPipelineAnalysisColor&,
-                                         GrPipelineAnalysisCoverage,
+    GrXferProcessor* createXferProcessor(const GrProcessorAnalysisColor&,
+                                         GrProcessorAnalysisCoverage,
                                          bool hasMixedSamples,
                                          const DstTexture*,
                                          const GrCaps& caps) const;
@@ -285,8 +281,8 @@ public:
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 
     static AnalysisProperties GetAnalysisProperties(const GrXPFactory*,
-                                                    const GrPipelineAnalysisColor&,
-                                                    const GrPipelineAnalysisCoverage&,
+                                                    const GrProcessorAnalysisColor&,
+                                                    const GrProcessorAnalysisCoverage&,
                                                     const GrCaps&);
 
 protected:
@@ -294,8 +290,8 @@ protected:
 
 private:
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                                   const GrPipelineAnalysisColor&,
-                                                   GrPipelineAnalysisCoverage,
+                                                   const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
                                                    const DstTexture*) const = 0;
 
@@ -303,8 +299,8 @@ private:
      * Subclass analysis implementation. This should not return kNeedsDstInTexture as that will be
      * inferred by the base class based on kReadsDstInShader and the caps.
      */
-    virtual AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
-                                                  const GrPipelineAnalysisCoverage&,
+    virtual AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                                  const GrProcessorAnalysisCoverage&,
                                                   const GrCaps&) const = 0;
 };
 #if defined(__GNUC__) || defined(__clang)
