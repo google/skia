@@ -74,7 +74,8 @@ public:
     , fBoolTrue(0)
     , fBoolFalse(0)
     , fSetupFragPosition(false)
-    , fCurrentBlock(0) {
+    , fCurrentBlock(0)
+    , fSynthetics(nullptr, errors) {
         this->setupIntrinsics();
     }
 
@@ -299,6 +300,8 @@ private:
     std::stack<SpvId> fContinueTarget;
     SpvId fRTHeightStructId = (SpvId) -1;
     SpvId fRTHeightFieldIndex = (SpvId) -1;
+    // holds variables synthesized during output, for lifetime purposes
+    SymbolTable fSynthetics;
 
     friend class PointerLValue;
     friend class SwizzleLValue;

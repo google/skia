@@ -25,11 +25,11 @@ namespace SkSL {
  * At the IR level, this is represented by a single variable of struct type.
  */
 struct InterfaceBlock : public ProgramElement {
-    InterfaceBlock(Position position, const Variable& var, SkString typeName, SkString instanceName,
+    InterfaceBlock(Position position, const Variable* var, SkString typeName, SkString instanceName,
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::shared_ptr<SymbolTable> typeOwner)
     : INHERITED(position, kInterfaceBlock_Kind)
-    , fVariable(std::move(var))
+    , fVariable(*var)
     , fTypeName(std::move(typeName))
     , fInstanceName(std::move(instanceName))
     , fSizes(std::move(sizes))

@@ -24,12 +24,12 @@ struct FunctionDeclaration;
  */
 class SymbolTable {
 public:
-    SymbolTable(ErrorReporter& errorReporter)
-    : fErrorReporter(errorReporter) {}
+    SymbolTable(ErrorReporter* errorReporter)
+    : fErrorReporter(*errorReporter) {}
 
-    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter& errorReporter)
+    SymbolTable(std::shared_ptr<SymbolTable> parent, ErrorReporter* errorReporter)
     : fParent(parent)
-    , fErrorReporter(errorReporter) {}
+    , fErrorReporter(*errorReporter) {}
 
     const Symbol* operator[](const SkString& name);
 
