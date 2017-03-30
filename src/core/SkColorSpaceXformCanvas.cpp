@@ -6,218 +6,66 @@
  */
 
 #include "SkColorFilter.h"
-#include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformCanvas.h"
+#include "SkColorSpaceXformer.h"
 #include "SkGradientShader.h"
 #include "SkImage_Base.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
 #include "SkSurface.h"
-#include "SkTLazy.h"
 
 class SkColorSpaceXformCanvas : public SkNoDrawCanvas {
 public:
     SkColorSpaceXformCanvas(SkCanvas* target,
-                            sk_sp<SkColorSpace> targetCS)
+                            std::unique_ptr<SkColorSpaceXformer> xformer)
         : SkNoDrawCanvas(SkIRect::MakeSize(target->getBaseLayerSize()))
         , fTarget(target)
-        , fTargetCS(std::move(targetCS)) {
-
-        fFromSRGB = SkColorSpaceXform::New(SkColorSpace::MakeSRGB().get(), fTargetCS.get());
-    }
-
-    sk_sp<const SkImage> xform(const SkImage* img) const {
-        return as_IB(img)->makeColorSpace(fTargetCS);
-    }
-
-    void xform(SkColor* xformed, const SkColor* srgb, int n) const {
-        SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
-                                        SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
-                                        n, kUnpremul_SkAlphaType));
-    }
-
-    SkColor xform(SkColor srgb) const {
-        SkColor xformed;
-        this->xform(&xformed, &srgb, 1);
-        return xformed;
-    }
-
-    // TODO: Is this introspection going to be enough, or do we need a new SkShader method?
-    sk_sp<SkShader> xform(const SkShader* shader) const {
-        SkColor color;
-        if (shader->isConstant() && shader->asLuminanceColor(&color)) {
-            return SkShader::MakeColorShader(this->xform(color));
-        }
-
-        SkShader::TileMode xy[2];
-        SkMatrix local;
-        if (auto img = shader->isAImage(&local, xy)) {
-            return this->xform(img)->makeShader(xy[0], xy[1], &local);
-        }
-
-        SkShader::ComposeRec compose;
-        if (shader->asACompose(&compose)) {
-            auto A = this->xform(compose.fShaderA),
-                 B = this->xform(compose.fShaderB);
-            if (A && B) {
-                return SkShader::MakeComposeShader(std::move(A), std::move(B), compose.fBlendMode);
-            }
-        }
-
-        SkShader::GradientInfo gradient;
-        sk_bzero(&gradient, sizeof(gradient));
-        if (auto type = shader->asAGradient(&gradient)) {
-            SkSTArray<8, SkColor>  colors(gradient.fColorCount);
-            SkSTArray<8, SkScalar>    pos(gradient.fColorCount);
-
-            gradient.fColors       = colors.begin();
-            gradient.fColorOffsets =    pos.begin();
-            shader->asAGradient(&gradient);
-
-            SkSTArray<8, SkColor> xformed(gradient.fColorCount);
-            this->xform(xformed.begin(), gradient.fColors, gradient.fColorCount);
-
-            switch (type) {
-                case SkShader::kNone_GradientType:
-                case SkShader::kColor_GradientType:
-                    SkASSERT(false);  // Should be unreachable.
-                    break;
-
-                case SkShader::kLinear_GradientType:
-                    return SkGradientShader::MakeLinear(gradient.fPoint,
-                                                        xformed.begin(),
-                                                        gradient.fColorOffsets,
-                                                        gradient.fColorCount,
-                                                        gradient.fTileMode,
-                                                        gradient.fGradientFlags,
-                                                        &shader->getLocalMatrix());
-                case SkShader::kRadial_GradientType:
-                    return SkGradientShader::MakeRadial(gradient.fPoint[0],
-                                                        gradient.fRadius[0],
-                                                        xformed.begin(),
-                                                        gradient.fColorOffsets,
-                                                        gradient.fColorCount,
-                                                        gradient.fTileMode,
-                                                        gradient.fGradientFlags,
-                                                        &shader->getLocalMatrix());
-                case SkShader::kSweep_GradientType:
-                    return SkGradientShader::MakeSweep(gradient.fPoint[0].fX,
-                                                       gradient.fPoint[0].fY,
-                                                       xformed.begin(),
-                                                       gradient.fColorOffsets,
-                                                       gradient.fColorCount,
-                                                       gradient.fGradientFlags,
-                                                       &shader->getLocalMatrix());
-                case SkShader::kConical_GradientType:
-                    return SkGradientShader::MakeTwoPointConical(gradient.fPoint[0],
-                                                                 gradient.fRadius[0],
-                                                                 gradient.fPoint[1],
-                                                                 gradient.fRadius[1],
-                                                                 xformed.begin(),
-                                                                 gradient.fColorOffsets,
-                                                                 gradient.fColorCount,
-                                                                 gradient.fTileMode,
-                                                                 gradient.fGradientFlags,
-                                                                 &shader->getLocalMatrix());
-            }
-        }
-
-        return nullptr;
-    }
-
-    const SkPaint& xform(const SkPaint& paint, SkTLazy<SkPaint>* lazy) const {
-        const SkPaint* result = &paint;
-        auto get_lazy = [&] {
-            if (!lazy->isValid()) {
-                lazy->init(paint);
-                result = lazy->get();
-            }
-            return lazy->get();
-        };
-
-        // All SkColorSpaces have the same black point.
-        if (paint.getColor() & 0xffffff) {
-            get_lazy()->setColor(this->xform(paint.getColor()));
-        }
-
-        if (auto shader = paint.getShader()) {
-            if (auto replacement = this->xform(shader)) {
-                get_lazy()->setShader(std::move(replacement));
-            }
-        }
-
-        // As far as I know, SkModeColorFilter is the only color filter that holds a color.
-        if (auto cf = paint.getColorFilter()) {
-            SkColor color;
-            SkBlendMode mode;
-            if (cf->asColorMode(&color, &mode)) {
-                get_lazy()->setColorFilter(SkColorFilter::MakeModeFilter(this->xform(color), mode));
-            }
-        }
-
-        // TODO:
-        //    - image filters?
-
-        return *result;
-    }
-
-    const SkPaint* xform(const SkPaint* paint, SkTLazy<SkPaint>* lazy) const {
-        return paint ? &this->xform(*paint, lazy) : nullptr;
-    }
+        , fXformer(std::move(xformer))
+    {}
 
     SkImageInfo onImageInfo() const override {
         return fTarget->imageInfo();
     }
 
     void onDrawPaint(const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawPaint(this->xform(paint, &lazy));
+        fTarget->drawPaint(fXformer->apply(paint));
     }
 
     void onDrawRect(const SkRect& rect, const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawRect(rect, this->xform(paint, &lazy));
+        fTarget->drawRect(rect, fXformer->apply(paint));
     }
     void onDrawOval(const SkRect& oval, const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawOval(oval, this->xform(paint, &lazy));
+        fTarget->drawOval(oval, fXformer->apply(paint));
     }
     void onDrawRRect(const SkRRect& rrect, const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawRRect(rrect, this->xform(paint, &lazy));
+        fTarget->drawRRect(rrect, fXformer->apply(paint));
     }
     void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawDRRect(outer, inner, this->xform(paint, &lazy));
+        fTarget->drawDRRect(outer, inner, fXformer->apply(paint));
     }
     void onDrawPath(const SkPath& path, const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawPath(path, this->xform(paint, &lazy));
+        fTarget->drawPath(path, fXformer->apply(paint));
     }
     void onDrawArc(const SkRect& oval, SkScalar start, SkScalar sweep, bool useCenter,
                    const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawArc(oval, start, sweep, useCenter, this->xform(paint, &lazy));
+        fTarget->drawArc(oval, start, sweep, useCenter, fXformer->apply(paint));
     }
     void onDrawRegion(const SkRegion& region, const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawRegion(region, this->xform(paint, &lazy));
+        fTarget->drawRegion(region, fXformer->apply(paint));
     }
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texs[4],
                      SkBlendMode mode, const SkPaint& paint) override {
         SkColor xformed[4];
         if (colors) {
-            this->xform(xformed, colors, 4);
+            fXformer->apply(xformed, colors, 4);
             colors = xformed;
         }
 
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawPatch(cubics, colors, texs, mode, this->xform(paint, &lazy));
+        fTarget->drawPatch(cubics, colors, texs, mode, fXformer->apply(paint));
     }
     void onDrawPoints(PointMode mode, size_t count, const SkPoint* pts,
                       const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawPoints(mode, count, pts, this->xform(paint, &lazy));
+        fTarget->drawPoints(mode, count, pts, fXformer->apply(paint));
     }
     void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                               const SkPaint& paint) override {
@@ -225,85 +73,74 @@ public:
         if (vertices->hasColors()) {
             int count = vertices->vertexCount();
             SkSTArray<8, SkColor> xformed(count);
-            this->xform(xformed.begin(), vertices->colors(), count);
+            fXformer->apply(xformed.begin(), vertices->colors(), count);
             copy = SkVertices::MakeCopy(vertices->mode(), count, vertices->positions(),
                                         vertices->texCoords(), xformed.begin(),
                                         vertices->indexCount(), vertices->indices());
             vertices = copy.get();
         }
 
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawVertices(vertices, mode, this->xform(paint, &lazy));
+        fTarget->drawVertices(vertices, mode, fXformer->apply(paint));
     }
 
     void onDrawText(const void* ptr, size_t len,
                     SkScalar x, SkScalar y,
                     const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawText(ptr, len, x, y, this->xform(paint, &lazy));
+        fTarget->drawText(ptr, len, x, y, fXformer->apply(paint));
     }
     void onDrawPosText(const void* ptr, size_t len,
                        const SkPoint* xys,
                        const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawPosText(ptr, len, xys, this->xform(paint, &lazy));
+        fTarget->drawPosText(ptr, len, xys, fXformer->apply(paint));
     }
     void onDrawPosTextH(const void* ptr, size_t len,
                         const SkScalar* xs, SkScalar y,
                         const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawPosTextH(ptr, len, xs, y, this->xform(paint, &lazy));
+        fTarget->drawPosTextH(ptr, len, xs, y, fXformer->apply(paint));
     }
     void onDrawTextOnPath(const void* ptr, size_t len,
                           const SkPath& path, const SkMatrix* matrix,
                           const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawTextOnPath(ptr, len, path, matrix, this->xform(paint, &lazy));
+        fTarget->drawTextOnPath(ptr, len, path, matrix, fXformer->apply(paint));
     }
     void onDrawTextRSXform(const void* ptr, size_t len,
                            const SkRSXform* xforms, const SkRect* cull,
                            const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawTextRSXform(ptr, len, xforms, cull, this->xform(paint, &lazy));
+        fTarget->drawTextRSXform(ptr, len, xforms, cull, fXformer->apply(paint));
     }
     void onDrawTextBlob(const SkTextBlob* blob,
                         SkScalar x, SkScalar y,
                         const SkPaint& paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawTextBlob(blob, x, y, this->xform(paint, &lazy));
+        fTarget->drawTextBlob(blob, x, y, fXformer->apply(paint));
     }
 
     void onDrawImage(const SkImage* img,
                      SkScalar l, SkScalar t,
                      const SkPaint* paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawImage(this->xform(img).get(),
+        fTarget->drawImage(fXformer->apply(img).get(),
                            l, t,
-                           this->xform(paint, &lazy));
+                           fXformer->apply(paint));
     }
     void onDrawImageRect(const SkImage* img,
                          const SkRect* src, const SkRect& dst,
                          const SkPaint* paint, SrcRectConstraint constraint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawImageRect(this->xform(img).get(),
+        fTarget->drawImageRect(fXformer->apply(img).get(),
                                src ? *src : dst, dst,
-                               this->xform(paint, &lazy), constraint);
+                               fXformer->apply(paint), constraint);
     }
     void onDrawImageNine(const SkImage* img,
                          const SkIRect& center, const SkRect& dst,
                          const SkPaint* paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawImageNine(this->xform(img).get(),
+        fTarget->drawImageNine(fXformer->apply(img).get(),
                                center, dst,
-                               this->xform(paint, &lazy));
+                               fXformer->apply(paint));
     }
     void onDrawImageLattice(const SkImage* img,
                             const Lattice& lattice, const SkRect& dst,
                             const SkPaint* paint) override {
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawImageLattice(this->xform(img).get(),
+        fTarget->drawImageLattice(fXformer->apply(img).get(),
                                   lattice, dst,
-                                  this->xform(paint, &lazy));
+                                  fXformer->apply(paint));
     }
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
@@ -311,13 +148,12 @@ public:
         SkSTArray<8, SkColor> xformed;
         if (colors) {
             xformed.reset(count);
-            this->xform(xformed.begin(), colors, count);
+            fXformer->apply(xformed.begin(), colors, count);
             colors = xformed.begin();
         }
 
-        SkTLazy<SkPaint> lazy;
-        fTarget->drawAtlas(this->xform(atlas).get(), xforms, tex, colors, count, mode, cull,
-                           this->xform(paint, &lazy));
+        fTarget->drawAtlas(fXformer->apply(atlas).get(), xforms, tex, colors, count, mode, cull,
+                           fXformer->apply(paint));
     }
 
     void onDrawBitmap(const SkBitmap& bitmap,
@@ -353,19 +189,16 @@ public:
     void onDrawPicture(const SkPicture* pic,
                        const SkMatrix* matrix,
                        const SkPaint* paint) override {
-        SkTLazy<SkPaint> lazy;
-        SkCanvas::onDrawPicture(pic, matrix, this->xform(paint, &lazy));
+        SkCanvas::onDrawPicture(pic, matrix, fXformer->apply(paint));
     }
     void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) override {
-        SkTLazy<SkPaint> lazy;
         SkCanvas::onDrawDrawable(drawable, matrix);
     }
 
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
-        SkTLazy<SkPaint> lazy;
         fTarget->saveLayer({
             rec.fBounds,
-            this->xform(rec.fPaint, &lazy),
+            fXformer->apply(rec.fPaint),
             rec.fBackdrop,  // TODO: this is an image filter
             rec.fSaveLayerFlags,
         });
@@ -405,12 +238,16 @@ public:
     }
 
 private:
-    SkCanvas*                          fTarget;
-    sk_sp<SkColorSpace>                fTargetCS;
-    std::unique_ptr<SkColorSpaceXform> fFromSRGB;
+    SkCanvas*                            fTarget;
+    std::unique_ptr<SkColorSpaceXformer> fXformer;
 };
 
 std::unique_ptr<SkCanvas> SkCreateColorSpaceXformCanvas(SkCanvas* target,
                                                         sk_sp<SkColorSpace> targetCS) {
-    return skstd::make_unique<SkColorSpaceXformCanvas>(target, std::move(targetCS));
+    std::unique_ptr<SkColorSpaceXformer> xformer = SkColorSpaceXformer::Make(std::move(targetCS));
+    if (!xformer) {
+        return nullptr;
+    }
+
+    return skstd::make_unique<SkColorSpaceXformCanvas>(target, std::move(xformer));
 }
