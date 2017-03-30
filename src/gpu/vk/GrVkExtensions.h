@@ -11,6 +11,7 @@
 #include "../private/SkTArray.h"
 #include "SkString.h"
 #include "vk/GrVkDefines.h"
+#include "vk/GrVkInterface.h"
 
 /**
  * This helper queries the Vulkan driver for available extensions and layers, remembers them,
@@ -18,7 +19,9 @@
  */
 class SK_API GrVkExtensions {
 public:
-    GrVkExtensions() : fInstanceExtensionStrings(new SkTArray<SkString>)
+    GrVkExtensions(GrVkInterface::GetProc getProc)
+                     : fGetProc(getProc)
+                     , fInstanceExtensionStrings(new SkTArray<SkString>)
                      , fDeviceExtensionStrings(new SkTArray<SkString>)
                      , fInstanceLayerStrings(new SkTArray<SkString>)
                      , fDeviceLayerStrings(new SkTArray<SkString>) {}
@@ -37,6 +40,7 @@ public:
     void print(const char* sep = "\n") const;
 
 private:
+    GrVkInterface::GetProc fGetProc;
     std::unique_ptr<SkTArray<SkString>>  fInstanceExtensionStrings;
     std::unique_ptr<SkTArray<SkString>>  fDeviceExtensionStrings;
     std::unique_ptr<SkTArray<SkString>>  fInstanceLayerStrings;

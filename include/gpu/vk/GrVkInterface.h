@@ -15,20 +15,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * The default interface is returned by GrVkCreateInterface. This function's
- * implementation is platform-specific.
- */
-
-struct GrVkInterface;
-
-/**
- * Creates a GrVkInterface.
- */
-const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
-                                         uint32_t extensionFlags);
-
-
-/**
  * GrContext uses the following interface to make all calls into Vulkan. When a
  * GrContext is created it is given a GrVkInterface. All functions that should be
  * available based on the Vulkan's version must be non-NULL or GrContext creation
@@ -49,7 +35,15 @@ private:
     typedef SkRefCnt INHERITED;
 
 public:
-    GrVkInterface();
+    using GetProc = std::function<PFN_vkVoidFunction(
+        const char*, // function name
+        VkInstance,  // instance or VK_NULL_HANDLE
+        VkDevice     // device or VK_NULL_HANDLE
+        )>;
+    GrVkInterface(GetProc getProc,
+                  VkInstance instance,
+                  VkDevice device,
+                  uint32_t extensionFlags);
 
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
