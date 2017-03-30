@@ -119,6 +119,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fMapTexSubImage2D = bind_to_member(this, &GrGLTestInterface::mapTexSubImage2D);
     fFunctions.fMinSampleShading = bind_to_member(this, &GrGLTestInterface::minSampleShading);
     fFunctions.fPixelStorei = bind_to_member(this, &GrGLTestInterface::pixelStorei);
+    fFunctions.fPolygonMode = bind_to_member(this, &GrGLTestInterface::polygonMode);
     fFunctions.fPopGroupMarker = bind_to_member(this, &GrGLTestInterface::popGroupMarker);
     fFunctions.fPushGroupMarker = bind_to_member(this, &GrGLTestInterface::pushGroupMarker);
     fFunctions.fQueryCounter = bind_to_member(this, &GrGLTestInterface::queryCounter);

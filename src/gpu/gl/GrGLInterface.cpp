@@ -189,7 +189,8 @@ bool GrGLInterface::validate() const {
         if (glVer >= GR_GL_VER(2,0)) {
             if (nullptr == fFunctions.fStencilFuncSeparate ||
                 nullptr == fFunctions.fStencilMaskSeparate ||
-                nullptr == fFunctions.fStencilOpSeparate) {
+                nullptr == fFunctions.fStencilOpSeparate ||
+                nullptr == fFunctions.fPolygonMode) {
                 RETURN_FALSE_INTERFACE
             }
         }

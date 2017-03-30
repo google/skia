@@ -394,14 +394,13 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
                 GL_CALL(Disable(GR_GL_COLOR_TABLE));
             }
             GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
+
+            GL_CALL(PolygonMode(GR_GL_FRONT_AND_BACK, GR_GL_FILL));
 #endif
             // Since ES doesn't support glPointSize at all we always use the VS to
             // set the point size
             GL_CALL(Enable(GR_GL_VERTEX_PROGRAM_POINT_SIZE));
 
-            // We should set glPolygonMode(FRONT_AND_BACK,FILL) here, too. It isn't
-            // currently part of our gl interface. There are probably others as
-            // well.
         }
 
         if (kGLES_GrGLStandard == this->glStandard() &&
