@@ -108,7 +108,7 @@ IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> sy
 , fErrors(errorReporter) {}
 
 void IRGenerator::pushSymbolTable() {
-    fSymbolTable.reset(new SymbolTable(std::move(fSymbolTable), fErrors));
+    fSymbolTable.reset(new SymbolTable(std::move(fSymbolTable), &fErrors));
 }
 
 void IRGenerator::popSymbolTable() {
@@ -665,7 +665,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                                                                        (int) i)));
         }
     }
-    return std::unique_ptr<InterfaceBlock>(new InterfaceBlock(intf.fPosition, *var,
+    return std::unique_ptr<InterfaceBlock>(new InterfaceBlock(intf.fPosition,
+                                                              var,
                                                               intf.fTypeName,
                                                               intf.fInstanceName,
                                                               std::move(sizes),

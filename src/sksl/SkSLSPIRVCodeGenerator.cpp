@@ -1865,7 +1865,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, S
         // need to remap to a top-left coordinate system
         if (fRTHeightStructId == (SpvId) -1) {
             // height variable hasn't been written yet
-            std::shared_ptr<SymbolTable> st(new SymbolTable(fErrors));
+            std::shared_ptr<SymbolTable> st(new SymbolTable(&fErrors));
             ASSERT(fRTHeightFieldIndex == (SpvId) -1);
             std::vector<Type::Field> fields;
             fields.emplace_back(Modifiers(), SkString(SKSL_RTHEIGHT_NAME),
@@ -1874,8 +1874,12 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, S
             Type intfStruct(Position(), name, fields);
             Layout layout(-1, -1, 1, -1, -1, -1, -1, false, false, false, Layout::Format::kUnspecified,
                           false, Layout::kUnspecified_Primitive, -1, -1);
-            Variable intfVar(Position(), Modifiers(layout, Modifiers::kUniform_Flag), name,
-                             intfStruct, Variable::kGlobal_Storage);
+            Variable* intfVar = new Variable(Position(),
+                                             Modifiers(layout, Modifiers::kUniform_Flag),
+                                             name,
+                                             intfStruct,
+                                             Variable::kGlobal_Storage);
+            fSynthetics.takeOwnership(intfVar);
             InterfaceBlock intf(Position(), intfVar, name, SkString(""),
                                 std::vector<std::unique_ptr<Expression>>(), st);
             fRTHeightStructId = this->writeInterfaceBlock(intf);

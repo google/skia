@@ -49,8 +49,8 @@ namespace SkSL {
 
 Compiler::Compiler()
 : fErrorCount(0) {
-    auto types = std::shared_ptr<SymbolTable>(new SymbolTable(*this));
-    auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(types, *this));
+    auto types = std::shared_ptr<SymbolTable>(new SymbolTable(this));
+    auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(types, this));
     fIRGenerator = new IRGenerator(&fContext, symbols, *this);
     fTypes = types;
     #define ADD_TYPE(t) types->addWithoutOwnership(fContext.f ## t ## _Type->fName, \
