@@ -24,7 +24,7 @@ public:
     {
         // Set the matrix and clip to match |fTarget|.  Otherwise, we'll answer queries for
         // bounds/matrix differently than |fTarget| would.
-        SkCanvas::onClipRect(SkRect::MakeFromIRect(fTarget->getDeviceClipBounds()),
+        SkCanvas::onClipRect(SkRect::Make(fTarget->getDeviceClipBounds()),
                              SkClipOp::kIntersect, kHard_ClipEdgeStyle);
         SkCanvas::setMatrix(fTarget->getTotalMatrix());
     }
