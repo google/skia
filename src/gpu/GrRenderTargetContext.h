@@ -53,6 +53,8 @@ class SK_API GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
+    // MDB TODO: This access is mainly provided for the image filters. Remove it when they
+    // no longer need to pass it to the FragmentProcessor ctors.
     GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
     // We use SkPaint rather than GrPaint here for two reasons:
@@ -377,17 +379,6 @@ public:
     sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() override { return fRenderTargetProxy; }
 
     GrRenderTargetContext* asRenderTargetContext() override { return this; }
-
-    sk_sp<GrTexture> asTexture() {
-        if (!this->accessRenderTarget()) {
-            return nullptr;
-        }
-
-        // TODO: usage of this entry point needs to be reduced and potentially eliminated
-        // since it ends the deferral of the GrRenderTarget's allocation
-        // It's usage should migrate to asTextureProxyRef
-        return sk_ref_sp(this->accessRenderTarget()->asTexture());
-    }
 
     // Provides access to functions that aren't part of the public API.
     GrRenderTargetContextPriv priv();
