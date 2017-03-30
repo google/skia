@@ -237,6 +237,27 @@ public:
         return fTarget->makeSurface(info, &props);
     }
 
+    SkISize getBaseLayerSize() const { return fTarget->getBaseLayerSize(); }
+    SkRect onGetLocalClipBounds() const { return fTarget->getLocalClipBounds(); }
+    SkIRect onGetDeviceClipBounds() const { return fTarget->getDeviceClipBounds(); }
+    bool isClipEmpty() const { return fTarget->isClipEmpty(); }
+    bool isClipRect() const { return fTarget->isClipRect(); }
+    bool onPeekPixels(SkPixmap* pixmap) { return fTarget->peekPixels(pixmap); }
+    bool onAccessTopLayerPixels(SkPixmap* pixmap) {
+        SkImageInfo info;
+        size_t rowBytes;
+        SkIPoint* origin = nullptr;
+        void* addr = fTarget->accessTopLayerPixels(&info, &rowBytes, origin);
+        if (addr) {
+            *pixmap = SkPixmap(info, addr, rowBytes);
+            return true;
+        }
+        return false;
+    }
+
+    bool onGetProps(SkSurfaceProps* props) const { return fTarget->getProps(props); }
+    void onFlush() { return fTarget->flush(); }
+
 private:
     SkCanvas*                            fTarget;
     std::unique_ptr<SkColorSpaceXformer> fXformer;
