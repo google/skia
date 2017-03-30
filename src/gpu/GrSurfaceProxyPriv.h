@@ -26,6 +26,11 @@ public:
     // future when the proxy is actually used/instantiated.
     bool hasPendingIO() const { return fProxy->hasPendingIO(); }
 
+    // Beware! This call is only guaranteed to tell you if the proxy in question has
+    // any pending writes in its current state. It won't tell you about the IO state in the
+    // future when the proxy is actually used/instantiated.
+    bool hasPendingWrite() const { return fProxy->hasPendingWrite(); }
+
     // Don't abuse this call!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
 

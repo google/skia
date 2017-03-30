@@ -142,16 +142,15 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 
 GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
-    GrTextureProxy* proxy = this->peekProxy();
-    SkASSERT(proxy);
+    SkASSERT(fProxy);
 
-    GrSurface* surface = proxy->instantiate(fContext->resourceProvider());
+    GrSurface* surface = fProxy->instantiate(fContext->resourceProvider());
     if (surface && surface->asTexture()) {
         if (flushPendingGrContextIO) {
-            fContext->prepareSurfaceForExternalIO(surface);
+            fContext->contextPriv().prepareSurfaceForExternalIO(fProxy.get());
         }
         if (origin) {
-            *origin = surface->origin();
+            *origin = fProxy->origin();
         }
         return surface->asTexture()->getTextureHandle();
     }
@@ -364,10 +363,10 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
 
-    if (!renderTargetContext->accessRenderTarget()) {
+    if (!renderTargetContext->asSurfaceProxy()) {
         return nullptr;
     }
-    ctx->flushSurfaceWrites(renderTargetContext->accessRenderTarget());
+    ctx->contextPriv().flushSurfaceWrites(renderTargetContext->asSurfaceProxy());
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
@@ -460,6 +459,7 @@ std::unique_ptr<SkCrossContextImageData> SkCrossContextImageData::MakeFromEncode
     desc.fConfig = texture->config();
     desc.fSampleCnt = 0;
 
+    context->contextPriv().prepareSurfaceForExternalIO(as_IB(textureImage)->peekProxy());
     auto textureData = texture->texturePriv().detachBackendTexture();
     SkASSERT(textureData);
 
@@ -866,7 +866,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> colorSpace) con
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
 
-    if (!renderTargetContext->accessRenderTarget()) {
+    if (!renderTargetContext->asTextureProxy()) {
         return nullptr;
     }
 

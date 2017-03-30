@@ -340,7 +340,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                                                               std::move(op), uss, snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
-    drawingManager->flush();
+    drawingManager->flush(nullptr);
 
     // Validate that GrFPs work correctly without an input.
     sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
@@ -372,7 +372,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
             renderTargetContext->priv().testingOnly_addMeshDrawOp(
                     std::move(grPaint), GrAAType::kNone, std::move(op));
-            drawingManager->flush();
+            drawingManager->flush(nullptr);
         }
     }
 

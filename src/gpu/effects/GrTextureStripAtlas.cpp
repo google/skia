@@ -122,7 +122,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
 
         if (nullptr == row) {
             // force a flush, which should unlock all the rows; then try again
-            fDesc.fContext->flush();
+            fDesc.fContext->contextPriv().flush(nullptr); // tighten this up?
             row = this->getLRU();
             if (nullptr == row) {
                 --fLockedRows;
