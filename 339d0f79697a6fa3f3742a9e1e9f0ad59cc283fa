@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dfef6a9_2f6f6d84",
+        "filename": "src/gpu/GrXferProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-30T20:23:26Z",
+      "side": 1,
+      "message": "so this is in here for if we bind the render target as the sampled imaged as well. Somewhere else do we check the if caps.textureBarrierSupport() we always use the same object for both src and dst?\n\nSomething just feels weird about saying required here when in reality nothing about this GrXferProcessor is saying it has to be required.",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 82
+      },
+      "revId": "339d0f79697a6fa3f3742a9e1e9f0ad59cc283fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3361be6d_cac5e588",
+        "filename": "src/gpu/GrXferProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-30T20:23:26Z",
+      "side": 1,
+      "message": "nit: can be",
+      "range": {
+        "startLine": 288,
+        "startChar": 59,
+        "endLine": 288,
+        "endChar": 63
+      },
+      "revId": "339d0f79697a6fa3f3742a9e1e9f0ad59cc283fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
