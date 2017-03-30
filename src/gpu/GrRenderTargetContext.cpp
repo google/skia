@@ -107,10 +107,6 @@ GrRenderTargetContext::~GrRenderTargetContext() {
     SkSafeUnref(fOpList);
 }
 
-GrRenderTarget* GrRenderTargetContext::instantiate() {
-    return fRenderTargetProxy->instantiate(fContext->resourceProvider());
-}
-
 GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
     return fRenderTargetProxy->asTextureProxy();
 }
