@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_UNRESOLVEDFUNCTION
 #define SKSL_UNRESOLVEDFUNCTION
 
@@ -26,7 +26,7 @@ struct UnresolvedFunction : public Symbol {
 #endif
     }
 
-    virtual SkString description() const override {
+    virtual String description() const override {
         return fName;
     }
 
