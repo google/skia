@@ -35,22 +35,20 @@ static SkPixelGeometry compute_default_geometry() {
     }
 }
 
-SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry) {}
+SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry)
+                                 , fThreads(0) {}
 
-SkSurfaceProps::SkSurfaceProps(InitType) : fFlags(0), fPixelGeometry(compute_default_geometry()) {}
+SkSurfaceProps::SkSurfaceProps(InitType) : fFlags(0), fPixelGeometry(compute_default_geometry())
+                                         , fThreads(0) {}
 
 SkSurfaceProps::SkSurfaceProps(uint32_t flags, InitType)
     : fFlags(flags)
     , fPixelGeometry(compute_default_geometry())
+    , fThreads(0)
 {}
 
-SkSurfaceProps::SkSurfaceProps(uint32_t flags, SkPixelGeometry pg)
-    : fFlags(flags), fPixelGeometry(pg)
-{}
-
-SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps& other)
-    : fFlags(other.fFlags)
-    , fPixelGeometry(other.fPixelGeometry)
+SkSurfaceProps::SkSurfaceProps(uint32_t flags, SkPixelGeometry pg, int threads)
+    : fFlags(flags), fPixelGeometry(pg), fThreads(threads)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////

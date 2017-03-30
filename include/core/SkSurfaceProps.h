@@ -56,17 +56,18 @@ public:
     /** Deprecated alias used by Chromium. Will be removed. */
     static const Flags kUseDistanceFieldFonts_Flag = kUseDeviceIndependentFonts_Flag;
 
-    SkSurfaceProps(uint32_t flags, SkPixelGeometry);
+    SkSurfaceProps(uint32_t flags, SkPixelGeometry, int threads = 0);
 
     enum InitType {
         kLegacyFontHost_InitType
     };
     SkSurfaceProps(InitType);
     SkSurfaceProps(uint32_t flags, InitType);
-    SkSurfaceProps(const SkSurfaceProps& other);
+    SkSurfaceProps(const SkSurfaceProps& other) = default;
 
     uint32_t flags() const { return fFlags; }
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
+    int threads() const { return fThreads; }
 
     bool isUseDeviceIndependentFonts() const {
         return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
@@ -77,6 +78,7 @@ private:
 
     uint32_t        fFlags;
     SkPixelGeometry fPixelGeometry;
+    int             fThreads;
 };
 
 #endif

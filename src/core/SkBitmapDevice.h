@@ -111,7 +111,7 @@ protected:
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
@@ -136,6 +136,14 @@ protected:
     void validateDevBounds(const SkIRect& r) override;
     ClipType onGetClipType() const override;
 
+    SK_ALWAYS_INLINE void setDrawDst(SkPixmap& fDst) {
+        // we need fDst to be set, and if we're actually drawing, to dirty the genID
+        if (!this->accessPixels(&fDst)) {
+            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
+            fDst.reset(this->imageInfo(), nullptr, 0);
+        }
+    }
+
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
@@ -143,6 +151,7 @@ private:
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
     friend class SkSurface_Raster;
+    friend class SkThreadedBMPDevice;
 
     class BDDraw;
 
