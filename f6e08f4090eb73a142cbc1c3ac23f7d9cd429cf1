@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bcae760_a23eabf5",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T20:03:19Z",
+      "side": 1,
+      "message": "Let\u0027s revert this file?  Just whitespace changes right?",
+      "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cff7b4f_4ca9c6d4",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T20:03:19Z",
+      "side": 1,
+      "message": "I think this line does nothing?",
+      "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fa855b0_c35565c3",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T20:03:19Z",
+      "side": 1,
+      "message": "If you like, you can replace\n\n  SkTaskGroup group;\n  group.batch(...);\n  group.wait();\n\nwith\n\n   SkTaskGroup().batch(...);\n\nThe destructor of the temporary will call wait().",
+      "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5116ecad_0727ca64",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T20:03:19Z",
+      "side": 1,
+      "message": "{} here?",
+      "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

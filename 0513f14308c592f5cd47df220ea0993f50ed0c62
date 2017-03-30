@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de79c18a_376ff7e3",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T20:03:19Z",
+      "side": 0,
+      "message": "How about we just inline this snippet directly into SkThreadedBMPDevice?  I think it\u0027d make things a little clearer, and then we wouldn\u0027t need to change SkBitmapDevice.",
+      "revId": "0513f14308c592f5cd47df220ea0993f50ed0c62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
