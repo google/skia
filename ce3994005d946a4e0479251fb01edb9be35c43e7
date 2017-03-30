@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3b9bdbfd_c5fd6c83",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T14:14:31Z",
+      "side": 1,
+      "message": "Cool.  I did something like this.  Couldn\u0027t get it to compile with the xformer on the stack?  That seems weird anyway?",
+      "parentUuid": "e740d6d5_4d5f4296",
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d785324c_e137f19a",
         "filename": "src/core/SkColorSpaceXformer.cpp",
         "patchSetId": 1
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "ff1465bd_db7daab1",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T14:14:31Z",
+      "side": 1,
+      "message": "I thought I was going to have to ref it - then switched to a bare ptr.  Good catch, uinque_ptr should be fine.",
+      "parentUuid": "29369248_b0e28ceb",
+      "range": {
+        "startLine": 17,
+        "startChar": 28,
+        "endLine": 17,
+        "endChar": 43
+      },
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4618801c_3638f5af",
         "filename": "src/core/SkColorSpaceXformer.h",
         "patchSetId": 1
@@ -76,6 +118,24 @@
       "writtenOn": "2017-03-30T00:14:14Z",
       "side": 1,
       "message": "What do you think about baking the SkTLazy into this type (and making these methods non-const)?",
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e453c86_03c07ab4",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T14:14:31Z",
+      "side": 1,
+      "message": "Yeah I think that looks much nicer.  Thoughts on making fDstPaint mutable and leaving the methods as const?",
+      "parentUuid": "4618801c_3638f5af",
       "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -96,6 +156,24 @@
       "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "858a955b_6d50f7c2",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-30T14:14:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1283c39_d31f5e86",
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
