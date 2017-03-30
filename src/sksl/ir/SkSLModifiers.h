@@ -17,21 +17,22 @@ namespace SkSL {
  */
 struct Modifiers {
     enum Flag {
-        kNo_Flag            =    0,
-        kConst_Flag         =    1,
-        kIn_Flag            =    2,
-        kOut_Flag           =    4,
-        kLowp_Flag          =    8,
-        kMediump_Flag       =   16,
-        kHighp_Flag         =   32,
-        kUniform_Flag       =   64,
-        kFlat_Flag          =  128,
-        kNoPerspective_Flag =  256,
-        kReadOnly_Flag      =  512,
-        kWriteOnly_Flag     = 1024,
-        kCoherent_Flag      = 2048,
-        kVolatile_Flag      = 4096,
-        kRestrict_Flag      = 8192
+        kNo_Flag             =       0,
+        kConst_Flag          = 1 <<  0,
+        kIn_Flag             = 1 <<  1,
+        kOut_Flag            = 1 <<  2,
+        kLowp_Flag           = 1 <<  3,
+        kMediump_Flag        = 1 <<  4,
+        kHighp_Flag          = 1 <<  5,
+        kUniform_Flag        = 1 <<  6,
+        kFlat_Flag           = 1 <<  7,
+        kNoPerspective_Flag  = 1 <<  8,
+        kReadOnly_Flag       = 1 <<  9,
+        kWriteOnly_Flag      = 1 << 10,
+        kCoherent_Flag       = 1 << 11,
+        kVolatile_Flag       = 1 << 12,
+        kRestrict_Flag       = 1 << 13,
+        kHasSideEffects_Flag = 1 << 14
     };
 
     Modifiers()
@@ -79,6 +80,9 @@ struct Modifiers {
         }
         if (fFlags & kRestrict_Flag) {
             result += "restrict ";
+        }
+        if (fFlags & kHasSideEffects_Flag) {
+            result += "sk_has_side_effects ";
         }
 
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {

@@ -23,6 +23,15 @@ struct FunctionCall : public Expression {
     , fFunction(std::move(function))
     , fArguments(std::move(arguments)) {}
 
+    bool hasSideEffects() const override {
+        for (const auto& arg : fArguments) {
+            if (arg->hasSideEffects()) {
+                return true;
+            }
+        }
+        return fFunction.fModifiers.fFlags & Modifiers::kHasSideEffects_Flag;
+    }
+
     String description() const override {
         String result = fFunction.fName + "(";
         String separator;

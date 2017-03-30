@@ -22,7 +22,12 @@ struct PrefixExpression : public Expression {
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
-    virtual String description() const override {
+    bool hasSideEffects() const override {
+        return fOperator == Token::PLUSPLUS || fOperator == Token::MINUSMINUS ||
+               fOperand->hasSideEffects();
+    }
+
+    String description() const override {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 

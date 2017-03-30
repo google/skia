@@ -40,6 +40,10 @@ struct Variable : public Symbol {
         return fModifiers.description() + fType.fName + " " + fName;
     }
 
+    bool dead() const {
+        return !fWriteCount || (!fReadCount && !(fModifiers.fFlags & Modifiers::kOut_Flag));
+    }
+
     mutable Modifiers fModifiers;
     const Type& fType;
     const Storage fStorage;

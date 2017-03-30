@@ -22,7 +22,11 @@ struct PostfixExpression : public Expression {
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
-    virtual String description() const override {
+    bool hasSideEffects() const override {
+        return true;
+    }
+
+    String description() const override {
         return fOperand->description() + Token::OperatorName(fOperator);
     }
 
