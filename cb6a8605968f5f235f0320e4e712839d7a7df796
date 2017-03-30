@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "627a54c2_2254b8b7",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Done. Nothing is now changed for SkCanvas and SkSurfaceProps",
+      "parentUuid": "3ac40b7c_58585751",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "13769d91_5cc4400d",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "020940dd_1caee131",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13769d91_5cc4400d",
+      "range": {
+        "startLine": 709,
+        "startChar": 0,
+        "endLine": 709,
+        "endChar": 40
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "02f5d588_9c7c72f9",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "90d04686_941c084d",
+      "range": {
+        "startLine": 18,
+        "startChar": 43,
+        "endLine": 18,
+        "endChar": 64
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a1f248f_42309f11",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 1
@@ -79,6 +145,24 @@
       "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef992dc6_a21abbba",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Ok, I definitely saw places where {} are omitted in Skia. I\u0027ll change them when I saw them again :)",
+      "parentUuid": "2a1f248f_42309f11",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "4f15f7f3_e79e00e1",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e87748ea_37a94db2",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 21
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f09347c7_c6ca26d8",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 1
@@ -119,6 +227,24 @@
       "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d055191_492b0e8c",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f09347c7_c6ca26d8",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -145,6 +271,30 @@
     },
     {
       "key": {
+        "uuid": "ab08d556_4e044c35",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f774537_259992cb",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 12
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2792dac6_8560a4e9",
         "filename": "src/core/SkThreadedBMPDevice.h",
         "patchSetId": 1
@@ -162,6 +312,24 @@
     },
     {
       "key": {
+        "uuid": "dff8c1b8_9be7d83f",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2792dac6_8560a4e9",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31efb94d_1700521f",
         "filename": "src/core/SkThreadedBMPDevice.h",
         "patchSetId": 1
@@ -176,6 +344,24 @@
       "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bd8c03e_de1dbab5",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "It\u0027s nested because fRCStack is private and we want to access it. I\u0027ve moved the definition into the cpp file.",
+      "parentUuid": "31efb94d_1700521f",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -202,6 +388,30 @@
     },
     {
       "key": {
+        "uuid": "e5176793_226fb51f",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Right, I\u0027m not sure. The difference isn\u0027t significant enough for our current performance measuring tool. It might be more of my subjective observation. I\u0027ve removed it.",
+      "parentUuid": "60c1dc33_0f0e0667",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 24
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59f26a17_4b5db7b0",
         "filename": "src/core/SkThreadedBMPDevice.h",
         "patchSetId": 1
@@ -216,6 +426,24 @@
       "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4406d05f_b3f68564",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T19:34:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59f26a17_4b5db7b0",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
