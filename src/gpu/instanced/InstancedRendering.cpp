@@ -331,13 +331,13 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
 }
 
 bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) {
-    GrProcessorSet::FragmentProcessorAnalysis analysis;
-    GrPipelineAnalysisCoverage coverageInput;
+    GrProcessorSet::Analysis analysis;
+    GrProcessorAnalysisCoverage coverageInput;
     if (GrAAType::kCoverage == fInfo.aaType() ||
         (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        coverageInput = GrPipelineAnalysisCoverage::kSingleChannel;
+        coverageInput = GrProcessorAnalysisCoverage::kSingleChannel;
     } else {
-        coverageInput = GrPipelineAnalysisCoverage::kNone;
+        coverageInput = GrProcessorAnalysisCoverage::kNone;
     }
     fProcessors.analyzeAndEliminateFragmentProcessors(&analysis, this->getSingleInstance().fColor,
                                                       coverageInput, clip, caps);
@@ -407,7 +407,7 @@ bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps
     this->joinBounds(*that);
     fInfo = combinedInfo;
     fPixelLoad += that->fPixelLoad;
-    fAnalysisColor = GrPipelineAnalysisColor::Combine(fAnalysisColor, that->fAnalysisColor);
+    fAnalysisColor = GrProcessorAnalysisColor::Combine(fAnalysisColor, that->fAnalysisColor);
     // Adopt the other op's draws.
     fNumDraws += that->fNumDraws;
     fNumChangesInGeometry += that->fNumChangesInGeometry;
@@ -465,13 +465,13 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
     state->gpu()->handleDirtyContext();
 
     const GrAppliedClip* clip = state->drawOpArgs().fAppliedClip;
-    GrPipelineAnalysisCoverage coverage;
+    GrProcessorAnalysisCoverage coverage;
     if (GrAAType::kCoverage == fInfo.aaType() ||
         (clip && clip->clipCoverageFragmentProcessor()) ||
         (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        coverage = GrPipelineAnalysisCoverage::kSingleChannel;
+        coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     } else {
-        coverage = GrPipelineAnalysisCoverage::kNone;
+        coverage = GrProcessorAnalysisCoverage::kNone;
     }
 
     GrPipeline pipeline;

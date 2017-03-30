@@ -40,10 +40,10 @@ private:
         this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
-                                            GrPipelineAnalysisCoverage* coverage) const override {
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
         color->setToUnknown();
-        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
     void applyPipelineOptimizations(const PipelineOptimizations&) override {}

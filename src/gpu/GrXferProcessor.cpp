@@ -172,8 +172,8 @@ SkString GrXferProcessor::BlendInfo::dump() const {
 
 GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
         const GrXPFactory* factory,
-        const GrPipelineAnalysisColor& color,
-        const GrPipelineAnalysisCoverage& coverage,
+        const GrProcessorAnalysisColor& color,
+        const GrProcessorAnalysisCoverage& coverage,
         const GrCaps& caps) {
     AnalysisProperties result;
     if (factory) {
@@ -189,8 +189,8 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
     return result;
 }
 
-GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysisColor& color,
-                                                  GrPipelineAnalysisCoverage coverage,
+GrXferProcessor* GrXPFactory::createXferProcessor(const GrProcessorAnalysisColor& color,
+                                                  GrProcessorAnalysisCoverage coverage,
                                                   bool hasMixedSamples,
                                                   const DstTexture* dstTexture,
                                                   const GrCaps& caps) const {

@@ -70,8 +70,8 @@ private:
                      GrRenderTargetContext::ColorArrayType, const SkMatrix& viewMatrix,
                      uint32_t flags = 0);
 
-    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
-                                            GrPipelineAnalysisCoverage* coverage) const override;
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override;
     void applyPipelineOptimizations(const PipelineOptimizations&) override;
     void onPrepareDraws(Target*) const override;
 

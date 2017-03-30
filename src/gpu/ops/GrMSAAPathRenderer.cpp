@@ -259,10 +259,10 @@ private:
         this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
-                                            GrPipelineAnalysisCoverage* coverage) const override {
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
         color->setToConstant(fPaths[0].fColor);
-        *coverage = GrPipelineAnalysisCoverage::kNone;
+        *coverage = GrProcessorAnalysisCoverage::kNone;
     }
 
     void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {

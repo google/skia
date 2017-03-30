@@ -1724,7 +1724,7 @@ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineB
         }
     }
 
-    GrProcessorSet::FragmentProcessorAnalysis analysis;
+    GrProcessorSet::Analysis analysis;
     op->analyzeProcessors(&analysis, pipelineBuilder.processors(), &appliedClip, *this->caps());
 
     GrPipeline::InitArgs args;

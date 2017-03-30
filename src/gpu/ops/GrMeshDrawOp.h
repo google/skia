@@ -29,13 +29,13 @@ public:
      * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
      * initial color and coverage from this op's geometry processor.
      */
-    void analyzeProcessors(GrProcessorSet::FragmentProcessorAnalysis* analysis,
+    void analyzeProcessors(GrProcessorSet::Analysis* analysis,
                            const GrProcessorSet& processors,
                            const GrAppliedClip* appliedClip,
                            const GrCaps& caps) const {
-        GrPipelineAnalysisColor inputColor;
-        GrPipelineAnalysisCoverage inputCoverage;
-        this->getFragmentProcessorAnalysisInputs(&inputColor, &inputCoverage);
+        GrProcessorAnalysisColor inputColor;
+        GrProcessorAnalysisCoverage inputCoverage;
+        this->getProcessorAnalysisInputs(&inputColor, &inputCoverage);
         analysis->init(inputColor, inputCoverage, processors, appliedClip, caps);
     }
 
@@ -61,11 +61,11 @@ protected:
     GrMeshDrawOp(uint32_t classID);
     /**
      * This is a legacy class only used by GrMeshDrawOp and will be removed. It presents some
-     * aspects of GrProcessorSet::FragmentProcessorAnalysis to GrMeshDrawOp subclasses.
+     * aspects of GrProcessorSet::Analysis to GrMeshDrawOp subclasses.
      */
     class PipelineOptimizations {
     public:
-        PipelineOptimizations(const GrProcessorSet::FragmentProcessorAnalysis& analysis) {
+        PipelineOptimizations(const GrProcessorSet::Analysis& analysis) {
             fFlags = 0;
             if (analysis.getInputColorOverrideAndColorProcessorEliminationCount(&fOverrideColor) >=
                 0) {
@@ -161,11 +161,11 @@ private:
      * Provides information about the GrPrimitiveProccesor color and coverage outputs which become
      * inputs to the first color and coverage fragment processors.
      */
-    virtual void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor*,
-                                                    GrPipelineAnalysisCoverage*) const = 0;
+    virtual void getProcessorAnalysisInputs(GrProcessorAnalysisColor*,
+                                            GrProcessorAnalysisCoverage*) const = 0;
 
     /**
-     * After GrPipeline analysis is complete this is called so that the op can use the analysis
+     * After processor analysis is complete this is called so that the op can use the analysis
      * results when constructing its GrPrimitiveProcessor.
      */
     virtual void applyPipelineOptimizations(const PipelineOptimizations&) = 0;

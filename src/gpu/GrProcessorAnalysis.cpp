@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrPipelineAnalysis.h"
+#include "GrProcessorAnalysis.h"
 #include "GrGeometryProcessor.h"
 #include "ops/GrDrawOp.h"
 

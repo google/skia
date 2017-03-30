@@ -10,7 +10,7 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrPaint.h"
-#include "GrPipelineAnalysis.h"
+#include "GrProcessorAnalysis.h"
 #include "SkTemplates.h"
 
 class GrAppliedClip;
@@ -58,40 +58,40 @@ public:
     bool operator!=(const GrProcessorSet& that) const { return !(*this == that); }
 
     /**
-     * This is used to track analysis of color and coverage values through the fragment processors.
+     * This is used to track analysis of color and coverage values through the processors.
      */
-    class FragmentProcessorAnalysis {
+    class Analysis {
     public:
         /**
-         * This constructor allows an op to record its initial color in a FragmentProcessorAnalysis
-         * member and then run analysis later when the analysis inputs are available. If the
-         * analysis produces color fragment processor elimination then the input color is replaced
-         * by the expected input to the first non-eliminated processor. Otherwise, the original
-         * input color is preserved. The only reason to use this is to save space on the op by not
-         * separately storing the initial color.
+         * This constructor allows an op to record its initial color in an Analysis member and then
+         * then run analysis later when the analysis inputs are available. If the analysis produces
+         * color fragment processor elimination then the input color is replaced by the expected
+         * input to the first non-eliminated processor. Otherwise, the original input color is
+         * preserved. The only reason to use this is to save space on the op by not separately
+         * storing the initial color.
          */
-        explicit FragmentProcessorAnalysis(GrColor initialColor) : FragmentProcessorAnalysis() {
+        explicit Analysis(GrColor initialColor) : Analysis() {
             fInputColor = initialColor;
             fValidInputColor = true;
         }
 
-        FragmentProcessorAnalysis()
+        Analysis()
                 : fIsInitializedWithProcessorSet(false)
                 , fCompatibleWithCoverageAsAlpha(true)
                 , fValidInputColor(false)
                 , fRequiresDstTexture(false)
                 , fCanCombineOverlappedStencilAndCover(true)
                 , fIgnoresInputColor(false)
-                , fOutputCoverageType(static_cast<unsigned>(GrPipelineAnalysisCoverage::kNone))
+                , fOutputCoverageType(static_cast<unsigned>(GrProcessorAnalysisCoverage::kNone))
                 , fOutputColorType(static_cast<unsigned>(ColorType::kUnknown))
                 , fInitialColorProcessorsToEliminate(0) {}
 
         // This version is used by a unit test that assumes no clip and no fragment processors.
-        FragmentProcessorAnalysis(const GrPipelineAnalysisColor&, GrPipelineAnalysisCoverage,
-                                  const GrXPFactory*, const GrCaps&);
+        Analysis(const GrProcessorAnalysisColor&, GrProcessorAnalysisCoverage, const GrXPFactory*,
+                 const GrCaps&);
 
-        void init(const GrPipelineAnalysisColor&, GrPipelineAnalysisCoverage, const GrProcessorSet&,
-                  const GrAppliedClip*, const GrCaps&);
+        void init(const GrProcessorAnalysisColor&, GrProcessorAnalysisCoverage,
+                  const GrProcessorSet&, const GrAppliedClip*, const GrCaps&);
 
         bool isInitializedWithProcessorSet() const { return fIsInitializedWithProcessorSet; }
 
@@ -128,20 +128,20 @@ public:
         }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
         bool isInputColorIgnored() const { return fIgnoresInputColor; }
-        GrPipelineAnalysisCoverage outputCoverage() const {
-            return static_cast<GrPipelineAnalysisCoverage>(fOutputCoverageType);
+        GrProcessorAnalysisCoverage outputCoverage() const {
+            return static_cast<GrProcessorAnalysisCoverage>(fOutputCoverageType);
         }
-        GrPipelineAnalysisColor outputColor() const {
+        GrProcessorAnalysisColor outputColor() const {
             switch (this->outputColorType()) {
                 case ColorType::kConstant:
                     return fKnownOutputColor;
                 case ColorType::kOpaque:
-                    return GrPipelineAnalysisColor::Opaque::kYes;
+                    return GrProcessorAnalysisColor::Opaque::kYes;
                 case ColorType::kUnknown:
-                    return GrPipelineAnalysisColor::Opaque::kNo;
+                    return GrProcessorAnalysisColor::Opaque::kNo;
             }
             SkFAIL("Unexpected color type");
-            return GrPipelineAnalysisColor::Opaque::kNo;
+            return GrProcessorAnalysisColor::Opaque::kNo;
         }
 
     private:
@@ -149,7 +149,7 @@ public:
 
         ColorType outputColorType() const { return static_cast<ColorType>(fOutputColorType); }
 
-        void internalInit(const GrPipelineAnalysisColor&, const GrPipelineAnalysisCoverage,
+        void internalInit(const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage,
                           const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
 
         // MSVS 2015 won't pack a bool with an unsigned.
@@ -174,15 +174,15 @@ public:
 
         friend class GrProcessorSet;
     };
-    GR_STATIC_ASSERT(sizeof(FragmentProcessorAnalysis) == 2 * sizeof(GrColor) + sizeof(uint32_t));
+    GR_STATIC_ASSERT(sizeof(Analysis) == 2 * sizeof(GrColor) + sizeof(uint32_t));
 
-    void analyzeAndEliminateFragmentProcessors(FragmentProcessorAnalysis*,
-                                               const GrPipelineAnalysisColor& colorInput,
-                                               const GrPipelineAnalysisCoverage coverageInput,
+    void analyzeAndEliminateFragmentProcessors(Analysis*,
+                                               const GrProcessorAnalysisColor& colorInput,
+                                               const GrProcessorAnalysisCoverage coverageInput,
                                                const GrAppliedClip*, const GrCaps&);
 
 private:
-    // This absurdly large limit allows FragmentProcessorAnalysis and this to pack fields together.
+    // This absurdly large limit allows Analysis and this to pack fields together.
     static constexpr int kMaxColorProcessors = UINT8_MAX;
 
     enum Flags : uint16_t {

@@ -24,15 +24,15 @@ public:
 private:
     constexpr GrDisableColorXPFactory() {}
 
-    AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
-                                          const GrPipelineAnalysisCoverage&,
+    AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                          const GrProcessorAnalysisCoverage&,
                                           const GrCaps&) const override {
         return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
                AnalysisProperties::kIgnoresInputColor;
     }
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrPipelineAnalysisColor&,
-                                           GrPipelineAnalysisCoverage, bool hasMixedSamples,
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
+                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
                                            const DstTexture* dstTexture) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;

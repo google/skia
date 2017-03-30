@@ -142,10 +142,10 @@ public:
 private:
     ShadowCircleOp() : INHERITED(ClassID()) {}
 
-    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
-                                            GrPipelineAnalysisCoverage* coverage) const override {
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
         color->setToConstant(fCircles[0].fColor);
-        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
     void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
@@ -563,10 +563,10 @@ public:
     }
 
 private:
-    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
-                                            GrPipelineAnalysisCoverage* coverage) const override {
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
         color->setToConstant(fGeoData[0].fColor);
-        *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
     void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {

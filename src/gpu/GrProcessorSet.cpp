@@ -8,7 +8,6 @@
 #include "GrProcessorSet.h"
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
-#include "GrPipelineAnalysis.h"
 #include "GrXferProcessor.h"
 
 GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
@@ -81,14 +80,13 @@ bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
-        const GrPipelineAnalysisColor& colorInput,
-        const GrPipelineAnalysisCoverage coverageInput,
-        const GrProcessorSet& processors,
-        const GrFragmentProcessor* clipFP,
-        const GrCaps& caps) {
+void GrProcessorSet::Analysis::internalInit(const GrProcessorAnalysisColor& colorInput,
+                                            const GrProcessorAnalysisCoverage coverageInput,
+                                            const GrProcessorSet& processors,
+                                            const GrFragmentProcessor* clipFP,
+                                            const GrCaps& caps) {
     GrColorFragmentProcessorAnalysis colorInfo(colorInput);
-    fCompatibleWithCoverageAsAlpha = GrPipelineAnalysisCoverage::kLCD != coverageInput;
+    fCompatibleWithCoverageAsAlpha = GrProcessorAnalysisCoverage::kLCD != coverageInput;
     fValidInputColor = colorInput.isConstant(&fInputColor);
 
     const GrFragmentProcessor* const* fps =
@@ -117,7 +115,7 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
     fInitialColorProcessorsToEliminate = colorInfo.initialProcessorsToEliminate(&fInputColor);
     fValidInputColor |= SkToBool(fInitialColorProcessorsToEliminate);
 
-    GrPipelineAnalysisColor outputColor = colorInfo.outputColor();
+    GrProcessorAnalysisColor outputColor = colorInfo.outputColor();
     if (outputColor.isConstant(&fKnownOutputColor)) {
         fOutputColorType = static_cast<unsigned>(ColorType::kConstant);
     } else if (outputColor.isOpaque()) {
@@ -126,20 +124,20 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
         fOutputColorType = static_cast<unsigned>(ColorType::kUnknown);
     }
 
-    GrPipelineAnalysisCoverage outputCoverage;
-    if (GrPipelineAnalysisCoverage::kLCD == coverageInput) {
-        outputCoverage = GrPipelineAnalysisCoverage::kLCD;
-    } else if (hasCoverageFP || GrPipelineAnalysisCoverage::kSingleChannel == coverageInput) {
-        outputCoverage = GrPipelineAnalysisCoverage::kSingleChannel;
+    GrProcessorAnalysisCoverage outputCoverage;
+    if (GrProcessorAnalysisCoverage::kLCD == coverageInput) {
+        outputCoverage = GrProcessorAnalysisCoverage::kLCD;
+    } else if (hasCoverageFP || GrProcessorAnalysisCoverage::kSingleChannel == coverageInput) {
+        outputCoverage = GrProcessorAnalysisCoverage::kSingleChannel;
     } else {
-        outputCoverage = GrPipelineAnalysisCoverage::kNone;
+        outputCoverage = GrProcessorAnalysisCoverage::kNone;
     }
     fOutputCoverageType = static_cast<unsigned>(outputCoverage);
 
     GrXPFactory::AnalysisProperties props = GrXPFactory::GetAnalysisProperties(
             processors.fXPFactory, colorInfo.outputColor(), outputCoverage, caps);
     if (!processors.numCoverageFragmentProcessors() &&
-        GrPipelineAnalysisCoverage::kNone == coverageInput) {
+        GrProcessorAnalysisCoverage::kNone == coverageInput) {
         fCanCombineOverlappedStencilAndCover = SkToBool(
                 props & GrXPFactory::AnalysisProperties::kCanCombineOverlappedStencilAndCover);
     } else {
@@ -167,32 +165,31 @@ void GrProcessorSet::FragmentProcessorAnalysis::internalInit(
     }
 }
 
-void GrProcessorSet::FragmentProcessorAnalysis::init(const GrPipelineAnalysisColor& colorInput,
-                                                     const GrPipelineAnalysisCoverage coverageInput,
-                                                     const GrProcessorSet& processors,
-                                                     const GrAppliedClip* appliedClip,
-                                                     const GrCaps& caps) {
+void GrProcessorSet::Analysis::init(const GrProcessorAnalysisColor& colorInput,
+                                    const GrProcessorAnalysisCoverage coverageInput,
+                                    const GrProcessorSet& processors,
+                                    const GrAppliedClip* appliedClip,
+                                    const GrCaps& caps) {
     const GrFragmentProcessor* clipFP =
             appliedClip ? appliedClip->clipCoverageFragmentProcessor() : nullptr;
     this->internalInit(colorInput, coverageInput, processors, clipFP, caps);
     fIsInitializedWithProcessorSet = true;
 }
 
-GrProcessorSet::FragmentProcessorAnalysis::FragmentProcessorAnalysis(
-        const GrPipelineAnalysisColor& colorInput,
-        const GrPipelineAnalysisCoverage coverageInput,
-        const GrXPFactory* factory,
-        const GrCaps& caps)
-        : FragmentProcessorAnalysis() {
+GrProcessorSet::Analysis::Analysis(const GrProcessorAnalysisColor& colorInput,
+                                   const GrProcessorAnalysisCoverage coverageInput,
+                                   const GrXPFactory* factory,
+                                   const GrCaps& caps)
+        : Analysis() {
     GrPaint paint;
     paint.setXPFactory(factory);
     this->internalInit(colorInput, coverageInput, GrProcessorSet(std::move(paint)), nullptr, caps);
 }
 
 void GrProcessorSet::analyzeAndEliminateFragmentProcessors(
-        FragmentProcessorAnalysis* analysis,
-        const GrPipelineAnalysisColor& colorInput,
-        const GrPipelineAnalysisCoverage coverageInput,
+        Analysis* analysis,
+        const GrProcessorAnalysisColor& colorInput,
+        const GrProcessorAnalysisCoverage coverageInput,
         const GrAppliedClip* clip,
         const GrCaps& caps) {
     analysis->init(colorInput, coverageInput, *this, clip, caps);

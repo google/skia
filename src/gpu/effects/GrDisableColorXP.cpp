@@ -82,8 +82,8 @@ void DisableColorXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const
 
 ///////////////////////////////////////////////////////////////////////////////
 GrXferProcessor* GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                                const GrPipelineAnalysisColor&,
-                                                                GrPipelineAnalysisCoverage,
+                                                                const GrProcessorAnalysisColor&,
+                                                                GrProcessorAnalysisCoverage,
                                                                 bool hasMixedSamples,
                                                                 const DstTexture* dst) const {
     return DisableColorXP::Create();

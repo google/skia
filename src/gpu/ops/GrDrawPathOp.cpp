@@ -38,7 +38,7 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
                     0xffff>()
     };
     GrPipeline::InitArgs args;
-    auto analysis = this->fragmentProcessorAnalysis();
+    auto analysis = this->processorAnalysis();
     args.fProcessors = &this->processors();
     args.fFlags = GrAA::kYes == fAA ? GrPipeline::kHWAntialias_Flag : 0;
     args.fUserStencil = &kCoverPass;
@@ -146,7 +146,7 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         GrPathRendering::kWinding_FillType != that->fillType()) {
         return false;
     }
-    if (!this->fragmentProcessorAnalysis().canCombineOverlappedStencilAndCover()) {
+    if (!this->processorAnalysis().canCombineOverlappedStencilAndCover()) {
         return false;
     }
     fTotalPathCount += that->fTotalPathCount;

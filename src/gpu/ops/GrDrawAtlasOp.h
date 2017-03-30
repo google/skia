@@ -39,14 +39,14 @@ private:
     GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
                   const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
 
-    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
-                                            GrPipelineAnalysisCoverage* coverage) const override {
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
         if (this->hasColors()) {
             color->setToUnknown();
         } else {
             color->setToConstant(fGeoData[0].fColor);
         }
-        *coverage = GrPipelineAnalysisCoverage::kNone;
+        *coverage = GrProcessorAnalysisCoverage::kNone;
     }
 
     void onPrepareDraws(Target*) const override;

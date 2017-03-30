@@ -24,8 +24,8 @@ public:
     /** Because src-over is so common we special case it for performance reasons. If this returns
         null then the SimpleSrcOverXP() below should be used. */
     static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
-                                                       const GrPipelineAnalysisColor& color,
-                                                       GrPipelineAnalysisCoverage coverage,
+                                                       const GrProcessorAnalysisColor& color,
+                                                       GrProcessorAnalysisCoverage coverage,
                                                        bool hasMixedSamples,
                                                        const GrXferProcessor::DstTexture*);
 
@@ -36,19 +36,19 @@ public:
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static AnalysisProperties SrcOverAnalysisProperties(const GrPipelineAnalysisColor&,
-                                                        const GrPipelineAnalysisCoverage&,
+    static AnalysisProperties SrcOverAnalysisProperties(const GrProcessorAnalysisColor&,
+                                                        const GrProcessorAnalysisCoverage&,
                                                         const GrCaps&);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrPipelineAnalysisColor&,
-                                           GrPipelineAnalysisCoverage, bool hasMixedSamples,
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
+                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
-                                          const GrPipelineAnalysisCoverage&,
+    AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                          const GrProcessorAnalysisCoverage&,
                                           const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;

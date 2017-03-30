@@ -8,7 +8,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrPipeline.h"
-#include "GrPipelineAnalysis.h"
+#include "GrProcessorAnalysis.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"

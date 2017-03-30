@@ -46,8 +46,8 @@ SkString GrAtlasTextOp::dumpInfo() const {
     return str;
 }
 
-void GrAtlasTextOp::getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
-                                                       GrPipelineAnalysisCoverage* coverage) const {
+void GrAtlasTextOp::getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                               GrProcessorAnalysisCoverage* coverage) const {
     if (kColorBitmapMask_MaskType == fMaskType) {
         color->setToUnknown();
     } else {
@@ -56,14 +56,14 @@ void GrAtlasTextOp::getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* 
     switch (fMaskType) {
         case kGrayscaleDistanceField_MaskType:
         case kGrayscaleCoverageMask_MaskType:
-            *coverage = GrPipelineAnalysisCoverage::kSingleChannel;
+            *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
             break;
         case kLCDCoverageMask_MaskType:
         case kLCDDistanceField_MaskType:
-            *coverage = GrPipelineAnalysisCoverage::kLCD;
+            *coverage = GrProcessorAnalysisCoverage::kLCD;
             break;
         case kColorBitmapMask_MaskType:
-            *coverage = GrPipelineAnalysisCoverage::kNone;
+            *coverage = GrProcessorAnalysisCoverage::kNone;
             break;
     }
 }

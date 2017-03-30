@@ -52,12 +52,12 @@ static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
 #undef EQ_OFFSET
 }
 
-static bool can_use_hw_blend_equation(GrBlendEquation equation, GrPipelineAnalysisCoverage coverage,
-                                      const GrCaps& caps) {
+static bool can_use_hw_blend_equation(GrBlendEquation equation,
+                                      GrProcessorAnalysisCoverage coverage, const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
         return false;
     }
-    if (GrPipelineAnalysisCoverage::kLCD == coverage) {
+    if (GrProcessorAnalysisCoverage::kLCD == coverage) {
         return false; // LCD coverage must be applied after the blend equation.
     }
     if (caps.canUseAdvancedBlendEquation(equation)) {
@@ -213,12 +213,12 @@ public:
             : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
 
 private:
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrPipelineAnalysisColor&,
-                                           GrPipelineAnalysisCoverage, bool hasMixedSamples,
+    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
+                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    AnalysisProperties analysisProperties(const GrPipelineAnalysisColor&,
-                                          const GrPipelineAnalysisCoverage&,
+    AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                          const GrProcessorAnalysisCoverage&,
                                           const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
@@ -233,8 +233,8 @@ private:
 #endif
 
 GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                        const GrPipelineAnalysisColor&,
-                                                        GrPipelineAnalysisCoverage coverage,
+                                                        const GrProcessorAnalysisColor&,
+                                                        GrProcessorAnalysisCoverage coverage,
                                                         bool hasMixedSamples,
                                                         const DstTexture* dstTexture) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
@@ -246,7 +246,7 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
 }
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
-        const GrPipelineAnalysisColor&, const GrPipelineAnalysisCoverage& coverage,
+        const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage& coverage,
         const GrCaps& caps) const {
     /*
       The general SVG blend equation is defined in the spec as follows:

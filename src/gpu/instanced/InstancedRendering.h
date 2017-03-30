@@ -151,7 +151,7 @@ protected:
         OpInfo fInfo;
         SkScalar fPixelLoad;
         GrProcessorSet fProcessors;
-        GrPipelineAnalysisColor fAnalysisColor;
+        GrProcessorAnalysisColor fAnalysisColor;
         SkSTArray<5, ParamsTexel, true> fParams;
         bool fIsTracked;
         int fNumDraws;
