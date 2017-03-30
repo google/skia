@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50d7ed22_6dba45b9",
+        "filename": "tests/BlendTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-30T18:18:21Z",
+      "side": 1,
+      "message": "maybe \"copy of the destination\" rather than \"readback\" as that makes me think a glReadPixels will occur.",
+      "range": {
+        "startLine": 131,
+        "startChar": 53,
+        "endLine": 131,
+        "endChar": 61
+      },
+      "revId": "fbb97d7789b6cabcbe0daa597d4d34702faea4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
