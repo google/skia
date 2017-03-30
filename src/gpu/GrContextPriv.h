@@ -59,11 +59,42 @@ public:
 
     bool disableGpuYUVConversion() const { return fContext->fDisableGpuYUVConversion; }
 
+    /**
+     * Call to ensure all drawing to the context has been issued to the
+     * underlying 3D API.
+     * The 'proxy' parameter is a hint. If it is supplied the context will guarantee that
+     * the draws required for that proxy are flushed but it could do more. If no 'proxy' is
+     * provided then all current work will be flushed.
+     */
+    void flush(GrSurfaceProxy*);
+
     /*
      * A ref will be taken on the preFlushCallbackObject which will be removed when the
      * context is destroyed.
      */
     void addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject>);
+
+    /**
+     * After this returns any pending writes to the surface will have been issued to the
+     * backend 3D API.
+     */
+    void flushSurfaceWrites(GrSurfaceProxy*);
+
+    /**
+     * After this returns any pending reads or writes to the surface will have been issued to the
+     * backend 3D API.
+     */
+    void flushSurfaceIO(GrSurfaceProxy*);
+
+    /**
+     * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
+     * if necessary.
+     *
+     * It is not necessary to call this before reading the render target via Skia/GrContext.
+     * GrContext will detect when it must perform a resolve before reading pixels back from the
+     * surface or using it as a texture.
+     */
+    void prepareSurfaceForExternalIO(GrSurfaceProxy*);
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}

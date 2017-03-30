@@ -116,8 +116,7 @@ GrBackendObject GrGLTexture::getTextureHandle() const {
 }
 
 std::unique_ptr<GrExternalTextureData> GrGLTexture::detachBackendTexture() {
-    // Flush any pending writes to this texture
-    this->getContext()->prepareSurfaceForExternalIO(this);
+    SkASSERT(!this->hasPendingIO());
 
     // Set up a semaphore to be signaled once the data is ready, and flush GL
     sk_sp<GrSemaphore> semaphore = this->getContext()->resourceProvider()->makeSemaphore();

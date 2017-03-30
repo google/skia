@@ -34,6 +34,7 @@ class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
 class GrSamplerParams;
+class GrSurfaceProxy;
 class GrTextBlobCache;
 class GrTextContext;
 class GrTextureProxy;
@@ -306,27 +307,6 @@ public:
                             GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
-
-    /**
-     * After this returns any pending writes to the surface will have been issued to the backend 3D API.
-     */
-    void flushSurfaceWrites(GrSurface* surface);
-
-    /**
-     * After this returns any pending reads or writes to the surface will have been issued to the
-     * backend 3D API.
-     */
-    void flushSurfaceIO(GrSurface* surface);
-
-    /**
-     * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
-     * if necessary.
-     *
-     * It is not necessary to call this before reading the render target via Skia/GrContext.
-     * GrContext will detect when it must perform a resolve before reading pixels back from the
-     * surface or using it as a texture.
-     */
-    void prepareSurfaceForExternalIO(GrSurface*);
 
     /**
      * An ID associated with this context, guaranteed to be unique.

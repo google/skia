@@ -26,12 +26,16 @@
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
 
+#define ASSERT_OWNED_PROXY_PRIV(P) \
+SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == fContext)
+
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fSingleOwner);)
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fContext->fSingleOwner);)
 #define RETURN_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return; }
+#define RETURN_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return nullptr; }
 
@@ -226,7 +230,16 @@ void GrContext::TextBlobCacheOverBudgetCB(void* data) {
 void GrContext::flush() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
-    fDrawingManager->flush();
+
+    fDrawingManager->flush(nullptr);
+}
+
+void GrContextPriv::flush(GrSurfaceProxy* proxy) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    ASSERT_OWNED_PROXY_PRIV(proxy);
+
+    fContext->fDrawingManager->flush(proxy);
 }
 
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
@@ -296,7 +309,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
     }
 
     if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && surface->surfacePriv().hasPendingIO()) {
-        this->flush();
+        this->contextPriv().flush(nullptr); // MDB TODO: tighten this
     }
 
     sk_sp<GrTextureProxy> tempProxy;
@@ -336,12 +349,12 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
                     return false;
                 }
             }
+            if (tempProxy->priv().hasPendingIO()) {
+                this->contextPriv().flush(tempProxy.get());
+            }
             GrTexture* texture = tempProxy->instantiate(this->resourceProvider());
             if (!texture) {
                 return false;
-            }
-            if (texture->surfacePriv().hasPendingIO()) {
-                this->flush();
             }
             if (applyPremulToSrc) {
                 size_t tmpRowBytes = 4 * width;
@@ -381,7 +394,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
                                           nullptr);
 
             if (kFlushWrites_PixelOp & pixelOpsFlags) {
-                this->flushSurfaceWrites(surface);
+                this->contextPriv().flushSurfaceWrites(renderTargetContext->asRenderTargetProxy());
             }
         }
     }
@@ -425,7 +438,7 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
     }
 
     if (!(kDontFlush_PixelOpsFlag & flags) && src->surfacePriv().hasPendingWrite()) {
-        this->flush();
+        this->contextPriv().flush(nullptr); // MDB TODO: tighten this
     }
 
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
@@ -452,6 +465,7 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
     }
 
     sk_sp<GrSurface> surfaceToRead(SkRef(src));
+    sk_sp<GrTextureProxy> drawnProxy;
     bool didTempDraw = false;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
         if (SkBackingFit::kExact == tempDrawInfo.fTempSurfaceFit) {
@@ -500,7 +514,8 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 tempRTC->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect,
                                   nullptr);
-                surfaceToRead.reset(tempRTC->asTexture().release());
+                drawnProxy = tempRTC->asTextureProxyRef();
+                surfaceToRead = sk_ref_sp(drawnProxy->instantiate(this->resourceProvider()));
                 left = 0;
                 top = 0;
                 didTempDraw = true;
@@ -517,7 +532,7 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
     }
     GrPixelConfig configToRead = dstConfig;
     if (didTempDraw) {
-        this->flushSurfaceWrites(surfaceToRead.get());
+        this->contextPriv().flushSurfaceWrites(drawnProxy.get());
         configToRead = tempDrawInfo.fReadConfig;
     }
     if (!fGpu->readPixels(surfaceToRead.get(), left, top, width, height, configToRead, buffer,
@@ -542,27 +557,31 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
     return true;
 }
 
-void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkASSERT(surface);
-    ASSERT_OWNED_RESOURCE(surface);
-    fDrawingManager->prepareSurfaceForExternalIO(surface);
+void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkASSERT(proxy);
+    ASSERT_OWNED_PROXY_PRIV(proxy);
+    fContext->fDrawingManager->prepareSurfaceForExternalIO(proxy);
 }
 
-void GrContext::flushSurfaceWrites(GrSurface* surface) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    if (surface->surfacePriv().hasPendingWrite()) {
-        this->flush();
+void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkASSERT(proxy);
+    ASSERT_OWNED_PROXY_PRIV(proxy);
+    if (proxy->priv().hasPendingWrite()) {
+        this->flush(proxy);
     }
 }
 
-void GrContext::flushSurfaceIO(GrSurface* surface) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    if (surface->surfacePriv().hasPendingIO()) {
-        this->flush();
+void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkASSERT(proxy);
+    ASSERT_OWNED_PROXY_PRIV(proxy);
+    if (proxy->priv().hasPendingIO()) {
+        this->flush(proxy);
     }
 }
 
