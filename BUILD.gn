@@ -37,6 +37,8 @@ declare_args() {
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+  skia_link_with_vulkan = true
+  skia_vulkan_headers_path = ""
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -135,20 +137,31 @@ config("skia_private") {
   if (skia_use_vulkan) {
     if (skia_vulkan_sdk != "" && !is_android) {
       if (is_win) {
-        include_dirs += [ "$skia_vulkan_sdk/Include/" ]
+        if (skia_vulkan_headers_path != "") {
+          include_dirs += [ "$skia_vulkan_sdk/include/" ]
+        }
         lib_dirs += [
           "$skia_vulkan_sdk/Bin",
           "$skia_vulkan_sdk/Lib",
         ]
       } else {
-        include_dirs += [ "$skia_vulkan_sdk/include/" ]
+        if (skia_vulkan_headers_path != "") {
+          include_dirs += [ "$skia_vulkan_sdk/include/" ]
+        }
         lib_dirs += [ "$skia_vulkan_sdk/lib/" ]
       }
     }
-    if (is_win) {
-      libs += [ "vulkan-1.lib" ]
-    } else {
-      libs += [ "vulkan" ]
+
+    if (skia_vulkan_headers_path != "") {
+      include_dirs += [ skia_vulkan_headers_path ]
+    }
+
+    if (skia_link_with_vulkan) {
+      if (is_win) {
+        libs += [ "vulkan-1.lib" ]
+      } else {
+        libs += [ "vulkan" ]
+      }
     }
   }
   if (skia_enable_gpu) {
