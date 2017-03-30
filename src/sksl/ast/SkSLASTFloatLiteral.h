@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTFLOATLITERAL
 #define SKSL_ASTFLOATLITERAL
 
@@ -13,14 +13,14 @@
 namespace SkSL {
 
 /**
- * A literal floating point number. 
+ * A literal floating point number.
  */
 struct ASTFloatLiteral : public ASTExpression {
     ASTFloatLiteral(Position position, double value)
     : INHERITED(position, kFloat_Kind)
     , fValue(value) {}
 
-    SkString description() const override {
+    String description() const override {
         return to_string(fValue);
     }
 
