@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9843ef5b_2b68de95",
+        "filename": "src/core/SkBitmapDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T20:48:57Z",
+      "side": 1,
+      "message": "Let\u0027s add a note about why?\n\n  friend class SkThreadedBMPDevice;  // to copy fRCStack",
+      "revId": "ba3e870fdd2594e0e4cecfc11e4dc0192c676fdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c31fd67c_a8f66514",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T20:48:57Z",
+      "side": 1,
+      "message": "Let\u0027s change these to bitmap?  We don\u0027t really need to be using the private fBitmap (yet).",
+      "range": {
+        "startLine": 18,
+        "startChar": 13,
+        "endLine": 18,
+        "endChar": 20
+      },
+      "revId": "ba3e870fdd2594e0e4cecfc11e4dc0192c676fdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ac376f7_21b772ce",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T20:48:57Z",
+      "side": 1,
+      "message": "You will need to include \u003calgorithm\u003e or use SkTMax.",
+      "range": {
+        "startLine": 18,
+        "startChar": 50,
+        "endLine": 18,
+        "endChar": 58
+      },
+      "revId": "ba3e870fdd2594e0e4cecfc11e4dc0192c676fdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
