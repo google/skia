@@ -10,6 +10,7 @@
 
 #include "GrGpuResource.h"
 #include "GrOpList.h"
+#include "GrSurfaceProxy.h"
 
 #include "SkTArray.h"
 
@@ -62,7 +63,7 @@ public:
 
 private:
     // The unique ID is only needed for the audit trail. This should be removed with MDB.
-    void recordOp(std::unique_ptr<GrOp>, GrGpuResource::UniqueID renderTargetID);
+    void recordOp(std::unique_ptr<GrOp>, GrSurfaceProxy::UniqueID proxyID);
 
     SkSTArray<2, std::unique_ptr<GrOp>, true> fRecordedOps;
     GrGpu*                          fGpu;

@@ -63,7 +63,7 @@ public:
         const GrProcessorSet::FragmentProcessorAnalysis* fAnalysis = nullptr;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
-        GrRenderTarget* fRenderTarget = nullptr;
+        GrRenderTargetProxy* fRenderTargetProxy = nullptr;
         const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstTexture fDstTexture;
     };
@@ -78,13 +78,13 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). This pipeline is initialized without requiring
      * a call to init().
      **/
-    GrPipeline(GrRenderTarget*, SkBlendMode);
+    GrPipeline(GrRenderTargetProxy*, SkBlendMode);
 
     /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
     void init(const InitArgs&);
 
     /** True if the pipeline has been initialized. */
-    bool isInitialized() const { return SkToBool(fRenderTarget.get()); }
+    bool isInitialized() const { return SkToBool(fRenderTargetProxy.get()); }
 
     /// @}
 
@@ -165,7 +165,7 @@ public:
      *
      * @return    The currently set render target.
      */
-    GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
+    GrRenderTargetProxy* getRenderTargetProxy() const { return fRenderTargetProxy.get(); }
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
@@ -194,7 +194,7 @@ public:
     }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
+        return this->getXferProcessor().xferBarrierType(fRenderTargetProxy.get(), caps);
     }
 
     /**
@@ -214,11 +214,11 @@ private:
         kStencilEnabled_Flag = 0x40,
     };
 
-    typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
+    typedef GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> RenderTargetProxy;
     typedef GrPendingProgramElement<const GrFragmentProcessor> PendingFragmentProcessor;
     typedef SkAutoSTArray<8, PendingFragmentProcessor> FragmentProcessorArray;
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
-    RenderTarget                        fRenderTarget;
+    RenderTargetProxy                   fRenderTargetProxy;
     GrScissorState                      fScissorState;
     GrWindowRectsState                  fWindowRectsState;
     const GrUserStencilSettings*        fUserStencilSettings;
