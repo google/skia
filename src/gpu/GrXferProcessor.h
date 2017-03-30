@@ -272,11 +272,33 @@ public:
 
     enum class AnalysisProperties : unsigned {
         kNone = 0x0,
+        /**
+         * The fragment shader will require the destination color.
+         */
         kReadsDstInShader = 0x1,
-        kRequiresDstTexture = 0x2,
-        kCompatibleWithAlphaAsCoverage = 0x4,
-        kIgnoresInputColor = 0x8,
-        kCanCombineOverlappedStencilAndCover = 0x10
+        /**
+         * The op may apply coverage as alpha and still blend correctly.
+         */
+        kCompatibleWithAlphaAsCoverage = 0x2,
+        /**
+         * The color input to the GrXferProcessor will be ignored.
+         */
+        kIgnoresInputColor = 0x4,
+        /**
+         * If set overlapping stencil and cover operations can be replaced by a combined stencil
+         * followed by a combined cover.
+         */
+        kCanCombineOverlappedStencilAndCover = 0x8,
+        /**
+         * The destination color will be provided to the fragment processor using a texture. This is
+         * additional information about the implementation of kReadsDstInShader.
+         */
+        kRequiresDstTexture = 0x10,
+        /**
+         * If set overlapping draws may not be combined because a barrier must be inserted between
+         * them.
+         */
+        kRequiresBarrierBetweenOverlappingDraws = 0x20,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 

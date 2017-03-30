@@ -149,6 +149,8 @@ void GrProcessorSet::Analysis::internalInit(const GrProcessorAnalysisColor& colo
     fIgnoresInputColor = SkToBool(props & GrXPFactory::AnalysisProperties::kIgnoresInputColor);
     fCompatibleWithCoverageAsAlpha &=
             SkToBool(props & GrXPFactory::AnalysisProperties::kCompatibleWithAlphaAsCoverage);
+    fRequiresBarrierBetweenOverlappingDraws = SkToBool(
+            props & GrXPFactory::AnalysisProperties::kRequiresBarrierBetweenOverlappingDraws);
     if (props & GrXPFactory::AnalysisProperties::kIgnoresInputColor) {
         fInitialColorProcessorsToEliminate = processors.numColorFragmentProcessors();
         // If the output of the last color stage is known then the kIgnoresInputColor optimization

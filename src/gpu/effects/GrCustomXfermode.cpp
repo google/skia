@@ -344,7 +344,12 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
           = blend(f*Sa, Da)
     */
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
-        return AnalysisProperties::kCompatibleWithAlphaAsCoverage;
+        if (caps.blendEquationSupport() == GrCaps::kAdvancedCoherent_BlendEquationSupport) {
+            return AnalysisProperties::kCompatibleWithAlphaAsCoverage;
+        } else {
+            return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+                   AnalysisProperties::kRequiresBarrierBetweenOverlappingDraws;
+        }
     }
     return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
            AnalysisProperties::kReadsDstInShader;
