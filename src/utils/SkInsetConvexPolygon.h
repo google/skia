@@ -8,6 +8,8 @@
 #ifndef SkInsetConvexPolygon_DEFINED
 #define SkInsetConvexPolygon_DEFINED
 
+#include <functional>
+
 #include "SkTDArray.h"
 #include "SkPoint.h"
 
@@ -17,11 +19,22 @@
  * @param inputPolygonVerts  Array of points representing the vertices of the original polygon.
  *  It should be convex and have no coincident points.
  * @param inputPolygonSize  Number of vertices in the original polygon.
- * @param insetDistance  How far we wish to inset the polygon. This should be a positive value.
+ * @param insetDistanceFunc  How far we wish to inset the polygon for a given point.
+ *  This should return a positive value.
  * @param insetPolygon  The resulting inset polygon, if any.
  * @return true if an inset polygon exists, false otherwise.
  */
 bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                          SkScalar insetDistance, SkTDArray<SkPoint>* insetPolygon);
+                          std::function<SkScalar(const SkPoint&)> insetDistanceFunc,
+                          SkTDArray<SkPoint>* insetPolygon);
+
+inline bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
+                          SkScalar inset,
+                          SkTDArray<SkPoint>* insetPolygon) {
+    return SkInsetConvexPolygon(inputPolygonVerts, inputPolygonSize,
+                                [inset](const SkPoint&) { return inset; },
+                                insetPolygon);
+}
+
 
 #endif
