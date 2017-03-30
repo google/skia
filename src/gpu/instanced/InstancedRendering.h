@@ -153,7 +153,8 @@ protected:
         GrProcessorSet fProcessors;
         GrProcessorAnalysisColor fAnalysisColor;
         SkSTArray<5, ParamsTexel, true> fParams;
-        bool fIsTracked;
+        bool fIsTracked : 1;
+        bool fRequiresBarrierOnOverlap : 1;
         int fNumDraws;
         int fNumChangesInGeometry;
         Draw* fHeadDraw;

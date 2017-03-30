@@ -185,6 +185,9 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
     if ((result & AnalysisProperties::kReadsDstInShader) &&
         !caps.shaderCaps()->dstReadInShaderSupport()) {
         result |= AnalysisProperties::kRequiresDstTexture;
+        if (caps.textureBarrierSupport()) {
+            result |= AnalysisProperties::kRequiresBarrierBetweenOverlappingDraws;
+        }
     }
     return result;
 }

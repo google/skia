@@ -82,6 +82,7 @@ public:
                 , fRequiresDstTexture(false)
                 , fCanCombineOverlappedStencilAndCover(true)
                 , fIgnoresInputColor(false)
+                , fRequiresBarrierBetweenOverlappingDraws(false)
                 , fOutputCoverageType(static_cast<unsigned>(GrProcessorAnalysisCoverage::kNone))
                 , fOutputColorType(static_cast<unsigned>(ColorType::kUnknown))
                 , fInitialColorProcessorsToEliminate(0) {}
@@ -126,6 +127,9 @@ public:
         bool canCombineOverlappedStencilAndCover() const {
             return fCanCombineOverlappedStencilAndCover;
         }
+        bool requiresBarrierBetweenOverlappingDraws() const {
+            return fRequiresBarrierBetweenOverlappingDraws;
+        }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
         bool isInputColorIgnored() const { return fIgnoresInputColor; }
         GrProcessorAnalysisCoverage outputCoverage() const {
@@ -163,10 +167,11 @@ public:
         PackedBool fCanCombineOverlappedStencilAndCover : 1;
         // These could be removed if we created the XP from the XPFactory when doing analysis.
         PackedBool fIgnoresInputColor : 1;
+        PackedBool fRequiresBarrierBetweenOverlappingDraws : 1;
         unsigned fOutputCoverageType : 2;
         unsigned fOutputColorType : 2;
 
-        unsigned fInitialColorProcessorsToEliminate : 32 - 11;
+        unsigned fInitialColorProcessorsToEliminate : 32 - 12;
 
         GrColor fInputColor;
         // This could be removed if we created the XP from the XPFactory when doing analysis.

@@ -234,6 +234,7 @@ InstancedRendering::Op::Op(uint32_t classID, GrPaint&& paint, InstancedRendering
         , fInstancedRendering(ir)
         , fProcessors(std::move(paint))
         , fIsTracked(false)
+        , fRequiresBarrierOnOverlap(false)
         , fNumDraws(1)
         , fNumChangesInGeometry(0) {
     fHeadDraw = fTailDraw = fInstancedRendering->fDrawPool.allocate();
@@ -370,6 +371,7 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
     fInfo.fCannotTweakAlphaForCoverage = !analysis.isCompatibleWithCoverageAsAlpha();
 
     fInfo.fUsesLocalCoords = analysis.usesLocalCoords();
+    fRequiresBarrierOnOverlap = analysis.requiresBarrierBetweenOverlappingDraws();
     return analysis.requiresDstTexture();
 }
 
@@ -390,6 +392,10 @@ bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps
         return false;
     }
 
+    SkASSERT(fRequiresBarrierOnOverlap == that->fRequiresBarrierOnOverlap);
+    if (fRequiresBarrierOnOverlap && this->bounds().intersects(that->bounds())) {
+        return false;
+    }
     OpInfo combinedInfo = fInfo | that->fInfo;
     if (!combinedInfo.isSimpleRects()) {
         // This threshold was chosen with the "shapes_mixed" bench on a MacBook with Intel graphics.
