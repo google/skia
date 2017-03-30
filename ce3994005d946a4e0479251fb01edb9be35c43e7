@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e740d6d5_4d5f4296",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T00:14:14Z",
+      "side": 1,
+      "message": "Given how dumb this is, we could probably do without the constructor and do it all in Make?  Here\u0027s a pattern I\u0027m really growing to like:\n\n    SkColorSpaceXformer xformer;\n    xformer.fDst      \u003d std::move(dst);\n    xformer.fFromSRGB \u003d std::move(fromSRGB);\n    return sk_make_sp\u003cSkColorSpaceXformer\u003e(std::move(xformer));\n\nSame sort of thing works with unique_ptrs if we can get rid of the ref-counting.",
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d785324c_e137f19a",
         "filename": "src/core/SkColorSpaceXformer.cpp",
         "patchSetId": 1
@@ -19,6 +36,63 @@
         "endLine": 162,
         "endChar": 5
       },
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29369248_b0e28ceb",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T00:14:14Z",
+      "side": 1,
+      "message": "Is this out of habit, or necessary?  If we can get away with it I\u0027d rather have this uniquely owned.",
+      "range": {
+        "startLine": 17,
+        "startChar": 28,
+        "endLine": 17,
+        "endChar": 43
+      },
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4618801c_3638f5af",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T00:14:14Z",
+      "side": 1,
+      "message": "What do you think about baking the SkTLazy into this type (and making these methods non-const)?",
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1283c39_d31f5e86",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T00:14:14Z",
+      "side": 1,
+      "message": "Might be more obvious if we write (SkColor dst[], const SkColor src[], int n)?",
       "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
