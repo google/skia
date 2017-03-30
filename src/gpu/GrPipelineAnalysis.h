@@ -58,6 +58,20 @@ public:
         return (kColorIsKnown_Flag & fFlags) ? fColor == that.fColor : true;
     }
 
+    /** The returned value reflects the common properties of the two inputs. */
+    static GrPipelineAnalysisColor Combine(const GrPipelineAnalysisColor& a,
+                                           const GrPipelineAnalysisColor& b) {
+        GrPipelineAnalysisColor result;
+        uint32_t commonFlags = a.fFlags & b.fFlags;
+        if ((kColorIsKnown_Flag & commonFlags) && a.fColor == b.fColor) {
+            result.fColor = a.fColor;
+            result.fFlags = a.fFlags;
+        } else if (kIsOpaque_Flag & commonFlags) {
+            result.fFlags = kIsOpaque_Flag;
+        }
+        return result;
+    }
+
 private:
     enum Flags {
         kColorIsKnown_Flag = 0x1,

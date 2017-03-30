@@ -151,10 +151,9 @@ protected:
         OpInfo fInfo;
         SkScalar fPixelLoad;
         GrProcessorSet fProcessors;
+        GrPipelineAnalysisColor fAnalysisColor;
         SkSTArray<5, ParamsTexel, true> fParams;
-        bool fIsTracked : 1;
-        bool fDrawColorsAreOpaque : 1;
-        bool fDrawColorsAreSame : 1;
+        bool fIsTracked;
         int fNumDraws;
         int fNumChangesInGeometry;
         Draw* fHeadDraw;
