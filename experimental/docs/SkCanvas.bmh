@@ -1,0 +1,3042 @@
+#Topic Canvas
+#Class SkCanvas
+
+Canvas defines how the output of drawing is represented, and how it is clipped and transformed.
+
+Canvas encapsulates the state to draw into Surface.
+Canvas has a reference to Surface, and a stack of Canvas_Matrix and Canvas_Clip values.
+Each draw call transforms the geometry of the object by the concatenation of all Canvas_Matrix
+values in the stack. 
+The transformed geometry is clipped by the intersection of all of Canvas_Clip values in the stack.
+
+Canvas holds the state of the drawing device. The state the drawn object 
+is held by Paint, provided as a parameter to each of the draw calls.
+Paint holds attributes such as Paint_Color, Paint_Typeface, Paint_Text_Size, Stroke_Width, Paint_Shader and so on.
+
+Surface has several implementations, including: Raster_Surface, GPU_Surface, PDF_Surface, and SVG_Surface.
+
+Canvas backed by Raster_Surface draws to memory visible to the CPU. 
+Canvas backed by GPU_Surface uses Vulcan or OpenGL to draw to the GPU.
+Canvas backed by PDF_Surface or SVG_Surface captures drawing commands.
+
+Each Canvas has a specific type of Surface. Once Canvas is constructed, Surface_Type can't
+be changed.
+
+To draw with Canvas, create Surface of the appropriate type, then request its Canvas.  
+
+#Subtopic Canvas_Constructors
+
+Create the desired type of Surface to obtain its Canvas when possible. Canvas_Constructors are useful
+when no Surface is required, and some helpers implicitly create Raster_Surface.
+
+#Table
+#Legend
+#                                                               # description                                     ##
+#Legend ##
+# SkCanvas()                                                    # No Surface, no dimensions.                      ##
+# SkCanvas(int width, int height, const SkSurfaceProps* = NULL) # No Surface, set dimensions, Surface_Properties. ##
+# SkCanvas(SkBaseDevice* device)                                # Existing Device. (SkBaseDevice is private.)     ##
+# SkCanvas(const SkBitmap& bitmap)                              # Raster_Surface using existing bitmap.           ##
+# SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # Raster_Surface with Surface_Properties.         ##
+# MakeRasterDirect                                              # Raster_Surface specified by SkImageInfo.        ##
+# MakeRasterDirectN32                                           # Raster_Surface with inline image specification. ##
+#ToDo incomplete ##
+#Table ##
+#Subtopic ##
+
+#SubTopic Canvas_Member_Functions
+#Table
+#Legend
+# function                         # description                                                   ##
+#Legend ##
+# accessTopLayerPixels             # ##
+# accessTopRasterHandle            # ##
+# clear                            # ##
+# clipPath                         # ##
+# clipRRect                        # ##
+# clipRect                         # ##
+# clipRegion                       # ##
+# concat                           # ##
+# discard                          # ##
+# drawARGB                         # ##
+# drawAnnotation                   # ##
+# drawArc                          # ##
+# drawAtlas                        # ##
+# drawBitmap                       # ##
+# drawBitmapLattice                # ##
+# drawBitmapNine                   # ##
+# drawBitmapRect                   # ##
+# drawCircle                       # ##
+# drawColor                        # ##
+# drawDRRect                       # ##
+# drawDrawable                     # ##
+# drawIRect                        # ##
+# drawImage                        # ##
+# drawImageLattice                 # ##
+# drawImageNine                    # ##
+# drawImageRect                    # ##
+# drawLine                         # ##
+# drawOval                         # ##
+# drawPaint                        # ##
+# drawPatch                        # ##
+# drawPath                         # ##
+# drawPicture                      # ##
+# drawPoint                        # ##
+# drawPoints                       # ##
+# drawPosText                      # ##
+# drawPosTextH                     # ##
+# drawRRect                        # ##
+# drawRect                         # ##
+# drawRectCoords                   # ##
+# drawRegion                       # ##
+# drawRoundRect                    # ##
+# drawShadowedPicture              # ##
+# drawText                         # ##
+# drawTextBlob                     # ##
+# drawTextOnPath                   # ##
+# drawTextOnPathHV                 # ##
+# drawTextRSXform                  # ##
+# drawVertices                     # ##
+# flush                            # ##
+# getBaseLayerSize                 # ##
+# getDeviceClipBounds              # ##
+# getDeviceSize                    # ##
+# getDrawFilter                    # ##
+# getGrContext                     # ##
+# getLights                        # ##
+# getLocalClipBounds               # ##
+# getMetaData                      # ##
+# getProps                         # ##
+# getSaveCount                     # ##
+# getTotalMatrix                   # ##
+# imageInfo                        # ##
+# isClipEmpty                      # ##
+# isClipRect                       # ##
+# legacy_drawBitmapRect            # ##
+# legacy_drawImageRect             # ##
+# MakeRasterDirect                 # ##
+# MakeRasterDirectN32              # ##
+# makeSurface                      # ##
+# peekPixels                       # ##
+# quickReject                      # ##
+# readPixels                       # ##
+# replayClips                      # ##
+# resetMatrix                      # ##
+# restore                          # ##
+# restoreToCount                   # ##
+# rotate                           # ##
+# save                             # ##
+# saveLayer                        # ##
+# saveLayerAlpha                   # ##
+# saveLayerPreserveLCDTextRequests # ##
+# scale                            # ##
+# setAllowSimplifyClip             # ##
+# setDrawFilter                    # ##
+# setLights                        # ##
+# setMatrix                        # ##
+# skew                             # ##
+# translate                        # ##
+# translateZ                       # ##
+# writePixels                      # ##
+#Table ##
+#SubTopic ##
+
+# ------------------------------------------------------------------------------
+
+#Method static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo&, void*, size_t)
+
+Allocate raster canvas that will draw directly into pixels.
+To access pixels after drawing, call flush or peekPixels.
+
+#Param info  Width, height, Color_Type, Alpha_Type, Color_Space, of Raster_Surface.
+             Width, or height, or both, may be zero.
+##
+#Param pixels  Pointer to destination pixels buffer. Buffer size should be info height
+               times rowBytes times bytes required for Color_Type.
+##
+#Param rowBytes  The interval from one Surface row to the next; equal to or greater than
+                 info width times bytes required for Color_Type.
+##
+
+#Return  Canvas if all parameters are valid; otherwise, nullptr.
+         Valid parameters include: info dimensions must be zero or positive, and other checks;
+         info must contain Color_Type and Alpha_Type supported by Raster_Surface;
+         pixels must be not be nullptr;
+         rowBytes must be zero or large enough to contain width pixels of Color_Type.
+##
+
+#Example
+    #Description
+        Allocates a three by three bitmap, clears it to white, and draws a black pixel
+        in the center.
+    ##
+    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, premultipled
+    const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row
+    const size_t size = info.getSafeSize(minRowBytes);  // bytes used by all rows
+    SkAutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels
+    const SkPMColor* pixels = storage.get();  // get pointer to allocated storage
+    // create a SkCanvas backed by a raster device, and delete it when the
+    // function goes out of scope.
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);
+    canvas->clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    canvas->flush();  // ensure that pixels are cleared
+    SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black
+    canvas->drawPoint(1, 1, paint);  // draw in the center
+    canvas->flush();  // ensure that point was drawn
+    for (int y = 0; y < info.height(); ++y) {
+        for (int x = 0; x < info.width(); ++x) {
+            SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+
+    #StdOut
+        ---
+        -x-
+        ---
+    ##
+##
+
+#ToDo incomplete ##
+
+#SeeAlso MakeRasterDirectN32 SkSurface::MakeRasterDirect
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
+                                                         size_t rowBytes) 
+
+Allocate raster canvas that will draw directly into pixels.
+To access pixels after drawing, call flush or peekPixels.
+
+#Param width  Pixel column count on Raster_Surface created. Must be zero or greater. ##
+#Param height  Pixel row count on Raster_Surface created. Must be zero or greater. ##
+#Param pixels  Pointer to destination pixels buffer. Buffer size should be height
+               times rowBytes times four.
+##
+#Param rowBytes  The interval from one Surface row to the next; equal to or greater than
+                 width times four.
+##
+
+#Return  Canvas if all parameters are valid; otherwise, nullptr.
+         Valid parameters include: width and height must be zero or positive;
+         pixels must be not be nullptr;
+         rowBytes must be zero or large enough to contain width pixels of Color_Type.
+##
+
+#Example
+    #Description
+        Allocates a three by three bitmap, clears it to white, and draws a black pixel
+        in the center.
+    ##
+    const int width = 3;
+    const int height = 3;
+    SkPMColor pixels[height][width];  // allocate a 3x3 premultiplied bitmap on the stack
+    // create a SkCanvas backed by a raster device, and delete it when the
+    // function goes out of scope.
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(
+            width,
+            height,
+            pixels[0],  // top left of the bitmap
+            sizeof(pixels[0]));  // byte width of the each row
+    // write a pre-multiplied value for white into all pixels in the bitmap
+    canvas->clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    canvas->flush();  // ensure that pixels is ready to be read
+    SkPMColor pmWhite = pixels[0][0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black
+    canvas->drawPoint(1, 1, paint);  // draw in the center
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            SkDebugf("%c", pixels[y][x] == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+
+    #StdOut
+        ---
+        -x-
+        ---
+    ##
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkCanvas()
+
+Creates an empty canvas with no backing device/pixels, and zero
+dimensions. 
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkCanvas(int width, int height, const SkSurfaceProps* = NULL)
+
+Creates a canvas of the specified dimensions, but explicitly not backed
+by any device/pixels. Typically this use used by subclasses who handle
+the draw calls in some other way.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method explicit SkCanvas(SkBaseDevice* device)
+
+Construct a canvas with the specified device to draw into.
+Rarely used except by child classes of SkCanvas.
+
+#Param device   Specifies a device for the canvas to draw into. ##
+
+#Example
+SkPDFCanvas::SkPDFCanvas(const sk_sp<SkPDFDevice>& dev)
+    : SkCanvas(dev.get()) {}
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method explicit SkCanvas(const SkBitmap& bitmap)
+
+Construct a canvas that draws into bitmap.
+Sets SkSurfaceProps::kLegacyFontHost_InitType in constructed Surface. 
+
+#ToDo Should be deprecated? ##
+
+#Param bitmap   Width, height, Color_Type, Alpha_Type, and pixel storage of Raster_Surface. 
+                Bitmap is copied so that subsequently editing bitmap will not affect
+                constructed Canvas.
+##
+
+
+#Example
+#Description
+The actual output depends on the installed fonts.
+##
+    SkBitmap bitmap;
+    // create a bitmap 5 wide and 11 high
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(5, 11));
+    SkCanvas canvas(bitmap);
+    canvas.clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    SkPixmap pixmap;  // provides guaranteed access to the drawn pixels
+	SkAssertResult(canvas.peekPixels(&pixmap));
+    const SkPMColor* pixels = pixmap.addr32();  // points to top left of bitmap
+    SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black, 12 point text
+    canvas.drawText("!", 1, 1, 10, paint);  // 1 char at baseline (1, 10)
+    for (int y = 0; y < bitmap.height(); ++y) {
+        for (int x = 0; x < bitmap.width(); ++x) {
+            SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+
+    #StdOut
+    -----
+    --x--
+    --x--
+    --x--
+    --x--
+    --x--
+    --x--
+    -----
+    --x--
+    --x--
+    -----
+    #StdOut ##
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
+
+Construct a canvas that draws into bitmap.
+Use props to match the device characteristics, like LCD striping.
+
+#Param bitmap   Width, height, Color_Type, Alpha_Type, and pixel storage of Raster_Surface. 
+                Bitmap is copied so that subsequently editing bitmap will not affect
+                constructed Canvas.
+##
+#Param props    The order and orientation of RGB striping; and whether to use
+                device independent fonts.
+##
+
+#Example
+#Description
+The actual output depends on the installed fonts.
+##
+    SkBitmap bitmap;
+    // create a bitmap 5 wide and 11 high
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(5, 11));
+    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+    canvas.clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+    SkPixmap pixmap;  // provides guaranteed access to the drawn pixels
+	SkAssertResult(canvas.peekPixels(&pixmap));
+    const SkPMColor* pixels = pixmap.addr32();  // points to top left of bitmap
+    SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+    SkPaint paint;  // by default, draws black, 12 point text
+    canvas.drawText("!", 1, 1, 10, paint);  // 1 char at baseline (1, 10)
+    for (int y = 0; y < bitmap.height(); ++y) {
+        for (int x = 0; x < bitmap.width(); ++x) {
+            SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+        }
+        SkDebugf("\n");
+    }
+
+    #StdOut
+    -----
+    --x--
+    --x--
+    --x--
+    --x--
+    --x--
+    --x--
+    -----
+    --x--
+    --x--
+    -----
+    #StdOut ##
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual ~SkCanvas()
+
+Draws Canvas_Layer, if any.
+Free up resources used by Canvas.
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkMetaData& getMetaData()
+
+Associate additional data with the canvas.
+
+#Method returns storage that can be read from and written to.
+The storage is freed when the SkCanvas object is deleted.
+
+#Example
+    const char* kHelloMetaData = "HelloMetaData";
+    SkCanvas canvas;
+    SkMetaData& metaData = canvas.getMetaData();
+    SkDebugf("before: %s\n", metaData.findString(kHelloMetaData));
+    metaData.setString(kHelloMetaData, "Hello!");
+    SkDebugf("during: %s\n", metaData.findString(kHelloMetaData));
+    metaData.removeString(kHelloMetaData);
+    SkDebugf("after: %s\n", metaData.findString(kHelloMetaData));
+
+    ##StdOut
+        before: (null)
+        during: Hello!
+        after: (null)
+    ##StdOut ##
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkImageInfo imageInfo() const
+
+Returns ImageInfo for Canvas. If Canvas is not associated with Raster_Surface or
+GPU_Surface, returns SkImageInfo::SkImageInfo() is returned Color_Type is set to kUnknown_SkColorType.
+
+
+
+#Example
+    SkCanvas canvas;
+    SkImageInfo canvasInfo = canvas.imageInfo();
+    SkImageInfo emptyInfo;
+    SkASSERT(emptyInfo == canvasInfo);
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool getProps(SkSurfaceProps*) const
+
+If Canvas is associated with Raster_Surface or
+GPU_Surface, copy of Surface_Props and returns true. Otherwise,
+return false and leave props unchanged.
+
+#Param props  Pointer to writable SkSurfaceProps.
+
+#Return  true if Surface_Props was copied.
+
+#ToDo This seems old style. Deprecate? ##
+
+#Example
+    SkBitmap bitmap;
+    SkCanvas canvas(bitmap, SkSurfaceProps(0, kRGB_V_SkPixelGeometry));
+    SkSurfaceProps surfaceProps;
+    SkDebugf("isRGB:%d\n", SkPixelGeometryIsRGB(surfaceProps.pixelGeometry()));
+    SkAssertResult(canvas.getProps(&surfaceProps));
+    SkDebugf("isRGB:%d\n", SkPixelGeometryIsRGB(surfaceProps.pixelGeometry()));
+
+    ##StdOut
+        isRGB:0
+        isRGB:1
+    ##StdOut ##
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void flush()
+
+Trigger the immediate execution of all pending draw operations. 
+If Canvas is associated with GPU_Surface, resolve all pending GPU operations.
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual SkISize getBaseLayerSize() const
+
+Gets the size of the base or root layer in global canvas coordinates. The
+origin of the base layer is always (0,0). The current drawable area may be
+smaller (due to clipping or saveLayer).
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkISize getDeviceSize() const 
+
+DEPRECATED: call getBaseLayerSize
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps* = nullptr)
+
+Create a new surface matching the specified info, one that attempts to
+be maximally compatible when used with this canvas. If there is no matching Surface type,
+NULL is returned.
+*  If surfaceprops is specified, those are passed to the new surface, otherwise the new surface
+inherits the properties of the surface that owns this canvas. If this canvas has no parent
+surface, then the new surface is created with default properties.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method GrContext* getGrContext()
+
+Return the GPU context of the device that is associated with the canvas.
+For a canvas with non-GPU device, NULL is returned.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = NULL)
+
+//////////////////////////////////////////////////////////////////////////
+If the canvas has writable pixels in its top layer (and is not recording to a picture
+or other non-raster target) and has direct access to its pixels (i.e. they are in
+local RAM) return the address of those pixels, and if not null,
+return the ImageInfo, rowBytes and origin. The returned address is only valid
+while the canvas object is in scope and unchanged. Any API calls made on
+canvas (or its parent surface if any) will invalidate the
+returned address (and associated information).
+*  On failure, returns NULL and the info, rowBytes, and origin parameters are ignored.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRasterHandleAllocator::Handle accessTopRasterHandle() const
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool peekPixels(SkPixmap*)
+
+If the canvas has readable pixels in its base layer (and is not recording to a picture
+or other non-raster target) and has direct access to its pixels (i.e. they are in
+local RAM) return true, and if not null, return in the pixmap parameter information about
+the pixels. The pixmap's pixel address is only valid
+while the canvas object is in scope and unchanged. Any API calls made on
+canvas (or its parent surface if any) will invalidate the pixel address
+(and associated information).
+*  On failure, returns false and the pixmap parameter will be ignored.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY)
+
+Copy the pixels from the base-layer into the specified buffer (pixels + rowBytes),
+converting them into the requested format (SkImageInfo). The base-layer pixels are read
+starting at the specified (srcX,srcY) location in the coordinate system of the base-layer.
+*  The specified ImageInfo and (srcX,srcY) offset specifies a source rectangle
+*      srcR.setXYWH(srcX, srcY, dstInfo.width(), dstInfo.height());
+*  srcR is intersected with the bounds of the base-layer. If this intersection is not empty,
+then we have two sets of pixels (of equal size). Replace the dst pixels with the
+corresponding src pixels, performing any colortype/alphatype transformations needed
+(in the case where the src and dst have different colortypes or alphatypes).
+*  This call can fail, returning false, for several reasons:
+- If srcR does not intersect the base-layer bounds.
+- If the requested colortype/alphatype cannot be converted from the base-layer's types.
+- If this canvas is not backed by pixels (e.g. picture or PDF)
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool readPixels(SkBitmap* bitmap, int srcX, int srcY)
+
+Helper for calling readPixels(info, ...). This call will check if bitmap has been allocated.
+If not, it will attempt to call allocPixels(). If this fails, it will return false. If not,
+it calls through to readPixels(info, ...) and returns its result.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap)
+
+Helper for allocating pixels and then calling readPixels(info, ...). The bitmap is resized
+to the intersection of srcRect and the base-layer bounds. On success, pixels will be
+allocated in bitmap and true returned. On failure, false is returned and bitmap will be
+set to empty.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool writePixels(const SkImageInfo&, const void* pixels, size_t rowBytes, int x, int y)
+
+This method affects the pixels in the base-layer, and operates in pixel coordinates,
+ignoring the matrix and clip.
+*  The specified ImageInfo and (x,y) offset specifies a rectangle: target.
+*      target.setXYWH(x, y, info.width(), info.height());
+*  Target is intersected with the bounds of the base-layer. If this intersection is not empty,
+then we have two sets of pixels (of equal size), the "src" specified by info+pixels+rowBytes
+and the "dst" by the canvas' backend. Replace the dst pixels with the corresponding src
+pixels, performing any colortype/alphatype transformations needed (in the case where the
+src and dst have different colortypes or alphatypes).
+*  This call can fail, returning false, for several reasons:
+- If the src colortype/alphatype cannot be converted to the canvas' types
+- If this canvas is not backed by pixels (e.g. picture or PDF)
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool writePixels(const SkBitmap& bitmap, int x, int y)
+
+Helper for calling writePixels(info, ...) by passing its pixels and rowbytes. If the bitmap
+is just wrapping a texture, returns false and does nothing.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int save()
+
+//////////////////////////////////////////////////////////////////////////
+This call saves the current matrix, clip, and drawFilter, and pushes a
+copy onto a private stack. Subsequent calls to translate, scale,
+rotate, skew, concat or clipRect, clipPath, and setDrawFilter all
+operate on this copy.
+When the balancing call to restore() is made, the previous matrix, clip,
+and drawFilter are restored.
+@return The value to pass to restoreToCount() to balance this save()
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int saveLayer(const SkRect* bounds, const SkPaint* paint)
+
+This behaves the same as save(), but in addition it allocates an
+offscreen bitmap. All drawing calls are directed there, and only when
+the balancing call to restore() is made is that offscreen transfered to
+the canvas (or the previous layer).
+@param bounds (may be null) This rect, if non-null, is used as a hint to
+limit the size of the offscreen, and thus drawing may be
+clipped to it, though that clipping is not guaranteed to
+happen. If exact clipping is desired, use clipRect().
+@param paint (may be null) This is copied, and is applied to the
+offscreen when restore() is called
+@return The value to pass to restoreToCount() to balance this save()
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int saveLayer(const SkRect& bounds, const SkPaint* paint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint)
+
+Temporary name.
+Will allow any requests for LCD text to be respected, so the caller must be careful to
+only draw on top of opaque sections of the layer to get good results.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int saveLayerAlpha(const SkRect* bounds, U8CPU alpha)
+
+This behaves the same as save(), but in addition it allocates an
+offscreen bitmap. All drawing calls are directed there, and only when
+the balancing call to restore() is made is that offscreen transfered to
+the canvas (or the previous layer).
+@param bounds (may be null) This rect, if non-null, is used as a hint to
+limit the size of the offscreen, and thus drawing may be
+clipped to it, though that clipping is not guaranteed to
+happen. If exact clipping is desired, use clipRect().
+@param alpha  This is applied to the offscreen when restore() is called.
+@return The value to pass to restoreToCount() to balance this save()
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum anon
+
+#Code
+    enum anon {
+        kIsOpaque_SaveLayerFlag = 1 << 0
+        kPreserveLCDText_SaveLayerFlag = 1 << 1
+        kInitWithPrevious_SaveLayerFlag = 1 << 2
+        kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag
+    };
+##
+
+#Const kIsOpaque_SaveLayerFlag = 1 << 0
+##
+#Const kPreserveLCDText_SaveLayerFlag = 1 << 1
+##
+#Const kInitWithPrevious_SaveLayerFlag = 1 << 2
+initialize the new layer with the contents of the previous layer
+
+
+##
+#Const kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int saveLayer(const SaveLayerRec&)
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void restore()
+
+This call balances a previous call to save(), and is used to remove all
+modifications to the matrix/clip/drawFilter state since the last save
+call.
+It is an error to call restore() more times than save() was called.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int getSaveCount() const
+
+Returns the number of matrix/clip states on the SkCanvas' private stack.
+This will equal # save() calls - # restore() calls + 1. The save count on
+a new canvas is 1.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void restoreToCount(int saveCount)
+
+Efficient way to pop any calls to save() that happened after the save
+count reached saveCount. It is an error for saveCount to be greater than
+getSaveCount(). To pop all the way back to the initial matrix/clip context
+pass saveCount == 1.
+@param saveCount    The number of save() levels to restore from
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void translate(SkScalar dx, SkScalar dy)
+
+Preconcat the current matrix with the specified translation
+@param dx   The distance to translate in X
+@param dy   The distance to translate in Y
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void scale(SkScalar sx, SkScalar sy)
+
+Preconcat the current matrix with the specified scale.
+@param sx   The amount to scale in X
+@param sy   The amount to scale in Y
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotate(SkScalar degrees)
+
+Preconcat the current matrix with the specified rotation about the origin.
+@param degrees  The amount to rotate, in degrees
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotate(SkScalar degrees, SkScalar px, SkScalar py)
+
+Preconcat the current matrix with the specified rotation about a given point.
+@param degrees  The amount to rotate, in degrees
+@param px  The x coordinate of the point to rotate about.
+@param py  The y coordinate of the point to rotate about.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void skew(SkScalar sx, SkScalar sy)
+
+Preconcat the current matrix with the specified skew.
+@param sx   The amount to skew in X
+@param sy   The amount to skew in Y
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void concat(const SkMatrix& matrix)
+
+Preconcat the current matrix with the specified matrix.
+@param matrix   The matrix to preconcatenate with the current matrix
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setMatrix(const SkMatrix& matrix)
+
+Replace the current matrix with a copy of the specified matrix.
+@param matrix The matrix that will be copied into the current matrix.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void resetMatrix()
+
+Helper for setMatrix(identity). Sets the current matrix to identity.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void translateZ(SkScalar z)
+
+Add the specified translation to the current draw depth of the canvas.
+@param z    The distance to translate in Z.
+Negative into screen, positive out of screen.
+Without translation, the draw depth defaults to 0.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setLights(sk_sp<SkLights> lights)
+
+Set the current set of lights in the canvas.
+@param lights   The lights that we want the canvas to have.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkLights> getLights() const
+
+Returns the current set of lights the canvas uses
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipRect(const SkRect& rect, SkClipOp, bool doAntiAlias)
+
+Modify the current clip with the specified rectangle.
+@param rect The rect to combine with the current clip
+@param op The region op to apply to the current clip
+@param doAntiAlias true if the clip should be antialiased
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipRect(const SkRect& rect, SkClipOp op) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipRect(const SkRect& rect, bool doAntiAlias = false) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void androidFramework_setDeviceClipRestriction(const SkIRect& rect)
+
+Sets the max clip rectangle, which can be set by clipRect, clipRRect and
+clipPath and intersect the current clip with the specified rect.
+The max clip affects only future ops (it is not retroactive).
+We DON'T record the clip restriction in pictures.
+This is private API to be used only by Android framework.
+@param rect   The maximum allowed clip in device coordinates.
+Empty rect means max clip is not enforced.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipRRect(const SkRRect& rrect, SkClipOp op, bool doAntiAlias)
+
+Modify the current clip with the specified SkRRect.
+@param rrect The rrect to combine with the current clip
+@param op The region op to apply to the current clip
+@param doAntiAlias true if the clip should be antialiased
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipRRect(const SkRRect& rrect, SkClipOp op) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipRRect(const SkRRect& rrect, bool doAntiAlias = false) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipPath(const SkPath& path, SkClipOp op, bool doAntiAlias)
+
+Modify the current clip with the specified path.
+@param path The path to combine with the current clip
+@param op The region op to apply to the current clip
+@param doAntiAlias true if the clip should be antialiased
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipPath(const SkPath& path, SkClipOp op) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipPath(const SkPath& path, bool doAntiAlias = false) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setAllowSimplifyClip(bool allow) 
+
+EXPERIMENTAL -- only used for testing
+Set to simplify clip stack using path ops.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clipRegion(const SkRegion& deviceRgn, SkClipOp op = SkClipOp::kIntersect)
+
+Modify the current clip with the specified region. Note that unlike
+clipRect() and clipPath() which transform their arguments by the current
+matrix, clipRegion() assumes its argument is already in device
+coordinates, and so no transformation is performed.
+@param deviceRgn    The region to apply to the current clip
+@param op The region op to apply to the current clip
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool quickReject(const SkRect& rect) const
+
+Return true if the specified rectangle, after being transformed by the
+current matrix, would lie completely outside of the current clip. Call
+this to check if an area you intend to draw into is clipped out (and
+therefore you can skip making the draw calls).
+@param rect the rect to compare with the current clip
+@return true if the rect (transformed by the canvas' matrix) does not
+intersect with the canvas' clip
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool quickReject(const SkPath& path) const
+
+Return true if the specified path, after being transformed by the
+current matrix, would lie completely outside of the current clip. Call
+this to check if an area you intend to draw into is clipped out (and
+therefore you can skip making the draw calls). Note, for speed it may
+return false even if the path itself might not intersect the clip
+(i.e. the bounds of the path intersects, but the path does not).
+@param path The path to compare with the current clip
+@return true if the path (transformed by the canvas' matrix) does not
+intersect with the canvas' clip
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRect getLocalClipBounds() const 
+
+Return the bounds of the current clip in local coordinates. If the clip is empty,
+return { 0, 0, 0, 0 }.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool getLocalClipBounds(SkRect* bounds) const 
+
+Returns true if the clip bounds are non-empty.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkIRect getDeviceClipBounds() const 
+
+Return the bounds of the current clip in device coordinates. If the clip is empty,
+return { 0, 0, 0, 0 }.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool getDeviceClipBounds(SkIRect* bounds) const 
+
+Returns true if the clip bounds are non-empty.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode = SkBlendMode::kSrcOver)
+
+Fill the entire canvas' bitmap (restricted to the current clip) with the
+specified ARGB color, using the specified mode.
+@param a    the alpha component (0..255) of the color to fill the canvas
+@param r    the red component (0..255) of the color to fill the canvas
+@param g    the green component (0..255) of the color to fill the canvas
+@param b    the blue component (0..255) of the color to fill the canvas
+@param mode the mode to apply the color in (defaults to SrcOver)
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver)
+
+Fill the entire canvas' bitmap (restricted to the current clip) with the
+specified color and mode.
+@param color    the color to draw with
+@param mode the mode to apply the color in (defaults to SrcOver)
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void clear(SkColor color) 
+
+Helper method for drawing a color in SRC mode, completely replacing all the pixels
+in the current clip with this color.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void discard() 
+
+This makes the contents of the canvas undefined. Subsequent calls that
+require reading the canvas contents will produce undefined results. Examples
+include blending and readPixels. The actual implementation is backend-
+dependent and one legal implementation is to do nothing. This method
+ignores the current clip.
+* This function should only be called if the caller intends to subsequently
+draw to the canvas. The canvas may do real work at discard() time in order
+to optimize performance on subsequent draws. Thus, if you call this and then
+never draw to the canvas subsequently you may pay a perfomance penalty.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPaint(const SkPaint& paint)
+
+Fill the entire canvas (restricted to the current clip) with the
+specified paint.
+@param paint    The paint used to fill the canvas
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum PointMode
+
+#Code
+    enum PointMode {
+        kPoints_PointMode 
+        kLines_PointMode 
+        kPolygon_PointMode 
+    };
+##
+
+#Const kPoints_PointMode
+drawPoints draws each point separately
+
+
+##
+#Const kLines_PointMode
+drawPoints draws each pair of points as a line segment
+
+
+##
+#Const kPolygon_PointMode
+drawPoints draws the array of points as a polygon
+
+
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint)
+
+Draw a series of points, interpreted based on the PointMode mode. For
+all modes, the count parameter is interpreted as the total number of
+points. For kLine mode, count/2 line segments are drawn.
+For kPoint mode, each point is drawn centered at its coordinate, and its
+size is specified by the paint's stroke-width. It draws as a square,
+unless the paint's cap-type is round, in which the points are drawn as
+circles.
+For kLine mode, each pair of points is drawn as a line segment,
+respecting the paint's settings for cap/join/width.
+For kPolygon mode, the entire array is drawn as a series of connected
+line segments.
+Note that, while similar, kLine and kPolygon modes draw slightly
+differently than the equivalent path built with a series of moveto,
+lineto calls, in that the path will draw all of its contours at once,
+with no interactions if contours intersect each other (think XOR
+xfermode). drawPoints always draws each element one at a time.
+@param mode     PointMode specifying how to draw the array of points.
+@param count    The number of points in the array
+@param pts      Array of points to draw
+@param paint    The paint used to draw the points
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint)
+
+Helper method for drawing a single point. See drawPoints() for more details.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPoint(SkScalar x, SkScalar y, SkColor color)
+
+Draws a single pixel in the specified color.
+@param x        The X coordinate of which pixel to draw
+@param y        The Y coordiante of which pixel to draw
+@param color    The color to draw
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint)
+
+Draw a line segment with the specified start and stop x,y coordinates,
+using the specified paint. NOTE: since a line is always "framed", the
+paint's Style is ignored.
+@param x0    The x-coordinate of the start point of the line
+@param y0    The y-coordinate of the start point of the line
+@param x1    The x-coordinate of the end point of the line
+@param y1    The y-coordinate of the end point of the line
+@param paint The paint used to draw the line
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawRect(const SkRect& rect, const SkPaint& paint)
+
+Draw the specified rectangle using the specified paint. The rectangle
+will be filled or stroked based on the Style in the paint.
+@param rect     The rect to be drawn
+@param paint    The paint used to draw the rect
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawIRect(const SkIRect& rect, const SkPaint& paint) 
+
+Draw the specified rectangle using the specified paint. The rectangle
+will be filled or framed based on the Style in the paint.
+@param rect     The rect to be drawn
+@param paint    The paint used to draw the rect
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawRectCoords(SkScalar left, SkScalar top, SkScalar right,
+                        SkScalar bottom, const SkPaint& paint)
+
+Draw the specified rectangle using the specified paint. The rectangle
+will be filled or framed based on the Style in the paint.
+@param left     The left side of the rectangle to be drawn
+@param top      The top side of the rectangle to be drawn
+@param right    The right side of the rectangle to be drawn
+@param bottom   The bottom side of the rectangle to be drawn
+@param paint    The paint used to draw the rect
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawRegion(const SkRegion& region, const SkPaint& paint)
+
+Draw the outline of the specified region using the specified paint.
+@param region   The region to be drawn
+@param paint    The paint used to draw the region
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawOval(const SkRect& oval, const SkPaint&)
+
+Draw the specified oval using the specified paint. The oval will be
+filled or framed based on the Style in the paint.
+@param oval     The rectangle bounds of the oval to be drawn
+@param paint    The paint used to draw the oval
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawRRect(const SkRRect& rrect, const SkPaint& paint)
+
+Draw the specified RRect using the specified paint The rrect will be filled or stroked
+based on the Style in the paint.
+*  @param rrect    The round-rect to draw
+@param paint    The paint used to draw the round-rect
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint&)
+
+Draw the annulus formed by the outer and inner rrects. The results
+are undefined if the outer does not contain the inner.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint)
+
+Draw the specified circle using the specified paint. If radius is <= 0,
+then nothing will be drawn. The circle will be filled
+or framed based on the Style in the paint.
+@param cx       The x-coordinate of the center of the cirle to be drawn
+@param cy       The y-coordinate of the center of the cirle to be drawn
+@param radius   The radius of the cirle to be drawn
+@param paint    The paint used to draw the circle
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+                 bool useCenter, const SkPaint& paint)
+
+Draw the specified arc, which will be scaled to fit inside the
+specified oval. Sweep angles are not treated as modulo 360 and thus can
+exceed a full sweep of the oval. Note that this differs slightly from
+SkPath::arcTo, which treats the sweep angle mod 360. If the oval is empty
+or the sweep angle is zero nothing is drawn. If useCenter is true the oval
+center is inserted into the implied path before the arc and the path is
+closed back to the, center forming a wedge. Otherwise, the implied path
+contains just the arc and is not closed.
+@param oval The bounds of oval used to define the shape of the arc.
+@param startAngle Starting angle (in degrees) where the arc begins
+@param sweepAngle Sweep angle (in degrees) measured clockwise.
+@param useCenter true means include the center of the oval.
+@param paint    The paint used to draw the arc
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, const SkPaint& paint)
+
+Draw the specified round-rect using the specified paint. The round-rect
+will be filled or framed based on the Style in the paint.
+@param rect     The rectangular bounds of the roundRect to be drawn
+@param rx       The x-radius of the oval used to round the corners
+@param ry       The y-radius of the oval used to round the corners
+@param paint    The paint used to draw the roundRect
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPath(const SkPath& path, const SkPaint& paint)
+
+Draw the specified path using the specified paint. The path will be
+filled or framed based on the Style in the paint.
+@param path     The path to be drawn
+@param paint    The paint used to draw the path
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = NULL)
+
+Draw the specified image, with its top/left corner at (x,y), using the
+specified paint, transformed by the current matrix.
+@param image    The image to be drawn
+@param left     The position of the left side of the image being drawn
+@param top      The position of the top side of the image being drawn
+@param paint    The paint used to draw the image, or NULL
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top,
+                   const SkPaint* paint = NULL) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum SrcRectConstraint
+
+#Code
+    enum SrcRectConstraint {
+        kStrict_SrcRectConstraint 
+        kFast_SrcRectConstraint 
+    };
+##
+
+Controls the behavior at the edge of the src-rect, when specified in drawImageRect,
+trading off speed for exactness.
+*  When filtering is enabled (in the Paint), skia may need to sample in a neighborhood around
+the pixels in the image. If there is a src-rect specified, it is intended to restrict the
+pixels that will be read. However, for performance reasons, some implementations may slow
+down if they cannot read 1-pixel past the src-rect boundary at times.
+*  This enum allows the caller to specify if such a 1-pixel "slop" will be visually acceptable.
+If it is, the caller should pass kFast, and it may result in a faster draw. If the src-rect
+must be strictly respected, the caller should pass kStrict.
+
+
+#Const kStrict_SrcRectConstraint
+If kStrict is specified, the implementation must respect the src-rect
+(if specified) strictly, and will never sample outside of those bounds during sampling
+even when filtering. This may be slower than kFast.
+
+
+##
+#Const kFast_SrcRectConstraint
+If kFast is specified, the implementation may sample outside of the src-rect
+(if specified) by half the width of filter. This allows greater flexibility
+to the implementation and can make the draw much faster.
+
+
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+
+Draw the specified image, scaling and translating so that it fills the specified
+dst rect. If the src rect is non-null, only that subset of the image is transformed
+and drawn.
+*  @param image      The image to be drawn
+@param src        Optional: specify the subset of the image to be drawn
+@param dst        The destination rectangle where the scaled/translated
+image will be drawn
+@param paint      The paint used to draw the image, or NULL
+@param constraint Control the tradeoff between speed and exactness w.r.t. the src-rect.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint)
+
+/ variant that takes src SkIRect
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
+                       SrcRectConstraint = kStrict_SrcRectConstraint)
+
+/ variant that assumes src == image-bounds
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
+                       const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
+                       const SkPaint* paint, SrcRectConstraint cons = kStrict_SrcRectConstraint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint,
+                       SrcRectConstraint cons = kStrict_SrcRectConstraint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
+                       const SkPaint* paint = nullptr)
+
+Draw the image stretched differentially to fit into dst.
+center is a rect within the image, and logically divides the image
+into 9 sections (3x3). For example, if the middle pixel of a [5x5]
+image is the "center", then the center-rect should be [2, 2, 3, 3].
+*  If the dst is >= the image size, then...
+- The 4 corners are not stretched at all.
+- The sides are stretched in only one axis.
+- The center is stretched in both axes.
+Else, for each axis where dst < image,
+- The corners shrink proportionally
+- The sides (along the shrink axis) and center are not drawn
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
+                       const SkPaint* paint = nullptr) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
+                    const SkPaint* paint = NULL)
+
+Draw the specified bitmap, with its top/left corner at (x,y), using the
+specified paint, transformed by the current matrix. Note: if the paint
+contains a maskfilter that generates a mask which extends beyond the
+bitmap's original width/height, then the bitmap will be drawn as if it
+were in a Shader with CLAMP mode. Thus the color outside of the original
+width/height will be the edge color replicated.
+If a shader is present on the paint it will be ignored, except in the
+case where the bitmap is kAlpha_8_SkColorType. In that case, the color is
+generated by the shader.
+@param bitmap   The bitmap to be drawn
+@param left     The position of the left side of the bitmap being drawn
+@param top      The position of the top side of the bitmap being drawn
+@param paint    The paint used to draw the bitmap, or NULL
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
+                        const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint)
+
+Draw the specified bitmap, scaling and translating so that it fills the specified
+dst rect. If the src rect is non-null, only that subset of the bitmap is transformed
+and drawn.
+*  @param bitmap     The bitmap to be drawn
+@param src        Optional: specify the subset of the bitmap to be drawn
+@param dst        The destination rectangle where the scaled/translated
+bitmap will be drawn
+@param paint      The paint used to draw the bitmap, or NULL
+@param constraint Control the tradeoff between speed and exactness w.r.t. the src-rect.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
+                        const SkPaint* paint, SrcRectConstraint = kStrict_SrcRectConstraint)
+
+/ variant where src is SkIRect
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
+                        SrcRectConstraint = kStrict_SrcRectConstraint)
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
+                        const SkPaint* paint = NULL)
+
+Draw the bitmap stretched or shrunk differentially to fit into dst.
+center is a rect within the bitmap, and logically divides the bitmap
+into 9 sections (3x3). For example, if the middle pixel of a [5x5]
+bitmap is the "center", then the center-rect should be [2, 2, 3, 3].
+*  If the dst is >= the bitmap size, then...
+- The 4 corners are not stretched at all.
+- The sides are stretched in only one axis.
+- The center is stretched in both axes.
+Else, for each axis where dst < bitmap,
+- The corners shrink proportionally
+- The sides (along the shrink axis) and center are not drawn
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
+                           const SkPaint* paint = nullptr)
+
+Draw the bitmap stretched or shrunk differentially to fit into dst.
+*  Moving horizontally across the bitmap, alternating rects will be "scalable"
+(in the x-dimension) to fit into dst or must be left "fixed".  The first rect
+is treated as "fixed", but it's possible to specify an empty first rect by
+making lattice.fXDivs[0] = 0.
+*  The scale factor for all "scalable" rects will be the same, and may be greater
+than or less than 1 (meaning we can stretch or shrink).  If the number of
+"fixed" pixels is greater than the width of the dst, we will collapse all of
+the "scalable" regions and appropriately downscale the "fixed" regions.
+*  The same interpretation also applies to the y-dimension.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                          const SkPaint* paint = nullptr)
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
+                  const SkPaint& paint)
+
+Draw the text, with origin at (x,y), using the specified paint.
+The origin is interpreted based on the Align setting in the paint.
+@param text The text to be drawn
+@param byteLength   The number of bytes to read from the text parameter
+@param x        The x-coordinate of the origin of the text being drawn
+@param y        The y-coordinate of the origin of the text being drawn
+@param paint    The paint used for the text (e.g. color, size, style)
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
+                     const SkPaint& paint)
+
+Draw the text, with each character/glyph origin specified by the pos[]
+array. The origin is interpreted by the Align setting in the paint.
+@param text The text to be drawn
+@param byteLength   The number of bytes to read from the text parameter
+@param pos      Array of positions, used to position each character
+@param paint    The paint used for the text (e.g. color, size, style)
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[], SkScalar constY,
+                      const SkPaint& paint)
+
+Draw the text, with each character/glyph origin specified by the x
+coordinate taken from the xpos[] array, and the y from the constY param.
+The origin is interpreted by the Align setting in the paint.
+@param text The text to be drawn
+@param byteLength   The number of bytes to read from the text parameter
+@param xpos     Array of x-positions, used to position each character
+@param constY   The shared Y coordinate for all of the positions
+@param paint    The paint used for the text (e.g. color, size, style)
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawTextOnPathHV(const void* text, size_t byteLength, const SkPath& path, SkScalar hOffset,
+                          SkScalar vOffset, const SkPaint& paint)
+
+Draw the text, with origin at (x,y), using the specified paint, along
+the specified path. The paint's Align setting determins where along the
+path to start the text.
+@param text The text to be drawn
+@param byteLength   The number of bytes to read from the text parameter
+@param path         The path the text should follow for its baseline
+@param hOffset      The distance along the path to add to the text's
+starting position
+@param vOffset      The distance above(-) or below(+) the path to
+position the text
+@param paint        The paint used for the text
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
+                        const SkMatrix* matrix, const SkPaint& paint)
+
+Draw the text, with origin at (x,y), using the specified paint, along
+the specified path. The paint's Align setting determins where along the
+path to start the text.
+@param text The text to be drawn
+@param byteLength   The number of bytes to read from the text parameter
+@param path         The path the text should follow for its baseline
+@param matrix       (may be null) Applied to the text before it is
+mapped onto the path
+@param paint        The paint used for the text
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform[],
+                         const SkRect* cullRect, const SkPaint& paint)
+
+Draw the text with each character/glyph individually transformed by its xform.
+If cullRect is not null, it is a conservative bounds of what will be drawn
+taking into account the xforms and the paint, and will be used to accelerate culling.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)
+
+Draw the text blob, offset by (x,y), using the specified paint.
+@param blob     The text blob to be drawn
+@param x        The x-offset of the text being drawn
+@param y        The y-offset of the text being drawn
+@param paint    The paint used for the text (e.g. color, size, style)
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, const SkPaint& paint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPicture(const SkPicture* picture) 
+
+Draw the picture into this canvas. This method effective brackets the
+playback of the picture's draw calls with save/restore, so the state
+of this canvas will be unchanged after this call.
+@param picture The recorded drawing commands to playback into this
+canvas.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPicture(const sk_sp<SkPicture>& picture) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPicture(const SkPicture*, const SkMatrix* matrix, const SkPaint* paint)
+
+Draw the picture into this canvas.
+*  If matrix is non-null, apply that matrix to the CTM when drawing this picture. This is
+logically equivalent to
+save/concat/drawPicture/restore
+*  If paint is non-null, draw the picture into a temporary buffer, and then apply the paint's
+alpha/colorfilter/imagefilter/xfermode to that buffer as it is drawn to the canvas.
+This is logically equivalent to
+saveLayer(paint)/drawPicture/restore
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawShadowedPicture(const SkPicture*,
+                             const SkMatrix* matrix,
+                             const SkPaint* paint,
+                             const SkShadowParams& params)
+
+Draw the picture into this canvas, with shadows!
+*  We will use the canvas's lights along with the picture information (draw depths of
+objects, etc) to first create a set of shadowmaps for the light-picture pairs, and
+then use that set of shadowmaps to render the scene with shadows.
+*  If matrix is non-null, apply that matrix to the CTM when drawing this picture. This is
+logically equivalent to
+save/concat/drawPicture/restore
+*  If paint is non-null, draw the picture into a temporary buffer, and then apply the paint's
+alpha/colorfilter/imagefilter/xfermode to that buffer as it is drawn to the canvas.
+This is logically equivalent to
+saveLayer(paint)/drawPicture/restore
+*  We also support using variance shadow maps for blurred shadows; the user can specify
+what shadow mapping algorithm to use with params.
+- Variance Shadow Mapping works by storing both the depth and depth^2 in the shadow map.
+- Then, the shadow map can be blurred, and when reading from it, the fragment shader
+can calculate the variance of the depth at a position by doing E(x^2) - E(x)^2.
+- We can then use the depth variance and depth at a fragment to arrive at an upper bound
+of the probability that the current surface is shadowed by using Chebyshev's
+inequality, and then use that to shade the fragment.
+*    - There are a few problems with VSM.
+* Light Bleeding | Areas with high variance, such as near the edges of high up rects,
+will cause their shadow penumbras to overwrite otherwise solid
+shadows.
+* Shape Distortion | We can combat Light Bleeding by biasing the shadow (setting
+mostly shaded fragments to completely shaded) and increasing
+the minimum allowed variance. However, this warps and rounds
+out the shape of the shadow.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawShadowedPicture(const sk_sp<SkPicture>& picture,
+                             const SkMatrix* matrix,
+                             const SkPaint* paint,
+                             const SkShadowParams& params) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum VertexMode
+
+#Code
+    enum VertexMode {
+        kTriangles_VertexMode 
+        kTriangleStrip_VertexMode 
+        kTriangleFan_VertexMode 
+    };
+##
+
+#Const kTriangles_VertexMode
+##
+#Const kTriangleStrip_VertexMode
+##
+#Const kTriangleFan_VertexMode
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawVertices(VertexMode vmode, int vertexCount,
+                      const SkPoint vertices[], const SkPoint texs[],
+                      const SkColor colors[], SkBlendMode mode,
+                      const uint16_t indices[], int indexCount,
+                      const SkPaint& paint)
+
+Draw the array of vertices, interpreted as triangles (based on mode).
+If both textures and vertex-colors are NULL, it strokes hairlines with
+the paint's color. This behavior is a useful debugging mode to visualize
+the mesh.
+@param vmode How to interpret the array of vertices
+@param vertexCount The number of points in the vertices array (and
+corresponding texs and colors arrays if non-null)
+@param vertices Array of vertices for the mesh
+@param texs May be null. If not null, specifies the coordinate
+in _texture_ space (not uv space) for each vertex.
+@param colors May be null. If not null, specifies a color for each
+vertex, to be interpolated across the triangle.
+@param mode Used if both texs and colors are present and paint has a
+shader. In this case the colors are combined with the texture
+using mode, before being drawn using the paint.
+@param indices If not null, array of indices to reference into the
+vertex (texs, colors) array.
+@param indexCount number of entries in the indices array (if not null)
+@param paint Specifies the shader/texture if present.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawVertices(VertexMode vmode, int vertexCount,
+                      const SkPoint vertices[], const SkPoint texs[],
+                      const SkColor colors[], const uint16_t indices[], int indexCount,
+                      const SkPaint& paint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint)
+
+Draw vertices from an immutable SkVertices object.
+@param vertices The mesh to draw.
+@param mode Used if both texs and colors are present and paint has a
+shader. In this case the colors are combined with the texture
+using mode, before being drawn using the paint.
+@param paint Specifies the shader/texture if present.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint)
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                   const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint)
+
+Draw a cubic coons patch
+@param cubic specifies the 4 bounding cubic bezier curves of a patch with clockwise order
+starting at the top left corner.
+@param colors specifies the colors for the corners which will be bilerp across the patch,
+their order is clockwise starting at the top left corner.
+@param texCoords specifies the texture coordinates that will be bilerp across the patch,
+their order is the same as the colors.
+@param mode specifies how are the colors and the textures combined if both of them are
+present.
+@param paint Specifies the shader/texture if present.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                   const SkPoint texCoords[4], const SkPaint& paint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkBlendMode, const SkRect* cullRect,
+                   const SkPaint* paint)
+
+Draw a set of sprites from the atlas. Each is specified by a tex rectangle in the
+coordinate space of the atlas, and a corresponding xform which transforms the tex rectangle
+into a quad.
+*      xform maps [0, 0, tex.width, tex.height] -> quad
+*  The color array is optional. When specified, each color modulates the pixels in its
+corresponding quad (via the specified SkBlendMode).
+*  The cullRect is optional. When specified, it must be a conservative bounds of all of the
+resulting transformed quads, allowing the canvas to skip drawing if the cullRect does not
+intersect the current clip.
+*  The paint is optional. If specified, its antialiasing, alpha, color-filter, image-filter
+and blendmode are used to affect each of the quads.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
+                   const SkPaint* paint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count,
+                   const SkRect* cullRect, const SkPaint* paint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   int count, const SkRect* cullRect, const SkPaint* paint) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawDrawable(SkDrawable* drawable, const SkMatrix* = NULL)
+
+Draw the contents of this drawable into the canvas. If the canvas is async
+(e.g. it is recording into a picture) then the drawable will be referenced instead,
+to have its draw() method called when the picture is finalized.
+*  If the intent is to force the contents of the drawable into this canvas immediately,
+then drawable->draw(canvas) may be called.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawDrawable(SkDrawable*, SkScalar x, SkScalar y)
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawAnnotation(const SkRect&, const char key[], SkData* value)
+
+Send an "annotation" to the canvas. The annotation is a key/value pair, where the key is
+a null-terminated utf8 string, and the value is a blob of data stored in an SkData
+(which may be null). The annotation is associated with the specified rectangle.
+*  The caller still retains its ownership of the data (if any).
+*  Note: on may canvas types, this information is ignored, but some canvases (e.g. recording
+a picture or drawing to a PDF document) will pass on this information.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawAnnotation(const SkRect& rect, const char key[], const sk_sp<SkData>& value) 
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SK_ATTR_EXTERNALLY_DEPRECATED("getDrawFilter use is deprecated")
+    SkDrawFilter* getDrawFilter() const
+
+Get the current filter object. The filter's reference count is not
+affected. The filter is saved/restored, just like the matrix and clip.
+@return the canvas' filter (or NULL).
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SK_ATTR_EXTERNALLY_DEPRECATED("setDrawFilter use is deprecated")
+    virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter)
+
+Set the new filter (or NULL). Pass NULL to clear any existing filter.
+As a convenience, the parameter is returned. If an existing filter
+exists, its refcnt is decrement. If the new filter is not null, its
+refcnt is incremented. The filter is saved/restored, just like the
+matrix and clip.
+@param filter the new filter (or NULL)
+@return the new filter
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual bool isClipEmpty() const
+
+/////////////////////////////////////////////////////////////////////////
+Return true if the current clip is empty (i.e. nothing will draw).
+Note: this is not always a free call, so it should not be used
+more often than necessary. However, once the canvas has computed this
+result, subsequent calls will be cheap (until the clip state changes,
+which can happen on any clip..() or restore() call.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method virtual bool isClipRect() const
+
+Returns true if the current clip is just a (non-empty) rectangle.
+Returns false if the clip is empty, or if it is complex.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkMatrix& getTotalMatrix() const
+
+Return the current matrix on the canvas.
+This does not account for the translate in any of the devices.
+@return The current matrix on the canvas.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void replayClips(ClipVisitor*) const
+
+Replays the clip operations, back to front, that have been applied to
+the canvas, calling the appropriate method on the visitor for each
+clip. All clips have already been transformed into device space.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext()
+
+//////////////////////////////////////////////////////////////////////////
+/ don't call
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static void Internal_Private_SetIgnoreSaveLayerBounds(bool)
+
+/ don't call
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static bool Internal_Private_GetIgnoreSaveLayerBounds()
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static void Internal_Private_SetTreatSpriteAsBitmap(bool)
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static bool Internal_Private_GetTreatSpriteAsBitmap()
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                              const SkPaint* paint,
+                              SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+
+/ TEMP helpers until we switch virtual over to const& for src-rect
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                               const SkPaint* paint,
+                               SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void temporary_internal_describeTopLayer(SkMatrix* matrix, SkIRect* clip_bounds)
+
+/ expose minimum amount of information necessary for transitional refactoring
+Returns CTM and clip bounds, translated from canvas coordinates to top layer coordinates.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void temporary_internal_getRgnClip(SkRegion*)
+
+Returns the global clip as a region. If the clip contains AA, then only the bounds
+of the clip may be returned.
+
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+#Class SkCanvas ##
+#Topic Canvas ##
