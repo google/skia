@@ -26,11 +26,7 @@ namespace SkSL {
  */
 struct Program {
     struct Settings {
-#ifdef SKSL_STANDALONE
-        const StandaloneShaderCaps* fCaps = &standaloneCaps;
-#else
         const GrShaderCaps* fCaps = nullptr;
-#endif
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
         bool fFlipY = false;

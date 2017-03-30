@@ -34,7 +34,7 @@ struct BinaryExpression : public Expression {
                                         *fRight);
     }
 
-    virtual String description() const override {
+    virtual SkString description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }
