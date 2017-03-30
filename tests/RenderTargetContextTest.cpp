@@ -48,19 +48,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
         check_is_wrapped_status(reporter, rtCtx.get(), true);
     }
 
-    // A deferred rtCtx's textureProxy is also deferred and GrRenderTargetContext::instantiate()
-    // swaps both from deferred to wrapped
-    {
-        sk_sp<GrRenderTargetContext> rtCtx(get_rtc(ctx, false));
-
-        check_is_wrapped_status(reporter, rtCtx.get(), false);
-
-        GrRenderTarget* rt = rtCtx->instantiate();
-        REPORTER_ASSERT(reporter, rt);
-
-        check_is_wrapped_status(reporter, rtCtx.get(), true);
-    }
-
     // Calling instantiate on a GrRenderTargetContext's textureProxy also instantiates the
     // GrRenderTargetContext
     {

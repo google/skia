@@ -1036,7 +1036,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
-    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
+    GrResourceProvider* resourceProvider = context->resourceProvider();
     sk_sp<GrFragmentProcessor> fp;
 
     SkRect rect;
@@ -1359,7 +1359,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         return false;
     }
 
-    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
+    GrResourceProvider* resourceProvider = context->resourceProvider();
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
     if (devRRect.isRect() || devRRect.isCircle()) {
