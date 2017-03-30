@@ -118,7 +118,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
         ERRORF(reporter, "No attributes allowed?!");
         return;
     }
-    context->flush();
+    context->flush(nullptr);
     context->resetGpuStats();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
@@ -128,7 +128,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     // This one should succeed.
     renderTargetContext->priv().testingOnly_addMeshDrawOp(GrPaint(grPaint), GrAAType::kNone,
                                                           Op::Make(attribCnt));
-    context->flush();
+    context->flush(nullptr);
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
@@ -136,7 +136,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     context->resetGpuStats();
     renderTargetContext->priv().testingOnly_addMeshDrawOp(std::move(grPaint), GrAAType::kNone,
                                                           Op::Make(attribCnt + 1));
-    context->flush();
+    context->flush(nullptr);
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 1);

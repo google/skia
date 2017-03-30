@@ -120,7 +120,7 @@ GrContext::~GrContext() {
         return;
     }
 
-    this->flush();
+    this->flush(nullptr);
 
     fDrawingManager->cleanup();
 
@@ -188,7 +188,7 @@ void GrContext::resetContext(uint32_t state) {
 void GrContext::freeGpuResources() {
     ASSERT_SINGLE_OWNER
 
-    this->flush();
+    this->flush(nullptr);
 
     fAtlasGlyphCache->freeAll();
 
@@ -222,12 +222,12 @@ void GrContext::TextBlobCacheOverBudgetCB(void* data) {
     // to below the GrContext level, but this is not trivial because they call drawPath on
     // SkGpuDevice.
     GrContext* context = reinterpret_cast<GrContext*>(data);
-    context->flush();
+    context->flush(nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::flush() {
+void GrContext::flush(GrSurfaceProxy* proxy) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
 

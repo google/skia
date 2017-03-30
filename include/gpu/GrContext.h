@@ -243,8 +243,11 @@ public:
     /**
      * Call to ensure all drawing to the context has been issued to the
      * underlying 3D API.
+     * The 'proxy' parameter is a hint. If it is supplied the context need only guarantee that
+     * the draws required for that proxy are flushed but it could do more. If no 'proxy' is
+     * provided then all current work will be flushed.
      */
-    void flush();
+    void flush(GrSurfaceProxy* = nullptr);
 
    /**
     * These flags can be used with the read/write pixels functions below.
