@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "88d4e0f2_60ac6378",
+        "filename": "src/gpu/GrXferProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-03-30T20:41:48Z",
+      "side": 1,
+      "message": "okay that\u0027s fine. But the second part is only true until we decide to batch non overlapping draws with a single larger dst copy :)",
+      "parentUuid": "6e6429ee_c5bd82e3",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 82
+      },
+      "revId": "339d0f79697a6fa3f3742a9e1e9f0ad59cc283fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3361be6d_cac5e588",
         "filename": "src/gpu/GrXferProcessor.h",
         "patchSetId": 1
