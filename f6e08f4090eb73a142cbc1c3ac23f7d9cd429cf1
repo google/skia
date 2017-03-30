@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "df742ed8_9a0d1ba9",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T20:40:21Z",
+      "side": 1,
+      "message": "Done. Yes.",
+      "parentUuid": "8bcae760_a23eabf5",
+      "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cff7b4f_4ca9c6d4",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a5c4e52_2d71547d",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T20:40:21Z",
+      "side": 1,
+      "message": "Done. Removed.",
+      "parentUuid": "6cff7b4f_4ca9c6d4",
+      "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "280c27f1_ea286a3f",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fa855b0_c35565c3",
+      "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5116ecad_0727ca64",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 4
@@ -67,6 +121,24 @@
       "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6788788_a1b99754",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-30T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5116ecad_0727ca64",
+      "revId": "f6e08f4090eb73a142cbc1c3ac23f7d9cd429cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
