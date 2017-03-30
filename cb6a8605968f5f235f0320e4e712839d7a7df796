@@ -1,0 +1,221 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ac40b7c_58585751",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "If this is just for things like SampleApp, I would rather completely reset everything when the thread count changes in SampleApp than add more options to SkSurfaceProps.  We don\u0027t expect clients to use this now, and if they did, we don\u0027t expect them to change the thread count.",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13769d91_5cc4400d",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "Let\u0027s use this constructor for now?",
+      "range": {
+        "startLine": 709,
+        "startChar": 0,
+        "endLine": 709,
+        "endChar": 40
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90d04686_941c084d",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "Wide stripes is probably best, but I agree that it\u0027s worth exploring. :)",
+      "range": {
+        "startLine": 18,
+        "startChar": 43,
+        "endLine": 18,
+        "endChar": 64
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a1f248f_42309f11",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "Please always put {} around every if, for, while, etc.  It protects against bugs like this with no loss of readability:\n\nhttps://www.imperialviolet.org/2014/02/22/applebug.html\n\nSome codebases don\u0027t use {} for short ifs or loops.  That\u0027s a bad idea, but they do need to stay that way for consistency.  Skia is not one of those codebases... please always use {} in Skia, and if you have written or seen any code that doesn\u0027t, I will happily +1 a change to fix them.",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e87748ea_37a94db2",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "This macro approach seems fine to me.  Two small things can help make macros like this less trouble:\n   1. leave off the trailing semicolon, so that the semicolon the macro\u0027s user naturally writes is required.  That makes it behave more like normal code;\n   2. if your macro introduces new names (like ds), it\u0027s not a bad idea to wrap it in {...} or do { ... } while(false), so that the new names are scoped to your macro.  do {...} while(false) is nice because it makes it possible to enforce that trailing semicolon from point 1.",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 21
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f09347c7_c6ca26d8",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "Probably best to write this-\u003etransformDrawBounds(drawBounds) to make it clear where the function is coming from.",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f774537_259992cb",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "Probably best to leave this off for now.  It\u0027s still very much an experiment, and we don\u0027t expect anyone to use it externally, let alone across a .dll/.so boundary.",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 12
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2792dac6_8560a4e9",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "Let\u0027s just leave this out for now.  It\u0027s not helping to explain anything currently in the code.",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31efb94d_1700521f",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "You can probably just declare this here and define it in the .cpp.  It\u0027s not clear to me that it needs to be nested inside SkThreadedBMPDevice, but if you like that that\u0027s fine.",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60c1dc33_0f0e0667",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "You\u0027re sure getThreadDraw() really affects performance if it\u0027s not inlined?",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 24
+      },
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59f26a17_4b5db7b0",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T16:19:48Z",
+      "side": 1,
+      "message": "If you define a method inline in a class declaration, \"inline\" is implicit.  That said, this is probably better just declared here and defined in the .cpp.  It\u0027s only used in the .cpp, so it can be inlined by the compiler just the same, and that way you don\u0027t have to keep all this logic in the header.",
+      "revId": "cb6a8605968f5f235f0320e4e712839d7a7df796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
