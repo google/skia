@@ -67,7 +67,7 @@ void GLBench::onDraw(int loops, SkCanvas* canvas) {
 
 GrGLuint GLBench::CompileShader(const GrGLContext* context, const char* sksl, GrGLenum type) {
     const GrGLInterface* gl = context->interface();
-    SkString glsl;
+    SkSL::String glsl;
     SkSL::Program::Settings settings;
     settings.fCaps = context->caps()->shaderCaps();
     std::unique_ptr<SkSL::Program> program = context->compiler()->convertProgram(

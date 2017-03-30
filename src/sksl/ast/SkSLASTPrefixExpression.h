@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTPREFIXEXPRESSION
 #define SKSL_ASTPREFIXEXPRESSION
 
@@ -22,7 +22,7 @@ struct ASTPrefixExpression : public ASTExpression {
     , fOperator(op.fKind)
     , fOperand(std::move(operand)) {}
 
-    SkString description() const override {
+    String description() const override {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 

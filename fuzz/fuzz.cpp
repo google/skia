@@ -558,7 +558,7 @@ static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler;
-    SkString output;
+    SkSL::String output;
     SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();

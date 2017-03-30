@@ -283,7 +283,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
         SkASSERT(false);
     }
     *outInputs = program->fInputs;
-    SkString code;
+    SkSL::String code;
     if (!gpu->shaderCompiler()->toSPIRV(*program, &code)) {
         SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
         return false;

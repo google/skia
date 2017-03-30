@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTDECLARATION
 #define SKSL_ASTDECLARATION
 
@@ -13,7 +13,7 @@
 namespace SkSL {
 
 /**
- * Abstract supertype of declarations such as variables and functions. 
+ * Abstract supertype of declarations such as variables and functions.
  */
 struct ASTDeclaration : public ASTPositionNode {
     enum Kind {
