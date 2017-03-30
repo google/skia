@@ -416,6 +416,11 @@
 #define GR_GL_LINE_WIDTH_GRANULARITY         0x0B23
 #define GR_GL_LINE_WIDTH_RANGE               0x0B22
 
+/* PolygonMode */
+#define GR_GL_POINT                          0x1B00
+#define GR_GL_LINE                           0x1B01
+#define GR_GL_FILL                           0x1B02
+
 /* Unsized formats */
 #define GR_GL_STENCIL_INDEX                  0x1901
 #define GR_GL_DEPTH_COMPONENT                0x1902

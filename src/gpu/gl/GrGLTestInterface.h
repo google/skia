@@ -120,6 +120,7 @@ public:
     virtual GrGLvoid* mapTexSubImage2D(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLenum access) { return nullptr; }
     virtual GrGLvoid minSampleShading(GrGLfloat value) {}
     virtual GrGLvoid pixelStorei(GrGLenum pname, GrGLint param) {}
+    virtual GrGLvoid polygonMode(GrGLenum face, GrGLenum mode) {}
     virtual GrGLvoid popGroupMarker() {}
     virtual GrGLvoid pushGroupMarker(GrGLsizei length, const char* marker) {}
     virtual GrGLvoid queryCounter(GrGLuint id, GrGLenum target) {}
