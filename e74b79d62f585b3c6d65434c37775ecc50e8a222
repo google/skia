@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "505075dc_468de767",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-30T15:04:31Z",
+      "side": 1,
+      "message": "nit: Should return true if file was written successfully.",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 8
+      },
+      "revId": "e74b79d62f585b3c6d65434c37775ecc50e8a222",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db78c2c6_65e63445",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-30T15:04:31Z",
+      "side": 1,
+      "message": "nit: need to check return value",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 20
+      },
+      "revId": "e74b79d62f585b3c6d65434c37775ecc50e8a222",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3099752_e5cdf18a",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-03-30T15:04:31Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 69,
+        "startChar": 8,
+        "endLine": 69,
+        "endChar": 20
+      },
+      "revId": "e74b79d62f585b3c6d65434c37775ecc50e8a222",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
