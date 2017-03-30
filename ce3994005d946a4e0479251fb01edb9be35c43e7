@@ -142,6 +142,24 @@
     },
     {
       "key": {
+        "uuid": "61b7b93f_7885a601",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-30T14:27:50Z",
+      "side": 1,
+      "message": "Seems like it\u0027d be a lie.  When I see a set of const methods, I usually assume they\u0027re all safe to call concurrently with each other.  I don\u0027t see any way to make this particular use case thread safe.  We can\u0027t even just shove a mutex in there... we don\u0027t know when the caller is done with the return value.\n\nIf you want things to be const, I think we\u0027ve got to go back to passing the SkTLazy in, or dumping it altogether and always copy.",
+      "parentUuid": "9e453c86_03c07ab4",
+      "revId": "ce3994005d946a4e0479251fb01edb9be35c43e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a1283c39_d31f5e86",
         "filename": "src/core/SkColorSpaceXformer.h",
         "patchSetId": 1
