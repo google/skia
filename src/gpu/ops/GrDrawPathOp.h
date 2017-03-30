@@ -29,7 +29,7 @@ protected:
         return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
     }
     bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
-        return this->doFragmentProcessorAnalysis(caps, clip).requiresDstTexture();
+        return this->doProcessorAnalysis(caps, clip).requiresDstTexture();
     }
 
     void wasRecorded() override { fProcessorSet.makePendingExecution(); }
@@ -40,13 +40,13 @@ protected:
     GrPathRendering::FillType fillType() const { return fFillType; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
     void initPipeline(const GrOpFlushState&, GrPipeline*);
-    const GrProcessorSet::FragmentProcessorAnalysis& doFragmentProcessorAnalysis(
-            const GrCaps& caps, const GrAppliedClip* clip) {
+    const GrProcessorSet::Analysis& doProcessorAnalysis(const GrCaps& caps,
+                                                        const GrAppliedClip* clip) {
         fProcessorSet.analyzeAndEliminateFragmentProcessors(
-                &fAnalysis, fAnalysis.inputColor(), GrPipelineAnalysisCoverage::kNone, clip, caps);
+                &fAnalysis, fAnalysis.inputColor(), GrProcessorAnalysisCoverage::kNone, clip, caps);
         return fAnalysis;
     }
-    const GrProcessorSet::FragmentProcessorAnalysis& fragmentProcessorAnalysis() const {
+    const GrProcessorSet::Analysis& processorAnalysis() const {
         SkASSERT(fAnalysis.isInitializedWithProcessorSet());
         return fAnalysis;
     }
@@ -56,7 +56,7 @@ private:
 
     SkMatrix fViewMatrix;
     GrProcessorSet fProcessorSet;
-    GrProcessorSet::FragmentProcessorAnalysis fAnalysis;
+    GrProcessorSet::Analysis fAnalysis;
     GrPathRendering::FillType fFillType;
     GrAA fAA;
 

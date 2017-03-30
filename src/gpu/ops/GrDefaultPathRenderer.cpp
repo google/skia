@@ -132,11 +132,11 @@ private:
                         isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
     }
 
-    void getFragmentProcessorAnalysisInputs(GrPipelineAnalysisColor* color,
-                                            GrPipelineAnalysisCoverage* coverage) const override {
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
         color->setToConstant(fColor);
-        *coverage = this->coverage() == 0xff ? GrPipelineAnalysisCoverage::kNone
-                                             : GrPipelineAnalysisCoverage::kSingleChannel;
+        *coverage = this->coverage() == 0xff ? GrProcessorAnalysisCoverage::kNone
+                                             : GrProcessorAnalysisCoverage::kSingleChannel;
     }
 
     void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
