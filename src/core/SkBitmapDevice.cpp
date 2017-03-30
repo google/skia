@@ -186,11 +186,7 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 class SkBitmapDevice::BDDraw : public SkDraw {
 public:
     BDDraw(SkBitmapDevice* dev) {
-        // we need fDst to be set, and if we're actually drawing, to dirty the genID
-        if (!dev->accessPixels(&fDst)) {
-            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
-            fDst.reset(dev->imageInfo(), nullptr, 0);
-        }
+        dev->setDrawDst(fDst);
         fMatrix = &dev->ctm();
         fRC = &dev->fRCStack.rc();
     }
