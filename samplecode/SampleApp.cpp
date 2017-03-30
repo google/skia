@@ -35,6 +35,7 @@
 #include "sk_tool_utils.h"
 #include "SkScan.h"
 #include "SkClipOpPriv.h"
+#include "SkThreadedBMPDevice.h"
 
 #include "SkReadBuffer.h"
 #include "SkStream.h"
@@ -1073,6 +1074,14 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
 #include "SkDumpCanvas.h"
 
 void SampleWindow::draw(SkCanvas* canvas) {
+    std::unique_ptr<SkThreadedBMPDevice> tDev;
+    std::unique_ptr<SkCanvas> tCanvas;
+    if (fThreads > 0) {
+        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fThreads));
+        tCanvas.reset(new SkCanvas(tDev.get()));
+        canvas = tCanvas.get();
+    }
+
     gAnimTimer.updateTime();
 
     if (fGesture.isActive()) {
@@ -1826,6 +1835,16 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
                 this->inval(nullptr);
             }
             break;
+        case '+':
+            gSampleWindow->setThreads(gSampleWindow->getThreads() + 1);
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
+        case '-':
+            gSampleWindow->setThreads(std::max(0, gSampleWindow->getThreads() - 1));
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
         case ' ':
             gAnimTimer.togglePauseResume();
             if (this->sendAnimatePulse()) {
@@ -2190,6 +2209,10 @@ void SampleWindow::updateTitle() {
     }
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
+
+    if (gSampleWindow->getThreads()) {
+        title.prependf("[T%d] ", gSampleWindow->getThreads());
+    }
 
     if (gSkUseAnalyticAA) {
         if (gSkForceAnalyticAA) {
