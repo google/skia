@@ -330,7 +330,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     } else {
         fTextSizeRender = realTextSize;
         GaspRange range(0, 0xFFFF, GaspRange::Behavior());
-        get_gasp_range(typeface, SkScalarTruncToInt(fTextSizeRender), &range);
+        get_gasp_range(typeface, SkScalarTruncToInt(gdiTextSize), &range);
         fRenderingMode = gasp_allows_cleartype_symmetric(range.fFlags)
                        ? DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC
                        : DWRITE_RENDERING_MODE_NATURAL;
