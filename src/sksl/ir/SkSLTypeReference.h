@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_TYPEREFERENCE
 #define SKSL_TYPEREFERENCE
 
@@ -14,7 +14,7 @@
 namespace SkSL {
 
 /**
- * Represents an identifier referring to a type. This is an intermediate value: TypeReferences are 
+ * Represents an identifier referring to a type. This is an intermediate value: TypeReferences are
  * always eventually replaced by Constructors in valid programs.
  */
 struct TypeReference : public Expression {
@@ -22,7 +22,7 @@ struct TypeReference : public Expression {
     : INHERITED(position, kTypeReference_Kind, *context.fInvalid_Type)
     , fValue(type) {}
 
-    SkString description() const override {
+    String description() const override {
         return fValue.name();
     }
 
