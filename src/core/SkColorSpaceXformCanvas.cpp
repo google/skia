@@ -21,7 +21,12 @@ public:
         : SkNoDrawCanvas(SkIRect::MakeSize(target->getBaseLayerSize()))
         , fTarget(target)
         , fXformer(std::move(xformer))
-    {}
+    {
+        // Set the matrix and clip to match |fTarget|.  Otherwise, we'll answer queries for
+        // bounds/matrix differently than |fTarget| would.
+        canvas.clipRect(SkRect::MakeFromIRect(fTarget->getDeviceClipBounds()));
+        SkCanvas::setMatrix(fTarget->getTotalMatrix());
+    }
 
     SkImageInfo onImageInfo() const override {
         return fTarget->imageInfo();
