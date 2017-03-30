@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvasPriv.h"
 #include "SkColorFilter.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpaceXformer.h"
@@ -12,6 +13,7 @@
 #include "SkImage_Base.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
+#include "SkPicture.h"
 #include "SkSurface.h"
 
 class SkColorSpaceXformCanvas : public SkNoDrawCanvas {
@@ -189,7 +191,8 @@ public:
     void onDrawPicture(const SkPicture* pic,
                        const SkMatrix* matrix,
                        const SkPaint* paint) override {
-        SkCanvas::onDrawPicture(pic, matrix, fXformer->apply(paint));
+        SkAutoCanvasMatrixPaint acmp(this, matrix, fXformer->apply(paint), pic->cullRect());
+        pic->playback(this);
     }
     void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) override {
         SkCanvas::onDrawDrawable(drawable, matrix);
