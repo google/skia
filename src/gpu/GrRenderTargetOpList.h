@@ -147,7 +147,8 @@ private:
                            const DstTexture* bDstTexture);
 
     GrClearOp* fLastFullClearOp = nullptr;
-    GrGpuResource::UniqueID fLastFullClearRenderTargetID = GrGpuResource::UniqueID::InvalidID();
+    GrGpuResource::UniqueID fLastFullClearResourceID = GrGpuResource::UniqueID::InvalidID();
+    GrSurfaceProxy::UniqueID fLastFullClearProxyID = GrSurfaceProxy::UniqueID::InvalidID();
 
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;

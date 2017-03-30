@@ -1263,6 +1263,8 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
 
     src.modifyGrContextOptions(&grOptions);
 
+    SkDebugf("---%s\n", src.name().c_str());
+
     GrContextFactory factory(grOptions);
     const SkISize size = src.size();
     const SkImageInfo info =

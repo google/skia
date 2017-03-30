@@ -43,7 +43,7 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     fQuadIndexBufferKey = gQuadIndexBufferKey;
 }
 
-bool GrResourceProvider::IsFunctionallyExact(GrTextureProxy* proxy) {
+bool GrResourceProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
 }
 

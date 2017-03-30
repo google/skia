@@ -83,6 +83,10 @@ void* GrMemoryPool::allocate(size_t size) {
     SkDEBUGCODE(allocData->fSentinal = kAssignedMarker);
     SkDEBUGCODE(allocData->fID = []{static int32_t gID; return sk_atomic_inc(&gID) + 1;}());
     // You can set a breakpoint here when a leaked ID is allocated to see the stack frame.
+    if (allocData->fID == 1099546) {
+        int foo = 0;
+        ++foo;
+    }
     SkDEBUGCODE(fAllocatedIDs.add(allocData->fID));
     allocData->fHeader = fTail;
     ptr += kPerAllocPad;
