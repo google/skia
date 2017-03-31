@@ -58,79 +58,16 @@ static SkScalar compute_rrect_normalized_dist(const SkRRect& rr, const SkPoint& 
              rr.getType() == SkRRect::kSimple_Type);
     SkASSERT(rad > 0.0f);
 
-    SkVector delta = { SkTAbs(p.fX - rr.rect().centerX()), SkTAbs(p.fY - rr.rect().centerY()) };
-
-    SkScalar halfW = 0.5f * rr.rect().width();
-    SkScalar halfH = 0.5f * rr.rect().height();
-    SkScalar invRad = 1.0f/rad;
-
     const SkVector& radii = rr.getSimpleRadii();
     SkASSERT(SkScalarNearlyEqual(radii.fX, radii.fY));
-
-    switch (rr.getType()) {
-        case SkRRect::kOval_Type: {
-            float scaledDist = delta.length() * invRad;
-            return SkTPin(halfW * invRad - scaledDist, 0.0f, 1.0f);
-        }
-        case SkRRect::kRect_Type: {
-            SkScalar xDist = (halfW - delta.fX) * invRad;
-            SkScalar yDist = (halfH - delta.fY) * invRad;
-
-            SkVector v = { 1.0f - SkTPin(xDist, 0.0f, 1.0f), 1.0f - SkTPin(yDist, 0.0f, 1.0f) };
-            return SkTPin(1.0f - v.length(), 0.0f, 1.0f);
-        }
-        case SkRRect::kSimple_Type: {
-
-            //----------------
-            // ice-cream-cone fractional distance computation
-
-            // When the blurRadius is larger than the corner radius we want to use it to
-            // compute the pointy end of the ice cream cone. If it smaller we just want to use
-            // the center of the corner's circle. When using the blurRadius the inset amount
-            // can't exceed the halfwidths of the RRect.
-            SkScalar insetDist = SkTMin(SkTMax(rad, radii.fX), SkTMin(halfW, halfH));
-
-            // "maxValue" is a correction term for if the blurRadius is larger than the
-            // size of the RRect. In that case we don't want to go all the way to black.
-            SkScalar maxValue = insetDist * invRad;
-
-            SkVector coneBottom = { halfW - insetDist, halfH - insetDist };
-            SkVector ptInConeSpace = delta - coneBottom;
-
-            SkVector cornerTop = { halfW - radii.fX - coneBottom.fX, halfH - coneBottom.fY };
-            SkVector cornerRight = { halfW - coneBottom.fX, halfH - radii.fY - coneBottom.fY };
-
-            SkScalar cross1 = ptInConeSpace.cross(cornerTop);
-            SkScalar cross2 = cornerRight.cross(ptInConeSpace);
-            bool inCone = cross1 > 0.0f && cross2 > 0.0f;
-
-            if (!inCone) {
-                SkScalar xDist = (halfW - delta.fX) * invRad;
-                SkScalar yDist = (halfH - delta.fY) * invRad;
-
-                return SkTPin(SkTMin(xDist, yDist), 0.0f, 1.0f); // perpendicular distance
-            }
-
-            SkVector cornerCenterInConeSpace = { insetDist - radii.fX, insetDist - radii.fY };
-
-            SkVector connectingVec = ptInConeSpace - cornerCenterInConeSpace;
-            float distToPtInConeSpace = SkPoint::Normalize(&ptInConeSpace);
-
-            // "a" (i.e., dot(ptInConeSpace, ptInConeSpace) should always be 1.0f since
-            // ptInConeSpace is now normalized
-            SkScalar b = 2.0f * ptInConeSpace.dot(connectingVec);
-            SkScalar c = connectingVec.dot(connectingVec) - radii.fX * radii.fY;
-
-            // lop off negative values that are outside the cone
-            SkScalar coneDist = SkTMax(0.0f, 0.5f * (-b + SkScalarSqrt(b*b - 4*c)));
-
-            // make the coneDist a fraction of how far it is from the edge to the cone's base
-            coneDist = (maxValue*coneDist) / (coneDist+distToPtInConeSpace);
-            return SkTPin(coneDist, 0.0f, 1.0f);
-        }
-        default:
-            return 0.0f;
-    }
+    SkScalar rrr = SkTMax(radii.fX, rad); // rrr means rrect radius
+    SkASSERT(rrr >= rad);
+    SkRect innerRect = rr.rect().makeInset(rrr, rrr);
+    SkScalar xDist = SkTMax(p.fX - innerRect.fRight, innerRect.fLeft - p.fX);
+    SkScalar yDist = SkTMax(p.fY - innerRect.fBottom, innerRect.fTop - p.fY);
+    SkVector v = {SkTMax(0.0f, xDist), SkTMax(0.0f, yDist)};
+    SkScalar dist = v.length();
+    return SkTPin((rrr - dist) / rad, 0.0f, 1.0f);
 }
 
 bool SkRRectsGaussianEdgeMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
@@ -230,118 +167,30 @@ public:
                           const char* radName,
                           const char* outputName,
                           const char  indices[2]) { // how to access the params for the 2 rrects
-
-            // Positive distance is towards the center of the circle.
-            // Map all the cases to the lower right quadrant.
-            fragBuilder->codeAppendf("vec2 delta = abs(sk_FragCoord.xy - %s.%s);",
-                                     posName, indices);
-
+            SkString rName; // the name of the rrect's radius
             switch (mode) {
                 case kCircle_Mode:
-                    // When a shadow circle gets large we can have some precision issues if
-                    // we do "length(delta)/radius". The scaleDist temporary cuts the
-                    // delta vector down a bit before invoking length.
-                    fragBuilder->codeAppendf("float scaledDist = length(delta/%s);", radName);
-                    fragBuilder->codeAppendf("%s = clamp((%s.%c/%s - scaledDist), 0.0, 1.0);",
-                                             outputName, sizesName, indices[0], radName);
+                    rName.printf("%s.%c", sizesName, indices[0]);
                     break;
                 case kRect_Mode:
-                    fragBuilder->codeAppendf(
-                        "vec2 rectDist = vec2(1.0 - clamp((%s.%c - delta.x)/%s, 0.0, 1.0),"
-                                             "1.0 - clamp((%s.%c - delta.y)/%s, 0.0, 1.0));",
-                        sizesName, indices[0], radName,
-                        sizesName, indices[1], radName);
-                    fragBuilder->codeAppendf("%s = clamp(1.0 - length(rectDist), 0.0, 1.0);",
-                                             outputName);
+                    rName = "0.0";
                     break;
                 case kSimpleCircular_Mode:
-                    // For the circular round rect we combine 2 distances:
-                    //    the fractional position from the corner inset point to the corner's circle
-                    //    the minimum perpendicular distance to the bounding rectangle
-                    // The first distance is used when the pixel is inside the ice-cream-cone-shaped
-                    // portion of a corner. The second is used everywhere else.
-                    // This is intended to approximate the interpolation pattern if we had
-                    // tessellated this geometry into a RRect outside and a rect inside.
-
-                    //----------------
-                    // rect distance computation
-                    fragBuilder->codeAppendf("float xDist = (%s.%c - delta.x) / %s;",
-                                             sizesName, indices[0], radName);
-                    fragBuilder->codeAppendf("float yDist = (%s.%c - delta.y) / %s;",
-                                             sizesName, indices[1], radName);
-                    fragBuilder->codeAppend("float rectDist = clamp(min(xDist, yDist), 0.0, 1.0);");
-
-                    //----------------
-                    // ice-cream-cone fractional distance computation
-
-                    // When the blurRadius is larger than the corner radius we want to use it to
-                    // compute the pointy end of the ice cream cone. If it smaller we just want to
-                    // use the center of the corner's circle. When using the blurRadius the inset
-                    // amount can't exceed the halfwidths of the RRect.
-                    fragBuilder->codeAppendf("float insetDist = min(max(%s, %s.%c),"
-                                                                   "min(%s.%c, %s.%c));",
-                                             radName, radiiName, indices[0],
-                                             sizesName, indices[0], sizesName, indices[1]);
-                    // "maxValue" is a correction term for if the blurRadius is larger than the
-                    // size of the RRect. In that case we don't want to go all the way to black.
-                    fragBuilder->codeAppendf("float maxValue = insetDist/%s;", radName);
-
-                    fragBuilder->codeAppendf("vec2 coneBottom = vec2(%s.%c - insetDist,"
-                                                                    "%s.%c - insetDist);",
-                                             sizesName, indices[0], sizesName, indices[1]);
-
-                    fragBuilder->codeAppendf("vec2 cornerTop = vec2(%s.%c - %s.%c, %s.%c) -"
-                                                                        "coneBottom;",
-                                             sizesName, indices[0], radiiName, indices[0],
-                                             sizesName, indices[1]);
-                    fragBuilder->codeAppendf("vec2 cornerRight = vec2(%s.%c, %s.%c - %s.%c) -"
-                                                                        "coneBottom;",
-                                             sizesName, indices[0],
-                                             sizesName, indices[1], radiiName, indices[1]);
-
-                    fragBuilder->codeAppend("vec2 ptInConeSpace = delta - coneBottom;");
-                    fragBuilder->codeAppend("float distToPtInConeSpace = length(ptInConeSpace);");
-
-                    fragBuilder->codeAppend("float cross1 =  ptInConeSpace.x * cornerTop.y -"
-                                                            "ptInConeSpace.y * cornerTop.x;");
-                    fragBuilder->codeAppend("float cross2 = -ptInConeSpace.x * cornerRight.y + "
-                                                            "ptInConeSpace.y * cornerRight.x;");
-
-                    fragBuilder->codeAppend("float inCone = step(0.0, cross1) *"
-                                                           "step(0.0, cross2);");
-
-                    fragBuilder->codeAppendf("vec2 cornerCenterInConeSpace = vec2(insetDist -"
-                                                                                 "%s.%c);",
-                                             radiiName, indices[0]);
-
-                    fragBuilder->codeAppend("vec2 connectingVec = ptInConeSpace -"
-                                                                        "cornerCenterInConeSpace;");
-                    fragBuilder->codeAppend("ptInConeSpace = normalize(ptInConeSpace);");
-
-                    // "a" (i.e., dot(ptInConeSpace, ptInConeSpace) should always be 1.0f since
-                    // ptInConeSpace is now normalized
-                    fragBuilder->codeAppend("float b = 2.0 * dot(ptInConeSpace, connectingVec);");
-                    fragBuilder->codeAppendf("float c = dot(connectingVec, connectingVec) - "
-                                                                                   "%s.%c * %s.%c;",
-                                             radiiName, indices[0], radiiName, indices[0]);
-
-                    fragBuilder->codeAppend("float fourAC = 4*c;");
-                    // This max prevents sqrt(-1) when outside the cone
-                    fragBuilder->codeAppend("float bSq = max(b*b, fourAC);");
-
-                    // lop off negative values that are outside the cone
-                    fragBuilder->codeAppend("float coneDist = "
-                                                    "max(0.0, 0.5 * (-b + sqrt(bSq - fourAC)));");
-                    // make the coneDist a fraction of how far it is from the edge to the
-                    // cone's base
-                    fragBuilder->codeAppend("coneDist = (maxValue*coneDist) /"
-                                                                "(coneDist+distToPtInConeSpace);");
-                    fragBuilder->codeAppend("coneDist = clamp(coneDist, 0.0, 1.0);");
-
-                    //----------------
-                    fragBuilder->codeAppendf("%s = mix(rectDist, coneDist, inCone);", outputName);
+                    rName.printf("%s.%c", radiiName, indices[0]);
                     break;
-                }
+            }
+            // rrr means rrect radius
+            fragBuilder->codeAppendf("float rrr = max(%s, %s);", rName.c_str(), radName);
+            // Actually half w and half h of the inner rect
+            fragBuilder->codeAppendf("float w = %s.%c - rrr;", sizesName, indices[0]);
+            fragBuilder->codeAppendf("float h = %s.%c - rrr;", sizesName, indices[1]);
+            fragBuilder->codeAppendf("vec2 delta = sk_FragCoord.xy - %s.%s;",
+                                     posName, indices);
+            fragBuilder->codeAppendf("float xdist = max(delta.x - w, -w - delta.x);");
+            fragBuilder->codeAppendf("float ydist = max(delta.y - h, -h - delta.y);");
+            fragBuilder->codeAppendf("vec2 dist = vec2(max(xdist, 0.0), max(ydist, 0.0));");
+            fragBuilder->codeAppendf("%s = clamp((rrr - length(dist))/%s, 0.0, 1.0);",
+                                     outputName, radName);
         }
 
         void emitCode(EmitArgs& args) override {
@@ -410,7 +259,7 @@ public:
                         second.getBounds().centerX(),
                         second.getBounds().centerY());
 
-            pdman.set4f(fSizesUni, 
+            pdman.set4f(fSizesUni,
                         0.5f * first.rect().width(),
                         0.5f * first.rect().height(),
                         0.5f * second.rect().width(),
@@ -420,7 +269,7 @@ public:
                 edgeFP.secondMode() == kSimpleCircular_Mode) {
                 // This is a bit of overkill since fX should equal fY for both round rects but it
                 // makes the shader code simpler.
-                pdman.set4f(fRadiiUni, 
+                pdman.set4f(fRadiiUni,
                             first.getSimpleRadii().fX,  first.getSimpleRadii().fY,
                             second.getSimpleRadii().fX, second.getSimpleRadii().fY);
             }
@@ -479,7 +328,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor& proc) const override {
         const RRectsGaussianEdgeFP& edgeFP = proc.cast<RRectsGaussianEdgeFP>();
         return fFirst  == edgeFP.fFirst &&
-               fSecond == edgeFP.fSecond && 
+               fSecond == edgeFP.fSecond &&
                fRadius == edgeFP.fRadius;
     }
 
@@ -494,7 +343,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 bool SkRRectsGaussianEdgeMaskFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp,
-                                                             GrTexture*, const 
+                                                             GrTexture*, const
                                                              SkMatrix& ctm) const {
     if (fp) {
         *fp = new RRectsGaussianEdgeFP(fFirst, fSecond, fRadius);
@@ -554,9 +403,9 @@ void SkRRectsGaussianEdgeMaskFilterImpl::flatten(SkWriteBuffer& buf) const {
 sk_sp<SkMaskFilter> SkRRectsGaussianEdgeMaskFilter::Make(const SkRRect& first,
                                                          const SkRRect& second,
                                                          SkScalar radius) {
-    if ((!first.isRect()  && !first.isCircle()  && !first.isSimpleCircular()) || 
+    if ((!first.isRect()  && !first.isCircle()  && !first.isSimpleCircular()) ||
         (!second.isRect() && !second.isCircle() && !second.isSimpleCircular())) {
-        // we only deal with the shapes where the x & y radii are equal 
+        // we only deal with the shapes where the x & y radii are equal
         // and the same for all four corners
         return nullptr;
     }
