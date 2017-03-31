@@ -10,6 +10,7 @@
 #include "SkGradientShaderPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
+#include "SkMallocPixelRef.h"
 #include "SkRadialGradient.h"
 #include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
@@ -410,12 +411,9 @@ SkGradientShaderBase::GradientShaderCache::GradientShaderCache(
 {
     // Only initialize the cache in getCache32.
     fCache32 = nullptr;
-    fCache32PixelRef = nullptr;
 }
 
-SkGradientShaderBase::GradientShaderCache::~GradientShaderCache() {
-    SkSafeUnref(fCache32PixelRef);
-}
+SkGradientShaderBase::GradientShaderCache::~GradientShaderCache() {}
 
 /*
  *  r,g,b used to be SkFixed, but on gcc (4.2.1 mac and 4.6.3 goobuntu) in
@@ -584,8 +582,8 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kCache32Count, kNumberOfDitherRows);
 
     SkASSERT(nullptr == cache->fCache32PixelRef);
-    cache->fCache32PixelRef = SkMallocPixelRef::NewAllocate(info, 0, nullptr);
-    cache->fCache32 = (SkPMColor*)cache->fCache32PixelRef->getAddr();
+    cache->fCache32PixelRef = SkMallocPixelRef::MakeAllocate(info, 0, nullptr);
+    cache->fCache32 = (SkPMColor*)cache->fCache32PixelRef->pixels();
     if (cache->fShader.fColorCount == 2) {
         Build32bitCache(cache->fCache32, cache->fShader.fOrigColors[0],
                         cache->fShader.fOrigColors[1], kCache32Count, cache->fCacheAlpha,
