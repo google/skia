@@ -2456,7 +2456,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
         write_stringstream(fGlobalInitializersBuffer, out);
     }
     StringStream bodyBuffer;
-    this->writeBlock(*f.fBody, bodyBuffer);
+    this->writeBlock((Block&) *f.fBody, bodyBuffer);
     write_stringstream(fVariableBuffer, out);
     write_stringstream(bodyBuffer, out);
     if (fCurrentBlock) {
@@ -2553,7 +2553,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclarations& decl,
                                          OutputStream& out) {
     for (size_t i = 0; i < decl.fVars.size(); i++) {
-        const VarDeclaration& varDecl = decl.fVars[i];
+        const VarDeclaration& varDecl = *decl.fVars[i];
         const Variable* var = varDecl.fVar;
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
         // in the OpenGL backend.
@@ -2615,7 +2615,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
 
 void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, OutputStream& out) {
     for (const auto& varDecl : decl.fVars) {
-        const Variable* var = varDecl.fVar;
+        const Variable* var = varDecl->fVar;
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
         // in the OpenGL backend.
         ASSERT(!(var->fModifiers.fFlags & (Modifiers::kReadOnly_Flag |
@@ -2628,8 +2628,8 @@ void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, Outpu
         SpvId type = this->getPointerType(var->fType, SpvStorageClassFunction);
         this->writeInstruction(SpvOpVariable, type, id, SpvStorageClassFunction, fVariableBuffer);
         this->writeInstruction(SpvOpName, id, var->fName.c_str(), fNameBuffer);
-        if (varDecl.fValue) {
-            SpvId value = this->writeExpression(*varDecl.fValue, out);
+        if (varDecl->fValue) {
+            SpvId value = this->writeExpression(*varDecl->fValue, out);
             this->writeInstruction(SpvOpStore, id, value, out);
         }
     }
@@ -2637,6 +2637,8 @@ void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, Outpu
 
 void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
     switch (s.fKind) {
+        case Statement::kNop_Kind:
+            break;
         case Statement::kBlock_Kind:
             this->writeBlock((Block&) s, out);
             break;
