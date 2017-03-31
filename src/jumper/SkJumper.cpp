@@ -61,6 +61,11 @@ static K kConstants = {
     M(lighten)            \
     M(difference)         \
     M(exclusion)          \
+    M(colorburn)          \
+    M(colordodge)         \
+    M(hardlight)          \
+    M(overlay)            \
+    M(softlight)          \
     M(clamp_0)            \
     M(clamp_1)            \
     M(clamp_a)            \

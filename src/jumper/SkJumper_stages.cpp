@@ -565,6 +565,41 @@ BLEND_MODE(lighten)    { return s + d -     min(s*da, d*sa) ; }
 BLEND_MODE(difference) { return s + d - two(min(s*da, d*sa)); }
 BLEND_MODE(exclusion)  { return s + d - two(s*d); }
 
+BLEND_MODE(colorburn) {
+    return if_then_else(d == da, d + s*inv(da),
+           if_then_else(s ==  0, s + d*inv(sa),
+                                 sa*(da - min(da, (da-d)*sa/s)) + s*inv(da) + d*inv(sa)));
+}
+BLEND_MODE(colordodge) {
+    return if_then_else(d ==  0, d + s*inv(da),
+           if_then_else(s == sa, s + d*inv(sa),
+                                 sa*min(da, (d*sa)/(sa - s)) + s*inv(da) + d*inv(sa)));
+}
+BLEND_MODE(hardlight) {
+    return s*inv(da) + d*inv(sa)
+         + if_then_else(two(s) <= sa, two(s*d), sa*da - two((da-d)*(sa-s)));
+}
+BLEND_MODE(overlay) {
+    return s*inv(da) + d*inv(sa)
+         + if_then_else(two(d) <= da, two(s*d), sa*da - two((da-d)*(sa-s)));
+}
+
+BLEND_MODE(softlight) {
+    F m  = if_then_else(da > 0, d / da, 0),
+      s2 = two(s),
+      m4 = two(two(m));
+
+    // The logic forks three ways:
+    //    1. dark src?
+    //    2. light src, dark dst?
+    //    3. light src, light dst?
+    F darkSrc = d*(sa + (s2 - sa)*(1.0_f - m)),      // Used in case 1.
+      darkDst = (m4*m4 + m4)*(m - 1.0_f) + 7.0_f*m,  // Used in case 2.
+      liteDst = rcp(rsqrt(m)) - m,                   // Used in case 3.
+      liteSrc = d*sa + da*(s2 - sa) * if_then_else(two(two(d)) <= da, darkDst, liteDst); // 2 or 3?
+    return s*inv(da) + d*inv(sa) + if_then_else(s2 <= sa, darkSrc, liteSrc);      // 1 or (2 or 3)?
+}
+
 STAGE(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);
