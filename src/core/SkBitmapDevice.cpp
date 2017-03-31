@@ -316,8 +316,9 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
             matrix.preTranslate(dx, dy);
         }
 
-        SkRect extractedBitmapBounds;
-        extractedBitmapBounds.isetWH(bitmapPtr->width(), bitmapPtr->height());
+        SkRect extractedBitmapBounds = SkRect::MakeXYWH(dx, dy,
+                                                        SkIntToScalar(bitmapPtr->width()),
+                                                        SkIntToScalar(bitmapPtr->height()));
         if (extractedBitmapBounds == tmpSrc) {
             // no fractional part in src, we can just call drawBitmap
             goto USE_DRAWBITMAP;
