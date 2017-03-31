@@ -327,8 +327,7 @@ struct SK_API SkIRect {
         otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(int32_t left, int32_t top,
-                                         int32_t right, int32_t bottom) {
+    bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         if (left < right && top < bottom && !this->isEmpty() &&
                 fLeft < right && left < fRight && fTop < bottom && top < fBottom) {
             if (fLeft < left) fLeft = left;
