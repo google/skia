@@ -1642,8 +1642,13 @@ SpvStorageClass_ get_storage_class(const Modifiers& modifiers) {
 
 SpvStorageClass_ get_storage_class(const Expression& expr) {
     switch (expr.fKind) {
-        case Expression::kVariableReference_Kind:
-            return get_storage_class(((VariableReference&) expr).fVariable.fModifiers);
+        case Expression::kVariableReference_Kind: {
+            const Variable& var = ((VariableReference&) expr).fVariable;
+            if (var.fStorage != Variable::kGlobal_Storage) {
+                return SpvStorageClassFunction;
+            }
+            return get_storage_class(var.fModifiers);
+        }
         case Expression::kFieldAccess_Kind:
             return get_storage_class(*((FieldAccess&) expr).fBase);
         case Expression::kIndex_Kind:

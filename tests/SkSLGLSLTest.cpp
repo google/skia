@@ -93,7 +93,7 @@ DEF_TEST(SkSLFunctions, r) {
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
-         "float foo(in float v[2]) {\n"
+         "float foo(float v[2]) {\n"
          "    return v[0] * v[1];\n"
          "}\n"
          "void bar(inout float x) {\n"

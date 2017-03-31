@@ -498,7 +498,7 @@ std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
 std::unique_ptr<ASTParameter> Parser::parameter() {
-    Modifiers modifiers = this->modifiersWithDefaults(Modifiers::kIn_Flag);
+    Modifiers modifiers = this->modifiersWithDefaults(0);
     std::unique_ptr<ASTType> type = this->type();
     if (!type) {
         return nullptr;
