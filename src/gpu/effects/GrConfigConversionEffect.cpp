@@ -109,12 +109,6 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 
-#if !defined(__clang__) && _MSC_FULL_VER >= 190024213
-// Work around VS 2015 Update 3 optimizer bug that causes internal compiler error
-//https://connect.microsoft.com/VisualStudio/feedback/details/3100520/internal-compiler-error
-#pragma optimize("t", off)
-#endif
-
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
     PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
@@ -123,11 +117,6 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestD
                             d->textureProxy(GrProcessorUnitTest::kSkiaPMTextureIdx),
                             pmConv, GrTest::TestMatrix(d->fRandom)));
 }
-#endif
-
-#if !defined(__clang__) && _MSC_FULL_VER >= 190024213
-// Restore optimization settings.
-#pragma optimize("", on)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
