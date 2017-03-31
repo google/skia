@@ -23,7 +23,11 @@ void SkColorTable::init(const SkPMColor colors[], int count) {
 
 SkColorTable::SkColorTable(const SkPMColor colors[], int count) {
     SkASSERT(0 == count || colors);
-    SkASSERT(count >= 0 && count <= 256);
+    if (count < 0) {
+        count = 0;
+    } else if (count > 256) {
+        count = 256;
+    }
     this->init(colors, count);
 }
 
@@ -50,16 +54,6 @@ const uint16_t* SkColorTable::read16BitCache() const {
         }
     });
     return f16BitCache;
-}
-
-sk_sp<SkColorTable> SkColorTable::Make(const SkPMColor colors[], int count) {
-    if (count < 0 || count > 256) {
-        return nullptr;
-    }
-    if (count && !colors) {
-        return nullptr;
-    }
-    return sk_make_sp<SkColorTable>(colors, count);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,14 +85,14 @@ void SkColorTable::writeToBuffer(SkWriteBuffer& buffer) const {
     buffer.writeColorArray(fColors, fCount);
 }
 
-sk_sp<SkColorTable> SkColorTable::Create(SkReadBuffer& buffer) {
+SkColorTable* SkColorTable::Create(SkReadBuffer& buffer) {
     if (buffer.isVersionLT(SkReadBuffer::kRemoveColorTableAlpha_Version)) {
         /*fAlphaType = */buffer.readUInt();
     }
 
     const int count = buffer.getArrayCount();
     if (0 == count) {
-        return sk_sp<SkColorTable>(new SkColorTable(nullptr, 0));
+        return new SkColorTable(nullptr, 0);
     }
 
     if (count < 0 || count > 256) {
@@ -112,5 +106,5 @@ sk_sp<SkColorTable> SkColorTable::Create(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return sk_sp<SkColorTable>(new SkColorTable(colors.release(), count, kAllocatedWithMalloc));
+    return new SkColorTable(colors.release(), count, kAllocatedWithMalloc);
 }

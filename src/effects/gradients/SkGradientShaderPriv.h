@@ -16,6 +16,7 @@
 #include "SkClampRange.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
+#include "SkMallocPixelRef.h"
 #include "SkOnce.h"
 #include "SkReadBuffer.h"
 #include "SkShader.h"
@@ -128,7 +129,7 @@ public:
 
         const SkPMColor*    getCache32();
 
-        SkPixelRef* getCache32PixelRef() const { return fCache32PixelRef.get(); }
+        SkMallocPixelRef* getCache32PixelRef() const { return fCache32PixelRef; }
 
         unsigned getAlpha() const { return fCacheAlpha; }
         bool getDither() const { return fCacheDither; }
@@ -137,7 +138,7 @@ public:
         // Working pointer. If it's nullptr, we need to recompute the cache values.
         SkPMColor*  fCache32;
 
-        sk_sp<SkPixelRef> fCache32PixelRef;
+        SkMallocPixelRef* fCache32PixelRef;
         const unsigned    fCacheAlpha;        // The alpha value we used when we computed the cache.
                                               // Larger than 8bits so we can store uninitialized
                                               // value.

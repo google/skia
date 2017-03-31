@@ -1445,9 +1445,11 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
     SkAlphaType alphaType = kPremul_SkAlphaType;
     (void)SkColorTypeValidateAlphaType(fColorType, alphaType, &alphaType);
 
+    SkMallocPixelRef::ZeroedPRFactory factory;
     dst->allocPixels(SkImageInfo::Make(size.width(), size.height(),
                                        fColorType, alphaType, fColorSpace),
-                     nullptr/*colortable*/, SkBitmap::kZeroPixels_AllocFlag);
+                     &factory,
+                     nullptr/*colortable*/);
     SkCanvas canvas(*dst);
     return src.draw(&canvas);
 }

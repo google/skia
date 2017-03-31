@@ -19,11 +19,13 @@ static SkBitmap make_bitmap() {
     for (int i = 0; i < N; i++) {
         c[i] = SkPackARGB32(0x80, 0x80, 0, 0);
     }
+    SkColorTable* ctable = new SkColorTable(c, N);
 
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(1, 1, kIndex_8_SkColorType,
                                      kPremul_SkAlphaType),
-                   SkColorTable::Make(c, N));
+                   nullptr, ctable);
+    ctable->unref();
 
     bm.lockPixels();
     for (int y = 0; y < bm.height(); y++) {

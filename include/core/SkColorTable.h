@@ -24,12 +24,10 @@
 */
 class SK_API SkColorTable : public SkRefCnt {
 public:
-    static sk_sp<SkColorTable> Make(const SkPMColor colors[], int count);
-
     /** Copy up to 256 colors into a new SkColorTable.
      */
     SkColorTable(const SkPMColor colors[], int count);
-    ~SkColorTable() override;
+    virtual ~SkColorTable();
 
     /** Returns the number of colors in the table.
      */
@@ -54,7 +52,7 @@ public:
     void writeToBuffer(SkWriteBuffer&) const;
 
     // may return null
-    static sk_sp<SkColorTable> Create(SkReadBuffer&);
+    static SkColorTable* Create(SkReadBuffer&);
 
 private:
     enum AllocatedWithMalloc {
