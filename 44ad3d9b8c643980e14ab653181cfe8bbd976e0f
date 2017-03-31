@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "277b9ad3_e37c4257",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-31T19:25:45Z",
+      "side": 1,
+      "message": "Thoughts on changing this name to something that clarifies that this is alpha behavior?  I already dislike the name as is.  Could go back to:\nSkBlendBehavior::kLinear\nSkBlendBehavior::kLegacy\n\nBut we already decided we didn\u0027t like that.  Open to suggestions here.",
+      "range": {
+        "startLine": 185,
+        "startChar": 44,
+        "endLine": 185,
+        "endChar": 70
+      },
+      "revId": "44ad3d9b8c643980e14ab653181cfe8bbd976e0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
