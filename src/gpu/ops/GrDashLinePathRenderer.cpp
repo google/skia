@@ -46,7 +46,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
-    std::unique_ptr<GrMeshDrawOp> op = GrDashOp::MakeDashLineOp(
+    std::unique_ptr<GrLegacyMeshDrawOp> op = GrDashOp::MakeDashLineOp(
             args.fPaint.getColor(), *args.fViewMatrix, pts, aaMode, args.fShape->style());
     if (!op) {
         return false;
@@ -55,6 +55,6 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;
 }

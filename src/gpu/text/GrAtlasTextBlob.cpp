@@ -257,7 +257,7 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
     return false;
 }
 
-inline std::unique_ptr<GrMeshDrawOp> GrAtlasTextBlob::makeOp(
+inline std::unique_ptr<GrLegacyMeshDrawOp> GrAtlasTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const GrTextUtils::Paint& paint,
         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
@@ -305,12 +305,12 @@ inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrClip& 
             continue;
         }
 
-        std::unique_ptr<GrMeshDrawOp> op(this->makeOp(info, glyphCount, run, subRun, viewMatrix, x,
-                                                      y, paint, props, distanceAdjustTable,
-                                                      rtc->isGammaCorrect(), cache));
+        std::unique_ptr<GrLegacyMeshDrawOp> op(
+                this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, paint, props,
+                             distanceAdjustTable, rtc->isGammaCorrect(), cache));
         GrPipelineBuilder pipelineBuilder(std::move(grPaint), GrAAType::kNone);
 
-        rtc->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        rtc->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
     }
 }
 
@@ -425,7 +425,7 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context, GrRenderTargetContext* 
     this->flushBigGlyphs(context, rtc, clip, paint, viewMatrix, x, y, clipBounds);
 }
 
-std::unique_ptr<GrMeshDrawOp> GrAtlasTextBlob::test_makeOp(
+std::unique_ptr<GrLegacyMeshDrawOp> GrAtlasTextBlob::test_makeOp(
         int glyphCount, int run, int subRun, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
         const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache) {

@@ -63,13 +63,13 @@ static const uint16_t* circle_type_to_indices(bool stroked) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ShadowCircleOp final : public GrMeshDrawOp {
+class ShadowCircleOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                              SkPoint center, SkScalar radius, SkScalar blurRadius,
-                                              const GrStyle& style) {
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                                    SkPoint center, SkScalar radius,
+                                                    SkScalar blurRadius, const GrStyle& style) {
         SkASSERT(viewMatrix.isSimilarity());
         const SkStrokeRec& stroke = style.strokeRec();
         if (style.hasPathEffect()) {
@@ -353,7 +353,7 @@ private:
         GrMesh mesh;
         mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
                          firstIndex, fVertCount, fIndexCount);
-        target->draw(gp.get(), mesh);
+        target->draw(gp.get(), this->pipeline(), mesh);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -388,7 +388,7 @@ private:
     int fVertCount;
     int fIndexCount;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -504,7 +504,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
 //   each vertex is also given the normalized x & y distance from the interior rect's edge
 //      the GP takes the min of those depths +1 to get the normalized distance to the outer edge
 
-class ShadowCircularRRectOp final : public GrMeshDrawOp {
+class ShadowCircularRRectOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -768,7 +768,7 @@ private:
         GrMesh mesh;
         mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
                          firstIndex, fVertCount, fIndexCount);
-        target->draw(gp.get(), mesh);
+        target->draw(gp.get(), this->pipeline(), mesh);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -803,17 +803,17 @@ private:
     int fVertCount;
     int fIndexCount;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrMeshDrawOp> make_shadow_circle_op(GrColor color,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkRect& oval,
-                                                    SkScalar blurRadius,
-                                                    const SkStrokeRec& stroke,
-                                                    const GrShaderCaps* shaderCaps) {
+std::unique_ptr<GrLegacyMeshDrawOp> make_shadow_circle_op(GrColor color,
+                                                          const SkMatrix& viewMatrix,
+                                                          const SkRect& oval,
+                                                          SkScalar blurRadius,
+                                                          const SkStrokeRec& stroke,
+                                                          const GrShaderCaps* shaderCaps) {
     // we can only draw circles
     SkScalar width = oval.width();
     SkASSERT(SkScalarNearlyEqual(width, oval.height()) && viewMatrix.isSimilarity());
@@ -822,11 +822,11 @@ std::unique_ptr<GrMeshDrawOp> make_shadow_circle_op(GrColor color,
                                 GrStyle(stroke, nullptr));
 }
 
-static std::unique_ptr<GrMeshDrawOp> make_shadow_rrect_op(GrColor color,
-                                                          const SkMatrix& viewMatrix,
-                                                          const SkRRect& rrect,
-                                                          SkScalar blurRadius,
-                                                          const SkStrokeRec& stroke) {
+static std::unique_ptr<GrLegacyMeshDrawOp> make_shadow_rrect_op(GrColor color,
+                                                                const SkMatrix& viewMatrix,
+                                                                const SkRRect& rrect,
+                                                                SkScalar blurRadius,
+                                                                const SkStrokeRec& stroke) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
@@ -879,17 +879,17 @@ static std::unique_ptr<GrMeshDrawOp> make_shadow_rrect_op(GrColor color,
         return nullptr;
     }
 
-    return std::unique_ptr<GrMeshDrawOp>(new ShadowCircularRRectOp(
+    return std::unique_ptr<GrLegacyMeshDrawOp>(new ShadowCircularRRectOp(
             color, viewMatrix, bounds, xRadius, blurRadius, scaledStroke.fX, isStrokeOnly));
 }
 
 namespace GrShadowRRectOp {
-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRRect& rrect,
-                                   const SkScalar blurRadius,
-                                   const SkStrokeRec& stroke,
-                                   const GrShaderCaps* shaderCaps) {
+std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                         const SkMatrix& viewMatrix,
+                                         const SkRRect& rrect,
+                                         const SkScalar blurRadius,
+                                         const SkStrokeRec& stroke,
+                                         const GrShaderCaps* shaderCaps) {
     if (rrect.isOval()) {
         return make_shadow_circle_op(color, viewMatrix, rrect.getBounds(), blurRadius, stroke,
                                      shaderCaps);
@@ -922,7 +922,7 @@ DRAW_OP_TEST_DEFINE(ShadowCircleOp) {
         SkScalar radius = circle.width() / 2.f;
         SkStrokeRec stroke = GrTest::TestStrokeRec(random);
         SkScalar blurRadius = random->nextSScalar1() * 72.f;
-        std::unique_ptr<GrMeshDrawOp> op = ShadowCircleOp::Make(
+        std::unique_ptr<GrLegacyMeshDrawOp> op = ShadowCircleOp::Make(
                 color, viewMatrix, center, radius, blurRadius, GrStyle(stroke, nullptr));
         if (op) {
             return op;

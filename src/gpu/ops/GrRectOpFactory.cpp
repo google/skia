@@ -13,9 +13,9 @@
 
 namespace GrRectOpFactory {
 
-std::unique_ptr<GrMeshDrawOp> MakeAAFillNestedRects(GrColor color,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkRect rects[2]) {
+std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFillNestedRects(GrColor color,
+                                                          const SkMatrix& viewMatrix,
+                                                          const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[0].isEmpty() && !rects[1].isEmpty());
 

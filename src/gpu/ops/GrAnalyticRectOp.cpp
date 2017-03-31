@@ -230,7 +230,7 @@ sk_sp<GrGeometryProcessor> RectGeometryProcessor::TestCreate(GrProcessorTestData
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class AnalyticRectOp final : public GrMeshDrawOp {
+class AnalyticRectOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -344,7 +344,7 @@ private:
 
             verts += kVerticesPerQuad;
         }
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -375,15 +375,15 @@ private:
     SkMatrix fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
-std::unique_ptr<GrMeshDrawOp> GrAnalyticRectOp::Make(GrColor color,
-                                                     const SkMatrix& viewMatrix,
-                                                     const SkRect& rect,
-                                                     const SkRect& croppedRect,
-                                                     const SkRect& bounds) {
-    return std::unique_ptr<GrMeshDrawOp>(
+std::unique_ptr<GrLegacyMeshDrawOp> GrAnalyticRectOp::Make(GrColor color,
+                                                           const SkMatrix& viewMatrix,
+                                                           const SkRect& rect,
+                                                           const SkRect& croppedRect,
+                                                           const SkRect& bounds) {
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
             new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 
@@ -395,7 +395,7 @@ DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
     SkRect rect = GrTest::TestSquare(random);
     SkRect croppedRect = GrTest::TestSquare(random);
     SkRect bounds = GrTest::TestSquare(random);
-    return std::unique_ptr<GrMeshDrawOp>(
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
             new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 
