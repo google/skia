@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#line 3 "lex.sksl.c"
+#line 2 "lex.sksl.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -13,11 +13,81 @@
 
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
-#define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 39
+#define YY_FLEX_MINOR_VERSION 6
+#define YY_FLEX_SUBMINOR_VERSION 3
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
+
+    #define yy_create_buffer sksl_create_buffer
+
+    #define yy_delete_buffer sksl_delete_buffer
+
+    #define yy_scan_buffer sksl_scan_buffer
+
+    #define yy_scan_string sksl_scan_string
+
+    #define yy_scan_bytes sksl_scan_bytes
+
+    #define yy_init_buffer sksl_init_buffer
+
+    #define yy_flush_buffer sksl_flush_buffer
+
+    #define yy_load_buffer_state sksl_load_buffer_state
+
+    #define yy_switch_to_buffer sksl_switch_to_buffer
+
+    #define yypush_buffer_state skslpush_buffer_state
+
+    #define yypop_buffer_state skslpop_buffer_state
+
+    #define yyensure_buffer_stack skslensure_buffer_stack
+
+    #define yylex sksllex
+
+    #define yyrestart skslrestart
+
+    #define yylex_init sksllex_init
+
+    #define yylex_init_extra sksllex_init_extra
+
+    #define yylex_destroy sksllex_destroy
+
+    #define yyget_debug skslget_debug
+
+    #define yyset_debug skslset_debug
+
+    #define yyget_extra skslget_extra
+
+    #define yyset_extra skslset_extra
+
+    #define yyget_in skslget_in
+
+    #define yyset_in skslset_in
+
+    #define yyget_out skslget_out
+
+    #define yyset_out skslset_out
+
+    #define yyget_leng skslget_leng
+
+    #define yyget_text skslget_text
+
+    #define yyget_lineno skslget_lineno
+
+    #define yyset_lineno skslset_lineno
+
+        #define yyget_column skslget_column
+
+        #define yyset_column skslset_column
+
+    #define yywrap skslwrap
+
+    #define yyalloc skslalloc
+
+    #define yyrealloc skslrealloc
+
+    #define yyfree skslfree
 
 /* First, we deal with  platform-specific or compiler-specific issues. */
 
@@ -93,36 +163,22 @@ typedef unsigned int flex_uint32_t;
 
 #endif /* ! FLEXINT_H */
 
-#ifdef __cplusplus
-
-/* The "const" storage-class-modifier is valid. */
-#define YY_USE_CONST
-
-#else	/* ! __cplusplus */
-
-/* C99 requires __STDC__ to be defined as 1. */
-#if defined (__STDC__)
-
-#define YY_USE_CONST
-
-#endif	/* defined (__STDC__) */
-#endif	/* ! __cplusplus */
-
-#ifdef YY_USE_CONST
+/* TODO: this is always defined, so inline it */
 #define yyconst const
+
+#if defined(__GNUC__) && __GNUC__ >= 3
+#define yynoreturn __attribute__((__noreturn__))
 #else
-#define yyconst
+#define yynoreturn
 #endif
 
 /* Returned upon end-of-file. */
 #define YY_NULL 0
 
-/* Promotes a possibly negative, possibly signed char to an unsigned
- * integer for use as an array index.  If the signed char is negative,
- * we want to instead treat it as an 8-bit unsigned char, hence the
- * double cast.
+/* Promotes a possibly negative, possibly signed char to an
+ *   integer in range [0..255] for use as an array index.
  */
-#define YY_SC_TO_UI(c) ((unsigned int) (unsigned char) c)
+#define YY_SC_TO_UI(c) ((YY_CHAR) (c))
 
 /* An opaque pointer. */
 #ifndef YY_TYPEDEF_YY_SCANNER_T
@@ -146,20 +202,16 @@ typedef void* yyscan_t;
  * definition of BEGIN.
  */
 #define BEGIN yyg->yy_start = 1 + 2 *
-
 /* Translate the current start state into a value that can be later handed
  * to BEGIN to return to the state.  The YYSTATE alias is for lex
  * compatibility.
  */
 #define YY_START ((yyg->yy_start - 1) / 2)
 #define YYSTATE YY_START
-
 /* Action number for EOF rule of a given start state. */
 #define YY_STATE_EOF(state) (YY_END_OF_BUFFER + state + 1)
-
 /* Special action meaning "start processing a new file". */
 #define YY_NEW_FILE skslrestart(yyin ,yyscanner )
-
 #define YY_END_OF_BUFFER_CHAR 0
 
 /* Size of default input buffer. */
@@ -192,10 +244,10 @@ typedef size_t yy_size_t;
 #define EOB_ACT_CONTINUE_SCAN 0
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
-
+    
     /* Note: We specifically omit the test for yy_rule_can_match_eol because it requires
      *       access to the local variable yy_act. Since yyless() is a macro, it would break
-     *       existing scanners that call yyless() from OUTSIDE sksllex. 
+     *       existing scanners that call yyless() from OUTSIDE sksllex.
      *       One obvious solution it to make yy_act a global. I tried that, and saw
      *       a 5% performance hit in a non-yylineno scanner, because yy_act is
      *       normally declared as a register variable-- so it is not worth it.
@@ -228,7 +280,6 @@ typedef size_t yy_size_t;
 		YY_DO_BEFORE_ACTION; /* set up yytext again */ \
 		} \
 	while ( 0 )
-
 #define unput(c) yyunput( c, yyg->yytext_ptr , yyscanner )
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
@@ -243,12 +294,12 @@ struct yy_buffer_state
 	/* Size of input buffer in bytes, not including room for EOB
 	 * characters.
 	 */
-	yy_size_t yy_buf_size;
+	int yy_buf_size;
 
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	yy_size_t yy_n_chars;
+	int yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -271,7 +322,7 @@ struct yy_buffer_state
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-    
+
 	/* Whether to try to fill the input buffer when we reach the
 	 * end of it.
 	 */
@@ -305,36 +356,33 @@ struct yy_buffer_state
 #define YY_CURRENT_BUFFER ( yyg->yy_buffer_stack \
                           ? yyg->yy_buffer_stack[yyg->yy_buffer_stack_top] \
                           : NULL)
-
 /* Same as previous macro, but useful when we know that the buffer stack is not
  * NULL or when we need an lvalue. For internal use only.
  */
 #define YY_CURRENT_BUFFER_LVALUE yyg->yy_buffer_stack[yyg->yy_buffer_stack_top]
 
-void skslrestart (FILE *input_file ,yyscan_t yyscanner );
-void sksl_switch_to_buffer (YY_BUFFER_STATE new_buffer ,yyscan_t yyscanner );
-YY_BUFFER_STATE sksl_create_buffer (FILE *file,int size ,yyscan_t yyscanner );
-void sksl_delete_buffer (YY_BUFFER_STATE b ,yyscan_t yyscanner );
-void sksl_flush_buffer (YY_BUFFER_STATE b ,yyscan_t yyscanner );
-void skslpush_buffer_state (YY_BUFFER_STATE new_buffer ,yyscan_t yyscanner );
-void skslpop_buffer_state (yyscan_t yyscanner );
+void skslrestart ( FILE *input_file , yyscan_t yyscanner );
+void sksl_switch_to_buffer ( YY_BUFFER_STATE new_buffer , yyscan_t yyscanner );
+YY_BUFFER_STATE sksl_create_buffer ( FILE *file, int size , yyscan_t yyscanner );
+void sksl_delete_buffer ( YY_BUFFER_STATE b , yyscan_t yyscanner );
+void sksl_flush_buffer ( YY_BUFFER_STATE b , yyscan_t yyscanner );
+void skslpush_buffer_state ( YY_BUFFER_STATE new_buffer , yyscan_t yyscanner );
+void skslpop_buffer_state ( yyscan_t yyscanner );
 
-static void skslensure_buffer_stack (yyscan_t yyscanner );
-static void sksl_load_buffer_state (yyscan_t yyscanner );
-static void sksl_init_buffer (YY_BUFFER_STATE b,FILE *file ,yyscan_t yyscanner );
-
+static void skslensure_buffer_stack ( yyscan_t yyscanner );
+static void sksl_load_buffer_state ( yyscan_t yyscanner );
+static void sksl_init_buffer ( YY_BUFFER_STATE b, FILE *file , yyscan_t yyscanner );
 #define YY_FLUSH_BUFFER sksl_flush_buffer(YY_CURRENT_BUFFER ,yyscanner)
 
-YY_BUFFER_STATE sksl_scan_buffer (char *base,yy_size_t size ,yyscan_t yyscanner );
-YY_BUFFER_STATE sksl_scan_string (yyconst char *yy_str ,yyscan_t yyscanner );
-YY_BUFFER_STATE sksl_scan_bytes (yyconst char *bytes,yy_size_t len ,yyscan_t yyscanner );
+YY_BUFFER_STATE sksl_scan_buffer ( char *base, yy_size_t size , yyscan_t yyscanner );
+YY_BUFFER_STATE sksl_scan_string ( const char *yy_str , yyscan_t yyscanner );
+YY_BUFFER_STATE sksl_scan_bytes ( const char *bytes, int len , yyscan_t yyscanner );
 
-void *skslalloc (yy_size_t ,yyscan_t yyscanner );
-void *skslrealloc (void *,yy_size_t ,yyscan_t yyscanner );
-void skslfree (void * ,yyscan_t yyscanner );
+void *skslalloc ( yy_size_t , yyscan_t yyscanner );
+void *skslrealloc ( void *, yy_size_t , yyscan_t yyscanner );
+void skslfree ( void * , yyscan_t yyscanner );
 
 #define yy_new_buffer sksl_create_buffer
-
 #define yy_set_interactive(is_interactive) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){ \
@@ -344,7 +392,6 @@ void skslfree (void * ,yyscan_t yyscanner );
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_is_interactive = is_interactive; \
 	}
-
 #define yy_set_bol(at_bol) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){\
@@ -354,32 +401,29 @@ void skslfree (void * ,yyscan_t yyscanner );
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_at_bol = at_bol; \
 	}
-
 #define YY_AT_BOL() (YY_CURRENT_BUFFER_LVALUE->yy_at_bol)
 
 /* Begin user sect3 */
-
-typedef unsigned char YY_CHAR;
+typedef flex_uint8_t YY_CHAR;
 
 typedef int yy_state_type;
 
 #define yytext_ptr yytext_r
 
-static yy_state_type yy_get_previous_state (yyscan_t yyscanner );
-static yy_state_type yy_try_NUL_trans (yy_state_type current_state  ,yyscan_t yyscanner);
-static int yy_get_next_buffer (yyscan_t yyscanner );
-static void yy_fatal_error (yyconst char msg[] ,yyscan_t yyscanner );
+static yy_state_type yy_get_previous_state ( yyscan_t yyscanner );
+static yy_state_type yy_try_NUL_trans ( yy_state_type current_state  , yyscan_t yyscanner);
+static int yy_get_next_buffer ( yyscan_t yyscanner );
+static void yynoreturn yy_fatal_error ( const char* msg , yyscan_t yyscanner );
 
 /* Done after the current pattern has been matched and before the
  * corresponding action - sets up yytext.
  */
 #define YY_DO_BEFORE_ACTION \
 	yyg->yytext_ptr = yy_bp; \
-	yyleng = (size_t) (yy_cp - yy_bp); \
+	yyleng = (int) (yy_cp - yy_bp); \
 	yyg->yy_hold_char = *yy_cp; \
 	*yy_cp = '\0'; \
 	yyg->yy_c_buf_p = yy_cp;
-
 #define YY_NUM_RULES 92
 #define YY_END_OF_BUFFER 93
 /* This struct is not used in this scanner,
@@ -389,7 +433,7 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static yyconst flex_int16_t yy_accept[253] =
+static const flex_int16_t yy_accept[253] =
     {   0,
         0,    0,   93,   91,   90,   90,   64,   91,   38,   54,
        59,   40,   41,   52,   50,   47,   51,   46,   53,    4,
@@ -421,7 +465,7 @@ static yyconst flex_int16_t yy_accept[253] =
        29,    0
     } ;
 
-static yyconst flex_int32_t yy_ec[256] =
+static const YY_CHAR yy_ec[256] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         1,    1,    2,    1,    1,    1,    1,    1,    1,    1,
@@ -453,7 +497,7 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static yyconst flex_int32_t yy_meta[57] =
+static const YY_CHAR yy_meta[57] =
     {   0,
         1,    1,    2,    1,    1,    3,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    4,    4,    1,    1,
@@ -463,7 +507,7 @@ static yyconst flex_int32_t yy_meta[57] =
         3,    3,    1,    1,    1,    1
     } ;
 
-static yyconst flex_int16_t yy_base[259] =
+static const flex_int16_t yy_base[259] =
     {   0,
         0,    0,  320,  321,   55,   57,  297,    0,    0,  296,
        53,  321,  321,  295,   50,  321,   49,   47,   57,   52,
@@ -495,7 +539,7 @@ static yyconst flex_int16_t yy_base[259] =
         0,  321,  175,  178,  181,  186,  191,  193
     } ;
 
-static yyconst flex_int16_t yy_def[259] =
+static const flex_int16_t yy_def[259] =
     {   0,
       252,    1,  252,  252,  252,  252,  252,  253,  254,  252,
       252,  252,  252,  252,  252,  252,  252,  252,  252,  252,
@@ -527,7 +571,7 @@ static yyconst flex_int16_t yy_def[259] =
       254,    0,  252,  252,  252,  252,  252,  252
     } ;
 
-static yyconst flex_int16_t yy_nxt[378] =
+static const flex_int16_t yy_nxt[378] =
     {   0,
         4,    5,    6,    7,    8,    9,   10,   11,   12,   13,
        14,   15,   16,   17,   18,   19,   20,   21,   22,   23,
@@ -572,7 +616,7 @@ static yyconst flex_int16_t yy_nxt[378] =
       252,  252,  252,  252,  252,  252,  252
     } ;
 
-static yyconst flex_int16_t yy_chk[378] =
+static const flex_int16_t yy_chk[378] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -618,7 +662,7 @@ static yyconst flex_int16_t yy_chk[378] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static yyconst flex_int32_t yy_rule_can_match_eol[93] =
+static const flex_int32_t yy_rule_can_match_eol[93] =
     {   0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -635,19 +679,25 @@ static yyconst flex_int32_t yy_rule_can_match_eol[93] =
 #define YY_RESTORE_YY_MORE_OFFSET
 #line 1 "sksl.flex"
 /*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+/*
 
-	This file is IGNORED during the build process!
+    This file is IGNORED during the build process!
 
-	As this file is updated so infrequently and flex is not universally present on build machines,
-	the lex.sksl.c file must be manually regenerated if you make any changes to this file. Just run:
+    As this file is updated so infrequently and flex is not universally present on build machines,
+    the lex.sksl.c file must be manually regenerated if you make any changes to this file. Just run:
 
-		flex sksl.flex
+        flex sksl.flex
 
     You will have to manually add a copyright notice to the top of lex.sksl.c.
-    
+
 */
 #define YY_NO_UNISTD_H 1
-#line 645 "lex.sksl.c"
+#line 694 "lex.sksl.c"
 
 #define INITIAL 0
 
@@ -676,8 +726,8 @@ struct yyguts_t
     size_t yy_buffer_stack_max; /**< capacity of stack. */
     YY_BUFFER_STATE * yy_buffer_stack; /**< Stack as an array. */
     char yy_hold_char;
-    yy_size_t yy_n_chars;
-    yy_size_t yyleng_r;
+    int yy_n_chars;
+    int yyleng_r;
     char *yy_c_buf_p;
     int yy_init;
     int yy_start;
@@ -697,44 +747,44 @@ struct yyguts_t
 
     }; /* end struct yyguts_t */
 
-static int yy_init_globals (yyscan_t yyscanner );
+static int yy_init_globals ( yyscan_t yyscanner );
 
 int sksllex_init (yyscan_t* scanner);
 
-int sksllex_init_extra (YY_EXTRA_TYPE user_defined,yyscan_t* scanner);
+int sksllex_init_extra ( YY_EXTRA_TYPE user_defined, yyscan_t* scanner);
 
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int sksllex_destroy (yyscan_t yyscanner );
+int sksllex_destroy ( yyscan_t yyscanner );
 
-int skslget_debug (yyscan_t yyscanner );
+int skslget_debug ( yyscan_t yyscanner );
 
-void skslset_debug (int debug_flag ,yyscan_t yyscanner );
+void skslset_debug ( int debug_flag , yyscan_t yyscanner );
 
-YY_EXTRA_TYPE skslget_extra (yyscan_t yyscanner );
+YY_EXTRA_TYPE skslget_extra ( yyscan_t yyscanner );
 
-void skslset_extra (YY_EXTRA_TYPE user_defined ,yyscan_t yyscanner );
+void skslset_extra ( YY_EXTRA_TYPE user_defined , yyscan_t yyscanner );
 
-FILE *skslget_in (yyscan_t yyscanner );
+FILE *skslget_in ( yyscan_t yyscanner );
 
-void skslset_in  (FILE * in_str ,yyscan_t yyscanner );
+void skslset_in  ( FILE * _in_str , yyscan_t yyscanner );
 
-FILE *skslget_out (yyscan_t yyscanner );
+FILE *skslget_out ( yyscan_t yyscanner );
 
-void skslset_out  (FILE * out_str ,yyscan_t yyscanner );
+void skslset_out  ( FILE * _out_str , yyscan_t yyscanner );
 
-yy_size_t skslget_leng (yyscan_t yyscanner );
+			int skslget_leng ( yyscan_t yyscanner );
 
-char *skslget_text (yyscan_t yyscanner );
+char *skslget_text ( yyscan_t yyscanner );
 
-int skslget_lineno (yyscan_t yyscanner );
+int skslget_lineno ( yyscan_t yyscanner );
 
-void skslset_lineno (int line_number ,yyscan_t yyscanner );
+void skslset_lineno ( int _line_number , yyscan_t yyscanner );
 
-int skslget_column  (yyscan_t yyscanner );
+int skslget_column  ( yyscan_t yyscanner );
 
-void skslset_column (int column_no ,yyscan_t yyscanner );
+void skslset_column ( int _column_no , yyscan_t yyscanner );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -742,28 +792,31 @@ void skslset_column (int column_no ,yyscan_t yyscanner );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int skslwrap (yyscan_t yyscanner );
+extern "C" int skslwrap ( yyscan_t yyscanner );
 #else
-extern int skslwrap (yyscan_t yyscanner );
+extern int skslwrap ( yyscan_t yyscanner );
 #endif
 #endif
 
-    static void yyunput (int c,char *buf_ptr  ,yyscan_t yyscanner);
+#ifndef YY_NO_UNPUT
     
+    static void yyunput ( int c, char *buf_ptr  , yyscan_t yyscanner);
+    
+#endif
+
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char *,yyconst char *,int ,yyscan_t yyscanner);
+static void yy_flex_strncpy ( char *, const char *, int , yyscan_t yyscanner);
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (yyconst char * ,yyscan_t yyscanner);
+static int yy_flex_strlen ( const char * , yyscan_t yyscanner);
 #endif
 
 #ifndef YY_NO_INPUT
-
 #ifdef __cplusplus
-static int yyinput (yyscan_t yyscanner );
+static int yyinput ( yyscan_t yyscanner );
 #else
-static int input (yyscan_t yyscanner );
+static int input ( yyscan_t yyscanner );
 #endif
 
 #endif
@@ -783,7 +836,7 @@ static int input (yyscan_t yyscanner );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO do { if (fwrite( yytext, yyleng, 1, yyout )) {} } while (0)
+#define ECHO do { if (fwrite( yytext, (size_t) yyleng, 1, yyout )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -794,7 +847,7 @@ static int input (yyscan_t yyscanner );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		size_t n; \
+		int n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -807,7 +860,7 @@ static int input (yyscan_t yyscanner );
 	else \
 		{ \
 		errno=0; \
-		while ( (result = fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+		while ( (result = (int) fread(buf, 1, (yy_size_t) max_size, yyin)) == 0 && ferror(yyin)) \
 			{ \
 			if( errno != EINTR) \
 				{ \
@@ -862,7 +915,7 @@ extern int sksllex (yyscan_t yyscanner);
 
 /* Code executed at the end of each rule. */
 #ifndef YY_BREAK
-#define YY_BREAK break;
+#define YY_BREAK /*LINTED*/break;
 #endif
 
 #define YY_RULE_SETUP \
@@ -872,9 +925,9 @@ extern int sksllex (yyscan_t yyscanner);
  */
 YY_DECL
 {
-	register yy_state_type yy_current_state;
-	register char *yy_cp, *yy_bp;
-	register int yy_act;
+	yy_state_type yy_current_state;
+	char *yy_cp, *yy_bp;
+	int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
 	if ( !yyg->yy_init )
@@ -904,12 +957,12 @@ YY_DECL
 		}
 
 	{
-#line 23 "sksl.flex"
+#line 30 "sksl.flex"
 
 
-#line 905 "lex.sksl.c"
+#line 957 "lex.sksl.c"
 
-	while ( 1 )		/* loops until end-of-file is reached */
+	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = yyg->yy_c_buf_p;
 
@@ -925,7 +978,7 @@ YY_DECL
 yy_match:
 		do
 			{
-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
+			YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
 			if ( yy_accept[yy_current_state] )
 				{
 				yyg->yy_last_accepting_state = yy_current_state;
@@ -935,9 +988,9 @@ yy_match:
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
 				if ( yy_current_state >= 253 )
-					yy_c = yy_meta[(unsigned int) yy_c];
+					yy_c = yy_meta[yy_c];
 				}
-			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
+			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
 		while ( yy_current_state != 252 );
@@ -951,10 +1004,10 @@ yy_find_action:
 
 		if ( yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act] )
 			{
-			yy_size_t yyl;
+			int yyl;
 			for ( yyl = 0; yyl < yyleng; ++yyl )
 				if ( yytext[yyl] == '\n' )
-					   
+					
     do{ yylineno++;
         yycolumn=0;
     }while(0)
@@ -974,467 +1027,467 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 25 "sksl.flex"
+#line 32 "sksl.flex"
 { return SkSL::Token::FLOAT_LITERAL; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 27 "sksl.flex"
+#line 34 "sksl.flex"
 { return SkSL::Token::FLOAT_LITERAL; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 29 "sksl.flex"
+#line 36 "sksl.flex"
 { return SkSL::Token::FLOAT_LITERAL; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 31 "sksl.flex"
+#line 38 "sksl.flex"
 { return SkSL::Token::INT_LITERAL; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 33 "sksl.flex"
+#line 40 "sksl.flex"
 { return SkSL::Token::INT_LITERAL; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 35 "sksl.flex"
+#line 42 "sksl.flex"
 { return SkSL::Token::TRUE_LITERAL; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 37 "sksl.flex"
+#line 44 "sksl.flex"
 { return SkSL::Token::FALSE_LITERAL; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 39 "sksl.flex"
+#line 46 "sksl.flex"
 { return SkSL::Token::IF; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 41 "sksl.flex"
+#line 48 "sksl.flex"
 { return SkSL::Token::ELSE; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 43 "sksl.flex"
+#line 50 "sksl.flex"
 { return SkSL::Token::FOR; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 45 "sksl.flex"
+#line 52 "sksl.flex"
 { return SkSL::Token::WHILE; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 47 "sksl.flex"
+#line 54 "sksl.flex"
 { return SkSL::Token::DO; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 49 "sksl.flex"
+#line 56 "sksl.flex"
 { return SkSL::Token::SWITCH; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 51 "sksl.flex"
+#line 58 "sksl.flex"
 { return SkSL::Token::CASE; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 53 "sksl.flex"
+#line 60 "sksl.flex"
 { return SkSL::Token::DEFAULT; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 55 "sksl.flex"
+#line 62 "sksl.flex"
 { return SkSL::Token::BREAK; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 57 "sksl.flex"
+#line 64 "sksl.flex"
 { return SkSL::Token::CONTINUE; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 59 "sksl.flex"
+#line 66 "sksl.flex"
 { return SkSL::Token::DISCARD; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 61 "sksl.flex"
+#line 68 "sksl.flex"
 { return SkSL::Token::RETURN; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 63 "sksl.flex"
+#line 70 "sksl.flex"
 { return SkSL::Token::IN; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 65 "sksl.flex"
+#line 72 "sksl.flex"
 { return SkSL::Token::OUT; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 67 "sksl.flex"
+#line 74 "sksl.flex"
 { return SkSL::Token::INOUT; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 69 "sksl.flex"
+#line 76 "sksl.flex"
 { return SkSL::Token::UNIFORM; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 71 "sksl.flex"
+#line 78 "sksl.flex"
 { return SkSL::Token::CONST; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 73 "sksl.flex"
+#line 80 "sksl.flex"
 { return SkSL::Token::LOWP; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 75 "sksl.flex"
+#line 82 "sksl.flex"
 { return SkSL::Token::MEDIUMP; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 77 "sksl.flex"
+#line 84 "sksl.flex"
 { return SkSL::Token::HIGHP; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 79 "sksl.flex"
+#line 86 "sksl.flex"
 { return SkSL::Token::FLAT; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 81 "sksl.flex"
+#line 88 "sksl.flex"
 { return SkSL::Token::NOPERSPECTIVE; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 83 "sksl.flex"
+#line 90 "sksl.flex"
 { return SkSL::Token::READONLY; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 85 "sksl.flex"
+#line 92 "sksl.flex"
 { return SkSL::Token::WRITEONLY; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 87 "sksl.flex"
+#line 94 "sksl.flex"
 { return SkSL::Token::COHERENT; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 89 "sksl.flex"
+#line 96 "sksl.flex"
 { return SkSL::Token::VOLATILE; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 91 "sksl.flex"
+#line 98 "sksl.flex"
 { return SkSL::Token::RESTRICT; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 93 "sksl.flex"
+#line 100 "sksl.flex"
 { return SkSL::Token::STRUCT; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 95 "sksl.flex"
+#line 102 "sksl.flex"
 { return SkSL::Token::LAYOUT; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 97 "sksl.flex"
+#line 104 "sksl.flex"
 { return SkSL::Token::PRECISION; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 99 "sksl.flex"
+#line 106 "sksl.flex"
 { return SkSL::Token::IDENTIFIER; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 101 "sksl.flex"
+#line 108 "sksl.flex"
 { return SkSL::Token::DIRECTIVE; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 103 "sksl.flex"
+#line 110 "sksl.flex"
 { return SkSL::Token::LPAREN; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 105 "sksl.flex"
+#line 112 "sksl.flex"
 { return SkSL::Token::RPAREN; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 107 "sksl.flex"
+#line 114 "sksl.flex"
 { return SkSL::Token::LBRACE; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 109 "sksl.flex"
+#line 116 "sksl.flex"
 { return SkSL::Token::RBRACE; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 111 "sksl.flex"
+#line 118 "sksl.flex"
 { return SkSL::Token::LBRACKET; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 113 "sksl.flex"
+#line 120 "sksl.flex"
 { return SkSL::Token::RBRACKET; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 115 "sksl.flex"
+#line 122 "sksl.flex"
 { return SkSL::Token::DOT; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 117 "sksl.flex"
+#line 124 "sksl.flex"
 { return SkSL::Token::COMMA; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 119 "sksl.flex"
+#line 126 "sksl.flex"
 { return SkSL::Token::PLUSPLUS; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 121 "sksl.flex"
+#line 128 "sksl.flex"
 { return SkSL::Token::MINUSMINUS; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 123 "sksl.flex"
+#line 130 "sksl.flex"
 { return SkSL::Token::PLUS; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 125 "sksl.flex"
+#line 132 "sksl.flex"
 { return SkSL::Token::MINUS; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 127 "sksl.flex"
+#line 134 "sksl.flex"
 { return SkSL::Token::STAR; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 129 "sksl.flex"
+#line 136 "sksl.flex"
 { return SkSL::Token::SLASH; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 131 "sksl.flex"
+#line 138 "sksl.flex"
 { return SkSL::Token::PERCENT; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 133 "sksl.flex"
+#line 140 "sksl.flex"
 { return SkSL::Token::SHL; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 135 "sksl.flex"
+#line 142 "sksl.flex"
 { return SkSL::Token::SHR; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 137 "sksl.flex"
+#line 144 "sksl.flex"
 { return SkSL::Token::BITWISEOR; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 139 "sksl.flex"
+#line 146 "sksl.flex"
 { return SkSL::Token::BITWISEXOR; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 141 "sksl.flex"
+#line 148 "sksl.flex"
 { return SkSL::Token::BITWISEAND; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 143 "sksl.flex"
+#line 150 "sksl.flex"
 { return SkSL::Token::BITWISENOT; }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 145 "sksl.flex"
+#line 152 "sksl.flex"
 { return SkSL::Token::LOGICALOR; }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 147 "sksl.flex"
+#line 154 "sksl.flex"
 { return SkSL::Token::LOGICALXOR; }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 149 "sksl.flex"
+#line 156 "sksl.flex"
 { return SkSL::Token::LOGICALAND; }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 151 "sksl.flex"
+#line 158 "sksl.flex"
 { return SkSL::Token::LOGICALNOT; }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 153 "sksl.flex"
+#line 160 "sksl.flex"
 { return SkSL::Token::QUESTION; }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 155 "sksl.flex"
+#line 162 "sksl.flex"
 { return SkSL::Token::COLON; }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 157 "sksl.flex"
+#line 164 "sksl.flex"
 { return SkSL::Token::EQ; }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 159 "sksl.flex"
+#line 166 "sksl.flex"
 { return SkSL::Token::EQEQ; }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 161 "sksl.flex"
+#line 168 "sksl.flex"
 { return SkSL::Token::NEQ; }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 163 "sksl.flex"
+#line 170 "sksl.flex"
 { return SkSL::Token::GT; }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 165 "sksl.flex"
+#line 172 "sksl.flex"
 { return SkSL::Token::LT; }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 167 "sksl.flex"
+#line 174 "sksl.flex"
 { return SkSL::Token::GTEQ; }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 169 "sksl.flex"
+#line 176 "sksl.flex"
 { return SkSL::Token::LTEQ; }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 171 "sksl.flex"
+#line 178 "sksl.flex"
 { return SkSL::Token::PLUSEQ; }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 173 "sksl.flex"
+#line 180 "sksl.flex"
 { return SkSL::Token::MINUSEQ; }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 175 "sksl.flex"
+#line 182 "sksl.flex"
 { return SkSL::Token::STAREQ; }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 177 "sksl.flex"
+#line 184 "sksl.flex"
 { return SkSL::Token::SLASHEQ; }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 179 "sksl.flex"
+#line 186 "sksl.flex"
 { return SkSL::Token::PERCENTEQ; }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 181 "sksl.flex"
+#line 188 "sksl.flex"
 { return SkSL::Token::SHLEQ; }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 183 "sksl.flex"
+#line 190 "sksl.flex"
 { return SkSL::Token::SHREQ; }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 185 "sksl.flex"
+#line 192 "sksl.flex"
 { return SkSL::Token::BITWISEOREQ; }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 187 "sksl.flex"
+#line 194 "sksl.flex"
 { return SkSL::Token::BITWISEXOREQ; }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 189 "sksl.flex"
+#line 196 "sksl.flex"
 { return SkSL::Token::BITWISEANDEQ; }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 191 "sksl.flex"
+#line 198 "sksl.flex"
 { return SkSL::Token::LOGICALOREQ; }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 193 "sksl.flex"
+#line 200 "sksl.flex"
 { return SkSL::Token::LOGICALXOREQ; }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 195 "sksl.flex"
+#line 202 "sksl.flex"
 { return SkSL::Token::LOGICALANDEQ; }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 197 "sksl.flex"
+#line 204 "sksl.flex"
 { return SkSL::Token::SEMICOLON; }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 199 "sksl.flex"
+#line 206 "sksl.flex"
 /* line comment */
 	YY_BREAK
 case 89:
 /* rule 89 can match eol */
 YY_RULE_SETUP
-#line 201 "sksl.flex"
+#line 208 "sksl.flex"
 /* block comment */
 	YY_BREAK
 case 90:
 /* rule 90 can match eol */
 YY_RULE_SETUP
-#line 203 "sksl.flex"
+#line 210 "sksl.flex"
 /* whitespace */
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 205 "sksl.flex"
+#line 212 "sksl.flex"
 { return SkSL::Token::INVALID_TOKEN; }
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 207 "sksl.flex"
+#line 214 "sksl.flex"
 ECHO;
 	YY_BREAK
-#line 1432 "lex.sksl.c"
+#line 1484 "lex.sksl.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1579,9 +1632,9 @@ case YY_STATE_EOF(INITIAL):
 static int yy_get_next_buffer (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-	register char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
-	register char *source = yyg->yytext_ptr;
-	register int number_to_move, i;
+	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
+	char *source = yyg->yytext_ptr;
+	int number_to_move, i;
 	int ret_val;
 
 	if ( yyg->yy_c_buf_p > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars + 1] )
@@ -1610,7 +1663,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	/* Try to read more data. */
 
 	/* First move last chars to start of buffer. */
-	number_to_move = (int) (yyg->yy_c_buf_p - yyg->yytext_ptr) - 1;
+	number_to_move = (int) (yyg->yy_c_buf_p - yyg->yytext_ptr - 1);
 
 	for ( i = 0; i < number_to_move; ++i )
 		*(dest++) = *(source++);
@@ -1623,7 +1676,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 
 	else
 		{
-			yy_size_t num_to_read =
+			int num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -1637,7 +1690,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 
 			if ( b->yy_is_our_buffer )
 				{
-				yy_size_t new_size = b->yy_buf_size * 2;
+				int new_size = b->yy_buf_size * 2;
 
 				if ( new_size <= 0 )
 					b->yy_buf_size += b->yy_buf_size / 8;
@@ -1646,11 +1699,11 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 
 				b->yy_ch_buf = (char *)
 					/* Include room in for 2 EOB chars. */
-					skslrealloc((void *) b->yy_ch_buf,b->yy_buf_size + 2 ,yyscanner );
+					skslrealloc((void *) b->yy_ch_buf,(yy_size_t) (b->yy_buf_size + 2) ,yyscanner );
 				}
 			else
 				/* Can't grow it, we don't own it. */
-				b->yy_ch_buf = 0;
+				b->yy_ch_buf = NULL;
 
 			if ( ! b->yy_ch_buf )
 				YY_FATAL_ERROR(
@@ -1692,10 +1745,10 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	else
 		ret_val = EOB_ACT_CONTINUE_SCAN;
 
-	if ((yy_size_t) (yyg->yy_n_chars + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
+	if ((yyg->yy_n_chars + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 		/* Extend the array by 50%, plus the number we really need. */
-		yy_size_t new_size = yyg->yy_n_chars + number_to_move + (yyg->yy_n_chars >> 1);
-		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) skslrealloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,new_size ,yyscanner );
+		int new_size = yyg->yy_n_chars + number_to_move + (yyg->yy_n_chars >> 1);
+		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) skslrealloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,(yy_size_t) new_size ,yyscanner );
 		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
 			YY_FATAL_ERROR( "out of dynamic memory in yy_get_next_buffer()" );
 	}
@@ -1713,15 +1766,15 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 
     static yy_state_type yy_get_previous_state (yyscan_t yyscanner)
 {
-	register yy_state_type yy_current_state;
-	register char *yy_cp;
+	yy_state_type yy_current_state;
+	char *yy_cp;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
 	yy_current_state = yyg->yy_start;
 
 	for ( yy_cp = yyg->yytext_ptr + YY_MORE_ADJ; yy_cp < yyg->yy_c_buf_p; ++yy_cp )
 		{
-		register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
+		YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
 		if ( yy_accept[yy_current_state] )
 			{
 			yyg->yy_last_accepting_state = yy_current_state;
@@ -1731,9 +1784,9 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
 			if ( yy_current_state >= 253 )
-				yy_c = yy_meta[(unsigned int) yy_c];
+				yy_c = yy_meta[yy_c];
 			}
-		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
+		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 		}
 
 	return yy_current_state;
@@ -1746,11 +1799,11 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
  */
     static yy_state_type yy_try_NUL_trans  (yy_state_type yy_current_state , yyscan_t yyscanner)
 {
-	register int yy_is_jam;
+	int yy_is_jam;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner; /* This var may be unused depending upon options. */
-	register char *yy_cp = yyg->yy_c_buf_p;
+	char *yy_cp = yyg->yy_c_buf_p;
 
-	register YY_CHAR yy_c = 1;
+	YY_CHAR yy_c = 1;
 	if ( yy_accept[yy_current_state] )
 		{
 		yyg->yy_last_accepting_state = yy_current_state;
@@ -1760,18 +1813,20 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
 		if ( yy_current_state >= 253 )
-			yy_c = yy_meta[(unsigned int) yy_c];
+			yy_c = yy_meta[yy_c];
 		}
-	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
+	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 	yy_is_jam = (yy_current_state == 252);
 
 	(void)yyg;
 	return yy_is_jam ? 0 : yy_current_state;
 }
 
-    static void yyunput (int c, register char * yy_bp , yyscan_t yyscanner)
+#ifndef YY_NO_UNPUT
+
+    static void yyunput (int c, char * yy_bp , yyscan_t yyscanner)
 {
-	register char *yy_cp;
+	char *yy_cp;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
     yy_cp = yyg->yy_c_buf_p;
@@ -1782,10 +1837,10 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
 		{ /* need to shift things up to make room */
 		/* +2 for EOB chars. */
-		register yy_size_t number_to_move = yyg->yy_n_chars + 2;
-		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
+		int number_to_move = yyg->yy_n_chars + 2;
+		char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
 					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		register char *source =
+		char *source =
 				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
 
 		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
@@ -1794,7 +1849,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		yy_cp += (int) (dest - source);
 		yy_bp += (int) (dest - source);
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			yyg->yy_n_chars = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
+			yyg->yy_n_chars = (int) YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
 
 		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
 			YY_FATAL_ERROR( "flex scanner push-back overflow" );
@@ -1810,6 +1865,8 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	yyg->yy_hold_char = *yy_cp;
 	yyg->yy_c_buf_p = yy_cp;
 }
+
+#endif
 
 #ifndef YY_NO_INPUT
 #ifdef __cplusplus
@@ -1836,7 +1893,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 
 		else
 			{ /* need more input */
-			yy_size_t offset = yyg->yy_c_buf_p - yyg->yytext_ptr;
+			int offset = (int) (yyg->yy_c_buf_p - yyg->yytext_ptr);
 			++yyg->yy_c_buf_p;
 
 			switch ( yy_get_next_buffer( yyscanner ) )
@@ -1860,7 +1917,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 				case EOB_ACT_END_OF_FILE:
 					{
 					if ( skslwrap(yyscanner ) )
-						return EOF;
+						return 0;
 
 					if ( ! yyg->yy_did_buffer_switch_on_eof )
 						YY_NEW_FILE;
@@ -1883,7 +1940,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	yyg->yy_hold_char = *++yyg->yy_c_buf_p;
 
 	if ( c == '\n' )
-		   
+		
     do{ yylineno++;
         yycolumn=0;
     }while(0)
@@ -1976,7 +2033,7 @@ static void sksl_load_buffer_state  (yyscan_t yyscanner)
 	/* yy_ch_buf has to be 2 characters longer than the size given because
 	 * we need to put in 2 end-of-buffer characters.
 	 */
-	b->yy_ch_buf = (char *) skslalloc(b->yy_buf_size + 2 ,yyscanner );
+	b->yy_ch_buf = (char *) skslalloc((yy_size_t) (b->yy_buf_size + 2) ,yyscanner );
 	if ( ! b->yy_ch_buf )
 		YY_FATAL_ERROR( "out of dynamic memory in sksl_create_buffer()" );
 
@@ -2132,15 +2189,15 @@ static void skslensure_buffer_stack (yyscan_t yyscanner)
 		 * scanner will even need a stack. We use 2 instead of 1 to avoid an
 		 * immediate realloc on the next call.
          */
-		num_to_alloc = 1;
+      num_to_alloc = 1; /* After all that talk, this was set to 1 anyways... */
 		yyg->yy_buffer_stack = (struct yy_buffer_state**)skslalloc
 								(num_to_alloc * sizeof(struct yy_buffer_state*)
 								, yyscanner);
 		if ( ! yyg->yy_buffer_stack )
 			YY_FATAL_ERROR( "out of dynamic memory in skslensure_buffer_stack()" );
-								  
+
 		memset(yyg->yy_buffer_stack, 0, num_to_alloc * sizeof(struct yy_buffer_state*));
-				
+
 		yyg->yy_buffer_stack_max = num_to_alloc;
 		yyg->yy_buffer_stack_top = 0;
 		return;
@@ -2149,7 +2206,7 @@ static void skslensure_buffer_stack (yyscan_t yyscanner)
 	if (yyg->yy_buffer_stack_top >= (yyg->yy_buffer_stack_max) - 1){
 
 		/* Increase the buffer to prepare for a possible push. */
-		int grow_size = 8 /* arbitrary grow size */;
+		yy_size_t grow_size = 8 /* arbitrary grow size */;
 
 		num_to_alloc = yyg->yy_buffer_stack_max + grow_size;
 		yyg->yy_buffer_stack = (struct yy_buffer_state**)skslrealloc
@@ -2169,7 +2226,7 @@ static void skslensure_buffer_stack (yyscan_t yyscanner)
  * @param base the character buffer
  * @param size the size in bytes of the character buffer
  * @param yyscanner The scanner object.
- * @return the newly allocated buffer state object. 
+ * @return the newly allocated buffer state object.
  */
 YY_BUFFER_STATE sksl_scan_buffer  (char * base, yy_size_t  size , yyscan_t yyscanner)
 {
@@ -2179,16 +2236,16 @@ YY_BUFFER_STATE sksl_scan_buffer  (char * base, yy_size_t  size , yyscan_t yysca
 	     base[size-2] != YY_END_OF_BUFFER_CHAR ||
 	     base[size-1] != YY_END_OF_BUFFER_CHAR )
 		/* They forgot to leave room for the EOB's. */
-		return 0;
+		return NULL;
 
 	b = (YY_BUFFER_STATE) skslalloc(sizeof( struct yy_buffer_state ) ,yyscanner );
 	if ( ! b )
 		YY_FATAL_ERROR( "out of dynamic memory in sksl_scan_buffer()" );
 
-	b->yy_buf_size = size - 2;	/* "- 2" to take care of EOB's */
+	b->yy_buf_size = (int) (size - 2);	/* "- 2" to take care of EOB's */
 	b->yy_buf_pos = b->yy_ch_buf = base;
 	b->yy_is_our_buffer = 0;
-	b->yy_input_file = 0;
+	b->yy_input_file = NULL;
 	b->yy_n_chars = b->yy_buf_size;
 	b->yy_is_interactive = 0;
 	b->yy_at_bol = 1;
@@ -2208,10 +2265,10 @@ YY_BUFFER_STATE sksl_scan_buffer  (char * base, yy_size_t  size , yyscan_t yysca
  * @note If you want to scan bytes that may contain NUL values, then use
  *       sksl_scan_bytes() instead.
  */
-YY_BUFFER_STATE sksl_scan_string (yyconst char * yystr , yyscan_t yyscanner)
+YY_BUFFER_STATE sksl_scan_string (const char * yystr , yyscan_t yyscanner)
 {
     
-	return sksl_scan_bytes(yystr,strlen(yystr) ,yyscanner);
+	return sksl_scan_bytes(yystr,(int) strlen(yystr) ,yyscanner);
 }
 
 /** Setup the input buffer state to scan the given bytes. The next call to sksllex() will
@@ -2221,15 +2278,15 @@ YY_BUFFER_STATE sksl_scan_string (yyconst char * yystr , yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE sksl_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len , yyscan_t yyscanner)
+YY_BUFFER_STATE sksl_scan_bytes  (const char * yybytes, int  _yybytes_len , yyscan_t yyscanner)
 {
 	YY_BUFFER_STATE b;
 	char *buf;
 	yy_size_t n;
-	yy_size_t i;
+	int i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
-	n = _yybytes_len + 2;
+	n = (yy_size_t) (_yybytes_len + 2);
 	buf = (char *) skslalloc(n ,yyscanner );
 	if ( ! buf )
 		YY_FATAL_ERROR( "out of dynamic memory in sksl_scan_bytes()" );
@@ -2255,9 +2312,11 @@ YY_BUFFER_STATE sksl_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_le
 #define YY_EXIT_FAILURE 2
 #endif
 
-static void yy_fatal_error (yyconst char* msg , yyscan_t yyscanner)
+static void yynoreturn yy_fatal_error (const char* msg , yyscan_t yyscanner)
 {
-    	(void) fprintf( stderr, "%s\n", msg );
+	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+	(void)yyg;
+	(void) fprintf( stderr, "%s\n", msg );
 	exit( YY_EXIT_FAILURE );
 }
 
@@ -2295,7 +2354,7 @@ YY_EXTRA_TYPE skslget_extra  (yyscan_t yyscanner)
 int skslget_lineno  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    
+
         if (! YY_CURRENT_BUFFER)
             return 0;
     
@@ -2308,7 +2367,7 @@ int skslget_lineno  (yyscan_t yyscanner)
 int skslget_column  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    
+
         if (! YY_CURRENT_BUFFER)
             return 0;
     
@@ -2336,7 +2395,7 @@ FILE *skslget_out  (yyscan_t yyscanner)
 /** Get the length of the current token.
  * @param yyscanner The scanner object.
  */
-yy_size_t skslget_leng  (yyscan_t yyscanner)
+int skslget_leng  (yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
     return yyleng;
@@ -2363,10 +2422,10 @@ void skslset_extra (YY_EXTRA_TYPE  user_defined , yyscan_t yyscanner)
 }
 
 /** Set the current line number.
- * @param line_number
+ * @param _line_number line number
  * @param yyscanner The scanner object.
  */
-void skslset_lineno (int  line_number , yyscan_t yyscanner)
+void skslset_lineno (int  _line_number , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
@@ -2374,14 +2433,14 @@ void skslset_lineno (int  line_number , yyscan_t yyscanner)
         if (! YY_CURRENT_BUFFER )
            YY_FATAL_ERROR( "skslset_lineno called with no buffer" );
     
-    yylineno = line_number;
+    yylineno = _line_number;
 }
 
 /** Set the current column.
- * @param line_number
+ * @param _column_no column number
  * @param yyscanner The scanner object.
  */
-void skslset_column (int  column_no , yyscan_t yyscanner)
+void skslset_column (int  _column_no , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
@@ -2389,25 +2448,25 @@ void skslset_column (int  column_no , yyscan_t yyscanner)
         if (! YY_CURRENT_BUFFER )
            YY_FATAL_ERROR( "skslset_column called with no buffer" );
     
-    yycolumn = column_no;
+    yycolumn = _column_no;
 }
 
 /** Set the input stream. This does not discard the current
  * input buffer.
- * @param in_str A readable stream.
+ * @param _in_str A readable stream.
  * @param yyscanner The scanner object.
  * @see sksl_switch_to_buffer
  */
-void skslset_in (FILE *  in_str , yyscan_t yyscanner)
+void skslset_in (FILE *  _in_str , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    yyin = in_str ;
+    yyin = _in_str ;
 }
 
-void skslset_out (FILE *  out_str , yyscan_t yyscanner)
+void skslset_out (FILE *  _out_str , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    yyout = out_str ;
+    yyout = _out_str ;
 }
 
 int skslget_debug  (yyscan_t yyscanner)
@@ -2416,10 +2475,10 @@ int skslget_debug  (yyscan_t yyscanner)
     return yy_flex_debug;
 }
 
-void skslset_debug (int  bdebug , yyscan_t yyscanner)
+void skslset_debug (int  _bdebug , yyscan_t yyscanner)
 {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    yy_flex_debug = bdebug ;
+    yy_flex_debug = _bdebug ;
 }
 
 /* Accessor methods for yylval and yylloc */
@@ -2430,9 +2489,7 @@ void skslset_debug (int  bdebug , yyscan_t yyscanner)
  * the ONLY reentrant function that doesn't take the scanner as the last argument.
  * That's why we explicitly handle the declaration, instead of using our macros.
  */
-
 int sksllex_init(yyscan_t* ptr_yy_globals)
-
 {
     if (ptr_yy_globals == NULL){
         errno = EINVAL;
@@ -2459,9 +2516,7 @@ int sksllex_init(yyscan_t* ptr_yy_globals)
  * The user defined value in the first argument will be available to skslalloc in
  * the yyextra field.
  */
-
 int sksllex_init_extra(YY_EXTRA_TYPE yy_user_defined,yyscan_t* ptr_yy_globals )
-
 {
     struct yyguts_t dummy_yyguts;
 
@@ -2471,20 +2526,20 @@ int sksllex_init_extra(YY_EXTRA_TYPE yy_user_defined,yyscan_t* ptr_yy_globals )
         errno = EINVAL;
         return 1;
     }
-	
+
     *ptr_yy_globals = (yyscan_t) skslalloc ( sizeof( struct yyguts_t ), &dummy_yyguts );
-	
+
     if (*ptr_yy_globals == NULL){
         errno = ENOMEM;
         return 1;
     }
-    
+
     /* By setting to 0xAA, we expose bugs in
     yy_init_globals. Leave at 0x00 for releases. */
     memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
-    
+
     skslset_extra (yy_user_defined, *ptr_yy_globals);
-    
+
     return yy_init_globals ( *ptr_yy_globals );
 }
 
@@ -2495,10 +2550,10 @@ static int yy_init_globals (yyscan_t yyscanner)
      * This function is called from sksllex_destroy(), so don't allocate here.
      */
 
-    yyg->yy_buffer_stack = 0;
+    yyg->yy_buffer_stack = NULL;
     yyg->yy_buffer_stack_top = 0;
     yyg->yy_buffer_stack_max = 0;
-    yyg->yy_c_buf_p = (char *) 0;
+    yyg->yy_c_buf_p = NULL;
     yyg->yy_init = 0;
     yyg->yy_start = 0;
 
@@ -2511,8 +2566,8 @@ static int yy_init_globals (yyscan_t yyscanner)
     yyin = stdin;
     yyout = stdout;
 #else
-    yyin = (FILE *) 0;
-    yyout = (FILE *) 0;
+    yyin = NULL;
+    yyout = NULL;
 #endif
 
     /* For future reference: Set errno on error, since we are called by
@@ -2556,18 +2611,21 @@ int sksllex_destroy  (yyscan_t yyscanner)
  */
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char* s1, yyconst char * s2, int n , yyscan_t yyscanner)
+static void yy_flex_strncpy (char* s1, const char * s2, int n , yyscan_t yyscanner)
 {
-	register int i;
+	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+	(void)yyg;
+
+	int i;
 	for ( i = 0; i < n; ++i )
 		s1[i] = s2[i];
 }
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (yyconst char * s , yyscan_t yyscanner)
+static int yy_flex_strlen (const char * s , yyscan_t yyscanner)
 {
-	register int n;
+	int n;
 	for ( n = 0; s[n]; ++n )
 		;
 
@@ -2577,11 +2635,16 @@ static int yy_flex_strlen (yyconst char * s , yyscan_t yyscanner)
 
 void *skslalloc (yy_size_t  size , yyscan_t yyscanner)
 {
-	return (void *) malloc( size );
+	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+	(void)yyg;
+	return malloc(size);
 }
 
 void *skslrealloc  (void * ptr, yy_size_t  size , yyscan_t yyscanner)
 {
+	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+	(void)yyg;
+
 	/* The cast to (char *) in the following accommodates both
 	 * implementations that use char* generic pointers, and those
 	 * that use void* generic pointers.  It works with the latter
@@ -2589,18 +2652,19 @@ void *skslrealloc  (void * ptr, yy_size_t  size , yyscan_t yyscanner)
 	 * any pointer type to void*, and deal with argument conversions
 	 * as though doing an assignment.
 	 */
-	return (void *) realloc( (char *) ptr, size );
+	return realloc(ptr, size);
 }
 
 void skslfree (void * ptr , yyscan_t yyscanner)
 {
+	struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+	(void)yyg;
 	free( (char *) ptr );	/* see skslrealloc() for (char *) cast */
 }
 
 #define YYTABLES_NAME "yytables"
 
-#line 206 "sksl.flex"
-
+#line 214 "sksl.flex"
 
 
 int skslwrap(yyscan_t scanner) {
