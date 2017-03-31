@@ -3344,13 +3344,8 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
         }
     }
     if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples()) {
-            if (dstRT && !dstRT->numColorSamples()) {
-                return false;
-            }
-            if (SkRect::Make(srcRect) != srcRT->getBoundsRect()) {
-                return false;
-            }
+        if (srcRT && srcRT->numColorSamples() && dstRT && !dstRT->numColorSamples()) {
+            return false;
         }
     }
     if (GrGLCaps::kNoMSAADst_BlitFramebufferFlag & blitFramebufferFlags) {
@@ -3369,13 +3364,9 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
         }
     }
     if (GrGLCaps::kRectsMustMatchForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples()) {
-            if (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop) {
-                return false;
-            }
-            if (dst->origin() != src->origin()) {
-                return false;
-            }
+        if (srcRT && srcRT->numColorSamples() &&
+            (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop)) {
+            return false;
         }
     }
     return true;
