@@ -5,18 +5,17 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import os
 import re
 import subprocess
 import sys
 
-#clang = ['clang++']
-clang = ['ccache', 'clang-4.0', '-x', 'c++']
+clang   = sys.argv[1] if len(sys.argv) > 1 else 'clang-4.0'
+ndk     = sys.argv[2] if len(sys.argv) > 2 else os.path.expanduser('~/ndk')
+objdump = sys.argv[3] if len(sys.argv) > 3 else 'gobjdump'
 
-ndk = '/Users/mtklein/ndk/'
-objdump = 'gobjdump'
+clang = ['ccache', clang, '-x', 'c++']
 
-#ndk = '/home/mtklein/ndk/'
-#objdump = '/home/mtklein/binutils-2.27/binutils/objdump'
 
 cflags = ['-std=c++11', '-Os', '-DJUMPER',
           '-fomit-frame-pointer', '-ffp-contract=fast' ]
@@ -55,7 +54,7 @@ subprocess.check_call(clang + cflags + hsw + ['-DWIN'] +
 
 aarch64 = [
     '--target=aarch64-linux-android',
-    '--sysroot=' + ndk + 'platforms/android-21/arch-arm64',
+    '--sysroot=' + ndk + '/platforms/android-21/arch-arm64',
 ]
 subprocess.check_call(clang + cflags + aarch64 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
@@ -63,7 +62,7 @@ subprocess.check_call(clang + cflags + aarch64 +
 
 vfp4 = [
     '--target=armv7a-linux-android',
-    '--sysroot=' + ndk + 'platforms/android-18/arch-arm',
+    '--sysroot=' + ndk + '/platforms/android-18/arch-arm',
     '-mfpu=neon-vfpv4',
     '-mfloat-abi=hard',
 ]
