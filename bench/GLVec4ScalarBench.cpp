@@ -131,7 +131,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // next stage.
     GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *shaderCaps, &fshaderTxt);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kMedium_GrSLPrecision, *shaderCaps, &fshaderTxt);
     oPosition.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     oPosition.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
