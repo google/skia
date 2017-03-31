@@ -315,15 +315,10 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
                                                   GrAAType::kNone);
 
     } else {
-        if (!fRenderTargetContext->accessRenderTarget()) {
-            return;
-        }
-
         // This path doesn't handle coalescing of full screen clears b.c. it
         // has to clear the entire render target - not just the content area.
         // It could be done but will take more finagling.
-        std::unique_ptr<GrOp> op(GrClearOp::Make(
-                rtRect, color, fRenderTargetContext->accessRenderTarget(), !clearRect));
+        std::unique_ptr<GrOp> op(GrClearOp::Make(rtRect, color, fRenderTargetContext, !clearRect));
         if (!op) {
             return;
         }
@@ -371,14 +366,9 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
 
         this->drawRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), SkRect::Make(clearRect));
     } else if (isFull) {
-        if (this->accessRenderTarget()) {
-            this->getOpList()->fullClear(this, color);
-        }
+        this->getOpList()->fullClear(this, color);
     } else {
-        if (!this->accessRenderTarget()) {
-            return;
-        }
-        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, this->accessRenderTarget()));
+        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, this));
         if (!op) {
             return;
         }

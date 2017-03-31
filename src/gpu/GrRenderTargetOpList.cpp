@@ -169,7 +169,8 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
 
 void GrRenderTargetOpList::reset() {
     fLastFullClearOp = nullptr;
-    fLastFullClearRenderTargetID.makeInvalid();
+    fLastFullClearResourceID.makeInvalid();
+    fLastFullClearProxyID.makeInvalid();
     fRecordedOps.reset();
     if (fInstancedRendering) {
         fInstancedRendering->endFlush();
@@ -191,23 +192,36 @@ void GrRenderTargetOpList::freeGpuResources() {
 }
 
 void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext, GrColor color) {
+    // MDB TODO: remove this. Right now we need the renderTargetContext for the
+    // accessRenderTarget call. This method should just take the renderTargetProxy.
     GrRenderTarget* renderTarget = renderTargetContext->accessRenderTarget();
+    if (!renderTarget) {
+        return;
+    }
+
     // Currently this just inserts or updates the last clear op. However, once in MDB this can
     // remove all the previously recorded ops and change the load op to clear with supplied
     // color.
     // TODO: this needs to be updated to use GrSurfaceProxy::UniqueID
-    if (fLastFullClearRenderTargetID == renderTarget->uniqueID()) {
+    SkASSERT((fLastFullClearResourceID == renderTarget->uniqueID()) ==
+             (fLastFullClearProxyID == renderTargetContext->asRenderTargetProxy()->uniqueID()));
+    if (fLastFullClearResourceID == renderTarget->uniqueID()) {
         // As currently implemented, fLastFullClearOp should be the last op because we would
         // have cleared it when another op was recorded.
         SkASSERT(fRecordedOps.back().fOp.get() == fLastFullClearOp);
         fLastFullClearOp->setColor(color);
         return;
     }
-    std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, renderTarget));
+    std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color,
+                                                  renderTargetContext));
+    if (!op) {
+        return;
+    }
     if (GrOp* clearOp = this->recordOp(std::move(op), renderTargetContext)) {
         // This is either the clear op we just created or another one that it combined with.
         fLastFullClearOp = static_cast<GrClearOp*>(clearOp);
-        fLastFullClearRenderTargetID = renderTarget->uniqueID();
+        fLastFullClearResourceID = renderTarget->uniqueID();
+        fLastFullClearProxyID = renderTargetContext->asRenderTargetProxy()->uniqueID();
     }
 }
 
@@ -284,7 +298,8 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTarget->uniqueID());
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTarget->uniqueID(),
+                          renderTargetContext->asRenderTargetProxy()->uniqueID());
     GrOP_INFO("Recording (%s, B%u)\n"
               "\tBounds LRTB (%f, %f, %f, %f)\n",
                op->name(),
@@ -337,7 +352,8 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstTexture);
     fRecordedOps.back().fOp->wasRecorded();
     fLastFullClearOp = nullptr;
-    fLastFullClearRenderTargetID.makeInvalid();
+    fLastFullClearResourceID.makeInvalid();
+    fLastFullClearProxyID.makeInvalid();
     return fRecordedOps.back().fOp.get();
 }
 
