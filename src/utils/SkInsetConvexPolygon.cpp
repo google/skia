@@ -50,16 +50,21 @@ static int get_winding(const SkPoint* polygonVerts, int polygonSize) {
 }
 
 // Perpendicularly offset line segment p0-p1 'distance' units in the direction specified by 'dir'
-static void inset_edge(const SkPoint& p0, const SkPoint& p1, SkScalar distance, int dir,
+static void inset_edge(const SkPoint& p0, const SkPoint& p1,
+                       std::function<SkScalar(const SkPoint&)> insetDistanceFunc, int dir,
                        InsetSegment* inset) {
     SkASSERT(dir == -1 || dir == 1);
     // compute perpendicular
     SkVector perp;
     perp.fX = p0.fY - p1.fY;
     perp.fY = p1.fX - p0.fX;
-    perp.setLength(distance*dir);
-    inset->fP0 = p0 + perp;
-    inset->fP1 = p1 + perp;
+    perp.normalize();
+    SkVector normal = perp;
+    normal *= insetDistanceFunc(p0);
+    inset->fP0 = p0 + normal;
+    normal = perp;
+    normal *= insetDistanceFunc(p1);
+    inset->fP1 = p1 + normal;
 }
 
 // Compute the intersection 'p' between segments s0 and s1, if any.
@@ -147,7 +152,8 @@ static bool is_convex(const SkTDArray<SkPoint>& poly) {
 // Note: the assumption is that inputPolygon is convex and has no coincident points.
 //
 bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                          SkScalar insetDistance, SkTDArray<SkPoint>* insetPolygon) {
+                          std::function<SkScalar(const SkPoint&)> insetDistanceFunc,
+                          SkTDArray<SkPoint>* insetPolygon) {
     if (inputPolygonSize < 3) {
         return false;
     }
@@ -168,7 +174,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     SkAutoSTMalloc<64, EdgeData> edgeData(inputPolygonSize);
     for (int i = 0; i < inputPolygonSize; ++i) {
         int j = (i + 1) % inputPolygonSize;
-        inset_edge(inputPolygonVerts[i], inputPolygonVerts[j], insetDistance, winding,
+        inset_edge(inputPolygonVerts[i], inputPolygonVerts[j], insetDistanceFunc, winding,
                    &edgeData[i].fInset);
         edgeData[i].fIntersection = edgeData[i].fInset.fP0;
         edgeData[i].fTValue = SK_ScalarMin;
