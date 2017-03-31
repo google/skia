@@ -20,35 +20,36 @@ clang = ['ccache', clang, '-x', 'c++']
 cflags = ['-std=c++11', '-Os', '-DJUMPER',
           '-fomit-frame-pointer', '-ffp-contract=fast' ]
 
-sse2 = '-mno-red-zone -msse2 -mno-sse3 -mno-ssse3 -mno-sse4.1'.split()
+win = ['-DWIN', '-mno-red-zone']
+sse2 = ['-msse2', '-mno-sse3', '-mno-ssse3', '-mno-sse4.1']
 subprocess.check_call(clang + cflags + sse2 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse2.o'])
-subprocess.check_call(clang + cflags + sse2 + ['-DWIN'] +
+subprocess.check_call(clang + cflags + sse2 + win +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_sse2.o'])
 
-sse41 = '-mno-red-zone -msse4.1'.split()
+sse41 = ['-msse4.1']
 subprocess.check_call(clang + cflags + sse41 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'sse41.o'])
-subprocess.check_call(clang + cflags + sse41 + ['-DWIN'] +
+subprocess.check_call(clang + cflags + sse41 + win +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_sse41.o'])
 
-avx = '-mno-red-zone -mavx'.split()
+avx = ['-mavx']
 subprocess.check_call(clang + cflags + avx +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'avx.o'])
-subprocess.check_call(clang + cflags + avx + ['-DWIN'] +
+subprocess.check_call(clang + cflags + avx + win +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_avx.o'])
 
-hsw = '-mno-red-zone -mavx2 -mfma -mf16c'.split()
+hsw = ['-mavx2', '-mfma', '-mf16c']
 subprocess.check_call(clang + cflags + hsw +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'hsw.o'])
-subprocess.check_call(clang + cflags + hsw + ['-DWIN'] +
+subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_hsw.o'])
 
