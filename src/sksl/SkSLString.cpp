@@ -10,7 +10,6 @@
 #include "SkSLUtil.h"
 #include <cinttypes>
 #include <errno.h>
-#include <inttypes.h>
 #include <limits.h>
 #include <locale>
 #include <sstream>
