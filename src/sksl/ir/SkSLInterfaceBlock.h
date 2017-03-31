@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_INTERFACEBLOCK
 #define SKSL_INTERFACEBLOCK
 
@@ -25,7 +25,7 @@ namespace SkSL {
  * At the IR level, this is represented by a single variable of struct type.
  */
 struct InterfaceBlock : public ProgramElement {
-    InterfaceBlock(Position position, const Variable* var, SkString typeName, SkString instanceName,
+    InterfaceBlock(Position position, const Variable* var, String typeName, String instanceName,
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::shared_ptr<SymbolTable> typeOwner)
     : INHERITED(position, kInterfaceBlock_Kind)
@@ -35,8 +35,8 @@ struct InterfaceBlock : public ProgramElement {
     , fSizes(std::move(sizes))
     , fTypeOwner(typeOwner) {}
 
-    SkString description() const override {
-        SkString result = fVariable.fModifiers.description() + fTypeName + " {\n";
+    String description() const override {
+        String result = fVariable.fModifiers.description() + fTypeName + " {\n";
         const Type* structType = &fVariable.fType;
         while (structType->kind() == Type::kArray_Kind) {
             structType = &structType->componentType();
@@ -59,8 +59,8 @@ struct InterfaceBlock : public ProgramElement {
     }
 
     const Variable& fVariable;
-    const SkString fTypeName;
-    const SkString fInstanceName;
+    const String fTypeName;
+    const String fInstanceName;
     const std::vector<std::unique_ptr<Expression>> fSizes;
     const std::shared_ptr<SymbolTable> fTypeOwner;
 

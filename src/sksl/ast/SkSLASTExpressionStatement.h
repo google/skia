@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTEXPRESSIONSTATEMENT
 #define SKSL_ASTEXPRESSIONSTATEMENT
 
@@ -13,14 +13,14 @@
 namespace SkSL {
 
 /**
- * A lone expression being used as a statement. 
+ * A lone expression being used as a statement.
  */
 struct ASTExpressionStatement : public ASTStatement {
     ASTExpressionStatement(std::unique_ptr<ASTExpression> expression)
     : INHERITED(expression->fPosition, kExpression_Kind)
     , fExpression(std::move(expression)) {}
 
-    SkString description() const override {
+    String description() const override {
         return fExpression->description() + ";";
     }
 
