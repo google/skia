@@ -23,7 +23,7 @@ struct ASTModifiersDeclaration : public ASTDeclaration {
     : INHERITED(Position(), kModifiers_Kind)
     , fModifiers(modifiers) {}
 
-    String description() const {
+    SkString description() const {
         return fModifiers.description() + ";";
     }
 

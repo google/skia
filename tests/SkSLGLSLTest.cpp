@@ -15,7 +15,7 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
                  const char* expected, SkSL::Program::Inputs* inputs,
                  SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Compiler compiler;
-    SkSL::String output;
+    SkString output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkString(src), settings);
     if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
@@ -24,7 +24,7 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
     *inputs = program->fInputs;
     REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
     if (program) {
-        SkSL::String skExpected(expected);
+        SkString skExpected(expected);
         if (output != skExpected) {
             SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
                      expected, output.c_str());

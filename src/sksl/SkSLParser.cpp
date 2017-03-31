@@ -79,7 +79,7 @@ public:
 
     bool checkValid() {
         if (fParser->fDepth > MAX_PARSE_DEPTH) {
-            fParser->error(fParser->peek().fPosition, String("exceeded max parse depth"));
+            fParser->error(fParser->peek().fPosition, SkString("exceeded max parse depth"));
             return false;
         }
         return true;
@@ -89,8 +89,8 @@ private:
     Parser* fParser;
 };
 
-Parser::Parser(String text, SymbolTable& types, ErrorReporter& errors)
-: fPushback(Position(-1, -1), Token::INVALID_TOKEN, String())
+Parser::Parser(SkString text, SymbolTable& types, ErrorReporter& errors)
+: fPushback(Position(-1, -1), Token::INVALID_TOKEN, SkString())
 , fTypes(types)
 , fErrors(errors) {
     sksllex_init(&fScanner);
@@ -150,17 +150,17 @@ Token Parser::nextToken() {
         return result;
     }
     int token = sksllex(fScanner);
-    String text;
+    SkString text;
     switch ((Token::Kind) token) {
         case Token::IDENTIFIER:    // fall through
         case Token::INT_LITERAL:   // fall through
         case Token::FLOAT_LITERAL: // fall through
         case Token::DIRECTIVE:
-            text = String(skslget_text(fScanner));
+            text = SkString(skslget_text(fScanner));
             break;
         default:
 #ifdef SK_DEBUG
-            text = String(skslget_text(fScanner));
+            text = SkString(skslget_text(fScanner));
 #endif
             break;
     }
@@ -179,10 +179,10 @@ Token Parser::peek() {
 
 
 bool Parser::expect(Token::Kind kind, const char* expected, Token* result) {
-    return this->expect(kind, String(expected), result);
+    return this->expect(kind, SkString(expected), result);
 }
 
-bool Parser::expect(Token::Kind kind, String expected, Token* result) {
+bool Parser::expect(Token::Kind kind, SkString expected, Token* result) {
     Token next = this->nextToken();
     if (next.fKind == kind) {
         if (result) {
@@ -201,14 +201,14 @@ bool Parser::expect(Token::Kind kind, String expected, Token* result) {
 }
 
 void Parser::error(Position p, const char* msg) {
-    this->error(p, String(msg));
+    this->error(p, SkString(msg));
 }
 
-void Parser::error(Position p, String msg) {
+void Parser::error(Position p, SkString msg) {
     fErrors.error(p, msg);
 }
 
-bool Parser::isType(String name) {
+bool Parser::isType(SkString name) {
     return nullptr != fTypes[name];
 }
 
@@ -380,7 +380,7 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
                     return nullptr;
                 }
                 uint64_t columns = ((ASTIntLiteral&) *var.fSizes[i]).fValue;
-                String name = type->name() + "[" + to_string(columns) + "]";
+                SkString name = type->name() + "[" + to_string(columns) + "]";
                 type = new Type(name, Type::kArray_Kind, *type, (int) columns);
                 fTypes.takeOwnership((Type*) type);
             }
@@ -427,7 +427,7 @@ std::unique_ptr<ASTVarDeclarations> Parser::structVarDeclaration(Modifiers modif
    (LBRACKET expression? RBRACKET)* (EQ expression)?)* SEMICOLON */
 std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
                                                               std::unique_ptr<ASTType> type,
-                                                              String name) {
+                                                              SkString name) {
     std::vector<ASTVarDeclaration> vars;
     std::vector<std::unique_ptr<ASTExpression>> currentVarSizes;
     while (this->peek().fKind == Token::LBRACKET) {
@@ -837,7 +837,7 @@ std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
         decls.push_back(std::move(decl));
     }
     this->nextToken();
-    String instanceName;
+    SkString instanceName;
     std::vector<std::unique_ptr<ASTExpression>> sizes;
     if (this->peek().fKind == Token::IDENTIFIER) {
         instanceName = this->nextToken().fText;
@@ -1008,7 +1008,7 @@ std::unique_ptr<ASTStatement> Parser::switchStatement() {
     // parts of the compiler may rely upon this assumption.
     if (this->peek().fKind == Token::DEFAULT) {
         Token defaultStart;
-        ASSERT_RESULT(this->expect(Token::DEFAULT, "'default'", &defaultStart));
+        SkAssertResult(this->expect(Token::DEFAULT, "'default'", &defaultStart));
         if (!this->expect(Token::COLON, "':'")) {
             return nullptr;
         }
@@ -1562,7 +1562,7 @@ std::unique_ptr<ASTSuffix> Parser::suffix() {
         }
         case Token::DOT: {
             Position pos = this->peek().fPosition;
-            String text;
+            SkString text;
             if (this->identifier(&text)) {
                 return std::unique_ptr<ASTSuffix>(new ASTFieldSuffix(pos, std::move(text)));
             }
@@ -1607,7 +1607,7 @@ std::unique_ptr<ASTExpression> Parser::term() {
     Token t = this->peek();
     switch (t.fKind) {
         case Token::IDENTIFIER: {
-            String text;
+            SkString text;
             if (this->identifier(&text)) {
                 result.reset(new ASTIdentifier(t.fPosition, std::move(text)));
             }
@@ -1688,7 +1688,7 @@ bool Parser::boolLiteral(bool* dest) {
 }
 
 /* IDENTIFIER */
-bool Parser::identifier(String* dest) {
+bool Parser::identifier(SkString* dest) {
     Token t;
     if (this->expect(Token::IDENTIFIER, "identifier", &t)) {
         *dest = t.fText;
