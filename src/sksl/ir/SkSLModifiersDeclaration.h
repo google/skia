@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_MODIFIERDECLARATION
 #define SKSL_MODIFIERDECLARATION
 
@@ -23,7 +23,7 @@ struct ModifiersDeclaration : public ProgramElement {
     : INHERITED(Position(), kModifiers_Kind)
     , fModifiers(modifiers) {}
 
-    SkString description() const {
+    String description() const {
         return fModifiers.description() + ";";
     }
 

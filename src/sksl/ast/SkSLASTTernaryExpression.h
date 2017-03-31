@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTTERNARYEXPRESSION
 #define SKSL_ASTTERNARYEXPRESSION
 
@@ -24,9 +24,9 @@ struct ASTTernaryExpression : public ASTExpression {
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {}
 
-    SkString description() const override {
+    String description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
-               fIfFalse->description() + ")";        
+               fIfFalse->description() + ")";
     }
 
     const std::unique_ptr<ASTExpression> fTest;

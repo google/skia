@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTRETURNSTATEMENT
 #define SKSL_ASTRETURNSTATEMENT
 
@@ -21,12 +21,12 @@ struct ASTReturnStatement : public ASTStatement {
     : INHERITED(position, kReturn_Kind)
     , fExpression(std::move(expression)) {}
 
-    SkString description() const override {
-        SkString result("return");
+    String description() const override {
+        String result("return");
         if (fExpression) {
             result += " " + fExpression->description();
         }
-        return result + ";";        
+        return result + ";";
     }
 
     const std::unique_ptr<ASTExpression> fExpression;

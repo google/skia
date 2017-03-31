@@ -23,8 +23,8 @@ struct ASTSwitchStatement : public ASTStatement {
     , fValue(std::move(value))
     , fCases(std::move(cases)) {}
 
-    SkString description() const override {
-        SkString result = SkStringPrintf("switch (%s) {\n", + fValue->description().c_str());
+    String description() const override {
+        String result = String::printf("switch (%s) {\n", + fValue->description().c_str());
         for (const auto& c : fCases) {
             result += c->description();
         }

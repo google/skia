@@ -8,7 +8,6 @@
 #ifndef SKSL_LAYOUT
 #define SKSL_LAYOUT
 
-#include "SkString.h"
 #include "SkSLUtil.h"
 
 namespace SkSL {
@@ -55,11 +54,11 @@ struct Layout {
             case Format::kRGBA8I:       return "rgba8i";
             case Format::kR8I:          return "r8i";
         }
-        SkFAIL("Unexpected format");
+        ABORT("Unexpected format");
         return "";
     }
 
-    static bool ReadFormat(SkString str, Format* format) {
+    static bool ReadFormat(String str, Format* format) {
         if (str == "rgba32f") {
             *format = Format::kRGBA32F;
             return true;
@@ -125,9 +124,9 @@ struct Layout {
     , fMaxVertices(-1)
     , fInvocations(-1) {}
 
-    SkString description() const {
-        SkString result;
-        SkString separator;
+    String description() const {
+        String result;
+        String separator;
         if (fLocation >= 0) {
             result += separator + "location = " + to_string(fLocation);
             separator = ", ";

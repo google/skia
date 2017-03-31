@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_IRNODE
 #define SKSL_IRNODE
 
@@ -13,7 +13,7 @@
 namespace SkSL {
 
 /**
- * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved 
+ * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
  * version of the program (all types determined, everything validated), ready for code generation.
  */
 struct IRNode {
@@ -22,7 +22,7 @@ struct IRNode {
 
     virtual ~IRNode() {}
 
-    virtual SkString description() const = 0;
+    virtual String description() const = 0;
 
     const Position fPosition;
 };
