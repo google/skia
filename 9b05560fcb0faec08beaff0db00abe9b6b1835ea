@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9b2e245_8b98e459",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-31T16:37:54Z",
+      "side": 1,
+      "message": "It\u0027s usually a good idea to make constructors with a single argument explicit so that they don\u0027t accidentally implicitly cast.\n\n   explicit DrawState(SkThreadedBMPDevice* dev) { ... }\n\nIt\u0027s just a good habit to be in generally, even to the point of writing something like this when you really want an implicit constructor: \n\n   /*implicit*/ DrawState(SkThreadedBMPDevice* dev) { ... }",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 44,
+        "endChar": 13
+      },
+      "revId": "9b05560fcb0faec08beaff0db00abe9b6b1835ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "862909c8_293c1474",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-31T16:37:54Z",
+      "side": 1,
+      "message": "This is fine, but we usually tend to write it on one line:\n\n   } else {",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 10
+      },
+      "revId": "9b05560fcb0faec08beaff0db00abe9b6b1835ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e0e745e_8f0862c4",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-31T16:37:54Z",
+      "side": 1,
+      "message": "Seems pretty safe to always pass false.  There\u0027s not much point using this class with fThreadCnt \u003c\u003d 1.  :)\n\nSame deal in drawRRect.",
+      "range": {
+        "startLine": 134,
+        "startChar": 39,
+        "endLine": 135,
+        "endChar": 72
+      },
+      "revId": "9b05560fcb0faec08beaff0db00abe9b6b1835ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
