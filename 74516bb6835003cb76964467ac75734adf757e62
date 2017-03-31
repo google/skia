@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6927f07_33fcfff8",
+        "filename": "src/gpu/GrShaderCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-31T14:53:25Z",
+      "side": 1,
+      "message": "I think all our compilers will be ok with removing this return.",
+      "revId": "74516bb6835003cb76964467ac75734adf757e62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "003caa7b_9f01fca1",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1262,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-31T14:53:25Z",
+      "side": 1,
+      "message": "Similarly, this can be removed.",
+      "revId": "74516bb6835003cb76964467ac75734adf757e62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
