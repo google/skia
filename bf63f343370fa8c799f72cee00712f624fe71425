@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee96588a_057f9e54",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-31T14:26:49Z",
+      "side": 1,
+      "message": "static functions are usually named like outset_rect_bounds().",
+      "range": {
+        "startLine": 88,
+        "startChar": 21,
+        "endLine": 88,
+        "endChar": 37
+      },
+      "revId": "bf63f343370fa8c799f72cee00712f624fe71425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "987f694e_b1ac44ea",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-03-31T14:26:49Z",
+      "side": 1,
+      "message": "You probably want to use SkPaint::canComputeFastBounds() and SkPaint::computeFastBounds()?",
+      "revId": "bf63f343370fa8c799f72cee00712f624fe71425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
