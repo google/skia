@@ -16,6 +16,24 @@
       "revId": "10fa4c15f46558657a8b8cf849281580cbb9aeaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1e8523e_37ad0830",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5835
+      },
+      "writtenOn": "2017-03-31T20:37:33Z",
+      "side": 1,
+      "message": "see https://cs.chromium.org/chromium/tools/depot_tools/git_cl.py?q\u003dGetDescriptionFooters\u0026sq\u003dpackage:chromium\u0026l\u003d1405",
+      "parentUuid": "3be88bc3_12840b3a",
+      "revId": "10fa4c15f46558657a8b8cf849281580cbb9aeaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
