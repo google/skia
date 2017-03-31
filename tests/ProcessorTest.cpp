@@ -28,8 +28,8 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "TestOp"; }
 
-    static std::unique_ptr<GrMeshDrawOp> Make() {
-        return std::unique_ptr<GrMeshDrawOp>(new TestOp);
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make() {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new TestOp);
     }
 
 private:
@@ -170,7 +170,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     images.emplace_back(texture3, GrIOType::kWrite_GrIOType);
                     images.emplace_back(texture4, GrIOType::kRW_GrIOType);
                 }
-                std::unique_ptr<GrMeshDrawOp> op(TestOp::Make());
+                std::unique_ptr<GrLegacyMeshDrawOp> op(TestOp::Make());
                 GrPaint paint;
                 auto fp = TestFP::Make(context,
                                        std::move(proxies), std::move(buffers), std::move(images));

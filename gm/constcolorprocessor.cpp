@@ -110,7 +110,7 @@ protected:
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                    std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             grPaint.getColor(), viewMatrix, renderRect, nullptr, nullptr));
                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
                             std::move(grPaint), GrAAType::kNone, std::move(op));

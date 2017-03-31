@@ -25,14 +25,14 @@
 #include "ops/GrMeshDrawOp.h"
 
 namespace {
-class Op : public GrMeshDrawOp {
+class Op : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
     const char* name() const override { return "Dummy Op"; }
 
-    static std::unique_ptr<GrMeshDrawOp> Make(int numAttribs) {
-        return std::unique_ptr<GrMeshDrawOp>(new Op(numAttribs));
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(int numAttribs) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new Op(numAttribs));
     }
 
 private:
@@ -93,12 +93,12 @@ private:
         size_t vertexStride = gp->getVertexStride();
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         vertices->setRectFan(0.f, 0.f, 1.f, 1.f, vertexStride);
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     int fNumAttribs;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 }
 

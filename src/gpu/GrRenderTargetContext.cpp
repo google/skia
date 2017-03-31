@@ -509,7 +509,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
         if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
             SkRect devBoundRect;
             viewMatrix.mapRect(&devBoundRect, croppedRect);
-            std::unique_ptr<GrMeshDrawOp> op =
+            std::unique_ptr<GrLegacyMeshDrawOp> op =
                     GrRectOpFactory::MakeAAFill(paint, viewMatrix, rect, croppedRect, devBoundRect);
             if (op) {
                 GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
@@ -617,7 +617,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         }
 
         bool snapToPixelCenters = false;
-        std::unique_ptr<GrMeshDrawOp> op;
+        std::unique_ptr<GrLegacyMeshDrawOp> op;
 
         GrColor color = paint.getColor();
         GrAAType aaType = this->decideAAType(aa);
@@ -811,7 +811,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
     }
 
     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        std::unique_ptr<GrMeshDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
+        std::unique_ptr<GrLegacyMeshDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
                 paint.getColor(), viewMatrix, croppedRect, croppedLocalRect);
         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
         this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
@@ -867,7 +867,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
     }
 
     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        std::unique_ptr<GrMeshDrawOp> op =
+        std::unique_ptr<GrLegacyMeshDrawOp> op =
                 GrAAFillRectOp::Make(paint.getColor(), viewMatrix, localMatrix, croppedRect);
         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
         this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
@@ -913,7 +913,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
         return;
     }
 
-    std::unique_ptr<GrMeshDrawOp> op = GrDrawVerticesOp::Make(
+    std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(
             paint.getColor(), primitiveType, viewMatrix, positions, vertexCount, indices,
             indexCount, colors, texCoords, bounds, colorArrayType);
     if (!op) {
@@ -935,7 +935,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     SkASSERT(vertices);
-    std::unique_ptr<GrMeshDrawOp> op =
+    std::unique_ptr<GrLegacyMeshDrawOp> op =
             GrDrawVerticesOp::Make(paint.getColor(), std::move(vertices), viewMatrix);
     if (!op) {
         return;
@@ -960,7 +960,7 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    std::unique_ptr<GrMeshDrawOp> op =
+    std::unique_ptr<GrLegacyMeshDrawOp> op =
             GrDrawAtlasOp::Make(paint.getColor(), viewMatrix, spriteCount, xform, texRect, colors);
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
@@ -1014,7 +1014,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     GrAAType aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrMeshDrawOp> op =
+        std::unique_ptr<GrLegacyMeshDrawOp> op =
                 GrOvalOpFactory::MakeRRectOp(paint.getColor(),
                                              paint.usesDistanceVectorField(),
                                              viewMatrix,
@@ -1057,8 +1057,8 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
     // TODO: add instancing support?
 
     const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-    std::unique_ptr<GrMeshDrawOp> op = GrShadowRRectOp::Make(paint.getColor(), viewMatrix, rrect,
-                                                             blurRadius, stroke, shaderCaps);
+    std::unique_ptr<GrLegacyMeshDrawOp> op = GrShadowRRectOp::Make(
+            paint.getColor(), viewMatrix, rrect, blurRadius, stroke, shaderCaps);
     if (op) {
         GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
         this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
@@ -1200,7 +1200,7 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
-    std::unique_ptr<GrMeshDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
+    std::unique_ptr<GrLegacyMeshDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
 }
@@ -1239,7 +1239,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     GrAAType aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrMeshDrawOp> op =
+        std::unique_ptr<GrLegacyMeshDrawOp> op =
                 GrOvalOpFactory::MakeOvalOp(paint.getColor(), viewMatrix, oval, stroke, shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
@@ -1273,14 +1273,14 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
     GrAAType aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrMeshDrawOp> op = GrOvalOpFactory::MakeArcOp(paint.getColor(),
-                                                                      viewMatrix,
-                                                                      oval,
-                                                                      startAngle,
-                                                                      sweepAngle,
-                                                                      useCenter,
-                                                                      style,
-                                                                      shaderCaps);
+        std::unique_ptr<GrLegacyMeshDrawOp> op = GrOvalOpFactory::MakeArcOp(paint.getColor(),
+                                                                            viewMatrix,
+                                                                            oval,
+                                                                            startAngle,
+                                                                            sweepAngle,
+                                                                            useCenter,
+                                                                            style,
+                                                                            shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
@@ -1307,7 +1307,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    std::unique_ptr<GrMeshDrawOp> op = GrLatticeOp::MakeNonAA(
+    std::unique_ptr<GrLegacyMeshDrawOp> op = GrLatticeOp::MakeNonAA(
             paint.getColor(), viewMatrix, imageWidth, imageHeight, std::move(iter), dst);
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
@@ -1333,8 +1333,8 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
                                                 GrAAType hwOrNoneAAType) {
     SkASSERT(GrAAType::kCoverage != hwOrNoneAAType);
     SkASSERT(hwOrNoneAAType == GrAAType::kNone || this->isStencilBufferMultisampled());
-    std::unique_ptr<GrMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix,
-                                                                      rect, localRect, localMatrix);
+    std::unique_ptr<GrLegacyMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(
+            paint.getColor(), viewMatrix, rect, localRect, localMatrix);
     GrPipelineBuilder pipelineBuilder(std::move(paint), hwOrNoneAAType);
     if (ss) {
         pipelineBuilder.setUserStencil(ss);
@@ -1415,7 +1415,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
             SkRect rects[2];
 
             if (fills_as_nested_rects(viewMatrix, path, rects)) {
-                std::unique_ptr<GrMeshDrawOp> op =
+                std::unique_ptr<GrLegacyMeshDrawOp> op =
                         GrRectOpFactory::MakeAAFillNestedRects(paint.getColor(), viewMatrix, rects);
                 if (op) {
                     GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
@@ -1429,7 +1429,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
 
         if (isOval && !path.isInverseFillType()) {
             const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-            std::unique_ptr<GrMeshDrawOp> op = GrOvalOpFactory::MakeOvalOp(
+            std::unique_ptr<GrLegacyMeshDrawOp> op = GrOvalOpFactory::MakeOvalOp(
                     paint.getColor(), viewMatrix, ovalRect, style.strokeRec(), shaderCaps);
             if (op) {
                 GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
@@ -1678,7 +1678,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
 
 uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
                                               const GrClip& clip,
-                                              std::unique_ptr<GrMeshDrawOp> op) {
+                                              std::unique_ptr<GrLegacyMeshDrawOp>
+                                                      op) {
     ASSERT_SINGLE_OWNER
     if (this->drawingManager()->wasAbandoned()) {
         return SK_InvalidUniqueID;
