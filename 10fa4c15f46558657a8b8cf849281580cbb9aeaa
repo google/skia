@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3be88bc3_12840b3a",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5835
+      },
+      "writtenOn": "2017-03-31T20:37:01Z",
+      "side": 1,
+      "message": "this function returns a tuple of (lines, footers)",
+      "revId": "10fa4c15f46558657a8b8cf849281580cbb9aeaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
