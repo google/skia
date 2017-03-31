@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTINTLITERAL
 #define SKSL_ASTINTLITERAL
 
@@ -21,7 +21,7 @@ struct ASTIntLiteral : public ASTExpression {
     : INHERITED(position, kInt_Kind)
     , fValue(value) {}
 
-    SkString description() const override {
+    String description() const override {
         return to_string(fValue);
     }
 

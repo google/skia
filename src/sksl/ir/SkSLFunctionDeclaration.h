@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_FUNCTIONDECLARATION
 #define SKSL_FUNCTIONDECLARATION
 
@@ -21,7 +21,7 @@ namespace SkSL {
  * A function declaration (not a definition -- does not contain a body).
  */
 struct FunctionDeclaration : public Symbol {
-    FunctionDeclaration(Position position, SkString name, 
+    FunctionDeclaration(Position position, String name,
                         std::vector<const Variable*> parameters, const Type& returnType)
     : INHERITED(position, kFunctionDeclaration_Kind, std::move(name))
     , fDefined(false)
@@ -29,9 +29,9 @@ struct FunctionDeclaration : public Symbol {
     , fParameters(std::move(parameters))
     , fReturnType(returnType) {}
 
-    SkString description() const override {
-        SkString result = fReturnType.description() + " " + fName + "(";
-        SkString separator;
+    String description() const override {
+        String result = fReturnType.description() + " " + fName + "(";
+        String separator;
         for (auto p : fParameters) {
             result += separator;
             separator = ", ";
@@ -58,7 +58,7 @@ struct FunctionDeclaration : public Symbol {
 
     /**
      * Determine the effective types of this function's parameters and return value when called with
-     * the given arguments. This is relevant for functions with generic parameter types, where this 
+     * the given arguments. This is relevant for functions with generic parameter types, where this
      * will collapse the generic types down into specific concrete types.
      *
      * Returns true if it was able to select a concrete set of types for the generic function, false

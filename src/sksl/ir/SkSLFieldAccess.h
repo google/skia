@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_FIELDACCESS
 #define SKSL_FIELDACCESS
 
@@ -24,14 +24,14 @@ struct FieldAccess : public Expression {
         kAnonymousInterfaceBlock_OwnerKind
     };
 
-    FieldAccess(std::unique_ptr<Expression> base, int fieldIndex, 
+    FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
                 OwnerKind ownerKind = kDefault_OwnerKind)
     : INHERITED(base->fPosition, kFieldAccess_Kind, *base->fType.fields()[fieldIndex].fType)
     , fBase(std::move(base))
     , fFieldIndex(fieldIndex)
     , fOwnerKind(ownerKind) {}
 
-    virtual SkString description() const override {
+    virtual String description() const override {
         return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
     }
 

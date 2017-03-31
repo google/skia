@@ -25,9 +25,9 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     // valueName is empty when it was not present in the source
     ASTInterfaceBlock(Position position,
                       Modifiers modifiers,
-                      SkString typeName,
+                      String typeName,
                       std::vector<std::unique_ptr<ASTVarDeclarations>> declarations,
-                      SkString instanceName,
+                      String instanceName,
                       std::vector<std::unique_ptr<ASTExpression>> sizes)
     : INHERITED(position, kInterfaceBlock_Kind)
     , fModifiers(modifiers)
@@ -36,8 +36,8 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     , fInstanceName(std::move(instanceName))
     , fSizes(std::move(sizes)) {}
 
-    SkString description() const override {
-        SkString result = fModifiers.description() + fTypeName + " {\n";
+    String description() const override {
+        String result = fModifiers.description() + fTypeName + " {\n";
         for (size_t i = 0; i < fDeclarations.size(); i++) {
             result += fDeclarations[i]->description() + "\n";
         }
@@ -56,9 +56,9 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     }
 
     const Modifiers fModifiers;
-    const SkString fTypeName;
+    const String fTypeName;
     const std::vector<std::unique_ptr<ASTVarDeclarations>> fDeclarations;
-    const SkString fInstanceName;
+    const String fInstanceName;
     const std::vector<std::unique_ptr<ASTExpression>> fSizes;
 
     typedef ASTDeclaration INHERITED;

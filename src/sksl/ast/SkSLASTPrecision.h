@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTPRECISION
 #define SKSL_ASTPRECISION
 
@@ -22,17 +22,17 @@ struct ASTPrecision : public ASTDeclaration {
     : INHERITED(position, kPrecision_Kind)
     , fPrecision(precision) {}
 
-    SkString description() const {
+    String description() const {
         switch (fPrecision) {
-            case Modifiers::kLowp_Flag: return SkString("precision lowp float;");
-            case Modifiers::kMediump_Flag: return SkString("precision mediump float;");
-            case Modifiers::kHighp_Flag: return SkString("precision highp float;");
-            default: 
-                ASSERT(false); 
-                return SkString("<error>");
+            case Modifiers::kLowp_Flag: return String("precision lowp float;");
+            case Modifiers::kMediump_Flag: return String("precision mediump float;");
+            case Modifiers::kHighp_Flag: return String("precision highp float;");
+            default:
+                ASSERT(false);
+                return String("<error>");
         }
         ASSERT(false);
-        return SkString("<error>");
+        return String("<error>");
     }
 
     const Modifiers::Flag fPrecision;

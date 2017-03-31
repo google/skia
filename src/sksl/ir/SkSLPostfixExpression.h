@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_POSTFIXEXPRESSION
 #define SKSL_POSTFIXEXPRESSION
 
@@ -22,7 +22,7 @@ struct PostfixExpression : public Expression {
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
-    virtual SkString description() const override {
+    virtual String description() const override {
         return fOperand->description() + Token::OperatorName(fOperator);
     }
 

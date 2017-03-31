@@ -13,17 +13,16 @@
 
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
-    SkDynamicMemoryWStream out;
     SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      SkString(src), settings);
     if (program) {
-        SkString ignored;
+        SkSL::String ignored;
         compiler.toSPIRV(*program, &ignored);
     }
-    SkString skError(error);
+    SkSL::String skError(error);
     if (compiler.errorText() != skError) {
         SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s", src, error,
                  compiler.errorText().c_str());
@@ -33,14 +32,13 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
 
 static void test_success(skiatest::Reporter* r, const char* src) {
     SkSL::Compiler compiler;
-    SkDynamicMemoryWStream out;
     SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      SkString(src), settings);
     REPORTER_ASSERT(r, program);
-    SkString ignored;
+    SkSL::String ignored;
     REPORTER_ASSERT(r, compiler.toSPIRV(*program, &ignored));
 }
 

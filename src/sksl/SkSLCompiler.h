@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_COMPILER
 #define SKSL_COMPILER
 
@@ -42,20 +42,20 @@ public:
 
     ~Compiler() override;
 
-    std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text,
+    std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
                                             const Program::Settings& settings);
 
-    bool toSPIRV(const Program& program, SkWStream& out);
+    bool toSPIRV(const Program& program, OutputStream& out);
 
-    bool toSPIRV(const Program& program, SkString* out);
+    bool toSPIRV(const Program& program, String* out);
 
-    bool toGLSL(const Program& program, SkWStream& out);
+    bool toGLSL(const Program& program, OutputStream& out);
 
-    bool toGLSL(const Program& program, SkString* out);
+    bool toGLSL(const Program& program, String* out);
 
-    void error(Position position, SkString msg) override;
+    void error(Position position, String msg) override;
 
-    SkString errorText();
+    String errorText();
 
     void writeErrorCount();
 
@@ -73,17 +73,17 @@ private:
 
     void scanCFG(const FunctionDefinition& f);
 
-    void internalConvertProgram(SkString text,
+    void internalConvertProgram(String text,
                                 Modifiers::Flag* defaultPrecision,
                                 std::vector<std::unique_ptr<ProgramElement>>* result);
 
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
-    SkString fSkiaVertText; // FIXME store parsed version instead
+    String fSkiaVertText; // FIXME store parsed version instead
 
     Context fContext;
     int fErrorCount;
-    SkString fErrorText;
+    String fErrorText;
 };
 
 } // namespace
