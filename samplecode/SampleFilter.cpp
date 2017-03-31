@@ -26,11 +26,9 @@ static void make_bm(SkBitmap* bm) {
         SkPreMultiplyColor(SK_ColorRED), SkPreMultiplyColor(SK_ColorGREEN),
         SkPreMultiplyColor(SK_ColorBLUE), SkPreMultiplyColor(SK_ColorWHITE)
     };
-    SkColorTable* ctable = new SkColorTable(colors, 4);
     bm->allocPixels(SkImageInfo::Make(2, 2, kIndex_8_SkColorType,
                                       kOpaque_SkAlphaType),
-                    nullptr, ctable);
-    ctable->unref();
+                    SkColorTable::Make(colors, 4));
 
     *bm->getAddr8(0, 0) = 0;
     *bm->getAddr8(1, 0) = 1;

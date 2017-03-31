@@ -199,8 +199,7 @@ static std::unique_ptr<SkImageGenerator> make_ctable_generator(GrContext*, sk_sp
     SkImageInfo info = SkImageInfo::Make(100, 100, kIndex_8_SkColorType, kPremul_SkAlphaType);
 
     SkBitmap bm2;
-    sk_sp<SkColorTable> ct(new SkColorTable(colors, count));
-    bm2.allocPixels(info, nullptr, ct.get());
+    bm2.allocPixels(info, SkColorTable::Make(colors, count));
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             *bm2.getAddr8(x, y) = find_closest(*bm.getAddr32(x, y), colors, count);
