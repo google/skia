@@ -74,8 +74,6 @@ static inline const char* GrGLSLPrecisionString(GrSLPrecision p) {
             return "mediump";
         case kHigh_GrSLPrecision:
             return "highp";
-        case kDefault_GrSLPrecision:
-            return "";
         default:
             SkFAIL("Unexpected precision type.");
             return "";
