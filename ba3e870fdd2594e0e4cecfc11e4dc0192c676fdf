@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fab7ac75_f62cc0ef",
+        "filename": "src/core/SkBitmapDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-31T14:21:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9843ef5b_2b68de95",
+      "revId": "ba3e870fdd2594e0e4cecfc11e4dc0192c676fdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c31fd67c_a8f66514",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 6
@@ -62,6 +80,54 @@
       "revId": "ba3e870fdd2594e0e4cecfc11e4dc0192c676fdf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7361f0a_24e5da97",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-31T14:21:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ac376f7_21b772ce",
+      "range": {
+        "startLine": 18,
+        "startChar": 50,
+        "endLine": 18,
+        "endChar": 58
+      },
+      "revId": "ba3e870fdd2594e0e4cecfc11e4dc0192c676fdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85336ce7_7993684a",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-31T14:21:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c31fd67c_a8f66514",
+      "range": {
+        "startLine": 18,
+        "startChar": 13,
+        "endLine": 18,
+        "endChar": 20
+      },
+      "revId": "ba3e870fdd2594e0e4cecfc11e4dc0192c676fdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
