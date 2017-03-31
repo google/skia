@@ -214,8 +214,7 @@ public:
 
 private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
-                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                           const DstTexture*) const override;
+                                           GrProcessorAnalysisCoverage, bool hasMixedSamples) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
@@ -235,8 +234,7 @@ private:
 GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                         const GrProcessorAnalysisColor&,
                                                         GrProcessorAnalysisCoverage coverage,
-                                                        bool hasMixedSamples,
-                                                        const DstTexture* dstTexture) const {
+                                                        bool hasMixedSamples) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());

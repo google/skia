@@ -44,8 +44,7 @@ private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
-                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                           const DstTexture*) const override;
+                                           GrProcessorAnalysisCoverage, bool hasMixedSamples) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,

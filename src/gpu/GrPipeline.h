@@ -194,7 +194,7 @@ public:
     }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
+        return this->getXferProcessor().xferBarrierType(caps);
     }
 
     /**

@@ -2637,6 +2637,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
     }
 
     for (int i = 0; i < meshCount; ++i) {
+        // CHECK FOR TEXTURE BARRIER HERE.
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
             this->xferBarrier(pipeline.getRenderTarget(), barrierType);
         }

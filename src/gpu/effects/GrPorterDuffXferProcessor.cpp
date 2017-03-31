@@ -702,8 +702,7 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
 GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                               const GrProcessorAnalysisColor& color,
                                                               GrProcessorAnalysisCoverage coverage,
-                                                              bool hasMixedSamples,
-                                                              const DstTexture* dstTexture) const {
+                                                              bool hasMixedSamples) const {
     BlendFormula blendFormula;
     if (coverage == GrProcessorAnalysisCoverage::kLCD) {
         if (SkBlendMode::kSrcOver == fBlendMode && color.isConstant() &&

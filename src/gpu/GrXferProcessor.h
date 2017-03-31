@@ -98,7 +98,7 @@ public:
      * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLSLProcessorKey(...) to get the
      * specific subclass's key.
      */ 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const;
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*, const GrSurfaceOrigin* originIfDstTexture) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
@@ -109,7 +109,7 @@ public:
      * Returns whether this XP will require an Xfer barrier on the given rt. If true, outBarrierType
      * is updated to contain the type of barrier needed.
      */
-    GrXferBarrierType xferBarrierType(const GrRenderTarget* rt, const GrCaps& caps) const;
+    GrXferBarrierType xferBarrierType(const GrCaps& caps) const;
 
     struct BlendInfo {
         void reset() {
@@ -133,6 +133,7 @@ public:
 
     bool willReadDstColor() const { return fWillReadDstColor; }
 
+#if 0
     /**
      * Returns the texture to be used as the destination when reading the dst in the fragment
      * shader. If the returned texture is NULL then the XP is either not reading the dst or we have
@@ -148,6 +149,7 @@ public:
         SkASSERT(this->getDstTexture());
         return fDstTextureOffset;
     }
+#endif
 
     /**
      * If we are performing a dst read, returns whether the base class will use mixed samples to
@@ -267,7 +269,6 @@ public:
     GrXferProcessor* createXferProcessor(const GrProcessorAnalysisColor&,
                                          GrProcessorAnalysisCoverage,
                                          bool hasMixedSamples,
-                                         const DstTexture*,
                                          const GrCaps& caps) const;
 
     enum class AnalysisProperties : unsigned {
@@ -314,8 +315,7 @@ private:
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                                    const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
-                                                   bool hasMixedSamples,
-                                                   const DstTexture*) const = 0;
+                                                   bool hasMixedSamples) const = 0;
 
     /**
      * Subclass analysis implementation. This should not return kNeedsDstInTexture as that will be

@@ -63,7 +63,7 @@ void GrPipeline::init(const InitArgs& args) {
         if (xpFactory) {
             xferProcessor.reset(xpFactory->createXferProcessor(args.fInputColor,
                                                                args.fInputCoverage, hasMixedSamples,
-                                                               &args.fDstTexture, *args.fCaps));
+                                                               *args.fCaps));
             SkASSERT(xferProcessor);
         } else {
             // This may return nullptr in the common case of src-over implemented using hw blending.
