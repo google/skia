@@ -57,6 +57,10 @@ static K kConstants = {
     M(plus_)              \
     M(screen)             \
     M(xor_)               \
+    M(darken)             \
+    M(lighten)            \
+    M(difference)         \
+    M(exclusion)          \
     M(clamp_0)            \
     M(clamp_1)            \
     M(clamp_a)            \

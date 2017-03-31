@@ -531,6 +531,7 @@ STAGE(constant_color) {
     SI F name##_channel(F s, F d, F sa, F da)
 
 SI F inv(F x) { return 1.0_f - x; }
+SI F two(F x) { return x + x; }
 
 BLEND_MODE(clear)    { return 0; }
 BLEND_MODE(srcatop)  { return s*da + d*inv(sa); }
@@ -547,6 +548,22 @@ BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
 BLEND_MODE(plus_)    { return s + d; }
 BLEND_MODE(screen)   { return s + d - s*d; }
 BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
+
+#undef BLEND_MODE
+#define BLEND_MODE(name)                       \
+    SI F name##_channel(F s, F d, F sa, F da); \
+    STAGE(name) {                              \
+        r = name##_channel(r,dr,a,da);         \
+        g = name##_channel(g,dg,a,da);         \
+        b = name##_channel(b,db,a,da);         \
+        a = mad(da, inv(a), a);                \
+    }                                          \
+    SI F name##_channel(F s, F d, F sa, F da)
+
+BLEND_MODE(darken)     { return s + d -     max(s*da, d*sa) ; }
+BLEND_MODE(lighten)    { return s + d -     min(s*da, d*sa) ; }
+BLEND_MODE(difference) { return s + d - two(min(s*da, d*sa)); }
+BLEND_MODE(exclusion)  { return s + d - two(s*d); }
 
 STAGE(clamp_0) {
     r = max(r, 0);
