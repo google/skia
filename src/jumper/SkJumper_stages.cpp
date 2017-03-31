@@ -6,7 +6,6 @@
  */
 
 #include "SkJumper.h"
-#include <string.h>
 
 #define SI static inline
 

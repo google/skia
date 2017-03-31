@@ -12,7 +12,34 @@
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
 
-#include <stdint.h>
+#if defined(JUMPER) && defined(__ANDROID__)
+    // To reduce SkJumper's dependency on the Android NDK,
+    // we provide what we need from <string.h>, <stdint.h>, and <stddef.h> ourselves.
+    #define memcpy __builtin_memcpy
+
+    using  int8_t  =   signed char;
+    using uint8_t  = unsigned char;
+    using  int16_t =   signed short;
+    using uint16_t = unsigned short;
+    using  int32_t =   signed int;
+    using uint32_t = unsigned int;
+    #if defined(__aarch64__)
+        using  int64_t =   signed long;
+        using uint64_t = unsigned long;
+        using size_t = uint64_t;
+    #else
+        using  int64_t =   signed long long;
+        using uint64_t = unsigned long long;
+        using size_t = uint32_t;
+    #endif
+
+    // Now pretend we've included <stdint.h> (or it'll be included again by <arm_neon.h>).
+    #define __CLANG_STDINT_H
+    #define _STDINT_H_
+#else
+    #include <string.h>
+    #include <stdint.h>
+#endif
 
 // SkJumper_stages.cpp has some unusual constraints on what constants it can use.
 //
