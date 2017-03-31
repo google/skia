@@ -86,8 +86,11 @@ static K kConstants = {
     M(load_tables)        \
     M(load_a8)            \
     M(store_a8)           \
+    M(load_g8)            \
     M(load_565)           \
     M(store_565)          \
+    M(load_4444)          \
+    M(store_4444)         \
     M(load_8888)          \
     M(store_8888)         \
     M(load_f16)           \

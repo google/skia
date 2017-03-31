@@ -353,6 +353,13 @@ SI void from_565(U16 _565, F* r, F* g, F* b) {
     *g = cast(wide & C(63<< 5)) * C(1.0f / (63<< 5));
     *b = cast(wide & C(31<< 0)) * C(1.0f / (31<< 0));
 }
+SI void from_4444(U16 _4444, F* r, F* g, F* b, F* a) {
+    U32 wide = expand(_4444);
+    *r = cast(wide & C(15<<12)) * C(1.0f / (15<<12));
+    *g = cast(wide & C(15<< 8)) * C(1.0f / (15<< 8));
+    *b = cast(wide & C(15<< 4)) * C(1.0f / (15<< 4));
+    *a = cast(wide & C(15<< 0)) * C(1.0f / (15<< 0));
+}
 
 // Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
 #if defined(JUMPER)
@@ -771,6 +778,13 @@ STAGE(store_a8) {
     store(ptr, packed, tail);
 }
 
+STAGE(load_g8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+
+    r = g = b = cast(expand(load<U8>(ptr, tail))) * C(1/255.0f);
+    a = 1.0_f;
+}
+
 STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
@@ -786,6 +800,19 @@ STAGE(store_565) {
     store(ptr, px, tail);
 }
 
+STAGE(load_4444) {
+    auto ptr = *(const uint16_t**)ctx + x;
+    from_4444(load<U16>(ptr, tail), &r,&g,&b,&a);
+}
+STAGE(store_4444) {
+    auto ptr = *(uint16_t**)ctx + x;
+    U16 px = pack( round(r, 15.0_f) << 12
+                 | round(g, 15.0_f) <<  8
+                 | round(b, 15.0_f) <<  4
+                 | round(a, 15.0_f)      );
+    store(ptr, px, tail);
+}
+
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
 
@@ -795,7 +822,6 @@ STAGE(load_8888) {
     b = cast((px >> 16) & 0xff_i) * C(1/255.0f);
     a = cast((px >> 24)         ) * C(1/255.0f);
 }
-
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
 
