@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd9430f3_0ab1da9e",
+        "filename": "tests/BlendTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-03-31T12:25:48Z",
+      "side": 1,
+      "message": "It turns on this surface factory isn\u0027t supported on the Vulkan backend.",
+      "range": {
+        "startLine": 106,
+        "startChar": 23,
+        "endLine": 106,
+        "endChar": 59
+      },
+      "revId": "e0ff6ab272dcc5c4d6f3b509da7e0e97acada814",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
