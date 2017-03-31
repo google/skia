@@ -85,7 +85,8 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     , fCustomColorOutputIndex(-1)
     , fHasSecondaryOutput(false)
     , fUsedSampleOffsetArrays(0)
-    , fHasInitializedSampleMask(false) {
+    , fHasInitializedSampleMask(false)
+    , fDefaultPrecision(kMedium_GrSLPrecision) {
     fSubstageIndices.push_back(0);
 #ifdef SK_DEBUG
     fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
@@ -176,6 +177,10 @@ void GrGLSLFragmentShaderBuilder::overrideSampleCoverage(const char* mask) {
     }
     this->codeAppendf("gl_SampleMask[0] = %s;", mask);
     fHasInitializedSampleMask = true;
+}
+
+void GrGLSLFragmentShaderBuilder::elevateDefaultPrecision(GrSLPrecision precision) {
+    fDefaultPrecision = SkTMax(fDefaultPrecision, precision);
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
@@ -279,7 +284,7 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(fDefaultPrecision,
                                                  *fProgramBuilder->shaderCaps(),
                                                  &this->precisionQualifier());
     if (fUsedSampleOffsetArrays & (1 << kSkiaDevice_Coordinates)) {
