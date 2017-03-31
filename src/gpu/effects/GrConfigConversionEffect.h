@@ -8,15 +8,13 @@
 #ifndef GrConfigConversionEffect_DEFINED
 #define GrConfigConversionEffect_DEFINED
 
-#include "GrSingleTextureEffect.h"
-
-class GrInvariantOutput;
+#include "GrFragmentProcessor.h"
 
 /**
  * This class is used to perform config conversions. Clients may want to read/write data that is
  * unpremultiplied.
  */
-class GrConfigConversionEffect : public GrSingleTextureEffect {
+class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
     /**
      * The PM->UPM or UPM->PM conversions to apply.
@@ -30,8 +28,11 @@ public:
         kPMConversionCnt
     };
 
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, sk_sp<GrTextureProxy>,
-                                           PMConversion, const SkMatrix&);
+    /**
+     *  Returns a fragment processor that calls the passed in fragment processor, and then performs
+     *  the requested premul or unpremul conversion.
+     */
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor>, PMConversion);
 
     const char* name() const override { return "Config Conversion"; }
 
@@ -46,8 +47,7 @@ public:
                                                PMConversion* PMToUPMRule,
                                                PMConversion* UPMToPMRule);
 private:
-    GrConfigConversionEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
-                             PMConversion, const SkMatrix& matrix);
+    GrConfigConversionEffect(PMConversion);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -59,7 +59,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
 #endif
