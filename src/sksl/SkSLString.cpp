@@ -8,9 +8,7 @@
 #include "SkSLString.h"
 
 #include "SkSLUtil.h"
-#include <cinttypes>
 #include <errno.h>
-#include <inttypes.h>
 #include <limits.h>
 #include <locale>
 #include <sstream>
@@ -117,11 +115,15 @@ String to_string(uint32_t value) {
 }
 
 String to_string(int64_t value) {
-    return SkSL::String::printf("%" PRId64, value);
+    std::stringstream buffer;
+    buffer << value;
+    return String(buffer.str().c_str());
 }
 
 String to_string(uint64_t value) {
-    return SkSL::String::printf("%" PRIu64, value);
+    std::stringstream buffer;
+    buffer << value;
+    return String(buffer.str().c_str());
 }
 
 String to_string(double value) {
