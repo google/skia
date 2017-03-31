@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c8b8f0c5_775659eb",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-31T16:21:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee96588a_057f9e54",
+      "range": {
+        "startLine": 88,
+        "startChar": 21,
+        "endLine": 88,
+        "endChar": 37
+      },
+      "revId": "bf63f343370fa8c799f72cee00712f624fe71425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "987f694e_b1ac44ea",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 7
@@ -39,6 +63,24 @@
       "revId": "bf63f343370fa8c799f72cee00712f624fe71425",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4db9c375_93ccce4d",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-03-31T16:21:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "987f694e_b1ac44ea",
+      "revId": "bf63f343370fa8c799f72cee00712f624fe71425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
