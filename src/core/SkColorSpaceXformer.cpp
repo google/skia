@@ -14,10 +14,14 @@
 #include "SkMakeUnique.h"
 
 std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpace> dst) {
-    std::unique_ptr<SkColorSpaceXform> fromSRGB = SkColorSpaceXform_Base::New(
-            SkColorSpace::MakeSRGB().get(), dst.get(), SkTransferFunctionBehavior::kIgnore);
-    if (!fromSRGB) {
-        return nullptr;
+    std::unique_ptr<SkColorSpaceXform> fromSRGB = nullptr;
+    if (!dst->isSRGB()) {
+        fromSRGB = SkColorSpaceXform_Base::New(SkColorSpace::MakeSRGB().get(), dst.get(),
+                                               SkTransferFunctionBehavior::kIgnore);
+        if (!fromSRGB) {
+            // Unsupported |dst|.
+            return nullptr;
+        }
     }
 
     auto xformer = std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer());
@@ -31,9 +35,13 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) {
 }
 
 void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) {
-    SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
-                                    SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
-                                    n, kUnpremul_SkAlphaType));
+    if (fFromSRGB) {
+        SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
+                                        SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb, n,
+                                        kUnpremul_SkAlphaType));
+    } else {
+        memcpy(xformed, srgb, 4*n);
+    }
 }
 
 SkColor SkColorSpaceXformer::apply(SkColor srgb) {
@@ -136,7 +144,7 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
     };
 
     // All SkColorSpaces have the same black point.
-    if (src.getColor() & 0xffffff) {
+    if ((src.getColor() & 0xffffff) && fFromSRGB) {
         get_dst()->setColor(this->apply(src.getColor()));
     }
 
@@ -150,7 +158,7 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
     if (auto cf = src.getColorFilter()) {
         SkColor color;
         SkBlendMode mode;
-        if (cf->asColorMode(&color, &mode)) {
+        if (cf->asColorMode(&color, &mode) && fFromSRGB) {
             get_dst()->setColorFilter(SkColorFilter::MakeModeFilter(this->apply(color), mode));
         }
     }
