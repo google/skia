@@ -38,7 +38,7 @@ DRAW_OP_TEST_EXTERN(TextBlobOp);
 DRAW_OP_TEST_EXTERN(VerticesOp);
 
 std::unique_ptr<GrMeshDrawOp> GrRandomDrawOp(SkRandom* random, GrContext* context) {
-    using MakeTestDrawOpFn = std::unique_ptr<GrMeshDrawOp>(SkRandom* random, GrContext* context);
+    using MakeTestDrawOpFn = std::unique_ptr<GrMeshDrawOp>(SkRandom * random, GrContext * context);
     static constexpr MakeTestDrawOpFn* gFactories[] = {
         DRAW_OP_TEST_ENTRY(AAConvexPathOp),
         DRAW_OP_TEST_ENTRY(AAFillRectOp),

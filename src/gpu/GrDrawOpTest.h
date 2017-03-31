@@ -14,19 +14,19 @@
 #if GR_TEST_UTILS
 
 class GrContext;
-class GrMeshDrawOp;
+class GrLegacyMeshDrawOp;
 class SkRandom;
 
 /**  This function returns a randomly configured GrDrawOp for testing purposes. */
-std::unique_ptr<GrMeshDrawOp> GrRandomDrawOp(SkRandom*, GrContext*);
+std::unique_ptr<GrLegacyMeshDrawOp> GrRandomDrawOp(SkRandom*, GrContext*);
 
 /** GrDrawOp subclasses should define test factory functions using this macro. */
 #define DRAW_OP_TEST_DEFINE(Op) \
-    std::unique_ptr<GrMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context)
+    std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context)
 
 /** This macro may be used if the test factory function must be made a friend of a class. */
 #define DRAW_OP_TEST_FRIEND(Op) \
-    friend std::unique_ptr<GrMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context);
+    friend std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom* random, GrContext* context);
 
 #endif
 #endif

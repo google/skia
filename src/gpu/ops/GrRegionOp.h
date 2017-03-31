@@ -11,13 +11,13 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrMeshDrawOp;
+class GrLegacyMeshDrawOp;
 class SkMatrix;
 class SkRegion;
 
 namespace GrRegionOp {
-std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                   const SkRegion& region);
+std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                         const SkRegion& region);
 }
 
 #endif

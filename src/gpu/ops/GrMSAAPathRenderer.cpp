@@ -215,11 +215,12 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-class MSAAPathOp final : public GrMeshDrawOp {
+class MSAAPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkPath& path,
-                                              const SkMatrix& viewMatrix, const SkRect& devBounds) {
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkPath& path,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkRect& devBounds) {
         int contourCount;
         int maxLineVertices;
         int maxQuadVertices;
@@ -231,7 +232,7 @@ public:
             return nullptr;
         }
 
-        return std::unique_ptr<GrMeshDrawOp>(new MSAAPathOp(
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new MSAAPathOp(
                 color, path, viewMatrix, devBounds, maxLineVertices, maxQuadVertices, isIndexed));
     }
 
@@ -420,7 +421,7 @@ private:
                 lineMeshes.init(primitiveType, lineVertexBuffer, firstLineVertex,
                                   lineVertexOffset);
             }
-            target->draw(lineGP.get(), lineMeshes);
+            target->draw(lineGP.get(), this->pipeline(), lineMeshes);
         }
 
         if (quadVertexOffset) {
@@ -448,7 +449,7 @@ private:
                 quadMeshes.init(kTriangles_GrPrimitiveType, quadVertexBuffer, firstQuadVertex,
                                 quadVertexOffset);
             }
-            target->draw(quadGP.get(), quadMeshes);
+            target->draw(quadGP.get(), this->pipeline(), quadMeshes);
         }
     }
 
@@ -568,7 +569,7 @@ private:
     int fMaxQuadVertices;
     bool fIsIndexed;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
@@ -625,7 +626,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
 
     SkASSERT(passes[0]);
     {  // First pass
-        std::unique_ptr<GrMeshDrawOp> op =
+        std::unique_ptr<GrLegacyMeshDrawOp> op =
                 MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
         if (!op) {
             return false;
@@ -639,7 +640,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         }
         GrPipelineBuilder pipelineBuilder(std::move(firstPassPaint), aaType);
         pipelineBuilder.setUserStencil(passes[0]);
-        renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
     }
 
     if (passes[1]) {
@@ -662,13 +663,13 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         }
         const SkMatrix& viewM =
                 (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() : viewMatrix;
-        std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                 paint.getColor(), viewM, bounds, nullptr, &localMatrix));
 
         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
         pipelineBuilder.setUserStencil(passes[1]);
 
-        renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
     }
     return true;
 }

@@ -230,7 +230,8 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 uint32_t GrRenderTargetContextPriv::testingOnly_addMeshDrawOp(GrPaint&& paint,
                                                               GrAAType aaType,
-                                                              std::unique_ptr<GrMeshDrawOp> op,
+                                                              std::unique_ptr<GrLegacyMeshDrawOp>
+                                                                      op,
                                                               const GrUserStencilSettings* uss,
                                                               bool snapToCenters) {
     ASSERT_SINGLE_OWNER
@@ -247,7 +248,7 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addMeshDrawOp(GrPaint&& paint,
     }
     pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
-    return fRenderTargetContext->addMeshDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
+    return fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER

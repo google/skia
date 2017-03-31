@@ -13,7 +13,7 @@
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
-class GrAtlasTextOp final : public GrMeshDrawOp {
+class GrAtlasTextOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -138,7 +138,7 @@ private:
         return kLCDCoverageMask_MaskType == fMaskType || kLCDDistanceField_MaskType == fMaskType;
     }
 
-    inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
+    inline void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
 
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
@@ -180,7 +180,7 @@ private:
 
     friend class GrBlobRegenHelper;  // Needs to trigger flushes
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 /*
@@ -189,7 +189,7 @@ private:
  */
 class GrBlobRegenHelper {
 public:
-    GrBlobRegenHelper(const GrAtlasTextOp* op, GrMeshDrawOp::Target* target,
+    GrBlobRegenHelper(const GrAtlasTextOp* op, GrLegacyMeshDrawOp::Target* target,
                       GrAtlasTextOp::FlushInfo* flushInfo)
             : fOp(op), fTarget(target), fFlushInfo(flushInfo) {}
 
@@ -199,7 +199,7 @@ public:
 
 private:
     const GrAtlasTextOp* fOp;
-    GrMeshDrawOp::Target* fTarget;
+    GrLegacyMeshDrawOp::Target* fTarget;
     GrAtlasTextOp::FlushInfo* fFlushInfo;
 };
 
