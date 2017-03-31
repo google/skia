@@ -73,10 +73,10 @@ def nanobench_flags(bot):
     config = ['vk']
 
   if 'ANGLE' in bot:
-    config.extend(['angle_d3d11_es2'])
-    # The GL backend of ANGLE crashes on the perf bot currently.
-    if 'Win' not in bot:
-      config.extend(['angle_gl_es2'])
+    # Test only ANGLE configs.
+    config = ['angle_d3d11_es2']
+    if sample_count is not '':
+      config.append('angle_d3d11_es2_msaa' + sample_count)
 
   args.append('--config')
   args.extend(config)
