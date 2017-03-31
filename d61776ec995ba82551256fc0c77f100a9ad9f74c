@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "24c00b47_c024c222",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-31T13:22:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfd19195_6c325164",
+      "range": {
+        "startLine": 7,
+        "startChar": 21,
+        "endLine": 7,
+        "endChar": 35
+      },
+      "revId": "d61776ec995ba82551256fc0c77f100a9ad9f74c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e6a53b3b_3d6dcacb",
         "filename": "include/core/SkColorTable.h",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-31T13:11:22Z",
       "side": 1,
       "message": "Can/should we put this behind a legacy ifdef and eventually make it private?  Maybe too much for this CL?",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 54
+      },
+      "revId": "d61776ec995ba82551256fc0c77f100a9ad9f74c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "846c89b1_d202b5b6",
+        "filename": "include/core/SkColorTable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-03-31T13:22:34Z",
+      "side": 1,
+      "message": "If not now, definitely next CL",
+      "parentUuid": "e6a53b3b_3d6dcacb",
       "range": {
         "startLine": 31,
         "startChar": 4,
