@@ -111,7 +111,7 @@ protected:
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
@@ -143,6 +143,7 @@ private:
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
     friend class SkSurface_Raster;
+    friend class SkThreadedBMPDevice; // to copy fRCStack
 
     class BDDraw;
 
