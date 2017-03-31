@@ -15,13 +15,13 @@
 static GrSLPrecision compute_precision(const GrShaderCaps* caps,
                                        int width, int height,
                                        GrSamplerParams::FilterMode filter) {
-    // Always start at kDefault. Then if precisions differ we see if the precision needs to be
+    // Always start at kMedium. Then if precisions differ we see if the precision needs to be
     // increased. Our rule is that we want at least 4 subpixel values in the representation for
     // coords between 0 to 1 when bi- or tri-lerping and 1 value when nearest filtering. Note that
     // this still might not be enough when drawing with repeat or mirror-repeat modes but that case
     // can be arbitrarily bad.
     int subPixelThresh = filter > GrSamplerParams::kNone_FilterMode ? 4 : 1;
-    GrSLPrecision precision = kDefault_GrSLPrecision;
+    GrSLPrecision precision = kMedium_GrSLPrecision;
     if (caps) {
         if (caps->floatPrecisionVaries()) {
             int maxD = SkTMax(width, height);
