@@ -10,6 +10,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkGradientShader.h"
 #include "SkImage_Base.h"
+#include "SkImagePriv.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
 #include "SkSurface.h"
@@ -159,29 +160,51 @@ public:
     void onDrawBitmap(const SkBitmap& bitmap,
                       SkScalar l, SkScalar t,
                       const SkPaint* paint) override {
-        if (auto image = SkImage::MakeFromBitmap(bitmap)) {
-            this->onDrawImage(image.get(), l, t, paint);
+        if (needsXform(bitmap)) {
+            sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
+            sk_sp<SkImage> xformed = fXformer->apply(img.get());
+            SkASSERT(xformed != img);
+            fTarget->drawImage(xformed.get(), l, t, fXformer->apply(paint));
+        } else {
+            fTarget->drawBitmap(bitmap, l, t, fXformer->apply(paint));
         }
     }
     void onDrawBitmapRect(const SkBitmap& bitmap,
                           const SkRect* src, const SkRect& dst,
                           const SkPaint* paint, SrcRectConstraint constraint) override {
-        if (auto image = SkImage::MakeFromBitmap(bitmap)) {
-            this->onDrawImageRect(image.get(), src, dst, paint, constraint);
+        if (needsXform(bitmap)) {
+            sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
+            sk_sp<SkImage> xformed = fXformer->apply(img.get());
+            SkASSERT(xformed != img);
+            fTarget->drawImageRect(xformed.get(), src ? *src : dst, dst, fXformer->apply(paint),
+                                   constraint);
+        } else {
+            fTarget->drawBitmapRect(bitmap, src ? *src : dst, dst, fXformer->apply(paint),
+                                    constraint);
         }
     }
     void onDrawBitmapNine(const SkBitmap& bitmap,
                           const SkIRect& center, const SkRect& dst,
                           const SkPaint* paint) override {
-        if (auto image = SkImage::MakeFromBitmap(bitmap)) {
-            this->onDrawImageNine(image.get(), center, dst, paint);
+        if (needsXform(bitmap)) {
+            sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
+            sk_sp<SkImage> xformed = fXformer->apply(img.get());
+            SkASSERT(xformed != img);
+            fTarget->drawImageNine(xformed.get(), center, dst, fXformer->apply(paint));
+        } else {
+            fTarget->drawBitmapNine(bitmap, center, dst, fXformer->apply(paint));
         }
     }
     void onDrawBitmapLattice(const SkBitmap& bitmap,
                              const Lattice& lattice, const SkRect& dst,
                              const SkPaint* paint) override {
-        if (auto image = SkImage::MakeFromBitmap(bitmap)) {
-            this->onDrawImageLattice(image.get(), lattice, dst, paint);
+        if (needsXform(bitmap)) {
+            sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
+            sk_sp<SkImage> xformed = fXformer->apply(img.get());
+            SkASSERT(xformed != img);
+            fTarget->drawImageLattice(xformed.get(), lattice, dst, fXformer->apply(paint));
+        } else {
+            fTarget->drawBitmapLattice(bitmap, lattice, dst, fXformer->apply(paint));
         }
     }
 
@@ -238,6 +261,13 @@ public:
     }
 
 private:
+    bool needsXform(const SkBitmap& bitmap) {
+        SkColorSpace* dst = fXformer->dst();
+        bool csEqual = (!bitmap.colorSpace() && dst->isSRGB()) ||
+                       SkColorSpace::Equals(bitmap.colorSpace(), dst);
+        return !csEqual &&  kAlpha_8_SkColorType != bitmap.colorType();
+    }
+
     SkCanvas*                            fTarget;
     std::unique_ptr<SkColorSpaceXformer> fXformer;
 };

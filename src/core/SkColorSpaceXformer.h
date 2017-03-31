@@ -16,6 +16,8 @@ class SkColorSpaceXformer : public SkNoncopyable {
 public:
     static std::unique_ptr<SkColorSpaceXformer> Make(sk_sp<SkColorSpace> dst);
 
+    SkColorSpace* dst() const { return fDst.get(); }
+
     sk_sp<SkImage> apply(const SkImage* src);
     const SkPaint* apply(const SkPaint* src);
     const SkPaint& apply(const SkPaint& src);
