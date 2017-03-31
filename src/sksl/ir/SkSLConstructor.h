@@ -44,9 +44,9 @@ struct Constructor : public Expression {
         return nullptr;
     }
 
-    String description() const override {
-        String result = fType.description() + "(";
-        String separator;
+    SkString description() const override {
+        SkString result = fType.description() + "(";
+        SkString separator;
         for (size_t i = 0; i < fArguments.size(); i++) {
             result += separator;
             result += fArguments[i]->description();

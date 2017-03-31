@@ -14,7 +14,7 @@
 namespace SkSL {
 
 /**
- * Represents a binary operation, with the operator represented by the token's type.
+ * Represents a binary operation, with the operator represented by the token's type. 
  */
 struct ASTBinaryExpression : public ASTExpression {
     ASTBinaryExpression(std::unique_ptr<ASTExpression> left, Token op,
@@ -24,7 +24,7 @@ struct ASTBinaryExpression : public ASTExpression {
     , fOperator(op.fKind)
     , fRight(std::move(right)) {}
 
-    String description() const override {
+    SkString description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }

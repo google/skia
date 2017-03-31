@@ -4,8 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+ 
 #include "SkSLSPIRVCodeGenerator.h"
+
+#include "string.h"
 
 #include "GLSL.std.450.h"
 
@@ -32,111 +34,112 @@ void SPIRVCodeGenerator::setupIntrinsics() {
 #define SPECIAL(x) std::make_tuple(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic, \
                                    k ## x ## _SpecialIntrinsic, k ## x ## _SpecialIntrinsic, \
                                    k ## x ## _SpecialIntrinsic)
-    fIntrinsicMap[String("round")]         = ALL_GLSL(Round);
-    fIntrinsicMap[String("roundEven")]     = ALL_GLSL(RoundEven);
-    fIntrinsicMap[String("trunc")]         = ALL_GLSL(Trunc);
-    fIntrinsicMap[String("abs")]           = BY_TYPE_GLSL(FAbs, SAbs, SAbs);
-    fIntrinsicMap[String("sign")]          = BY_TYPE_GLSL(FSign, SSign, SSign);
-    fIntrinsicMap[String("floor")]         = ALL_GLSL(Floor);
-    fIntrinsicMap[String("ceil")]          = ALL_GLSL(Ceil);
-    fIntrinsicMap[String("fract")]         = ALL_GLSL(Fract);
-    fIntrinsicMap[String("radians")]       = ALL_GLSL(Radians);
-    fIntrinsicMap[String("degrees")]       = ALL_GLSL(Degrees);
-    fIntrinsicMap[String("sin")]           = ALL_GLSL(Sin);
-    fIntrinsicMap[String("cos")]           = ALL_GLSL(Cos);
-    fIntrinsicMap[String("tan")]           = ALL_GLSL(Tan);
-    fIntrinsicMap[String("asin")]          = ALL_GLSL(Asin);
-    fIntrinsicMap[String("acos")]          = ALL_GLSL(Acos);
-    fIntrinsicMap[String("atan")]          = SPECIAL(Atan);
-    fIntrinsicMap[String("sinh")]          = ALL_GLSL(Sinh);
-    fIntrinsicMap[String("cosh")]          = ALL_GLSL(Cosh);
-    fIntrinsicMap[String("tanh")]          = ALL_GLSL(Tanh);
-    fIntrinsicMap[String("asinh")]         = ALL_GLSL(Asinh);
-    fIntrinsicMap[String("acosh")]         = ALL_GLSL(Acosh);
-    fIntrinsicMap[String("atanh")]         = ALL_GLSL(Atanh);
-    fIntrinsicMap[String("pow")]           = ALL_GLSL(Pow);
-    fIntrinsicMap[String("exp")]           = ALL_GLSL(Exp);
-    fIntrinsicMap[String("log")]           = ALL_GLSL(Log);
-    fIntrinsicMap[String("exp2")]          = ALL_GLSL(Exp2);
-    fIntrinsicMap[String("log2")]          = ALL_GLSL(Log2);
-    fIntrinsicMap[String("sqrt")]          = ALL_GLSL(Sqrt);
-    fIntrinsicMap[String("inversesqrt")]   = ALL_GLSL(InverseSqrt);
-    fIntrinsicMap[String("determinant")]   = ALL_GLSL(Determinant);
-    fIntrinsicMap[String("matrixInverse")] = ALL_GLSL(MatrixInverse);
-    fIntrinsicMap[String("mod")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpFMod,
+    fIntrinsicMap[SkString("round")]         = ALL_GLSL(Round);
+    fIntrinsicMap[SkString("roundEven")]     = ALL_GLSL(RoundEven);
+    fIntrinsicMap[SkString("trunc")]         = ALL_GLSL(Trunc);
+    fIntrinsicMap[SkString("abs")]           = BY_TYPE_GLSL(FAbs, SAbs, SAbs);
+    fIntrinsicMap[SkString("sign")]          = BY_TYPE_GLSL(FSign, SSign, SSign);
+    fIntrinsicMap[SkString("floor")]         = ALL_GLSL(Floor);
+    fIntrinsicMap[SkString("ceil")]          = ALL_GLSL(Ceil);
+    fIntrinsicMap[SkString("fract")]         = ALL_GLSL(Fract);
+    fIntrinsicMap[SkString("radians")]       = ALL_GLSL(Radians);
+    fIntrinsicMap[SkString("degrees")]       = ALL_GLSL(Degrees);
+    fIntrinsicMap[SkString("sin")]           = ALL_GLSL(Sin);
+    fIntrinsicMap[SkString("cos")]           = ALL_GLSL(Cos);
+    fIntrinsicMap[SkString("tan")]           = ALL_GLSL(Tan);
+    fIntrinsicMap[SkString("asin")]          = ALL_GLSL(Asin);
+    fIntrinsicMap[SkString("acos")]          = ALL_GLSL(Acos);
+    fIntrinsicMap[SkString("atan")]          = SPECIAL(Atan);
+    fIntrinsicMap[SkString("sinh")]          = ALL_GLSL(Sinh);
+    fIntrinsicMap[SkString("cosh")]          = ALL_GLSL(Cosh);
+    fIntrinsicMap[SkString("tanh")]          = ALL_GLSL(Tanh);
+    fIntrinsicMap[SkString("asinh")]         = ALL_GLSL(Asinh);
+    fIntrinsicMap[SkString("acosh")]         = ALL_GLSL(Acosh);
+    fIntrinsicMap[SkString("atanh")]         = ALL_GLSL(Atanh);
+    fIntrinsicMap[SkString("pow")]           = ALL_GLSL(Pow);
+    fIntrinsicMap[SkString("exp")]           = ALL_GLSL(Exp);
+    fIntrinsicMap[SkString("log")]           = ALL_GLSL(Log);
+    fIntrinsicMap[SkString("exp2")]          = ALL_GLSL(Exp2);
+    fIntrinsicMap[SkString("log2")]          = ALL_GLSL(Log2);
+    fIntrinsicMap[SkString("sqrt")]          = ALL_GLSL(Sqrt);
+    fIntrinsicMap[SkString("inversesqrt")]   = ALL_GLSL(InverseSqrt);
+    fIntrinsicMap[SkString("determinant")]   = ALL_GLSL(Determinant);
+    fIntrinsicMap[SkString("matrixInverse")] = ALL_GLSL(MatrixInverse);
+    fIntrinsicMap[SkString("mod")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpFMod,
                                                                SpvOpSMod, SpvOpUMod, SpvOpUndef);
-    fIntrinsicMap[String("min")]           = BY_TYPE_GLSL(FMin, SMin, UMin);
-    fIntrinsicMap[String("max")]           = BY_TYPE_GLSL(FMax, SMax, UMax);
-    fIntrinsicMap[String("clamp")]         = BY_TYPE_GLSL(FClamp, SClamp, UClamp);
-    fIntrinsicMap[String("dot")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDot,
+    fIntrinsicMap[SkString("min")]           = BY_TYPE_GLSL(FMin, SMin, UMin);
+    fIntrinsicMap[SkString("max")]           = BY_TYPE_GLSL(FMax, SMax, UMax);
+    fIntrinsicMap[SkString("clamp")]         = BY_TYPE_GLSL(FClamp, SClamp, UClamp);
+    fIntrinsicMap[SkString("dot")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDot,
                                                                SpvOpUndef, SpvOpUndef, SpvOpUndef);
-    fIntrinsicMap[String("mix")]           = ALL_GLSL(FMix);
-    fIntrinsicMap[String("step")]          = ALL_GLSL(Step);
-    fIntrinsicMap[String("smoothstep")]    = ALL_GLSL(SmoothStep);
-    fIntrinsicMap[String("fma")]           = ALL_GLSL(Fma);
-    fIntrinsicMap[String("frexp")]         = ALL_GLSL(Frexp);
-    fIntrinsicMap[String("ldexp")]         = ALL_GLSL(Ldexp);
+    fIntrinsicMap[SkString("mix")]           = ALL_GLSL(FMix);
+    fIntrinsicMap[SkString("step")]          = ALL_GLSL(Step);
+    fIntrinsicMap[SkString("smoothstep")]    = ALL_GLSL(SmoothStep);
+    fIntrinsicMap[SkString("fma")]           = ALL_GLSL(Fma);
+    fIntrinsicMap[SkString("frexp")]         = ALL_GLSL(Frexp);
+    fIntrinsicMap[SkString("ldexp")]         = ALL_GLSL(Ldexp);
 
-#define PACK(type) fIntrinsicMap[String("pack" #type)] = ALL_GLSL(Pack ## type); \
-                   fIntrinsicMap[String("unpack" #type)] = ALL_GLSL(Unpack ## type)
+#define PACK(type) fIntrinsicMap[SkString("pack" #type)] = ALL_GLSL(Pack ## type); \
+                   fIntrinsicMap[SkString("unpack" #type)] = ALL_GLSL(Unpack ## type)
     PACK(Snorm4x8);
     PACK(Unorm4x8);
     PACK(Snorm2x16);
     PACK(Unorm2x16);
     PACK(Half2x16);
     PACK(Double2x32);
-    fIntrinsicMap[String("length")]      = ALL_GLSL(Length);
-    fIntrinsicMap[String("distance")]    = ALL_GLSL(Distance);
-    fIntrinsicMap[String("cross")]       = ALL_GLSL(Cross);
-    fIntrinsicMap[String("normalize")]   = ALL_GLSL(Normalize);
-    fIntrinsicMap[String("faceForward")] = ALL_GLSL(FaceForward);
-    fIntrinsicMap[String("reflect")]     = ALL_GLSL(Reflect);
-    fIntrinsicMap[String("refract")]     = ALL_GLSL(Refract);
-    fIntrinsicMap[String("findLSB")]     = ALL_GLSL(FindILsb);
-    fIntrinsicMap[String("findMSB")]     = BY_TYPE_GLSL(FindSMsb, FindSMsb, FindUMsb);
-    fIntrinsicMap[String("dFdx")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdx,
+    fIntrinsicMap[SkString("length")]      = ALL_GLSL(Length);
+    fIntrinsicMap[SkString("distance")]    = ALL_GLSL(Distance);
+    fIntrinsicMap[SkString("cross")]       = ALL_GLSL(Cross);
+    fIntrinsicMap[SkString("normalize")]   = ALL_GLSL(Normalize);
+    fIntrinsicMap[SkString("faceForward")] = ALL_GLSL(FaceForward);
+    fIntrinsicMap[SkString("reflect")]     = ALL_GLSL(Reflect);
+    fIntrinsicMap[SkString("refract")]     = ALL_GLSL(Refract);
+    fIntrinsicMap[SkString("findLSB")]     = ALL_GLSL(FindILsb);
+    fIntrinsicMap[SkString("findMSB")]     = BY_TYPE_GLSL(FindSMsb, FindSMsb, FindUMsb);
+    fIntrinsicMap[SkString("dFdx")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdx,
                                                              SpvOpUndef, SpvOpUndef, SpvOpUndef);
-    fIntrinsicMap[String("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
+    fIntrinsicMap[SkString("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
                                                              SpvOpUndef, SpvOpUndef, SpvOpUndef);
-    fIntrinsicMap[String("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
+    fIntrinsicMap[SkString("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
                                                              SpvOpUndef, SpvOpUndef, SpvOpUndef);
-    fIntrinsicMap[String("texture")]     = SPECIAL(Texture);
+    fIntrinsicMap[SkString("texture")]     = SPECIAL(Texture);
 
-    fIntrinsicMap[String("subpassLoad")] = SPECIAL(SubpassLoad);
+    fIntrinsicMap[SkString("subpassLoad")] = SPECIAL(SubpassLoad);
 
-    fIntrinsicMap[String("any")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
+    fIntrinsicMap[SkString("any")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
                                                                   SpvOpUndef, SpvOpUndef, SpvOpAny);
-    fIntrinsicMap[String("all")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
+    fIntrinsicMap[SkString("all")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
                                                                   SpvOpUndef, SpvOpUndef, SpvOpAll);
-    fIntrinsicMap[String("equal")]            = std::make_tuple(kSPIRV_IntrinsicKind,
+    fIntrinsicMap[SkString("equal")]            = std::make_tuple(kSPIRV_IntrinsicKind,
                                                                   SpvOpFOrdEqual, SpvOpIEqual,
                                                                   SpvOpIEqual, SpvOpLogicalEqual);
-    fIntrinsicMap[String("notEqual")]         = std::make_tuple(kSPIRV_IntrinsicKind,
+    fIntrinsicMap[SkString("notEqual")]         = std::make_tuple(kSPIRV_IntrinsicKind,
                                                                   SpvOpFOrdNotEqual, SpvOpINotEqual,
                                                                   SpvOpINotEqual,
                                                                   SpvOpLogicalNotEqual);
-    fIntrinsicMap[String("lessThan")]         = std::make_tuple(kSPIRV_IntrinsicKind,
+    fIntrinsicMap[SkString("lessThan")]         = std::make_tuple(kSPIRV_IntrinsicKind,
                                                                   SpvOpSLessThan, SpvOpULessThan,
                                                                   SpvOpFOrdLessThan, SpvOpUndef);
-    fIntrinsicMap[String("lessThanEqual")]    = std::make_tuple(kSPIRV_IntrinsicKind,
+    fIntrinsicMap[SkString("lessThanEqual")]    = std::make_tuple(kSPIRV_IntrinsicKind,
                                                                   SpvOpSLessThanEqual,
                                                                   SpvOpULessThanEqual,
                                                                   SpvOpFOrdLessThanEqual,
                                                                   SpvOpUndef);
-    fIntrinsicMap[String("greaterThan")]      = std::make_tuple(kSPIRV_IntrinsicKind,
+    fIntrinsicMap[SkString("greaterThan")]      = std::make_tuple(kSPIRV_IntrinsicKind,
                                                                   SpvOpSGreaterThan,
                                                                   SpvOpUGreaterThan,
                                                                   SpvOpFOrdGreaterThan,
                                                                   SpvOpUndef);
-    fIntrinsicMap[String("greaterThanEqual")] = std::make_tuple(kSPIRV_IntrinsicKind,
+    fIntrinsicMap[SkString("greaterThanEqual")] = std::make_tuple(kSPIRV_IntrinsicKind,
                                                                   SpvOpSGreaterThanEqual,
                                                                   SpvOpUGreaterThanEqual,
                                                                   SpvOpFOrdGreaterThanEqual,
                                                                   SpvOpUndef);
+
 // interpolateAt* not yet supported...
 }
 
-void SPIRVCodeGenerator::writeWord(int32_t word, OutputStream& out) {
+void SPIRVCodeGenerator::writeWord(int32_t word, SkWStream& out) {
 #if SPIRV_DEBUG
     out << "(" << word << ") ";
 #else
@@ -177,603 +180,603 @@ static bool is_out(const Variable& var) {
 }
 
 #if SPIRV_DEBUG
-static String opcode_text(SpvOp_ opCode) {
+static SkString opcode_text(SpvOp_ opCode) {
     switch (opCode) {
         case SpvOpNop:
-            return String("Nop");
+            return SkString("Nop");
         case SpvOpUndef:
-            return String("Undef");
+            return SkString("Undef");
         case SpvOpSourceContinued:
-            return String("SourceContinued");
+            return SkString("SourceContinued");
         case SpvOpSource:
-            return String("Source");
+            return SkString("Source");
         case SpvOpSourceExtension:
-            return String("SourceExtension");
+            return SkString("SourceExtension");
         case SpvOpName:
-            return String("Name");
+            return SkString("Name");
         case SpvOpMemberName:
-            return String("MemberName");
+            return SkString("MemberName");
         case SpvOpString:
-            return String("String");
+            return SkString("String");
         case SpvOpLine:
-            return String("Line");
+            return SkString("Line");
         case SpvOpExtension:
-            return String("Extension");
+            return SkString("Extension");
         case SpvOpExtInstImport:
-            return String("ExtInstImport");
+            return SkString("ExtInstImport");
         case SpvOpExtInst:
-            return String("ExtInst");
+            return SkString("ExtInst");
         case SpvOpMemoryModel:
-            return String("MemoryModel");
+            return SkString("MemoryModel");
         case SpvOpEntryPoint:
-            return String("EntryPoint");
+            return SkString("EntryPoint");
         case SpvOpExecutionMode:
-            return String("ExecutionMode");
+            return SkString("ExecutionMode");
         case SpvOpCapability:
-            return String("Capability");
+            return SkString("Capability");
         case SpvOpTypeVoid:
-            return String("TypeVoid");
+            return SkString("TypeVoid");
         case SpvOpTypeBool:
-            return String("TypeBool");
+            return SkString("TypeBool");
         case SpvOpTypeInt:
-            return String("TypeInt");
+            return SkString("TypeInt");
         case SpvOpTypeFloat:
-            return String("TypeFloat");
+            return SkString("TypeFloat");
         case SpvOpTypeVector:
-            return String("TypeVector");
+            return SkString("TypeVector");
         case SpvOpTypeMatrix:
-            return String("TypeMatrix");
+            return SkString("TypeMatrix");
         case SpvOpTypeImage:
-            return String("TypeImage");
+            return SkString("TypeImage");
         case SpvOpTypeSampler:
-            return String("TypeSampler");
+            return SkString("TypeSampler");
         case SpvOpTypeSampledImage:
-            return String("TypeSampledImage");
+            return SkString("TypeSampledImage");
         case SpvOpTypeArray:
-            return String("TypeArray");
+            return SkString("TypeArray");
         case SpvOpTypeRuntimeArray:
-            return String("TypeRuntimeArray");
+            return SkString("TypeRuntimeArray");
         case SpvOpTypeStruct:
-            return String("TypeStruct");
+            return SkString("TypeStruct");
         case SpvOpTypeOpaque:
-            return String("TypeOpaque");
+            return SkString("TypeOpaque");
         case SpvOpTypePointer:
-            return String("TypePointer");
+            return SkString("TypePointer");
         case SpvOpTypeFunction:
-            return String("TypeFunction");
+            return SkString("TypeFunction");
         case SpvOpTypeEvent:
-            return String("TypeEvent");
+            return SkString("TypeEvent");
         case SpvOpTypeDeviceEvent:
-            return String("TypeDeviceEvent");
+            return SkString("TypeDeviceEvent");
         case SpvOpTypeReserveId:
-            return String("TypeReserveId");
+            return SkString("TypeReserveId");
         case SpvOpTypeQueue:
-            return String("TypeQueue");
+            return SkString("TypeQueue");
         case SpvOpTypePipe:
-            return String("TypePipe");
+            return SkString("TypePipe");
         case SpvOpTypeForwardPointer:
-            return String("TypeForwardPointer");
+            return SkString("TypeForwardPointer");
         case SpvOpConstantTrue:
-            return String("ConstantTrue");
+            return SkString("ConstantTrue");
         case SpvOpConstantFalse:
-            return String("ConstantFalse");
+            return SkString("ConstantFalse");
         case SpvOpConstant:
-            return String("Constant");
+            return SkString("Constant");
         case SpvOpConstantComposite:
-            return String("ConstantComposite");
+            return SkString("ConstantComposite");
         case SpvOpConstantSampler:
-            return String("ConstantSampler");
+            return SkString("ConstantSampler");
         case SpvOpConstantNull:
-            return String("ConstantNull");
+            return SkString("ConstantNull");
         case SpvOpSpecConstantTrue:
-            return String("SpecConstantTrue");
+            return SkString("SpecConstantTrue");
         case SpvOpSpecConstantFalse:
-            return String("SpecConstantFalse");
+            return SkString("SpecConstantFalse");
         case SpvOpSpecConstant:
-            return String("SpecConstant");
+            return SkString("SpecConstant");
         case SpvOpSpecConstantComposite:
-            return String("SpecConstantComposite");
+            return SkString("SpecConstantComposite");
         case SpvOpSpecConstantOp:
-            return String("SpecConstantOp");
+            return SkString("SpecConstantOp");
         case SpvOpFunction:
-            return String("Function");
+            return SkString("Function");
         case SpvOpFunctionParameter:
-            return String("FunctionParameter");
+            return SkString("FunctionParameter");
         case SpvOpFunctionEnd:
-            return String("FunctionEnd");
+            return SkString("FunctionEnd");
         case SpvOpFunctionCall:
-            return String("FunctionCall");
+            return SkString("FunctionCall");
         case SpvOpVariable:
-            return String("Variable");
+            return SkString("Variable");
         case SpvOpImageTexelPointer:
-            return String("ImageTexelPointer");
+            return SkString("ImageTexelPointer");
         case SpvOpLoad:
-            return String("Load");
+            return SkString("Load");
         case SpvOpStore:
-            return String("Store");
+            return SkString("Store");
         case SpvOpCopyMemory:
-            return String("CopyMemory");
+            return SkString("CopyMemory");
         case SpvOpCopyMemorySized:
-            return String("CopyMemorySized");
+            return SkString("CopyMemorySized");
         case SpvOpAccessChain:
-            return String("AccessChain");
+            return SkString("AccessChain");
         case SpvOpInBoundsAccessChain:
-            return String("InBoundsAccessChain");
+            return SkString("InBoundsAccessChain");
         case SpvOpPtrAccessChain:
-            return String("PtrAccessChain");
+            return SkString("PtrAccessChain");
         case SpvOpArrayLength:
-            return String("ArrayLength");
+            return SkString("ArrayLength");
         case SpvOpGenericPtrMemSemantics:
-            return String("GenericPtrMemSemantics");
+            return SkString("GenericPtrMemSemantics");
         case SpvOpInBoundsPtrAccessChain:
-            return String("InBoundsPtrAccessChain");
+            return SkString("InBoundsPtrAccessChain");
         case SpvOpDecorate:
-            return String("Decorate");
+            return SkString("Decorate");
         case SpvOpMemberDecorate:
-            return String("MemberDecorate");
+            return SkString("MemberDecorate");
         case SpvOpDecorationGroup:
-            return String("DecorationGroup");
+            return SkString("DecorationGroup");
         case SpvOpGroupDecorate:
-            return String("GroupDecorate");
+            return SkString("GroupDecorate");
         case SpvOpGroupMemberDecorate:
-            return String("GroupMemberDecorate");
+            return SkString("GroupMemberDecorate");
         case SpvOpVectorExtractDynamic:
-            return String("VectorExtractDynamic");
+            return SkString("VectorExtractDynamic");
         case SpvOpVectorInsertDynamic:
-            return String("VectorInsertDynamic");
+            return SkString("VectorInsertDynamic");
         case SpvOpVectorShuffle:
-            return String("VectorShuffle");
+            return SkString("VectorShuffle");
         case SpvOpCompositeConstruct:
-            return String("CompositeConstruct");
+            return SkString("CompositeConstruct");
         case SpvOpCompositeExtract:
-            return String("CompositeExtract");
+            return SkString("CompositeExtract");
         case SpvOpCompositeInsert:
-            return String("CompositeInsert");
+            return SkString("CompositeInsert");
         case SpvOpCopyObject:
-            return String("CopyObject");
+            return SkString("CopyObject");
         case SpvOpTranspose:
-            return String("Transpose");
+            return SkString("Transpose");
         case SpvOpSampledImage:
-            return String("SampledImage");
+            return SkString("SampledImage");
         case SpvOpImageSampleImplicitLod:
-            return String("ImageSampleImplicitLod");
+            return SkString("ImageSampleImplicitLod");
         case SpvOpImageSampleExplicitLod:
-            return String("ImageSampleExplicitLod");
+            return SkString("ImageSampleExplicitLod");
         case SpvOpImageSampleDrefImplicitLod:
-            return String("ImageSampleDrefImplicitLod");
+            return SkString("ImageSampleDrefImplicitLod");
         case SpvOpImageSampleDrefExplicitLod:
-            return String("ImageSampleDrefExplicitLod");
+            return SkString("ImageSampleDrefExplicitLod");
         case SpvOpImageSampleProjImplicitLod:
-            return String("ImageSampleProjImplicitLod");
+            return SkString("ImageSampleProjImplicitLod");
         case SpvOpImageSampleProjExplicitLod:
-            return String("ImageSampleProjExplicitLod");
+            return SkString("ImageSampleProjExplicitLod");
         case SpvOpImageSampleProjDrefImplicitLod:
-            return String("ImageSampleProjDrefImplicitLod");
+            return SkString("ImageSampleProjDrefImplicitLod");
         case SpvOpImageSampleProjDrefExplicitLod:
-            return String("ImageSampleProjDrefExplicitLod");
+            return SkString("ImageSampleProjDrefExplicitLod");
         case SpvOpImageFetch:
-            return String("ImageFetch");
+            return SkString("ImageFetch");
         case SpvOpImageGather:
-            return String("ImageGather");
+            return SkString("ImageGather");
         case SpvOpImageDrefGather:
-            return String("ImageDrefGather");
+            return SkString("ImageDrefGather");
         case SpvOpImageRead:
-            return String("ImageRead");
+            return SkString("ImageRead");
         case SpvOpImageWrite:
-            return String("ImageWrite");
+            return SkString("ImageWrite");
         case SpvOpImage:
-            return String("Image");
+            return SkString("Image");
         case SpvOpImageQueryFormat:
-            return String("ImageQueryFormat");
+            return SkString("ImageQueryFormat");
         case SpvOpImageQueryOrder:
-            return String("ImageQueryOrder");
+            return SkString("ImageQueryOrder");
         case SpvOpImageQuerySizeLod:
-            return String("ImageQuerySizeLod");
+            return SkString("ImageQuerySizeLod");
         case SpvOpImageQuerySize:
-            return String("ImageQuerySize");
+            return SkString("ImageQuerySize");
         case SpvOpImageQueryLod:
-            return String("ImageQueryLod");
+            return SkString("ImageQueryLod");
         case SpvOpImageQueryLevels:
-            return String("ImageQueryLevels");
+            return SkString("ImageQueryLevels");
         case SpvOpImageQuerySamples:
-            return String("ImageQuerySamples");
+            return SkString("ImageQuerySamples");
         case SpvOpConvertFToU:
-            return String("ConvertFToU");
+            return SkString("ConvertFToU");
         case SpvOpConvertFToS:
-            return String("ConvertFToS");
+            return SkString("ConvertFToS");
         case SpvOpConvertSToF:
-            return String("ConvertSToF");
+            return SkString("ConvertSToF");
         case SpvOpConvertUToF:
-            return String("ConvertUToF");
+            return SkString("ConvertUToF");
         case SpvOpUConvert:
-            return String("UConvert");
+            return SkString("UConvert");
         case SpvOpSConvert:
-            return String("SConvert");
+            return SkString("SConvert");
         case SpvOpFConvert:
-            return String("FConvert");
+            return SkString("FConvert");
         case SpvOpQuantizeToF16:
-            return String("QuantizeToF16");
+            return SkString("QuantizeToF16");
         case SpvOpConvertPtrToU:
-            return String("ConvertPtrToU");
+            return SkString("ConvertPtrToU");
         case SpvOpSatConvertSToU:
-            return String("SatConvertSToU");
+            return SkString("SatConvertSToU");
         case SpvOpSatConvertUToS:
-            return String("SatConvertUToS");
+            return SkString("SatConvertUToS");
         case SpvOpConvertUToPtr:
-            return String("ConvertUToPtr");
+            return SkString("ConvertUToPtr");
         case SpvOpPtrCastToGeneric:
-            return String("PtrCastToGeneric");
+            return SkString("PtrCastToGeneric");
         case SpvOpGenericCastToPtr:
-            return String("GenericCastToPtr");
+            return SkString("GenericCastToPtr");
         case SpvOpGenericCastToPtrExplicit:
-            return String("GenericCastToPtrExplicit");
+            return SkString("GenericCastToPtrExplicit");
         case SpvOpBitcast:
-            return String("Bitcast");
+            return SkString("Bitcast");
         case SpvOpSNegate:
-            return String("SNegate");
+            return SkString("SNegate");
         case SpvOpFNegate:
-            return String("FNegate");
+            return SkString("FNegate");
         case SpvOpIAdd:
-            return String("IAdd");
+            return SkString("IAdd");
         case SpvOpFAdd:
-            return String("FAdd");
+            return SkString("FAdd");
         case SpvOpISub:
-            return String("ISub");
+            return SkString("ISub");
         case SpvOpFSub:
-            return String("FSub");
+            return SkString("FSub");
         case SpvOpIMul:
-            return String("IMul");
+            return SkString("IMul");
         case SpvOpFMul:
-            return String("FMul");
+            return SkString("FMul");
         case SpvOpUDiv:
-            return String("UDiv");
+            return SkString("UDiv");
         case SpvOpSDiv:
-            return String("SDiv");
+            return SkString("SDiv");
         case SpvOpFDiv:
-            return String("FDiv");
+            return SkString("FDiv");
         case SpvOpUMod:
-            return String("UMod");
+            return SkString("UMod");
         case SpvOpSRem:
-            return String("SRem");
+            return SkString("SRem");
         case SpvOpSMod:
-            return String("SMod");
+            return SkString("SMod");
         case SpvOpFRem:
-            return String("FRem");
+            return SkString("FRem");
         case SpvOpFMod:
-            return String("FMod");
+            return SkString("FMod");
         case SpvOpVectorTimesScalar:
-            return String("VectorTimesScalar");
+            return SkString("VectorTimesScalar");
         case SpvOpMatrixTimesScalar:
-            return String("MatrixTimesScalar");
+            return SkString("MatrixTimesScalar");
         case SpvOpVectorTimesMatrix:
-            return String("VectorTimesMatrix");
+            return SkString("VectorTimesMatrix");
         case SpvOpMatrixTimesVector:
-            return String("MatrixTimesVector");
+            return SkString("MatrixTimesVector");
         case SpvOpMatrixTimesMatrix:
-            return String("MatrixTimesMatrix");
+            return SkString("MatrixTimesMatrix");
         case SpvOpOuterProduct:
-            return String("OuterProduct");
+            return SkString("OuterProduct");
         case SpvOpDot:
-            return String("Dot");
+            return SkString("Dot");
         case SpvOpIAddCarry:
-            return String("IAddCarry");
+            return SkString("IAddCarry");
         case SpvOpISubBorrow:
-            return String("ISubBorrow");
+            return SkString("ISubBorrow");
         case SpvOpUMulExtended:
-            return String("UMulExtended");
+            return SkString("UMulExtended");
         case SpvOpSMulExtended:
-            return String("SMulExtended");
+            return SkString("SMulExtended");
         case SpvOpAny:
-            return String("Any");
+            return SkString("Any");
         case SpvOpAll:
-            return String("All");
+            return SkString("All");
         case SpvOpIsNan:
-            return String("IsNan");
+            return SkString("IsNan");
         case SpvOpIsInf:
-            return String("IsInf");
+            return SkString("IsInf");
         case SpvOpIsFinite:
-            return String("IsFinite");
+            return SkString("IsFinite");
         case SpvOpIsNormal:
-            return String("IsNormal");
+            return SkString("IsNormal");
         case SpvOpSignBitSet:
-            return String("SignBitSet");
+            return SkString("SignBitSet");
         case SpvOpLessOrGreater:
-            return String("LessOrGreater");
+            return SkString("LessOrGreater");
         case SpvOpOrdered:
-            return String("Ordered");
+            return SkString("Ordered");
         case SpvOpUnordered:
-            return String("Unordered");
+            return SkString("Unordered");
         case SpvOpLogicalEqual:
-            return String("LogicalEqual");
+            return SkString("LogicalEqual");
         case SpvOpLogicalNotEqual:
-            return String("LogicalNotEqual");
+            return SkString("LogicalNotEqual");
         case SpvOpLogicalOr:
-            return String("LogicalOr");
+            return SkString("LogicalOr");
         case SpvOpLogicalAnd:
-            return String("LogicalAnd");
+            return SkString("LogicalAnd");
         case SpvOpLogicalNot:
-            return String("LogicalNot");
+            return SkString("LogicalNot");
         case SpvOpSelect:
-            return String("Select");
+            return SkString("Select");
         case SpvOpIEqual:
-            return String("IEqual");
+            return SkString("IEqual");
         case SpvOpINotEqual:
-            return String("INotEqual");
+            return SkString("INotEqual");
         case SpvOpUGreaterThan:
-            return String("UGreaterThan");
+            return SkString("UGreaterThan");
         case SpvOpSGreaterThan:
-            return String("SGreaterThan");
+            return SkString("SGreaterThan");
         case SpvOpUGreaterThanEqual:
-            return String("UGreaterThanEqual");
+            return SkString("UGreaterThanEqual");
         case SpvOpSGreaterThanEqual:
-            return String("SGreaterThanEqual");
+            return SkString("SGreaterThanEqual");
         case SpvOpULessThan:
-            return String("ULessThan");
+            return SkString("ULessThan");
         case SpvOpSLessThan:
-            return String("SLessThan");
+            return SkString("SLessThan");
         case SpvOpULessThanEqual:
-            return String("ULessThanEqual");
+            return SkString("ULessThanEqual");
         case SpvOpSLessThanEqual:
-            return String("SLessThanEqual");
+            return SkString("SLessThanEqual");
         case SpvOpFOrdEqual:
-            return String("FOrdEqual");
+            return SkString("FOrdEqual");
         case SpvOpFUnordEqual:
-            return String("FUnordEqual");
+            return SkString("FUnordEqual");
         case SpvOpFOrdNotEqual:
-            return String("FOrdNotEqual");
+            return SkString("FOrdNotEqual");
         case SpvOpFUnordNotEqual:
-            return String("FUnordNotEqual");
+            return SkString("FUnordNotEqual");
         case SpvOpFOrdLessThan:
-            return String("FOrdLessThan");
+            return SkString("FOrdLessThan");
         case SpvOpFUnordLessThan:
-            return String("FUnordLessThan");
+            return SkString("FUnordLessThan");
         case SpvOpFOrdGreaterThan:
-            return String("FOrdGreaterThan");
+            return SkString("FOrdGreaterThan");
         case SpvOpFUnordGreaterThan:
-            return String("FUnordGreaterThan");
+            return SkString("FUnordGreaterThan");
         case SpvOpFOrdLessThanEqual:
-            return String("FOrdLessThanEqual");
+            return SkString("FOrdLessThanEqual");
         case SpvOpFUnordLessThanEqual:
-            return String("FUnordLessThanEqual");
+            return SkString("FUnordLessThanEqual");
         case SpvOpFOrdGreaterThanEqual:
-            return String("FOrdGreaterThanEqual");
+            return SkString("FOrdGreaterThanEqual");
         case SpvOpFUnordGreaterThanEqual:
-            return String("FUnordGreaterThanEqual");
+            return SkString("FUnordGreaterThanEqual");
         case SpvOpShiftRightLogical:
-            return String("ShiftRightLogical");
+            return SkString("ShiftRightLogical");
         case SpvOpShiftRightArithmetic:
-            return String("ShiftRightArithmetic");
+            return SkString("ShiftRightArithmetic");
         case SpvOpShiftLeftLogical:
-            return String("ShiftLeftLogical");
+            return SkString("ShiftLeftLogical");
         case SpvOpBitwiseOr:
-            return String("BitwiseOr");
+            return SkString("BitwiseOr");
         case SpvOpBitwiseXor:
-            return String("BitwiseXor");
+            return SkString("BitwiseXor");
         case SpvOpBitwiseAnd:
-            return String("BitwiseAnd");
+            return SkString("BitwiseAnd");
         case SpvOpNot:
-            return String("Not");
+            return SkString("Not");
         case SpvOpBitFieldInsert:
-            return String("BitFieldInsert");
+            return SkString("BitFieldInsert");
         case SpvOpBitFieldSExtract:
-            return String("BitFieldSExtract");
+            return SkString("BitFieldSExtract");
         case SpvOpBitFieldUExtract:
-            return String("BitFieldUExtract");
+            return SkString("BitFieldUExtract");
         case SpvOpBitReverse:
-            return String("BitReverse");
+            return SkString("BitReverse");
         case SpvOpBitCount:
-            return String("BitCount");
+            return SkString("BitCount");
         case SpvOpDPdx:
-            return String("DPdx");
+            return SkString("DPdx");
         case SpvOpDPdy:
-            return String("DPdy");
+            return SkString("DPdy");
         case SpvOpFwidth:
-            return String("Fwidth");
+            return SkString("Fwidth");
         case SpvOpDPdxFine:
-            return String("DPdxFine");
+            return SkString("DPdxFine");
         case SpvOpDPdyFine:
-            return String("DPdyFine");
+            return SkString("DPdyFine");
         case SpvOpFwidthFine:
-            return String("FwidthFine");
+            return SkString("FwidthFine");
         case SpvOpDPdxCoarse:
-            return String("DPdxCoarse");
+            return SkString("DPdxCoarse");
         case SpvOpDPdyCoarse:
-            return String("DPdyCoarse");
+            return SkString("DPdyCoarse");
         case SpvOpFwidthCoarse:
-            return String("FwidthCoarse");
+            return SkString("FwidthCoarse");
         case SpvOpEmitVertex:
-            return String("EmitVertex");
+            return SkString("EmitVertex");
         case SpvOpEndPrimitive:
-            return String("EndPrimitive");
+            return SkString("EndPrimitive");
         case SpvOpEmitStreamVertex:
-            return String("EmitStreamVertex");
+            return SkString("EmitStreamVertex");
         case SpvOpEndStreamPrimitive:
-            return String("EndStreamPrimitive");
+            return SkString("EndStreamPrimitive");
         case SpvOpControlBarrier:
-            return String("ControlBarrier");
+            return SkString("ControlBarrier");
         case SpvOpMemoryBarrier:
-            return String("MemoryBarrier");
+            return SkString("MemoryBarrier");
         case SpvOpAtomicLoad:
-            return String("AtomicLoad");
+            return SkString("AtomicLoad");
         case SpvOpAtomicStore:
-            return String("AtomicStore");
+            return SkString("AtomicStore");
         case SpvOpAtomicExchange:
-            return String("AtomicExchange");
+            return SkString("AtomicExchange");
         case SpvOpAtomicCompareExchange:
-            return String("AtomicCompareExchange");
+            return SkString("AtomicCompareExchange");
         case SpvOpAtomicCompareExchangeWeak:
-            return String("AtomicCompareExchangeWeak");
+            return SkString("AtomicCompareExchangeWeak");
         case SpvOpAtomicIIncrement:
-            return String("AtomicIIncrement");
+            return SkString("AtomicIIncrement");
         case SpvOpAtomicIDecrement:
-            return String("AtomicIDecrement");
+            return SkString("AtomicIDecrement");
         case SpvOpAtomicIAdd:
-            return String("AtomicIAdd");
+            return SkString("AtomicIAdd");
         case SpvOpAtomicISub:
-            return String("AtomicISub");
+            return SkString("AtomicISub");
         case SpvOpAtomicSMin:
-            return String("AtomicSMin");
+            return SkString("AtomicSMin");
         case SpvOpAtomicUMin:
-            return String("AtomicUMin");
+            return SkString("AtomicUMin");
         case SpvOpAtomicSMax:
-            return String("AtomicSMax");
+            return SkString("AtomicSMax");
         case SpvOpAtomicUMax:
-            return String("AtomicUMax");
+            return SkString("AtomicUMax");
         case SpvOpAtomicAnd:
-            return String("AtomicAnd");
+            return SkString("AtomicAnd");
         case SpvOpAtomicOr:
-            return String("AtomicOr");
+            return SkString("AtomicOr");
         case SpvOpAtomicXor:
-            return String("AtomicXor");
+            return SkString("AtomicXor");
         case SpvOpPhi:
-            return String("Phi");
+            return SkString("Phi");
         case SpvOpLoopMerge:
-            return String("LoopMerge");
+            return SkString("LoopMerge");
         case SpvOpSelectionMerge:
-            return String("SelectionMerge");
+            return SkString("SelectionMerge");
         case SpvOpLabel:
-            return String("Label");
+            return SkString("Label");
         case SpvOpBranch:
-            return String("Branch");
+            return SkString("Branch");
         case SpvOpBranchConditional:
-            return String("BranchConditional");
+            return SkString("BranchConditional");
         case SpvOpSwitch:
-            return String("Switch");
+            return SkString("Switch");
         case SpvOpKill:
-            return String("Kill");
+            return SkString("Kill");
         case SpvOpReturn:
-            return String("Return");
+            return SkString("Return");
         case SpvOpReturnValue:
-            return String("ReturnValue");
+            return SkString("ReturnValue");
         case SpvOpUnreachable:
-            return String("Unreachable");
+            return SkString("Unreachable");
         case SpvOpLifetimeStart:
-            return String("LifetimeStart");
+            return SkString("LifetimeStart");
         case SpvOpLifetimeStop:
-            return String("LifetimeStop");
+            return SkString("LifetimeStop");
         case SpvOpGroupAsyncCopy:
-            return String("GroupAsyncCopy");
+            return SkString("GroupAsyncCopy");
         case SpvOpGroupWaitEvents:
-            return String("GroupWaitEvents");
+            return SkString("GroupWaitEvents");
         case SpvOpGroupAll:
-            return String("GroupAll");
+            return SkString("GroupAll");
         case SpvOpGroupAny:
-            return String("GroupAny");
+            return SkString("GroupAny");
         case SpvOpGroupBroadcast:
-            return String("GroupBroadcast");
+            return SkString("GroupBroadcast");
         case SpvOpGroupIAdd:
-            return String("GroupIAdd");
+            return SkString("GroupIAdd");
         case SpvOpGroupFAdd:
-            return String("GroupFAdd");
+            return SkString("GroupFAdd");
         case SpvOpGroupFMin:
-            return String("GroupFMin");
+            return SkString("GroupFMin");
         case SpvOpGroupUMin:
-            return String("GroupUMin");
+            return SkString("GroupUMin");
         case SpvOpGroupSMin:
-            return String("GroupSMin");
+            return SkString("GroupSMin");
         case SpvOpGroupFMax:
-            return String("GroupFMax");
+            return SkString("GroupFMax");
         case SpvOpGroupUMax:
-            return String("GroupUMax");
+            return SkString("GroupUMax");
         case SpvOpGroupSMax:
-            return String("GroupSMax");
+            return SkString("GroupSMax");
         case SpvOpReadPipe:
-            return String("ReadPipe");
+            return SkString("ReadPipe");
         case SpvOpWritePipe:
-            return String("WritePipe");
+            return SkString("WritePipe");
         case SpvOpReservedReadPipe:
-            return String("ReservedReadPipe");
+            return SkString("ReservedReadPipe");
         case SpvOpReservedWritePipe:
-            return String("ReservedWritePipe");
+            return SkString("ReservedWritePipe");
         case SpvOpReserveReadPipePackets:
-            return String("ReserveReadPipePackets");
+            return SkString("ReserveReadPipePackets");
         case SpvOpReserveWritePipePackets:
-            return String("ReserveWritePipePackets");
+            return SkString("ReserveWritePipePackets");
         case SpvOpCommitReadPipe:
-            return String("CommitReadPipe");
+            return SkString("CommitReadPipe");
         case SpvOpCommitWritePipe:
-            return String("CommitWritePipe");
+            return SkString("CommitWritePipe");
         case SpvOpIsValidReserveId:
-            return String("IsValidReserveId");
+            return SkString("IsValidReserveId");
         case SpvOpGetNumPipePackets:
-            return String("GetNumPipePackets");
+            return SkString("GetNumPipePackets");
         case SpvOpGetMaxPipePackets:
-            return String("GetMaxPipePackets");
+            return SkString("GetMaxPipePackets");
         case SpvOpGroupReserveReadPipePackets:
-            return String("GroupReserveReadPipePackets");
+            return SkString("GroupReserveReadPipePackets");
         case SpvOpGroupReserveWritePipePackets:
-            return String("GroupReserveWritePipePackets");
+            return SkString("GroupReserveWritePipePackets");
         case SpvOpGroupCommitReadPipe:
-            return String("GroupCommitReadPipe");
+            return SkString("GroupCommitReadPipe");
         case SpvOpGroupCommitWritePipe:
-            return String("GroupCommitWritePipe");
+            return SkString("GroupCommitWritePipe");
         case SpvOpEnqueueMarker:
-            return String("EnqueueMarker");
+            return SkString("EnqueueMarker");
         case SpvOpEnqueueKernel:
-            return String("EnqueueKernel");
+            return SkString("EnqueueKernel");
         case SpvOpGetKernelNDrangeSubGroupCount:
-            return String("GetKernelNDrangeSubGroupCount");
+            return SkString("GetKernelNDrangeSubGroupCount");
         case SpvOpGetKernelNDrangeMaxSubGroupSize:
-            return String("GetKernelNDrangeMaxSubGroupSize");
+            return SkString("GetKernelNDrangeMaxSubGroupSize");
         case SpvOpGetKernelWorkGroupSize:
-            return String("GetKernelWorkGroupSize");
+            return SkString("GetKernelWorkGroupSize");
         case SpvOpGetKernelPreferredWorkGroupSizeMultiple:
-            return String("GetKernelPreferredWorkGroupSizeMultiple");
+            return SkString("GetKernelPreferredWorkGroupSizeMultiple");
         case SpvOpRetainEvent:
-            return String("RetainEvent");
+            return SkString("RetainEvent");
         case SpvOpReleaseEvent:
-            return String("ReleaseEvent");
+            return SkString("ReleaseEvent");
         case SpvOpCreateUserEvent:
-            return String("CreateUserEvent");
+            return SkString("CreateUserEvent");
         case SpvOpIsValidEvent:
-            return String("IsValidEvent");
+            return SkString("IsValidEvent");
         case SpvOpSetUserEventStatus:
-            return String("SetUserEventStatus");
+            return SkString("SetUserEventStatus");
         case SpvOpCaptureEventProfilingInfo:
-            return String("CaptureEventProfilingInfo");
+            return SkString("CaptureEventProfilingInfo");
         case SpvOpGetDefaultQueue:
-            return String("GetDefaultQueue");
+            return SkString("GetDefaultQueue");
         case SpvOpBuildNDRange:
-            return String("BuildNDRange");
+            return SkString("BuildNDRange");
         case SpvOpImageSparseSampleImplicitLod:
-            return String("ImageSparseSampleImplicitLod");
+            return SkString("ImageSparseSampleImplicitLod");
         case SpvOpImageSparseSampleExplicitLod:
-            return String("ImageSparseSampleExplicitLod");
+            return SkString("ImageSparseSampleExplicitLod");
         case SpvOpImageSparseSampleDrefImplicitLod:
-            return String("ImageSparseSampleDrefImplicitLod");
+            return SkString("ImageSparseSampleDrefImplicitLod");
         case SpvOpImageSparseSampleDrefExplicitLod:
-            return String("ImageSparseSampleDrefExplicitLod");
+            return SkString("ImageSparseSampleDrefExplicitLod");
         case SpvOpImageSparseSampleProjImplicitLod:
-            return String("ImageSparseSampleProjImplicitLod");
+            return SkString("ImageSparseSampleProjImplicitLod");
         case SpvOpImageSparseSampleProjExplicitLod:
-            return String("ImageSparseSampleProjExplicitLod");
+            return SkString("ImageSparseSampleProjExplicitLod");
         case SpvOpImageSparseSampleProjDrefImplicitLod:
-            return String("ImageSparseSampleProjDrefImplicitLod");
+            return SkString("ImageSparseSampleProjDrefImplicitLod");
         case SpvOpImageSparseSampleProjDrefExplicitLod:
-            return String("ImageSparseSampleProjDrefExplicitLod");
+            return SkString("ImageSparseSampleProjDrefExplicitLod");
         case SpvOpImageSparseFetch:
-            return String("ImageSparseFetch");
+            return SkString("ImageSparseFetch");
         case SpvOpImageSparseGather:
-            return String("ImageSparseGather");
+            return SkString("ImageSparseGather");
         case SpvOpImageSparseDrefGather:
-            return String("ImageSparseDrefGather");
+            return SkString("ImageSparseDrefGather");
         case SpvOpImageSparseTexelsResident:
-            return String("ImageSparseTexelsResident");
+            return SkString("ImageSparseTexelsResident");
         case SpvOpNoLine:
-            return String("NoLine");
+            return SkString("NoLine");
         case SpvOpAtomicFlagTestAndSet:
-            return String("AtomicFlagTestAndSet");
+            return SkString("AtomicFlagTestAndSet");
         case SpvOpAtomicFlagClear:
-            return String("AtomicFlagClear");
+            return SkString("AtomicFlagClear");
         case SpvOpImageSparseRead:
-            return String("ImageSparseRead");
+            return SkString("ImageSparseRead");
         default:
-            ABORT("unsupported SPIR-V op");
+            ABORT("unsupported SPIR-V op");    
     }
 }
 #endif
 
-void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& out) {
+void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, SkWStream& out) {
     ASSERT(opCode != SpvOpUndef);
     switch (opCode) {
         case SpvOpReturn:      // fall through
@@ -827,23 +830,23 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
 #endif
 }
 
-void SPIRVCodeGenerator::writeLabel(SpvId label, OutputStream& out) {
+void SPIRVCodeGenerator::writeLabel(SpvId label, SkWStream& out) {
     fCurrentBlock = label;
     this->writeInstruction(SpvOpLabel, label, out);
 }
 
-void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, OutputStream& out) {
+void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, SkWStream& out) {
     this->writeOpCode(opCode, 1, out);
 }
 
-void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, OutputStream& out) {
+void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, SkWStream& out) {
     this->writeOpCode(opCode, 2, out);
     this->writeWord(word1, out);
 }
 
-void SPIRVCodeGenerator::writeString(const char* string, OutputStream& out) {
+void SPIRVCodeGenerator::writeString(const char* string, SkWStream& out) {
     size_t length = strlen(string);
-    out.write(string, length);
+    out.writeText(string);
     switch (length % 4) {
         case 1:
             out.write8(0);
@@ -859,7 +862,7 @@ void SPIRVCodeGenerator::writeString(const char* string, OutputStream& out) {
     }
 }
 
-void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, const char* string, OutputStream& out) {
+void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, const char* string, SkWStream& out) {
     int32_t length = (int32_t) strlen(string);
     this->writeOpCode(opCode, 1 + (length + 4) / 4, out);
     this->writeString(string, out);
@@ -867,7 +870,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, const char* string, Out
 
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, const char* string,
-                                          OutputStream& out) {
+                                          SkWStream& out) {
     int32_t length = (int32_t) strlen(string);
     this->writeOpCode(opCode, 2 + (length + 4) / 4, out);
     this->writeWord(word1, out);
@@ -875,7 +878,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, const ch
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
-                                          const char* string, OutputStream& out) {
+                                          const char* string, SkWStream& out) {
     int32_t length = (int32_t) strlen(string);
     this->writeOpCode(opCode, 3 + (length + 4) / 4, out);
     this->writeWord(word1, out);
@@ -884,14 +887,14 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
-                                          OutputStream& out) {
+                                          SkWStream& out) {
     this->writeOpCode(opCode, 3, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
-                                          int32_t word3, OutputStream& out) {
+                                          int32_t word3, SkWStream& out) {
     this->writeOpCode(opCode, 4, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
@@ -899,7 +902,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
-                                          int32_t word3, int32_t word4, OutputStream& out) {
+                                          int32_t word3, int32_t word4, SkWStream& out) {
     this->writeOpCode(opCode, 5, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
@@ -909,7 +912,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
                                           int32_t word3, int32_t word4, int32_t word5,
-                                          OutputStream& out) {
+                                          SkWStream& out) {
     this->writeOpCode(opCode, 6, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
@@ -920,7 +923,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
                                           int32_t word3, int32_t word4, int32_t word5,
-                                          int32_t word6, OutputStream& out) {
+                                          int32_t word6, SkWStream& out) {
     this->writeOpCode(opCode, 7, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
@@ -932,7 +935,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
                                           int32_t word3, int32_t word4, int32_t word5,
-                                          int32_t word6, int32_t word7, OutputStream& out) {
+                                          int32_t word6, int32_t word7, SkWStream& out) {
     this->writeOpCode(opCode, 8, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
@@ -946,7 +949,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
                                           int32_t word3, int32_t word4, int32_t word5,
                                           int32_t word6, int32_t word7, int32_t word8,
-                                          OutputStream& out) {
+                                          SkWStream& out) {
     this->writeOpCode(opCode, 9, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
@@ -958,7 +961,7 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
     this->writeWord(word8, out);
 }
 
-void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
+void SPIRVCodeGenerator::writeCapabilities(SkWStream& out) {
     for (uint64_t i = 0, bit = 1; i <= kLast_Capability; i++, bit <<= 1) {
         if (fCapabilities & bit) {
             this->writeInstruction(SpvOpCapability, (SpvId) i, out);
@@ -1034,7 +1037,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
 }
 
 SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) {
-    String key = type.name() + to_string((int) layout.fStd);
+    SkString key = type.name() + to_string((int) layout.fStd);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId();
@@ -1074,7 +1077,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
                                            this->getType(type.componentType(), layout),
                                            this->writeIntLiteral(count), fConstantBuffer);
                     this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride,
-                                           (int32_t) layout.stride(type),
+                                           (int32_t) layout.stride(type), 
                                            fDecorationBuffer);
                 } else {
                     ABORT("runtime-sized arrays are not yet supported");
@@ -1113,8 +1116,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
-    String key = function.fReturnType.description() + "(";
-    String separator;
+    SkString key = function.fReturnType.description() + "(";
+    SkString separator;
     for (size_t i = 0; i < function.fParameters.size(); i++) {
         key += separator;
         separator = ", ";
@@ -1175,7 +1178,7 @@ SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ stor
 
 SpvId SPIRVCodeGenerator::getPointerType(const Type& type, const MemoryLayout& layout,
                                          SpvStorageClass_ storageClass) {
-    String key = type.description() + "*" + to_string(layout.fStd) + to_string(storageClass);
+    SkString key = type.description() + "*" + to_string(layout.fStd) + to_string(storageClass);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId();
@@ -1187,7 +1190,7 @@ SpvId SPIRVCodeGenerator::getPointerType(const Type& type, const MemoryLayout& l
     return entry->second;
 }
 
-SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, SkWStream& out) {
     switch (expr.fKind) {
         case Expression::kBinary_Kind:
             return this->writeBinaryExpression((BinaryExpression&) expr, out);
@@ -1221,7 +1224,7 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
     return -1;
 }
 
-SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, SkWStream& out) {
     auto intrinsic = fIntrinsicMap.find(c.fFunction.fName);
     ASSERT(intrinsic != fIntrinsicMap.end());
     const Type& type = c.fArguments[0]->fType;
@@ -1277,7 +1280,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
 }
 
 SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind,
-                                                OutputStream& out) {
+                                                SkWStream& out) {
     SpvId result = this->nextId();
     switch (kind) {
         case kAtan_SpecialIntrinsic: {
@@ -1355,7 +1358,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                        coords,
                                        out);
             } else {
-                ASSERT(2 == c.fArguments.size());
+                SkASSERT(2 == c.fArguments.size());
                 SpvId sample = this->writeExpression(*c.fArguments[1], out);
                 this->writeInstruction(SpvOpImageRead,
                                        this->getType(c.fType),
@@ -1372,7 +1375,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, SkWStream& out) {
     const auto& entry = fFunctionMap.find(&c.fFunction);
     if (entry == fFunctionMap.end()) {
         return this->writeIntrinsicCall(c, out);
@@ -1461,7 +1464,7 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const Constructor& c) {
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeFloatConstructor(const Constructor& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeFloatConstructor(const Constructor& c, SkWStream& out) {
     ASSERT(c.fType == *fContext.fFloat_Type);
     ASSERT(c.fArguments.size() == 1);
     ASSERT(c.fArguments[0]->fType.isNumber());
@@ -1479,7 +1482,7 @@ SpvId SPIRVCodeGenerator::writeFloatConstructor(const Constructor& c, OutputStre
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, SkWStream& out) {
     ASSERT(c.fType == *fContext.fInt_Type);
     ASSERT(c.fArguments.size() == 1);
     ASSERT(c.fArguments[0]->fType.isNumber());
@@ -1498,7 +1501,7 @@ SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, OutputStream
 }
 
 void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type,
-                                                 OutputStream& out) {
+                                                 SkWStream& out) {
     FloatLiteral zero(fContext, Position(), 0);
     SpvId zeroId = this->writeFloatLiteral(zero);
     std::vector<SpvId> columnIds;
@@ -1524,11 +1527,11 @@ void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const
 }
 
 void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcType,
-                                         const Type& dstType, OutputStream& out) {
+                                         const Type& dstType, SkWStream& out) {
     ABORT("unimplemented");
 }
 
-SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, SkWStream& out) {
     ASSERT(c.fType.kind() == Type::kMatrix_Kind);
     // go ahead and write the arguments so we don't try to write new instructions in the middle of
     // an instruction
@@ -1577,7 +1580,7 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, SkWStream& out) {
     ASSERT(c.fType.kind() == Type::kVector_Kind);
     if (c.isConstant()) {
         return this->writeConstantVector(c);
@@ -1607,7 +1610,7 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, SkWStream& out) {
     if (c.fType == *fContext.fFloat_Type) {
         return this->writeFloatConstructor(c, out);
     } else if (c.fType == *fContext.fInt_Type) {
@@ -1653,7 +1656,7 @@ SpvStorageClass_ get_storage_class(const Expression& expr) {
     }
 }
 
-std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, OutputStream& out) {
+std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, SkWStream& out) {
     std::vector<SpvId> chain;
     switch (expr.fKind) {
         case Expression::kIndex_Kind: {
@@ -1686,13 +1689,13 @@ public:
         return fPointer;
     }
 
-    virtual SpvId load(OutputStream& out) override {
+    virtual SpvId load(SkWStream& out) override {
         SpvId result = fGen.nextId();
         fGen.writeInstruction(SpvOpLoad, fType, result, fPointer, out);
         return result;
     }
 
-    virtual void store(SpvId value, OutputStream& out) override {
+    virtual void store(SpvId value, SkWStream& out) override {
         fGen.writeInstruction(SpvOpStore, fPointer, value, out);
     }
 
@@ -1716,7 +1719,7 @@ public:
         return 0;
     }
 
-    virtual SpvId load(OutputStream& out) override {
+    virtual SpvId load(SkWStream& out) override {
         SpvId base = fGen.nextId();
         fGen.writeInstruction(SpvOpLoad, fGen.getType(fBaseType), base, fVecPointer, out);
         SpvId result = fGen.nextId();
@@ -1731,7 +1734,7 @@ public:
         return result;
     }
 
-    virtual void store(SpvId value, OutputStream& out) override {
+    virtual void store(SpvId value, SkWStream& out) override {
         // use OpVectorShuffle to mix and match the vector components. We effectively create
         // a virtual vector out of the concatenation of the left and right vectors, and then
         // select components from this virtual vector to make the result vector. For
@@ -1778,7 +1781,7 @@ private:
 };
 
 std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const Expression& expr,
-                                                                          OutputStream& out) {
+                                                                          SkWStream& out) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) expr).fVariable;
@@ -1851,7 +1854,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
     }
 }
 
-SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, SkWStream& out) {
     SpvId result = this->nextId();
     auto entry = fVariableMap.find(&ref.fVariable);
     ASSERT(entry != fVariableMap.end());
@@ -1865,20 +1868,19 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             std::shared_ptr<SymbolTable> st(new SymbolTable(&fErrors));
             ASSERT(fRTHeightFieldIndex == (SpvId) -1);
             std::vector<Type::Field> fields;
-            fields.emplace_back(Modifiers(), String(SKSL_RTHEIGHT_NAME),
+            fields.emplace_back(Modifiers(), SkString(SKSL_RTHEIGHT_NAME),
                                 fContext.fFloat_Type.get());
-            String name("sksl_synthetic_uniforms");
+            SkString name("sksl_synthetic_uniforms");
             Type intfStruct(Position(), name, fields);
-            Layout layout(-1, -1, 1, -1, -1, -1, -1, false, false, false,
-                          Layout::Format::kUnspecified, false, Layout::kUnspecified_Primitive, -1,
-                          -1);
+            Layout layout(-1, -1, 1, -1, -1, -1, -1, false, false, false, Layout::Format::kUnspecified,
+                          false, Layout::kUnspecified_Primitive, -1, -1);
             Variable* intfVar = new Variable(Position(),
                                              Modifiers(layout, Modifiers::kUniform_Flag),
                                              name,
                                              intfStruct,
                                              Variable::kGlobal_Storage);
             fSynthetics.takeOwnership(intfVar);
-            InterfaceBlock intf(Position(), intfVar, name, String(""),
+            InterfaceBlock intf(Position(), intfVar, name, SkString(""),
                                 std::vector<std::unique_ptr<Expression>>(), st);
             fRTHeightStructId = this->writeInterfaceBlock(intf);
             fRTHeightFieldIndex = 0;
@@ -1922,15 +1924,15 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeIndexExpression(const IndexExpression& expr, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeIndexExpression(const IndexExpression& expr, SkWStream& out) {
     return getLValue(expr, out)->load(out);
 }
 
-SpvId SPIRVCodeGenerator::writeFieldAccess(const FieldAccess& f, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeFieldAccess(const FieldAccess& f, SkWStream& out) {
     return getLValue(f, out)->load(out);
 }
 
-SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, SkWStream& out) {
     SpvId base = this->writeExpression(*swizzle.fBase, out);
     SpvId result = this->nextId();
     size_t count = swizzle.fComponents.size();
@@ -1953,7 +1955,7 @@ SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, OutputStream& out
 SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
                                                const Type& operandType, SpvId lhs,
                                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt,
-                                               SpvOp_ ifUInt, SpvOp_ ifBool, OutputStream& out) {
+                                               SpvOp_ ifUInt, SpvOp_ ifBool, SkWStream& out) {
     SpvId result = this->nextId();
     if (is_float(fContext, operandType)) {
         this->writeInstruction(ifFloat, this->getType(resultType), result, lhs, rhs, out);
@@ -1991,7 +1993,7 @@ bool is_assignment(Token::Kind op) {
     }
 }
 
-SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, OutputStream& out) {
+SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, SkWStream& out) {
     if (operandType.kind() == Type::kVector_Kind) {
         SpvId result = this->nextId();
         this->writeInstruction(SpvOpAll, this->getType(*fContext.fBool_Type), result, id, out);
@@ -2000,7 +2002,7 @@ SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, OutputSt
     return id;
 }
 
-SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, SkWStream& out) {
     // handle cases where we don't necessarily evaluate both LHS and RHS
     switch (b.fOperator) {
         case Token::EQ: {
@@ -2197,7 +2199,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
     }
 }
 
-SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, SkWStream& out) {
     ASSERT(a.fOperator == Token::LOGICALAND);
     BoolLiteral falseLiteral(fContext, Position(), false);
     SpvId falseConstant = this->writeBoolLiteral(falseLiteral);
@@ -2218,7 +2220,7 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStrea
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, SkWStream& out) {
     ASSERT(o.fOperator == Token::LOGICALOR);
     BoolLiteral trueLiteral(fContext, Position(), true);
     SpvId trueConstant = this->writeBoolLiteral(trueLiteral);
@@ -2239,7 +2241,7 @@ SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, SkWStream& out) {
     SpvId test = this->writeExpression(*t.fTest, out);
     if (t.fIfTrue->isConstant() && t.fIfFalse->isConstant()) {
         // both true and false are constants, can just use OpSelect
@@ -2279,11 +2281,11 @@ std::unique_ptr<Expression> create_literal_1(const Context& context, const Type&
     else if (type == *context.fFloat_Type) {
         return std::unique_ptr<Expression>(new FloatLiteral(context, Position(), 1.0));
     } else {
-        ABORT("math is unsupported on type '%s'", type.name().c_str());
+        ABORT("math is unsupported on type '%s'")
     }
 }
 
-SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, SkWStream& out) {
     if (p.fOperator == Token::MINUS) {
         SpvId result = this->nextId();
         SpvId typeId = this->getType(p.fType);
@@ -2336,7 +2338,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
     }
 }
 
-SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, SkWStream& out) {
     std::unique_ptr<LValue> lv = this->getLValue(*p.fOperand, out);
     SpvId result = lv->load(out);
     SpvId one = this->writeExpression(*create_literal_1(fContext, p.fType), out);
@@ -2433,7 +2435,7 @@ SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     }
 }
 
-SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, SkWStream& out) {
     SpvId result = fFunctionMap[&f];
     this->writeInstruction(SpvOpFunction, this->getType(f.fReturnType), result,
                            SpvFunctionControlMaskNone, this->getFunctionType(f), out);
@@ -2448,17 +2450,16 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStream& out) {
-    fVariableBuffer.reset();
+SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, SkWStream& out) {
     SpvId result = this->writeFunctionStart(f.fDeclaration, out);
     this->writeLabel(this->nextId(), out);
     if (f.fDeclaration.fName == "main") {
-        write_stringstream(fGlobalInitializersBuffer, out);
+        write_data(*fGlobalInitializersBuffer.detachAsData(), out);
     }
-    StringStream bodyBuffer;
+    SkDynamicMemoryWStream bodyBuffer;
     this->writeBlock(*f.fBody, bodyBuffer);
-    write_stringstream(fVariableBuffer, out);
-    write_stringstream(bodyBuffer, out);
+    write_data(*fVariableBuffer.detachAsData(), out);
+    write_data(*bodyBuffer.detachAsData(), out);
     if (fCurrentBlock) {
         this->writeInstruction(SpvOpReturn, out);
     }
@@ -2532,7 +2533,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         std::vector<Type::Field> fields = type->fields();
         fRTHeightStructId = result;
         fRTHeightFieldIndex = fields.size();
-        fields.emplace_back(Modifiers(), String(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
+        fields.emplace_back(Modifiers(), SkString(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
         type = new Type(type->fPosition, type->name(), fields);
     }
     SpvId typeId = this->getType(*type, layout);
@@ -2551,7 +2552,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 
 #define BUILTIN_IGNORE 9999
 void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclarations& decl,
-                                         OutputStream& out) {
+                                         SkWStream& out) {
     for (size_t i = 0; i < decl.fVars.size(); i++) {
         const VarDeclaration& varDecl = decl.fVars[i];
         const Variable* var = varDecl.fVar;
@@ -2613,7 +2614,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
     }
 }
 
-void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, OutputStream& out) {
+void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, SkWStream& out) {
     for (const auto& varDecl : decl.fVars) {
         const Variable* var = varDecl.fVar;
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
@@ -2635,7 +2636,7 @@ void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, Outpu
     }
 }
 
-void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
+void SPIRVCodeGenerator::writeStatement(const Statement& s, SkWStream& out) {
     switch (s.fKind) {
         case Statement::kBlock_Kind:
             this->writeBlock((Block&) s, out);
@@ -2675,13 +2676,13 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
     }
 }
 
-void SPIRVCodeGenerator::writeBlock(const Block& b, OutputStream& out) {
+void SPIRVCodeGenerator::writeBlock(const Block& b, SkWStream& out) {
     for (size_t i = 0; i < b.fStatements.size(); i++) {
         this->writeStatement(*b.fStatements[i], out);
     }
 }
 
-void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, OutputStream& out) {
+void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, SkWStream& out) {
     SpvId test = this->writeExpression(*stmt.fTest, out);
     SpvId ifTrue = this->nextId();
     SpvId ifFalse = this->nextId();
@@ -2712,7 +2713,7 @@ void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, OutputStream&
     }
 }
 
-void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, OutputStream& out) {
+void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, SkWStream& out) {
     if (f.fInitializer) {
         this->writeStatement(*f.fInitializer, out);
     }
@@ -2747,7 +2748,7 @@ void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, OutputStream& 
     fContinueTarget.pop();
 }
 
-void SPIRVCodeGenerator::writeWhileStatement(const WhileStatement& w, OutputStream& out) {
+void SPIRVCodeGenerator::writeWhileStatement(const WhileStatement& w, SkWStream& out) {
     // We believe the while loop code below will work, but Skia doesn't actually use them and
     // adequately testing this code in the absence of Skia exercising it isn't straightforward. For
     // the time being, we just fail with an error due to the lack of testing. If you encounter this
@@ -2779,7 +2780,7 @@ void SPIRVCodeGenerator::writeWhileStatement(const WhileStatement& w, OutputStre
     fContinueTarget.pop();
 }
 
-void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& out) {
+void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, SkWStream& out) {
     // We believe the do loop code below will work, but Skia doesn't actually use them and
     // adequately testing this code in the absence of Skia exercising it isn't straightforward. For
     // the time being, we just fail with an error due to the lack of testing. If you encounter this
@@ -2811,7 +2812,7 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
     fContinueTarget.pop();
 }
 
-void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputStream& out) {
+void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, SkWStream& out) {
     if (r.fExpression) {
         this->writeInstruction(SpvOpReturnValue, this->writeExpression(*r.fExpression, out),
                                out);
@@ -2820,9 +2821,9 @@ void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputSt
     }
 }
 
-void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream& out) {
+void SPIRVCodeGenerator::writeInstructions(const Program& program, SkWStream& out) {
     fGLSLExtendedInstructions = this->nextId();
-    StringStream body;
+    SkDynamicMemoryWStream body;
     std::set<SpvId> interfaceVars;
     // assign IDs to functions
     for (size_t i = 0; i < program.fElements.size(); i++) {
@@ -2902,12 +2903,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         }
     }
 
-    write_stringstream(fExtraGlobalsBuffer, out);
-    write_stringstream(fNameBuffer, out);
-    write_stringstream(fDecorationBuffer, out);
-    write_stringstream(fConstantBuffer, out);
-    write_stringstream(fExternalFunctionsBuffer, out);
-    write_stringstream(body, out);
+    write_data(*fExtraGlobalsBuffer.detachAsData(), out);
+    write_data(*fNameBuffer.detachAsData(), out);
+    write_data(*fDecorationBuffer.detachAsData(), out);
+    write_data(*fConstantBuffer.detachAsData(), out);
+    write_data(*fExternalFunctionsBuffer.detachAsData(), out);
+    write_data(*body.detachAsData(), out);
 }
 
 bool SPIRVCodeGenerator::generateCode() {
@@ -2915,11 +2916,11 @@ bool SPIRVCodeGenerator::generateCode() {
     this->writeWord(SpvMagicNumber, *fOut);
     this->writeWord(SpvVersion, *fOut);
     this->writeWord(SKSL_MAGIC, *fOut);
-    StringStream buffer;
+    SkDynamicMemoryWStream buffer;
     this->writeInstructions(fProgram, buffer);
     this->writeWord(fIdCount, *fOut);
     this->writeWord(0, *fOut); // reserved, always zero
-    write_stringstream(buffer, *fOut);
+    write_data(*buffer.detachAsData(), *fOut);
     return 0 == fErrors.errorCount();
 }
 

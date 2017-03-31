@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+ 
 #ifndef SKSL_ASTTYPE
 #define SKSL_ASTTYPE
 
@@ -21,17 +21,17 @@ struct ASTType : public ASTPositionNode {
         kStruct_Kind
     };
 
-    ASTType(Position position, String name, Kind kind, std::vector<int> sizes)
+    ASTType(Position position, SkString name, Kind kind, std::vector<int> sizes)
     : INHERITED(position)
     , fName(std::move(name))
     , fKind(kind)
     , fSizes(std::move(sizes)) {}
 
-    String description() const override {
+    SkString description() const override {
         return fName;
     }
 
-    const String fName;
+    const SkString fName;
 
     const Kind fKind;
 

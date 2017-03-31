@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+ 
 #ifndef SKSL_VARIABLEREFERENCE
 #define SKSL_VARIABLEREFERENCE
 
@@ -67,7 +67,7 @@ struct VariableReference : public Expression {
         fRefKind = refKind;
     }
 
-    String description() const override {
+    SkString description() const override {
         return fVariable.fName;
     }
 
