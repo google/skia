@@ -10,6 +10,7 @@
     #define HIDDEN .private_extern
 #else
     #define HIDDEN .hidden
+    .section .note.GNU-stack,"",%progbits
 #endif
 .text
 #if defined(__aarch64__)

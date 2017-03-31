@@ -12,7 +12,7 @@ import sys
 #clang = ['clang++']
 clang = ['ccache', 'clang-4.0', '-x', 'c++']
 
-ndk = '/Users/mtklein/brew/opt/android-ndk/'
+ndk = '/Users/mtklein/ndk/'
 objdump = 'gobjdump'
 
 #ndk = '/home/mtklein/ndk/'
@@ -138,6 +138,7 @@ print '#if defined(__MACH__)'
 print '    #define HIDDEN .private_extern'
 print '#else'
 print '    #define HIDDEN .hidden'
+print '    .section .note.GNU-stack,"",%progbits'
 print '#endif'
 
 print '.text'
