@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_VARDECLARATIONS
 #define SKSL_VARDECLARATIONS
 
@@ -17,7 +17,7 @@ namespace SkSL {
 
 /**
  * A single variable declaration within a var declaration statement. For instance, the statement
- * 'int x = 2, y[3];' is a VarDeclarations statement containing two individual VarDeclaration 
+ * 'int x = 2, y[3];' is a VarDeclarations statement containing two individual VarDeclaration
  * instances.
  */
 struct VarDeclaration {
@@ -28,8 +28,8 @@ struct VarDeclaration {
     , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
 
-    SkString description() const {
-        SkString result = fVar->fName;
+    String description() const {
+        String result = fVar->fName;
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
@@ -40,7 +40,7 @@ struct VarDeclaration {
         if (fValue) {
             result += " = " + fValue->description();
         }
-        return result;        
+        return result;
     }
 
     const Variable* fVar;
@@ -52,18 +52,18 @@ struct VarDeclaration {
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct VarDeclarations : public ProgramElement {
-    VarDeclarations(Position position, const Type* baseType, 
+    VarDeclarations(Position position, const Type* baseType,
                     std::vector<VarDeclaration> vars)
     : INHERITED(position, kVar_Kind)
     , fBaseType(*baseType)
     , fVars(std::move(vars)) {}
 
-    SkString description() const override {
+    String description() const override {
         if (!fVars.size()) {
-            return SkString();
+            return String();
         }
-        SkString result = fVars[0].fVar->fModifiers.description() + fBaseType.description() + " ";
-        SkString separator;
+        String result = fVars[0].fVar->fModifiers.description() + fBaseType.description() + " ";
+        String separator;
         for (const auto& var : fVars) {
             result += separator;
             separator = ", ";

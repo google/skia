@@ -23,8 +23,8 @@ struct Block : public Statement {
     , fSymbols(std::move(symbols))
     , fStatements(std::move(statements)) {}
 
-    SkString description() const override {
-        SkString result("{");
+    String description() const override {
+        String result("{");
         for (size_t i = 0; i < fStatements.size(); i++) {
             result += "\n";
             result += fStatements[i]->description();

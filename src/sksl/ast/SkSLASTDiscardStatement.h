@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTDISCARDSTATEMENT
 #define SKSL_ASTDISCARDSTATEMENT
 
@@ -13,14 +13,14 @@
 namespace SkSL {
 
 /**
- * A 'discard' statement. 
+ * A 'discard' statement.
  */
 struct ASTDiscardStatement : public ASTStatement {
     ASTDiscardStatement(Position position)
     : INHERITED(position, kDiscard_Kind) {}
 
-    SkString description() const override {
-        return SkString("discard;");
+    String description() const override {
+        return String("discard;");
     }
 
     typedef ASTStatement INHERITED;
