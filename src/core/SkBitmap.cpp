@@ -300,8 +300,7 @@ void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
         return;
     }
 
-    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewDirect(fInfo, p, fRowBytes, ctable));
-    this->setPixelRef(std::move(pr), 0, 0);
+    this->setPixelRef(SkMallocPixelRef::MakeDirect(fInfo, p, fRowBytes, sk_ref_sp(ctable)), 0, 0);
     if (!fPixelRef) {
         return;
     }
@@ -334,9 +333,7 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
     // setInfo may have computed a valid rowbytes if 0 were passed in
     rowBytes = this->rowBytes();
 
-    SkMallocPixelRef::PRFactory defaultFactory;
-
-    sk_sp<SkPixelRef> pr(defaultFactory.create(correctedInfo, rowBytes, nullptr));
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(correctedInfo, rowBytes, nullptr);
     if (!pr) {
         return reset_return_false(this);
     }
@@ -350,8 +347,8 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
     return true;
 }
 
-bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, SkPixelRefFactory* factory,
-                                SkColorTable* ctable) {
+bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, sk_sp<SkColorTable> ctable,
+                              uint32_t allocFlags) {
     if (kIndex_8_SkColorType == requestedInfo.colorType() && nullptr == ctable) {
         return reset_return_false(this);
     }
@@ -362,18 +359,14 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, SkPixelRefFactor
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
 
-    SkMallocPixelRef::PRFactory defaultFactory;
-    if (nullptr == factory) {
-        factory = &defaultFactory;
-    }
-
-    sk_sp<SkPixelRef> pr(factory->create(correctedInfo, correctedInfo.minRowBytes(), ctable));
+    sk_sp<SkPixelRef> pr = (allocFlags & kZeroPixels_AllocFlag) ?
+        SkMallocPixelRef::MakeZeroed(correctedInfo, correctedInfo.minRowBytes(), ctable) :
+        SkMallocPixelRef::MakeAllocate(correctedInfo, correctedInfo.minRowBytes(), ctable);
     if (!pr) {
         return reset_return_false(this);
     }
     this->setPixelRef(std::move(pr), 0, 0);
 
-    // TODO: lockPixels could/should return bool or void*/nullptr
     this->lockPixels();
     if (nullptr == this->getPixels()) {
         return reset_return_false(this);
@@ -403,8 +396,8 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
 
-    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewWithProc(correctedInfo, rb, ct, pixels, releaseProc,
-                                                       context));
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeWithProc(correctedInfo, rb, sk_ref_sp(ct),
+                                                          pixels, releaseProc, context);
     if (!pr) {
         this->reset();
         return false;
@@ -473,7 +466,7 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
         return false;
     }
 
-    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewAllocate(info, dst->rowBytes(), ctable));
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, dst->rowBytes(), sk_ref_sp(ctable));
     if (!pr) {
         return false;
     }
@@ -1014,7 +1007,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
 
     sk_sp<SkColorTable> ctable;
     if (buffer->readBool()) {
-        ctable.reset(SkColorTable::Create(*buffer));
+        ctable = SkColorTable::Create(*buffer);
         if (!ctable) {
             return false;
         }
@@ -1038,9 +1031,9 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         }
     }
 
-    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
-                                                       ctable.get(), data.get()));
-    if (!pr.get()) {
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeWithData(info, info.minRowBytes(),
+                                                          std::move(ctable), std::move(data));
+    if (!pr) {
         return false;
     }
     bitmap->setInfo(pr->info());
