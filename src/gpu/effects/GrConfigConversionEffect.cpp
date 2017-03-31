@@ -49,7 +49,6 @@ public:
                 fragBuilder->codeAppendf(
                     "%s = vec4(floor(%s.rgb * %s.a * 255.0 + 0.001) / 255.0, %s.a);",
                     tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str());
-
                 break;
             case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
                 fragBuilder->codeAppendf(
@@ -249,6 +248,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     if (failed) {
         *pmToUPMRule = kPMConversionCnt;
         *upmToPMRule = kPMConversionCnt;
+        SkFAIL("No round trip conversion found!\n");
+        _Exit(1);
+    } else {
+        SkDebugf("Round-trip conversion rule: (%d, %d)\n", *pmToUPMRule, *upmToPMRule);
+        _Exit(0);
     }
 }
 
