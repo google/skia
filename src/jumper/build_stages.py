@@ -5,14 +5,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import os
 import re
 import subprocess
 import sys
 
 clang   = sys.argv[1] if len(sys.argv) > 1 else 'clang-4.0'
-ndk     = sys.argv[2] if len(sys.argv) > 2 else os.path.expanduser('~/ndk')
-objdump = sys.argv[3] if len(sys.argv) > 3 else 'gobjdump'
+objdump = sys.argv[2] if len(sys.argv) > 2 else 'gobjdump'
 
 clang = ['ccache', clang, '-x', 'c++']
 
@@ -53,17 +51,13 @@ subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_hsw.o'])
 
-aarch64 = [
-    '--target=aarch64-linux-android',
-    '--sysroot=' + ndk + '/platforms/android-21/arch-arm64',
-]
+aarch64 = [ '--target=aarch64-linux-android' ]
 subprocess.check_call(clang + cflags + aarch64 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'aarch64.o'])
 
 vfp4 = [
     '--target=armv7a-linux-android',
-    '--sysroot=' + ndk + '/platforms/android-18/arch-arm',
     '-mfpu=neon-vfpv4',
     '-mfloat-abi=hard',
 ]
