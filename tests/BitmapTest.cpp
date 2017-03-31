@@ -44,7 +44,7 @@ static void test_bigalloc(skiatest::Reporter* reporter) {
     SkBitmap bm;
     REPORTER_ASSERT(reporter, !bm.tryAllocPixels(info));
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, info.minRowBytes(), nullptr);
+    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, info.minRowBytes(), nullptr);
     REPORTER_ASSERT(reporter, !pr);
 }
 

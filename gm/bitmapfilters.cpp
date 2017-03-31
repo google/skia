@@ -17,9 +17,12 @@ static void make_bm(SkBitmap* bm) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(colors); ++i) {
         colorsPM[i] = SkPreMultiplyColor(colors[i]);
     }
+    SkColorTable* ctable = new SkColorTable(colorsPM, 4);
+
     bm->allocPixels(SkImageInfo::Make(2, 2, kIndex_8_SkColorType,
                                       kPremul_SkAlphaType),
-                    SkColorTable::Make(colorsPM, 4));
+                    nullptr, ctable);
+    ctable->unref();
 
     *bm->getAddr8(0, 0) = 0;
     *bm->getAddr8(1, 0) = 1;
