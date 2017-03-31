@@ -228,18 +228,18 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
 
-uint32_t GrRenderTargetContextPriv::testingOnly_addMeshDrawOp(GrPaint&& paint,
-                                                              GrAAType aaType,
-                                                              std::unique_ptr<GrMeshDrawOp> op,
-                                                              const GrUserStencilSettings* uss,
-                                                              bool snapToCenters) {
+uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
+        GrPaint&& paint,
+        GrAAType aaType,
+        std::unique_ptr<GrLegacyMeshDrawOp> op,
+        const GrUserStencilSettings* uss,
+        bool snapToCenters) {
     ASSERT_SINGLE_OWNER
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
         return SK_InvalidUniqueID;
     }
-    SkDEBUGCODE(fRenderTargetContext->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
-                              "GrRenderTargetContext::testingOnly_addMeshDrawOp");
+    SkDEBUGCODE(fRenderTargetContext->validate();) GR_AUDIT_TRAIL_AUTO_FRAME(
+            fRenderTargetContext->fAuditTrail, "GrRenderTargetContext::testingOnly_addMeshDrawOp");
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
     if (uss) {
@@ -247,7 +247,7 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addMeshDrawOp(GrPaint&& paint,
     }
     pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
-    return fRenderTargetContext->addMeshDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
+    return fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER

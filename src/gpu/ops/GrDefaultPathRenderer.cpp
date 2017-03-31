@@ -94,15 +94,16 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
     }
 }
 
-class DefaultPathOp final : public GrMeshDrawOp {
+class DefaultPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
-                                              uint8_t coverage, const SkMatrix& viewMatrix,
-                                              bool isHairline, const SkRect& devBounds) {
-        return std::unique_ptr<GrMeshDrawOp>(new DefaultPathOp(color, path, tolerance, coverage,
-                                                               viewMatrix, isHairline, devBounds));
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkPath& path,
+                                                    SkScalar tolerance, uint8_t coverage,
+                                                    const SkMatrix& viewMatrix, bool isHairline,
+                                                    const SkRect& devBounds) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new DefaultPathOp(
+                color, path, tolerance, coverage, viewMatrix, isHairline, devBounds));
     }
 
     const char* name() const override { return "DefaultPathOp"; }
@@ -256,7 +257,7 @@ private:
         } else {
             mesh.init(primitiveType, vertexBuffer, firstVertex, vertexOffset);
         }
-        target->draw(gp.get(), mesh);
+        target->draw(gp.get(), this->pipeline(), mesh);
 
         // put back reserves
         target->putBackIndices((size_t)(maxIndices - indexOffset));
@@ -401,7 +402,7 @@ private:
     bool fIsHairline;
     SkSTArray<1, PathData, true> fPaths;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
@@ -546,16 +547,16 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                     paint.getColor(), viewM, bounds, nullptr, &localMatrix));
 
             SkASSERT(GrDrawFace::kBoth == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+            renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
-            std::unique_ptr<GrMeshDrawOp> op =
+            std::unique_ptr<GrLegacyMeshDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
                                         viewMatrix, isHairline, devBounds);
             bool stencilPass = stencilOnly || passCount > 1;
@@ -566,7 +567,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             GrPipelineBuilder pipelineBuilder(std::move(passPaint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addMeshDrawOp(pipelineBuilder, clip, std::move(op));
+            renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
         }
     }
     return true;
