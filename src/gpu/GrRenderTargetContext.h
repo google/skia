@@ -22,7 +22,7 @@ class GrClip;
 class GrDrawingManager;
 class GrDrawOp;
 class GrFixedClip;
-class GrMeshDrawOp;
+class GrLegacyMeshDrawOp;
 class GrPipelineBuilder;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
@@ -466,7 +466,8 @@ private:
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
     // dropped (e.g., due to clipping).
     uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
-    uint32_t addMeshDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrMeshDrawOp>);
+    uint32_t addLegacyMeshDrawOp(const GrPipelineBuilder&, const GrClip&,
+                                 std::unique_ptr<GrLegacyMeshDrawOp>);
 
     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
     // be used by GrXferProcessor to access the destination color. If the texture is nullptr then

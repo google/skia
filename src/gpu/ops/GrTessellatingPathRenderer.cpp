@@ -103,8 +103,11 @@ private:
 
 class DynamicVertexAllocator : public GrTessellator::VertexAllocator {
 public:
-    DynamicVertexAllocator(size_t stride, GrMeshDrawOp::Target* target)
-        : VertexAllocator(stride), fTarget(target), fVertexBuffer(nullptr), fVertices(nullptr) {}
+    DynamicVertexAllocator(size_t stride, GrLegacyMeshDrawOp::Target* target)
+            : VertexAllocator(stride)
+            , fTarget(target)
+            , fVertexBuffer(nullptr)
+            , fVertices(nullptr) {}
     void* lock(int vertexCount) override {
         fVertexCount = vertexCount;
         fVertices = fTarget->makeVertexSpace(stride(), vertexCount, &fVertexBuffer, &fFirstVertex);
@@ -117,7 +120,7 @@ public:
     const GrBuffer* vertexBuffer() const { return fVertexBuffer; }
     int firstVertex() const { return fFirstVertex; }
 private:
-    GrMeshDrawOp::Target* fTarget;
+    GrLegacyMeshDrawOp::Target* fTarget;
     const GrBuffer* fVertexBuffer;
     int fVertexCount;
     int fFirstVertex;
@@ -156,16 +159,16 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
     return true;
 }
 
-class TessellatingPathOp final : public GrMeshDrawOp {
+class TessellatingPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrMeshDrawOp> Make(const GrColor& color,
-                                              const GrShape& shape,
-                                              const SkMatrix& viewMatrix,
-                                              SkIRect devClipBounds,
-                                              bool antiAlias) {
-        return std::unique_ptr<GrMeshDrawOp>(
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const GrColor& color,
+                                                    const GrShape& shape,
+                                                    const SkMatrix& viewMatrix,
+                                                    SkIRect devClipBounds,
+                                                    bool antiAlias) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
                 new TessellatingPathOp(color, shape, viewMatrix, devClipBounds, antiAlias));
     }
 
@@ -314,7 +317,7 @@ private:
                                                               : kTriangles_GrPrimitiveType;
         GrMesh mesh;
         mesh.init(primitiveType, vb, firstVertex, count);
-        target->draw(gp, mesh);
+        target->draw(gp, this->pipeline(), mesh);
     }
 
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
@@ -348,7 +351,7 @@ private:
     bool                    fCanTweakAlphaForCoverage;
     bool                    fNeedsLocalCoords;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -358,7 +361,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    std::unique_ptr<GrMeshDrawOp> op =
+    std::unique_ptr<GrLegacyMeshDrawOp> op =
             TessellatingPathOp::Make(args.fPaint.getColor(),
                                      *args.fShape,
                                      *args.fViewMatrix,
@@ -366,7 +369,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                      GrAAType::kCoverage == args.fAAType);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;
 }
 

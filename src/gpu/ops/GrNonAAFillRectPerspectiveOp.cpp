@@ -89,7 +89,7 @@ static void tesselate(intptr_t vertices,
 }
 
 // We handle perspective in the local matrix or viewmatrix with special ops.
-class NonAAFillRectPerspectiveOp final : public GrMeshDrawOp {
+class NonAAFillRectPerspectiveOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -178,7 +178,7 @@ private:
                 tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, nullptr);
             }
         }
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -216,17 +216,17 @@ private:
     SkMatrix fLocalMatrix;
     SkMatrix fViewMatrix;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 namespace GrNonAAFillRectOp {
 
-std::unique_ptr<GrMeshDrawOp> MakeWithPerspective(GrColor color,
-                                                  const SkMatrix& viewMatrix,
-                                                  const SkRect& rect,
-                                                  const SkRect* localRect,
-                                                  const SkMatrix* localMatrix) {
-    return std::unique_ptr<GrMeshDrawOp>(
+std::unique_ptr<GrLegacyMeshDrawOp> MakeWithPerspective(GrColor color,
+                                                        const SkMatrix& viewMatrix,
+                                                        const SkRect& rect,
+                                                        const SkRect* localRect,
+                                                        const SkMatrix* localMatrix) {
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
             new NonAAFillRectPerspectiveOp(color, viewMatrix, rect, localRect, localMatrix));
 }
 };
