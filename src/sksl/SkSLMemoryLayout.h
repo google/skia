@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKIASL_MEMORYLAYOUT
 #define SKIASL_MEMORYLAYOUT
 
@@ -19,14 +19,14 @@ public:
         k430_Standard
     };
 
-    MemoryLayout(Standard std) 
+    MemoryLayout(Standard std)
     : fStd(std) {}
 
     static size_t vector_alignment(size_t componentSize, int columns) {
         return componentSize * (columns + columns % 2);
     }
 
-    /** 
+    /**
      * Rounds up to the nearest multiple of 16 if in std140, otherwise returns the parameter
      * unchanged (std140 requires various things to be rounded up to the nearest multiple of 16,
      * std430 does not).
@@ -50,7 +50,7 @@ public:
             case Type::kVector_Kind:
                 return vector_alignment(this->size(type.componentType()), type.columns());
             case Type::kMatrix_Kind:
-                return this->roundUpIfNeeded(vector_alignment(this->size(type.componentType()), 
+                return this->roundUpIfNeeded(vector_alignment(this->size(type.componentType()),
                                                               type.rows()));
             case Type::kArray_Kind:
                 return this->roundUpIfNeeded(this->alignment(type.componentType()));
@@ -65,7 +65,7 @@ public:
                 return this->roundUpIfNeeded(result);
             }
             default:
-                ABORT(("cannot determine size of type " + type.name()).c_str());
+                ABORT("cannot determine size of type %s", type.name().c_str());
         }
     }
 
@@ -111,12 +111,12 @@ public:
                     total += this->size(*f.fType);
                 }
                 size_t alignment = this->alignment(type);
-                ASSERT(!type.fields().size() || 
+                ASSERT(!type.fields().size() ||
                        (0 == alignment % this->alignment(*type.fields()[0].fType)));
                 return (total + alignment - 1) & ~(alignment - 1);
             }
             default:
-                ABORT(("cannot determine size of type " + type.name()).c_str());
+                ABORT("cannot determine size of type %s", type.name().c_str());
         }
     }
 

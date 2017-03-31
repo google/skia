@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_FLOATLITERAL
 #define SKSL_FLOATLITERAL
 
@@ -21,7 +21,7 @@ struct FloatLiteral : public Expression {
     : INHERITED(position, kFloatLiteral_Kind, *context.fFloat_Type)
     , fValue(value) {}
 
-    virtual SkString description() const override {
+    virtual String description() const override {
         return to_string(fValue);
     }
 

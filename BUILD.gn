@@ -1484,13 +1484,12 @@ if (skia_enable_tools) {
 
   if (skia_enable_gpu) {
     test_app("skslc") {
+      defines = [ "SKSL_STANDALONE" ]
       sources = [
         "src/sksl/SkSLMain.cpp",
       ]
-      deps = [
-        ":flags",
-        ":skia",
-      ]
+      sources += skia_sksl_sources
+      include_dirs = [ "src/sksl" ]
     }
   }
 }
