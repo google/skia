@@ -35,9 +35,9 @@ public:
 
     enum CachedFormat {
         kLegacy_CachedFormat,    // The format from the generator, with any color space stripped out
-        kAsIs_CachedFormat,      // The format from the generator, with no modification
         kLinearF16_CachedFormat, // Half float RGBA with linear gamma
         kSRGB8888_CachedFormat,  // sRGB bytes
+        kSBGR8888_CachedFormat,  // sRGB bytes, in BGR order
 
         kNumCachedFormats,
     };
