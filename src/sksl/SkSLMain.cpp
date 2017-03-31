@@ -8,7 +8,7 @@
 #include "stdio.h"
 #include <fstream>
 #include "SkSLCompiler.h"
-#include "GrContextOptions.h"
+#include "SkSLFileOutputStream.h"
 
 /**
  * Very simple standalone executable to facilitate testing.
@@ -34,17 +34,15 @@ int main(int argc, const char** argv) {
     std::ifstream in(argv[1]);
     std::string stdText((std::istreambuf_iterator<char>(in)),
                         std::istreambuf_iterator<char>());
-    SkString text(stdText.c_str());
+    SkSL::String text(stdText.c_str());
     if (in.rdstate()) {
         printf("error reading '%s'\n", argv[1]);
         exit(2);
     }
     SkSL::Program::Settings settings;
-    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    settings.fCaps = caps.get();
-    SkString name(argv[2]);
+    SkSL::String name(argv[2]);
     if (name.endsWith(".spirv")) {
-        SkFILEWStream out(argv[2]);
+        SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler;
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
@@ -55,8 +53,12 @@ int main(int argc, const char** argv) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }
+        if (!out.close()) {
+            printf("error writing '%s'\n", argv[2]);
+            exit(4);
+        }
     } else if (name.endsWith(".glsl")) {
-        SkFILEWStream out(argv[2]);
+        SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler;
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
@@ -66,6 +68,10 @@ int main(int argc, const char** argv) {
         if (!program || !compiler.toGLSL(*program, out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
+        }
+        if (!out.close()) {
+            printf("error writing '%s'\n", argv[2]);
+            exit(4);
         }
     } else {
         printf("expected output filename to end with '.spirv' or '.glsl'");
