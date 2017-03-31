@@ -700,8 +700,7 @@ static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
     } else if (SkCodec::kUnimplemented == result) {
         // New method should be supported:
         SkBitmap bm;
-        sk_sp<SkColorTable> colorTable(new SkColorTable(colorStorage, 256));
-        bm.allocPixels(info, nullptr, colorTable.get());
+        bm.allocPixels(info, SkColorTable::Make(colorStorage, 256));
         result = decoder->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), nullptr,
                                                  colorStorage, &colorCount);
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
@@ -1108,8 +1107,8 @@ static bool alpha_type_match(SkAlphaType origAlphaType, SkAlphaType codecAlphaTy
 static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const SkImageInfo& info) {
     SkBitmap bm1;
     SkPMColor colors[256];
-    sk_sp<SkColorTable> colorTable1(new SkColorTable(colors, 256));
-    bm1.allocPixels(info, nullptr, colorTable1.get());
+    sk_sp<SkColorTable> colorTable1 = SkColorTable::Make(colors, 256);
+    bm1.allocPixels(info, colorTable1);
     int numColors;
     SkCodec::Result result = origCodec->getPixels(info, bm1.getPixels(), bm1.rowBytes(), nullptr,
                                                   const_cast<SkPMColor*>(colorTable1->readColors()),
@@ -1126,8 +1125,8 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
     REPORTER_ASSERT(r, alpha_type_match(info.alphaType(), codec->getInfo().alphaType()));
 
     SkBitmap bm2;
-    sk_sp<SkColorTable> colorTable2(new SkColorTable(colors, 256));
-    bm2.allocPixels(info, nullptr, colorTable2.get());
+    sk_sp<SkColorTable> colorTable2 = SkColorTable::Make(colors, 256);
+    bm2.allocPixels(info, colorTable2);
     result = codec->getPixels(info, bm2.getPixels(), bm2.rowBytes(), nullptr,
                               const_cast<SkPMColor*>(colorTable2->readColors()), &numColors);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);

@@ -209,7 +209,7 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
         return nullptr;
     }
 
-    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, rowBytes, nullptr));
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, rowBytes, nullptr);
     if (!pr) {
         return nullptr;
     }
