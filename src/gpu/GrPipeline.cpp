@@ -74,7 +74,7 @@ void GrPipeline::init(const InitArgs& args) {
         fXferProcessor.reset(xferProcessor.get());
     }
 
-    // This is for the legacy GrPipeline creation in GrMeshDrawOp where analysis does not eliminate
+    // This is for the legacy GrPipeline creation in GrLegacyMeshDrawOp where analysis does not eliminate
     // fragment processors from GrProcessorSet.
     int colorFPsToEliminate = 0;
     if (args.fAnalysis) {

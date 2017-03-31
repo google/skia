@@ -30,9 +30,9 @@ public:
 
     const char* name() const override { return "BezierCubicOrConicTestOp"; }
 
-    static std::unique_ptr<GrMeshDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
                                               GrColor color, const SkMatrix& klm, SkScalar sign) {
-        return std::unique_ptr<GrMeshDrawOp>(
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
                 new BezierCubicOrConicTestOp(gp, rect, color, klm, sign));
     }
 
@@ -66,7 +66,7 @@ private:
             SkScalar pt3[3] = {verts[v].fPosition.x(), verts[v].fPosition.y(), 1.f};
             fKLM.mapHomogeneousPoints(verts[v].fKLM, pt3, 1);
         }
-        helper.recordDraw(target, fGeometryProcessor.get());
+        helper.recordDraw(target, fGeometryProcessor.get(), this->pipeline());
     }
 
     SkMatrix fKLM;
@@ -197,7 +197,7 @@ protected:
                         sign = -1.0f;
                     }
 
-                    std::unique_ptr<GrMeshDrawOp> op =
+                    std::unique_ptr<GrLegacyMeshDrawOp> op =
                             BezierCubicOrConicTestOp::Make(gp, bounds, color, klm, sign);
 
                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
@@ -330,7 +330,7 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
-                    std::unique_ptr<GrMeshDrawOp> op =
+                    std::unique_ptr<GrLegacyMeshDrawOp> op =
                             BezierCubicOrConicTestOp::Make(gp, bounds, color, klm, 1.f);
 
                     renderTargetContext->priv().testingOnly_addMeshDrawOp(
@@ -396,10 +396,10 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "BezierQuadTestOp"; }
 
-    static std::unique_ptr<GrMeshDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(sk_sp<GrGeometryProcessor> gp, const SkRect& rect,
                                               GrColor color,
                                               const GrPathUtils::QuadUVMatrix& devToUV) {
-        return std::unique_ptr<GrMeshDrawOp>(new BezierQuadTestOp(gp, rect, color, devToUV));
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new BezierQuadTestOp(gp, rect, color, devToUV));
     }
 
 private:
@@ -426,7 +426,7 @@ private:
         verts[0].fPosition.setRectFan(fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
                                       sizeof(Vertex));
         fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
-        helper.recordDraw(target, fGeometryProcessor.get());
+        helper.recordDraw(target, fGeometryProcessor.get(), this->pipeline());
     }
 
     GrPathUtils::QuadUVMatrix fDevToUV;
@@ -548,7 +548,7 @@ protected:
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
-                    std::unique_ptr<GrMeshDrawOp> op =
+                    std::unique_ptr<GrLegacyMeshDrawOp> op =
                             BezierQuadTestOp::Make(gp, bounds, color, DevToUV);
 
                     renderTargetContext->priv().testingOnly_addMeshDrawOp(

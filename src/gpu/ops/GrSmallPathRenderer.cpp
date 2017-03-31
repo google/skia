@@ -133,7 +133,7 @@ bool GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 // padding around path bounds to allow for antialiased pixels
 static const SkScalar kAntiAliasPad = 1.0f;
 
-class SmallPathOp final : public GrMeshDrawOp {
+class SmallPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -141,11 +141,11 @@ public:
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeData::Key>;
     using ShapeDataList = GrSmallPathRenderer::ShapeDataList;
 
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const GrShape& shape,
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const GrShape& shape,
                                               const SkMatrix& viewMatrix, GrDrawOpAtlas* atlas,
                                               ShapeCache* shapeCache, ShapeDataList* shapeList,
                                               bool gammaCorrect) {
-        return std::unique_ptr<GrMeshDrawOp>(new SmallPathOp(color, shape, viewMatrix, atlas,
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new SmallPathOp(color, shape, viewMatrix, atlas,
                                                              shapeCache, shapeList, gammaCorrect));
     }
 
@@ -388,7 +388,7 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
+    bool addDFPathToAtlas(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
                           ShapeData* shapeData, const GrShape& shape, uint32_t dimension,
                           SkScalar scale) const {
         const SkRect& bounds = shape.bounds();
@@ -505,7 +505,7 @@ private:
         return true;
     }
 
-    bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, 
+    bool addBMPathToAtlas(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData,
                           const GrShape& shape, const SkMatrix& ctm) const {
         const SkRect& bounds = shape.bounds();
@@ -677,7 +677,7 @@ private:
         textureCoords[1] = t;
     }
 
-    void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+    void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         if (flushInfo->fInstancesToFlush) {
             GrMesh mesh;
             int maxInstancesPerDraw =
@@ -685,7 +685,7 @@ private:
             mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer.get(),
                 flushInfo->fIndexBuffer.get(), flushInfo->fVertexOffset, kVerticesPerQuad,
                 kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
-            target->draw(flushInfo->fGeometryProcessor.get(), mesh);
+            target->draw(flushInfo->fGeometryProcessor.get(), this->pipeline(), mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;
         }
@@ -738,7 +738,7 @@ private:
     ShapeDataList* fShapeList;
     bool fGammaCorrect;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -760,7 +760,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    std::unique_ptr<GrMeshDrawOp> op = SmallPathOp::Make(
+    std::unique_ptr<GrLegacyMeshDrawOp> op = SmallPathOp::Make(
             args.fPaint.getColor(), *args.fShape, *args.fViewMatrix, fAtlas.get(), &fShapeCache,
             &fShapeList, args.fGammaCorrect);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);

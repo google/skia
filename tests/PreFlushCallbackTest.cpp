@@ -21,7 +21,7 @@
 
 // This is a simplified mesh drawing op that can be used in the atlas generation test.
 // Please see AtlasedRectOp below.
-class NonAARectOp : public GrMeshDrawOp {
+class NonAARectOp : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "NonAARectOp"; }
@@ -150,10 +150,10 @@ private:
                          firstVertex, firstIndex,
                          4, 6);
 
-        target->draw(gp.get(), mesh);
+        target->draw(gp.get(), this->pipeline(), mesh);
     }
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 #ifdef SK_DEBUG

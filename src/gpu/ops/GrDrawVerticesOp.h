@@ -21,7 +21,7 @@ class GrOpFlushState;
 class SkVertices;
 struct GrInitInvariantOutput;
 
-class GrDrawVerticesOp final : public GrMeshDrawOp {
+class GrDrawVerticesOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -38,7 +38,7 @@ public:
      * as local coords. 'colorArrayType' specifies whether the colors are premul GrColors or
      * unpremul SkColors.
      */
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
                                               const SkMatrix& viewMatrix, const SkPoint* positions,
                                               int vertexCount, const uint16_t* indices,
                                               int indexCount, const uint32_t* colors,
@@ -51,7 +51,7 @@ public:
      * specified by SkCanvas::VerticesFlags. If the vertices lack local coords or 'flags' indicates
      * that they should be ignored then the vertex positions are used as local coords.
      */
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, sk_sp<SkVertices>,
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, sk_sp<SkVertices>,
                                               const SkMatrix& viewMatrix);
 
     const char* name() const override { return "DrawVerticesOp"; }
@@ -139,7 +139,7 @@ private:
     GrRenderTargetContext::ColorArrayType fColorArrayType;
     SkSTArray<1, Mesh, true> fMeshes;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 #endif

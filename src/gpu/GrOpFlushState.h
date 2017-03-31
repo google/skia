@@ -194,7 +194,7 @@ class GrMeshDrawOp::Target : public GrDrawOp::Target {
 public:
     Target(GrOpFlushState* state, GrMeshDrawOp* op) : INHERITED(state, op) {}
 
-    void draw(const GrGeometryProcessor* gp, const GrMesh& mesh);
+    void draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline, const GrMesh& mesh);
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount,
                           const GrBuffer** buffer, int* startVertex) {
@@ -212,7 +212,7 @@ public:
     }
 
 private:
-    GrMeshDrawOp* meshDrawOp() { return static_cast<GrMeshDrawOp*>(this->op()); }
+    GrLegacyMeshDrawOp* meshDrawOp() { return static_cast<GrLegacyMeshDrawOp*>(this->op()); }
     typedef GrDrawOp::Target INHERITED;
 };
 

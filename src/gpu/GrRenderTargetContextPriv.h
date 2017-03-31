@@ -102,7 +102,7 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    uint32_t testingOnly_addMeshDrawOp(GrPaint&&, GrAAType, std::unique_ptr<GrMeshDrawOp>,
+    uint32_t testingOnly_addMeshDrawOp(GrPaint&&, GrAAType, std::unique_ptr<GrLegacyMeshDrawOp>,
                                        const GrUserStencilSettings* = nullptr,
                                        bool snapToCenters = false);
 
