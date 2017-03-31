@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2a4a727_3addc5ed",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-31T13:48:49Z",
+      "side": 1,
+      "message": "This is kind of dumb - if we just always created fFromSRGB (like we did before) that object already knows to memcpy.",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 35
+      },
+      "revId": "5a02cd94760907a90e05a7fad1fc0b4f243272af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4916fff_69547833",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-31T13:48:49Z",
+      "side": 1,
+      "message": "Maybe this in itself is enough justification for doing this?  I suspect this is common case where we\u0027ll be more efficient..",
+      "range": {
+        "startLine": 147,
+        "startChar": 7,
+        "endLine": 147,
+        "endChar": 49
+      },
+      "revId": "5a02cd94760907a90e05a7fad1fc0b4f243272af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b22b841_e2cdaac7",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-03-31T13:48:49Z",
+      "side": 1,
+      "message": "I didn\u0027t try at all on shaders...  Everything looked kind of silly.  Do you think we\u0027ll go with the makeColorSpace() approach with shaders?\n\nWe could then say something like:\nsk_sp\u003cSkShader\u003e replacement \u003d shader-\u003emakeColorSpace(this);\nif (replacement !\u003d shader) {\n  // Do copy\n}\n\nOf course, now that I\u0027ve typed that, it seems like we\u0027re doing enough work to not worry about copying a paint...",
+      "range": {
+        "startLine": 152,
+        "startChar": 31,
+        "endLine": 152,
+        "endChar": 50
+      },
+      "revId": "5a02cd94760907a90e05a7fad1fc0b4f243272af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
