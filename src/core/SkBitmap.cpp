@@ -1171,6 +1171,10 @@ bool SkBitmap::peekPixels(SkPixmap* pmap) const {
     return false;
 }
 
+SkPixmap SkBitmap::pixmap() const {
+    return SkPixmap(fInfo, fPixels, fRowBytes, fColorTable);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG

@@ -58,8 +58,7 @@ static void test_blender(std::string resourceName, skiatest::Reporter* reporter)
         return;
     }
 
-    SkPixmap pixmap;
-    bm.peekPixels(&pixmap);
+    SkPixmap pixmap = bm.pixmap();
     SkASSERTF(pixmap.colorType() == kN32_SkColorType, "colorType: %d", pixmap.colorType());
     SkASSERT(pixmap.alphaType() != kUnpremul_SkAlphaType);
     const uint32_t* src = pixmap.addr32();

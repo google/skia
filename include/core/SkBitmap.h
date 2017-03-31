@@ -728,6 +728,12 @@ public:
      */
     bool peekPixels(SkPixmap*) const;
 
+    /**
+     *  Note: the pixels in the pixmap may be null, if they are in the bitmap. The caller is
+     *  responsible to check for that.
+     */
+    SkPixmap pixmap() const;
+
     SkDEBUGCODE(void validate() const;)
 
     class Allocator : public SkRefCnt {
