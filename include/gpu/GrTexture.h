@@ -63,8 +63,8 @@ private:
         kValid_MipMapsStatus
     };
 
-    GrSLType                      fSamplerType;
-    GrSamplerParams::FilterMode   fHighestFilterMode;
+    GrSLType                      fSamplerType1;
+    GrSamplerParams::FilterMode   fHighestFilterMode1;
     MipMapsStatus                 fMipMapsStatus;
     int                           fMaxMipMapLevel;
     SkDestinationSurfaceColorMode fMipColorMode;

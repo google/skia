@@ -62,7 +62,7 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
 }
 
 static uint16_t storage_image_key(const GrProcessor::ImageStorageAccess& imageAccess) {
-    GrSLType type = imageAccess.texture()->texturePriv().imageStorageType();
+    GrSLType type = kVoid_GrSLType;// imageAccess.texture()->texturePriv().imageStorageType();
     return image_storage_or_sampler_uniform_type_key(type) |
            (int)imageAccess.format() << kSamplerOrImageTypeKeyBits;
 }
@@ -82,7 +82,7 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrProcess
     int j = 0;
     for (int i = 0; i < numTextureSamplers; ++i, ++j) {
         const GrProcessor::TextureSampler& sampler = proc.textureSampler(i);
-        const GrTexture* tex = sampler.texture();
+        const GrTexture* tex = nullptr; //sampler.texture();
         k16[j] = sampler_key(tex->texturePriv().samplerType(), tex->config(), sampler.visibility(),
                              caps);
     }

@@ -100,7 +100,7 @@ static void construct_dummy_pipeline(GrRenderTargetContext* dc, GrPipeline* pipe
     dummyBuilder.getPipelineInitArgs(&args);
     args.fRenderTarget = dc->accessRenderTarget();
     args.fCaps = dc->caps();
-    args.fDstTexture = GrXferProcessor::DstTexture();
+    args.fDstProxy = GrXferProcessor::DstProxy();
     pipeline->init(args);
 }
 

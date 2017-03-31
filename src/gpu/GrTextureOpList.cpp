@@ -76,8 +76,8 @@ void GrTextureOpList::reset() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrTextureOpList::copySurface(GrSurface* dst,
-                                  GrSurface* src,
+bool GrTextureOpList::copySurface(GrSurfaceProxy* dst,
+                                  GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
     std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);

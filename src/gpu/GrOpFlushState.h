@@ -100,7 +100,7 @@ public:
     struct DrawOpArgs {
         GrRenderTarget* fRenderTarget;
         const GrAppliedClip* fAppliedClip;
-        GrXferProcessor::DstTexture fDstTexture;
+        GrXferProcessor::DstProxy fDstProxy;
     };
 
     void setDrawOpArgs(DrawOpArgs* opArgs) { fOpArgs = opArgs; }

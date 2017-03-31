@@ -135,6 +135,7 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::copy");
 
+#if 0
     // TODO: defer instantiation until flush time
     sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->resourceProvider())));
     if (!src) {
@@ -147,8 +148,9 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     if (!rt) {
         return false;
     }
+#endif
 
-    return this->getOpList()->copySurface(rt.get(), src.get(), srcRect, dstPoint);
+    return this->getOpList()->copySurface(fRenderTargetProxy.get(), srcProxy, srcRect, dstPoint);
 }
 
 // TODO: move this (and GrTextureContext::onReadPixels) to GrSurfaceContext?
@@ -1674,16 +1676,16 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         }
     }
 
-    GrXferProcessor::DstTexture dstTexture;
+    GrXferProcessor::DstProxy dstProxy;
     if (op->xpRequiresDstTexture(*this->caps(), &appliedClip)) {
-        this->setupDstTexture(rt, clip, op->bounds(), &dstTexture);
-        if (!dstTexture.texture()) {
+        this->setupDstProxy(this->asRenderTargetProxy(), clip, op->bounds(), &dstProxy);
+        if (!dstProxy.proxy()) {
             return SK_InvalidUniqueID;
         }
     }
 
     op->setClippedBounds(bounds);
-    return this->getOpList()->addOp(std::move(op), this, std::move(appliedClip), dstTexture);
+    return this->getOpList()->addOp(std::move(op), this, std::move(appliedClip), dstProxy);
 }
 
 uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
@@ -1733,8 +1735,8 @@ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineB
     args.fInputCoverage = analysis.outputCoverage();
 
     if (analysis.requiresDstTexture()) {
-        this->setupDstTexture(rt, clip, bounds, &args.fDstTexture);
-        if (!args.fDstTexture.texture()) {
+        this->setupDstProxy(this->asRenderTargetProxy(), clip, bounds, &args.fDstProxy);
+        if (!args.fDstProxy.proxy()) {
             return SK_InvalidUniqueID;
         }
     }
@@ -1744,21 +1746,21 @@ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineB
     return this->getOpList()->addOp(std::move(op), this);
 }
 
-void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& clip,
-                                            const SkRect& opBounds,
-                                            GrXferProcessor::DstTexture* dstTexture) {
+void GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtp, const GrClip& clip,
+                                          const SkRect& opBounds,
+                                          GrXferProcessor::DstProxy* dstProxy) {
     if (this->caps()->textureBarrierSupport()) {
-        if (GrTexture* rtTex = rt->asTexture()) {
+        if (sk_sp<GrTextureProxy> rtProxy = sk_ref_sp(rtp->asTextureProxy())) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
             // will be responsible to detect this situation and request a texture barrier.
-            dstTexture->setTexture(sk_ref_sp(rtTex));
-            dstTexture->setOffset(0, 0);
+            dstProxy->setProxy(std::move(rtProxy));
+            dstProxy->setOffset(0, 0);
             return;
         }
     }
 
     SkIRect copyRect;
-    clip.getConservativeBounds(rt->width(), rt->height(), &copyRect);
+    clip.getConservativeBounds(rtp->width(), rtp->height(), &copyRect);
 
     SkIRect drawIBounds;
     opBounds.roundOut(&drawIBounds);
@@ -1775,24 +1777,24 @@ void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& cl
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrSurfaceDesc desc;
-    if (!this->caps()->initDescForDstCopy(rt, &desc)) {
+    if (!this->caps()->initDescForDstCopy(rtp, &desc)) {
         desc.fOrigin = kDefault_GrSurfaceOrigin;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fConfig = rt->config();
+        desc.fConfig = rtp->config();
     }
 
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
 
-    static const uint32_t kFlags = 0;
-    sk_sp<GrTexture> copy(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
-
+    sk_sp<GrTextureProxy> copy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(),
+                                                              desc, SkBackingFit::kApprox,
+                                                              SkBudgeted::kYes);
     if (!copy) {
         SkDebugf("Failed to create temporary copy of destination texture.\n");
         return;
     }
     SkIPoint dstPoint = {0, 0};
-    this->getOpList()->copySurface(copy.get(), rt, copyRect, dstPoint);
-    dstTexture->setTexture(std::move(copy));
-    dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
+    this->getOpList()->copySurface(copy.get(), rtp, copyRect, dstPoint);
+    dstProxy->setProxy(std::move(copy));
+    dstProxy->setOffset(copyRect.fLeft, copyRect.fTop);
 }

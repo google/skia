@@ -53,13 +53,15 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     this->init(contextOptions, vkInterface, physDev, featureFlags, extensionFlags);
 }
 
-bool GrVkCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+#include "GrRenderTargetProxy.h"
+
+bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc) const {
     // We can always succeed here with either a CopyImage (none msaa src) or ResolveImage (msaa).
     // For CopyImage we can make a simple texture, for ResolveImage we require the dst to be a
     // render target as well.
     desc->fOrigin = src->origin();
     desc->fConfig = src->config();
-    if (src->numColorSamples() > 1 || (src->asTexture() && this->supportsCopiesAsDraws())) {
+    if (src->numColorSamples() > 1 || (src->asTextureProxy() && this->supportsCopiesAsDraws())) {
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
     } else {
         // Just going to use CopyImage here

@@ -31,7 +31,7 @@ public:
 
         // compute numbers to be hardcoded to convert texture coordinates from int to float
         SkASSERT(cte.numTextureSamplers() == 1);
-        SkDEBUGCODE(GrTexture* atlas = cte.textureSampler(0).texture());
+        SkDEBUGCODE(GrTextureProxy* atlas = cte.textureSampler(0).proxy());
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
@@ -104,7 +104,7 @@ public:
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
         SkASSERT(gp.numTextureSamplers() == 1);
-        GrTexture* atlas = gp.textureSampler(0).texture();
+        GrTextureProxy* atlas = gp.textureSampler(0).proxy();
         SkASSERT(atlas);
         b->add32(atlas->width());
         b->add32(atlas->height());

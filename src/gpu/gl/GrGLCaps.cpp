@@ -2068,17 +2068,19 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 #endif
 }
 
-bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+#include "GrSurfaceProxyPriv.h"
+
+bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc) const {
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
-    if (src->asTexture() && this->isConfigRenderable(src->config(), false)) {
+    if (src->asTextureProxy() && this->isConfigRenderable(src->config(), false)) {
         desc->fOrigin = kDefault_GrSurfaceOrigin;
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
         desc->fConfig = src->config();
         return true;
     }
 
-    const GrGLTexture* srcTexture = static_cast<const GrGLTexture*>(src->asTexture());
+    const GrGLTexture* srcTexture = static_cast<const GrGLTexture*>(src->priv().peekTexture());
     if (srcTexture && srcTexture->target() != GR_GL_TEXTURE_2D) {
         // Not supported for FBO blit or CopyTexSubImage
         return false;
@@ -2105,6 +2107,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc
         return false;
     }
 
+#if 0
     const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src);
     if (srcRT->renderFBOID() != srcRT->textureFBOID()) {
         // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
@@ -2116,6 +2119,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc
         }
         return false;
     }
+#endif
 
     // We'll do a CopyTexSubImage. Make the dst a plain old texture.
     desc->fConfig = src->config();

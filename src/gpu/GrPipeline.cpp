@@ -63,13 +63,13 @@ void GrPipeline::init(const InitArgs& args) {
         if (xpFactory) {
             xferProcessor.reset(xpFactory->createXferProcessor(args.fInputColor,
                                                                args.fInputCoverage, hasMixedSamples,
-                                                               &args.fDstTexture, *args.fCaps));
+                                                               &args.fDstProxy, *args.fCaps));
             SkASSERT(xferProcessor);
         } else {
             // This may return nullptr in the common case of src-over implemented using hw blending.
             xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
                     *args.fCaps, args.fInputColor, args.fInputCoverage, hasMixedSamples,
-                    &args.fDstTexture));
+                    &args.fDstProxy));
         }
         fXferProcessor.reset(xferProcessor.get());
     }
@@ -121,7 +121,7 @@ static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRe
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrProcessor::TextureSampler* sampler = iter.next()) {
         SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(sampler->texture());
+        rt->getLastOpList()->addDependency(sampler->proxy());
     }
 }
 
@@ -133,9 +133,9 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
     const GrXferProcessor& xfer = this->getXferProcessor();
 
     for (int i = 0; i < xfer.numTextureSamplers(); ++i) {
-        GrTexture* texture = xfer.textureSampler(i).texture();
+        GrTextureProxy* proxy = xfer.textureSampler(i).proxy();
         SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(texture);
+        rt->getLastOpList()->addDependency(proxy);
     }
 }
 

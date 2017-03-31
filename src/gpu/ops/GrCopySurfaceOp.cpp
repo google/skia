@@ -8,8 +8,8 @@
 #include "GrCopySurfaceOp.h"
 
 // returns true if the read/written rect intersects the src/dst and false if not.
-bool GrCopySurfaceOp::ClipSrcRectAndDstPoint(const GrSurface* dst,
-                                             const GrSurface* src,
+bool GrCopySurfaceOp::ClipSrcRectAndDstPoint(const GrSurfaceProxy* dst,
+                                             const GrSurfaceProxy* src,
                                              const SkIRect& srcRect,
                                              const SkIPoint& dstPoint,
                                              SkIRect* clippedSrcRect,
@@ -58,7 +58,9 @@ bool GrCopySurfaceOp::ClipSrcRectAndDstPoint(const GrSurface* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurfaceProxy* dst,
+                                            GrSurfaceProxy* src,
+                                            const SkIRect& srcRect,
                                             const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src);

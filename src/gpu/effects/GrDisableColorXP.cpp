@@ -85,7 +85,7 @@ GrXferProcessor* GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& ca
                                                                 const GrProcessorAnalysisColor&,
                                                                 GrProcessorAnalysisCoverage,
                                                                 bool hasMixedSamples,
-                                                                const DstTexture* dst) const {
+                                                                const DstProxy*) const {
     return DisableColorXP::Create();
 }
 

@@ -25,8 +25,8 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
 
     bool needsLocalOutColor = false;
 
-    if (args.fXP.getDstTexture()) {
-        bool topDown = kTopLeft_GrSurfaceOrigin == args.fXP.getDstTexture()->origin();
+    if (args.fXP.getDstProxy()) {
+        bool topDown = kTopLeft_GrSurfaceOrigin == args.fXP.getDstProxy()->origin();
 
         if (args.fInputCoverage) {
             // We don't think any shaders actually output negative coverage, but just as a safety
@@ -86,12 +86,12 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
 }
 
 void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
-    if (xp.getDstTexture()) {
+    if (xp.getDstProxy()) {
         if (fDstTopLeftUni.isValid()) {
             pdm.set2f(fDstTopLeftUni, static_cast<float>(xp.dstTextureOffset().fX),
                       static_cast<float>(xp.dstTextureOffset().fY));
-            pdm.set2f(fDstScaleUni, 1.f / xp.getDstTexture()->width(),
-                      1.f / xp.getDstTexture()->height());
+            pdm.set2f(fDstScaleUni, 1.f / xp.getDstProxy()->width(),
+                      1.f / xp.getDstProxy()->height());
         } else {
             SkASSERT(!fDstScaleUni.isValid());
         }

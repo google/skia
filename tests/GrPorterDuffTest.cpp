@@ -1025,9 +1025,9 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     fakeDesc.fConfig = kRGBA_8888_GrPixelConfig;
     fakeDesc.fWidth = fakeDesc.fHeight = 100;
     fakeDesc.fTextureHandle = backendTex;
-    GrXferProcessor::DstTexture fakeDstTexture;
-    fakeDstTexture.setTexture(
-        ctx->resourceProvider()->wrapBackendTexture(fakeDesc, kBorrow_GrWrapOwnership));
+    GrXferProcessor::DstProxy fakeDstProxy;
+//    fakeDstProxy.setTexture(
+//        ctx->resourceProvider()->wrapBackendTexture(fakeDesc, kBorrow_GrWrapOwnership));
 
     static const GrProcessorAnalysisColor colorInputs[] = {
             GrProcessorAnalysisColor::Opaque::kNo, GrProcessorAnalysisColor::Opaque::kYes,
@@ -1042,10 +1042,10 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                 const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(xfermode);
                 GrProcessorSet::Analysis analysis;
                 analysis = GrProcessorSet::Analysis(colorInput, coverageType, xpf, caps);
-                GrXferProcessor::DstTexture* dstTexture =
-                        analysis.requiresDstTexture() ? &fakeDstTexture : nullptr;
+                GrXferProcessor::DstProxy* dstProxy =
+                        analysis.requiresDstTexture() ? &fakeDstProxy : nullptr;
                 sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(colorInput, coverageType, false,
-                                                                   dstTexture, caps));
+                                                                   dstProxy, caps));
                 if (!xp) {
                     ERRORF(reporter, "Failed to create an XP without dual source blending.");
                     return;

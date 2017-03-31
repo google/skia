@@ -471,8 +471,8 @@ private:
     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
     // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
     // a texture copy could not be made.
-    void setupDstTexture(GrRenderTarget*, const GrClip&, const SkRect& opBounds,
-                         GrXferProcessor::DstTexture*);
+    void setupDstProxy(GrRenderTargetProxy*, const GrClip&, const SkRect& opBounds,
+                       GrXferProcessor::DstProxy*);
 
 
     GrRenderTargetOpList* getOpList();

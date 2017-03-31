@@ -100,7 +100,7 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
                 opArgs = {
                     fRecordedOps[i].fRenderTarget.get(),
                     fRecordedOps[i].fAppliedClip,
-                    fRecordedOps[i].fDstTexture
+                    fRecordedOps[i].fDstProxy
                 };
             }
             flushState->setDrawOpArgs(&opArgs);
@@ -150,7 +150,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             opArgs = {
                 fRecordedOps[i].fRenderTarget.get(),
                 fRecordedOps[i].fAppliedClip,
-                fRecordedOps[i].fDstTexture
+                fRecordedOps[i].fDstProxy
             };
             flushState->setDrawOpArgs(&opArgs);
         }
@@ -222,8 +222,8 @@ void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrRenderTargetOpList::copySurface(GrSurface* dst,
-                                       GrSurface* src,
+bool GrRenderTargetOpList::copySurface(GrSurfaceProxy* dst,
+                                       GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
     std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
@@ -248,7 +248,7 @@ static inline bool can_reorder(const SkRect& a, const SkRect& b) {
 
 bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
                                              const GrAppliedClip* bClip,
-                                             const DstTexture* bDstTexture) {
+                                             const DstProxy* bDstProxy) {
     if (a.fAppliedClip) {
         if (!bClip) {
             return false;
@@ -259,11 +259,11 @@ bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
     } else if (bClip) {
         return false;
     }
-    if (bDstTexture) {
-        if (a.fDstTexture != *bDstTexture) {
+    if (bDstProxy) {
+        if (a.fDstProxy != *bDstProxy) {
             return false;
         }
-    } else if (a.fDstTexture.texture()) {
+    } else if (a.fDstProxy.proxy()) {
         return false;
     }
     return a.fOp->combineIfPossible(b, *this->caps());
@@ -272,7 +272,7 @@ bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
 GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                                      GrRenderTargetContext* renderTargetContext,
                                      GrAppliedClip* clip,
-                                     const DstTexture* dstTexture) {
+                                     const DstProxy* dstProxy) {
     GrRenderTarget* renderTarget =
             renderTargetContext ? renderTargetContext->accessRenderTarget()
                                 : nullptr;
@@ -307,7 +307,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                           candidate.fOp->uniqueID());
                 break;
             }
-            if (this->combineIfPossible(candidate, op.get(), clip, dstTexture)) {
+            if (this->combineIfPossible(candidate, op.get(), clip, dstProxy)) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GrOP_INFO("\t\t\tCombined op info:\n");
@@ -334,7 +334,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     if (clip) {
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
     }
-    fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstTexture);
+    fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstProxy);
     fRecordedOps.back().fOp->wasRecorded();
     fLastFullClearOp = nullptr;
     fLastFullClearRenderTargetID.makeInvalid();
@@ -363,7 +363,7 @@ void GrRenderTargetOpList::forwardCombine() {
                 break;
             }
             if (this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(),
-                                        candidate.fAppliedClip, &candidate.fDstTexture)) {
+                                        candidate.fAppliedClip, &candidate.fDstProxy)) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());

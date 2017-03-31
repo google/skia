@@ -484,7 +484,7 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrProcessor::TextureSampler& sampler = processor.textureSampler(i);
-        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.texture());
+        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.texture2());
         SkASSERT(vkTexture);
 
         // We may need to resolve the texture first if it is also a render target

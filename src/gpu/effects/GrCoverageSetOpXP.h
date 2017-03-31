@@ -32,7 +32,7 @@ private:
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps&, const GrProcessorAnalysisColor&,
                                            GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                           const DstTexture*) const override;
+                                           const DstProxy*) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,

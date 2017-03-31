@@ -65,7 +65,7 @@ public:
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
         const GrCaps* fCaps = nullptr;
-        GrXferProcessor::DstTexture fDstTexture;
+        GrXferProcessor::DstProxy fDstProxy;
     };
 
     /**
@@ -194,7 +194,7 @@ public:
     }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
+        return this->getXferProcessor().xferBarrierType(nullptr /*fRenderTarget.get()*/, caps);
     }
 
     /**

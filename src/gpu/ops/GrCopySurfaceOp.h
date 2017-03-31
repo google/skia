@@ -20,14 +20,15 @@ public:
     /** This should not really be exposed as Create() will apply this clipping, but there is
      *  currently a workaround in GrContext::copySurface() for non-render target dsts that relies
      *  on it. */
-    static bool ClipSrcRectAndDstPoint(const GrSurface* dst,
-                                       const GrSurface* src,
+    static bool ClipSrcRectAndDstPoint(const GrSurfaceProxy* dst,
+                                       const GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint,
                                        SkIRect* clippedSrcRect,
                                        SkIPoint* clippedDstPoint);
 
-    static std::unique_ptr<GrOp> Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+    static std::unique_ptr<GrOp> Make(GrSurfaceProxy* dst, GrSurfaceProxy* src,
+                                      const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
 
     const char* name() const override { return "CopySurface"; }
@@ -44,9 +45,9 @@ public:
     }
 
 private:
-    GrCopySurfaceOp(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+    GrCopySurfaceOp(GrSurfaceProxy* dst, GrSurfaceProxy* src, const SkIRect& srcRect,
                     const SkIPoint& dstPoint)
-            : INHERITED(ClassID()), fDst(dst), fSrc(src), fSrcRect(srcRect), fDstPoint(dstPoint) {
+            : INHERITED(ClassID()), /* fDst(dst), fSrc(src),*/ fSrcRect(srcRect), fDstPoint(dstPoint) {
         SkRect bounds =
                 SkRect::MakeXYWH(SkIntToScalar(dstPoint.fX), SkIntToScalar(dstPoint.fY),
                                  SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));

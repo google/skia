@@ -104,7 +104,7 @@ public:
         return fPreferedStencilFormat;
     }
 
-    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc) const override;
 
 private:
     enum VkVendor {

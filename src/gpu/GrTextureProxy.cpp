@@ -39,6 +39,28 @@ void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
     fMipColorMode = colorMode;
 }
 
+GrSamplerParams::FilterMode GrTextureProxy::highestFilterMode() const {
+    if (fTarget) {
+        return fTarget->asTexture()->texturePriv().highestFilterMode();
+    }
+
+    if (GrPixelConfigIsSint(this->config())) {
+        // Integer textures in GL can use GL_NEAREST_MIPMAP_NEAREST. This is a mode
+        // we don't support and don't currently have a use for.
+        return GrSamplerParams::kNone_FilterMode;
+    }
+    return GrSamplerParams::kMipMap_FilterMode;
+}
+
+bool  GrTextureProxy::wasMipMapDataProvided() const {
+    if (fTarget) {
+        //return fTarget->wasMipMapDataProvided();
+    }
+
+    // The only way we get pre-fab mipmap data is via a wrapped GrTexture
+    return false;
+}
+
 size_t GrTextureProxy::onGpuMemorySize() const {
     if (fTarget) {
         return fTarget->gpuMemorySize();

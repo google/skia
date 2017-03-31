@@ -78,8 +78,8 @@ public:
         this->initClassID<CustomXP>();
     }
 
-    CustomXP(const DstTexture* dstTexture, bool hasMixedSamples, SkBlendMode mode)
-        : INHERITED(dstTexture, true, hasMixedSamples),
+    CustomXP(const DstProxy* dstProxy, bool hasMixedSamples, SkBlendMode mode)
+        : INHERITED(dstProxy, true, hasMixedSamples),
           fMode(mode),
           fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
         this->initClassID<CustomXP>();
@@ -215,7 +215,7 @@ public:
 private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
                                            GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                           const DstTexture*) const override;
+                                           const DstProxy*) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
@@ -236,13 +236,13 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                         const GrProcessorAnalysisColor&,
                                                         GrProcessorAnalysisCoverage coverage,
                                                         bool hasMixedSamples,
-                                                        const DstTexture* dstTexture) const {
+                                                        const DstProxy* dstProxy) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
-        SkASSERT(!dstTexture || !dstTexture->texture());
+        //SkASSERT(!dstProxy || !dstProxy->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }
-    return new CustomXP(dstTexture, hasMixedSamples, fMode);
+    return new CustomXP(dstProxy, hasMixedSamples, fMode);
 }
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(

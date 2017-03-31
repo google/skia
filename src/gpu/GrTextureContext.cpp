@@ -84,6 +84,7 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
     fContext->contextPriv().flushSurfaceWrites(srcProxy);
 #endif
 
+#if 0
     // TODO: defer instantiation until flush time
     sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->resourceProvider())));
     if (!src) {
@@ -95,9 +96,10 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
     if (!tex) {
         return false;
     }
+#endif
 
     GrTextureOpList* opList = this->getOpList();
-    bool result = opList->copySurface(tex.get(), src.get(), srcRect, dstPoint);
+    bool result = opList->copySurface(fTextureProxy.get(), srcProxy, srcRect, dstPoint);
 
 #ifndef ENABLE_MDB
     GrOpFlushState flushState(fContext->getGpu(), nullptr);

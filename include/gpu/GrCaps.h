@@ -17,7 +17,7 @@
 #include "SkString.h"
 
 struct GrContextOptions;
-class GrRenderTarget;
+class GrRenderTargetProxy;
 
 /**
  * Represents the capabilities of a GrContext.
@@ -191,7 +191,7 @@ public:
      * populate the origin, config, and flags fields of the desc such that copySurface can
      * efficiently succeed.
      */
-    virtual bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const = 0;
+    virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc) const = 0;
 
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps

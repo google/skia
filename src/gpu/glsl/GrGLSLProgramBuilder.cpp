@@ -266,7 +266,7 @@ void GrGLSLProgramBuilder::emitSamplersAndImageStorages(
     for (int t = 0; t < numTextureSamplers; ++t) {
         const GrProcessor::TextureSampler& sampler = processor.textureSampler(t);
         name.printf("TextureSampler_%d", outTexSamplerHandles->count());
-        GrSLType samplerType = sampler.texture()->texturePriv().samplerType();
+        GrSLType samplerType = sampler.texture2()->texturePriv().samplerType();
         if (kTextureExternalSampler_GrSLType == samplerType) {
             const char* externalFeatureString =
                     this->shaderCaps()->externalTextureExtensionString();
@@ -276,7 +276,7 @@ void GrGLSLProgramBuilder::emitSamplersAndImageStorages(
                              1 << GrGLSLShaderBuilder::kExternalTexture_GLSLPrivateFeature,
                              externalFeatureString);
         }
-        this->emitSampler(samplerType, sampler.texture()->config(), name.c_str(),
+        this->emitSampler(samplerType, sampler.texture2()->config(), name.c_str(),
                           sampler.visibility(), outTexSamplerHandles);
 
     }
@@ -344,7 +344,7 @@ void GrGLSLProgramBuilder::emitImageStorage(const GrProcessor::ImageStorageAcces
     if (access.visibility() & kFragment_GrShaderFlag) {
         ++fNumFragmentImageStorages;
     }
-    GrSLType uniformType = access.texture()->texturePriv().imageStorageType();
+    GrSLType uniformType = access.texture2()->texturePriv().imageStorageType();
     ImageStorageHandle handle = this->uniformHandler()->addImageStorage(access.visibility(),
          uniformType, access.format(), access.memoryModel(), access.restrict(), access.ioType(),
          name);

@@ -18,6 +18,7 @@ class GrOpFlushState;
 class GrRenderTargetOpList;
 class GrSurface;
 class GrSurfaceProxy;
+class GrTextureProxy;
 class GrTextureOpList;
 
 class GrOpList : public SkRefCnt {
@@ -54,7 +55,7 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurface* dependedOn);
+    void addDependency(GrTextureProxy* dependedOn);
 
     /*
      * Does this opList depend on 'dependedOn'?

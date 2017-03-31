@@ -447,10 +447,10 @@ GrGLSLXferProcessor* PorterDuffXferProcessor::createGLSLInstance() const {
 
 class ShaderPDXferProcessor : public GrXferProcessor {
 public:
-    ShaderPDXferProcessor(const DstTexture* dstTexture,
+    ShaderPDXferProcessor(const DstProxy* dstProxy,
                           bool hasMixedSamples,
                           SkBlendMode xfermode)
-        : INHERITED(dstTexture, true, hasMixedSamples)
+        : INHERITED(dstProxy, true, hasMixedSamples)
         , fXfermode(xfermode) {
         this->initClassID<ShaderPDXferProcessor>();
     }
@@ -703,7 +703,7 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
                                                               const GrProcessorAnalysisColor& color,
                                                               GrProcessorAnalysisCoverage coverage,
                                                               bool hasMixedSamples,
-                                                              const DstTexture* dstTexture) const {
+                                                              const DstProxy* dstProxy) const {
     BlendFormula blendFormula;
     if (coverage == GrProcessorAnalysisCoverage::kLCD) {
         if (SkBlendMode::kSrcOver == fBlendMode && color.isConstant() &&
@@ -711,7 +711,7 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             // If we don't have dual source blending or in shader dst reads, we fall back to this
             // trick for rendering SrcOver LCD text instead of doing a dst copy.
-            SkASSERT(!dstTexture || !dstTexture->texture());
+            SkASSERT(!dstProxy || !dstProxy->proxy());
             return PDLCDXferProcessor::Create(fBlendMode, color);
         }
         blendFormula = get_lcd_blend_formula(fBlendMode);
@@ -722,10 +722,10 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
     }
 
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
-        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, fBlendMode);
+        return new ShaderPDXferProcessor(dstProxy, hasMixedSamples, fBlendMode);
     }
 
-    SkASSERT(!dstTexture || !dstTexture->texture());
+    SkASSERT(!dstProxy || !dstProxy->proxy());
     return new PorterDuffXferProcessor(blendFormula);
 }
 
@@ -814,7 +814,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         const GrProcessorAnalysisColor& color,
         GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples,
-        const GrXferProcessor::DstTexture* dstTexture) {
+        const GrXferProcessor::DstProxy* dstProxy) {
     // We want to not make an xfer processor if possible. Thus for the simple case where we are not
     // doing lcd blending we will just use our global SimpleSrcOverXP. This slightly differs from
     // the general case where we convert a src-over blend that has solid coverage and an opaque
@@ -832,17 +832,17 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
         // If we don't have dual source blending or in shader dst reads, we fall
         // back to this trick for rendering SrcOver LCD text instead of doing a
         // dst copy.
-        SkASSERT(!dstTexture || !dstTexture->texture());
+        SkASSERT(!dstProxy || !dstProxy->proxy());
         return PDLCDXferProcessor::Create(SkBlendMode::kSrcOver, color);
     }
 
     BlendFormula blendFormula;
     blendFormula = get_lcd_blend_formula(SkBlendMode::kSrcOver);
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
-        return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkBlendMode::kSrcOver);
+        return new ShaderPDXferProcessor(dstProxy, hasMixedSamples, SkBlendMode::kSrcOver);
     }
 
-    SkASSERT(!dstTexture || !dstTexture->texture());
+    SkASSERT(!dstProxy || !dstProxy->proxy());
     return new PorterDuffXferProcessor(blendFormula);
 }
 
