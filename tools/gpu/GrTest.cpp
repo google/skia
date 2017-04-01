@@ -272,8 +272,7 @@ public:
     bool isConfigTexturable(GrPixelConfig config) const override { return false; }
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
-    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc, bool* rectsMustMatch,
-                            bool* disallowSubrect) const override {
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override {
         return false;
     }
 
