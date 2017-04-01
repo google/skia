@@ -62,11 +62,11 @@ static void init_src(const SkBitmap& bitmap) {
     }
 }
 
-static sk_sp<SkColorTable> init_ctable() {
+static SkColorTable* init_ctable() {
     static const SkColor colors[] = {
         SK_ColorBLACK, SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE
     };
-    return SkColorTable::Make(colors, SK_ARRAY_COUNT(colors));
+    return new SkColorTable(colors, SK_ARRAY_COUNT(colors));
 }
 
 struct Pair {
@@ -194,13 +194,16 @@ static const int H = 33;
 
 static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
                               SkColorType ct) {
-    sk_sp<SkColorTable> ctable;
+    SkColorTable* ctable = nullptr;
     if (kIndex_8_SkColorType == ct) {
         ctable = init_ctable();
     }
 
-    srcOpaque->allocPixels(SkImageInfo::Make(W, H, ct, kOpaque_SkAlphaType), ctable);
-    srcPremul->allocPixels(SkImageInfo::Make(W, H, ct, kPremul_SkAlphaType), ctable);
+    srcOpaque->allocPixels(SkImageInfo::Make(W, H, ct, kOpaque_SkAlphaType),
+                           nullptr, ctable);
+    srcPremul->allocPixels(SkImageInfo::Make(W, H, ct, kPremul_SkAlphaType),
+                           nullptr, ctable);
+    SkSafeUnref(ctable);
     init_src(*srcOpaque);
     init_src(*srcPremul);
 }
@@ -375,7 +378,7 @@ DEF_TEST(BitmapCopy, reporter) {
 
             // Create bitmap to act as source for copies and subsets.
             SkBitmap src, subset;
-            sk_sp<SkColorTable> ct;
+            SkColorTable* ct = nullptr;
             if (kIndex_8_SkColorType == src.colorType()) {
                 ct = init_ctable();
             }
@@ -391,6 +394,7 @@ DEF_TEST(BitmapCopy, reporter) {
                                                      kPremul_SkAlphaType))) {
                 // failure is fine, as we will notice later on
             }
+            SkSafeUnref(ct);
 
             // Either copy src or extract into 'subset', which is used
             // for subsequent calls to copyPixelsTo/From.
