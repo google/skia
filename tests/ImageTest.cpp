@@ -568,10 +568,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
 DEF_TEST(ImageFromIndex8Bitmap, r) {
     SkPMColor pmColors[1] = {SkPreMultiplyColor(SK_ColorWHITE)};
     SkBitmap bm;
-    sk_sp<SkColorTable> ctable( new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
     SkImageInfo info = SkImageInfo::Make(1, 1, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    bm.allocPixels(info, nullptr, ctable.get());
-    SkAutoLockPixels autoLockPixels(bm);
+    bm.allocPixels(info, SkColorTable::Make(pmColors, SK_ARRAY_COUNT(pmColors)));
     *bm.getAddr8(0, 0) = 0;
     sk_sp<SkImage> img(SkImage::MakeFromBitmap(bm));
     REPORTER_ASSERT(r, img != nullptr);
