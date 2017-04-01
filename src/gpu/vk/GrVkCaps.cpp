@@ -53,12 +53,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     this->init(contextOptions, vkInterface, physDev, featureFlags, extensionFlags);
 }
 
-bool GrVkCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc,
-                                  bool* rectsMustMatch, bool* disallowSubrect) const {
-    // Vk doesn't use rectsMustMatch or disallowSubrect. Always return false.
-    *rectsMustMatch = false;
-    *disallowSubrect = false;
-
+bool GrVkCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
     // We can always succeed here with either a CopyImage (none msaa src) or ResolveImage (msaa).
     // For CopyImage we can make a simple texture, for ResolveImage we require the dst to be a
     // render target as well.
