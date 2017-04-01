@@ -238,20 +238,16 @@ public:
 
     bool setInfo(const SkImageInfo&, size_t rowBytes = 0);
 
-    enum AllocFlags {
-        kZeroPixels_AllocFlag   = 1 << 0,
-    };
     /**
      *  Allocate the bitmap's pixels to match the requested image info. If the Factory
      *  is non-null, call it to allcoate the pixelref. If the ImageInfo requires
-     *  a colortable, then ColorTable must be non-null.
-     *
+     *  a colortable, then ColorTable must be non-null, and will be ref'd.
      *  On failure, the bitmap will be set to empty and return false.
      */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, sk_sp<SkColorTable> ctable,
-                                              uint32_t flags = 0);
-    void allocPixels(const SkImageInfo& info, sk_sp<SkColorTable> ctable, uint32_t flags = 0) {
-        if (!this->tryAllocPixels(info, std::move(ctable), flags)) {
+    bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo&, SkPixelRefFactory*, SkColorTable*);
+
+    void allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory, SkColorTable* ctable) {
+        if (!this->tryAllocPixels(info, factory, ctable)) {
             sk_throw();
         }
     }

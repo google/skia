@@ -224,10 +224,11 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     }
 
     SkBitmap bitmap;
+    SkMallocPixelRef::ZeroedPRFactory zeroFactory;
     SkCodec::Options options;
     options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
 
-    if (!bitmap.tryAllocPixels(decodeInfo, colorTable, SkBitmap::kZeroPixels_AllocFlag)) {
+    if (!bitmap.tryAllocPixels(decodeInfo, &zeroFactory, colorTable.get())) {
         SkDebugf("[terminated] Could not allocate memory.  Image might be too large (%d x %d)",
                  decodeInfo.width(), decodeInfo.height());
         return;
