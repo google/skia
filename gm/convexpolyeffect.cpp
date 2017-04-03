@@ -46,8 +46,8 @@ public:
 
     const char* name() const override { return "PolyBoundsOp"; }
 
-    static std::unique_ptr<GrMeshDrawOp> Make(const SkRect& rect, GrColor color) {
-        return std::unique_ptr<GrMeshDrawOp>(new PolyBoundsOp(rect, color));
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const SkRect& rect, GrColor color) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new PolyBoundsOp(rect, color));
     }
 
 private:
@@ -71,7 +71,7 @@ private:
 
         fRect.toQuad(verts);
 
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     SkRect fRect;
@@ -183,9 +183,10 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                std::unique_ptr<GrMeshDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
+                std::unique_ptr<GrLegacyMeshDrawOp> op =
+                        PolyBoundsOp::Make(p.getBounds(), 0xff000000);
 
-                renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                         std::move(grPaint), GrAAType::kNone, std::move(op));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
@@ -223,9 +224,9 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                std::unique_ptr<GrMeshDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
+                std::unique_ptr<GrLegacyMeshDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
 
-                renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                         std::move(grPaint), GrAAType::kNone, std::move(op));
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);

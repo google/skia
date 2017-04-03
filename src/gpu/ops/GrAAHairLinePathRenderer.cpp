@@ -668,22 +668,22 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
     return true;
 }
 
-class AAHairlineOp final : public GrMeshDrawOp {
+class AAHairlineOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
-                                              const SkMatrix& viewMatrix,
-                                              const SkPath& path,
-                                              const GrStyle& style,
-                                              const SkIRect& devClipBounds) {
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkPath& path,
+                                                    const GrStyle& style,
+                                                    const SkIRect& devClipBounds) {
         SkScalar hairlineCoverage;
         uint8_t newCoverage = 0xff;
         if (GrPathRenderer::IsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
             newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
         }
 
-        return std::unique_ptr<GrMeshDrawOp>(
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
                 new AAHairlineOp(color, newCoverage, viewMatrix, path, devClipBounds));
     }
 
@@ -783,7 +783,7 @@ private:
 
     SkSTArray<1, PathData, true> fPaths;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 void AAHairlineOp::onPrepareDraws(Target* target) const {
@@ -864,7 +864,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
         mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer.get(),
                            firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, lineCount,
                            kLineSegsNumInIdxBuffer);
-        target->draw(lineGP.get(), mesh);
+        target->draw(lineGP.get(), this->pipeline(), mesh);
     }
 
     if (quadCount || conicCount) {
@@ -921,7 +921,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer.get(),
                                firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
                                kQuadsNumInIdxBuffer);
-            target->draw(quadGP.get(), mesh);
+            target->draw(quadGP.get(), this->pipeline(), mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -930,7 +930,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer.get(),
                                firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
                                kQuadsNumInIdxBuffer);
-            target->draw(conicGP.get(), mesh);
+            target->draw(conicGP.get(), this->pipeline(), mesh);
         }
     }
 }
@@ -946,11 +946,11 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                       &devClipBounds);
     SkPath path;
     args.fShape->asPath(&path);
-    std::unique_ptr<GrMeshDrawOp> op = AAHairlineOp::Make(
+    std::unique_ptr<GrLegacyMeshDrawOp> op = AAHairlineOp::Make(
             args.fPaint.getColor(), *args.fViewMatrix, path, args.fShape->style(), devClipBounds);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;
 }
 

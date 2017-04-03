@@ -13,7 +13,7 @@
 #if GR_TEST_UTILS
 
 #define DRAW_OP_TEST_EXTERN(Op) \
-    extern std::unique_ptr<GrMeshDrawOp> Op##__Test(SkRandom*, GrContext* context);
+    extern std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom*, GrContext* context);
 
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
@@ -37,8 +37,9 @@ DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 DRAW_OP_TEST_EXTERN(TextBlobOp);
 DRAW_OP_TEST_EXTERN(VerticesOp);
 
-std::unique_ptr<GrMeshDrawOp> GrRandomDrawOp(SkRandom* random, GrContext* context) {
-    using MakeTestDrawOpFn = std::unique_ptr<GrMeshDrawOp>(SkRandom* random, GrContext* context);
+std::unique_ptr<GrLegacyMeshDrawOp> GrRandomDrawOp(SkRandom* random, GrContext* context) {
+    using MakeTestDrawOpFn =
+            std::unique_ptr<GrLegacyMeshDrawOp>(SkRandom * random, GrContext * context);
     static constexpr MakeTestDrawOpFn* gFactories[] = {
         DRAW_OP_TEST_ENTRY(AAConvexPathOp),
         DRAW_OP_TEST_ENTRY(AAFillRectOp),

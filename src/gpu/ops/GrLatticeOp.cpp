@@ -21,7 +21,7 @@ static sk_sp<GrGeometryProcessor> create_gp() {
                                          LocalCoords::kHasExplicit_Type, SkMatrix::I());
 }
 
-class NonAALatticeOp final : public GrMeshDrawOp {
+class NonAALatticeOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -133,7 +133,7 @@ private:
                         positions, vertexStride, kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -162,14 +162,15 @@ private:
     int fImageHeight;
     SkSTArray<1, Patch, true> fPatches;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 namespace GrLatticeOp {
-std::unique_ptr<GrMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                                        int imageHeight, std::unique_ptr<SkLatticeIter> iter,
-                                        const SkRect& dst) {
-    return std::unique_ptr<GrMeshDrawOp>(
+std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix,
+                                              int imageWidth, int imageHeight,
+                                              std::unique_ptr<SkLatticeIter> iter,
+                                              const SkRect& dst) {
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
             new NonAALatticeOp(color, viewMatrix, imageWidth, imageHeight, std::move(iter), dst));
 }
 };
