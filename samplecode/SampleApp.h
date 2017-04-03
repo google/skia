@@ -156,6 +156,9 @@ public:
     DeviceType getDeviceType() const { return fDeviceType; }
     int getColorConfigIndex() const { return fColorConfigIndex; }
 
+    int getThreads() const { return fThreads; }
+    void setThreads(int threads) { fThreads = threads; }
+
 protected:
     void onDraw(SkCanvas* canvas) override;
     bool onHandleKey(SkKey key) override;
@@ -239,6 +242,8 @@ private:
     SkOSMenu* fAppMenu; // We pass ownership to SkWindow, when we call addMenu
     //Stores slide specific settings
     SkOSMenu* fSlideMenu; // We pass ownership to SkWindow, when we call addMenu
+
+    int fThreads = 0;
 
     void loadView(SkView*);
     void updateTitle();
