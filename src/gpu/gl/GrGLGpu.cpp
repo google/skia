@@ -3318,6 +3318,7 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
     auto blitFramebufferFlags = gpu->glCaps().blitFramebufferSupportFlags();
     if (!gpu->glCaps().canConfigBeFBOColorAttachment(dst->config()) ||
         !gpu->glCaps().canConfigBeFBOColorAttachment(src->config())) {
+        fprintf(stderr, "NO1\n");
         return false;
     }
     // Blits are not allowed between int color buffers and float/fixed color buffers. GrGpu should
@@ -3328,45 +3329,65 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
     const GrRenderTarget* dstRT = dst->asRenderTarget();
     const GrRenderTarget* srcRT = src->asRenderTarget();
     if (dstTex && dstTex->target() != GR_GL_TEXTURE_2D) {
+        fprintf(stderr, "NO2\n");
         return false;
     }
     if (srcTex && srcTex->target() != GR_GL_TEXTURE_2D) {
+        fprintf(stderr, "NO3\n");
         return false;
     }
     if (GrGLCaps::kNoSupport_BlitFramebufferFlag & blitFramebufferFlags) {
+        fprintf(stderr, "NO4\n");
         return false;
     }
     if (GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag & blitFramebufferFlags) {
         // We would mirror to compensate for origin changes. Note that copySurface is
         // specified such that the src and dst rects are the same.
         if (dst->origin() != src->origin()) {
+            fprintf(stderr, "NO5\n");
             return false;
         }
     }
     if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples() && dstRT && !dstRT->numColorSamples()) {
-            return false;
+        if (srcRT && srcRT->numColorSamples()) {
+            if (dstRT && !dstRT->numColorSamples()) {
+                fprintf(stderr, "NO6\n");
+                return false;
+            }
+            if (SkRect::Make(srcRect) != srcRT->getBoundsRect()) {
+                fprintf(stderr, "NO7\n");
+                return false;
+            }
         }
     }
     if (GrGLCaps::kNoMSAADst_BlitFramebufferFlag & blitFramebufferFlags) {
         if (dstRT && dstRT->numColorSamples() > 0) {
+            fprintf(stderr, "NO8\n");
             return false;
         }
     }    
     if (GrGLCaps::kNoFormatConversion_BlitFramebufferFlag & blitFramebufferFlags) {
         if (dst->config() != src->config()) {
+            fprintf(stderr, "NO9\n");
             return false;
         }
     } else if (GrGLCaps::kNoFormatConversionForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
         const GrRenderTarget* srcRT = src->asRenderTarget();
         if (srcRT && srcRT->numColorSamples() && dst->config() != src->config()) {
+            fprintf(stderr, "NO10\n");
             return false;
         }
     }
     if (GrGLCaps::kRectsMustMatchForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples() &&
-            (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop)) {
-            return false;
+        if (srcRT && srcRT->numColorSamples()) {
+            if (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop) {
+                fprintf(stderr, "NO11\n");
+                return false;
+            }
+            if (dst->origin() != src->origin()) {
+                fprintf(stderr, "NO12\n");
+                return false;
+            }
         }
     }
     return true;
@@ -3487,6 +3508,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
     }
 
     if (can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this)) {
+        fprintf(stderr, "CAN BLIT FRAMEBUFFER!\n");
         return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstPoint);
     }
 
