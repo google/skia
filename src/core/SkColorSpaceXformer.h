@@ -17,6 +17,7 @@ public:
     static std::unique_ptr<SkColorSpaceXformer> Make(sk_sp<SkColorSpace> dst);
 
     sk_sp<SkImage> apply(const SkImage* src);
+    sk_sp<SkImage> apply(const SkBitmap& bitmap);
     const SkPaint* apply(const SkPaint* src);
     const SkPaint& apply(const SkPaint& src);
     void apply(SkColor dst[], const SkColor src[], int n);
