@@ -663,10 +663,6 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
                               "GrRenderTargetContextPriv::clearStencilClip");
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
-    // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
-    if (!fRenderTargetContext->accessRenderTarget()) {
-        return;
-    }
     fRenderTargetContext->getOpList()->clearStencilClip(clip, insideStencilMask,
                                                         fRenderTargetContext);
 }
@@ -720,7 +716,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
                                                      appliedClip.hasStencilClip(),
                                                      stencilAttachment->bits(),
                                                      appliedClip.scissorState(),
-                                                     fRenderTargetContext->accessRenderTarget(),
+                                                     fRenderTargetContext,
                                                      path);
     op->setClippedBounds(bounds);
     fRenderTargetContext->getOpList()->recordOp(std::move(op), fRenderTargetContext);
