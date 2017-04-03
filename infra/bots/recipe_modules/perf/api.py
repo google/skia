@@ -26,13 +26,13 @@ def nanobench_flags(bot):
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  config = ['8888', 'nonrendering', 'hwui' ]
+  configs = ['8888', 'nonrendering', 'hwui' ]
 
   if '-arm-' not in bot:
     # For Android CPU tests, these take too long and cause the task to time out.
-    config += [ 'f16', 'srgb' ]
+    configs += [ 'f16', 'srgb' ]
   if '-GCE-' in bot:
-    config += [ '565' ]
+    configs += [ '565' ]
 
   gl_prefix = 'gl'
   sample_count = '8'
@@ -49,37 +49,37 @@ def nanobench_flags(bot):
   elif 'Intel' in bot:
     sample_count = ''
 
-  config.append(gl_prefix)
+  configs.append(gl_prefix)
   if sample_count is not '':
-    config.extend([gl_prefix + 'msaa' + sample_count,
+    configs.extend([gl_prefix + 'msaa' + sample_count,
       gl_prefix + 'nvpr' + sample_count,
       gl_prefix + 'nvprdit' + sample_count])
 
   # We want to test both the OpenGL config and the GLES config on Linux Intel:
   # GL is used by Chrome, GLES is used by ChromeOS.
   if 'Intel' in bot and 'Ubuntu' in bot:
-    config.append('gles')
+    configs.append('gles')
 
   # Bench instanced rendering on a limited number of platforms
   inst_config = gl_prefix + 'inst'
   if 'Nexus6' in bot:
-    config.append(inst_config) # msaa inst isn't working yet on Adreno.
+    configs.append(inst_config) # msaa inst isn't working yet on Adreno.
   elif 'PixelC' in bot or 'NVIDIA_Shield' in bot or 'MacMini6.2' in bot:
-    config.extend([inst_config, inst_config + sample_count])
+    configs.extend([inst_config, inst_config + sample_count])
 
   if 'CommandBuffer' in bot:
-    config = ['commandbuffer']
+    configs = ['commandbuffer']
   if 'Vulkan' in bot:
-    config = ['vk']
+    configs = ['vk']
 
   if 'ANGLE' in bot:
     # Test only ANGLE configs.
-    config = ['angle_d3d11_es2']
+    configs = ['angle_d3d11_es2']
     if sample_count is not '':
-      config.append('angle_d3d11_es2_msaa' + sample_count)
+      configs.append('angle_d3d11_es2_msaa' + sample_count)
 
   args.append('--config')
-  args.extend(config)
+  args.extend(configs)
 
   if 'Valgrind' in bot:
     # Don't care about Valgrind performance.
@@ -129,7 +129,7 @@ def nanobench_flags(bot):
     match.append('~text_16_LCD_WT')
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~hardstop') # skia:6037
-  if 'ANGLE' in bot and any('msaa' in x for x in config):
+  if 'ANGLE' in bot and any('msaa' in x for x in configs):
     match.append('~native_image_to_raster_surface')  # skia:6457
 
   # We do not need or want to benchmark the decodes of incomplete images.
