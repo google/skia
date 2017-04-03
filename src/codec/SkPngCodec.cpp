@@ -269,7 +269,8 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
 
     if (this->colorXform() &&
             !apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color())) {
-        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+        const SkColorSpaceXform::ColorFormat dstFormat =
+                select_xform_format_ct(dstInfo.colorType());
         const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
         const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                               this->getInfo().alphaType());
@@ -1277,7 +1278,7 @@ uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
         SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
                                                    this->getInfo().alphaType());
         return get_color_table_fill_value(dstInfo.colorType(), alphaType, colorPtr, 0,
-                                          this->colorXform());
+                                          this->colorXform(), true);
     }
     return INHERITED::onGetFillValue(dstInfo);
 }
