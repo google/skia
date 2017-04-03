@@ -99,7 +99,7 @@ public:
     // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
     // on GrGLGpuCommandBuffer.
-    void draw(const GrPipeline&,
+    void draw(const GrPipeline&, GrRenderTarget*,
               const GrPrimitiveProcessor&,
               const GrMesh*,
               int meshCount);
@@ -241,7 +241,8 @@ private:
 
     // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
-    bool flushGLState(const GrPipeline&, const GrPrimitiveProcessor&, bool willDrawPoints);
+    bool flushGLState(const GrPipeline&, GrRenderTarget* rt,
+                      const GrPrimitiveProcessor&, bool willDrawPoints);
 
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for vertices.startIndex() but rather the start
@@ -276,8 +277,8 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* refProgram(const GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
-                                bool hasPointSize);
+        GrGLProgram* refProgram(const GrGLGpu*, const GrPipeline&, GrRenderTarget*, 
+                                const GrPrimitiveProcessor&, bool hasPointSize);
 
     private:
         // We may actually have kMaxEntries+1 shaders in the GL context because we create a new

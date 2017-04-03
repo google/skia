@@ -156,7 +156,7 @@ public:
                                                                SkIRect::MakeWH(w, h), {x, y});
     }
 private:
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
+    bool apply1(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
         out->addCoverageFP(fFP);
         return true;
@@ -169,7 +169,7 @@ private:
  */
 class StencilOnlyClip final : public MaskOnlyClipBase {
 private:
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
+    bool apply1(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
         out->addStencilClip();
         return true;
@@ -199,6 +199,7 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
 
 void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetContext* rtc,
                                                 const GrReducedClip& reducedClip, GrPaint&& paint) {
+#if 0
     const int padRight = (kDeviceRect.right() - kCoverRect.right()) / 2;
     const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
     sk_sp<GrRenderTargetContext> maskRTC(
@@ -229,11 +230,13 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     AlphaOnlyClip clip(ctx->resourceProvider(), maskRTC->asTextureProxyRef(), x, y);
     rtc->drawRect(clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
                   SkRect::Make(SkIRect::MakeXYWH(x, y, maskRTC->width(), maskRTC->height())));
+#endif
 }
 
 void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTargetContext* rtc,
                                                   const GrReducedClip& reducedClip,
                                                   GrPaint&& paint) {
+#if 0
     if (!ctx->resourceProvider()->attachStencilAttachment(rtc->accessRenderTarget())) {
         return;
     }
@@ -247,6 +250,7 @@ void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTarget
     // window rectangless or outside the scissor should still have the initial checkerboard intact.
     // (This verifies we didn't spend any time modifying those pixels in the mask.)
     rtc->drawPaint(StencilOnlyClip(), std::move(paint), SkMatrix::I());
+#endif
 }
 
 void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, bool flip) {

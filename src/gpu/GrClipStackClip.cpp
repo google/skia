@@ -247,7 +247,7 @@ static bool get_analytic_clip_processor(const ElementList& elements,
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
-bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTargetContext,
+bool GrClipStackClip::apply1(GrContext* context, GrRenderTargetContext* renderTargetContext,
                             bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
                             SkRect* bounds) const {
     SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
@@ -331,7 +331,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         // if alpha clip mask creation fails fall through to the non-AA code paths
     }
 
-    GrRenderTarget* rt = renderTargetContext->accessRenderTarget();
+    // TODO: remove?
+    GrRenderTarget* rt = renderTargetContext->accessRenderTarget2();
     if (!rt) {
         return true;
     }

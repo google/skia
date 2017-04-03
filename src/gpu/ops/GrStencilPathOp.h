@@ -26,11 +26,11 @@ public:
                                       bool hasStencilClip,
                                       int numStencilBits,
                                       const GrScissorState& scissor,
-                                      GrRenderTarget* renderTarget,
+                                      GrRenderTargetProxy* renderTargetProxy,
                                       const GrPath* path) {
         return std::unique_ptr<GrOp>(new GrStencilPathOp(viewMatrix, useHWAA, fillType,
                                                          hasStencilClip, numStencilBits, scissor,
-                                                         renderTarget, path));
+                                                         renderTargetProxy, path));
     }
 
     const char* name() const override { return "StencilPathOp"; }
@@ -49,7 +49,7 @@ private:
                     bool hasStencilClip,
                     int numStencilBits,
                     const GrScissorState& scissor,
-                    GrRenderTarget* renderTarget,
+                    GrRenderTargetProxy* renderTargetProxy,
                     const GrPath* path)
             : INHERITED(ClassID())
             , fViewMatrix(viewMatrix)
@@ -57,7 +57,7 @@ private:
             , fStencil(GrPathRendering::GetStencilPassSettings(fillType), hasStencilClip,
                        numStencilBits)
             , fScissor(scissor)
-            , fRenderTarget(renderTarget)
+            , fRenderTargetProxy(renderTargetProxy)
             , fPath(path) {
         this->setBounds(path->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
     }
@@ -67,8 +67,12 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        GrPathRendering::StencilPathArgs args(fUseHWAA, fRenderTarget.get(), &fViewMatrix,
-                                              &fScissor, &fStencil);
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
+        GrPathRendering::StencilPathArgs args(fUseHWAA, rt, &fViewMatrix, &fScissor, &fStencil);
         state->gpu()->pathRendering()->stencilPath(args, fPath.get());
     }
 
@@ -76,7 +80,7 @@ private:
     bool fUseHWAA;
     GrStencilSettings fStencil;
     GrScissorState fScissor;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
     GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
 
     typedef GrOp INHERITED;
