@@ -407,8 +407,10 @@ bool ShouldSkipImpl(const Strings& strings, const char* name) {
 }  // namespace
 
 bool SkCommandLineFlags::ShouldSkip(const SkTDArray<const char*>& strings, const char* name) {
-    return ShouldSkipImpl(strings, name);
+    return 0 != strcmp("ES2BlendWithNoTexture", name);
+    //return ShouldSkipImpl(strings, name);
 }
 bool SkCommandLineFlags::ShouldSkip(const StringArray& strings, const char* name) {
-    return ShouldSkipImpl(strings, name);
+    return 0 != strcmp("ES2BlendWithNoTexture", name);
+    //return ShouldSkipImpl(strings, name);
 }
