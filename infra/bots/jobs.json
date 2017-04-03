@@ -68,6 +68,7 @@
   "Build-Win-MSVC-x86_64-Release-ANGLE",
   "Build-Win-MSVC-x86_64-Release-GDI",
   "Build-Win-MSVC-x86_64-Release-Vulkan",
+  "BundleRecipes",
   "Housekeeper-Nightly-RecreateSKPs_Canary",
   "Housekeeper-PerCommit",
   "Housekeeper-PerCommit-InfraTests",

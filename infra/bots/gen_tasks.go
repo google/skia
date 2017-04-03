@@ -214,6 +214,17 @@ func swarmDimensions(parts map[string]string) []string {
 	return rv
 }
 
+// bundleRecipes generates the task to bundle and isolate the recipes.
+func bundleRecipes(b *specs.TasksCfgBuilder) string {
+	b.MustAddTask("BundleRecipes", &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   linuxGceDimensions(),
+		Isolate:      "bundle_recipes.isolate",
+		Priority:     0.95,
+	})
+	return "BundleRecipes"
+}
+
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
@@ -554,6 +565,12 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 // process generates tasks and jobs for the given job name.
 func process(b *specs.TasksCfgBuilder, name string) {
 	deps := []string{}
+
+	// Bundle Recipes.
+	deps = append(deps, bundleRecipes(b))
+	if name == "BundleRecipes" {
+		return
+	}
 
 	parts, err := jobNameSchema.ParseJobName(name)
 	if err != nil {

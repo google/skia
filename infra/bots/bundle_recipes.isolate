@@ -1,0 +1,13 @@
+{
+  'includes': [
+    'infrabots.isolate',
+  ],
+  'variables': {
+    'command': [
+      'python', 'recipes.py', 'bundle',
+    ],
+    'files': [
+      '../config/recipes.cfg',
+    ],
+  },
+}
