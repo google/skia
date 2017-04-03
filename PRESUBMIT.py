@@ -474,22 +474,13 @@ def PostUploadHook(cl, change, output_api):
 
   issue = cl.issue
   if issue:
-    original_description = cl.GetDescription()
-    changeIdLine = None
-    if cl.IsGerrit():
-      # Remove Change-Id from description and add it back at the end.
-      regex = re.compile(r'^(Change-Id: (\w+))(\n*)\Z', re.M | re.I)
-      changeIdLine = re.search(regex, original_description).group(0)
-      original_description = re.sub(regex, '', original_description)
-      original_description = re.sub('\n+\Z', '\n', original_description)
-
-    new_description = original_description
+    original_description_lines, footers = cl.GetDescriptionFooters()
+    new_description_lines = list(original_description_lines)
 
     # If the change includes only doc changes then add NOTRY=true in the
     # CL's description if it does not exist yet.
-    if all_docs_changes and not re.search(
-        r'^NOTRY=true$', new_description, re.M | re.I):
-      new_description += '\nNOTRY=true'
+    if all_docs_changes and 'NOTRY=true' not in new_description_lines:
+      new_description_lines.append('NOTRY=true')
       results.append(
           output_api.PresubmitNotifyResult(
               'This change has only doc changes. Automatically added '
@@ -497,10 +488,11 @@ def PostUploadHook(cl, change, output_api):
 
     # If there is atleast one docs change then add preview link in the CL's
     # description if it does not already exist there.
-    if atleast_one_docs_change and not re.search(
-        r'^DOCS_PREVIEW=.*', new_description, re.M | re.I):
+    docs_preview_line = 'DOCS_PREVIEW= %s%s' % (DOCS_PREVIEW_URL, issue)
+    if (atleast_one_docs_change and
+        docs_preview_line not in new_description_lines):
       # Automatically add a link to where the docs can be previewed.
-      new_description += '\nDOCS_PREVIEW= %s%s' % (DOCS_PREVIEW_URL, issue)
+      new_description_lines.append(docs_preview_line)
       results.append(
           output_api.PresubmitNotifyResult(
               'Automatically added a link to preview the docs changes to the '
@@ -510,24 +502,21 @@ def PostUploadHook(cl, change, output_api):
     # to the CL's description if it does not already exist there.
     target_ref = cl.GetRemoteBranch()[1]
     if target_ref != 'refs/remotes/origin/master':
-      if not re.search(
-          r'^NOTREECHECKS=true$', new_description, re.M | re.I):
-        new_description += "\nNOTREECHECKS=true"
+      if 'NOTREECHECKS=true' not in new_description_lines:
+        new_description_lines.append('NOTREECHECKS=true')
         results.append(
             output_api.PresubmitNotifyResult(
                 'Branch changes do not need to rely on the master branch\'s '
                 'tree status. Automatically added \'NOTREECHECKS=true\' to the '
                 'CL\'s description'))
-      if not re.search(
-          r'^NOTRY=true$', new_description, re.M | re.I):
-        new_description += "\nNOTRY=true"
+      if 'NOTRY=true' not in new_description_lines:
+        new_description_lines.append('NOTRY=true')
         results.append(
             output_api.PresubmitNotifyResult(
                 'Trybots do not yet work for non-master branches. '
                 'Automatically added \'NOTRY=true\' to the CL\'s description'))
-      if not re.search(
-          r'^NOPRESUBMIT=true$', new_description, re.M | re.I):
-        new_description += "\nNOPRESUBMIT=true"
+      if 'NOPRESUBMIT=true' not in new_description_lines:
+        new_description_lines.append('NOPRESUBMIT=true')
         results.append(
             output_api.PresubmitNotifyResult(
                 'Branch changes do not run the presubmit checks.'))
@@ -546,20 +535,16 @@ def PostUploadHook(cl, change, output_api):
           _MergeCQExtraTrybotsMaps(
               cq_master_to_trybots, _GetCQExtraTrybotsMap(extra_bots))
     if cq_master_to_trybots:
-      new_description = _AddCQExtraTrybotsToDesc(
-          cq_master_to_trybots, new_description)
+      _AddCQExtraTrybotsToDesc(cq_master_to_trybots, new_description_lines)
 
     # If the description has changed update it.
-    if new_description != original_description:
-      if changeIdLine:
-        # The Change-Id line must have two newlines before it.
-        new_description += '\n\n' + changeIdLine
-      cl.UpdateDescription(new_description)
+    if new_description_lines != original_description_lines:
+      cl.UpdateDescriptionFooters(new_description_lines, footers)
 
     return results
 
 
-def _AddCQExtraTrybotsToDesc(cq_master_to_trybots, description):
+def _AddCQExtraTrybotsToDesc(cq_master_to_trybots, description_lines):
   """Adds the specified master and trybots to the CQ_INCLUDE_TRYBOTS keyword.
 
   If the keyword already exists in the description then it appends to it only
@@ -567,16 +552,21 @@ def _AddCQExtraTrybotsToDesc(cq_master_to_trybots, description):
   If the keyword does not exist then it creates a new section in the
   description.
   """
-  match = re.search(r'^CQ_INCLUDE_TRYBOTS=(.*)$', description, re.M | re.I)
-  if match:
-    original_trybots_map = _GetCQExtraTrybotsMap(match.group(1))
+  found = None
+  foundIdx = -1
+  for idx, line in enumerate(description_lines):
+    if line.startswith('CQ_INCLUDE_TRYBOTS'):
+      found = line
+      foundIdx = idx
+
+  if found:
+    original_trybots_map = _GetCQExtraTrybotsMap(found)
     _MergeCQExtraTrybotsMaps(cq_master_to_trybots, original_trybots_map)
-    new_description = description.replace(
-        match.group(0), _GetCQExtraTrybotsStr(cq_master_to_trybots))
+    new_line = _GetCQExtraTrybotsStr(cq_master_to_trybots)
+    if new_line != found:
+      description_lines[foundIdx] = new_line
   else:
-    new_description = description + "\n%s" % (
-        _GetCQExtraTrybotsStr(cq_master_to_trybots))
-  return new_description
+    description_lines.append(_GetCQExtraTrybotsStr(cq_master_to_trybots))
 
 
 def _MergeCQExtraTrybotsMaps(dest_map, map_to_be_consumed):
