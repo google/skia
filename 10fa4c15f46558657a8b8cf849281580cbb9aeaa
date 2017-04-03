@@ -52,6 +52,24 @@
       "revId": "10fa4c15f46558657a8b8cf849281580cbb9aeaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8d8d43f_5dc2826d",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-03T12:36:08Z",
+      "side": 1,
+      "message": "Okay, seems to be correct at PS9.",
+      "parentUuid": "fff8afa5_f7599f99",
+      "revId": "10fa4c15f46558657a8b8cf849281580cbb9aeaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
