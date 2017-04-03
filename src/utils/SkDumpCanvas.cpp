@@ -121,7 +121,7 @@ static void toString(const SkRegion& rgn, SkString* str) {
     }
 }
 
-static const char* toString(SkCanvas::VertexMode vm) {
+static const char* toString(SkVertices::VertexMode vm) {
     static const char* gVMNames[] = {
         "TRIANGLES", "STRIP", "FAN"
     };

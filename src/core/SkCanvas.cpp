@@ -51,6 +51,10 @@
 #include "SkClipOpPriv.h"
 #include "SkVertices.h"
 
+static_assert((int)SkCanvas::kTriangles_VertexMode == (int)SkVertices::kTriangles_VertexMode, "");
+static_assert((int)SkCanvas::kTriangleStrip_VertexMode == (int)SkVertices::kTriangleStrip_VertexMode, "");
+static_assert((int)SkCanvas::kTriangleFan_VertexMode == (int)SkVertices::kTriangleFan_VertexMode, "");
+
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
 class SkNoPixelsDevice : public SkBaseDevice {

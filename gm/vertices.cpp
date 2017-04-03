@@ -174,7 +174,7 @@ protected:
                             const SkColor* colors = attrs.fHasColors ? fColors : nullptr;
                             const SkPoint* texs = attrs.fHasTexs ? fTexs : nullptr;
                             if (fUseObject) {
-                                auto v = SkVertices::MakeCopy(SkCanvas::kTriangleFan_VertexMode,
+                                auto v = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,
                                                               kMeshVertexCnt, fPts, texs, colors,
                                                               kMeshIndexCnt, kMeshFan);
                                 canvas->drawVertices(v, mode, paint);
@@ -207,7 +207,7 @@ DEF_GM(return new VerticesGM(false, 1 / kShaderSize);)
 static void draw_batching(SkCanvas* canvas, bool useObject) {
     // Triangle fans can't batch so we convert to regular triangles,
     static constexpr int kNumTris = kMeshIndexCnt - 2;
-    SkVertices::Builder builder(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, 3 * kNumTris,
+    SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, kMeshVertexCnt, 3 * kNumTris,
                                 SkVertices::kHasColors_BuilderFlag |
                                 SkVertices::kHasTexCoords_BuilderFlag);
 
@@ -246,7 +246,7 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
 
                 const SkPoint* t = useTex ? texs : nullptr;
                 if (useObject) {
-                    auto v = SkVertices::MakeCopy(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt,
+                    auto v = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, kMeshVertexCnt,
                                                   pts, t, colors, kNumTris * 3, indices);
                     canvas->drawVertices(v, SkBlendMode::kModulate, paint);
                 } else {
