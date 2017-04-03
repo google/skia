@@ -32,8 +32,8 @@ private:
     }
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
-                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                           const DstTexture* dstTexture) const override;
+                                           GrProcessorAnalysisCoverage,
+                                           bool hasMixedSamples) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
 

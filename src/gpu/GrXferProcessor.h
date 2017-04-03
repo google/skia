@@ -97,8 +97,10 @@ public:
     /**
      * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLSLProcessorKey(...) to get the
      * specific subclass's key.
-     */ 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const;
+     */
+    void getGLSLProcessorKey(const GrShaderCaps&,
+                             GrProcessorKeyBuilder*,
+                             const GrSurfaceOrigin* originIfDstTexture) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
@@ -106,10 +108,13 @@ public:
     virtual GrGLSLXferProcessor* createGLSLInstance() const = 0;
 
     /**
-     * Returns whether this XP will require an Xfer barrier on the given rt. If true, outBarrierType
-     * is updated to contain the type of barrier needed.
+     * Returns the barrier type, if any, that this XP will require. Note that the possibility
+     * that a kTexture type barrier is required is handled by the GrPipeline and need not be
+     * considered by subclass overrides of this function.
      */
-    GrXferBarrierType xferBarrierType(const GrRenderTarget* rt, const GrCaps& caps) const;
+    virtual GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
+        return kNone_GrXferBarrierType;
+    }
 
     struct BlendInfo {
         void reset() {
@@ -132,22 +137,6 @@ public:
     void getBlendInfo(BlendInfo* blendInfo) const;
 
     bool willReadDstColor() const { return fWillReadDstColor; }
-
-    /**
-     * Returns the texture to be used as the destination when reading the dst in the fragment
-     * shader. If the returned texture is NULL then the XP is either not reading the dst or we have
-     * extentions that support framebuffer fetching and thus don't need a copy of the dst texture.
-     */
-    const GrTexture* getDstTexture() const { return fDstTexture.texture(); }
-
-    /**
-     * Returns the offset in device coords to use when accessing the dst texture to get the dst
-     * pixel color in the shader. This value is only valid if getDstTexture() != NULL.
-     */
-    const SkIPoint& dstTextureOffset() const {
-        SkASSERT(this->getDstTexture());
-        return fDstTextureOffset;
-    }
 
     /**
      * If we are performing a dst read, returns whether the base class will use mixed samples to
@@ -177,12 +166,6 @@ public:
         if (this->fWillReadDstColor != that.fWillReadDstColor) {
             return false;
         }
-        if (this->fDstTexture.texture() != that.fDstTexture.texture()) {
-            return false;
-        }
-        if (this->fDstTextureOffset != that.fDstTextureOffset) {
-            return false;
-        }
         if (this->fDstReadUsesMixedSamples != that.fDstReadUsesMixedSamples) {
             return false;
         }
@@ -191,7 +174,7 @@ public:
 
 protected:
     GrXferProcessor();
-    GrXferProcessor(const DstTexture*, bool willReadDstColor, bool hasMixedSamples);
+    GrXferProcessor(bool willReadDstColor, bool hasMixedSamples);
 
 private:
     void notifyRefCntIsZero() const final {}
@@ -201,15 +184,6 @@ private:
      * processor's GL backend implementation.
      */
     virtual void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
-
-    /**
-     * Determines the type of barrier (if any) required by the subclass. Note that the possibility
-     * that a kTexture type barrier is required is handled by the base class and need not be
-     * considered by subclass overrides of this function.
-     */
-    virtual GrXferBarrierType onXferBarrier(const GrCaps&) const {
-        return kNone_GrXferBarrierType;
-    }
 
     /**
      * If we are not performing a dst read, returns whether the subclass will set a secondary
@@ -229,8 +203,6 @@ private:
 
     bool                    fWillReadDstColor;
     bool                    fDstReadUsesMixedSamples;
-    SkIPoint                fDstTextureOffset;
-    TextureSampler          fDstTexture;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -267,7 +239,6 @@ public:
     GrXferProcessor* createXferProcessor(const GrProcessorAnalysisColor&,
                                          GrProcessorAnalysisCoverage,
                                          bool hasMixedSamples,
-                                         const DstTexture*,
                                          const GrCaps& caps) const;
 
     enum class AnalysisProperties : unsigned {
@@ -314,8 +285,7 @@ private:
     virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                                    const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
-                                                   bool hasMixedSamples,
-                                                   const DstTexture*) const = 0;
+                                                   bool hasMixedSamples) const = 0;
 
     /**
      * Subclass analysis implementation. This should not return kNeedsDstInTexture as that will be

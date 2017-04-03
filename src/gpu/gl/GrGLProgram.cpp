@@ -78,8 +78,13 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     this->setFragmentData(primProc, pipeline, &nextSamplerIdx);
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
-    fXferProcessor->setData(fProgramDataManager, xp);
-    this->bindTextures(xp, pipeline.getAllowSRGBInputs(), &nextSamplerIdx);
+    SkIPoint offset;
+    GrTexture* dstTexture = pipeline.dstTexture(&offset);
+    fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
+    if (dstTexture) {
+        fGpu->bindTexture(nextSamplerIdx++, GrSamplerParams::ClampNoFilter(), true,
+                          static_cast<GrGLTexture*>(dstTexture));
+    }
 }
 
 void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,

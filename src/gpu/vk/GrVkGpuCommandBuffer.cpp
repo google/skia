@@ -481,6 +481,17 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
     return pipelineState;
 }
 
+static void set_texture_layout(GrVkTexture* vkTexture, GrVkGpu* gpu) {
+    // TODO: If we ever decide to create the secondary command buffers ahead of time before we
+    // are actually going to submit them, we will need to track the sampled images and delay
+    // adding the layout change/barrier until we are ready to submit.
+    vkTexture->setImageLayout(gpu,
+                              VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                              VK_ACCESS_SHADER_READ_BIT,
+                              VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                              false);
+}
+
 static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrProcessor::TextureSampler& sampler = processor.textureSampler(i);
@@ -501,15 +512,7 @@ static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
                 vkTexture->texturePriv().dirtyMipMaps(false);
             }
         }
-
-        // TODO: If we ever decide to create the secondary command buffers ahead of time before we
-        // are actually going to submit them, we will need to track the sampled images and delay
-        // adding the layout change/barrier until we are ready to submit.
-        vkTexture->setImageLayout(gpu,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  VK_ACCESS_SHADER_READ_BIT,
-                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                  false);
+        set_texture_layout(vkTexture, gpu);
     }
 }
 
@@ -532,7 +535,9 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     while (const GrFragmentProcessor* fp = iter.next()) {
         prepare_sampled_images(*fp, fGpu);
     }
-    prepare_sampled_images(pipeline.getXferProcessor(), fGpu);
+    if (GrVkTexture* dstTexture = static_cast<GrVkTexture*>(pipeline.dstTexture())) {
+        set_texture_layout(dstTexture, fGpu);
+    }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,

@@ -26,8 +26,7 @@ public:
     static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
                                                        const GrProcessorAnalysisColor& color,
                                                        GrProcessorAnalysisCoverage coverage,
-                                                       bool hasMixedSamples,
-                                                       const GrXferProcessor::DstTexture*);
+                                                       bool hasMixedSamples);
 
     /** Returns a simple non-LCD porter duff blend XP with no optimizations or coverage. */
     static sk_sp<GrXferProcessor> CreateNoCoverageXP(SkBlendMode);
@@ -44,8 +43,8 @@ private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
-                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                           const DstTexture*) const override;
+                                           GrProcessorAnalysisCoverage,
+                                           bool hasMixedSamples) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,

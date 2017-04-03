@@ -221,8 +221,7 @@ const GrXPFactory* GrCoverageSetOpXPFactory::Get(SkRegion::Op regionOp, bool inv
 GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                                  const GrProcessorAnalysisColor&,
                                                                  GrProcessorAnalysisCoverage,
-                                                                 bool hasMixedSamples,
-                                                                 const DstTexture*) const {
+                                                                 bool hasMixedSamples) const {
     // We don't support inverting coverage with mixed samples. We don't expect to ever want this in
     // the future, however we could at some point make this work using an inverted coverage
     // modulation table. Note that an inverted table still won't work if there are coverage procs.

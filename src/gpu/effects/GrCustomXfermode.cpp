@@ -78,10 +78,10 @@ public:
         this->initClassID<CustomXP>();
     }
 
-    CustomXP(const DstTexture* dstTexture, bool hasMixedSamples, SkBlendMode mode)
-        : INHERITED(dstTexture, true, hasMixedSamples),
-          fMode(mode),
-          fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
+    CustomXP(bool hasMixedSamples, SkBlendMode mode)
+            : INHERITED(true, hasMixedSamples)
+            , fMode(mode)
+            , fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
         this->initClassID<CustomXP>();
     }
 
@@ -97,10 +97,10 @@ public:
         return fHWBlendEquation;
     }
 
+    GrXferBarrierType xferBarrierType(const GrCaps&) const override;
+
 private:
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
-
-    GrXferBarrierType onXferBarrier(const GrCaps&) const override;
 
     void onGetBlendInfo(BlendInfo*) const override;
 
@@ -187,7 +187,7 @@ bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
     return fMode == s.fMode && fHWBlendEquation == s.fHWBlendEquation;
 }
 
-GrXferBarrierType CustomXP::onXferBarrier(const GrCaps& caps) const {
+GrXferBarrierType CustomXP::xferBarrierType(const GrCaps& caps) const {
     if (this->hasHWBlendEquation() && !caps.advancedCoherentBlendEquationSupport()) {
         return kBlend_GrXferBarrierType;
     }
@@ -214,8 +214,8 @@ public:
 
 private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
-                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                           const DstTexture*) const override;
+                                           GrProcessorAnalysisCoverage,
+                                           bool hasMixedSamples) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
@@ -235,14 +235,12 @@ private:
 GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                         const GrProcessorAnalysisColor&,
                                                         GrProcessorAnalysisCoverage coverage,
-                                                        bool hasMixedSamples,
-                                                        const DstTexture* dstTexture) const {
+                                                        bool hasMixedSamples) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
-        SkASSERT(!dstTexture || !dstTexture->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }
-    return new CustomXP(dstTexture, hasMixedSamples, fMode);
+    return new CustomXP(hasMixedSamples, fMode);
 }
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
