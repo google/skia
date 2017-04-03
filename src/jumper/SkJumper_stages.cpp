@@ -6,253 +6,177 @@
  */
 
 #include "SkJumper.h"
+#include "SkJumper_misc.h"     // SI, unaligned_load(), bit_cast(), C(), operator"" _i and _f.
+#include "SkJumper_vectors.h"  // F, I32, U32, U16, U8, cast(), expand()
 
-#define SI static inline
-
-template <typename T, typename P>
-SI T unaligned_load(const P* p) {
-    T v;
-    memcpy(&v, p, sizeof(v));
-    return v;
-}
-
-template <typename Dst, typename Src>
-SI Dst bit_cast(const Src& src) {
-    static_assert(sizeof(Dst) == sizeof(Src), "");
-    return unaligned_load<Dst>(&src);
-}
-
-// A couple functions for embedding constants directly into code,
-// so that no .const or .literal4 section is created.
-SI int C(int x) {
-#if defined(JUMPER) && defined(__x86_64__)
-    // Move x-the-compile-time-constant as a literal into x-the-register.
-    asm("mov %1, %0" : "=r"(x) : "i"(x));
-#endif
-    return x;
-}
-SI float C(float f) {
-    int x = C(unaligned_load<int>(&f));
-    return unaligned_load<float>(&x);
-}
-SI int   operator "" _i(unsigned long long int i) { return C(  (int)i); }
-SI float operator "" _f(           long double f) { return C((float)f); }
-
-// Not all constants can be generated using C() or _i/_f.  We read the rest from this struct.
-using K = const SkJumper_constants;
-
-#if !defined(JUMPER)
-    // This path should lead to portable code that can be compiled directly into Skia.
-    // (All other paths are compiled offline by Clang into SkJumper_generated.h.)
-    #include <math.h>
-
-    using F   = float;
-    using I32 =  int32_t;
-    using U32 = uint32_t;
-    using U16 = uint16_t;
-    using U8  = uint8_t;
-
-    SI F   mad(F f, F m, F a)   { return f*m+a; }
-    SI F   min(F a, F b)        { return fminf(a,b); }
-    SI F   max(F a, F b)        { return fmaxf(a,b); }
-    SI F   abs_  (F v)          { return fabsf(v); }
-    SI F   floor_(F v)          { return floorf(v); }
-    SI F   rcp   (F v)          { return 1.0f / v; }
-    SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
-    SI U32 round (F v, F scale) { return (uint32_t)lrintf(v*scale); }
-    SI U16 pack(U32 v)          { return (U16)v; }
-    SI U8  pack(U16 v)          { return  (U8)v; }
-
-    SI F if_then_else(I32 c, F t, F e) { return c ? t : e; }
-
-    SI F gather(const float* p, U32 ix) { return p[ix]; }
-
-    #define WRAP(name) sk_##name
-
-#elif defined(__aarch64__)
-    #include <arm_neon.h>
-
-    // Since we know we're using Clang, we can use its vector extensions.
-    using F   = float    __attribute__((ext_vector_type(4)));
-    using I32 =  int32_t __attribute__((ext_vector_type(4)));
-    using U32 = uint32_t __attribute__((ext_vector_type(4)));
-    using U16 = uint16_t __attribute__((ext_vector_type(4)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(4)));
-
-    // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    SI F   mad(F f, F m, F a)                    { return vfmaq_f32(a,f,m);        }
-    SI F   min(F a, F b)                         { return vminq_f32(a,b);          }
-    SI F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
-    SI F   abs_  (F v)                           { return vabsq_f32(v);            }
-    SI F   floor_(F v)                           { return vrndmq_f32(v);           }
-    SI F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
-    SI F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
-    SI U32 round (F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
-    SI U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
-    SI U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
-
-    SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
-
-    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
-
-    #define WRAP(name) sk_##name##_aarch64
-
-#elif defined(__arm__)
-    #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
-        #error On ARMv7, compile with -march=armv7-a -mfpu=neon-vfp4, without -mthumb.
-    #endif
-    #include <arm_neon.h>
-
-    // We can pass {s0-s15} as arguments under AAPCS-VFP.  We'll slice that as 8 d-registers.
-    using F   = float    __attribute__((ext_vector_type(2)));
-    using I32 =  int32_t __attribute__((ext_vector_type(2)));
-    using U32 = uint32_t __attribute__((ext_vector_type(2)));
-    using U16 = uint16_t __attribute__((ext_vector_type(2)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(2)));
-
-    SI F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
-    SI F   min(F a, F b)                       { return vmin_f32(a,b);          }
-    SI F   max(F a, F b)                       { return vmax_f32(a,b);          }
-    SI F   abs_ (F v)                          { return vabs_f32(v);            }
-    SI F   rcp  (F v) { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
-    SI F   rsqrt(F v) { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
-    SI U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
-    SI U16 pack(U32 v)                         { return __builtin_convertvector(v, U16); }
-    SI U8  pack(U16 v)                         { return __builtin_convertvector(v,  U8); }
-
-    SI F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
-
-    SI F floor_(F v) {
-        F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
-        return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
-    }
-
-    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
-
-    #define WRAP(name) sk_##name##_vfp4
-
-#elif defined(__AVX__)
-    #include <immintrin.h>
-
-    // These are __m256 and __m256i, but friendlier and strongly-typed.
-    using F   = float    __attribute__((ext_vector_type(8)));
-    using I32 =  int32_t __attribute__((ext_vector_type(8)));
-    using U32 = uint32_t __attribute__((ext_vector_type(8)));
-    using U16 = uint16_t __attribute__((ext_vector_type(8)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(8)));
-
-    SI F mad(F f, F m, F a)  {
-    #if defined(__FMA__)
-        return _mm256_fmadd_ps(f,m,a);
-    #else
-        return f*m+a;
-    #endif
-    }
-
-    SI F   min(F a, F b)        { return _mm256_min_ps(a,b);    }
-    SI F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
-    SI F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
-    SI F   floor_(F v)          { return _mm256_floor_ps(v);    }
-    SI F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
-    SI F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
-    SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
-
-    SI U16 pack(U32 v) {
-        return _mm_packus_epi32(_mm256_extractf128_si256(v, 0),
-                                _mm256_extractf128_si256(v, 1));
-    }
-    SI U8 pack(U16 v) {
-        auto r = _mm_packus_epi16(v,v);
-        return unaligned_load<U8>(&r);
-    }
-
-    SI F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
-
-    SI F gather(const float* p, U32 ix) {
-    #if defined(__AVX2__)
-        return _mm256_i32gather_ps(p, ix, 4);
-    #else
-        return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
-                 p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
-    #endif
-    }
-
-    #if defined(__AVX2__) && defined(__F16C__) && defined(__FMA__)
-        #define WRAP(name) sk_##name##_hsw
-    #else
-        #define WRAP(name) sk_##name##_avx
-    #endif
-
-#elif defined(__SSE2__)
-    #include <immintrin.h>
-
-    using F   = float    __attribute__((ext_vector_type(4)));
-    using I32 =  int32_t __attribute__((ext_vector_type(4)));
-    using U32 = uint32_t __attribute__((ext_vector_type(4)));
-    using U16 = uint16_t __attribute__((ext_vector_type(4)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(4)));
-
-    SI F   mad(F f, F m, F a)  { return f*m+a;              }
-    SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
-    SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
-    SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
-    SI F   rcp  (F v)          { return _mm_rcp_ps  (v);    }
-    SI F   rsqrt(F v)          { return _mm_rsqrt_ps(v);    }
-    SI U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
-
-    SI U16 pack(U32 v) {
-    #if defined(__SSE4_1__)
-        auto p = _mm_packus_epi32(v,v);
-    #else
-        // Sign extend so that _mm_packs_epi32() does the pack we want.
-        auto p = _mm_srai_epi32(_mm_slli_epi32(v, 16), 16);
-        p = _mm_packs_epi32(p,p);
-    #endif
-        return unaligned_load<U16>(&p);  // We have two copies.  Return (the lower) one.
-    }
-    SI U8 pack(U16 v) {
-        __m128i r;
-        memcpy(&r, &v, sizeof(v));
-        r = _mm_packus_epi16(r,r);
-        return unaligned_load<U8>(&r);
-    }
-
-    SI F if_then_else(I32 c, F t, F e) {
-        return _mm_or_ps(_mm_and_ps(c, t), _mm_andnot_ps(c, e));
-    }
-
-    SI F floor_(F v) {
-    #if defined(__SSE4_1__)
-        return _mm_floor_ps(v);
-    #else
-        F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-        return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
-    #endif
-    }
-
-    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
-
-    #if defined(__SSE4_1__)
-        #define WRAP(name) sk_##name##_sse41
-    #else
-        #define WRAP(name) sk_##name##_sse2
-    #endif
-#endif
-
+// Our fundamental vector depth is our pixel stride.
 static const size_t kStride = sizeof(F) / sizeof(float);
 
-// We need to be a careful with casts.
-// (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
-// These named casts and bit_cast() are always what they seem to be.
-#if defined(JUMPER)
-    SI F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
-    SI U32 expand(U16 v) { return __builtin_convertvector(     v, U32); }
-    SI U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
+// A reminder:
+// Code guarded by defined(JUMPER) can assume that it will be compiled by Clang
+// and that F, I32, etc. are kStride-deep ext_vector_types of the appropriate type.
+// Otherwise, F, I32, etc. just alias the basic scalar types (and so kStride == 1).
+
+// Another reminder:
+// You can't generally use constants in this file except via C() or operator"" _i/_f.
+// Not all constants can be generated using C() or _i/_f.  Stages read the rest from this struct.
+using K = const SkJumper_constants;
+
+// Let's start first with the mechanisms we use to build Stages.
+
+// Our program is an array of void*, either
+//   - 1 void* per stage with no context pointer, the next stage;
+//   - 2 void* per stage with a context pointer, first the context pointer, then the next stage.
+
+// load_and_inc() steps the program forward by 1 void*, returning that pointer.
+SI void* load_and_inc(void**& program) {
+#if defined(__GNUC__) && defined(__x86_64__)
+    // If program is in %rsi (we try to make this likely) then this is a single instruction.
+    void* rax;
+    asm("lodsq" : "=a"(rax), "+S"(program));  // Write-only %rax, read-write %rsi.
+    return rax;
 #else
-    SI F   cast  (U32 v) { return   (F)v; }
-    SI U32 expand(U16 v) { return (U32)v; }
-    SI U32 expand(U8  v) { return (U32)v; }
+    // On ARM *program++ compiles into pretty ideal code without any handholding.
+    return *program++;
 #endif
+}
+
+// LazyCtx doesn't do anything unless you call operator T*() or load(), encapsulating the
+// logic from above that stages without a context pointer are represented by just 1 void*.
+struct LazyCtx {
+    void*   ptr;
+    void**& program;
+
+    explicit LazyCtx(void**& p) : ptr(nullptr), program(p) {}
+
+    template <typename T>
+    operator T*() {
+        if (!ptr) { ptr = load_and_inc(program); }
+        return (T*)ptr;
+    }
+
+    template <typename T>
+    T load() {
+        if (!ptr) { ptr = load_and_inc(program); }
+        return unaligned_load<T>(ptr);
+    }
+};
+
+// A little wrapper macro to name Stages differently depending on the instruction set.
+// That lets us link together several options.
+#if !defined(JUMPER)
+    #define WRAP(name) sk_##name
+#elif defined(__aarch64__)
+    #define WRAP(name) sk_##name##_aarch64
+#elif defined(__arm__)
+    #define WRAP(name) sk_##name##_vfp4
+#elif defined(__AVX2__)
+    #define WRAP(name) sk_##name##_hsw
+#elif defined(__AVX__)
+    #define WRAP(name) sk_##name##_avx
+#elif defined(__SSE4_1__)
+    #define WRAP(name) sk_##name##_sse41
+#elif defined(__SSE2__)
+    #define WRAP(name) sk_##name##_sse2
+#endif
+
+// We're finally going to get to what a Stage function looks like!
+// It's best to jump down to the #else case first, then to come back up here for AVX.
+
+#if defined(JUMPER) && defined(__AVX__)
+    // There's a big cost to switch between SSE and AVX, so we do a little
+    // extra work to handle even the jagged <kStride tail in AVX mode.
+    // Compared to normal stages, we maintain an extra tail register:
+    //    tail == 0 ~~> work on a full kStride pixels
+    //    tail != 0 ~~> work on only the first tail pixels
+    // tail is always < kStride.
+    using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
+
+    #if defined(JUMPER) && defined(WIN)
+    __attribute__((ms_abi))
+    #endif
+    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+        F v{};
+        auto start = (Stage*)load_and_inc(program);
+        while (x + kStride <= limit) {
+            start(x,program,k,0,    v,v,v,v, v,v,v,v);
+            x += kStride;
+        }
+        if (size_t tail = limit - x) {
+            start(x,program,k,tail, v,v,v,v, v,v,v,v);
+        }
+        return limit;
+    }
+
+    #define STAGE(name)                                                           \
+        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            LazyCtx ctx(program);                                                 \
+            name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
+            auto next = (Stage*)load_and_inc(program);                            \
+            next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
+        }                                                                         \
+        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+
+#else
+    // Other instruction sets (SSE, NEON, portable) can fall back on narrower
+    // pipelines cheaply, which frees us to always assume tail==0.
+
+    // Stages tail call between each other by following program as described above.
+    // x is our induction variable, stepping forward kStride at a time.
+    using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
+
+    // On Windows, start_pipeline() has a normal Windows ABI, and then the rest is System V.
+    #if defined(JUMPER) && defined(WIN)
+    __attribute__((ms_abi))
+    #endif
+    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+        F v{};
+        auto start = (Stage*)load_and_inc(program);
+        while (x + kStride <= limit) {
+            start(x,program,k, v,v,v,v, v,v,v,v);
+            x += kStride;
+        }
+        return x;
+    }
+
+    // This STAGE macro makes it easier to write stages, handling all the Stage chaining for you.
+    #define STAGE(name)                                                           \
+        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
+        extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+            LazyCtx ctx(program);                                                 \
+            name##_k(x,ctx,k,0, r,g,b,a, dr,dg,db,da);                            \
+            auto next = (Stage*)load_and_inc(program);                            \
+            next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
+        }                                                                         \
+        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#endif
+
+// just_return() is a simple no-op stage that only exists to end the chain,
+// returning back up to start_pipeline(), and from there to the caller.
+extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
+
+
+// We could start defining normal Stages now.  But first, some helper functions and types.
+
+// Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
+#if defined(JUMPER)
+    using F4 = float __attribute__((ext_vector_type(4)));
+#else
+    struct F4 {
+        float vals[4];
+        float operator[](int i) const { return vals[i]; }
+    };
+#endif
+
+// These load() and store() methods are tail-aware,
+// but focus mainly on keeping the at-stride tail==0 case fast.
 
 template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
@@ -295,7 +219,9 @@ SI void store(T* dst, V v, size_t tail) {
     memcpy(dst, &v, sizeof(v));
 }
 
-#if 1 && defined(JUMPER) && defined(__AVX__)
+// This doesn't look strictly necessary, but without it Clang would generate load() using
+// compiler-generated constants that we can't support.  This version doesn't need constants.
+#if defined(JUMPER) && defined(__AVX__)
     template <>
     inline U8 load(const uint8_t* src, size_t tail) {
         if (__builtin_expect(tail, 0)) {
@@ -312,8 +238,11 @@ SI void store(T* dst, V v, size_t tail) {
     }
 #endif
 
-#if 1 && defined(JUMPER) && defined(__AVX2__)
+// AVX2 adds some mask loads and stores that make for shorter, faster code.
+#if defined(JUMPER) && defined(__AVX2__)
     SI U32 mask(size_t tail) {
+        // We go a little out of our way to avoid needing large constant values here.
+
         // It's easiest to build the mask as 8 8-bit values, either 0x00 or 0xff.
         // Start fully on, then shift away lanes from the top until we've got our mask.
         uint64_t mask = 0xffffffffffffffff >> 8*(kStride-tail);
@@ -342,10 +271,6 @@ SI void store(T* dst, V v, size_t tail) {
 #endif
 
 
-SI F lerp(F from, F to, F t) {
-    return mad(to-from, t, from);
-}
-
 SI void from_565(U16 _565, F* r, F* g, F* b) {
     U32 wide = expand(_565);
     *r = cast(wide & C(31<<11)) * C(1.0f / (31<<11));
@@ -360,150 +285,7 @@ SI void from_4444(U16 _4444, F* r, F* g, F* b, F* a) {
     *a = cast(wide & C(15<< 0)) * C(1.0f / (15<< 0));
 }
 
-// Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
-#if defined(JUMPER)
-    using F4 = float __attribute__((ext_vector_type(4)));
-#else
-    struct F4 {
-        float vals[4];
-        float operator[](int i) const { return vals[i]; }
-    };
-#endif
-
-SI void* load_and_inc(void**& program) {
-#if defined(__GNUC__) && defined(__x86_64__)
-    // Passing program as the second Stage argument makes it likely that it's in %rsi,
-    // so this is usually a single instruction *program++.
-    void* rax;
-    asm("lodsq" : "=a"(rax), "+S"(program));  // Write-only %rax, read-write %rsi.
-    return rax;
-    // When a Stage uses its ctx pointer, this optimization typically cuts an instruction:
-    //    mov    (%rsi), %rcx     // ctx  = program[0]
-    //    ...
-    //    mov 0x8(%rsi), %rax     // next = program[1]
-    //    add $0x10, %rsi         // program += 2
-    //    jmpq *%rax              // JUMP!
-    // becomes
-    //    lods   %ds:(%rsi),%rax  // ctx  = *program++;
-    //    ...
-    //    lods   %ds:(%rsi),%rax  // next = *program++;
-    //    jmpq *%rax              // JUMP!
-    //
-    // When a Stage doesn't use its ctx pointer, it's 3 instructions either way,
-    // but using lodsq (a 2-byte instruction) tends to trim a few bytes.
-#else
-    // On ARM *program++ compiles into a single instruction without any handholding.
-    return *program++;
-#endif
-}
-
-// Doesn't do anything unless you resolve it, either by casting to a pointer or calling load().
-// This makes it free in stages that have no context pointer to load (i.e. built with nullptr).
-struct LazyCtx {
-    void*   ptr;
-    void**& program;
-
-    explicit LazyCtx(void**& p) : ptr(nullptr), program(p) {}
-
-    template <typename T>
-    operator T*() {
-        if (!ptr) { ptr = load_and_inc(program); }
-        return (T*)ptr;
-    }
-
-    template <typename T>
-    T load() {
-        if (!ptr) { ptr = load_and_inc(program); }
-        return unaligned_load<T>(ptr);
-    }
-};
-
-#if defined(JUMPER) && defined(__AVX__)
-    // There's a big cost to switch between SSE and AVX+, so we do a little
-    // extra work to handle even the jagged <kStride tail in AVX+ mode.
-    using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
-
-    #if defined(JUMPER) && defined(WIN)
-    __attribute__((ms_abi))
-    #endif
-    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
-        F v{};
-        auto start = (Stage*)load_and_inc(program);
-        while (x + kStride <= limit) {
-            start(x,program,k,0,    v,v,v,v, v,v,v,v);
-            x += kStride;
-        }
-        if (size_t tail = limit - x) {
-            start(x,program,k,tail, v,v,v,v, v,v,v,v);
-        }
-        return limit;
-    }
-
-    #define STAGE(name)                                                           \
-        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
-        extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
-                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
-            LazyCtx ctx(program);                                                 \
-            name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
-            auto next = (Stage*)load_and_inc(program);                            \
-            next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
-        }                                                                         \
-        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
-
-#else
-    // Other instruction sets (SSE, NEON, portable) can fall back on narrower
-    // pipelines cheaply, which frees us to always assume tail==0.
-
-    // Stages tail call between each other by following program,
-    // an interlaced sequence of Stage pointers and context pointers.
-    using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
-
-    #if defined(JUMPER) && defined(WIN)
-    __attribute__((ms_abi))
-    #endif
-    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
-        F v{};
-        auto start = (Stage*)load_and_inc(program);
-        while (x + kStride <= limit) {
-            start(x,program,k, v,v,v,v, v,v,v,v);
-            x += kStride;
-        }
-        return x;
-    }
-
-    #define STAGE(name)                                                           \
-        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
-        extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
-                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
-            LazyCtx ctx(program);                                                 \
-            name##_k(x,ctx,k,0, r,g,b,a, dr,dg,db,da);                            \
-            auto next = (Stage*)load_and_inc(program);                            \
-            next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
-        }                                                                         \
-        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
-#endif
-
-// Ends the chain of tail calls, returning back up to start_pipeline (and from there to the caller).
-extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
-
-// We can now define Stages!
-
-// Some things to keep in mind while writing Stages:
-//   - do not branch;                                           (i.e. avoid jmp)
-//   - do not call functions that don't inline;                 (i.e. avoid call, ret)
-//   - do not use constant literals other than 0, ~0 and 0.0f.  (i.e. avoid rip relative addressing)
-//
-// Some things that should work fine:
-//   - 0, ~0, and 0.0f;
-//   - arithmetic;
-//   - functions of F and U32 that we've defined above;
-//   - temporary values;
-//   - lambdas;
-//   - memcpy() with a compile-time constant size argument.
+// Now finally, normal Stages!
 
 STAGE(seed_shader) {
     auto y = *(const int*)ctx;
@@ -526,6 +308,7 @@ STAGE(constant_color) {
     a = rgba[3];
 }
 
+// Most blend modes apply the same logic to each channel.
 #define BLEND_MODE(name)                       \
     SI F name##_channel(F s, F d, F sa, F da); \
     STAGE(name) {                              \
@@ -554,8 +337,9 @@ BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
 BLEND_MODE(plus_)    { return s + d; }
 BLEND_MODE(screen)   { return s + d - s*d; }
 BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
-
 #undef BLEND_MODE
+
+// Most other blend modes apply the same logic to colors, and srcover to alpha.
 #define BLEND_MODE(name)                       \
     SI F name##_channel(F s, F d, F sa, F da); \
     STAGE(name) {                              \
@@ -605,6 +389,7 @@ BLEND_MODE(softlight) {
       liteSrc = d*sa + da*(s2 - sa) * if_then_else(two(two(d)) <= da, darkDst, liteDst); // 2 or 3?
     return s*inv(da) + d*inv(sa) + if_then_else(s2 <= sa, darkSrc, liteSrc);      // 1 or (2 or 3)?
 }
+#undef BLEND_MODE
 
 STAGE(clamp_0) {
     r = max(r, 0);
@@ -717,6 +502,10 @@ STAGE(scale_u8) {
     g = g * c;
     b = b * c;
     a = a * c;
+}
+
+SI F lerp(F from, F to, F t) {
+    return mad(to-from, t, from);
 }
 
 STAGE(lerp_1_float) {
