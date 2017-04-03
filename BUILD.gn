@@ -921,7 +921,6 @@ if (skia_enable_tools) {
       "tools/timer",
     ]
     sources = [
-      "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
       "tools/AndroidSkDebugToStdOut.cpp",
       "tools/CrashHandler.cpp",
       "tools/LsanSuppressions.cpp",
