@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8eebd989_7e8be154",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T16:01:15Z",
+      "side": 1,
+      "message": "Kind of ugly, huh?  Is there some way we can make this clearer, more obviously correct?",
+      "range": {
+        "startLine": 147,
+        "startChar": 3,
+        "endLine": 157,
+        "endChar": 66
+      },
+      "revId": "9e729d8b709e0176f022ec2155fb13fe643e3927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35387906_6bb4cc86",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1166,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T16:01:15Z",
+      "side": 1,
+      "message": "Looks like a good spot for a lambda,\n\nauto update_if_past(...) { ... };\n\nfg \u003d update_if_past(c.stops[i], fg);\nfb \u003d update_if_past(c.stops[i], fb);\n...",
+      "range": {
+        "startLine": 1166,
+        "startChar": 8,
+        "endLine": 1166,
+        "endChar": 68
+      },
+      "revId": "9e729d8b709e0176f022ec2155fb13fe643e3927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b470d2b_db64963a",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T16:01:15Z",
+      "side": 1,
+      "message": "Might match the 2stops code better if we call these dr and r0, respectively.",
+      "range": {
+        "startLine": 1176,
+        "startChar": 15,
+        "endLine": 1176,
+        "endChar": 21
+      },
+      "revId": "9e729d8b709e0176f022ec2155fb13fe643e3927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
