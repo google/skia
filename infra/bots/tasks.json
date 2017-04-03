@@ -66,10 +66,22 @@
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ]
     },
+    "Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p"
+      ]
+    },
     "Build-Ubuntu-Clang-arm-Release-Android": {
       "priority": 0.8,
       "tasks": [
         "Build-Ubuntu-Clang-arm-Release-Android"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm-Release-Chromebook_C100p": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm-Release-Chromebook_C100p"
       ]
     },
     "Build-Ubuntu-Clang-arm64-Debug-Android": {
@@ -2173,6 +2185,49 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/armhf_sysroot",
+          "path": "armhf_sysroot",
+          "version": "version:1"
+        },
+        {
+          "name": "skia/bots/chromebook_c100p_lib",
+          "path": "chromebook_c100p_lib",
+          "version": "version:2"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Ubuntu-Clang-arm-Release-Android": {
       "cipd_packages": [
         {
@@ -2193,6 +2248,49 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm-Release-Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-arm-Release-Chromebook_C100p": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/armhf_sysroot",
+          "path": "armhf_sysroot",
+          "version": "version:1"
+        },
+        {
+          "name": "skia/bots/chromebook_c100p_lib",
+          "path": "chromebook_c100p_lib",
+          "version": "version:2"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm-Release-Chromebook_C100p",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2706,7 +2804,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2739,7 +2837,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2772,7 +2870,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2805,7 +2903,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -2843,7 +2941,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2876,7 +2974,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2909,7 +3007,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2942,7 +3040,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -2975,7 +3073,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dimensions": [
@@ -3008,7 +3106,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -6443,7 +6541,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -6498,7 +6596,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -6603,7 +6701,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -6708,7 +6806,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -6762,7 +6860,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -12274,7 +12372,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -12329,7 +12427,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -12434,7 +12532,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -12539,7 +12637,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -12594,7 +12692,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -12648,7 +12746,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -12702,7 +12800,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:4"
+          "version": "version:7"
         }
       ],
       "dependencies": [
