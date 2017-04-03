@@ -92,13 +92,13 @@ bool VertState::TriangleFanX(VertState* state) {
     return true;
 }
 
-VertState::Proc VertState::chooseProc(SkCanvas::VertexMode mode) {
+VertState::Proc VertState::chooseProc(SkVertices::VertexMode mode) {
     switch (mode) {
-        case SkCanvas::kTriangles_VertexMode:
+        case SkVertices::kTriangles_VertexMode:
             return fIndices ? TrianglesX : Triangles;
-        case SkCanvas::kTriangleStrip_VertexMode:
+        case SkVertices::kTriangleStrip_VertexMode:
             return fIndices ? TriangleStripX : TriangleStrip;
-        case SkCanvas::kTriangleFan_VertexMode:
+        case SkVertices::kTriangleFan_VertexMode:
             return fIndices ? TriangleFanX : TriangleFan;
         default:
             return nullptr;

@@ -1717,9 +1717,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             }
             case 53: {
                 fuzz_paint(fuzz, &paint, depth - 1);
-                SkCanvas::VertexMode vertexMode;
+                SkVertices::VertexMode vertexMode;
                 SkBlendMode blendMode;
-                fuzz_enum_range(fuzz, &vertexMode, 0, SkCanvas::kTriangleFan_VertexMode);
+                fuzz_enum_range(fuzz, &vertexMode, 0, SkVertices::kTriangleFan_VertexMode);
                 fuzz->next(&blendMode);
                 constexpr int kMaxCount = 100;
                 int vertexCount;
@@ -1744,18 +1744,11 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                         fuzz->nextRange(&indices[i], 0, vertexCount - 1);
                     }
                 }
-                if (make_fuzz_t<bool>(fuzz)) {
-                    canvas->drawVertices(vertexMode, vertexCount, vertices,
-                                         useTexs ? texs : nullptr, useColors ? colors : nullptr,
-                                         blendMode, indexCount > 0 ? indices : nullptr, indexCount,
-                                         paint);
-                } else {
-                    canvas->drawVertices(SkVertices::MakeCopy(vertexMode, vertexCount, vertices,
-                                                              useTexs ? texs : nullptr,
-                                                              useColors ? colors : nullptr,
-                                                              indexCount, indices),
-                                         blendMode, paint);
-                }
+                canvas->drawVertices(SkVertices::MakeCopy(vertexMode, vertexCount, vertices,
+                                                          useTexs ? texs : nullptr,
+                                                          useColors ? colors : nullptr,
+                                                          indexCount, indices),
+                                     blendMode, paint);
                 break;
             }
             default:
