@@ -427,6 +427,12 @@
         "Housekeeper-PerCommit"
       ]
     },
+    "Housekeeper-PerCommit-BundleRecipes": {
+      "priority": 0.8,
+      "tasks": [
+        "BundleRecipes"
+      ]
+    },
     "Housekeeper-PerCommit-InfraTests": {
       "priority": 0.8,
       "tasks": [
@@ -3999,6 +4005,16 @@
       ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
+    },
+    "BundleRecipes": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "isolate": "bundle_recipes.isolate",
+      "priority": 0.95
     },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "dimensions": [
