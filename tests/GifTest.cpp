@@ -256,7 +256,7 @@ DEF_TEST(Gif_Sampled, r) {
     options.fColorCount = colorCountPtr;
 
     SkBitmap bm;
-    bm.allocPixels(codec->getInfo(), nullptr, colorTable.get());
+    bm.allocPixels(codec->getInfo(), colorTable);
     const SkCodec::Result result = codec->getAndroidPixels(codec->getInfo(), bm.getPixels(),
             bm.rowBytes(), &options);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
