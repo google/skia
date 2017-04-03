@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "02dce228_0c035841",
+        "filename": "bench/ColorCanvasDrawBitmapBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-03T14:18:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5472326d_c9421c8a",
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f0d69bd_ab5c5c4e",
         "filename": "bench/ColorCanvasDrawBitmapBench.cpp",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "3549d4f8_ee21ad39",
+        "filename": "bench/ColorCanvasDrawBitmapBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-03T14:18:52Z",
+      "side": 1,
+      "message": "Yes, added the bench though.",
+      "parentUuid": "1f0d69bd_ab5c5c4e",
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e04eb567_911cc02e",
         "filename": "src/core/SkColorSpaceXformCanvas.cpp",
         "patchSetId": 3
@@ -47,6 +83,30 @@
       "writtenOn": "2017-04-03T13:50:58Z",
       "side": 1,
       "message": "Whoops, this was just an unrelated bug, right?",
+      "range": {
+        "startLine": 129,
+        "startChar": 44,
+        "endLine": 129,
+        "endChar": 88
+      },
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d21b6f77_2fd438a1",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-03T14:18:52Z",
+      "side": 1,
+      "message": "Yeah it\u0027s unrelated.\n\nIt looks like this is actually never called with src being nullptr...  I thought about adding an assert, but didn\u0027t want to rely on that never changing.\n\nI\u0027m not sure that this is a bug fix, but this seems to make more sense.",
+      "parentUuid": "e04eb567_911cc02e",
       "range": {
         "startLine": 129,
         "startChar": 44,
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "4a7540c3_a524297e",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-03T14:18:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01db2701_50492104",
+      "range": {
+        "startLine": 163,
+        "startChar": 12,
+        "endLine": 163,
+        "endChar": 21
+      },
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e33cf023_e3a28a12",
         "filename": "src/core/SkColorSpaceXformCanvas.cpp",
         "patchSetId": 3
@@ -96,6 +180,24 @@
       "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b4853e0_048b3b73",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-03T14:18:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e33cf023_e3a28a12",
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -122,6 +224,30 @@
     },
     {
       "key": {
+        "uuid": "90937c97_b62c5da4",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-03T14:18:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea402aca_c63210ad",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 37
+      },
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62ddbf7f_17faa57a",
         "filename": "src/core/SkColorSpaceXformCanvas.cpp",
         "patchSetId": 3
@@ -142,6 +268,30 @@
       "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d79d38f_475a124f",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-03T14:18:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62ddbf7f_17faa57a",
+      "range": {
+        "startLine": 267,
+        "startChar": 40,
+        "endLine": 267,
+        "endChar": 65
+      },
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
