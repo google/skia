@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7599e08_782787e0",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T14:26:12Z",
+      "side": 1,
+      "message": "Probably should return here?",
+      "revId": "a05d0b2e54d4775a6497c564342990b4346702df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e97786a5_675fdcee",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T14:26:12Z",
+      "side": 1,
+      "message": "// We want to be certain we don\u0027t let that kNever_SkCopyPixelsMode image escape this stack frame.\n\n?\n\nHow would this play with Brian Osman\u0027s idea to transform as needed on the GPU?  Isn\u0027t there a chance we\u0027ll secretly extend the life of image by reffing it from his wrapper image?",
+      "revId": "a05d0b2e54d4775a6497c564342990b4346702df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
