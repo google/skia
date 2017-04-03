@@ -59,7 +59,7 @@ DEF_TEST(Vertices, reporter) {
         for (auto colF : colFlags) {
             uint32_t flags = texF | colF;
 
-            SkVertices::Builder builder(SkCanvas::kTriangles_VertexMode, vCount, iCount, flags);
+            SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vCount, iCount, flags);
 
             for (int i = 0; i < vCount; ++i) {
                 float x = (float)i;

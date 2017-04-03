@@ -15,7 +15,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> GrDrawVerticesOp::Make(
         const SkPoint* positions, int vertexCount, const uint16_t* indices, int indexCount,
         const uint32_t* colors, const SkPoint* localCoords, const SkRect& bounds,
         GrRenderTargetContext::ColorArrayType colorArrayType) {
-    static constexpr SkCanvas::VertexMode kIgnoredMode = SkCanvas::kTriangles_VertexMode;
+    static constexpr SkVertices::VertexMode kIgnoredMode = SkVertices::kTriangles_VertexMode;
     SkASSERT(positions);
     if (!colors) {
         // When we tessellate we will fill a color array with the GrColor value passed above as

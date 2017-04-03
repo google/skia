@@ -1943,7 +1943,7 @@ sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint verts[],
 
 } // anonymous ns
 
-void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
+void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
                           const SkPoint vertices[], const SkPoint textures[],
                           const SkColor colors[], SkBlendMode bmode,
                           const uint16_t indices[], int indexCount,

@@ -1138,6 +1138,7 @@ public:
     }
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
     enum VertexMode {
         kTriangles_VertexMode,
         kTriangleStrip_VertexMode,
@@ -1178,6 +1179,7 @@ public:
         this->drawVertices(vmode, vertexCount, vertices, texs, colors, SkBlendMode::kModulate,
                            indices, indexCount, paint);
     }
+#endif
 
     /** Draw vertices from an immutable SkVertices object.
 

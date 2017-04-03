@@ -19,6 +19,7 @@
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
 #include "SkPM4f.h"
+#include "SkVertices.h"
 #include "SkXfermodePriv.h"
 
 class GrCaps;
@@ -164,13 +165,13 @@ GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
 
 //////////////////////////////////////////////////////////////////////////////
 
-static inline GrPrimitiveType SkVertexModeToGrPrimitiveType(const SkCanvas::VertexMode mode) {
+static inline GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode) {
     switch (mode) {
-        case SkCanvas::kTriangles_VertexMode:
+        case SkVertices::kTriangles_VertexMode:
             return kTriangles_GrPrimitiveType;
-        case SkCanvas::kTriangleStrip_VertexMode:
+        case SkVertices::kTriangleStrip_VertexMode:
             return kTriangleStrip_GrPrimitiveType;
-        case SkCanvas::kTriangleFan_VertexMode:
+        case SkVertices::kTriangleFan_VertexMode:
             return kTriangleFan_GrPrimitiveType;
     }
     SkFAIL("Invalid mode");

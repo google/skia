@@ -13,6 +13,7 @@
 #include "SkImagePriv.h"
 #include "SkPM4fPriv.h"
 #include "SkSurface.h"
+#include "SkVertices.h"
 
 static const int gRectSize = 50;
 static const SkScalar gScalarSize = SkIntToScalar(gRectSize);
@@ -105,8 +106,9 @@ struct VerticesCellRenderer : public CellRenderer {
             SkPoint::Make(gScalarSize, gScalarSize),
             SkPoint::Make(0, gScalarSize)
         };
-        canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, vertices, nullptr, fColors,
-                             SkBlendMode::kModulate, nullptr, 0, paint);
+        canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4, vertices,
+                                                  nullptr, fColors),
+                             SkBlendMode::kModulate, paint);
     }
     const char* label() override {
         return "Vertices";

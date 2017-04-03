@@ -51,6 +51,12 @@
 #include "SkClipOpPriv.h"
 #include "SkVertices.h"
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
+static_assert((int)SkCanvas::kTriangles_VertexMode == (int)SkVertices::kTriangles_VertexMode, "");
+static_assert((int)SkCanvas::kTriangleStrip_VertexMode == (int)SkVertices::kTriangleStrip_VertexMode, "");
+static_assert((int)SkCanvas::kTriangleFan_VertexMode == (int)SkVertices::kTriangleFan_VertexMode, "");
+#endif
+
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
 class SkNoPixelsDevice : public SkBaseDevice {
@@ -1796,6 +1802,7 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], con
     this->onDrawPoints(mode, count, pts, paint);
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
 void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint positions[],
                             const SkPoint texs[], const SkColor colors[], SkBlendMode bmode,
                             const uint16_t indices[], int indexCount, const SkPaint& paint) {
@@ -1805,6 +1812,7 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint pos
         this->onDrawVerticesObject(vertices.get(), bmode, paint);
     }
 }
+#endif
 
 void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
                             const SkPaint& paint) {

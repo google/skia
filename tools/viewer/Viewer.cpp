@@ -33,6 +33,7 @@
 #include "SkSwizzle.h"
 #include "SkTaskGroup.h"
 #include "SkTime.h"
+#include "SkVertices.h"
 
 #include "imgui.h"
 
@@ -1209,10 +1210,12 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 canvas->save();
                 canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x, drawCmd->ClipRect.y,
                                                   drawCmd->ClipRect.z, drawCmd->ClipRect.w));
-                canvas->drawVertices(SkCanvas::kTriangles_VertexMode, drawList->VtxBuffer.size(),
-                                     pos.begin(), uv.begin(), color.begin(),
-                                     drawList->IdxBuffer.begin() + indexOffset, drawCmd->ElemCount,
-                                     *paint);
+                canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
+                                                          drawList->VtxBuffer.size(), pos.begin(),
+                                                          uv.begin(), color.begin(),
+                                                          drawCmd->ElemCount,
+                                                          drawList->IdxBuffer.begin() + indexOffset),
+                                     SkBlendMode::kModulate, *paint);
                 indexOffset += drawCmd->ElemCount;
                 canvas->restore();
             }

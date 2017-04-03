@@ -65,6 +65,7 @@
 #include "SkSurface.h"
 #include "SkTemplates.h"
 #include "SkTDArray.h"
+#include "SkVertices.h"
 #include "Test.h"
 
 DEF_TEST(canvas_clipbounds, reporter) {
@@ -476,8 +477,9 @@ static void DrawVerticesShaderTestStep(SkCanvas* canvas, const TestData& d,
     SkPaint paint;
     paint.setShader(SkShader::MakeBitmapShader(d.fBitmap, SkShader::kClamp_TileMode,
                                                SkShader::kClamp_TileMode));
-    canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, pts, pts,
-                         nullptr, SkBlendMode::kModulate, nullptr, 0, paint);
+    canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4, pts, pts,
+                                              nullptr),
+                         SkBlendMode::kModulate, paint);
 }
 // NYI: issue 240.
 TEST_STEP_NO_PDF(DrawVerticesShader, DrawVerticesShaderTestStep);

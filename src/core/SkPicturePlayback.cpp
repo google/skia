@@ -651,7 +651,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case DRAW_VERTICES_RETIRED_03_2017: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             DrawVertexFlags flags = (DrawVertexFlags)reader->readInt();
-            SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader->readInt();
+            SkVertices::VertexMode vmode = (SkVertices::VertexMode)reader->readInt();
             int vCount = reader->readInt();
             const SkPoint* verts = (const SkPoint*)reader->skip(vCount * sizeof(SkPoint));
             const SkPoint* texs = nullptr;
