@@ -1018,6 +1018,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // is available.
         if (ctxInfo.version() >= GR_GL_VER(3, 0)) {
             fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
+                                    kNoMSAADst_BlitFramebufferFlag |
                                     kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
                    ctxInfo.hasExtension("GL_ANGLE_framebuffer_blit")) {
@@ -1026,7 +1027,8 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fBlitFramebufferFlags = kNoScalingOrMirroring_BlitFramebufferFlag |
                                     kResolveMustBeFull_BlitFrambufferFlag |
                                     kNoMSAADst_BlitFramebufferFlag |
-                                    kNoFormatConversion_BlitFramebufferFlag;
+                                    kNoFormatConversion_BlitFramebufferFlag |
+                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
         }
     } else {
         if (fUsesMixedSamples) {
@@ -2068,7 +2070,14 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 #endif
 }
 
-bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc,
+                                  bool* rectsMustMatch, bool* disallowSubrect) const {
+    // By default, we don't require rects to match.
+    *rectsMustMatch = false;
+
+    // By default, we allow subrects.
+    *disallowSubrect = false;
+
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTexture() && this->isConfigRenderable(src->config(), false)) {
@@ -2089,7 +2098,20 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc
     // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
     GrSurfaceOrigin originForBlitFramebuffer = kDefault_GrSurfaceOrigin;
-    if (this->blitFramebufferSupportFlags() & kNoScalingOrMirroring_BlitFramebufferFlag) {
+    bool rectsMustMatchForBlitFramebuffer = false;
+    bool disallowSubrectForBlitFramebuffer = false;
+    if (src->numColorSamples() &&
+        (this->blitFramebufferSupportFlags() & kResolveMustBeFull_BlitFrambufferFlag)) {
+        rectsMustMatchForBlitFramebuffer = true;
+        disallowSubrectForBlitFramebuffer = true;
+        // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
+    } else if (src->numColorSamples() && (this->blitFramebufferSupportFlags() &
+                                          kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
+        rectsMustMatchForBlitFramebuffer = true;
+        // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
+    } else if (this->blitFramebufferSupportFlags() & kNoScalingOrMirroring_BlitFramebufferFlag) {
         originForBlitFramebuffer = src->origin();
     }
 
@@ -2100,6 +2122,8 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc
         if (this->canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
             desc->fOrigin = originForBlitFramebuffer;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
+            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
+            *disallowSubrect = disallowSubrectForBlitFramebuffer;
             return true;
         }
         return false;
@@ -2112,6 +2136,8 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc
         if (this->canConfigBeFBOColorAttachment(src->config())) {
             desc->fOrigin = originForBlitFramebuffer;
             desc->fConfig = src->config();
+            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
+            *disallowSubrect = disallowSubrectForBlitFramebuffer;
             return true;
         }
         return false;
