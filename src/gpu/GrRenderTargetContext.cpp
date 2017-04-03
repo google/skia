@@ -1751,10 +1751,11 @@ void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& cl
     clip.getConservativeBounds(rt->width(), rt->height(), &copyRect);
 
     SkIRect drawIBounds;
+    SkIRect clippedRect;
     opBounds.roundOut(&drawIBounds);
     // Cover up for any precision issues by outsetting the op bounds a pixel in each direction.
     drawIBounds.outset(1, 1);
-    if (!copyRect.intersect(drawIBounds)) {
+    if (!clippedRect.intersect(copyRect, drawIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "Missed an early reject. "
                                    "Bailing on draw from setupDstTexture.\n");
@@ -1765,24 +1766,43 @@ void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& cl
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrSurfaceDesc desc;
-    if (!this->caps()->initDescForDstCopy(rt, &desc)) {
+    bool rectsMustMatch = false;
+    bool disallowSubrect = false;
+    if (!this->caps()->initDescForDstCopy(rt, &desc, &rectsMustMatch, &disallowSubrect)) {
         desc.fOrigin = kDefault_GrSurfaceOrigin;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fConfig = rt->config();
     }
 
-    desc.fWidth = copyRect.width();
-    desc.fHeight = copyRect.height();
+    if (!disallowSubrect) {
+        copyRect = clippedRect;
+    }
 
+    SkIPoint dstPoint;
+    SkIPoint dstOffset;
     static const uint32_t kFlags = 0;
-    sk_sp<GrTexture> copy(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
+    sk_sp<GrTexture> copy;
+    if (rectsMustMatch) {
+        SkASSERT(desc.fOrigin == rt->origin());
+        desc.fWidth = rt->width();
+        desc.fHeight = rt->height();
+        dstPoint = {copyRect.fLeft, copyRect.fTop};
+        dstOffset = {0, 0};
+        copy.reset(fContext->resourceProvider()->createTexture(desc, SkBudgeted::kYes, kFlags));
+    } else {
+        desc.fWidth = copyRect.width();
+        desc.fHeight = copyRect.height();
+        dstPoint = {0, 0};
+        dstOffset = {copyRect.fLeft, copyRect.fTop};
+        copy.reset(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
+    }
 
     if (!copy) {
         SkDebugf("Failed to create temporary copy of destination texture.\n");
         return;
     }
-    SkIPoint dstPoint = {0, 0};
+
     this->getOpList()->copySurface(copy.get(), rt, copyRect, dstPoint);
     dstTexture->setTexture(std::move(copy));
-    dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
+    dstTexture->setOffset(dstOffset);
 }
