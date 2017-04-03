@@ -144,6 +144,17 @@ public:
         }
     }
 
+    /**
+     * If the GrXferProcessor uses a texture to access the dst color, then this returns that
+     * texture and the offset to the dst contents within that texture.
+     */
+    GrTexture* dstTexture(SkIPoint* offset = nullptr) const {
+        if (offset) {
+            *offset = fDstTextureOffset;
+        }
+        return fDstTexture.get();
+    }
+
     const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
         SkASSERT(idx < this->numColorFragmentProcessors());
         return *fFragmentProcessors[idx].get();
@@ -194,7 +205,10 @@ public:
     }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
+        if (fDstTexture.get() && fDstTexture.get() == fRenderTarget.get()->asTexture()) {
+            return kTexture_GrXferBarrierType;
+        }
+        return this->getXferProcessor().xferBarrierType(caps);
     }
 
     /**
@@ -214,21 +228,25 @@ private:
         kStencilEnabled_Flag = 0x40,
     };
 
-    typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
-    typedef GrPendingProgramElement<const GrFragmentProcessor> PendingFragmentProcessor;
-    typedef SkAutoSTArray<8, PendingFragmentProcessor> FragmentProcessorArray;
-    typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
-    RenderTarget                        fRenderTarget;
-    GrScissorState                      fScissorState;
-    GrWindowRectsState                  fWindowRectsState;
-    const GrUserStencilSettings*        fUserStencilSettings;
-    uint16_t                            fDrawFace;
-    uint16_t                            fFlags;
-    ProgramXferProcessor                fXferProcessor;
-    FragmentProcessorArray              fFragmentProcessors;
+    using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;
+    using DstTexture = GrPendingIOResource<GrTexture, kRead_GrIOType>;
+    using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
+    using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
+    using ProgramXferProcessor = GrPendingProgramElement<const GrXferProcessor>;
+
+    DstTexture fDstTexture;
+    SkIPoint fDstTextureOffset;
+    RenderTarget fRenderTarget;
+    GrScissorState fScissorState;
+    GrWindowRectsState fWindowRectsState;
+    const GrUserStencilSettings* fUserStencilSettings;
+    uint16_t fDrawFace;
+    uint16_t fFlags;
+    ProgramXferProcessor fXferProcessor;
+    FragmentProcessorArray fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
-    int                                 fNumColorProcessors;
+    int fNumColorProcessors;
 
     typedef SkRefCnt INHERITED;
 };
