@@ -42,7 +42,7 @@ void GrGLSLVaryingHandler::internalAddVarying(const char* name,
 
     SkASSERT(varying);
     v.fType = varying->fType;
-    v.fPrecision = (kDefault_GrSLPrecision == precision) ? kMedium_GrSLPrecision : precision;
+    v.fPrecision = precision;
     v.fIsFlat = flat;
     fProgramBuilder->nameVariable(&v.fVsOut, 'v', name);
     v.fVisibility = kNone_GrShaderFlags;
