@@ -10,6 +10,7 @@
 #include "GrSamplerParams.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkCopyPipeline.h"
+#include "GrVkMipmapPipeline.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkSampler.h"
@@ -87,6 +88,30 @@ GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
                                             *dst->simpleRenderPass(),
                                             fPipelineCache);
         fCopyPipelines.push_back(pipeline);
+    }
+    SkASSERT(pipeline);
+    pipeline->ref();
+    return pipeline;
+}
+
+GrVkMipmapPipeline* GrVkResourceProvider::findOrCreateMipmapPipeline(
+    const GrVkRenderTarget* dst,
+    VkPipelineShaderStageCreateInfo* shaderStageInfo,
+    VkPipelineLayout pipelineLayout) {
+    // Find or Create a compatible pipeline
+    GrVkMipmapPipeline* pipeline = nullptr;
+    for (int i = 0; i < fMipmapPipelines.count() && !pipeline; ++i) {
+        if (fMipmapPipelines[i]->isCompatible(*dst->simpleRenderPass())) {
+            pipeline = fMipmapPipelines[i];
+        }
+    }
+    if (!pipeline) {
+        pipeline = GrVkMipmapPipeline::Create(fGpu, shaderStageInfo,
+                                              pipelineLayout,
+                                              dst->numColorSamples(),
+                                              *dst->simpleRenderPass(),
+                                              fPipelineCache);
+        fMipmapPipelines.push_back(pipeline);
     }
     SkASSERT(pipeline);
     pipeline->ref();
