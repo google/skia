@@ -8,6 +8,7 @@
 #ifndef GrGLSLXferProcessor_DEFINED
 #define GrGLSLXferProcessor_DEFINED
 
+#include <GrXferProcessor.h>
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
@@ -21,14 +22,16 @@ public:
     GrGLSLXferProcessor() {}
     virtual ~GrGLSLXferProcessor() {}
 
-    using SamplerHandle        = GrGLSLUniformHandler::SamplerHandle;
-    using ImageStorageHandle   = GrGLSLUniformHandler::ImageStorageHandle;
+    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
+    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
+    using DstTexture = GrXferProcessor::DstTexture;
 
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrShaderCaps* caps,
                  const GrXferProcessor& xp,
+                 const GrSurfaceOrigin* originIfDstTexture,
                  const char* inputColor,
                  const char* inputCoverage,
                  const char* outputPrimary,
@@ -40,6 +43,7 @@ public:
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
                 , fXP(xp)
+                , fOriginIfDstTexture(originIfDstTexture)
                 , fInputColor(inputColor)
                 , fInputCoverage(inputCoverage)
                 , fOutputPrimary(outputPrimary)
@@ -47,11 +51,11 @@ public:
                 , fTexSamplers(texSamplers)
                 , fBufferSamplers(bufferSamplers)
                 , fImageStorages(imageStorages) {}
-
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
         const GrXferProcessor& fXP;
+        const GrSurfaceOrigin* fOriginIfDstTexture;
         const char* fInputColor;
         const char* fInputCoverage;
         const char* fOutputPrimary;
@@ -73,7 +77,8 @@ public:
         to have an identical processor key as the one that created this GrGLSLXferProcessor. This
         function calls onSetData on the subclass of GrGLSLXferProcessor
      */
-    void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp);
+    void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp,
+                 const GrTexture* dstTexture, const SkIPoint& dstTextureOffset);
 
 protected:
     static void DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,

@@ -11,22 +11,12 @@
 
 GrXferProcessor::GrXferProcessor()
     : fWillReadDstColor(false)
-    , fDstReadUsesMixedSamples(false)
-    , fDstTextureOffset() {
+    , fDstReadUsesMixedSamples(false) {
 }
 
-GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture,
-                                 bool willReadDstColor,
-                                 bool hasMixedSamples)
+GrXferProcessor::GrXferProcessor(bool willReadDstColor, bool hasMixedSamples)
     : fWillReadDstColor(willReadDstColor)
-    , fDstReadUsesMixedSamples(willReadDstColor && hasMixedSamples)
-    , fDstTextureOffset() {
-    if (dstTexture && dstTexture->texture()) {
-        SkASSERT(willReadDstColor);
-        fDstTexture.reset(dstTexture->texture());
-        fDstTextureOffset = dstTexture->offset();
-        this->addTextureSampler(&fDstTexture);
-    }
+    , fDstReadUsesMixedSamples(willReadDstColor && hasMixedSamples) {
 }
 
 bool GrXferProcessor::hasSecondaryOutput() const {
@@ -46,12 +36,12 @@ void GrXferProcessor::getBlendInfo(BlendInfo* blendInfo) const {
 }
 
 void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                          GrProcessorKeyBuilder* b) const {
+                                          GrProcessorKeyBuilder* b, const GrSurfaceOrigin* originIfDstTexture) const {
     uint32_t key = this->willReadDstColor() ? 0x1 : 0x0;
     if (key) {
-        if (const GrTexture* dstTexture = this->getDstTexture()) {
+        if (originIfDstTexture) {
             key |= 0x2;
-            if (kTopLeft_GrSurfaceOrigin == dstTexture->origin()) {
+            if (kTopLeft_GrSurfaceOrigin == *originIfDstTexture) {
                 key |= 0x4;
             }
         }
@@ -63,14 +53,7 @@ void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps,
     this->onGetGLSLProcessorKey(caps, b);
 }
 
-GrXferBarrierType GrXferProcessor::xferBarrierType(const GrRenderTarget* rt,
-                                                   const GrCaps& caps) const {
-    SkASSERT(rt);
-    if (static_cast<const GrSurface*>(rt) == this->getDstTexture()) {
-        // Texture barriers are required when a shader reads and renders to the same texture.
-        SkASSERT(caps.textureBarrierSupport());
-        return kTexture_GrXferBarrierType;
-    }
+GrXferBarrierType GrXferProcessor::xferBarrierType(const GrCaps& caps) const {
     return this->onXferBarrier(caps);
 }
 
@@ -195,8 +178,7 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
 GrXferProcessor* GrXPFactory::createXferProcessor(const GrProcessorAnalysisColor& color,
                                                   GrProcessorAnalysisCoverage coverage,
                                                   bool hasMixedSamples,
-                                                  const DstTexture* dstTexture,
                                                   const GrCaps& caps) const {
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
-    return this->onCreateXferProcessor(caps, color, coverage, hasMixedSamples, dstTexture);
+    return this->onCreateXferProcessor(caps, color, coverage, hasMixedSamples);
 }

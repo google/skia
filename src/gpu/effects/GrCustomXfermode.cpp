@@ -78,8 +78,8 @@ public:
         this->initClassID<CustomXP>();
     }
 
-    CustomXP(const DstTexture* dstTexture, bool hasMixedSamples, SkBlendMode mode)
-        : INHERITED(dstTexture, true, hasMixedSamples),
+    CustomXP(bool hasMixedSamples, SkBlendMode mode)
+        : INHERITED(true, hasMixedSamples),
           fMode(mode),
           fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
         this->initClassID<CustomXP>();
@@ -214,8 +214,7 @@ public:
 
 private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
-                                           GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                           const DstTexture*) const override;
+                                           GrProcessorAnalysisCoverage, bool hasMixedSamples) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
@@ -235,14 +234,12 @@ private:
 GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                         const GrProcessorAnalysisColor&,
                                                         GrProcessorAnalysisCoverage coverage,
-                                                        bool hasMixedSamples,
-                                                        const DstTexture* dstTexture) const {
+                                                        bool hasMixedSamples) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
-        SkASSERT(!dstTexture || !dstTexture->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }
-    return new CustomXP(dstTexture, hasMixedSamples, fMode);
+    return new CustomXP(hasMixedSamples, fMode);
 }
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(

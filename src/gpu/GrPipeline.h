@@ -144,6 +144,13 @@ public:
         }
     }
 
+    GrTexture* dstTexture(SkIPoint* offset = nullptr) const {
+        if (offset) {
+            *offset = fDstTextureOffset;
+        }
+        return fDstTexture.get();
+    }
+
     const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
         SkASSERT(idx < this->numColorFragmentProcessors());
         return *fFragmentProcessors[idx].get();
@@ -194,7 +201,7 @@ public:
     }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
+        return this->getXferProcessor().xferBarrierType(caps);
     }
 
     /**
@@ -218,6 +225,11 @@ private:
     typedef GrPendingProgramElement<const GrFragmentProcessor> PendingFragmentProcessor;
     typedef SkAutoSTArray<8, PendingFragmentProcessor> FragmentProcessorArray;
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
+
+
+    GrPendingIOResource<GrTexture, kRead_GrIOType> fDstTexture;
+    SkIPoint                                       fDstTextureOffset;
+
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
     GrWindowRectsState                  fWindowRectsState;

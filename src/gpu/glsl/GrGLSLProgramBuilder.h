@@ -152,8 +152,7 @@ private:
                                 int transformedCoordVarsIdx,
                                 const GrGLSLExpr4& input,
                                 GrGLSLExpr4* output);
-    void emitAndInstallXferProc(const GrXferProcessor&,
-                                const GrGLSLExpr4& colorIn,
+    void emitAndInstallXferProc(const GrGLSLExpr4& colorIn,
                                 const GrGLSLExpr4& coverageIn);
     void emitSamplersAndImageStorages(const GrProcessor& processor,
                                       SkTArray<SamplerHandle>* outTexSamplerHandles,

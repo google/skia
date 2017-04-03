@@ -62,7 +62,7 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
     this->emitAndInstallPrimProc(primProc, inputColor, inputCoverage);
 
     this->emitAndInstallFragProcs(inputColor, inputCoverage);
-    this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor, *inputCoverage);
+    this->emitAndInstallXferProc( *inputColor, *inputCoverage);
     this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
 
     return this->checkSamplerCounts() && this->checkImageStorageCounts();
@@ -211,13 +211,13 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
     fFS.codeAppend("}");
 }
 
-void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
-                                                  const GrGLSLExpr4& colorIn,
+void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrGLSLExpr4& colorIn,
                                                   const GrGLSLExpr4& coverageIn) {
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
 
     SkASSERT(!fXferProcessor);
+    const GrXferProcessor& xp = fPipeline.getXferProcessor();
     fXferProcessor = xp.createGLSLInstance();
 
     // Enable dual source secondary output if we have one
@@ -238,10 +238,21 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     SkSTArray<2, ImageStorageHandle> imageStorageArray(xp.numImageStorages());
     this->emitSamplersAndImageStorages(xp, &texSamplers, &bufferSamplers, &imageStorageArray);
 
+    const GrSurfaceOrigin* originIfDstTexture = nullptr;
+    GrSurfaceOrigin origin;
+    if (fPipeline.dstTexture()) {
+        origin = fPipeline.dstTexture()->origin();
+        originIfDstTexture = &origin;
+    }
+    SkIPoint offset;
+    GrTexture* texture = pipeline().dstTexture(&offset);
+    GrXferProcessor::DstTexture dstTexture(texture, offset);
     GrGLSLXferProcessor::EmitArgs args(&fFS,
                                        this->uniformHandler(),
                                        this->shaderCaps(),
-                                       xp, colorIn.c_str(),
+                                       xp,
+                                       originIfDstTexture,
+                                       colorIn.c_str(),
                                        coverageIn.c_str(),
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),

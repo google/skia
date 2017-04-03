@@ -180,7 +180,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     }
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
-    xp.getGLSLProcessorKey(shaderCaps, &b);
+//    xp.getGLSLProcessorKey(shaderCaps, &b);
     if (!gen_meta_key(xp, shaderCaps, 0, &b)) {
         desc->key().reset();
         return false;

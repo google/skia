@@ -78,7 +78,9 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     this->setFragmentData(primProc, pipeline, &nextSamplerIdx);
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
-    fXferProcessor->setData(fProgramDataManager, xp);
+    SkIPoint offset;
+    const GrTexture* dstTexture = pipeline.dstTexture(&offset);
+    fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
     this->bindTextures(xp, pipeline.getAllowSRGBInputs(), &nextSamplerIdx);
 }
 

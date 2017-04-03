@@ -214,7 +214,9 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     }
     SkASSERT(!fp && !glslFP);
 
-    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor());
+    SkIPoint offset;
+    const GrTexture* dstTexture = pipeline.dstTexture(&offset);
+    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
     append_texture_bindings(pipeline.getXferProcessor(), &textureBindings);
 
     // Get new descriptor sets
