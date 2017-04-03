@@ -32,10 +32,8 @@ static const char* precision_to_string(GrSLPrecision p) {
         return "medium";
     case kHigh_GrSLPrecision:
         return "high";
-    default:
-        SkFAIL("Unexpected precision type.");
-        return "";
     }
+    return "";
 }
 
 GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
@@ -203,7 +201,7 @@ void GrShaderCaps::initSamplerPrecisionTable() {
         }
 
         uint8_t* table = fSamplerPrecisions[visibility];
-        table[kUnknown_GrPixelConfig]        = lowp;
+        table[kUnknown_GrPixelConfig]        = kDefault_GrSLPrecision;
         table[kAlpha_8_GrPixelConfig]        = lowp;
         table[kGray_8_GrPixelConfig]         = lowp;
         table[kRGB_565_GrPixelConfig]        = lowp;

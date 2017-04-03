@@ -94,13 +94,6 @@ public:
     virtual const char* distanceVectorName() const = 0;
 
     /**
-     * Overrides the default precision for the entire fragment program. Processors that require
-     * high precision input (eg from incoming texture samples) may use this. For calculations that
-     * are limited to a single processor's code, it is better to annotate individual declarations.
-     */
-    virtual void elevateDefaultPrecision(GrSLPrecision) = 0;
-
-    /**
      * Fragment procs with child procs should call these functions before/after calling emitCode
      * on a child proc.
      */
@@ -174,7 +167,6 @@ public:
     void appendOffsetToSample(const char* sampleIdx, Coordinates) override;
     void maskSampleCoverage(const char* mask, bool invert = false) override;
     void overrideSampleCoverage(const char* mask) override;
-    void elevateDefaultPrecision(GrSLPrecision) override;
     const SkString& getMangleString() const override { return fMangleString; }
     void onBeforeChildProcEmitCode() override;
     void onAfterChildProcEmitCode() override;
@@ -233,14 +225,13 @@ private:
      */
     SkString fMangleString;
 
-    bool          fSetupFragPosition;
-    bool          fHasCustomColorOutput;
-    int           fCustomColorOutputIndex;
-    bool          fHasSecondaryOutput;
-    uint8_t       fUsedSampleOffsetArrays;
-    bool          fHasInitializedSampleMask;
-    SkString      fDistanceVectorOutput;
-    GrSLPrecision fDefaultPrecision;
+    bool       fSetupFragPosition;
+    bool       fHasCustomColorOutput;
+    int        fCustomColorOutputIndex;
+    bool       fHasSecondaryOutput;
+    uint8_t    fUsedSampleOffsetArrays;
+    bool       fHasInitializedSampleMask;
+    SkString   fDistanceVectorOutput;
 
 #ifdef SK_DEBUG
     // some state to verify shaders and effects are consistent, this is reset between effects by
