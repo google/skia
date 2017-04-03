@@ -125,7 +125,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         if (this->colorXform() && !fXformOnDecode) {
-            SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstColorType);
+            SkColorSpaceXform::ColorFormat dstFormat = select_xform_format_ct(dstColorType);
             SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
             SkAlphaType xformAlphaType = select_xform_alpha(dstAlphaType,
                                                             this->getInfo().alphaType());
@@ -357,7 +357,7 @@ uint64_t SkBmpStandardCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     if (colorPtr) {
         return get_color_table_fill_value(dstInfo.colorType(), dstInfo.alphaType(), colorPtr, 0,
-                                          this->colorXform());
+                                          this->colorXform(), false);
     }
     return INHERITED::onGetFillValue(dstInfo);
 }

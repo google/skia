@@ -120,7 +120,7 @@ static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
  * Given that the encoded image uses a color table, return the fill value
  */
 static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAlphaType alphaType,
-        const SkPMColor* colorPtr, uint8_t fillIndex, SkColorSpaceXform* colorXform) {
+        const SkPMColor* colorPtr, uint8_t fillIndex, SkColorSpaceXform* colorXform, bool isRGBA) {
     SkASSERT(nullptr != colorPtr);
     switch (dstColorType) {
         case kRGBA_8888_SkColorType:
@@ -134,8 +134,11 @@ static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAl
             SkASSERT(colorXform);
             uint64_t dstColor;
             uint32_t srcColor = colorPtr[fillIndex];
+            SkColorSpaceXform::ColorFormat srcFormat =
+                    isRGBA ? SkColorSpaceXform::kRGBA_8888_ColorFormat
+                           : SkColorSpaceXform::kBGRA_8888_ColorFormat;
             SkAssertResult(colorXform->apply(select_xform_format(dstColorType), &dstColor,
-                    SkColorSpaceXform::kRGBA_8888_ColorFormat, &srcColor, 1, alphaType));
+                                             srcFormat, &srcColor, 1, alphaType));
             return dstColor;
         }
         default:
@@ -321,11 +324,8 @@ static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaTy
 }
 
 static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
-    // We will apply the color xform when reading the color table if a form of 8888 is requested.
-    return SkEncodedInfo::kPalette_Color != srcColor ||
-           (kRGBA_8888_SkColorType != dstColorType &&
-            kBGRA_8888_SkColorType != dstColorType &&
-            kIndex_8_SkColorType != dstColorType);
+    // We will apply the color xform when reading the color table unless F16 is requested.
+    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
 }
 
 /*
@@ -362,6 +362,25 @@ static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo
                    kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src, false);
         default:
             return false;
+    }
+}
+
+static inline SkColorSpaceXform::ColorFormat select_xform_format_ct(SkColorType colorType) {
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+        case kBGRA_8888_SkColorType:
+            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
+        case kRGB_565_SkColorType:
+        case kIndex_8_SkColorType:
+#ifdef SK_PMCOLOR_IS_RGBA
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+#else
+            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
+#endif
+        default:
+            SkASSERT(false);
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
     }
 }
 

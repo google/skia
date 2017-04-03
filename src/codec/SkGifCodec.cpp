@@ -166,7 +166,8 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIn
         fCurrColorTable.reset(new SkColorTable(&color, 1));
     } else if (this->colorXform() && !fXformOnDecode) {
         SkPMColor dstColors[256];
-        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+        const SkColorSpaceXform::ColorFormat dstFormat =
+                select_xform_format_ct(dstInfo.colorType());
         const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
         const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                               this->getInfo().alphaType());
