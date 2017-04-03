@@ -85,7 +85,8 @@ static K kConstants = {
     M(repeat_y)           \
     M(mirror_x)           \
     M(mirror_y)           \
-    M(linear_gradient_2stops)
+    M(linear_gradient_2stops) \
+    M(linear_gradient_few_stops)
 
 // We can't express the real types of most stage functions portably, so we use a stand-in.
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
