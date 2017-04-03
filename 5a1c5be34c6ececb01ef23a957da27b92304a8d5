@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5472326d_c9421c8a",
+        "filename": "bench/ColorCanvasDrawBitmapBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T13:50:58Z",
+      "side": 1,
+      "message": "Might be worth adding a note somewhere like\n\n  // This simulates an Android app that uses Bitmaps.\n  // Chrome and the Android framework both use SkImages exclusively.\n\n?",
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f0d69bd_ab5c5c4e",
+        "filename": "bench/ColorCanvasDrawBitmapBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T13:50:58Z",
+      "side": 1,
+      "message": "I assume null\u0027s the same speed?",
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e04eb567_911cc02e",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T13:50:58Z",
+      "side": 1,
+      "message": "Whoops, this was just an unrelated bug, right?",
+      "range": {
+        "startLine": 129,
+        "startChar": 44,
+        "endLine": 129,
+        "endChar": 88
+      },
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01db2701_50492104",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T13:50:58Z",
+      "side": 1,
+      "message": "this-\u003eskipXform?",
+      "range": {
+        "startLine": 163,
+        "startChar": 12,
+        "endLine": 163,
+        "endChar": 21
+      },
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e33cf023_e3a28a12",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T13:50:58Z",
+      "side": 1,
+      "message": "It can be nice to write this sort of thing without an else:\n\n  if (this-\u003eskipXform(bitmap)) {\n    return fTarget-\u003edrawBitmap(...);\n  }\n  sk_sp\u003cSkImage\u003e img \u003d ...\n\nThat way the shortcut looks like a shortcut, not an equal to the other more expensive and general case.",
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea402aca_c63210ad",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T13:50:58Z",
+      "side": 1,
+      "message": "Seems like these three lines want to become SkColorSpaceXformer::apply(const SkBitmap\u0026) ?",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 37
+      },
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62ddbf7f_17faa57a",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T13:50:58Z",
+      "side": 1,
+      "message": "Why don\u0027t we just hold onto the color space ourselves?  It seems weird to put this burden on the xformer for a feature here in the canvas.",
+      "range": {
+        "startLine": 267,
+        "startChar": 40,
+        "endLine": 267,
+        "endChar": 65
+      },
+      "revId": "5a1c5be34c6ececb01ef23a957da27b92304a8d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ccf84cfc_ee205652",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T13:50:58Z",
+      "side": 0,
+      "message": "Was I just being overly defensive here about null images?",
+      "range": {
+        "startLine": 162,
+        "startChar": 8,
+        "endLine": 162,
+        "endChar": 22
+      },
+      "revId": "8feeff929e57ea63914213f3b14d8f00b287a0ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
