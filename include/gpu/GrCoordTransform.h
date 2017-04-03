@@ -95,7 +95,6 @@ public:
     bool hasSameEffectAs(const GrCoordTransform& that) const {
         if (fNormalize != that.fNormalize ||
             fReverseY != that.fReverseY ||
-            fPrecision != that.fPrecision ||
             !fMatrix.cheapEqualTo(that.fMatrix)) {
             return false;
         }
@@ -113,7 +112,7 @@ public:
     const GrTexture* texture() const { return fTexture; }
     bool normalize() const { return fNormalize; }
     bool reverseY() const { return fReverseY; }
-    GrSLPrecision precision() const { return fPrecision; }
+    GrSLPrecision precision() const { return kHigh_GrSLPrecision; }
 
 private:
     // The textures' effect is to optionally normalize the final matrix, so a blind
