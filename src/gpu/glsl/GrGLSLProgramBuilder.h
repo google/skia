@@ -152,18 +152,14 @@ private:
                                 int transformedCoordVarsIdx,
                                 const GrGLSLExpr4& input,
                                 GrGLSLExpr4* output);
-    void emitAndInstallXferProc(const GrXferProcessor&,
-                                const GrGLSLExpr4& colorIn,
-                                const GrGLSLExpr4& coverageIn);
+    void emitAndInstallXferProc(const GrGLSLExpr4& colorIn, const GrGLSLExpr4& coverageIn);
     void emitSamplersAndImageStorages(const GrProcessor& processor,
                                       SkTArray<SamplerHandle>* outTexSamplerHandles,
                                       SkTArray<SamplerHandle>* outBufferSamplerHandles,
                                       SkTArray<ImageStorageHandle>* outImageStorageHandles);
-    void emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
-                     GrShaderFlags visibility, SkTArray<SamplerHandle >* outSamplerHandles);
-    void emitImageStorage(const GrProcessor::ImageStorageAccess&,
-                          const char* name,
-                          SkTArray<ImageStorageHandle>* outImageStorageHandles);
+    SamplerHandle emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
+                              GrShaderFlags visibility);
+    ImageStorageHandle emitImageStorage(const GrProcessor::ImageStorageAccess&, const char* name);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     bool checkSamplerCounts();
     bool checkImageStorageCounts();

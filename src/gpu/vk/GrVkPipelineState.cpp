@@ -214,8 +214,14 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     }
     SkASSERT(!fp && !glslFP);
 
-    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor());
-    append_texture_bindings(pipeline.getXferProcessor(), &textureBindings);
+    SkIPoint offset;
+    GrTexture* dstTexture = pipeline.dstTexture(&offset);
+    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+    GrProcessor::TextureSampler dstTextureSampler;
+    if (dstTexture) {
+        dstTextureSampler.reset(dstTexture);
+        textureBindings.push_back(&dstTextureSampler);
+    }
 
     // Get new descriptor sets
     if (fNumSamplers) {
