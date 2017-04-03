@@ -230,7 +230,7 @@ private:
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
-    void wireframeVertices(SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
+    void wireframeVertices(SkVertices::VertexMode, int vertexCount, const SkPoint verts[],
                            SkBlendMode, const uint16_t indices[], int indexCount, const SkPaint&);
 
     static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,

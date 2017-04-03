@@ -1586,7 +1586,7 @@ static bool init_vertices_paint(GrContext* context, GrRenderTargetContext* rtc,
     }
 }
 
-void SkGpuDevice::wireframeVertices(SkCanvas::VertexMode vmode, int vertexCount,
+void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCount,
                                     const SkPoint vertices[], SkBlendMode bmode,
                                     const uint16_t indices[], int indexCount,
                                     const SkPaint& paint) {
@@ -1607,11 +1607,11 @@ void SkGpuDevice::wireframeVertices(SkCanvas::VertexMode vmode, int vertexCount,
     int triangleCount = 0;
     int n = (nullptr == indices) ? vertexCount : indexCount;
     switch (vmode) {
-        case SkCanvas::kTriangles_VertexMode:
+        case SkVertices::kTriangles_VertexMode:
             triangleCount = n / 3;
             break;
-        case SkCanvas::kTriangleStrip_VertexMode:
-        case SkCanvas::kTriangleFan_VertexMode:
+        case SkVertices::kTriangleStrip_VertexMode:
+        case SkVertices::kTriangleFan_VertexMode:
             triangleCount = n - 2;
             break;
     }

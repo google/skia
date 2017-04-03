@@ -29,7 +29,7 @@ public:
         if (!fSucceeded) {
             return nullptr;
         }
-        return SkVertices::MakeCopy(SkCanvas::kTriangles_VertexMode, this->vertexCount(),
+        return SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, this->vertexCount(),
                                     fPositions.begin(), nullptr, fColors.begin(),
                                     this->indexCount(), fIndices.begin());
     }

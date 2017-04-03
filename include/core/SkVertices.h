@@ -8,7 +8,6 @@
 #ifndef SkVertices_DEFINED
 #define SkVertices_DEFINED
 
-#include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkData.h"
 #include "SkPoint.h"
@@ -20,18 +19,24 @@
  */
 class SkVertices : public SkNVRefCnt<SkVertices> {
 public:
+    enum VertexMode {
+        kTriangles_VertexMode,
+        kTriangleStrip_VertexMode,
+        kTriangleFan_VertexMode,
+    };
+
     /**
      *  Create a vertices by copying the specified arrays. texs and colors may be nullptr,
      *  and indices is ignored if indexCount == 0.
      */
-    static sk_sp<SkVertices> MakeCopy(SkCanvas::VertexMode mode, int vertexCount,
+    static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
                                       const SkColor colors[],
                                       int indexCount,
                                       const uint16_t indices[]);
 
-    static sk_sp<SkVertices> MakeCopy(SkCanvas::VertexMode mode, int vertexCount,
+    static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
                                       const SkColor colors[]) {
@@ -46,7 +51,7 @@ public:
     };
     class Builder {
     public:
-        Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
+        Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
 
         bool isValid() const { return fVertices != nullptr; }
 
@@ -62,9 +67,9 @@ public:
         sk_sp<SkVertices> detach();
 
     private:
-        Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+        Builder(VertexMode mode, int vertexCount, int indexCount, const Sizes&);
 
-        void init(SkCanvas::VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+        void init(VertexMode mode, int vertexCount, int indexCount, const Sizes&);
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
@@ -73,7 +78,7 @@ public:
     };
 
     uint32_t uniqueID() const { return fUniqueID; }
-    SkCanvas::VertexMode mode() const { return fMode; }
+    VertexMode mode() const { return fMode; }
     const SkRect& bounds() const { return fBounds; }
 
     bool hasColors() const { return SkToBool(this->colors()); }
@@ -127,7 +132,7 @@ private:
     int     fVertexCnt;
     int     fIndexCnt;
 
-    SkCanvas::VertexMode fMode;
+    VertexMode fMode;
     // below here is where the actual array data is stored.
 };
 

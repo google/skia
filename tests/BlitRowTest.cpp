@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkRect.h"
+#include "SkVertices.h"
 #include "Test.h"
 
 #include "sk_tool_utils.h"
@@ -173,8 +174,9 @@ struct Mesh {
     }
 
     void draw(SkCanvas* canvas, SkPaint* paint) {
-        canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, fPts, fPts,
-                             nullptr, SkBlendMode::kModulate, nullptr, 0, *paint);
+        canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4, fPts,
+                                                  fPts, nullptr),
+                             SkBlendMode::kModulate, *paint);
     }
 };
 
