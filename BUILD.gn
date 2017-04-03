@@ -37,6 +37,8 @@ declare_args() {
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+
+  skia_config_directory = "include/config"
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -55,10 +57,10 @@ skia_enable_tools = skia_enable_tools && !is_component_build
 fontmgr_android_enabled = skia_use_expat && skia_use_freetype
 
 skia_public_includes = [
+  skia_config_directory,
   "include/android",
   "include/c",
   "include/codec",
-  "include/config",
   "include/core",
   "include/effects",
   "include/gpu",
