@@ -26,6 +26,7 @@
 #include "SkLiteDL.h"
 #include "SkLiteRecorder.h"
 #include "SkMallocPixelRef.h"
+#include "SkMultiPictureDocumentPriv.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
 #include "SkOSFile.h"
@@ -1194,30 +1195,39 @@ bool SVGSrc::veto(SinkFlags flags) const {
 
 MSKPSrc::MSKPSrc(Path path) : fPath(path) {
     std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
-    (void)fReader.init(stream.get());
+    int count = SkMultiPictureDocumentReadPageCount(stream.get());
+    if (count > 0) {
+        fPages.reset(count);
+        (void)SkMultiPictureDocumentReadPageSizes(stream.get(), &fPages[0], fPages.count());
+    }
 }
 
-int MSKPSrc::pageCount() const { return fReader.pageCount(); }
+int MSKPSrc::pageCount() const { return fPages.count(); }
 
 SkISize MSKPSrc::size() const { return this->size(0); }
-SkISize MSKPSrc::size(int i) const { return fReader.pageSize(i).toCeil(); }
+SkISize MSKPSrc::size(int i) const {
+    return i >= 0 && i < fPages.count() ? fPages[i].fSize.toCeil() : SkISize::Make(0, 0);
+}
 
 Error MSKPSrc::draw(SkCanvas* c) const { return this->draw(0, c); }
 Error MSKPSrc::draw(int i, SkCanvas* canvas) const {
-    std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
-    if (!stream) {
-        return SkStringPrintf("Unable to open file: %s", fPath.c_str());
-    }
-    if (fReader.pageCount() == 0) {
+    if (this->pageCount() == 0) {
         return SkStringPrintf("Unable to parse MultiPictureDocument file: %s", fPath.c_str());
     }
-    if (i >= fReader.pageCount()) {
+    if (i >= fPages.count() || i < 0) {
         return SkStringPrintf("MultiPictureDocument page number out of range: %d", i);
     }
-    sk_sp<SkPicture> page = fReader.readPage(stream.get(), i);
+    SkPicture* page = fPages[i].fPicture.get();
     if (!page) {
-        return SkStringPrintf("SkMultiPictureDocumentReader failed on page %d: %s",
-                              i, fPath.c_str());
+        std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
+        if (!stream) {
+            return SkStringPrintf("Unable to open file: %s", fPath.c_str());
+        }
+        if (!SkMultiPictureDocumentRead(stream.get(), &fPages[0], fPages.count())) {
+            return SkStringPrintf("SkMultiPictureDocument reader failed on page %d: %s", i,
+                                  fPath.c_str());
+        }
+        page = fPages[i].fPicture.get();
     }
     canvas->drawPicture(page);
     return "";

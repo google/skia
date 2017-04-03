@@ -15,7 +15,7 @@
 #include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkMultiPictureDocumentReader.h"
+#include "SkMultiPictureDocument.h"
 #include "SkPicture.h"
 #include "gm.h"
 
@@ -288,7 +288,7 @@ public:
 
 private:
     Path fPath;
-    SkMultiPictureDocumentReader fReader;
+    mutable SkTArray<SkDocumentPage> fPages;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

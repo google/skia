@@ -7,42 +7,32 @@
 #ifndef SkMultiPictureDocument_DEFINED
 #define SkMultiPictureDocument_DEFINED
 
-/*
-  This format is not intended to be used in production.
-
-  For clients looking for a way to represent a document in memory,
-
-    struct Doc {
-        std::vector<sk_sp<SkPicture>> fPages;
-        std::vector<SkSize> fPageSizes;
-    };
-
-  or
-
-    struct Page {
-        sk_sp<SkPicture> fPage;
-        SkSize fPageSize;
-    };
-    std::vector<Page> pages;
-
-  would work much better.
-
-  Multi-SkPicture (MSKP) files are still useful for debugging and
-  testing.
-
-  The downsides of this format are currently:
-  - no way to extract a single page; must read the entire file at once.
-  - must use `dm` to convert to another format before passing into
-    standard skp tools.
-  - `dm` can extract the first page to skp, but no others.
-
-  TODO(halcanary): replace with somthing that addresses these issues.
- */
-
 #include "SkDocument.h"
 
-/** Writes into an experimental, undocumented file format that is
-    useful for debugging documents printed via Skia. */
+class SkStreamSeekable;
+
+/**
+ *  Writes into a file format that is similar to SkPicture::serialize()
+ */
 SK_API sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst);
+
+struct SkDocumentPage {
+    sk_sp<SkPicture> fPicture;
+    SkSize fSize;
+};
+
+/**
+ *  Returns the number of pages in the SkMultiPictureDocument.
+ */
+SK_API int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* src);
+
+/**
+ *  Read the SkMultiPictureDocument into the provided array of pages.
+ *  dstArrayCount must equal SkMultiPictureDocumentReadPageCount().
+ *  Return false on error.
+ */
+SK_API bool SkMultiPictureDocumentRead(SkStreamSeekable* src,
+                                       SkDocumentPage* dstArray,
+                                       int dstArrayCount);
 
 #endif  // SkMultiPictureDocument_DEFINED
