@@ -15,7 +15,7 @@
 #include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkMultiPictureDocumentReader.h"
+#include "SkMultiPictureDocument.h"
 #include "SkPicture.h"
 #include "gm.h"
 
@@ -278,6 +278,7 @@ private:
 class MSKPSrc : public Src {
 public:
     explicit MSKPSrc(Path path);
+    ~MSKPSrc();
 
     int pageCount() const override;
     Error draw(SkCanvas* c) const override;
@@ -288,7 +289,7 @@ public:
 
 private:
     Path fPath;
-    SkMultiPictureDocumentReader fReader;
+    mutable SkTArray<SkDocumentPage> fPages;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
