@@ -97,6 +97,7 @@
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
     M(save_xy) M(accumulate)                                     \
     M(linear_gradient_2stops)                                    \
+    M(linear_gradient_few_stops)                                 \
     M(byte_tables) M(byte_tables_rgb)                            \
     M(shader_adapter)                                            \
     M(rgb_to_hsl)                                                \
