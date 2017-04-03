@@ -29,6 +29,7 @@ bench_sources = [
   "$_bench/ChromeBench.cpp",
   "$_bench/CmapBench.cpp",
   "$_bench/CodecBench.cpp",
+  "$_bench/ColorCanvasDrawBitmapBench.cpp",
   "$_bench/ColorCodecBench.cpp",
   "$_bench/ColorFilterBench.cpp",
   "$_bench/ColorPrivBench.cpp",
