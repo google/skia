@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21033004_501d5842",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-03T15:37:20Z",
+      "side": 1,
+      "message": "Might want to bake this into the name of the function somehow?",
+      "range": {
+        "startLine": 377,
+        "startChar": 11,
+        "endLine": 377,
+        "endChar": 52
+      },
+      "revId": "7d95b7c9387ac2b7217780f10dfba16a9e66e104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
