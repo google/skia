@@ -8,8 +8,9 @@
 #ifndef SkMultiPictureDocumentPriv_DEFINED
 #define SkMultiPictureDocumentPriv_DEFINED
 
-#include "SkTArray.h"
+#include "SkMultiPictureDocument.h"
 #include "SkSize.h"
+#include "SkTArray.h"
 
 namespace SkMultiPictureDocumentProtocol {
 static constexpr char kMagic[] = "Skia Multi-Picture Doc\n\n";
@@ -28,5 +29,9 @@ inline SkSize Join(const SkTArray<SkSize>& sizes) {
 }
 
 }
+
+bool SkMultiPictureDocumentReadPageSizes(SkStreamSeekable* src,
+                                         SkDocumentPage* dstArray,
+                                         int dstArrayCount);
 
 #endif  // SkMultiPictureDocumentPriv_DEFINED
