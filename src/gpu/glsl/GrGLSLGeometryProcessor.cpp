@@ -41,7 +41,8 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
 
         varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kVec3f_GrSLType :
                                                                      kVec2f_GrSLType;
-        GrSLPrecision precision = coordTransform->precision();
+        // Coord transforms are always handled at high precision
+        const GrSLPrecision precision = kHigh_GrSLPrecision;
 
         const char* uniName;
 

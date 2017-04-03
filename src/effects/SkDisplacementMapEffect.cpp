@@ -496,10 +496,9 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         const SkISize& colorDimensions)
         : INHERITED(GrPixelConfigIsOpaque(color->config()) ? kPreservesOpaqueInput_OptimizationFlag
                                                            : kNone_OptimizationFlags)
-        , fDisplacementTransform(resourceProvider, offsetMatrix, displacement.get(),
-                                 GrSamplerParams::kNone_FilterMode)
+        , fDisplacementTransform(resourceProvider, offsetMatrix, displacement.get())
         , fDisplacementSampler(resourceProvider, displacement)
-        , fColorTransform(resourceProvider, color.get(), GrSamplerParams::kNone_FilterMode)
+        , fColorTransform(resourceProvider, color.get())
         , fDomain(color.get(), GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
                   GrTextureDomain::kDecal_Mode)
         , fColorSampler(resourceProvider, color)

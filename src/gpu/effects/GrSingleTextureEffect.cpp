@@ -15,7 +15,7 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrResourceProvider* resourceProvide
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& m)
         : INHERITED(optFlags)
-        , fCoordTransform(resourceProvider, m, proxy.get(), GrSamplerParams::kNone_FilterMode)
+        , fCoordTransform(resourceProvider, m, proxy.get())
         , fTextureSampler(resourceProvider, std::move(proxy))
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
@@ -29,7 +29,7 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrResourceProvider* resourceProvide
                                              const SkMatrix& m,
                                              GrSamplerParams::FilterMode filterMode)
         : INHERITED(optFlags)
-        , fCoordTransform(resourceProvider, m, proxy.get(), filterMode)
+        , fCoordTransform(resourceProvider, m, proxy.get())
         , fTextureSampler(resourceProvider, std::move(proxy), filterMode)
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
@@ -42,7 +42,7 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrResourceProvider* resourceProvide
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& m, const GrSamplerParams& params)
         : INHERITED(optFlags)
-        , fCoordTransform(resourceProvider, m, proxy.get(), params.filterMode())
+        , fCoordTransform(resourceProvider, m, proxy.get())
         , fTextureSampler(resourceProvider, std::move(proxy), params)
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
