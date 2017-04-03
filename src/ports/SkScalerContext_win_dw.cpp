@@ -266,7 +266,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     // If the scale is negative, this means the matrix will do the flip anyway.
     const SkScalar realTextSize = scale.fY;
     // Due to floating point math, the lower bits are suspect. Round carefully.
-    SkScalar gdiTextSize = SkScalarRoundToScalar(realTextSize * 64.0f) / 64.0f;
+    SkScalar gdiTextSize = SkScalarRoundToScalar(realTextSize);
     if (gdiTextSize == 0) {
         gdiTextSize = SK_Scalar1;
     }
