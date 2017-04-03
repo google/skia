@@ -11,6 +11,9 @@
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkTArray.h"
+#include "SkNWayCanvas.h"
+
+#include <limits.h>
 
 /*
   File format:
@@ -89,3 +92,123 @@ struct MultiPictureDocument final : public SkDocument {
 sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream) {
     return sk_make_sp<MultiPictureDocument>(wStream, nullptr);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* stream) {
+    if (!stream) {
+        return 0;
+    }
+    stream->seek(0);
+    const size_t size = sizeof(SkMultiPictureDocumentProtocol::kMagic) - 1;
+    char buffer[size];
+    if (size != stream->read(buffer, size) ||
+        0 != memcmp(SkMultiPictureDocumentProtocol::kMagic, buffer, size)) {
+        stream = nullptr;
+        return 0;
+    }
+    uint32_t versionNumber = stream->readU32();
+    if (versionNumber != SkMultiPictureDocumentProtocol::kVersion) {
+        return 0;
+    }
+    uint32_t pageCount = stream->readU32();
+    if (pageCount > INT_MAX) {
+        return 0;
+    }
+    // leave stream position right here.
+    return (int)pageCount;
+}
+
+
+bool SkMultiPictureDocumentReadPageSizes(SkStreamSeekable* stream,
+                                         SkDocumentPage* dstArray,
+                                         int dstArrayCount) {
+    if (!dstArray || dstArrayCount < 1) {
+        return false;
+    }
+    int pageCount = SkMultiPictureDocumentReadPageCount(stream);
+    if (pageCount < 1 || pageCount != dstArrayCount) {
+        return false;
+    }
+    for (int i = 0; i < pageCount; ++i) {
+        SkSize size;
+        if (sizeof(size) != stream->read(&size, sizeof(size))) {
+            return false;
+        }
+        dstArray[i].fSize = size;
+    }
+    // leave stream position right here.
+    return true;
+}
+
+
+
+namespace {
+struct PagerCanvas : public SkNWayCanvas {
+    SkPictureRecorder fRecorder;
+    SkDocumentPage* fDst;
+    int fCount;
+    int fIndex = 0;
+    PagerCanvas(SkISize  wh,
+                SkDocumentPage* dst,
+                int count)
+        : SkNWayCanvas(wh.width(), wh.height()), fDst(dst), fCount(count) {
+        this->nextCanvas();
+    }
+    void nextCanvas() {
+        if (fIndex < fCount) {
+            SkRect bounds = SkRect::MakeSize(fDst[fIndex].fSize);
+            this->addCanvas(fRecorder.beginRecording(bounds));
+        }
+    }
+    void onDrawAnnotation(const SkRect& r, const char* key, SkData* d) override {
+        if (0 == strcmp(key, SkMultiPictureDocumentProtocol::kEndPage)) {
+            this->removeAll();
+            if (fIndex < fCount) {
+                fDst[fIndex].fPicture = fRecorder.finishRecordingAsPicture();
+                ++fIndex;
+            }
+            this->nextCanvas();
+        } else {
+            this->SkNWayCanvas::onDrawAnnotation(r, key, d);
+        }
+    }
+};
+}  // namespace
+
+bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
+                                SkDocumentPage* dstArray,
+                                int dstArrayCount) {
+    if (!SkMultiPictureDocumentReadPageSizes(stream, dstArray, dstArrayCount)) {
+        return false;
+    }
+    SkSize joined = SkSize::Make(0.0f, 0.0f);
+    for (int i = 0; i < dstArrayCount; ++i) {
+        joined = SkSize::Make(SkTMax(joined.width(),  dstArray[i].fSize.width()),
+                              SkTMax(joined.height(), dstArray[i].fSize.height()));
+    }
+
+    auto picture = SkPicture::MakeFromStream(stream);
+
+    PagerCanvas canvas(joined.toCeil(), dstArray, dstArrayCount);
+    // Must call playback(), not drawPicture() to reach
+    // PagerCanvas::onDrawAnnotation().
+    picture->playback(&canvas);
+    if (canvas.fIndex != dstArrayCount) {
+        SkDEBUGF(("Malformed SkMultiPictureDocument\n"));
+    }
+    return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
