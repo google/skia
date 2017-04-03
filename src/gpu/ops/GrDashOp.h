@@ -12,7 +12,7 @@
 #include "GrTypesPriv.h"
 #include "SkPathEffect.h"
 
-class GrMeshDrawOp;
+class GrLegacyMeshDrawOp;
 class GrStyle;
 
 namespace GrDashOp {
@@ -23,8 +23,9 @@ enum class AAMode {
 };
 static const int kAAModeCnt = static_cast<int>(AAMode::kCoverageWithMSAA) + 1;
 
-std::unique_ptr<GrMeshDrawOp> MakeDashLineOp(GrColor, const SkMatrix& viewMatrix,
-                                             const SkPoint pts[2], AAMode, const GrStyle& style);
+std::unique_ptr<GrLegacyMeshDrawOp> MakeDashLineOp(GrColor, const SkMatrix& viewMatrix,
+                                                   const SkPoint pts[2], AAMode,
+                                                   const GrStyle& style);
 bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix& viewMatrix);
 }
 

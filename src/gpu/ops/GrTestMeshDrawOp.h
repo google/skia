@@ -14,10 +14,10 @@
 #include "ops/GrMeshDrawOp.h"
 
 /*
- * A simple solid color GrMeshDrawOp for testing purposes which doesn't ever combine. Subclassing
- * this in tests saves having to fill out some boiler plate methods.
+ * A simple solid color GrLegacyMeshDrawOp for testing purposes which doesn't ever combine.
+ * Subclassing this in tests saves having to fill out some boiler plate methods.
  */
-class GrTestMeshDrawOp : public GrMeshDrawOp {
+class GrTestMeshDrawOp : public GrLegacyMeshDrawOp {
 public:
     const char* name() const override = 0;
 
@@ -49,7 +49,7 @@ private:
     GrColor fColor;
     bool fUsesLocalCoords = false;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 #endif

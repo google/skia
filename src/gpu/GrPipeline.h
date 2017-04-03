@@ -59,7 +59,7 @@ public:
         const GrProcessorSet* fProcessors = nullptr;
         GrProcessorAnalysisColor fInputColor;
         GrProcessorAnalysisCoverage fInputCoverage = GrProcessorAnalysisCoverage::kNone;
-        // This is only used for GrMeshDrawOp's legacy pipeline creation system.
+        // This is only used for GrLegacyMeshDrawOp's pipeline creation system.
         const GrProcessorSet::Analysis* fAnalysis = nullptr;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;

@@ -323,7 +323,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPaint grPaint;
 
-        std::unique_ptr<GrMeshDrawOp> op(GrRandomDrawOp(&random, context));
+        std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
         SkASSERT(op);
 
         GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
@@ -336,8 +336,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};
         GrAAType aaType = kAATypes[random.nextULessThan(SK_ARRAY_COUNT(kAATypes))];
 
-        renderTargetContext->priv().testingOnly_addMeshDrawOp(std::move(grPaint), aaType,
-                                                              std::move(op), uss, snapToCenters);
+        renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
+                std::move(grPaint), aaType, std::move(op), uss, snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush(nullptr);
@@ -358,7 +358,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            std::unique_ptr<GrMeshDrawOp> op(GrRandomDrawOp(&random, context));
+            std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
             SkASSERT(op);
             GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
             GrPaint grPaint;
@@ -370,7 +370,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            renderTargetContext->priv().testingOnly_addMeshDrawOp(
+            renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                     std::move(grPaint), GrAAType::kNone, std::move(op));
             drawingManager->flush(nullptr);
         }

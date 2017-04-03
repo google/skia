@@ -67,7 +67,7 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) const {
         memcpy(vertPtr, args.fVerts.begin(), allocSize);
         vertPtr += allocSize;
     }
-    helper.recordDraw(target, gp.get());
+    helper.recordDraw(target, gp.get(), this->pipeline());
 }
 
 GrDrawAtlasOp::GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spriteCount,

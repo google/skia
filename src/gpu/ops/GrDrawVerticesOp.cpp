@@ -10,7 +10,7 @@
 #include "GrOpFlushState.h"
 #include "SkGr.h"
 
-std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(
+std::unique_ptr<GrLegacyMeshDrawOp> GrDrawVerticesOp::Make(
         GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
         const SkPoint* positions, int vertexCount, const uint16_t* indices, int indexCount,
         const uint32_t* colors, const SkPoint* localCoords, const SkRect& bounds,
@@ -27,17 +27,18 @@ std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(
     if (!vertices) {
         return nullptr;
     }
-    return std::unique_ptr<GrMeshDrawOp>(new GrDrawVerticesOp(std::move(vertices), primitiveType,
-                                                              color, colorArrayType, viewMatrix));
+    return std::unique_ptr<GrLegacyMeshDrawOp>(new GrDrawVerticesOp(
+            std::move(vertices), primitiveType, color, colorArrayType, viewMatrix));
 }
 
-std::unique_ptr<GrMeshDrawOp> GrDrawVerticesOp::Make(GrColor color, sk_sp<SkVertices> vertices,
-                                                     const SkMatrix& viewMatrix) {
+std::unique_ptr<GrLegacyMeshDrawOp> GrDrawVerticesOp::Make(GrColor color,
+                                                           sk_sp<SkVertices> vertices,
+                                                           const SkMatrix& viewMatrix) {
     SkASSERT(vertices);
     GrPrimitiveType primType = SkVertexModeToGrPrimitiveType(vertices->mode());
-    return std::unique_ptr<GrMeshDrawOp>(new GrDrawVerticesOp(
-            std::move(vertices), primType, color, GrRenderTargetContext::ColorArrayType::kSkColor,
-            viewMatrix));
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
+            new GrDrawVerticesOp(std::move(vertices), primType, color,
+                                 GrRenderTargetContext::ColorArrayType::kSkColor, viewMatrix));
 }
 
 GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
@@ -242,7 +243,7 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
     } else {
         mesh.init(this->primitiveType(), vertexBuffer, firstVertex, fVertexCount);
     }
-    target->draw(gp.get(), mesh);
+    target->draw(gp.get(), this->pipeline(), mesh);
 }
 
 bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {

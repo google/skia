@@ -117,17 +117,17 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
                               viewMatrix);
 }
 
-class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
+class AAFlatteningConvexPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
-                                              const SkMatrix& viewMatrix,
-                                              const SkPath& path,
-                                              SkScalar strokeWidth,
-                                              SkStrokeRec::Style style,
-                                              SkPaint::Join join,
-                                              SkScalar miterLimit) {
-        return std::unique_ptr<GrMeshDrawOp>(new AAFlatteningConvexPathOp(
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkPath& path,
+                                                    SkScalar strokeWidth,
+                                                    SkStrokeRec::Style style,
+                                                    SkPaint::Join join,
+                                                    SkScalar miterLimit) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new AAFlatteningConvexPathOp(
                 color, viewMatrix, path, strokeWidth, style, join, miterLimit));
     }
 
@@ -184,7 +184,7 @@ private:
         fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
     }
 
-    void draw(GrMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
+    void draw(GrLegacyMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
               size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
@@ -210,7 +210,7 @@ private:
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
         mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
                          firstIndex, vertexCount, indexCount);
-        target->draw(gp, mesh);
+        target->draw(gp, this->pipeline(), mesh);
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -318,7 +318,7 @@ private:
     bool fCanTweakAlphaForCoverage;
     SkSTArray<1, PathData, true> fPaths;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -336,14 +336,14 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    std::unique_ptr<GrMeshDrawOp> op =
+    std::unique_ptr<GrLegacyMeshDrawOp> op =
             AAFlatteningConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path,
                                            strokeWidth, stroke.getStyle(), join, miterLimit);
 
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
 
     return true;
 }

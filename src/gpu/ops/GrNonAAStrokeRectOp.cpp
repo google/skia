@@ -46,7 +46,7 @@ inline static bool allowed_stroke(const SkStrokeRec& stroke) {
            (stroke.getJoin() == SkPaint::kMiter_Join && stroke.getMiter() > SK_ScalarSqrt2);
 }
 
-class NonAAStrokeRectOp final : public GrMeshDrawOp {
+class NonAAStrokeRectOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -63,9 +63,9 @@ public:
         return string;
     }
 
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                              const SkRect& rect, const SkStrokeRec& stroke,
-                                              bool snapToPixelCenters) {
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                                    const SkRect& rect, const SkStrokeRec& stroke,
+                                                    bool snapToPixelCenters) {
         if (!allowed_stroke(stroke)) {
             return nullptr;
         }
@@ -96,7 +96,7 @@ public:
         } else {
             op->setTransformedBounds(bounds, op->fViewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
         }
-        return std::unique_ptr<GrMeshDrawOp>(op);
+        return std::unique_ptr<GrLegacyMeshDrawOp>(op);
     }
 
 private:
@@ -158,7 +158,7 @@ private:
 
         GrMesh mesh;
         mesh.init(primType, vertexBuffer, firstVertex, vertexCount);
-        target->draw(gp.get(), mesh);
+        target->draw(gp.get(), this->pipeline(), mesh);
     }
 
     void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
@@ -181,16 +181,16 @@ private:
     const static int kVertsPerHairlineRect = 5;
     const static int kVertsPerStrokeRect = 10;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 namespace GrNonAAStrokeRectOp {
 
-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRect& rect,
-                                   const SkStrokeRec& stroke,
-                                   bool snapToPixelCenters) {
+std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                         const SkMatrix& viewMatrix,
+                                         const SkRect& rect,
+                                         const SkStrokeRec& stroke,
+                                         bool snapToPixelCenters) {
     return NonAAStrokeRectOp::Make(color, viewMatrix, rect, stroke, snapToPixelCenters);
 }
 }

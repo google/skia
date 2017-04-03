@@ -12,14 +12,14 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
 
-class GrDrawAtlasOp final : public GrMeshDrawOp {
+class GrDrawAtlasOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                              int spriteCount, const SkRSXform* xforms,
-                                              const SkRect* rects, const SkColor* colors) {
-        return std::unique_ptr<GrMeshDrawOp>(
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                                    int spriteCount, const SkRSXform* xforms,
+                                                    const SkRect* rects, const SkColor* colors) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
                 new GrDrawAtlasOp(color, viewMatrix, spriteCount, xforms, rects, colors));
     }
 
@@ -72,7 +72,7 @@ private:
     int fQuadCount;
     bool fHasColors;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 #endif

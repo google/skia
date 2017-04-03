@@ -67,7 +67,7 @@ static void tesselate(intptr_t vertices,
     }
 }
 
-class NonAAFillRectOp final : public GrMeshDrawOp {
+class NonAAFillRectOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -148,7 +148,7 @@ private:
             tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
                       fRects[i].fRect, &fRects[i].fLocalQuad);
         }
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -172,17 +172,17 @@ private:
 
     SkSTArray<1, RectInfo, true> fRects;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
 namespace GrNonAAFillRectOp {
 
-std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRect& rect,
-                                   const SkRect* localRect,
-                                   const SkMatrix* localMatrix) {
-    return std::unique_ptr<GrMeshDrawOp>(
+std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                         const SkMatrix& viewMatrix,
+                                         const SkRect& rect,
+                                         const SkRect* localRect,
+                                         const SkMatrix* localMatrix) {
+    return std::unique_ptr<GrLegacyMeshDrawOp>(
             new NonAAFillRectOp(color, viewMatrix, rect, localRect, localMatrix));
 }
 };

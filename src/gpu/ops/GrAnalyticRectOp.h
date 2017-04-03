@@ -11,7 +11,7 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrMeshDrawOp;
+class GrLegacyMeshDrawOp;
 class SkMatrix;
 struct SkRect;
 
@@ -27,11 +27,11 @@ struct SkRect;
  */
 class GrAnalyticRectOp {
 public:
-    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color,
-                                              const SkMatrix& viewMatrix,
-                                              const SkRect& rect,
-                                              const SkRect& croppedRect,
-                                              const SkRect& bounds);
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkRect& rect,
+                                                    const SkRect& croppedRect,
+                                                    const SkRect& bounds);
 };
 
 #endif  // GrAnalyticRectOp_DEFINED

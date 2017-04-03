@@ -28,8 +28,8 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "TestOp"; }
 
-    static std::unique_ptr<GrMeshDrawOp> Make() {
-        return std::unique_ptr<GrMeshDrawOp>(new TestOp);
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make() {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(new TestOp);
     }
 
 private:
@@ -170,7 +170,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     images.emplace_back(texture3, GrIOType::kWrite_GrIOType);
                     images.emplace_back(texture4, GrIOType::kRW_GrIOType);
                 }
-                std::unique_ptr<GrMeshDrawOp> op(TestOp::Make());
+                std::unique_ptr<GrLegacyMeshDrawOp> op(TestOp::Make());
                 GrPaint paint;
                 auto fp = TestFP::Make(context,
                                        std::move(proxies), std::move(buffers), std::move(images));
@@ -178,7 +178,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     fp = TestFP::Make(std::move(fp));
                 }
                 paint.addColorFragmentProcessor(std::move(fp));
-                renderTargetContext->priv().testingOnly_addMeshDrawOp(
+                renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                         std::move(paint), GrAAType::kNone, std::move(op));
             }
             int refCnt, readCnt, writeCnt;
@@ -270,7 +270,7 @@ void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
     auto op =
             GrNonAAFillRectOp::Make(GrColor_WHITE, SkMatrix::I(),
                                     SkRect::MakeWH(rtc->width(), rtc->height()), nullptr, nullptr);
-    rtc->addMeshDrawOp(pb, GrNoClip(), std::move(op));
+    rtc->addLegacyMeshDrawOp(pb, GrNoClip(), std::move(op));
 }
 
 #include "SkCommandLineFlags.h"

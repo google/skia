@@ -11,15 +11,16 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrMeshDrawOp;
+class GrLegacyMeshDrawOp;
 class SkLatticeIter;
 class SkMatrix;
 struct SkRect;
 
 namespace GrLatticeOp {
-std::unique_ptr<GrMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                                        int imageHeight, std::unique_ptr<SkLatticeIter> iter,
-                                        const SkRect& dst);
+std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix,
+                                              int imageWidth, int imageHeight,
+                                              std::unique_ptr<SkLatticeIter> iter,
+                                              const SkRect& dst);
 };
 
 #endif

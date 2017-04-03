@@ -237,7 +237,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
                                                const SkMatrix& localMatrix,
                                                bool usesLocalCoords);
 
-class DashOp final : public GrMeshDrawOp {
+class DashOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     struct LineData {
@@ -251,9 +251,11 @@ public:
         SkScalar fPerpendicularScale;
     };
 
-    static std::unique_ptr<GrMeshDrawOp> Make(const LineData& geometry, GrColor color,
-                                              SkPaint::Cap cap, AAMode aaMode, bool fullDash) {
-        return std::unique_ptr<GrMeshDrawOp>(new DashOp(geometry, color, cap, aaMode, fullDash));
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const LineData& geometry, GrColor color,
+                                                    SkPaint::Cap cap, AAMode aaMode,
+                                                    bool fullDash) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
+                new DashOp(geometry, color, cap, aaMode, fullDash));
     }
 
     const char* name() const override { return "DashOp"; }
@@ -625,7 +627,7 @@ private:
             rectIndex++;
         }
         SkASSERT(0 == (curVIdx % 4) && (curVIdx / 4) == totalRectCount);
-        helper.recordDraw(target, gp.get());
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -679,14 +681,14 @@ private:
     bool fFullDash;
     SkSTArray<1, LineData, true> fLines;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
-std::unique_ptr<GrMeshDrawOp> GrDashOp::MakeDashLineOp(GrColor color,
-                                                       const SkMatrix& viewMatrix,
-                                                       const SkPoint pts[2],
-                                                       AAMode aaMode,
-                                                       const GrStyle& style) {
+std::unique_ptr<GrLegacyMeshDrawOp> GrDashOp::MakeDashLineOp(GrColor color,
+                                                             const SkMatrix& viewMatrix,
+                                                             const SkPoint pts[2],
+                                                             AAMode aaMode,
+                                                             const GrStyle& style) {
     SkASSERT(GrDashOp::CanDrawDashLine(pts, style, viewMatrix));
     const SkScalar* intervals = style.dashIntervals();
     SkScalar phase = style.dashPhase();
