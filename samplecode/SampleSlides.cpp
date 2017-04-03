@@ -13,6 +13,7 @@
 #include "SkGradientShader.h"
 #include "SkLayerRasterizer.h"
 #include "SkPaint.h"
+#include "SkVertices.h"
 #include "SkView.h"
 
 #include "sk_tool_utils.h"
@@ -328,7 +329,7 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
 
 class Rec {
 public:
-    SkCanvas::VertexMode    fMode;
+    SkVertices::VertexMode  fMode;
     int                     fCount;
     SkPoint*                fVerts;
     SkPoint*                fTexs;
@@ -341,7 +342,7 @@ static void make_tris(Rec* rec) {
     int n = 10;
     SkRandom    rand;
 
-    rec->fMode = SkCanvas::kTriangles_VertexMode;
+    rec->fMode = SkVertices::kTriangles_VertexMode;
     rec->fCount = n * 3;
     rec->fVerts = new SkPoint[rec->fCount];
 
@@ -358,7 +359,7 @@ static void make_fan(Rec* rec, int texWidth, int texHeight) {
     const SkScalar ty = SkIntToScalar(texHeight);
     const int n = 24;
 
-    rec->fMode = SkCanvas::kTriangleFan_VertexMode;
+    rec->fMode = SkVertices::kTriangleFan_VertexMode;
     rec->fCount = n + 2;
     rec->fVerts = new SkPoint[rec->fCount];
     rec->fTexs  = new SkPoint[rec->fCount];
@@ -388,7 +389,7 @@ static void make_strip(Rec* rec, int texWidth, int texHeight) {
     const SkScalar ty = SkIntToScalar(texHeight);
     const int n = 24;
 
-    rec->fMode = SkCanvas::kTriangleStrip_VertexMode;
+    rec->fMode = SkVertices::kTriangleStrip_VertexMode;
     rec->fCount = 2 * (n + 1);
     rec->fVerts = new SkPoint[rec->fCount];
     rec->fTexs  = new SkPoint[rec->fCount];
@@ -433,26 +434,22 @@ static void mesh_slide(SkCanvas* canvas) {
     paint.setFilterQuality(kLow_SkFilterQuality);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
+        auto verts = SkVertices::MakeCopy(fRecs[i].fMode, fRecs[i].fCount,
+                                          fRecs[i].fVerts, fRecs[i].fTexs, nullptr);
         canvas->save();
 
         paint.setShader(nullptr);
-        canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
-                             fRecs[i].fVerts, fRecs[i].fTexs,
-                             nullptr, nullptr, 0, paint);
+        canvas->drawVertices(verts, SkBlendMode::kModulate, paint);
 
         canvas->translate(SkIntToScalar(210), 0);
 
         paint.setShader(fShader0);
-        canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
-                             fRecs[i].fVerts, fRecs[i].fTexs,
-                             nullptr, nullptr, 0, paint);
+        canvas->drawVertices(verts, SkBlendMode::kModulate, paint);
 
         canvas->translate(SkIntToScalar(210), 0);
 
         paint.setShader(fShader1);
-        canvas->drawVertices(fRecs[i].fMode, fRecs[i].fCount,
-                             fRecs[i].fVerts, fRecs[i].fTexs,
-                             nullptr, nullptr, 0, paint);
+        canvas->drawVertices(verts, SkBlendMode::kModulate, paint);
         canvas->restore();
 
         canvas->translate(0, SkIntToScalar(250));

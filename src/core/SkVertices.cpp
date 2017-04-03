@@ -50,7 +50,7 @@ struct SkVertices::Sizes {
     size_t fISize;
 };
 
-SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
+SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
                              uint32_t builderFlags) {
     bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
     bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
@@ -58,12 +58,22 @@ SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int ind
                SkVertices::Sizes(vertexCount, indexCount, hasTexs, hasColors));
 }
 
-SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
+SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
                              const SkVertices::Sizes& sizes) {
     this->init(mode, vertexCount, indexCount, sizes);
 }
 
-void SkVertices::Builder::init(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
+#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
+SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
+                             uint32_t builderFlags) {
+    bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
+    bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
+    this->init(static_cast<VertexMode>(mode), vertexCount, indexCount,
+               SkVertices::Sizes(vertexCount, indexCount, hasTexs, hasColors));
+}
+#endif
+
+void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
                                const SkVertices::Sizes& sizes) {
     if (!sizes.isValid()) {
         return; // fVertices will already be null
@@ -120,7 +130,7 @@ uint16_t* SkVertices::Builder::indices() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkVertices> SkVertices::MakeCopy(SkCanvas::VertexMode mode, int vertexCount,
+sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
                                        const SkPoint pos[], const SkPoint texs[],
                                        const SkColor colors[], int indexCount,
                                        const uint16_t indices[]) {
@@ -196,7 +206,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     const int vertexCount = reader.readInt();
     const int indexCount = reader.readInt();
 
-    const SkCanvas::VertexMode mode = static_cast<SkCanvas::VertexMode>(packed & kMode_Mask);
+    const VertexMode mode = static_cast<VertexMode>(packed & kMode_Mask);
     const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
     const bool hasColors = SkToBool(packed & kHasColors_Mask);
     Sizes sizes(vertexCount, indexCount, hasTexs, hasColors);

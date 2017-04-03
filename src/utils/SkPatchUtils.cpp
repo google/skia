@@ -348,7 +348,7 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
         flags |= SkVertices::kHasColors_BuilderFlag;
     }
 
-    SkVertices::Builder builder(SkCanvas::kTriangles_VertexMode, vertexCount, indexCount, flags);
+    SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vertexCount, indexCount, flags);
     SkPoint* pos = builder.positions();
     SkPoint* texs = builder.texCoords();
     SkColor* colors = builder.colors();

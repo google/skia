@@ -21,6 +21,7 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
+#include "SkVertices.h"
 
 #include "SkOSFile.h"
 #include "SkStream.h"
@@ -179,9 +180,10 @@ void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
             s += ds;
         }
         t += dt;
-        canvas->drawVertices(SkCanvas::kTriangleStrip_VertexMode, stripCount,
-                             strip, doTextures ? tex : nullptr,
-                             doColors ? colors : nullptr, nullptr, 0, paint);
+        canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangleStrip_VertexMode, stripCount,
+                                                  strip, doTextures ? tex : nullptr,
+                                                  doColors ? colors : nullptr),
+                             SkBlendMode::kModulate, paint);
     }
 }
 
