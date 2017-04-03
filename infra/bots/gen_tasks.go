@@ -26,6 +26,8 @@ import (
 )
 
 const (
+	BUNDLE_RECIPES_NAME = "Housekeeper-PerCommit-BundleRecipes"
+
 	DEFAULT_OS       = DEFAULT_OS_LINUX
 	DEFAULT_OS_LINUX = "Ubuntu-14.04"
 
@@ -212,6 +214,31 @@ func swarmDimensions(parts map[string]string) []string {
 	}
 	sort.Strings(rv)
 	return rv
+}
+
+// bundleRecipes generates the task to bundle and isolate the recipes.
+func bundleRecipes(b *specs.TasksCfgBuilder) string {
+	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "bundle_recipes",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", BUNDLE_RECIPES_NAME),
+			"mastername=fake-master",
+			"buildnumber=2",
+			"slavename=fake-buildslave",
+			"nobuildbot=True",
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  "bundle_recipes.isolate",
+		Priority: 0.95,
+	})
+	return BUNDLE_RECIPES_NAME
 }
 
 // compile generates a compile task. Returns the name of the last task in the
@@ -554,6 +581,9 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 // process generates tasks and jobs for the given job name.
 func process(b *specs.TasksCfgBuilder, name string) {
 	deps := []string{}
+
+	// Bundle Recipes.
+	deps = append(deps, bundleRecipes(b))
 
 	parts, err := jobNameSchema.ParseJobName(name)
 	if err != nil {
