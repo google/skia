@@ -206,17 +206,6 @@ bool GrProcessor::hasSameSamplersAndAccesses(const GrProcessor &that) const {
 
 GrProcessor::TextureSampler::TextureSampler() {}
 
-GrProcessor::TextureSampler::TextureSampler(GrTexture* texture, const GrSamplerParams& params) {
-    this->reset(texture, params);
-}
-
-GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
-                                            GrSamplerParams::FilterMode filterMode,
-                                            SkShader::TileMode tileXAndY,
-                                            GrShaderFlags visibility) {
-    this->reset(texture, filterMode, tileXAndY, visibility);
-}
-
 GrProcessor::TextureSampler::TextureSampler(GrResourceProvider* resourceProvider,
                                             sk_sp<GrTextureProxy> proxy,
                                             const GrSamplerParams& params) {
@@ -229,27 +218,6 @@ GrProcessor::TextureSampler::TextureSampler(GrResourceProvider* resourceProvider
                                             SkShader::TileMode tileXAndY,
                                             GrShaderFlags visibility) {
     this->reset(resourceProvider, std::move(proxy), filterMode, tileXAndY, visibility);
-}
-
-void GrProcessor::TextureSampler::reset(GrTexture* texture,
-                                        const GrSamplerParams& params,
-                                        GrShaderFlags visibility) {
-    SkASSERT(texture);
-    fTexture.set(SkRef(texture), kRead_GrIOType);
-    fParams = params;
-    fParams.setFilterMode(SkTMin(params.filterMode(), texture->texturePriv().highestFilterMode()));
-    fVisibility = visibility;
-}
-
-void GrProcessor::TextureSampler::reset(GrTexture* texture,
-                                        GrSamplerParams::FilterMode filterMode,
-                                        SkShader::TileMode tileXAndY,
-                                        GrShaderFlags visibility) {
-    SkASSERT(texture);
-    fTexture.set(SkRef(texture), kRead_GrIOType);
-    filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
-    fParams.reset(tileXAndY, filterMode);
-    fVisibility = visibility;
 }
 
 void GrProcessor::TextureSampler::reset(GrResourceProvider* resourceProvider,

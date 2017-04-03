@@ -204,18 +204,6 @@ public:
      */
     TextureSampler();
 
-    TextureSampler(GrTexture*, const GrSamplerParams&);
-    explicit TextureSampler(GrTexture*,
-                            GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
-                            SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
-                            GrShaderFlags visibility = kFragment_GrShaderFlag);
-    void reset(GrTexture*, const GrSamplerParams&,
-               GrShaderFlags visibility = kFragment_GrShaderFlag);
-    void reset(GrTexture*,
-               GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
-               SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
-               GrShaderFlags visibility = kFragment_GrShaderFlag);
-
     // MDB TODO: ultimately we shouldn't need the resource provider parameter
     TextureSampler(GrResourceProvider*, sk_sp<GrTextureProxy>, const GrSamplerParams&);
     explicit TextureSampler(GrResourceProvider*, sk_sp<GrTextureProxy>,
