@@ -98,8 +98,8 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, 
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
                                                      const SkSurfaceProps* props) {
-    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, 0, nullptr));
-    if (nullptr == pr.get()) {
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, 0, nullptr);
+    if (!pr) {
         return nullptr;
     }
 

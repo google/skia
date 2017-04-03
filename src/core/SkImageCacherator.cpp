@@ -157,7 +157,7 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap, const SkImageInfo& deco
                                           allocator)) {
             return false;
         }
-        if (!bitmap->tryAllocPixels(decodeInfo, nullptr, full.getColorTable())) {
+        if (!bitmap->tryAllocPixels(decodeInfo, sk_ref_sp(full.getColorTable()))) {
             return false;
         }
         return full.readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(),

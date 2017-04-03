@@ -29,7 +29,7 @@ inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
         colorCountPtr = &maxColors;
     }
 
-    bm->allocPixels(codec->getInfo(), nullptr, colorTable.get());
+    bm->allocPixels(codec->getInfo(), colorTable);
     const SkCodec::Result result = codec->getPixels(codec->getInfo(), bm->getPixels(),
             bm->rowBytes(), nullptr, colorPtr, colorCountPtr);
     return result == SkCodec::kSuccess || result == SkCodec::kIncompleteInput;

@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
@@ -20,12 +21,9 @@ static SkBitmap make_bitmap() {
     }
 
     SkBitmap bm;
-    SkColorTable* ctable = new SkColorTable(c, 256);
-
     bm.allocPixels(SkImageInfo::Make(256, 256, kIndex_8_SkColorType,
                                      kPremul_SkAlphaType),
-                   nullptr, ctable);
-    ctable->unref();
+                   SkColorTable::Make(c, 256));
 
     bm.lockPixels();
     const float cx = bm.width() * 0.5f;
