@@ -12,6 +12,7 @@
 #include "GrOpList.h"
 #include "GrPathRendering.h"
 #include "GrPrimitiveProcessor.h"
+#include "GrRenderTargetContext.h"
 #include "SkArenaAlloc.h"
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -77,7 +78,8 @@ public:
     }
     uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext,
                    GrAppliedClip&& clip, const DstTexture& dstTexture) {
-        this->recordOp(std::move(op), renderTargetContext, clip.doesClip() ? &clip : nullptr,
+        this->recordOp(std::move(op), renderTargetContext,
+                       clip.doesClip() ? &clip : nullptr,
                        &dstTexture);
         return this->uniqueID();
     }
@@ -115,32 +117,39 @@ public:
     SkDEBUGCODE(void validateTargetsSingleRenderTarget() const;)
 
 private:
-    friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
+    friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
     struct RecordedOp {
-        RecordedOp(std::unique_ptr<GrOp> op, GrRenderTarget* rt, const GrAppliedClip* appliedClip,
+        RecordedOp(std::unique_ptr<GrOp> op,
+                   GrRenderTarget* rt,
+                   GrSurfaceProxy::UniqueID proxyID,
+                   const GrAppliedClip* appliedClip,
                    const DstTexture* dstTexture)
-                : fOp(std::move(op)), fRenderTarget(rt), fAppliedClip(appliedClip) {
+                : fOp(std::move(op))
+                , fProxyUniqueID(proxyID)
+                , fAppliedClip(appliedClip) {
             if (dstTexture) {
                 fDstTexture = *dstTexture;
             }
+
+            fRenderTarget1.reset(rt);
         }
         std::unique_ptr<GrOp> fOp;
+        // MDB TODO: remove this.
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget1;
         // TODO: These ops will all to target the same render target and this won't be needed.
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+        GrSurfaceProxy::UniqueID                             fProxyUniqueID;
         DstTexture fDstTexture;
         const GrAppliedClip* fAppliedClip;
     };
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
-    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, GrAppliedClip* = nullptr,
+    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*,
+                   GrAppliedClip* = nullptr,
                    const DstTexture* = nullptr);
 
     void forwardCombine();
-
-    // Used only via GrRenderTargetContextPriv.
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
     // If this returns true then b has been merged into a's op.
     bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
