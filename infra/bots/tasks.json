@@ -427,6 +427,12 @@
         "Housekeeper-PerCommit"
       ]
     },
+    "Housekeeper-PerCommit-BundleRecipes": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ]
+    },
     "Housekeeper-PerCommit-InfraTests": {
       "priority": 0.8,
       "tasks": [
@@ -1884,6 +1890,9 @@
   },
   "tasks": {
     "Build-Mac-Clang-arm-Debug-iOS": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -1909,6 +1918,9 @@
       "priority": 0.8
     },
     "Build-Mac-Clang-arm-Release-iOS": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -1941,6 +1953,9 @@
           "version": "version:2"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -1966,6 +1981,9 @@
       "priority": 0.8
     },
     "Build-Mac-Clang-arm64-Debug-iOS": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -1991,6 +2009,9 @@
       "priority": 0.8
     },
     "Build-Mac-Clang-arm64-Release-iOS": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -2016,6 +2037,9 @@
       "priority": 0.8
     },
     "Build-Mac-Clang-x64-Release-iOS": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -2041,6 +2065,9 @@
       "priority": 0.8
     },
     "Build-Mac-Clang-x86_64-Debug": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -2066,6 +2093,9 @@
       "priority": 0.8
     },
     "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -2091,6 +2121,9 @@
       "priority": 0.8
     },
     "Build-Mac-Clang-x86_64-Release": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -2116,6 +2149,9 @@
       "priority": 0.8
     },
     "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Mac-10.12",
@@ -2147,6 +2183,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2181,6 +2220,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2213,6 +2255,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2247,6 +2292,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2279,6 +2327,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2313,6 +2364,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2345,6 +2399,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2379,6 +2436,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2411,6 +2471,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2445,6 +2508,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2477,6 +2543,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2511,6 +2580,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2543,6 +2615,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2577,6 +2652,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2609,6 +2687,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2643,6 +2724,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2675,6 +2759,9 @@
           "path": "android_ndk_linux",
           "version": "version:7"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2709,6 +2796,9 @@
           "version": "version:4"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2742,6 +2832,9 @@
           "version": "version:4"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2774,6 +2867,9 @@
           "path": "clang_linux",
           "version": "version:4"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2813,6 +2909,9 @@
           "version": "version:0"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2845,6 +2944,9 @@
           "path": "clang_linux",
           "version": "version:4"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2879,6 +2981,9 @@
           "version": "version:4"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2911,6 +3016,9 @@
           "path": "clang_linux",
           "version": "version:4"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2945,6 +3053,9 @@
           "version": "version:4"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -2977,6 +3088,9 @@
           "path": "clang_linux",
           "version": "version:4"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -3016,6 +3130,9 @@
           "version": "version:0"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3048,6 +3165,9 @@
           "path": "cast_toolchain",
           "version": "version:2"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -3082,6 +3202,9 @@
           "version": "version:2"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3108,6 +3231,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86-Debug": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3134,6 +3260,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86-Release": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3160,6 +3289,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Debug": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3186,6 +3318,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Debug-NoGPU": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3212,6 +3347,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3238,6 +3376,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Release": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3264,6 +3405,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Release-ANGLE": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3297,6 +3441,9 @@
           "version": "version:7"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3323,6 +3470,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Release-Mesa": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3349,6 +3499,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Release-NoGPU": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3375,6 +3528,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Release-PDFium": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3401,6 +3557,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3427,6 +3586,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3453,6 +3615,9 @@
       "priority": 0.8
     },
     "Build-Ubuntu-GCC-x86_64-Release-Shared": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -3486,6 +3651,9 @@
           "version": "version:3"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
@@ -3517,6 +3685,9 @@
           "path": "t",
           "version": "version:6"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:none",
@@ -3550,6 +3721,9 @@
           "version": "version:6"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
@@ -3581,6 +3755,9 @@
           "path": "t",
           "version": "version:6"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:none",
@@ -3614,6 +3791,9 @@
           "version": "version:6"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
@@ -3645,6 +3825,9 @@
           "path": "t",
           "version": "version:6"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:none",
@@ -3678,6 +3861,9 @@
           "version": "version:6"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
@@ -3709,6 +3895,9 @@
           "path": "t",
           "version": "version:6"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:none",
@@ -3742,6 +3931,9 @@
           "version": "version:6"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
@@ -3774,6 +3966,9 @@
           "version": "version:6"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
@@ -3805,6 +4000,9 @@
           "path": "t",
           "version": "version:6"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:none",
@@ -3843,6 +4041,9 @@
           "version": "version:2"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
@@ -3874,6 +4075,9 @@
           "path": "t",
           "version": "version:6"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:none",
@@ -3907,6 +4111,9 @@
           "version": "version:6"
         }
       ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
@@ -3938,6 +4145,9 @@
           "path": "t",
           "version": "version:6"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:none",
@@ -3975,6 +4185,9 @@
           "path": "win_vulkan_sdk",
           "version": "version:2"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "gpu:none",
@@ -4037,6 +4250,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release-Shared"
       ],
       "dimensions": [
@@ -4064,7 +4278,36 @@
       "isolate": "housekeeper_skia.isolate",
       "priority": 0.8
     },
+    "Housekeeper-PerCommit-BundleRecipes": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "bundle_recipes",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-PerCommit-BundleRecipes",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "bundle_recipes.isolate",
+      "priority": 0.95
+    },
     "Housekeeper-PerCommit-InfraTests": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",
@@ -4137,6 +4380,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -4187,6 +4431,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -4237,6 +4482,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -4287,6 +4533,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -4337,6 +4584,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -4387,6 +4635,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -4437,6 +4686,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -4487,6 +4737,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -4537,6 +4788,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -4587,6 +4839,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -4637,6 +4890,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -4687,6 +4941,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -4737,6 +4992,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -4787,6 +5043,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -4837,6 +5094,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -4887,6 +5145,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -4937,6 +5196,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -4987,6 +5247,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -5037,6 +5298,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -5087,6 +5349,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -5137,6 +5400,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -5187,6 +5451,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -5237,6 +5502,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -5287,6 +5553,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -5337,6 +5604,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -5387,6 +5655,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -5437,6 +5706,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ],
       "dimensions": [
@@ -5487,6 +5757,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ],
       "dimensions": [
@@ -5537,6 +5808,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Release-Android"
       ],
       "dimensions": [
@@ -5587,6 +5859,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -5637,6 +5910,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -5687,6 +5961,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -5737,6 +6012,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -5787,6 +6063,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -5837,6 +6114,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -5877,6 +6155,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -5917,6 +6196,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -5957,6 +6237,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-arm-Debug-Chromecast"
       ],
       "dimensions": [
@@ -5997,6 +6278,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-arm-Release-Chromecast"
       ],
       "dimensions": [
@@ -6047,6 +6329,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -6096,6 +6379,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -6145,6 +6429,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -6195,6 +6480,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -6245,6 +6531,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -6294,6 +6581,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -6343,6 +6631,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Release-CommandBuffer"
       ],
       "dimensions": [
@@ -6392,6 +6681,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -6447,6 +6737,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
@@ -6502,6 +6793,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug-MSAN"
       ],
       "dimensions": [
@@ -6552,6 +6844,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -6607,6 +6900,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
@@ -6657,6 +6951,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-Fast"
       ],
       "dimensions": [
@@ -6712,6 +7007,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
@@ -6766,6 +7062,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
@@ -6815,6 +7112,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86-Debug"
       ],
       "dimensions": [
@@ -6865,6 +7163,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Debug"
       ],
       "dimensions": [
@@ -6915,6 +7214,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
       ],
       "dimensions": [
@@ -6965,6 +7265,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -6997,6 +7298,9 @@
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "pool:SkiaCT"
       ],
@@ -7022,6 +7326,9 @@
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "pool:SkiaCT"
       ],
@@ -7065,6 +7372,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -7114,6 +7422,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -7163,6 +7472,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Debug"
       ],
       "dimensions": [
@@ -7212,6 +7522,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -7261,6 +7572,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Debug"
       ],
       "dimensions": [
@@ -7310,6 +7622,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -7364,6 +7677,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -7418,6 +7732,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -7472,6 +7787,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -7531,6 +7847,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -7585,6 +7902,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -7644,6 +7962,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -7698,6 +8017,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -7752,6 +8072,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -7806,6 +8127,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -7860,6 +8182,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -7909,6 +8232,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -7958,6 +8282,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -8007,6 +8332,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -8056,6 +8382,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -8105,6 +8432,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -8154,6 +8482,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -8203,6 +8532,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -8252,6 +8582,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -8301,6 +8632,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -8350,6 +8682,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -8399,6 +8732,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -8448,6 +8782,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -8497,6 +8832,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -8546,6 +8882,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -8595,6 +8932,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -8644,6 +8982,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -8694,6 +9033,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -8744,6 +9084,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -8793,6 +9134,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -8842,6 +9184,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -8891,6 +9234,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -8940,6 +9284,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -8989,6 +9334,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -9038,6 +9384,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -9087,6 +9434,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -9136,6 +9484,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -9186,6 +9535,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -9236,6 +9586,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -9286,6 +9637,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -9336,6 +9688,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -9385,6 +9738,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -9434,6 +9788,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -9483,6 +9838,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -9532,6 +9888,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -9581,6 +9938,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -9630,6 +9988,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86-Debug"
       ],
       "dimensions": [
@@ -9680,6 +10039,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -9730,6 +10090,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-GDI"
       ],
       "dimensions": [
@@ -9780,6 +10141,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -9830,6 +10192,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-arm64-Debug-iOS"
       ],
       "dimensions": [
@@ -9879,6 +10242,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-arm64-Release-iOS"
       ],
       "dimensions": [
@@ -9928,6 +10292,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -9978,6 +10343,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -10028,6 +10394,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -10078,6 +10445,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -10128,6 +10496,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -10178,6 +10547,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -10228,6 +10598,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -10278,6 +10649,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -10328,6 +10700,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -10378,6 +10751,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -10428,6 +10802,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -10478,6 +10853,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -10528,6 +10904,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -10578,6 +10955,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -10628,6 +11006,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -10678,6 +11057,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -10728,6 +11108,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -10778,6 +11159,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -10828,6 +11210,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -10878,6 +11261,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -10928,6 +11312,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -10978,6 +11363,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -11028,6 +11414,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -11078,6 +11465,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -11128,6 +11516,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -11178,6 +11567,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
@@ -11228,6 +11618,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
@@ -11278,6 +11669,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ],
       "dimensions": [
@@ -11328,6 +11720,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Release-Android"
       ],
       "dimensions": [
@@ -11378,6 +11771,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ],
       "dimensions": [
@@ -11428,6 +11822,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -11478,6 +11873,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Release-Android"
       ],
       "dimensions": [
@@ -11528,6 +11924,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -11578,6 +11975,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -11628,6 +12026,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -11678,6 +12077,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -11728,6 +12128,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -11778,6 +12179,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
@@ -11828,6 +12230,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -11878,6 +12281,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -11927,6 +12331,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -11976,6 +12381,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -12026,6 +12432,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -12076,6 +12483,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -12125,6 +12533,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
       ],
       "dimensions": [
@@ -12174,6 +12583,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -12223,6 +12633,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -12278,6 +12689,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
@@ -12333,6 +12745,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug-MSAN"
       ],
       "dimensions": [
@@ -12383,6 +12796,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -12438,6 +12852,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
@@ -12488,6 +12903,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-Fast"
       ],
       "dimensions": [
@@ -12543,6 +12959,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-TSAN"
       ],
       "dimensions": [
@@ -12598,6 +13015,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
@@ -12652,6 +13070,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
@@ -12706,6 +13125,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-TSAN"
       ],
       "dimensions": [
@@ -12755,6 +13175,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86-Debug"
       ],
       "dimensions": [
@@ -12805,6 +13226,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Debug"
       ],
       "dimensions": [
@@ -12837,6 +13259,9 @@
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "pool:SkiaCT"
       ],
@@ -12862,6 +13287,9 @@
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "pool:SkiaCT"
       ],
@@ -12887,6 +13315,9 @@
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
       "dimensions": [
         "pool:SkiaCT"
       ],
@@ -12930,6 +13361,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
       ],
       "dimensions": [
@@ -12980,6 +13412,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -13030,6 +13463,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD"
       ],
       "dimensions": [
@@ -13080,6 +13514,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -13129,6 +13564,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -13178,6 +13614,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -13227,6 +13664,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Debug"
       ],
       "dimensions": [
@@ -13276,6 +13714,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -13325,6 +13764,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Debug"
       ],
       "dimensions": [
@@ -13374,6 +13814,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-GCC-x86_64-Release"
       ],
       "dimensions": [
@@ -13428,6 +13869,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -13482,6 +13924,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -13536,6 +13979,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -13595,6 +14039,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -13649,6 +14094,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -13708,6 +14154,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -13762,6 +14209,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -13816,6 +14264,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -13870,6 +14319,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Debug"
       ],
       "dimensions": [
@@ -13924,6 +14374,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Ubuntu-Clang-x86_64-Release"
       ],
       "dimensions": [
@@ -13973,6 +14424,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -14022,6 +14474,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -14071,6 +14524,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -14120,6 +14574,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -14169,6 +14624,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -14218,6 +14674,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -14267,6 +14724,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -14316,6 +14774,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -14365,6 +14824,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -14414,6 +14874,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -14463,6 +14924,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -14512,6 +14974,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -14561,6 +15024,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -14610,6 +15074,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -14659,6 +15124,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -14708,6 +15174,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -14758,6 +15225,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -14808,6 +15276,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -14857,6 +15326,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -14906,6 +15376,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -14955,6 +15426,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -15004,6 +15476,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -15053,6 +15526,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -15102,6 +15576,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -15151,6 +15626,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -15201,6 +15677,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -15251,6 +15728,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -15301,6 +15779,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -15351,6 +15830,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -15400,6 +15880,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -15449,6 +15930,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -15498,6 +15980,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -15547,6 +16030,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -15596,6 +16080,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -15645,6 +16130,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86-Debug"
       ],
       "dimensions": [
@@ -15695,6 +16181,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86-Release"
       ],
       "dimensions": [
@@ -15745,6 +16232,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
@@ -15795,6 +16283,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Debug-GDI"
       ],
       "dimensions": [
@@ -15845,6 +16334,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
@@ -15895,6 +16385,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Win-MSVC-x86_64-Release-GDI"
       ],
       "dimensions": [
@@ -15945,6 +16436,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-arm64-Debug-iOS"
       ],
       "dimensions": [
@@ -15994,6 +16486,7 @@
         }
       ],
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Build-Mac-Clang-arm64-Release-iOS"
       ],
       "dimensions": [
@@ -16026,6 +16519,7 @@
     },
     "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ],
       "dimensions": [
@@ -16056,6 +16550,7 @@
     },
     "Upload-Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android"
       ],
       "dimensions": [
@@ -16086,6 +16581,7 @@
     },
     "Upload-Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android"
       ],
       "dimensions": [
@@ -16116,6 +16612,7 @@
     },
     "Upload-Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android"
       ],
       "dimensions": [
@@ -16146,6 +16643,7 @@
     },
     "Upload-Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android"
       ],
       "dimensions": [
@@ -16176,6 +16674,7 @@
     },
     "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android"
       ],
       "dimensions": [
@@ -16206,6 +16705,7 @@
     },
     "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -16236,6 +16736,7 @@
     },
     "Upload-Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android"
       ],
       "dimensions": [
@@ -16266,6 +16767,7 @@
     },
     "Upload-Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android"
       ],
       "dimensions": [
@@ -16296,6 +16798,7 @@
     },
     "Upload-Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android"
       ],
       "dimensions": [
@@ -16326,6 +16829,7 @@
     },
     "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android"
       ],
       "dimensions": [
@@ -16356,6 +16860,7 @@
     },
     "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -16386,6 +16891,7 @@
     },
     "Upload-Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android"
       ],
       "dimensions": [
@@ -16416,6 +16922,7 @@
     },
     "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android"
       ],
       "dimensions": [
@@ -16446,6 +16953,7 @@
     },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android"
       ],
       "dimensions": [
@@ -16476,6 +16984,7 @@
     },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -16506,6 +17015,7 @@
     },
     "Upload-Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android"
       ],
       "dimensions": [
@@ -16536,6 +17046,7 @@
     },
     "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench"
       ],
       "dimensions": [
@@ -16566,6 +17077,7 @@
     },
     "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench"
       ],
       "dimensions": [
@@ -16596,6 +17108,7 @@
     },
     "Upload-Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release"
       ],
       "dimensions": [
@@ -16626,6 +17139,7 @@
     },
     "Upload-Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release"
       ],
       "dimensions": [
@@ -16656,6 +17170,7 @@
     },
     "Upload-Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release"
       ],
       "dimensions": [
@@ -16686,6 +17201,7 @@
     },
     "Upload-Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release"
       ],
       "dimensions": [
@@ -16716,6 +17232,7 @@
     },
     "Upload-Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer"
       ],
       "dimensions": [
@@ -16746,6 +17263,7 @@
     },
     "Upload-Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
@@ -16776,6 +17294,7 @@
     },
     "Upload-Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
       ],
       "dimensions": [
@@ -16806,6 +17325,7 @@
     },
     "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
@@ -16836,6 +17356,7 @@
     },
     "Upload-Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
       ],
       "dimensions": [
@@ -16866,6 +17387,7 @@
     },
     "Upload-Perf-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
       ],
       "dimensions": [
@@ -16896,6 +17418,7 @@
     },
     "Upload-Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release"
       ],
       "dimensions": [
@@ -16926,6 +17449,7 @@
     },
     "Upload-Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release"
       ],
       "dimensions": [
@@ -16956,6 +17480,7 @@
     },
     "Upload-Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -16986,6 +17511,7 @@
     },
     "Upload-Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release"
       ],
       "dimensions": [
@@ -17016,6 +17542,7 @@
     },
     "Upload-Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release"
       ],
       "dimensions": [
@@ -17046,6 +17573,7 @@
     },
     "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release"
       ],
       "dimensions": [
@@ -17076,6 +17604,7 @@
     },
     "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -17106,6 +17635,7 @@
     },
     "Upload-Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -17136,6 +17666,7 @@
     },
     "Upload-Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release"
       ],
       "dimensions": [
@@ -17166,6 +17697,7 @@
     },
     "Upload-Perf-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -17196,6 +17728,7 @@
     },
     "Upload-Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release"
       ],
       "dimensions": [
@@ -17226,6 +17759,7 @@
     },
     "Upload-Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -17256,6 +17790,7 @@
     },
     "Upload-Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -17286,6 +17821,7 @@
     },
     "Upload-Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release"
       ],
       "dimensions": [
@@ -17316,6 +17852,7 @@
     },
     "Upload-Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release"
       ],
       "dimensions": [
@@ -17346,6 +17883,7 @@
     },
     "Upload-Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
       ],
       "dimensions": [
@@ -17376,6 +17914,7 @@
     },
     "Upload-Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -17406,6 +17945,7 @@
     },
     "Upload-Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release"
       ],
       "dimensions": [
@@ -17436,6 +17976,7 @@
     },
     "Upload-Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release"
       ],
       "dimensions": [
@@ -17466,6 +18007,7 @@
     },
     "Upload-Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -17496,6 +18038,7 @@
     },
     "Upload-Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release"
       ],
       "dimensions": [
@@ -17526,6 +18069,7 @@
     },
     "Upload-Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -17556,6 +18100,7 @@
     },
     "Upload-Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -17586,6 +18131,7 @@
     },
     "Upload-Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
@@ -17616,6 +18162,7 @@
     },
     "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
       ],
       "dimensions": [
@@ -17646,6 +18193,7 @@
     },
     "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android"
       ],
       "dimensions": [
@@ -17676,6 +18224,7 @@
     },
     "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ],
       "dimensions": [
@@ -17706,6 +18255,7 @@
     },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -17736,6 +18286,7 @@
     },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android"
       ],
       "dimensions": [
@@ -17766,6 +18317,7 @@
     },
     "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -17796,6 +18348,7 @@
     },
     "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android"
       ],
       "dimensions": [
@@ -17826,6 +18379,7 @@
     },
     "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -17856,6 +18410,7 @@
     },
     "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android"
       ],
       "dimensions": [
@@ -17886,6 +18441,7 @@
     },
     "Upload-Test-Android-Clang-GalaxyTab3-GPU-Vivante-arm-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-GalaxyTab3-GPU-Vivante-arm-Debug-Android"
       ],
       "dimensions": [
@@ -17916,6 +18472,7 @@
     },
     "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android"
       ],
       "dimensions": [
@@ -17946,6 +18503,7 @@
     },
     "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android"
       ],
       "dimensions": [
@@ -17976,6 +18534,7 @@
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -18006,6 +18565,7 @@
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -18036,6 +18596,7 @@
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android"
       ],
       "dimensions": [
@@ -18066,6 +18627,7 @@
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -18096,6 +18658,7 @@
     },
     "Upload-Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android"
       ],
       "dimensions": [
@@ -18126,6 +18689,7 @@
     },
     "Upload-Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android"
       ],
       "dimensions": [
@@ -18156,6 +18720,7 @@
     },
     "Upload-Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android"
       ],
       "dimensions": [
@@ -18186,6 +18751,7 @@
     },
     "Upload-Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android"
       ],
       "dimensions": [
@@ -18216,6 +18782,7 @@
     },
     "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android"
       ],
       "dimensions": [
@@ -18246,6 +18813,7 @@
     },
     "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android"
       ],
       "dimensions": [
@@ -18276,6 +18844,7 @@
     },
     "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -18306,6 +18875,7 @@
     },
     "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -18336,6 +18906,7 @@
     },
     "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android"
       ],
       "dimensions": [
@@ -18366,6 +18937,7 @@
     },
     "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -18396,6 +18968,7 @@
     },
     "Upload-Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android"
       ],
       "dimensions": [
@@ -18426,6 +18999,7 @@
     },
     "Upload-Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android"
       ],
       "dimensions": [
@@ -18456,6 +19030,7 @@
     },
     "Upload-Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android"
       ],
       "dimensions": [
@@ -18486,6 +19061,7 @@
     },
     "Upload-Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android"
       ],
       "dimensions": [
@@ -18516,6 +19092,7 @@
     },
     "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android"
       ],
       "dimensions": [
@@ -18546,6 +19123,7 @@
     },
     "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -18576,6 +19154,7 @@
     },
     "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android"
       ],
       "dimensions": [
@@ -18606,6 +19185,7 @@
     },
     "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -18636,6 +19216,7 @@
     },
     "Upload-Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -18666,6 +19247,7 @@
     },
     "Upload-Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android"
       ],
       "dimensions": [
@@ -18696,6 +19278,7 @@
     },
     "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android"
       ],
       "dimensions": [
@@ -18726,6 +19309,7 @@
     },
     "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
@@ -18756,6 +19340,7 @@
     },
     "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android"
       ],
       "dimensions": [
@@ -18786,6 +19371,7 @@
     },
     "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
@@ -18816,6 +19402,7 @@
     },
     "Upload-Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug"
       ],
       "dimensions": [
@@ -18846,6 +19433,7 @@
     },
     "Upload-Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release"
       ],
       "dimensions": [
@@ -18876,6 +19464,7 @@
     },
     "Upload-Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug"
       ],
       "dimensions": [
@@ -18906,6 +19495,7 @@
     },
     "Upload-Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release"
       ],
       "dimensions": [
@@ -18936,6 +19526,7 @@
     },
     "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug"
       ],
       "dimensions": [
@@ -18966,6 +19557,7 @@
     },
     "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer"
       ],
       "dimensions": [
@@ -18996,6 +19588,7 @@
     },
     "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release"
       ],
       "dimensions": [
@@ -19026,6 +19619,7 @@
     },
     "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug"
       ],
       "dimensions": [
@@ -19056,6 +19650,7 @@
     },
     "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
@@ -19086,6 +19681,7 @@
     },
     "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
       ],
       "dimensions": [
@@ -19116,6 +19712,7 @@
     },
     "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug"
       ],
       "dimensions": [
@@ -19146,6 +19743,7 @@
     },
     "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug"
       ],
       "dimensions": [
@@ -19176,6 +19774,7 @@
     },
     "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
       ],
       "dimensions": [
@@ -19206,6 +19805,7 @@
     },
     "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
@@ -19236,6 +19836,7 @@
     },
     "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD"
       ],
       "dimensions": [
@@ -19266,6 +19867,7 @@
     },
     "Upload-Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug"
       ],
       "dimensions": [
@@ -19296,6 +19898,7 @@
     },
     "Upload-Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
       ],
       "dimensions": [
@@ -19326,6 +19929,7 @@
     },
     "Upload-Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Debug"
       ],
       "dimensions": [
@@ -19356,6 +19960,7 @@
     },
     "Upload-Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
       ],
       "dimensions": [
@@ -19386,6 +19991,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug"
       ],
       "dimensions": [
@@ -19416,6 +20022,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release"
       ],
       "dimensions": [
@@ -19446,6 +20053,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug"
       ],
       "dimensions": [
@@ -19476,6 +20084,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -19506,6 +20115,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release"
       ],
       "dimensions": [
@@ -19536,6 +20146,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -19566,6 +20177,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug"
       ],
       "dimensions": [
@@ -19596,6 +20208,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release"
       ],
       "dimensions": [
@@ -19626,6 +20239,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug"
       ],
       "dimensions": [
@@ -19656,6 +20270,7 @@
     },
     "Upload-Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release"
       ],
       "dimensions": [
@@ -19686,6 +20301,7 @@
     },
     "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug"
       ],
       "dimensions": [
@@ -19716,6 +20332,7 @@
     },
     "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -19746,6 +20363,7 @@
     },
     "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -19776,6 +20394,7 @@
     },
     "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release"
       ],
       "dimensions": [
@@ -19806,6 +20425,7 @@
     },
     "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -19836,6 +20456,7 @@
     },
     "Upload-Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -19866,6 +20487,7 @@
     },
     "Upload-Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release"
       ],
       "dimensions": [
@@ -19896,6 +20518,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -19926,6 +20549,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -19956,6 +20580,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug"
       ],
       "dimensions": [
@@ -19986,6 +20611,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -20016,6 +20642,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -20046,6 +20673,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release"
       ],
       "dimensions": [
@@ -20076,6 +20704,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -20106,6 +20735,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -20136,6 +20766,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug"
       ],
       "dimensions": [
@@ -20166,6 +20797,7 @@
     },
     "Upload-Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release"
       ],
       "dimensions": [
@@ -20196,6 +20828,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug"
       ],
       "dimensions": [
@@ -20226,6 +20859,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release"
       ],
       "dimensions": [
@@ -20256,6 +20890,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug"
       ],
       "dimensions": [
@@ -20286,6 +20921,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -20316,6 +20952,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
       ],
       "dimensions": [
@@ -20346,6 +20983,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug"
       ],
       "dimensions": [
@@ -20376,6 +21014,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release"
       ],
       "dimensions": [
@@ -20406,6 +21045,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug"
       ],
       "dimensions": [
@@ -20436,6 +21076,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -20466,6 +21107,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release"
       ],
       "dimensions": [
@@ -20496,6 +21138,7 @@
     },
     "Upload-Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -20526,6 +21169,7 @@
     },
     "Upload-Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug"
       ],
       "dimensions": [
@@ -20556,6 +21200,7 @@
     },
     "Upload-Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
@@ -20586,6 +21231,7 @@
     },
     "Upload-Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
@@ -20616,6 +21262,7 @@
     },
     "Upload-Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release"
       ],
       "dimensions": [
@@ -20646,6 +21293,7 @@
     },
     "Upload-Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE"
       ],
       "dimensions": [
@@ -20676,6 +21324,7 @@
     },
     "Upload-Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan"
       ],
       "dimensions": [
@@ -20706,6 +21355,7 @@
     },
     "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug"
       ],
       "dimensions": [
@@ -20736,6 +21386,7 @@
     },
     "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release"
       ],
       "dimensions": [
@@ -20766,6 +21417,7 @@
     },
     "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug"
       ],
       "dimensions": [
@@ -20796,6 +21448,7 @@
     },
     "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI"
       ],
       "dimensions": [
@@ -20826,6 +21479,7 @@
     },
     "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
@@ -20856,6 +21510,7 @@
     },
     "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI"
       ],
       "dimensions": [
@@ -20886,6 +21541,7 @@
     },
     "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug"
       ],
       "dimensions": [
@@ -20916,6 +21572,7 @@
     },
     "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
       "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
         "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
       ],
       "dimensions": [
