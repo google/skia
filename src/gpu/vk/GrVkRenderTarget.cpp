@@ -281,7 +281,7 @@ void GrVkRenderTarget::releaseInternalObjects() {
 
     if (fMSAAImage) {
         fMSAAImage->releaseImage(gpu);
-        fMSAAImage = nullptr;
+        fMSAAImage.reset();
     }
 
     if (fResolveAttachmentView) {
@@ -305,7 +305,7 @@ void GrVkRenderTarget::releaseInternalObjects() {
 void GrVkRenderTarget::abandonInternalObjects() {
     if (fMSAAImage) {
         fMSAAImage->abandonImage();
-        fMSAAImage = nullptr;
+        fMSAAImage.reset();
     }
 
     if (fResolveAttachmentView) {
