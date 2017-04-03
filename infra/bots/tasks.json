@@ -427,6 +427,12 @@
         "Housekeeper-PerCommit"
       ]
     },
+    "Housekeeper-PerCommit-BundleRecipes": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ]
+    },
     "Housekeeper-PerCommit-InfraTests": {
       "priority": 0.8,
       "tasks": [
@@ -4063,6 +4069,32 @@
       ],
       "isolate": "housekeeper_skia.isolate",
       "priority": 0.8
+    },
+    "Housekeeper-PerCommit-BundleRecipes": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "bundle_recipes",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-PerCommit-BundleRecipes",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "bundle_recipes.isolate",
+      "priority": 0.95
     },
     "Housekeeper-PerCommit-InfraTests": {
       "dimensions": [
