@@ -1054,6 +1054,9 @@ DEF_TEST(Image_ColorSpace, r) {
 DEF_TEST(Image_makeColorSpace, r) {
     sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                    SkColorSpace::kDCIP3_D65_Gamut);
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fE = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
+    sk_sp<SkColorSpace> adobeGamut = SkColorSpace::MakeRGB(fn, SkColorSpace::kAdobeRGB_Gamut);
 
     SkBitmap srgbBitmap;
     srgbBitmap.allocPixels(SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType));
@@ -1077,6 +1080,16 @@ DEF_TEST(Image_makeColorSpace, r) {
     REPORTER_ASSERT(r, almost_equal(0x8B, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x82, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x77, SkGetPackedB32(*p3Bitmap.getAddr32(0, 0))));
+
+    srgbImage = GetResourceAsImage("1x1.png");
+    sk_sp<SkImage> adobeImage = as_IB(srgbImage)->makeColorSpace(adobeGamut);
+    SkBitmap adobeBitmap;
+    success = adobeImage->asLegacyBitmap(&adobeBitmap, SkImage::kRO_LegacyBitmapMode);
+    REPORTER_ASSERT(r, success);
+    adobeBitmap.lockPixels();
+    REPORTER_ASSERT(r, almost_equal(0x77, SkGetPackedR32(*adobeBitmap.getAddr32(0, 0))));
+    REPORTER_ASSERT(r, almost_equal(0x6F, SkGetPackedG32(*adobeBitmap.getAddr32(0, 0))));
+    REPORTER_ASSERT(r, almost_equal(0x63, SkGetPackedB32(*adobeBitmap.getAddr32(0, 0))));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
