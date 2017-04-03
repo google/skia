@@ -22,7 +22,7 @@ public:
 
     void transformToNormalizedDeviceSpace(const GrShaderVar& posVar, const char* rtAdjustName);
 private:
-    void onFinalize() override;
+    void onFinalize(GrRenderTarget*) override;
 
     friend class GrGLProgramBuilder;
 

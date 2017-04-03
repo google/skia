@@ -664,7 +664,7 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
     // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
-    if (!fRenderTargetContext->accessRenderTarget()) {
+    if (!fRenderTargetContext->asRenderTargetProxy()) {
         return;
     }
     fRenderTargetContext->getOpList()->clearStencilClip(clip, insideStencilMask,
@@ -694,7 +694,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
 
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!clip.apply(fRenderTargetContext->fContext, fRenderTargetContext, useHWAA, true,
+    if (!clip.apply1(fRenderTargetContext->fContext, fRenderTargetContext, useHWAA, true,
                     &appliedClip, &bounds)) {
         return;
     }
@@ -703,7 +703,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
     // attempt this in a situation that would require coverage AA.
     SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
-    GrRenderTarget* rt = fRenderTargetContext->accessRenderTarget();
+    GrRenderTarget* rt = fRenderTargetContext->accessRenderTarget2();
     if (!rt) {
         return;
     }
@@ -720,7 +720,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
                                                      appliedClip.hasStencilClip(),
                                                      stencilAttachment->bits(),
                                                      appliedClip.scissorState(),
-                                                     fRenderTargetContext->accessRenderTarget(),
+                                                     fRenderTargetContext->asRenderTargetProxy(),
                                                      path);
     op->setClippedBounds(bounds);
     fRenderTargetContext->getOpList()->recordOp(std::move(op), fRenderTargetContext);
@@ -1644,14 +1644,14 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip;
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
-    if (!clip.apply(fContext, this, fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
+    if (!clip.apply1(fContext, this, fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
                     fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil, &appliedClip,
                     &bounds)) {
         return SK_InvalidUniqueID;
     }
 
     // This forces instantiation of the render target.
-    GrRenderTarget* rt = this->accessRenderTarget();
+    GrRenderTarget* rt = this->accessRenderTarget2();
     if (!rt) {
         return SK_InvalidUniqueID;
     }
@@ -1690,18 +1690,19 @@ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineB
     SkRect bounds;
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip;
-    if (!clip.apply(fContext, this, pipelineBuilder.isHWAntialias(),
+    if (!clip.apply1(fContext, this, pipelineBuilder.isHWAntialias(),
                     pipelineBuilder.hasUserStencilSettings(), &appliedClip, &bounds)) {
         return SK_InvalidUniqueID;
     }
 
     // This forces instantiation of the render target. Pipeline creation is moving to flush time
     // by which point instantiation must have occurred anyway.
-    GrRenderTarget* rt = this->accessRenderTarget();
+    GrRenderTarget* rt = this->accessRenderTarget2();
     if (!rt) {
         return SK_InvalidUniqueID;
     }
 
+#if 0
     GrResourceProvider* resourceProvider = fContext->resourceProvider();
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
         if (!resourceProvider->attachStencilAttachment(this->accessRenderTarget())) {
@@ -1709,6 +1710,7 @@ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineB
             return SK_InvalidUniqueID;
         }
     }
+#endif
 
     GrProcessorSet::Analysis analysis;
     op->analyzeProcessors(&analysis, pipelineBuilder.processors(), &appliedClip, *this->caps());
@@ -1716,7 +1718,7 @@ uint32_t GrRenderTargetContext::addMeshDrawOp(const GrPipelineBuilder& pipelineB
     GrPipeline::InitArgs args;
     pipelineBuilder.getPipelineInitArgs(&args);
     args.fAppliedClip = &appliedClip;
-    args.fRenderTarget = rt;
+    args.fRenderTargetProxy = this->asRenderTargetProxy();
     args.fCaps = this->caps();
     args.fAnalysis = &analysis;
     args.fInputColor = analysis.outputColor();

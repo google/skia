@@ -188,12 +188,12 @@ static void append_texture_bindings(const GrProcessor& processor,
 
 void GrVkPipelineState::setData(GrVkGpu* gpu,
                                 const GrPrimitiveProcessor& primProc,
-                                const GrPipeline& pipeline) {
+                                const GrPipeline& pipeline, GrRenderTarget* rt) {
     // This is here to protect against someone calling setData multiple times in a row without
     // freeing the tempData between calls.
     this->freeTempResources(gpu);
 
-    this->setRenderTargetState(pipeline.getRenderTarget());
+    this->setRenderTargetState(rt); //pipeline.getRenderTarget());
 
     SkSTArray<8, const GrProcessor::TextureSampler*> textureBindings;
 
@@ -496,7 +496,7 @@ uint32_t get_blend_info_key(const GrPipeline& pipeline) {
 
 bool GrVkPipelineState::Desc::Build(Desc* desc,
                                     const GrPrimitiveProcessor& primProc,
-                                    const GrPipeline& pipeline,
+                                    const GrPipeline& pipeline, GrRenderTarget* rt,
                                     const GrStencilSettings& stencil,
                                     GrPrimitiveType primitiveType,
                                     const GrShaderCaps& caps) {
@@ -506,7 +506,7 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
     }
 
     GrProcessorKeyBuilder b(&desc->key());
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.getRenderTarget();
+    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)rt;
     vkRT->simpleRenderPass()->genKey(&b);
 
     stencil.genKey(&b);

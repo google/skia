@@ -12,40 +12,47 @@
 #include "GrOp.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetProxy.h"
 
 class GrDiscardOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrOp> Make(GrRenderTarget* rt) {
-        return std::unique_ptr<GrOp>(new GrDiscardOp(rt));
+    static std::unique_ptr<GrOp> Make(GrRenderTargetProxy* rtp) {
+        return std::unique_ptr<GrOp>(new GrDiscardOp(rtp));
     }
 
     const char* name() const override { return "Discard"; }
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("RT: %d", fRenderTarget.get()->uniqueID().asUInt());
+        string.printf("RT: %d", fRenderTargetProxy.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
 private:
-    GrDiscardOp(GrRenderTarget* rt) : INHERITED(ClassID()), fRenderTarget(rt) {
-        this->setBounds(SkRect::MakeIWH(rt->width(), rt->height()), HasAABloat::kNo,
+    GrDiscardOp(GrRenderTargetProxy* rtp) : INHERITED(ClassID()), fRenderTargetProxy(rtp) {
+        this->setBounds(SkRect::MakeIWH(rtp->width(), rtp->height()), HasAABloat::kNo,
                         IsZeroArea::kNo);
     }
 
     bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
-        return fRenderTarget.get() == that->cast<GrDiscardOp>()->fRenderTarget.get();
+        return fRenderTargetProxy.get()->uniqueID() ==
+               that->cast<GrDiscardOp>()->fRenderTargetProxy.get()->uniqueID();
     }
 
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        state->commandBuffer()->discard(fRenderTarget.get());
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
+        state->commandBuffer()->discard(rt);
     }
 
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrOp INHERITED;
 };
