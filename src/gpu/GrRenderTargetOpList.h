@@ -12,6 +12,7 @@
 #include "GrOpList.h"
 #include "GrPathRendering.h"
 #include "GrPrimitiveProcessor.h"
+#include "GrRenderTargetContext.h"
 #include "SkArenaAlloc.h"
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -115,19 +116,27 @@ public:
     SkDEBUGCODE(void validateTargetsSingleRenderTarget() const;)
 
 private:
-    friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
+    friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
     struct RecordedOp {
-        RecordedOp(std::unique_ptr<GrOp> op, GrRenderTarget* rt, const GrAppliedClip* appliedClip,
+        RecordedOp(std::unique_ptr<GrOp> op,
+                   GrRenderTarget* rt,
+                   GrSurfaceProxy::UniqueID proxyID,
+                   const GrAppliedClip* appliedClip,
                    const DstTexture* dstTexture)
-                : fOp(std::move(op)), fRenderTarget(rt), fAppliedClip(appliedClip) {
+                : fOp(std::move(op))
+                , fRenderTarget1(rt)
+                , fProxyUniqueID(proxyID)
+                , fAppliedClip(appliedClip) {
             if (dstTexture) {
                 fDstTexture = *dstTexture;
             }
         }
         std::unique_ptr<GrOp> fOp;
+        // MDB TODO: remove this.
+        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget1;
         // TODO: These ops will all to target the same render target and this won't be needed.
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+        GrSurfaceProxy::UniqueID                             fProxyUniqueID;
         DstTexture fDstTexture;
         const GrAppliedClip* fAppliedClip;
     };
@@ -138,9 +147,6 @@ private:
                    const DstTexture* = nullptr);
 
     void forwardCombine();
-
-    // Used only via GrRenderTargetContextPriv.
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
     // If this returns true then b has been merged into a's op.
     bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
