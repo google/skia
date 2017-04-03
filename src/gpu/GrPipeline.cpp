@@ -61,17 +61,19 @@ void GrPipeline::init(const InitArgs& args) {
         sk_sp<GrXferProcessor> xferProcessor;
         const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
         if (xpFactory) {
-            xferProcessor.reset(xpFactory->createXferProcessor(args.fInputColor,
-                                                               args.fInputCoverage, hasMixedSamples,
-                                                               &args.fDstTexture, *args.fCaps));
+            xferProcessor.reset(xpFactory->createXferProcessor(
+                    args.fInputColor, args.fInputCoverage, hasMixedSamples, *args.fCaps));
             SkASSERT(xferProcessor);
         } else {
             // This may return nullptr in the common case of src-over implemented using hw blending.
             xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
-                    *args.fCaps, args.fInputColor, args.fInputCoverage, hasMixedSamples,
-                    &args.fDstTexture));
+                    *args.fCaps, args.fInputColor, args.fInputCoverage, hasMixedSamples));
         }
         fXferProcessor.reset(xferProcessor.get());
+    }
+    if (args.fDstTexture.texture()) {
+        fDstTexture.reset(args.fDstTexture.texture());
+        fDstTextureOffset = args.fDstTexture.offset();
     }
 
     // This is for the legacy GrPipeline creation in GrLegacyMeshDrawOp where analysis does not
@@ -130,12 +132,9 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
         add_dependencies_for_processor(fFragmentProcessors[i].get(), rt);
     }
 
-    const GrXferProcessor& xfer = this->getXferProcessor();
-
-    for (int i = 0; i < xfer.numTextureSamplers(); ++i) {
-        GrTexture* texture = xfer.textureSampler(i).texture();
+    if (fDstTexture) {
         SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(texture);
+        rt->getLastOpList()->addDependency(fDstTexture.get());
     }
 }
 
