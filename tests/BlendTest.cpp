@@ -123,19 +123,22 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
         SkIPoint inPoint;
     } allRectsAndPoints[3] = {
             {SkRect::MakeXYWH(0, 0, 5, 5), SkIPoint::Make(7, 7), SkIPoint::Make(2, 2)},
-            {SkRect::MakeXYWH(2, 2, 5, 5), SkIPoint::Make(0, 0), SkIPoint::Make(4, 4)},
+            {SkRect::MakeXYWH(2, 2, 5, 5), SkIPoint::Make(1, 1), SkIPoint::Make(4, 4)},
             {SkRect::MakeXYWH(5, 5, 5, 5), SkIPoint::Make(2, 2), SkIPoint::Make(7, 7)},
     };
 
     struct TestCase {
         RectAndSamplePoint rectAndPoints;
+        SkRect clip;
         int sampleCnt;
     };
     std::vector<TestCase> testCases;
 
     for (int sampleCnt : {0, 4}) {
         for (auto rectAndPoints : allRectsAndPoints) {
-            testCases.push_back({rectAndPoints, sampleCnt});
+            for (auto clip : {SkRect::MakeXYWH(0, 0, 10, 10), SkRect::MakeXYWH(1, 1, 8, 8)}) {
+                testCases.push_back({rectAndPoints, clip, sampleCnt});
+            }
         }
     }
 
@@ -159,6 +162,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
 
         // Fill our canvas with 0xFFFF80
         SkCanvas* canvas = surface->getCanvas();
+        canvas->clipRect(testCase.clip, false);
         SkPaint black_paint;
         black_paint.setColor(SkColorSetRGB(0xFF, 0xFF, 0x80));
         canvas->drawRect(SkRect::MakeXYWH(0, 0, kWidth, kHeight), black_paint);

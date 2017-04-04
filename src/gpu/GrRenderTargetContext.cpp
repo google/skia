@@ -1746,15 +1746,15 @@ void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& cl
         }
     }
 
-    SkIRect copyRect;
-    clip.getConservativeBounds(rt->width(), rt->height(), &copyRect);
+    SkIRect copyRect = SkIRect::MakeWH(rt->width(), rt->height());
 
-    SkIRect drawIBounds;
     SkIRect clippedRect;
+    clip.getConservativeBounds(rt->width(), rt->height(), &clippedRect);
+    SkIRect drawIBounds;
     opBounds.roundOut(&drawIBounds);
     // Cover up for any precision issues by outsetting the op bounds a pixel in each direction.
     drawIBounds.outset(1, 1);
-    if (!clippedRect.intersect(copyRect, drawIBounds)) {
+    if (!clippedRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "Missed an early reject. "
                                    "Bailing on draw from setupDstTexture.\n");
