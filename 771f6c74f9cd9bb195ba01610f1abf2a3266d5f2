@@ -39,6 +39,23 @@
       "revId": "771f6c74f9cd9bb195ba01610f1abf2a3266d5f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ccc6e9b_0be4f632",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-04T13:19:26Z",
+      "side": 1,
+      "message": "kPrecision ? kCoordXformPrecision ?",
+      "revId": "771f6c74f9cd9bb195ba01610f1abf2a3266d5f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
