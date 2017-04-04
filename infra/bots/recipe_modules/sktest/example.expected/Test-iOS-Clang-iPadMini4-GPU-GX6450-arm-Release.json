@@ -521,23 +521,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/skia/gn/package_ios.py",
-      "[START_DIR]/out/Release/dm"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "package dm"
-  },
-  {
-    "cmd": [
       "ios-deploy",
       "-b",
       "[START_DIR]/out/Release/dm.app",
