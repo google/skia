@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9107f83b_b0e5d0f3",
+        "filename": "infra/bots/assets/armhf_sysroot/create.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-04T21:38:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "022180c0_917eae43",
+      "range": {
+        "startLine": 25,
+        "startChar": 8,
+        "endLine": 25,
+        "endChar": 74
+      },
+      "revId": "2e607e3147e13669eaf41b6f7ff25e34ff4f21ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cc83ff5_4057793e",
         "filename": "infra/bots/assets/chromebook_c100p_lib/create.py",
         "patchSetId": 19
