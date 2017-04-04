@@ -54,17 +54,9 @@ void GrPipeline::init(const InitArgs& args) {
     {
         bool hasMixedSamples =
                 args.fRenderTarget->isMixedSampled() && (isHWAA || this->isStencilEnabled());
-        sk_sp<GrXferProcessor> xferProcessor;
-        const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
-        if (xpFactory) {
-            xferProcessor.reset(xpFactory->createXferProcessor(
-                    args.fXPInputColor, args.fXPInputCoverage, hasMixedSamples, *args.fCaps));
-            SkASSERT(xferProcessor);
-        } else {
-            // This may return nullptr in the common case of src-over implemented using hw blending.
-            xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
-                    *args.fCaps, args.fXPInputColor, args.fXPInputCoverage, hasMixedSamples));
-        }
+        sk_sp<GrXferProcessor> xferProcessor =
+                GrXPFactory::MakeXferProcessor(args.fProcessors->xpFactory(), args.fXPInputColor,
+                                               args.fXPInputCoverage, hasMixedSamples, *args.fCaps);
         fXferProcessor.reset(xferProcessor.get());
     }
     if (args.fDstTexture.texture()) {

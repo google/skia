@@ -23,10 +23,9 @@ public:
 
     /** Because src-over is so common we special case it for performance reasons. If this returns
         null then the SimpleSrcOverXP() below should be used. */
-    static GrXferProcessor* CreateSrcOverXferProcessor(const GrCaps& caps,
-                                                       const GrProcessorAnalysisColor& color,
-                                                       GrProcessorAnalysisCoverage coverage,
-                                                       bool hasMixedSamples);
+    static sk_sp<GrXferProcessor> MakeSrcOverXferProcessor(const GrProcessorAnalysisColor&,
+                                                           GrProcessorAnalysisCoverage,
+                                                           bool hasMixedSamples, const GrCaps&);
 
     /** Returns a simple non-LCD porter duff blend XP with no optimizations or coverage. */
     static sk_sp<GrXferProcessor> CreateNoCoverageXP(SkBlendMode);
@@ -42,9 +41,10 @@ public:
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
-                                           GrProcessorAnalysisCoverage,
-                                           bool hasMixedSamples) const override;
+    sk_sp<GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                             GrProcessorAnalysisCoverage,
+                                             bool hasMixedSamples,
+                                             const GrCaps&) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,

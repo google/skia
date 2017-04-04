@@ -18,16 +18,13 @@
  */
 class DisableColorXP : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create() { return new DisableColorXP; }
-
-    ~DisableColorXP() override {}
+    DisableColorXP() { this->initClassID<DisableColorXP>(); }
 
     const char* name() const override { return "Disable Color"; }
 
     GrGLSLXferProcessor* createGLSLInstance() const override;
 
 private:
-    DisableColorXP();
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -66,10 +63,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DisableColorXP::DisableColorXP() {
-    this->initClassID<DisableColorXP>();
-}
-
 void DisableColorXP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLDisableColorXP::GenKey(*this, caps, b);
 }
@@ -81,11 +74,11 @@ void DisableColorXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GrXferProcessor* GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                                const GrProcessorAnalysisColor&,
-                                                                GrProcessorAnalysisCoverage,
-                                                                bool hasMixedSamples) const {
-    return DisableColorXP::Create();
+sk_sp<GrXferProcessor> GrDisableColorXPFactory::makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                                  GrProcessorAnalysisCoverage,
+                                                                  bool hasMixedSamples,
+                                                                  const GrCaps& caps) const {
+    return sk_sp<GrXferProcessor>(new DisableColorXP);
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory);
