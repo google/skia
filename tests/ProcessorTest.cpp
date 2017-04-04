@@ -270,7 +270,7 @@ void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
     auto op =
             GrNonAAFillRectOp::Make(GrColor_WHITE, SkMatrix::I(),
                                     SkRect::MakeWH(rtc->width(), rtc->height()), nullptr, nullptr);
-    rtc->addLegacyMeshDrawOp(pb, GrNoClip(), std::move(op));
+    rtc->addLegacyMeshDrawOp(std::move(pb), GrNoClip(), std::move(op));
 }
 
 #include "SkCommandLineFlags.h"

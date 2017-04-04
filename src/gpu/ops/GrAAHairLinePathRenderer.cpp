@@ -950,7 +950,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
             args.fPaint.getColor(), *args.fViewMatrix, path, args.fShape->style(), devClipBounds);
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
+                                                   std::move(op));
     return true;
 }
 
