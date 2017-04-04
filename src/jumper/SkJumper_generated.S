@@ -3139,18 +3139,19 @@ _sk_load_f16_vfp4:
 HIDDEN _sk_store_f16_vfp4
 .globl _sk_store_f16_vfp4
 _sk_store_f16_vfp4:
-  .long  0xeef00b41                          // vmov.f64      d16, d1
-  .long  0xeef03b42                          // vmov.f64      d19, d2
-  .long  0xf2631113                          // vorr          d17, d3, d3
-  .long  0xf2602110                          // vorr          d18, d0, d0
-  .long  0xf3fa00a1                          // vtrn.32       d16, d17
-  .long  0xf3f61620                          // vcvt.f16.f32  d17, q8
-  .long  0xf3fa20a3                          // vtrn.32       d18, d19
+  .long  0xf2630113                          // vorr          d16, d3, d3
   .long  0xe5913000                          // ldr           r3, [r1]
-  .long  0xf3f60622                          // vcvt.f16.f32  d16, q9
+  .long  0xf2612111                          // vorr          d18, d1, d1
+  .long  0xf3f67620                          // vcvt.f16.f32  d23, q8
   .long  0xe5933000                          // ldr           r3, [r3]
+  .long  0xf3f66602                          // vcvt.f16.f32  d22, q1
   .long  0xe0833180                          // add           r3, r3, r0, lsl #3
-  .long  0xf443084f                          // vst2.16       {d16-d17}, [r3]
+  .long  0xf3f65622                          // vcvt.f16.f32  d21, q9
+  .long  0xf3f64600                          // vcvt.f16.f32  d20, q0
+  .long  0xf22211b2                          // vorr          d1, d18, d18
+  .long  0xf22031b0                          // vorr          d3, d16, d16
+  .long  0xf4c3470d                          // vst4.16       {d20[0],d21[0],d22[0],d23[0]}, [r3]!
+  .long  0xf4c3474f                          // vst4.16       {d20[1],d21[1],d22[1],d23[1]}, [r3]
   .long  0xe2813008                          // add           r3, r1, #8
   .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe1a01003                          // mov           r1, r3
@@ -3193,7 +3194,6 @@ _sk_clamp_y_vfp4:
   .long  0xf26218a1                          // vadd.i32      d17, d18, d17
   .long  0xf2201fa1                          // vmin.f32      d1, d16, d17
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_repeat_x_vfp4
 .globl _sk_repeat_x_vfp4
