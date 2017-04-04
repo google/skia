@@ -84,7 +84,7 @@ static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    sk_sp<GrTexture> tex(context->resourceProvider()->createTexture(desc, SkBudgeted::kNo));
+    sk_sp<GrTexture> tex(context->resourceProvider()->createTexture1(desc, SkBudgeted::kNo));
 
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
 

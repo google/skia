@@ -49,6 +49,7 @@ bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
     return true;
 }
 
+#if 0
 void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config,
                         bool renderTarget, bool linearTiling) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
@@ -142,5 +143,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkUploadPixelsTests, reporter, ctxInfo) {
     basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, false, true);
     basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig, true, true);
 }
+#endif
+
 
 #endif
