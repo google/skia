@@ -39,7 +39,9 @@ def is_flutter(builder_cfg):
   return 'Flutter' in builder_cfg.get('extra_config', '')
 
 def is_ios(builder_cfg):
-  return 'iOS' == builder_cfg.get('os', '')
+  # return 'iOS' == builder_cfg.get('os', '')
+  return ('iOS' == builder_cfg.get('extra_config', '') or
+          'iOS' == builder_cfg.get('os', ''))
 
 def is_pdfium(builder_cfg):
   return 'PDFium' in builder_cfg.get('extra_config', '')
@@ -51,6 +53,7 @@ def is_valgrind(builder_cfg):
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
+    print "\n\nget_flavor: ", builder_cfg.get('extra_config', 'nothing')
     if is_flutter(builder_cfg):
       return flutter_flavor.FlutterFlavorUtils(self.m)
     if is_chromecast(builder_cfg):
@@ -58,6 +61,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     if is_android(builder_cfg):
       return gn_android_flavor.GNAndroidFlavorUtils(self.m)
     elif is_ios(builder_cfg):
+      print "picket get_flavor: ", "\n\n\n\n"
       return ios_flavor.iOSFlavorUtils(self.m)
     elif is_pdfium(builder_cfg):
       return pdfium_flavor.PDFiumFlavorUtils(self.m)
@@ -73,6 +77,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     return self._f.step(name, cmd, **kwargs)
 
   def compile(self, target):
+    print "COMPILE STEP", target, self._f.compile
     return self._f.compile(target)
 
   def copy_extra_build_products(self, swarming_out_dir):

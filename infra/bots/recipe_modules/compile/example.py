@@ -90,7 +90,7 @@ def GenTests(api):
                                  rietveld='https://codereview.chromium.org')
 
         yield test
-
+  return
   mastername = 'client.skia.compile'
   slavename = 'skiabot-win-compile-000'
   buildername = 'Build-Win-MSVC-x86-Debug'
