@@ -1,13 +1,20 @@
 {
-  'includes': [
-    'infrabots.isolate',
+  'conditions': [
+    ['USE_BUNDLED_RECIPES', {
+      'variables': {
+        'command': [
+          '../../../recipe_bundle/recipes', 'run', '--timestamps',
+        ],
+      },
+    }, {
+      'variables': {
+        'command': [
+          'python', 'recipes.py', 'run', '--timestamps',
+        ],
+      },
+      'files': [
+        '../config/recipes.cfg',
+      ],
+    }]
   ],
-  'variables': {
-    'command': [
-      'python', 'recipes.py', 'run', '--timestamps',
-    ],
-    'files': [
-      '../config/recipes.cfg',
-    ],
-  },
 }
