@@ -25,7 +25,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     UniformHandle fKernelUni;
@@ -98,7 +98,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
 }
 
 void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                      const GrProcessor& processor) {
+                                      const GrFragmentProcessor& processor) {
     const GrGaussianConvolutionFragmentProcessor& conv =
             processor.cast<GrGaussianConvolutionFragmentProcessor>();
     GrTexture& texture = *conv.textureSampler(0).texture();

@@ -42,7 +42,8 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager& pdm, const GrProcessor& processor) override {
+    void onSetData(const GrGLSLProgramDataManager& pdm,
+                   const GrFragmentProcessor& processor) override {
         GrColor4f color = processor.cast<GrConstColorProcessor>().color();
         // We use the "illegal" color value as an uninit sentinel. With GrColor4f, the "illegal"
         // color is *really* illegal (not just unpremultiplied), so this check is simple.

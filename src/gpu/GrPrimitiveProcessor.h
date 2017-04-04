@@ -38,7 +38,7 @@ class GrGLSLPrimitiveProcessor;
  * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage
  * pipelines, and they must provide some notion of equality
  */
-class GrPrimitiveProcessor : public GrProcessor {
+class GrPrimitiveProcessor : public GrResourceIOProcessor {
 public:
     // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
     // we put these calls on the base class to prevent having to cast

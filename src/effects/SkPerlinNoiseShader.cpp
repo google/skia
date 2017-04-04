@@ -472,7 +472,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fStitchDataUni;
@@ -866,7 +866,7 @@ void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
 }
 
 void GrGLPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
-                                const GrProcessor& processor) {
+                                const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
 
     const GrPerlinNoiseEffect& turbulence = processor.cast<GrPerlinNoiseEffect>();

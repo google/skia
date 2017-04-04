@@ -136,7 +136,7 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     UniformHandle       fOffsetVar;
@@ -203,7 +203,7 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
 }
 
 void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                    const GrProcessor& effect) {
+                                    const GrFragmentProcessor& effect) {
     const GrMagnifierEffect& zoom = effect.cast<GrMagnifierEffect>();
 
     GrTexture* tex = zoom.textureSampler(0).texture();

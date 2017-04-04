@@ -320,7 +320,7 @@ public:
 
     protected:
         void onSetData(const GrGLSLProgramDataManager& uniManager,
-                       const GrProcessor& proc) override {
+                       const GrFragmentProcessor& proc) override {
             const ColorMatrixEffect& cme = proc.cast<ColorMatrixEffect>();
             const float* m = cme.fMatrix;
             // The GL matrix is transposed from SkColorMatrix.
