@@ -623,32 +623,7 @@ STAGE(store_8888) {
 STAGE(load_f16) {
     auto ptr = *(const uint64_t**)ctx + x;
 
-#if !defined(JUMPER)
-    auto half_to_float = [&](int16_t h) {
-        if (h < 0x0400) { h = 0; }            // Flush denorm and negative to zero.
-        return bit_cast<F>(h << 13)           // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000));  // then fix up the exponent.
-    };
-    auto rgba = (const int16_t*)ptr;
-    r = half_to_float(rgba[0]);
-    g = half_to_float(rgba[1]);
-    b = half_to_float(rgba[2]);
-    a = half_to_float(rgba[3]);
-#elif defined(__aarch64__)
-    auto halfs = vld4_f16((const float16_t*)ptr);
-    r = vcvt_f32_f16(halfs.val[0]);
-    g = vcvt_f32_f16(halfs.val[1]);
-    b = vcvt_f32_f16(halfs.val[2]);
-    a = vcvt_f32_f16(halfs.val[3]);
-#elif defined(__arm__)
-    auto rb_ga = vld2_f16((const float16_t*)ptr);
-    auto rb = vcvt_f32_f16(rb_ga.val[0]),
-         ga = vcvt_f32_f16(rb_ga.val[1]);
-    r = {rb[0], rb[2]};
-    g = {ga[0], ga[2]};
-    b = {rb[1], rb[3]};
-    a = {ga[1], ga[3]};
-#elif defined(__AVX2__) && defined(__FMA__) && defined(__F16C__)
+#if defined(JUMPER) && defined(__AVX2__) && defined(__FMA__) && defined(__F16C__)
     __m128i _01, _23, _45, _67;
     if (__builtin_expect(tail,0)) {
         auto src = (const double*)ptr;
@@ -681,7 +656,7 @@ STAGE(load_f16) {
     g = _mm256_cvtph_ps(_mm_unpackhi_epi64(rg0123, rg4567));
     b = _mm256_cvtph_ps(_mm_unpacklo_epi64(ba0123, ba4567));
     a = _mm256_cvtph_ps(_mm_unpackhi_epi64(ba0123, ba4567));
-#elif defined(__AVX__)
+#elif defined(JUMPER) && defined(__AVX__)
     __m128i _01, _23, _45, _67;
     if (__builtin_expect(tail,0)) {
         auto src = (const double*)ptr;
@@ -739,32 +714,13 @@ STAGE(load_f16) {
     b = half_to_float(B);
     a = half_to_float(A);
 
-#elif defined(__SSE2__)
-    auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
-         _23 = _mm_loadu_si128(((__m128i*)ptr) + 1);
-
-    auto _02 = _mm_unpacklo_epi16(_01, _23),  // r0 r2 g0 g2 b0 b2 a0 a2
-         _13 = _mm_unpackhi_epi16(_01, _23);  // r1 r3 g1 g3 b1 b3 a1 a3
-
-    auto rg = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
-         ba = _mm_unpackhi_epi16(_02, _13);  // b0 b1 b2 b3 a0 a1 a2 a3
-
-    // Same deal as AVX, flush denorms and negatives to zero.
-    auto ftz = [](__m128i v) {
-        return _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(0x04000400_i)), v);
-    };
-    rg = ftz(rg);
-    ba = ftz(ba);
-
-    auto half_to_float = [&](U32 h) {
-        return bit_cast<F>(h << 13)             // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
-    };
-
-    r = half_to_float(_mm_unpacklo_epi16(rg, _mm_setzero_si128()));
-    g = half_to_float(_mm_unpackhi_epi16(rg, _mm_setzero_si128()));
-    b = half_to_float(_mm_unpacklo_epi16(ba, _mm_setzero_si128()));
-    a = half_to_float(_mm_unpackhi_epi16(ba, _mm_setzero_si128()));
+#else
+    U16 R,G,B,A;
+    load4(ptr,tail, &R,&G,&B,&A);
+    r = from_half(R);
+    g = from_half(G);
+    b = from_half(B);
+    a = from_half(A);
 #endif
 }
 
