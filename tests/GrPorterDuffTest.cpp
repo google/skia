@@ -66,7 +66,7 @@ public:
             fCanCombineOverlappedStencilAndCover = analysis.canCombineOverlappedStencilAndCover();
             fIgnoresInputColor = analysis.isInputColorIgnored();
             sk_sp<GrXferProcessor> xp(
-                    xpf->createXferProcessor(inputColor, inputCoverage, false, caps));
+                    GrXPFactory::MakeXferProcessor(xpf, inputColor, inputCoverage, false, caps));
             TEST_ASSERT(!analysis.requiresDstTexture());
             GetXPOutputTypes(xp.get(), &fPrimaryOutputType, &fSecondaryOutputType);
             xp->getBlendInfo(&fBlendInfo);
@@ -992,7 +992,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     GrProcessorAnalysisCoverage coverage = GrProcessorAnalysisCoverage::kLCD;
     SkASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
                GrXPFactory::AnalysisProperties::kRequiresDstTexture));
-    sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(color, coverage, false, caps));
+    sk_sp<GrXferProcessor> xp(GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps));
     if (!xp) {
         ERRORF(reporter, "Failed to create an XP with LCD coverage.");
         return;
@@ -1043,7 +1043,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                 GrProcessorSet::Analysis analysis;
                 analysis = GrProcessorSet::Analysis(colorInput, coverageType, xpf, caps);
                 sk_sp<GrXferProcessor> xp(
-                        xpf->createXferProcessor(colorInput, coverageType, false, caps));
+                        GrXPFactory::MakeXferProcessor(xpf, colorInput, coverageType, false, caps));
                 if (!xp) {
                     ERRORF(reporter, "Failed to create an XP without dual source blending.");
                     return;

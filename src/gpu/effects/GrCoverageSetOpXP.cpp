@@ -18,9 +18,7 @@
 
 class CoverageSetOpXP : public GrXferProcessor {
 public:
-    static GrXferProcessor* Create(SkRegion::Op regionOp, bool invertCoverage) {
-        return new CoverageSetOpXP(regionOp, invertCoverage);
-    }
+    CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
     ~CoverageSetOpXP() override;
 
@@ -31,7 +29,6 @@ public:
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
-    CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -218,10 +215,10 @@ const GrXPFactory* GrCoverageSetOpXPFactory::Get(SkRegion::Op regionOp, bool inv
     return nullptr;
 }
 
-GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                                 const GrProcessorAnalysisColor&,
-                                                                 GrProcessorAnalysisCoverage,
-                                                                 bool hasMixedSamples) const {
+sk_sp<GrXferProcessor> GrCoverageSetOpXPFactory::makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                                   GrProcessorAnalysisCoverage,
+                                                                   bool hasMixedSamples,
+                                                                   const GrCaps& caps) const {
     // We don't support inverting coverage with mixed samples. We don't expect to ever want this in
     // the future, however we could at some point make this work using an inverted coverage
     // modulation table. Note that an inverted table still won't work if there are coverage procs.
@@ -230,7 +227,7 @@ GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& c
         return nullptr;
     }
 
-    return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);
+    return sk_sp<GrXferProcessor>(new CoverageSetOpXP(fRegionOp, fInvertCoverage));
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);
@@ -239,6 +236,6 @@ GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);
 const GrXPFactory* GrCoverageSetOpXPFactory::TestGet(GrProcessorTestData* d) {
     SkRegion::Op regionOp = SkRegion::Op(d->fRandom->nextULessThan(SkRegion::kLastOp + 1));
     bool invertCoverage = !d->fRenderTargetContext->hasMixedSamples() && d->fRandom->nextBool();
-    return GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage);
+    return new GrCoverageSetOpXPFactory(regionOp, invertCoverage);
 }
 #endif

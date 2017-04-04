@@ -213,9 +213,10 @@ public:
             : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
 
 private:
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps, const GrProcessorAnalysisColor&,
-                                           GrProcessorAnalysisCoverage,
-                                           bool hasMixedSamples) const override;
+    sk_sp<GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                             GrProcessorAnalysisCoverage,
+                                             bool hasMixedSamples,
+                                             const GrCaps&) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
@@ -232,15 +233,15 @@ private:
 #pragma GCC diagnostic pop
 #endif
 
-GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                        const GrProcessorAnalysisColor&,
-                                                        GrProcessorAnalysisCoverage coverage,
-                                                        bool hasMixedSamples) const {
+sk_sp<GrXferProcessor> CustomXPFactory::makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                          GrProcessorAnalysisCoverage coverage,
+                                                          bool hasMixedSamples,
+                                                          const GrCaps& caps) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
-        return new CustomXP(fMode, fHWBlendEquation);
+        return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
     }
-    return new CustomXP(hasMixedSamples, fMode);
+    return sk_sp<GrXferProcessor>(new CustomXP(hasMixedSamples, fMode));
 }
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
