@@ -94,7 +94,7 @@ public:
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
                    const SkColor[], int count, SkBlendMode, const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
+    void drawDevice(SkBaseDevice*, int, int , const SkPaint&, SkImage*, const SkMatrix&) override;
 
     void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkPaint&) override;
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,

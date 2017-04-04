@@ -47,8 +47,8 @@ protected:
                         const SkPaint& paint) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint& paint) override;
 
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
+    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&, SkImage* clip,
+                    const SkMatrix& clipMatrix) override;
 
 private:
     SkSVGDevice(const SkISize& size, SkXMLWriter* writer);

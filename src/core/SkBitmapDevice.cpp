@@ -377,7 +377,8 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                               vertices->indices(), vertices->indexCount(), paint);
 }
 
-void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
+void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint,
+                                SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!paint.getImageFilter());
     BDDraw(this).drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
 }

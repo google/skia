@@ -331,13 +331,10 @@ public:
     typedef uint32_t SaveLayerFlags;
 
     struct SaveLayerRec {
-        SaveLayerRec()
-            : fBounds(nullptr), fPaint(nullptr), fBackdrop(nullptr), fSaveLayerFlags(0)
-        {}
+        SaveLayerRec() {}
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
             : fBounds(bounds)
             , fPaint(paint)
-            , fBackdrop(nullptr)
             , fSaveLayerFlags(saveLayerFlags)
         {}
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
@@ -348,10 +345,12 @@ public:
             , fSaveLayerFlags(saveLayerFlags)
         {}
 
-        const SkRect*           fBounds;    // optional
-        const SkPaint*          fPaint;     // optional
-        const SkImageFilter*    fBackdrop;  // optional
-        SaveLayerFlags          fSaveLayerFlags;
+        const SkRect*           fBounds = nullptr;      // optional
+        const SkPaint*          fPaint = nullptr;       // optional
+        const SkImageFilter*    fBackdrop = nullptr;    // optional
+        sk_sp<SkImage>          fClipMask;              // optional
+        const SkMatrix*         fClipMatrix = nullptr;  // optional -- only used with fClipMask
+        SaveLayerFlags          fSaveLayerFlags = 0;
     };
 
     int saveLayer(const SaveLayerRec&);
@@ -1637,7 +1636,8 @@ private:
                                 SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
-    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*);
+    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, SkImage* clipImage,
+                            const SkMatrix& clipMatrix);
 
     // shared by save() and saveLayer()
     void internalSave();

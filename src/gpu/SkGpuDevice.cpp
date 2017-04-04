@@ -1344,8 +1344,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
                                                &this->surfaceProps());
 }
 
-void SkGpuDevice::drawDevice(SkBaseDevice* device,
-                             int left, int top, const SkPaint& paint) {
+void SkGpuDevice::drawDevice(SkBaseDevice* device, int left, int top, const SkPaint& paint,
+                             SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!paint.getImageFilter());
 
     ASSERT_SINGLE_OWNER

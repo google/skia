@@ -168,7 +168,8 @@ void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, SkBlendMode b
                                            vertices->indexCount(), paint));
 }
 
-void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
+void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint,
+                                     SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!paint.getImageFilter());
     SkRect drawBounds = SkRect::MakeXYWH(x, y, device->width(), device->height());
     THREADED_DRAW(drawBounds,
