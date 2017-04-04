@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "807fbb0e_661cd914",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-04T15:25:44Z",
+      "side": 1,
+      "message": "The previous names were misleading as these are actually not the inputs to the pipeline but rather the outputs of the FPs/inputs to the XP. It\u0027s still quite ugly but this change frees up the possibility of creating the XP in the processorset which removes the need for these args.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 90
+      },
+      "revId": "3f503c021fb56637829160688f5da4d25b68dc9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
