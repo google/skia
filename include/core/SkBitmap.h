@@ -20,7 +20,6 @@ struct SkIRect;
 struct SkRect;
 class SkPaint;
 class SkPixelRef;
-class SkPixelRefFactory;
 class SkString;
 
 /** \class SkBitmap

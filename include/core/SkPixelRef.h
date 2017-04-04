@@ -342,15 +342,4 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-class SkPixelRefFactory : public SkRefCnt {
-public:
-    /**
-     *  Allocate a new pixelref matching the specified ImageInfo, allocating
-     *  the memory for the pixels. If the ImageInfo requires a ColorTable,
-     *  the pixelref will ref() the colortable.
-     *  On failure return NULL.
-     */
-    virtual SkPixelRef* create(const SkImageInfo&, size_t rowBytes, SkColorTable*) = 0;
-};
-
 #endif
