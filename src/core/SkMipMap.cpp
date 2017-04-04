@@ -242,30 +242,18 @@ template <typename F> void downsample_3_2(void* dst, const void* src, size_t src
     auto p1 = (const typename F::Type*)((const char*)p0 + srcRB);
     auto d = static_cast<typename F::Type*>(dst);
 
-    // Given pixels:
-    // a0 b0 c0 d0 e0 ...
-    // a1 b1 c1 d1 e1 ...
-    // We want:
-    // (a0 + 2*b0 + c0 + a1 + 2*b1 + c1) / 8
-    // (c0 + 2*d0 + e0 + c1 + 2*d1 + e1) / 8
-    // ...
-
-    auto c0 = F::Expand(p0[0]);
-    auto c1 = F::Expand(p1[0]);
-    auto c = c0 + c1;
+    auto c02 = F::Expand(p0[0]);
+    auto c12 = F::Expand(p1[0]);
     for (int i = 0; i < count; ++i) {
-        auto a = c;
+        auto c00 = c02;
+        auto c01 = F::Expand(p0[1]);
+             c02 = F::Expand(p0[2]);
+        auto c10 = c12;
+        auto c11 = F::Expand(p1[1]);
+             c12 = F::Expand(p1[2]);
 
-        auto b0 = F::Expand(p0[1]);
-        auto b1 = F::Expand(p0[2]);
-        auto b = b0 + b0 + b1 + b1;
-
-        c0 = F::Expand(p0[2]);
-        c1 = F::Expand(p1[2]);
-        c = c0 + c1;
-
-        auto sum = a + b + c;
-        d[i] = F::Compact(shift_right(sum, 3));
+        auto c = add_121(c00, c01, c02) + add_121(c10, c11, c12);
+        d[i] = F::Compact(shift_right(c, 3));
         p0 += 2;
         p1 += 2;
     }
@@ -336,7 +324,7 @@ void downsample_2_2_srgb(void* dst, const void* src, size_t srcRB, int count) {
                          sk_linear12_from_srgb[p0[ 8]],
                          sk_linear12_from_srgb[p0[ 9]],
                          sk_linear12_from_srgb[p0[10]],
-                         p0[11] << 4                 );
+                         p0[11] << 4               );
         Sk8h b0d0 = Sk8h(sk_linear12_from_srgb[p0[ 4]],
                          sk_linear12_from_srgb[p0[ 5]],
                          sk_linear12_from_srgb[p0[ 6]],
@@ -383,92 +371,6 @@ void downsample_2_2_srgb(void* dst, const void* src, size_t srcRB, int count) {
     }
 }
 
-void downsample_2_3_srgb(void* dst, const void* src, size_t srcRB, int count) {
-    const uint8_t* p0 = ((const uint8_t*) src);
-    const uint8_t* p1 = p0 + srcRB;
-    const uint8_t* p2 = p1 + srcRB;
-    uint8_t* d = (uint8_t*) dst;
-
-    // Given pixels:
-    // a0 b0 c0 d0 ...
-    // a1 b1 c1 d1 ...
-    // a2 b2 c2 d2 ...
-    // We want:
-    // (a0 + b0 + 2*a1 + 2*b1 + a2 + b2) / 8
-    // (c0 + d0 + 2*c1 + 2*d1 + c2 + d2) / 8
-    // ...
-    while (count >= 2) {
-        Sk8h a0c0 = Sk8h(sk_linear12_from_srgb[p0[ 0]],
-                         sk_linear12_from_srgb[p0[ 1]],
-                         sk_linear12_from_srgb[p0[ 2]],
-                         p0[ 3] << 4                  ,
-                         sk_linear12_from_srgb[p0[ 8]],
-                         sk_linear12_from_srgb[p0[ 9]],
-                         sk_linear12_from_srgb[p0[10]],
-                         p0[11] << 4                 );
-        Sk8h b0d0 = Sk8h(sk_linear12_from_srgb[p0[ 4]],
-                         sk_linear12_from_srgb[p0[ 5]],
-                         sk_linear12_from_srgb[p0[ 6]],
-                         p0[ 7] << 4                  ,
-                         sk_linear12_from_srgb[p0[12]],
-                         sk_linear12_from_srgb[p0[13]],
-                         sk_linear12_from_srgb[p0[14]],
-                         p0[15] << 4                 );
-        Sk8h a1c1 = Sk8h(sk_linear12_from_srgb[p1[ 0]],
-                         sk_linear12_from_srgb[p1[ 1]],
-                         sk_linear12_from_srgb[p1[ 2]],
-                         p1[ 3] << 4                  ,
-                         sk_linear12_from_srgb[p1[ 8]],
-                         sk_linear12_from_srgb[p1[ 9]],
-                         sk_linear12_from_srgb[p1[10]],
-                         p1[11] << 4                 );
-        Sk8h b1d1 = Sk8h(sk_linear12_from_srgb[p1[ 4]],
-                         sk_linear12_from_srgb[p1[ 5]],
-                         sk_linear12_from_srgb[p1[ 6]],
-                         p1[ 7] << 4                  ,
-                         sk_linear12_from_srgb[p1[12]],
-                         sk_linear12_from_srgb[p1[13]],
-                         sk_linear12_from_srgb[p1[14]],
-                         p1[15] << 4                 );
-        Sk8h a2c2 = Sk8h(sk_linear12_from_srgb[p2[ 0]],
-                         sk_linear12_from_srgb[p2[ 1]],
-                         sk_linear12_from_srgb[p2[ 2]],
-                         p2[ 3] << 4                  ,
-                         sk_linear12_from_srgb[p2[ 8]],
-                         sk_linear12_from_srgb[p2[ 9]],
-                         sk_linear12_from_srgb[p2[10]],
-                         p2[11] << 4                 );
-        Sk8h b2d2 = Sk8h(sk_linear12_from_srgb[p2[ 4]],
-                         sk_linear12_from_srgb[p2[ 5]],
-                         sk_linear12_from_srgb[p2[ 6]],
-                         p2[ 7] << 4                  ,
-                         sk_linear12_from_srgb[p2[12]],
-                         sk_linear12_from_srgb[p2[13]],
-                         sk_linear12_from_srgb[p2[14]],
-                         p2[15] << 4                 );
-
-        Sk8h avg = (a0c0 + b0d0 + a1c1 + a1c1 + b1d1 + b1d1 + a2c2 + b2d2) >> 3;
-        d[0] = sk_linear12_to_srgb[avg[0]];
-        d[1] = sk_linear12_to_srgb[avg[1]];
-        d[2] = sk_linear12_to_srgb[avg[2]];
-        d[3] = avg[3] >> 4;
-        d[4] = sk_linear12_to_srgb[avg[4]];
-        d[5] = sk_linear12_to_srgb[avg[5]];
-        d[6] = sk_linear12_to_srgb[avg[6]];
-        d[7] = avg[7] >> 4;
-
-        p0 += 16;
-        p1 += 16;
-        p2 += 16;
-        d += 8;
-        count -= 2;
-    }
-
-    if (count) {
-        downsample_2_3<ColorTypeFilter_S32>(d, p0, srcRB, count);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
@@ -508,7 +410,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode col
                 proc_1_3 = downsample_1_3<ColorTypeFilter_S32>;
                 proc_2_1 = downsample_2_1<ColorTypeFilter_S32>;
                 proc_2_2 = downsample_2_2_srgb;
-                proc_2_3 = downsample_2_3_srgb;
+                proc_2_3 = downsample_2_3<ColorTypeFilter_S32>;
                 proc_3_1 = downsample_3_1<ColorTypeFilter_S32>;
                 proc_3_2 = downsample_3_2<ColorTypeFilter_S32>;
                 proc_3_3 = downsample_3_3<ColorTypeFilter_S32>;
