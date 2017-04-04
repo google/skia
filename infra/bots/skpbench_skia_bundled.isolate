@@ -1,6 +1,7 @@
 {
   'includes': [
-    'swarm_recipe.isolate',
+    'assets.isolate',
+    'swarm_recipe_bundled.isolate',
   ],
   'variables': {
     'files': [

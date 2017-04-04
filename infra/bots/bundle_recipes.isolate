@@ -1,0 +1,14 @@
+{
+  'includes': [
+    'infrabots.isolate',
+  ],
+  'variables': {
+    'command': [
+      'python', 'recipes.py', 'run', '--timestamps',
+    ],
+    'files': [
+      '../../../.gclient',
+      '../config/recipes.cfg',
+    ],
+  },
+}
