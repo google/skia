@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "98067e76_a21d02be",
+        "filename": "infra/bots/assets/armhf_sysroot/README.md",
+        "patchSetId": 17
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-04T17:42:59Z",
+      "side": 1,
+      "message": "Personally, I\u0027m almost never going to read the README first.  I\u0027m going to run the create_and_upload.py script and then get annoyed when it fails.  I\u0027d rather the script do everything, even if that means you have to add a prompt: \"I\u0027m about to run this command: ... Is that okay? (y/n)\"  In the most extreme case this might mean creating a temporary chroot to install the stuff you need.",
+      "parentUuid": "f30c3c06_cd17618b",
+      "range": {
+        "startLine": 4,
+        "startChar": 4,
+        "endLine": 4,
+        "endChar": 110
+      },
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71a62080_741dc44a",
         "filename": "infra/bots/assets/armhf_sysroot/create.py",
         "patchSetId": 17
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "The raw .so files have a line like:\nGROUP ( /usr/arm-linux-gnueabihf/lib/libpthread.so.0 /usr/arm-linux-gnueabihf/lib/libpthread_nonshared.a )\nThis doesn\u0027t work because the bots won\u0027t have those as an absolute path.  I replace those lines with\nGROUP ( libpthread.so.0 libpthread_nonshared.a )\n\nfileinput.input redirects stdout to be an inline replacement of the file contents, so printing here actually allows for a \none line replacement, while keeping the rest of the contents there.\n\nComment added to clarify.",
       "parentUuid": "71a62080_741dc44a",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 16
+      },
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8704f55_aa18320e",
+        "filename": "infra/bots/assets/armhf_sysroot/create.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-04T17:42:59Z",
+      "side": 1,
+      "message": "Okay, I didn\u0027t realize that fileinput redirected stdout.  That seems overly magical to me; what if we needed to log something inside the loop?  I think it\u0027s okay as-is, with the comment, but it wouldn\u0027t be my first choice.",
+      "parentUuid": "20ea1fea_c954147d",
       "range": {
         "startLine": 34,
         "startChar": 0,
