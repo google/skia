@@ -26,6 +26,8 @@ import (
 )
 
 const (
+	BUNDLE_RECIPES_NAME = "Housekeeper-PerCommit-BundleRecipes"
+
 	DEFAULT_OS       = DEFAULT_OS_LINUX
 	DEFAULT_OS_LINUX = "Ubuntu-14.04"
 
@@ -212,6 +214,31 @@ func swarmDimensions(parts map[string]string) []string {
 	}
 	sort.Strings(rv)
 	return rv
+}
+
+// bundleRecipes generates the task to bundle and isolate the recipes.
+func bundleRecipes(b *specs.TasksCfgBuilder) string {
+	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "bundle_recipes",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", BUNDLE_RECIPES_NAME),
+			"mastername=fake-master",
+			"buildnumber=2",
+			"slavename=fake-buildslave",
+			"nobuildbot=True",
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  "bundle_recipes.isolate",
+		Priority: 0.95,
+	})
+	return BUNDLE_RECIPES_NAME
 }
 
 // compile generates a compile task. Returns the name of the last task in the
@@ -441,6 +468,10 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		MaxAttempts: 1,
 		Priority:    0.8,
 	}
+	if parts["os"] == "Android" {
+		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
+		s.Isolate = "test_skia_bundled.isolate"
+	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
 		s.Expiration = 48 * time.Hour
@@ -487,6 +518,11 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if strings.Contains(parts["extra_config"], "Skpbench") {
 		recipe = "swarm_skpbench"
 		isolate = "skpbench_skia.isolate"
+		if parts["os"] == "Android" {
+			isolate = "skpbench_skia_bundled.isolate"
+		}
+	} else if parts["os"] == "Android" {
+		isolate = "perf_skia_bundled.isolate"
 	}
 	s := &specs.TaskSpec{
 		CipdPackages:     pkgs,
@@ -512,6 +548,9 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		Isolate:     isolate,
 		MaxAttempts: 1,
 		Priority:    0.8,
+	}
+	if parts["os"] == "Android" {
+		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
@@ -554,6 +593,11 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 // process generates tasks and jobs for the given job name.
 func process(b *specs.TasksCfgBuilder, name string) {
 	deps := []string{}
+
+	// Bundle Recipes.
+	if name == BUNDLE_RECIPES_NAME {
+		deps = append(deps, bundleRecipes(b))
+	}
 
 	parts, err := jobNameSchema.ParseJobName(name)
 	if err != nil {

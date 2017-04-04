@@ -70,6 +70,7 @@
   "Build-Win-MSVC-x86_64-Release-Vulkan",
   "Housekeeper-Nightly-RecreateSKPs_Canary",
   "Housekeeper-PerCommit",
+  "Housekeeper-PerCommit-BundleRecipes",
   "Housekeeper-PerCommit-InfraTests",
   "Housekeeper-Weekly-RecreateSKPs",
   "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
