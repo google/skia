@@ -4,7 +4,7 @@
     'infrabots.isolate',
     'ios_bin.isolate',
     'resources.isolate',
-    'swarm_recipe.isolate',
+    'swarm_recipe_bundled.isolate',
   ],
   'variables': {
     'files': [
