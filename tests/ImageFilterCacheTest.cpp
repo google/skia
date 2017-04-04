@@ -181,7 +181,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #include "GrContext.h"
 #include "GrResourceProvider.h"
 
-static GrTexture* create_texture(GrContext* context) {
+static sk_sp<GrTextureProxy> create_texture(GrContext* context) {
     SkBitmap srcBM = create_bm();
 
     GrSurfaceDesc desc;
@@ -190,7 +190,7 @@ static GrTexture* create_texture(GrContext* context) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    return context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
+    return context->resourceProvider()->createTextureProxy(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
 }
 
 static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) {
@@ -208,9 +208,9 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) 
                                         srcBM.rowBytes());
 }
 
-
+#if 0
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
-    sk_sp<GrTexture> srcTexture(create_texture(ctxInfo.grContext()));
+    sk_sp<GrTextureProxy> srcTexture(create_texture(ctxInfo.grContext()));
     if (!srcTexture) {
         return;
     }
@@ -249,6 +249,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 
     test_image_backed(reporter, srcImage);
 }
+#endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();

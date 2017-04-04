@@ -139,6 +139,7 @@ bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
 
 //////////////////////////////////////////////////////////////////////////////
 
+#if 0
 bool GrSurface::writePixels(SkColorSpace* dstColorSpace, int left, int top, int width, int height,
                             GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes, uint32_t pixelOpsFlags) {
@@ -162,6 +163,7 @@ bool GrSurface::readPixels(SkColorSpace* srcColorSpace, int left, int top, int w
     return context->readSurfacePixels(this, srcColorSpace, left, top, width, height, config,
                                       dstColorSpace, buffer, rowBytes, pixelOpsFlags);
 }
+#endif
 
 bool GrSurface::hasPendingRead() const {
     const GrTexture* thisTex = this->asTexture();

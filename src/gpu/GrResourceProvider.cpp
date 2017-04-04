@@ -10,6 +10,7 @@
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
@@ -47,9 +48,12 @@ bool GrResourceProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
 }
 
-GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
-                                                      SkBudgeted budgeted, const GrMipLevel* texels,
-                                                      int mipLevelCount, uint32_t flags,
+sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
+                                                      const GrSurfaceDesc& desc,
+                                                      SkBudgeted budgeted,
+                                                      const GrMipLevel* texels,
+                                                      int mipLevelCount,
+                                                      uint32_t flags,
                                                       SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
@@ -74,17 +78,22 @@ GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         if (mipLevelCount < 2) {
             flags |= kExact_Flag | kNoCreate_Flag;
-            if (GrTexture* texture = this->refScratchTexture(desc, flags)) {
+            sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
+            if (tex) {
+                sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex);
                 if (!mipLevelCount ||
-                    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                         texels[0].fPixels, texels[0].fRowBytes)) {
+                    fGpu->getContext()->contextPriv().writeSurfacePixels(
+                                                           proxy.get(), nullptr, 0, 0, 
+                                                           desc.fWidth, desc.fHeight, desc.fConfig,
+                                                           nullptr, 
+                                                           texels[0].fPixels, texels[0].fRowBytes,
+                                                           0)) {
                     if (SkBudgeted::kNo == budgeted) {
-                        texture->resourcePriv().makeUnbudgeted();
+                        tex->resourcePriv().makeUnbudgeted();
                     }
-                    texture->texturePriv().setMipColorMode(mipColorMode);
-                    return texture;
+                    tex->texturePriv().setMipColorMode(mipColorMode);
+                    return proxy;
                 }
-                texture->unref();
             }
         }
     }
@@ -93,15 +102,18 @@ GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
     for (int i = 0; i < mipLevelCount; ++i) {
         texelsShallowCopy.push_back(texels[i]);
     }
-    GrTexture* texture = fGpu->createTexture(desc, budgeted, texelsShallowCopy);
-    if (texture) {
-        texture->texturePriv().setMipColorMode(mipColorMode);
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsShallowCopy));
+    if (tex) {
+        tex->texturePriv().setMipColorMode(mipColorMode);
     }
-    return texture;
+
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
-GrTexture* GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                             const void* srcData, size_t rowBytes, uint32_t flags) {
+sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc& desc,
+                                                             SkBudgeted budgeted,
+                                                             const void* srcData, size_t rowBytes,
+                                                             uint32_t flags) {
     GrMipLevel tempTexels;
     GrMipLevel* texels = nullptr;
     int levelCount = 0;

@@ -27,8 +27,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fSampleCnt = 0;
-    GrSurface* texRT1 = context->resourceProvider()->createTexture(
-            desc, SkBudgeted::kNo, nullptr, 0);
+    GrSurface* texRT1 = context->resourceProvider()->createTexture1(desc, SkBudgeted::kNo);
 
     REPORTER_ASSERT(reporter, texRT1 == texRT1->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT1 == texRT1->asTexture());
@@ -40,7 +39,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     desc.fFlags = kNone_GrSurfaceFlags;
-    GrSurface* tex1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, nullptr, 0);
+    GrSurface* tex1 = context->resourceProvider()->createTexture1(desc, SkBudgeted::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1 == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1) == tex1->asTexture());
