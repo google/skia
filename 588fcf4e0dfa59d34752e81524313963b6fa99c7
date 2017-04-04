@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6248921_46824ecf",
+        "filename": "infra/bots/assets/clang_linux/VERSION",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-04T17:18:49Z",
+      "side": 1,
+      "message": "What\u0027s up here?  Shouldn\u0027t there a be a corresponding change to clang_linux/create.py?\n\nIf 4 \u003d 5 \u003d 6 \u003d 7, you can probably just revert this file?",
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
