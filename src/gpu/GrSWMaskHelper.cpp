@@ -180,5 +180,5 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
             GrSamplerParams::kNone_FilterMode));
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);
-    renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+    renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }

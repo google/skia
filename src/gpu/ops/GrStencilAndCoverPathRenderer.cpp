@@ -141,7 +141,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), coverAAType);
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
 
-            args.fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, *args.fClip,
+            args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
                                                            std::move(coverOp));
         }
     } else {

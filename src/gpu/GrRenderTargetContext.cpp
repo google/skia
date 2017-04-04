@@ -516,7 +516,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
                 if (ss) {
                     pipelineBuilder.setUserStencil(ss);
                 }
-                this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+                this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
                 return true;
             }
         }
@@ -639,7 +639,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             pipelineBuilder.setSnapVerticesToPixelCenters(snapToPixelCenters);
-            this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
             return;
         }
     }
@@ -814,7 +814,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
         std::unique_ptr<GrLegacyMeshDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
                 paint.getColor(), viewMatrix, croppedRect, croppedLocalRect);
         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-        this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
         return;
     }
 
@@ -870,7 +870,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
         std::unique_ptr<GrLegacyMeshDrawOp> op =
                 GrAAFillRectOp::Make(paint.getColor(), viewMatrix, localMatrix, croppedRect);
         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-        this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
         return;
     }
 
@@ -920,7 +920,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
         return;
     }
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
@@ -941,7 +941,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
         return;
     }
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -963,7 +963,7 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
     std::unique_ptr<GrLegacyMeshDrawOp> op =
             GrDrawAtlasOp::Make(paint.getColor(), viewMatrix, spriteCount, xform, texRect, colors);
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1023,7 +1023,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
                                              shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->addLegacyMeshDrawOp(pipelineBuilder, *clip, std::move(op));
+            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), *clip, std::move(op));
             return;
         }
     }
@@ -1061,7 +1061,7 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
             paint.getColor(), viewMatrix, rrect, blurRadius, stroke, shaderCaps);
     if (op) {
         GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-        this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
         return;
     }
 }
@@ -1202,7 +1202,7 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
 
     std::unique_ptr<GrLegacyMeshDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
 void GrRenderTargetContext::drawOval(const GrClip& clip,
@@ -1243,7 +1243,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
                 GrOvalOpFactory::MakeOvalOp(paint.getColor(), viewMatrix, oval, stroke, shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
             return;
         }
     }
@@ -1283,7 +1283,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
                                                                             shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
             return;
         }
     }
@@ -1311,7 +1311,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
             paint.getColor(), viewMatrix, imageWidth, imageHeight, std::move(iter), dst);
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
 void GrRenderTargetContext::prepareForExternalIO() {
@@ -1339,7 +1339,7 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
     if (ss) {
         pipelineBuilder.setUserStencil(ss);
     }
-    this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
@@ -1419,7 +1419,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
                         GrRectOpFactory::MakeAAFillNestedRects(paint.getColor(), viewMatrix, rects);
                 if (op) {
                     GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-                    this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+                    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
                 }
                 return;
             }
@@ -1433,7 +1433,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
                     paint.getColor(), viewMatrix, ovalRect, style.strokeRec(), shaderCaps);
             if (op) {
                 GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-                this->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+                this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
                 return;
             }
         }
@@ -1676,7 +1676,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     return this->getOpList()->addOp(std::move(op), this, std::move(appliedClip), dstTexture);
 }
 
-uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
+uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipelineBuilder,
                                                     const GrClip& clip,
                                                     std::unique_ptr<GrLegacyMeshDrawOp> op) {
     ASSERT_SINGLE_OWNER
@@ -1711,16 +1711,15 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(const GrPipelineBuilder& pip
     }
 
     GrProcessorSet::Analysis analysis;
-    op->analyzeProcessors(&analysis, pipelineBuilder.processors(), &appliedClip, *this->caps());
+    op->analyzeProcessors(&analysis, &pipelineBuilder, &appliedClip, *this->caps());
 
     GrPipeline::InitArgs args;
     pipelineBuilder.getPipelineInitArgs(&args);
     args.fAppliedClip = &appliedClip;
     args.fRenderTarget = rt;
     args.fCaps = this->caps();
-    args.fAnalysis = &analysis;
-    args.fInputColor = analysis.outputColor();
-    args.fInputCoverage = analysis.outputCoverage();
+    args.fXPInputColor = analysis.outputColor();
+    args.fXPInputCoverage = analysis.outputCoverage();
 
     if (analysis.requiresDstTexture()) {
         this->setupDstTexture(rt, clip, bounds, &args.fDstTexture);
@@ -1728,7 +1727,7 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(const GrPipelineBuilder& pip
             return SK_InvalidUniqueID;
         }
     }
-    op->initPipeline(args);
+    op->initPipeline(args, analysis);
     // TODO: We need to add pipeline dependencies on textures, etc before recording this op.
     op->setClippedBounds(bounds);
     return this->getOpList()->addOp(std::move(op), this);

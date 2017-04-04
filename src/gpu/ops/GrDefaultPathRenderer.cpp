@@ -554,7 +554,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+            renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip,
+                                                     std::move(op));
         } else {
             std::unique_ptr<GrLegacyMeshDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
@@ -567,7 +568,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             GrPipelineBuilder pipelineBuilder(std::move(passPaint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+            renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip,
+                                                     std::move(op));
         }
     }
     return true;
