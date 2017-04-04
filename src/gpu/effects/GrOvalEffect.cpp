@@ -98,7 +98,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fCircleUniform;
@@ -151,7 +151,7 @@ void GLCircleEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
 }
 
 void GLCircleEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                               const GrProcessor& processor) {
+                               const GrFragmentProcessor& processor) {
     const CircleEffect& ce = processor.cast<CircleEffect>();
     if (ce.getRadius() != fPrevRadius || ce.getCenter() != fPrevCenter) {
         SkScalar radius = ce.getRadius();
@@ -266,7 +266,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fEllipseUniform;
@@ -344,7 +344,7 @@ void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,
 }
 
 void GLEllipseEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                const GrProcessor& effect) {
+                                const GrFragmentProcessor& effect) {
     const EllipseEffect& ee = effect.cast<EllipseEffect>();
     if (ee.getRadii() != fPrevRadii || ee.getCenter() != fPrevCenter) {
         float invRXSqd;

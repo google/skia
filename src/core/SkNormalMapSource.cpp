@@ -79,7 +79,7 @@ public:
 
     protected:
         void setNormalData(const GrGLSLProgramDataManager& pdman,
-                           const GrProcessor& proc) override {
+                           const GrFragmentProcessor& proc) override {
             const NormalMapFP& normalMapFP = proc.cast<NormalMapFP>();
 
             const SkMatrix& invCTM = normalMapFP.invCTM();

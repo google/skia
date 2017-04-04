@@ -85,7 +85,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fRectUniform;
@@ -137,7 +137,7 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
 }
 
 void GLAARectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                               const GrProcessor& processor) {
+                               const GrFragmentProcessor& processor) {
     const AARectEffect& aare = processor.cast<AARectEffect>();
     const SkRect& rect = aare.getRect();
     if (rect != fPrevRect) {
@@ -176,7 +176,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fEdgeUniform;
@@ -217,7 +217,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
 }
 
 void GrGLConvexPolyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                     const GrProcessor& effect) {
+                                     const GrFragmentProcessor& effect) {
     const GrConvexPolyEffect& cpe = effect.cast<GrConvexPolyEffect>();
     size_t byteSize = 3 * cpe.getEdgeCount() * sizeof(SkScalar);
     if (0 != memcmp(fPrevEdges, cpe.getEdges(), byteSize)) {

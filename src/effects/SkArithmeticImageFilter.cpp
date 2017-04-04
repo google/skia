@@ -264,7 +264,7 @@ private:
 
         protected:
             void onSetData(const GrGLSLProgramDataManager& pdman,
-                           const GrProcessor& proc) override {
+                           const GrFragmentProcessor& proc) override {
                 const ArithmeticFP& arith = proc.cast<ArithmeticFP>();
                 pdman.set4f(fKUni, arith.k1(), arith.k2(), arith.k3(), arith.k4());
             }

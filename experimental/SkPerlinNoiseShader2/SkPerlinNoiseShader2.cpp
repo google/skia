@@ -608,7 +608,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fStitchDataUni;
@@ -1003,7 +1003,7 @@ void GrGLPerlinNoise2::GenKey(const GrProcessor& processor, const GrShaderCaps&,
 }
 
 void GrGLPerlinNoise2::onSetData(const GrGLSLProgramDataManager& pdman,
-                                const GrProcessor& processor) {
+                                 const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
 
     const GrPerlinNoise2Effect& turbulence = processor.cast<GrPerlinNoise2Effect>();
@@ -1027,7 +1027,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fZUni;
@@ -1277,7 +1277,7 @@ void GrGLImprovedPerlinNoise::GenKey(const GrProcessor& processor, const GrShade
 }
 
 void GrGLImprovedPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
-                                const GrProcessor& processor) {
+                                        const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
 
     const GrImprovedPerlinNoiseEffect& noise = processor.cast<GrImprovedPerlinNoiseEffect>();

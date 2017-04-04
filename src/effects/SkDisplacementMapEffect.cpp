@@ -461,7 +461,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
@@ -637,7 +637,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
 }
 
 void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                          const GrProcessor& proc) {
+                                          const GrFragmentProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
     GrTexture* colorTex = displacementMap.textureSampler(1).texture();
     SkScalar scaleX = displacementMap.scale().fX / colorTex->width();

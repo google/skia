@@ -70,12 +70,12 @@ private:
 public:
     using TransformedCoordVars = BuilderInputProvider<GrShaderVar, GrFragmentProcessor,
                                                       &GrFragmentProcessor::numCoordTransforms>;
-    using TextureSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
-                                                 &GrProcessor::numTextureSamplers>;
-    using BufferSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
-                                                &GrProcessor::numBuffers>;
-    using ImageStorages = BuilderInputProvider<ImageStorageHandle, GrProcessor,
-                                               &GrProcessor::numImageStorages>;
+    using TextureSamplers = BuilderInputProvider<SamplerHandle, GrResourceIOProcessor,
+                                                 &GrResourceIOProcessor::numTextureSamplers>;
+    using BufferSamplers = BuilderInputProvider<SamplerHandle, GrResourceIOProcessor,
+                                                &GrResourceIOProcessor::numBuffers>;
+    using ImageStorages = BuilderInputProvider<ImageStorageHandle, GrResourceIOProcessor,
+                                               &GrResourceIOProcessor::numImageStorages>;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -194,8 +194,7 @@ protected:
     uniform variables required by the shaders created in emitCode(). The GrFragmentProcessor
     parameter is guaranteed to be of the same type that created this GrGLSLFragmentProcessor and
     to have an identical processor key as the one that created this GrGLSLFragmentProcessor.  */
-    // TODO update this to pass in GrFragmentProcessor
-    virtual void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) {}
+    virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
 
 private:
     void internalEmitChild(int, const char*, const char*, EmitArgs&);

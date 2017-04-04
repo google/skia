@@ -131,7 +131,7 @@ public:
 
     protected:
         void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrProcessor& processor) override {
+                       const GrFragmentProcessor& processor) override {
             const YUVtoRGBEffect& yuvEffect = processor.cast<YUVtoRGBEffect>();
             switch (yuvEffect.getColorSpace()) {
                 case kJPEG_SkYUVColorSpace:
@@ -285,7 +285,7 @@ public:
 
     private:
         void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrProcessor& processor) override {
+                       const GrFragmentProcessor& processor) override {
             const RGBToYUVEffect& effect = processor.cast<RGBToYUVEffect>();
             OutputChannels oc = effect.outputChannels();
             if (effect.getColorSpace() != fLastColorSpace || oc != fLastOutputChannels) {

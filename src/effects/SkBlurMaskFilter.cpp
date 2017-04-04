@@ -844,7 +844,7 @@ public:
     static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
@@ -935,7 +935,7 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
 }
 
 void GrGLRectBlurEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                   const GrProcessor& proc) {
+                                   const GrFragmentProcessor& proc) {
     const GrRectBlurEffect& rbe = proc.cast<GrRectBlurEffect>();
     SkRect rect = rbe.getRect();
 
@@ -1249,7 +1249,7 @@ public:
     void emitCode(EmitArgs&) override;
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fProxyRectUniform;
@@ -1315,7 +1315,7 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
 }
 
 void GrGLRRectBlurEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                    const GrProcessor& proc) {
+                                    const GrFragmentProcessor& proc) {
     const GrRRectBlurEffect& brre = proc.cast<GrRRectBlurEffect>();
     const SkRRect& rrect = brre.getRRect();
 

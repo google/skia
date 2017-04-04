@@ -63,7 +63,8 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& processor) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& processor) override {
         const GrSimpleTextureEffect& textureEffect = processor.cast<GrSimpleTextureEffect>();
         if (SkToBool(textureEffect.colorSpaceXform())) {
             fColorSpaceHelper.setData(pdman, textureEffect.colorSpaceXform());

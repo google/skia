@@ -63,11 +63,7 @@ private:
  */
 class GrProcessor : public GrProgramElement<GrProcessor> {
 public:
-    class TextureSampler;
-    class BufferAccess;
-    class ImageStorageAccess;
-
-    virtual ~GrProcessor();
+    virtual ~GrProcessor() = default;
 
     /** Human-meaningful string to identify this prcoessor; may be embedded in generated shader
         code. */
@@ -78,26 +74,6 @@ public:
         SkString str;
         str.appendf("Missing data");
         return str;
-    }
-
-    int numTextureSamplers() const { return fTextureSamplers.count(); }
-
-    /** Returns the access pattern for the texture at index. index must be valid according to
-        numTextureSamplers(). */
-    const TextureSampler& textureSampler(int index) const { return *fTextureSamplers[index]; }
-
-    int numBuffers() const { return fBufferAccesses.count(); }
-
-    /** Returns the access pattern for the buffer at index. index must be valid according to
-        numBuffers(). */
-    const BufferAccess& bufferAccess(int index) const { return *fBufferAccesses[index]; }
-
-    int numImageStorages() const { return fImageStorageAccesses.count(); }
-
-    /** Returns the access object for the image at index. index must be valid according to
-        numImages(). */
-    const ImageStorageAccess& imageStorageAccess(int index) const {
-        return *fImageStorageAccesses[index];
     }
 
     /**
@@ -131,18 +107,6 @@ protected:
     GrProcessor() : fClassID(kIllegalProcessorClassID), fRequiredFeatures(kNone_RequiredFeatures) {}
 
     /**
-     * Subclasses call these from their constructor to register sampler/image sources. The processor
-     * subclass manages the lifetime of the objects (these functions only store pointers). The
-     * TextureSampler and/or BufferAccess instances are typically member fields of the GrProcessor
-     * subclass. These must only be called from the constructor because GrProcessors are immutable.
-     */
-    void addTextureSampler(const TextureSampler*);
-    void addBufferAccess(const BufferAccess*);
-    void addImageStorageAccess(const ImageStorageAccess*);
-
-    bool hasSameSamplersAndAccesses(const GrProcessor &) const;
-
-    /**
      * If the prcoessor will generate code that uses platform specific built-in features, then it
      * must call these methods from its constructor. Otherwise, requests to use these features will
      * be denied.
@@ -172,9 +136,9 @@ private:
     }
 
     friend class GrProgramElement<GrProcessor>;
-    void addPendingIOs() const;
-    void removeRefs() const;
-    void pendingIOComplete() const;
+    virtual void addPendingIOs() const {}
+    virtual void removeRefs() const {}
+    virtual void pendingIOComplete() const {}
 
     enum {
         kIllegalProcessorClassID = 0,
@@ -183,21 +147,73 @@ private:
 
     uint32_t                                        fClassID;
     RequiredFeatures                                fRequiredFeatures;
-    SkSTArray<4, const TextureSampler*, true>       fTextureSamplers;
-    SkSTArray<1, const BufferAccess*, true>         fBufferAccesses;
-    SkSTArray<1, const ImageStorageAccess*, true>   fImageStorageAccesses;
 
     typedef GrProgramElement INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
 
+/** A GrProcessor with the ability to access textures, buffers, and image storages. */
+class GrResourceIOProcessor : public GrProcessor {
+public:
+    class TextureSampler;
+    class BufferAccess;
+    class ImageStorageAccess;
+
+    int numTextureSamplers() const { return fTextureSamplers.count(); }
+
+    /** Returns the access pattern for the texture at index. index must be valid according to
+        numTextureSamplers(). */
+    const TextureSampler& textureSampler(int index) const { return *fTextureSamplers[index]; }
+
+    int numBuffers() const { return fBufferAccesses.count(); }
+
+    /** Returns the access pattern for the buffer at index. index must be valid according to
+        numBuffers(). */
+    const BufferAccess& bufferAccess(int index) const { return *fBufferAccesses[index]; }
+
+    int numImageStorages() const { return fImageStorageAccesses.count(); }
+
+    /** Returns the access object for the image at index. index must be valid according to
+        numImages(). */
+    const ImageStorageAccess& imageStorageAccess(int index) const {
+        return *fImageStorageAccesses[index];
+    }
+
+protected:
+    GrResourceIOProcessor() = default;
+
+    /**
+     * Subclasses call these from their constructor to register sampler/image sources. The processor
+     * subclass manages the lifetime of the objects (these functions only store pointers). The
+     * TextureSampler and/or BufferAccess instances are typically member fields of the GrProcessor
+     * subclass. These must only be called from the constructor because GrProcessors are immutable.
+     */
+    void addTextureSampler(const TextureSampler*);
+    void addBufferAccess(const BufferAccess*);
+    void addImageStorageAccess(const ImageStorageAccess*);
+
+    bool hasSameSamplersAndAccesses(const GrResourceIOProcessor&) const;
+
+private:
+    friend class GrProgramElement<GrProcessor>;
+    void addPendingIOs() const override;
+    void removeRefs() const override;
+    void pendingIOComplete() const override;
+
+    SkSTArray<4, const TextureSampler*, true> fTextureSamplers;
+    SkSTArray<1, const BufferAccess*, true> fBufferAccesses;
+    SkSTArray<1, const ImageStorageAccess*, true> fImageStorageAccesses;
+
+    typedef GrProcessor INHERITED;
+};
+
 /**
- * Used to represent a texture that is required by a GrProcessor. It holds a GrTexture along with
- * an associated GrSamplerParams. TextureSamplers don't perform any coord manipulation to account
- * for texture origin.
+ * Used to represent a texture that is required by a GrResourceIOProcessor. It holds a GrTexture
+ * along with an associated GrSamplerParams. TextureSamplers don't perform any coord manipulation to
+ * account for texture origin.
  */
-class GrProcessor::TextureSampler : public SkNoncopyable {
+class GrResourceIOProcessor::TextureSampler : public SkNoncopyable {
 public:
     /**
      * Must be initialized before adding to a GrProcessor's texture access list.
@@ -258,10 +274,10 @@ private:
 };
 
 /**
- * Used to represent a texel buffer that will be read in a GrProcessor. It holds a GrBuffer along
- * with an associated offset and texel config.
+ * Used to represent a texel buffer that will be read in a GrResourceIOProcessor. It holds a
+ * GrBuffer along with an associated offset and texel config.
  */
-class GrProcessor::BufferAccess : public SkNoncopyable {
+class GrResourceIOProcessor::BufferAccess : public SkNoncopyable {
 public:
     BufferAccess() = default;
     BufferAccess(GrPixelConfig texelConfig, GrBuffer* buffer,
@@ -296,9 +312,9 @@ public:
     const GrGpuResourceRef* programBuffer() const { return &fBuffer;}
 
 private:
-    GrPixelConfig                 fTexelConfig;
-    GrTGpuResourceRef<GrBuffer>   fBuffer;
-    GrShaderFlags                 fVisibility;
+    GrPixelConfig fTexelConfig;
+    GrTGpuResourceRef<GrBuffer> fBuffer;
+    GrShaderFlags fVisibility;
 
     typedef SkNoncopyable INHERITED;
 };
@@ -309,7 +325,7 @@ private:
  * Currently the format of the load/store data in the shader is inferred from the texture config,
  * though it could be made explicit.
  */
-class GrProcessor::ImageStorageAccess : public SkNoncopyable {
+class GrResourceIOProcessor::ImageStorageAccess : public SkNoncopyable {
 public:
     ImageStorageAccess(sk_sp<GrTexture> texture, GrIOType ioType, GrSLMemoryModel, GrSLRestrict,
                        GrShaderFlags visibility = kFragment_GrShaderFlag);
@@ -333,11 +349,11 @@ public:
     const GrGpuResourceRef* programTexture() const { return &fTexture; }
 
 private:
-    GrTGpuResourceRef<GrTexture>    fTexture;
-    GrShaderFlags                   fVisibility;
-    GrImageStorageFormat            fFormat;
-    GrSLMemoryModel                 fMemoryModel;
-    GrSLRestrict                    fRestrict;
+    GrTGpuResourceRef<GrTexture> fTexture;
+    GrShaderFlags fVisibility;
+    GrImageStorageFormat fFormat;
+    GrSLMemoryModel fMemoryModel;
+    GrSLRestrict fRestrict;
     typedef SkNoncopyable INHERITED;
 };
 

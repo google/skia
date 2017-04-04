@@ -353,7 +353,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
 
             private:
                 void onSetData(const GrGLSLProgramDataManager& pdman,
-                               const GrProcessor& fp) override {
+                               const GrFragmentProcessor& fp) override {
                     GrColor4f color = fp.cast<ReplaceInputFragmentProcessor>().fColor;
                     if (!fHaveSetColor || color != fPreviousColor) {
                         pdman.set4fv(fColorUni, 1, color.fRGBA);

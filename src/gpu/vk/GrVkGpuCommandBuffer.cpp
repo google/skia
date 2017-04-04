@@ -492,9 +492,9 @@ static void set_texture_layout(GrVkTexture* vkTexture, GrVkGpu* gpu) {
                               false);
 }
 
-static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
+static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkGpu* gpu) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
-        const GrProcessor::TextureSampler& sampler = processor.textureSampler(i);
+        const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
         GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.texture());
         SkASSERT(vkTexture);
 

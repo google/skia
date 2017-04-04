@@ -61,13 +61,13 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
                    (caps.samplerPrecision(config, visibility) << (8 + kSamplerOrImageTypeKeyBits)));
 }
 
-static uint16_t storage_image_key(const GrProcessor::ImageStorageAccess& imageAccess) {
+static uint16_t storage_image_key(const GrResourceIOProcessor::ImageStorageAccess& imageAccess) {
     GrSLType type = imageAccess.texture()->texturePriv().imageStorageType();
     return image_storage_or_sampler_uniform_type_key(type) |
            (int)imageAccess.format() << kSamplerOrImageTypeKeyBits;
 }
 
-static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
+static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourceIOProcessor& proc,
                                        const GrShaderCaps& caps) {
     int numTextureSamplers = proc.numTextureSamplers();
     int numBuffers = proc.numBuffers();
@@ -81,13 +81,13 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrProcess
     uint16_t* k16 = SkTCast<uint16_t*>(b->add32n(word32Count));
     int j = 0;
     for (int i = 0; i < numTextureSamplers; ++i, ++j) {
-        const GrProcessor::TextureSampler& sampler = proc.textureSampler(i);
+        const GrResourceIOProcessor::TextureSampler& sampler = proc.textureSampler(i);
         const GrTexture* tex = sampler.texture();
         k16[j] = sampler_key(tex->texturePriv().samplerType(), tex->config(), sampler.visibility(),
                              caps);
     }
     for (int i = 0; i < numBuffers; ++i, ++j) {
-        const GrProcessor::BufferAccess& access = proc.bufferAccess(i);
+        const GrResourceIOProcessor::BufferAccess& access = proc.bufferAccess(i);
         k16[j] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(), access.visibility(),
                              caps);
     }
@@ -109,7 +109,7 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrProcess
  * transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share this
  * function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
  */
-static bool gen_meta_key(const GrProcessor& proc,
+static bool gen_meta_key(const GrResourceIOProcessor& proc,
                          const GrShaderCaps& shaderCaps,
                          uint32_t transformKey,
                          GrProcessorKeyBuilder* b) {
@@ -127,6 +127,22 @@ static bool gen_meta_key(const GrProcessor& proc,
     uint32_t* key = b->add32n(2);
     key[0] = (classID << 16) | SkToU32(processorKeySize);
     key[1] = transformKey;
+    return true;
+}
+
+static bool gen_meta_key(const GrXferProcessor& xp,
+                         const GrShaderCaps& shaderCaps,
+                         GrProcessorKeyBuilder* b) {
+    size_t processorKeySize = b->size();
+    uint32_t classID = xp.classID();
+
+    // Currently we allow 16 bits for the class id and the overall processor key size.
+    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t)SK_MaxU16);
+    if ((processorKeySize | classID) & kMetaKeyInvalidMask) {
+        return false;
+    }
+
+    b->add32((classID << 16) | SkToU32(processorKeySize));
     return true;
 }
 
@@ -187,7 +203,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
         originIfDstTexture = &origin;
     }
     xp.getGLSLProcessorKey(shaderCaps, &b, originIfDstTexture);
-    if (!gen_meta_key(xp, shaderCaps, 0, &b)) {
+    if (!gen_meta_key(xp, shaderCaps, &b)) {
         desc->key().reset();
         return false;
     }

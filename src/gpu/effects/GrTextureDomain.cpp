@@ -305,7 +305,8 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
         }
 
     protected:
-        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& fp) override {
+        void onSetData(const GrGLSLProgramDataManager& pdman,
+                       const GrFragmentProcessor& fp) override {
             const GrTextureDomainEffect& tde = fp.cast<GrTextureDomainEffect>();
             const GrTextureDomain& domain = tde.fTextureDomain;
             fGLDomain.setData(pdman, domain, tde.textureSampler(0).texture());
@@ -407,7 +408,8 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
         }
 
     protected:
-        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& fp) override {
+        void onSetData(const GrGLSLProgramDataManager& pdman,
+                       const GrFragmentProcessor& fp) override {
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
             GrTexture* texture = dstdfp.textureSampler(0).texture();

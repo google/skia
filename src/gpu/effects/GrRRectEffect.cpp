@@ -135,7 +135,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
@@ -291,7 +291,7 @@ void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrShaderC
 }
 
 void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                      const GrProcessor& processor) {
+                                      const GrFragmentProcessor& processor) {
     const CircularRRectEffect& crre = processor.cast<CircularRRectEffect>();
     const SkRRect& rrect = crre.getRRect();
     if (rrect != fPrevRRect) {
@@ -487,7 +487,7 @@ public:
     static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
@@ -602,7 +602,7 @@ void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrShaderCa
 }
 
 void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                        const GrProcessor& effect) {
+                                        const GrFragmentProcessor& effect) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
     const SkRRect& rrect = erre.getRRect();
     // If we're using a scale factor to work around precision issues, choose the largest radius
