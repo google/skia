@@ -12,6 +12,7 @@
 #include "GrGeometryProcessor.h"
 #include "GrMesh.h"
 #include "GrPendingProgramElement.h"
+#include "GrPipelineBuilder.h"
 
 #include "SkTLList.h"
 
@@ -101,18 +102,19 @@ public:
      * initial color and coverage from this op's geometry processor.
      */
     void analyzeProcessors(GrProcessorSet::Analysis* analysis,
-                           const GrProcessorSet& processors,
+                           GrPipelineBuilder* pipelineBuilder,
                            const GrAppliedClip* appliedClip,
                            const GrCaps& caps) const {
         GrProcessorAnalysisColor inputColor;
         GrProcessorAnalysisCoverage inputCoverage;
         this->getProcessorAnalysisInputs(&inputColor, &inputCoverage);
-        analysis->init(inputColor, inputCoverage, processors, appliedClip, caps);
+        pipelineBuilder->analyzeAndEliminateFragmentProcessors(analysis, inputColor, inputCoverage,
+                                                               appliedClip, caps);
     }
 
-    void initPipeline(const GrPipeline::InitArgs& args) {
+    void initPipeline(const GrPipeline::InitArgs& args, const GrProcessorSet::Analysis& analysis) {
         fPipeline.init(args);
-        this->applyPipelineOptimizations(PipelineOptimizations(*args.fAnalysis));
+        this->applyPipelineOptimizations(PipelineOptimizations(analysis));
     }
 
     /**

@@ -247,7 +247,8 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
     }
     pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
-    return fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, GrNoClip(), std::move(op));
+    return fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), GrNoClip(),
+                                                     std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER

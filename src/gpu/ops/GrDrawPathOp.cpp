@@ -46,8 +46,8 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     args.fRenderTarget = state.drawOpArgs().fRenderTarget;
     args.fCaps = &state.caps();
     args.fDstTexture = state.drawOpArgs().fDstTexture;
-    args.fInputColor = analysis.outputColor();
-    args.fInputCoverage = analysis.outputCoverage();
+    args.fXPInputColor = analysis.outputColor();
+    args.fXPInputCoverage = analysis.outputCoverage();
 
     return pipeline->init(args);
 }

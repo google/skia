@@ -57,10 +57,8 @@ public:
         uint32_t fFlags = 0;
         GrDrawFace fDrawFace = GrDrawFace::kBoth;
         const GrProcessorSet* fProcessors = nullptr;
-        GrProcessorAnalysisColor fInputColor;
-        GrProcessorAnalysisCoverage fInputCoverage = GrProcessorAnalysisCoverage::kNone;
-        // This is only used for GrLegacyMeshDrawOp's pipeline creation system.
-        const GrProcessorSet::Analysis* fAnalysis = nullptr;
+        GrProcessorAnalysisColor fXPInputColor;
+        GrProcessorAnalysisCoverage fXPInputCoverage = GrProcessorAnalysisCoverage::kNone;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;
