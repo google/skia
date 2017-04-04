@@ -48,11 +48,22 @@
         *b = ptr[2];
         *a = ptr[3];
     }
+    SI void store4(void* vptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+        auto ptr = (uint16_t*)vptr;
+        ptr[0] = r;
+        ptr[1] = g;
+        ptr[2] = b;
+        ptr[3] = a;
+    }
 
     SI F from_half(U16 h) {
         if ((int16_t)h < 0x0400) { h = 0; }   // Flush denorm and negative to zero.
         return bit_cast<F>(h << 13)           // Line up the mantissa,
              * bit_cast<F>(U32(0x77800000));  // then fix up the exponent.
+    }
+    SI U16 to_half(F f) {
+        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
+            >> 13;                                                // then line up the mantissa.
     }
 
 #elif defined(__aarch64__)
@@ -88,10 +99,13 @@
         *b = rgba.val[2];
         *a = rgba.val[3];
     }
-
-    SI F from_half(U16 h) {
-        return vcvt_f32_f16(h);
+    SI void store4(void* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+        uint16x4x4_t rgba = {{r,g,b,a}};
+        vst4_u16((uint16_t*)ptr, rgba);
     }
+
+    SI F from_half(U16 h) { return vcvt_f32_f16(h); }
+    SI U16 to_half(F   f) { return vcvt_f16_f32(f); }
 
 #elif defined(__arm__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
@@ -135,11 +149,26 @@
         *b = unaligned_load<U16>(rgba.val+2);
         *a = unaligned_load<U16>(rgba.val+3);
     }
+    SI void store4(void* vptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+        auto ptr = (uint16_t*)vptr;
+        uint16x4x4_t rgba = {{
+            widen_cast<uint16x4_t>(r),
+            widen_cast<uint16x4_t>(g),
+            widen_cast<uint16x4_t>(b),
+            widen_cast<uint16x4_t>(a),
+        }};
+        vst4_lane_u16(ptr + 0, rgba, 0);
+        vst4_lane_u16(ptr + 4, rgba, 1);
+    }
 
     SI F from_half(U16 h) {
-        uint16x4_t v;
-        memcpy(&v, &h, sizeof(h));
+        auto v = widen_cast<uint16x4_t>(h);
         return vget_low_f32(vcvt_f32_f16(v));
+    }
+    SI U16 to_half(F f) {
+        auto v = widen_cast<float32x4_t>(f);
+        uint16x4_t h = vcvt_f16_f32(v);
+        return unaligned_load<U16>(&h);
     }
 
 #elif defined(__AVX__)
@@ -222,6 +251,33 @@
         *b = _mm_unpacklo_epi64(ba0123, ba4567);
         *a = _mm_unpackhi_epi64(ba0123, ba4567);
     }
+    SI void store4(void* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+        auto rg0123 = _mm_unpacklo_epi16(r, g),  // r0 g0 r1 g1 r2 g2 r3 g3
+             rg4567 = _mm_unpackhi_epi16(r, g),  // r4 g4 r5 g5 r6 g6 r7 g7
+             ba0123 = _mm_unpacklo_epi16(b, a),
+             ba4567 = _mm_unpackhi_epi16(b, a);
+
+        auto _01 = _mm_unpacklo_epi32(rg0123, ba0123),
+             _23 = _mm_unpackhi_epi32(rg0123, ba0123),
+             _45 = _mm_unpacklo_epi32(rg4567, ba4567),
+             _67 = _mm_unpackhi_epi32(rg4567, ba4567);
+
+        if (__builtin_expect(tail,0)) {
+            auto dst = (double*)ptr;
+            if (tail > 0) { _mm_storel_pd(dst+0, _01); }
+            if (tail > 1) { _mm_storeh_pd(dst+1, _01); }
+            if (tail > 2) { _mm_storel_pd(dst+2, _23); }
+            if (tail > 3) { _mm_storeh_pd(dst+3, _23); }
+            if (tail > 4) { _mm_storel_pd(dst+4, _45); }
+            if (tail > 5) { _mm_storeh_pd(dst+5, _45); }
+            if (tail > 6) { _mm_storel_pd(dst+6, _67); }
+        } else {
+            _mm_storeu_si128((__m128i*)ptr + 0, _01);
+            _mm_storeu_si128((__m128i*)ptr + 1, _23);
+            _mm_storeu_si128((__m128i*)ptr + 2, _45);
+            _mm_storeu_si128((__m128i*)ptr + 3, _67);
+        }
+    }
 
     SI F from_half(U16 h) {
     #if defined(__AVX2__)
@@ -235,6 +291,14 @@
                                   _mm_unpackhi_epi16(h, _mm_setzero_si128()));
         return bit_cast<F>(w << 13)             // Line up the mantissa,
              * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
+    #endif
+    }
+    SI U16 to_half(F f) {
+    #if defined(__AVX2__)
+        return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
+    #else
+        return pack(bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
+                    >> 13);                                            // then line up the mantissa.
     #endif
     }
 
@@ -266,8 +330,7 @@
         return unaligned_load<U16>(&p);  // We have two copies.  Return (the lower) one.
     }
     SI U8 pack(U16 v) {
-        __m128i r;
-        memcpy(&r, &v, sizeof(v));
+        auto r = widen_cast<__m128i>(v);
         r = _mm_packus_epi16(r,r);
         return unaligned_load<U8>(&r);
     }
@@ -302,10 +365,15 @@
         *b = unaligned_load<U16>((uint16_t*)&ba + 0);
         *a = unaligned_load<U16>((uint16_t*)&ba + 4);
     }
+    SI void store4(const void* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+        auto rg = _mm_unpacklo_epi16(widen_cast<__m128i>(r), widen_cast<__m128i>(g)),
+             ba = _mm_unpacklo_epi16(widen_cast<__m128i>(b), widen_cast<__m128i>(a));
+        _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg, ba));
+        _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg, ba));
+    }
 
     SI F from_half(U16 h) {
-        __m128i v;
-        memcpy(&v, &h, sizeof(h));
+        auto v = widen_cast<__m128i>(h);
 
         // Same deal as AVX: flush denorms and negatives to zero.
         v = _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(0x04000400_i)), v);
@@ -313,6 +381,10 @@
         U32 w = _mm_unpacklo_epi16(v, _mm_setzero_si128());
         return bit_cast<F>(w << 13)             // Line up the mantissa,
              * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
+    }
+    SI U16 to_half(F f) {
+        return pack(bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
+                    >> 13);                                            // then line up the mantissa.
     }
 #endif
 
