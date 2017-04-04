@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2ff0a16_92d80f72",
+        "filename": "infra/bots/assets.isolate",
+        "patchSetId": 16
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-04T13:33:43Z",
+      "side": 1,
+      "message": "We never need the scripts on the bots.  I\u0027d really rather only include the VERSION files.",
+      "range": {
+        "startLine": 4,
+        "startChar": 7,
+        "endLine": 4,
+        "endChar": 13
+      },
+      "revId": "0d6a48c87b1b84babc498aa7a63406bc8beae35f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
