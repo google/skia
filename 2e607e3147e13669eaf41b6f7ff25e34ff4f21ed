@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "022180c0_917eae43",
+        "filename": "infra/bots/assets/armhf_sysroot/create.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-04T19:44:25Z",
+      "side": 1,
+      "message": "Please list them. Ideally, just print the command you\u0027re going to run.",
+      "range": {
+        "startLine": 25,
+        "startChar": 8,
+        "endLine": 25,
+        "endChar": 74
+      },
+      "revId": "2e607e3147e13669eaf41b6f7ff25e34ff4f21ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cc83ff5_4057793e",
+        "filename": "infra/bots/assets/chromebook_c100p_lib/create.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-04T19:44:25Z",
+      "side": 1,
+      "message": "Same comment.",
+      "range": {
+        "startLine": 22,
+        "startChar": 8,
+        "endLine": 22,
+        "endChar": 61
+      },
+      "revId": "2e607e3147e13669eaf41b6f7ff25e34ff4f21ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
