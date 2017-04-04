@@ -113,7 +113,7 @@ SkOneShotDiscardablePixelRef::SkOneShotDiscardablePixelRef(const SkImageInfo& in
                                              SkDiscardableMemory* dm,
                                              size_t rowBytes,
                                              SkColorTable* ctable)
-    : INHERITED(info)
+    : INHERITED(info.width(), info.height(), info.colorType())
     , fDM(dm)
     , fRB(rowBytes)
     , fCTable(ctable)
@@ -161,7 +161,9 @@ void SkOneShotDiscardablePixelRef::onUnlockPixels() {
 }
 
 size_t SkOneShotDiscardablePixelRef::getAllocatedSizeInBytes() const {
-    return this->info().getSafeSize(fRB);
+    SkImageInfo info = SkImageInfo::Make(this->width(), this->height(), this->colorType(),
+                                         kPremul_SkAlphaType);
+    return info.getSafeSize(fRB);
 }
 
 class SkResourceCacheDiscardableAllocator : public SkBitmap::Allocator {
