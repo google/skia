@@ -634,24 +634,11 @@ STAGE(load_f16) {
 STAGE(store_f16) {
     auto ptr = *(uint64_t**)ctx + x;
 
-#if !defined(JUMPER)
-    auto float_to_half = [&](F f) {
-        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-            >> 13;                                                // then line up the mantissa.
-    };
-    auto rgba = (int16_t*)ptr;
-    rgba[0] = float_to_half(r);
-    rgba[1] = float_to_half(g);
-    rgba[2] = float_to_half(b);
-    rgba[3] = float_to_half(a);
-#elif defined(__aarch64__)
-    float16x4x4_t halfs = {{
-        vcvt_f16_f32(r),
-        vcvt_f16_f32(g),
-        vcvt_f16_f32(b),
-        vcvt_f16_f32(a),
-    }};
-    vst4_f16((float16_t*)ptr, halfs);
+#if !defined(JUMPER) || defined(__aarch64__)
+    store4(ptr,tail, to_half(r)
+                   , to_half(g)
+                   , to_half(b)
+                   , to_half(a));
 #elif defined(__arm__)
     float16x4x2_t rb_ga = {{
         vcvt_f16_f32(float32x4_t{r[0], b[0], r[1], b[1]}),

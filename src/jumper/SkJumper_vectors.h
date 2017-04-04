@@ -48,11 +48,22 @@
         *b = ptr[2];
         *a = ptr[3];
     }
+    SI void store4(void* vptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+        auto ptr = (uint16_t*)vptr;
+        ptr[0] = r;
+        ptr[1] = g;
+        ptr[2] = b;
+        ptr[3] = a;
+    }
 
     SI F from_half(U16 h) {
         if ((int16_t)h < 0x0400) { h = 0; }   // Flush denorm and negative to zero.
         return bit_cast<F>(h << 13)           // Line up the mantissa,
              * bit_cast<F>(U32(0x77800000));  // then fix up the exponent.
+    }
+    SI U16 to_half(F f) {
+        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
+            >> 13;                                                // then line up the mantissa.
     }
 
 #elif defined(__aarch64__)
@@ -88,10 +99,13 @@
         *b = rgba.val[2];
         *a = rgba.val[3];
     }
-
-    SI F from_half(U16 h) {
-        return vcvt_f32_f16(h);
+    SI void store4(void* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+        uint16x4x4_t rgba = {{r,g,b,a}};
+        vst4_u16((uint16_t*)ptr, rgba);
     }
+
+    SI F from_half(U16 h) { return vcvt_f32_f16(h); }
+    SI U16 to_half(F   f) { return vcvt_f16_f32(f); }
 
 #elif defined(__arm__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
