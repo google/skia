@@ -169,6 +169,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
                                                  kPremul_SkAlphaType);
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = kW;
     desc.fHeight = kH;
     desc.fConfig = kSRGBA_8888_GrPixelConfig;

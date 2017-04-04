@@ -120,17 +120,14 @@ bool GrTextureContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
 
     // TODO: this seems to duplicate code in SkImage_Gpu::onReadPixels
     if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
-        flags |= GrContext::kUnpremul_PixelOpsFlag;
+        flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
-    // Deferral of the VRAM resources must end in this instance anyway
-    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->resourceProvider())));
-    if (!tex) {
-        return false;
-    }
-
-    return tex->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
-                           config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
+    return fContext->contextPriv().readSurfacePixels(fTextureProxy.get(), this->getColorSpace(),
+                                                     x, y, dstInfo.width(), dstInfo.height(),
+                                                     config,
+                                                     dstInfo.colorSpace(), dstBuffer, dstRowBytes,
+                                                     flags);
 }
 
 // TODO: move this (and GrRenderTargetContext::onReadPixels) to GrSurfaceContext?
@@ -143,15 +140,12 @@ bool GrTextureContext::onWritePixels(const SkImageInfo& srcInfo, const void* src
         return false;
     }
     if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
-        flags |= GrContext::kUnpremul_PixelOpsFlag;
+        flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
-    // Deferral of the VRAM resources must end in this instance anyway
-    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->resourceProvider())));
-    if (!tex) {
-        return false;
-    }
-
-    return tex->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
-                            config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
+    return fContext->contextPriv().writeSurfacePixels(fTextureProxy.get(), this->getColorSpace(),
+                                                      x, y, srcInfo.width(), srcInfo.height(),
+                                                      config,
+                                                      srcInfo.colorSpace(), srcBuffer, srcRowBytes,
+                                                      flags);
 }
