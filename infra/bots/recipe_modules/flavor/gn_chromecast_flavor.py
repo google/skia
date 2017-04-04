@@ -25,6 +25,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     # Chromecast does not package libstdc++
     extra_ldflags = ['-static-libstdc++', '-static-libgcc']
 
+    # TODO(kjlubick): can this toolchain be replaced/shared with chromebook?
     toolchain_dir = self.m.vars.slave_dir.join('cast_toolchain')
 
     quote = lambda x: '"%s"' % x
