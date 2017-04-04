@@ -57,6 +57,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
                                 '-CT_' in self.builder_name or
                                 'Presubmit' in self.builder_name or
                                 'InfraTests' in self.builder_name or
+                                'BundleRecipes' in self.builder_name or
                                 self.builder_name == "Housekeeper-PerCommit")
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
