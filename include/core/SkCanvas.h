@@ -331,13 +331,10 @@ public:
     typedef uint32_t SaveLayerFlags;
 
     struct SaveLayerRec {
-        SaveLayerRec()
-            : fBounds(nullptr), fPaint(nullptr), fBackdrop(nullptr), fSaveLayerFlags(0)
-        {}
+        SaveLayerRec() {}
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
             : fBounds(bounds)
             , fPaint(paint)
-            , fBackdrop(nullptr)
             , fSaveLayerFlags(saveLayerFlags)
         {}
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
@@ -348,10 +345,12 @@ public:
             , fSaveLayerFlags(saveLayerFlags)
         {}
 
-        const SkRect*           fBounds;    // optional
-        const SkPaint*          fPaint;     // optional
-        const SkImageFilter*    fBackdrop;  // optional
-        SaveLayerFlags          fSaveLayerFlags;
+        const SkRect*           fBounds = nullptr;      // optional
+        const SkPaint*          fPaint = nullptr;       // optional
+        const SkImageFilter*    fBackdrop = nullptr;    // optional
+        const SkImage*          fClipMask = nullptr;    // optional
+        const SkMatrix*         fClipMatrix = nullptr;  // optional -- only used with fClipMask
+        SaveLayerFlags          fSaveLayerFlags = 0;
     };
 
     int saveLayer(const SaveLayerRec&);
