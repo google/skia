@@ -1,0 +1,8 @@
+{
+  'variables': {
+    'USE_BUNDLED_RECIPES': 1,
+  },
+  'includes': [
+    'test_skia.isolate',
+  ],
+}
