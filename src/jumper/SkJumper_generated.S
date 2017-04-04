@@ -3126,15 +3126,14 @@ _sk_load_f16_vfp4:
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xe5933000                          // ldr           r3, [r3]
   .long  0xe0833180                          // add           r3, r3, r0, lsl #3
-  .long  0xf463084f                          // vld2.16       {d16-d17}, [r3]
-  .long  0xf3f62720                          // vcvt.f32.f16  q9, d16
-  .long  0xf3f60721                          // vcvt.f32.f16  q8, d17
-  .long  0xf22201b2                          // vorr          d0, d18, d18
-  .long  0xf22011b0                          // vorr          d1, d16, d16
-  .long  0xf3ba00a3                          // vtrn.32       d0, d19
-  .long  0xf22321b3                          // vorr          d2, d19, d19
-  .long  0xf3ba10a1                          // vtrn.32       d1, d17
-  .long  0xf22131b1                          // vorr          d3, d17, d17
+  .long  0xf4e3070d                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [r3]!
+  .long  0xf4e3074f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [r3]
+  .long  0xf3b60720                          // vcvt.f32.f16  q0, d16
+  .long  0xf3b62722                          // vcvt.f32.f16  q1, d18
+  .long  0xf3f64721                          // vcvt.f32.f16  q10, d17
+  .long  0xf3f60723                          // vcvt.f32.f16  q8, d19
+  .long  0xf22411b4                          // vorr          d1, d20, d20
+  .long  0xf22031b0                          // vorr          d3, d16, d16
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_store_f16_vfp4
@@ -3194,6 +3193,7 @@ _sk_clamp_y_vfp4:
   .long  0xf26218a1                          // vadd.i32      d17, d18, d17
   .long  0xf2201fa1                          // vmin.f32      d1, d16, d17
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_repeat_x_vfp4
 .globl _sk_repeat_x_vfp4

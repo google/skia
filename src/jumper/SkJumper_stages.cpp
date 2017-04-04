@@ -623,31 +623,13 @@ STAGE(store_8888) {
 STAGE(load_f16) {
     auto ptr = *(const uint64_t**)ctx + x;
 
-#if !defined(JUMPER)
-    auto half_to_float = [&](int16_t h) {
-        if (h < 0x0400) { h = 0; }            // Flush denorm and negative to zero.
-        return bit_cast<F>(h << 13)           // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000));  // then fix up the exponent.
-    };
-    auto rgba = (const int16_t*)ptr;
-    r = half_to_float(rgba[0]);
-    g = half_to_float(rgba[1]);
-    b = half_to_float(rgba[2]);
-    a = half_to_float(rgba[3]);
-#elif defined(__aarch64__)
-    auto halfs = vld4_f16((const float16_t*)ptr);
-    r = vcvt_f32_f16(halfs.val[0]);
-    g = vcvt_f32_f16(halfs.val[1]);
-    b = vcvt_f32_f16(halfs.val[2]);
-    a = vcvt_f32_f16(halfs.val[3]);
-#elif defined(__arm__)
-    auto rb_ga = vld2_f16((const float16_t*)ptr);
-    auto rb = vcvt_f32_f16(rb_ga.val[0]),
-         ga = vcvt_f32_f16(rb_ga.val[1]);
-    r = {rb[0], rb[2]};
-    g = {ga[0], ga[2]};
-    b = {rb[1], rb[3]};
-    a = {ga[1], ga[3]};
+#if !defined(JUMPER) || defined(__aarch64__) || defined(__arm__)
+    U16 R,G,B,A;
+    load4(ptr, &R,&G,&B,&A);
+    r = from_half(R);
+    g = from_half(G);
+    b = from_half(B);
+    a = from_half(A);
 #elif defined(__AVX2__) && defined(__FMA__) && defined(__F16C__)
     __m128i _01, _23, _45, _67;
     if (__builtin_expect(tail,0)) {

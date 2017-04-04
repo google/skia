@@ -41,6 +41,20 @@
 
     SI F gather(const float* p, U32 ix) { return p[ix]; }
 
+    SI void load4(const void* vptr, U16* r, U16* g, U16* b, U16* a) {
+        auto ptr = (const uint16_t*)vptr;
+        *r = ptr[0];
+        *g = ptr[1];
+        *b = ptr[2];
+        *a = ptr[3];
+    }
+
+    SI F from_half(U16 h) {
+        if ((int16_t)h < 0x0400) { h = 0; }   // Flush denorm and negative to zero.
+        return bit_cast<F>(h << 13)           // Line up the mantissa,
+             * bit_cast<F>(U32(0x77800000));  // then fix up the exponent.
+    }
+
 #elif defined(__aarch64__)
     #include <arm_neon.h>
 
@@ -66,6 +80,18 @@
     SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
     SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+
+    SI void load4(const void* ptr, U16* r, U16* g, U16* b, U16* a) {
+        uint16x4x4_t rgba = vld4_u16((const uint16_t*)ptr);
+        *r = rgba.val[0];
+        *g = rgba.val[1];
+        *b = rgba.val[2];
+        *a = rgba.val[3];
+    }
+
+    SI F from_half(U16 h) {
+        return vcvt_f32_f16(h);
+    }
 
 #elif defined(__arm__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
@@ -98,6 +124,24 @@
     }
 
     SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
+
+    SI void load4(const void* vptr, U16* r, U16* g, U16* b, U16* a) {
+        auto ptr = (const uint16_t*)vptr;
+        uint16x4x4_t rgba;
+        rgba = vld4_lane_u16(ptr + 0, rgba, 0);
+        rgba = vld4_lane_u16(ptr + 4, rgba, 1);
+        *r = unaligned_load<U16>(rgba.val+0);
+        *g = unaligned_load<U16>(rgba.val+1);
+        *b = unaligned_load<U16>(rgba.val+2);
+        *a = unaligned_load<U16>(rgba.val+3);
+    }
+
+    SI F from_half(U16 h) {
+        uint16x4_t v;
+        memcpy(&v, &h, sizeof(h));
+        float32x4_t w = vcvt_f32_f16(v);
+        return unaligned_load<F>(&w);
+    }
 
 #elif defined(__AVX__)
     #include <immintrin.h>
