@@ -634,31 +634,7 @@ STAGE(load_f16) {
 STAGE(store_f16) {
     auto ptr = *(uint64_t**)ctx + x;
 
-#if !defined(JUMPER)
-    auto float_to_half = [&](F f) {
-        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-            >> 13;                                                // then line up the mantissa.
-    };
-    auto rgba = (int16_t*)ptr;
-    rgba[0] = float_to_half(r);
-    rgba[1] = float_to_half(g);
-    rgba[2] = float_to_half(b);
-    rgba[3] = float_to_half(a);
-#elif defined(__aarch64__)
-    float16x4x4_t halfs = {{
-        vcvt_f16_f32(r),
-        vcvt_f16_f32(g),
-        vcvt_f16_f32(b),
-        vcvt_f16_f32(a),
-    }};
-    vst4_f16((float16_t*)ptr, halfs);
-#elif defined(__arm__)
-    float16x4x2_t rb_ga = {{
-        vcvt_f16_f32(float32x4_t{r[0], b[0], r[1], b[1]}),
-        vcvt_f16_f32(float32x4_t{g[0], a[0], g[1], a[1]}),
-    }};
-    vst2_f16((float16_t*)ptr, rb_ga);
-#elif defined(__AVX2__) && defined(__FMA__) && defined(__F16C__)
+#if defined(JUMPER) && defined(__AVX2__)
     auto R = _mm256_cvtps_ph(r, _MM_FROUND_CUR_DIRECTION),
          G = _mm256_cvtps_ph(g, _MM_FROUND_CUR_DIRECTION),
          B = _mm256_cvtps_ph(b, _MM_FROUND_CUR_DIRECTION),
@@ -689,7 +665,7 @@ STAGE(store_f16) {
         _mm_storeu_si128((__m128i*)ptr + 2, _45);
         _mm_storeu_si128((__m128i*)ptr + 3, _67);
     }
-#elif defined(__AVX__)
+#elif defined(JUMPER) && defined(__AVX__)
     auto float_to_half = [&](F f) {
         return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
             >> 13;                                                // then line up the mantissa.
@@ -731,19 +707,11 @@ STAGE(store_f16) {
         _mm_storeu_si128((__m128i*)ptr + 2, _45);
         _mm_storeu_si128((__m128i*)ptr + 3, _67);
     }
-#elif defined(__SSE2__)
-    auto float_to_half = [&](F f) {
-        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-            >> 13;                                                // then line up the mantissa.
-    };
-    U32 R = float_to_half(r),
-        G = float_to_half(g),
-        B = float_to_half(b),
-        A = float_to_half(a);
-    U32 rg = R | _mm_slli_si128(G,2),
-        ba = B | _mm_slli_si128(A,2);
-    _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg, ba));
-    _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg, ba));
+#else
+    store4(ptr,tail, to_half(r)
+                   , to_half(g)
+                   , to_half(b)
+                   , to_half(a));
 #endif
 }
 
