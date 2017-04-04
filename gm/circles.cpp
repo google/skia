@@ -208,3 +208,95 @@ static GM* MyFactory(void*) { return new CircleGM; }
 static GMRegistry reg(MyFactory);
 
 }
+
+DEF_SIMPLE_GM(readpixels, canvas, 256,256) {
+    canvas->clear(0x8055aaff);
+    for (SkAlphaType alphaType : { kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {
+        uint32_t pixel = 0;
+        SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, alphaType);
+        if (canvas->readPixels(info, &pixel, 4, 0, 0)) {
+            SkDebugf("pixel = %08x\n", pixel);
+        }
+    }
+}
+
+DEF_SIMPLE_GM(readpixels2, canvas, 256,256) {
+    canvas->clear(0x8055aaff);
+    SkBitmap bitmap;
+    bitmap.setInfo(canvas->imageInfo());
+    canvas->readPixels(SkIRect::MakeWH(1, 1), &bitmap);
+    SkDebugf("pixel = %08x\n", bitmap.getAddr32(0, 0)[0]);
+ }
+
+DEF_SIMPLE_GM(writepixels, canvas, 256,256) {
+    SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(2, 2);
+    SkBitmap bitmap;
+    bitmap.setInfo(imageInfo);
+    uint32_t pixels[] = {0x3399dd33, 0x6699dd33, 0x9999dd33, 0xCC99dd33}; 
+    bitmap.setPixels(pixels);
+    for (int y = 0; y < 256; y += 2) {
+    for (int x = 0; x < 256;  x += 2) {
+
+    canvas->writePixels(bitmap, x, y);
+}
+}
+    canvas->drawColor(0x80eebb99);
+}
+
+DEF_SIMPLE_GM(savelcd, canvas, 256,256) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setLCDRenderText(true);
+    paint.setTextSize(20);
+    canvas->clear(SK_ColorWHITE);
+    for (auto preserve : { false, true } ) {
+        preserve ? canvas->saveLayerPreserveLCDTextRequests(nullptr, nullptr)
+                 : canvas->saveLayer(nullptr, nullptr);
+            canvas->drawText("Hamburgefons", 12, 30, 60, paint);
+
+        SkPaint p;
+        p.setColor(0xFFCCCCCC);
+        canvas->drawRect(SkRect::MakeLTRB(25, 70, 200, 100), p);
+        canvas->drawText("Hamburgefons", 12, 30, 90, paint);
+
+        canvas->restore();
+        canvas->translate(0, 80);
+    }
+}
+
+DEF_SIMPLE_GM(accessTopLayerPixels, canvas, 256,256) {
+  SkPaint paint;
+  paint.setTextSize(100);
+  canvas->clear(SK_ColorWHITE);
+  canvas->drawText("ABC", 3, 20, 160, paint);
+  SkRect layerBounds = SkRect::MakeXYWH(96, 96, 64, 64);
+  canvas->saveLayerAlpha(&layerBounds, 160);
+  canvas->clear(SK_ColorWHITE);
+  canvas->drawText("DEF", 3, 20, 160, paint);
+  SkImageInfo imageInfo;
+  size_t rowBytes;
+  SkIPoint origin;
+  uint32_t* access = (uint32_t*) canvas->accessTopLayerPixels(&imageInfo, &rowBytes, &origin);
+  if (access) {
+    int h = imageInfo.height();
+    int v = imageInfo.width();
+    int rowWords = rowBytes / sizeof(uint32_t);
+    for (int y = 0; y < h; ++y) {
+        int newY = (y - h / 2) * 2 + h / 2;
+        if (newY < 0 || newY >= h) {
+            continue;
+        }
+        for (int x = 0; x < v; ++x) {
+            int newX = (x - v / 2) * 2 + v / 2;
+            if (newX < 0 || newX >= v) {
+                continue;
+            }
+            if (access[y * rowWords + x] == SK_ColorBLACK) {
+                access[newY * rowWords + newX] = SK_ColorGRAY;
+            }
+        }
+    }
+
+  }
+  canvas->restore();
+}
