@@ -66,6 +66,7 @@ public:
     virtual GrRenderTarget* asRenderTarget() { return NULL; }
     virtual const GrRenderTarget* asRenderTarget() const { return NULL; }
 
+#if 0
     /**
      * Reads a rectangle of pixels from the surface, possibly performing color space conversion.
      * @param srcColorSpace color space of the source data (this surface)
@@ -165,6 +166,7 @@ public:
         return this->writePixels(nullptr, left, top, width, height, config, nullptr, buffer,
                                  rowBytes, pixelOpsFlags);
     }
+#endif
 
     /** Access methods that are only to be used within Skia code. */
     inline GrSurfacePriv surfacePriv();

@@ -39,7 +39,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_offscreen_rt(GrResourceProvider* provi
                                                        SkBudgeted budgeted) {
     SkASSERT(kRenderTarget_GrSurfaceFlag == desc.fFlags);
 
-    sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted));
+    sk_sp<GrTexture> tex(provider->createTexture1(desc, budgeted));
 
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
@@ -47,7 +47,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_offscreen_rt(GrResourceProvider* provi
 static sk_sp<GrSurfaceProxy> make_wrapped_texture(GrResourceProvider* provider,
                                                   const GrSurfaceDesc& desc,
                                                   SkBudgeted budgeted) {
-    sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted));
+    sk_sp<GrTexture> tex(provider->createTexture1(desc, budgeted));
 
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }

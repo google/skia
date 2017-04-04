@@ -47,10 +47,10 @@ public:
      * @param texels        A contiguous array of mipmap levels
      * @param mipLevelCount The amount of elements in the texels array
      */
-    GrTexture* createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                      const GrMipLevel* texels, int mipLevelCount,
-                                      uint32_t flags = 0,
-                                      SkDestinationSurfaceColorMode mipColorMode =
+    sk_sp<GrTextureProxy> createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                 const GrMipLevel* texels, int mipLevelCount,
+                                                 uint32_t flags = 0,
+                                                 SkDestinationSurfaceColorMode mipColorMode =
                                                         SkDestinationSurfaceColorMode::kLegacy);
 
     /**
@@ -62,12 +62,15 @@ public:
      *                  implies tightly packed rows. For compressed pixel configs, this
      *                  field is ignored.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* srcData,
-                             size_t rowBytes, uint32_t flags = 0);
+    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                             const void* srcData,
+                                             size_t rowBytes, uint32_t flags = 0);
 
     /** Shortcut for creating a texture with no initial data to upload. */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, uint32_t flags = 0) {
-        return this->createTexture(desc, budgeted, nullptr, 0, flags);
+    GrTexture* createTexture1(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                              uint32_t flags = 0) {
+        return nullptr;
+//        return this->createTextureProxy(desc, budgeted, nullptr, 0, flags);
     }
 
     /** Assigns a unique key to the texture. The texture will be findable via this key using
