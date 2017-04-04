@@ -1638,7 +1638,7 @@ protected:
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::onSetData();
      */
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
     virtual void emitLightFunc(GrGLSLUniformHandler*,
                                GrGLSLFPFragmentBuilder*,
@@ -1660,7 +1660,7 @@ public:
     void emitLightFunc(GrGLSLUniformHandler*, GrGLSLFPFragmentBuilder*, SkString* funcName) override;
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1675,7 +1675,7 @@ public:
     void emitLightFunc(GrGLSLUniformHandler*, GrGLSLFPFragmentBuilder*, SkString* funcName) override;
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1891,7 +1891,7 @@ void GrGLLightingEffect::GenKey(const GrProcessor& proc,
 }
 
 void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                   const GrProcessor& proc) {
+                                   const GrFragmentProcessor& proc) {
     const GrLightingEffect& lighting = proc.cast<GrLightingEffect>();
     if (!fLight) {
         fLight = lighting.light()->createGLLight();
@@ -1936,7 +1936,7 @@ void GrGLDiffuseLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHandl
 }
 
 void GrGLDiffuseLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                          const GrProcessor& proc) {
+                                          const GrFragmentProcessor& proc) {
     INHERITED::onSetData(pdman, proc);
     const GrDiffuseLightingEffect& diffuse = proc.cast<GrDiffuseLightingEffect>();
     pdman.set1f(fKDUni, diffuse.kd());
@@ -2038,7 +2038,7 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHand
 }
 
 void GrGLSpecularLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                           const GrProcessor& effect) {
+                                           const GrFragmentProcessor& effect) {
     INHERITED::onSetData(pdman, effect);
     const GrSpecularLightingEffect& spec = effect.cast<GrSpecularLightingEffect>();
     pdman.set1f(fKSUni, spec.ks());

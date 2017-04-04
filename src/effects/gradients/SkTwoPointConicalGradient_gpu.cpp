@@ -146,7 +146,7 @@ public:
     static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
     UniformHandle fParamUni;
 
@@ -284,8 +284,7 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
 }
 
 void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::onSetData(
-                    const GrGLSLProgramDataManager& pdman,
-                    const GrProcessor& processor) {
+        const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
     const Edge2PtConicalEffect& data = processor.cast<Edge2PtConicalEffect>();
     SkScalar radius0 = data.radius();
@@ -427,7 +426,7 @@ public:
     static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
     UniformHandle fParamUni;
 
@@ -555,8 +554,7 @@ void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::emitCode
 }
 
 void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::onSetData(
-                                            const GrGLSLProgramDataManager& pdman,
-                                            const GrProcessor& processor) {
+        const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
     const FocalOutside2PtConicalEffect& data = processor.cast<FocalOutside2PtConicalEffect>();
     SkASSERT(data.isFlipped() == fIsFlipped);
@@ -633,7 +631,7 @@ public:
     static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
     UniformHandle fFocalUni;
 
@@ -737,8 +735,7 @@ void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::emitCode(E
 }
 
 void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::onSetData(
-                                            const GrGLSLProgramDataManager& pdman,
-                                            const GrProcessor& processor) {
+        const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
     const FocalInside2PtConicalEffect& data = processor.cast<FocalInside2PtConicalEffect>();
     SkScalar focal = data.focal();
@@ -876,7 +873,7 @@ public:
     static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
     UniformHandle fCenterUni;
     UniformHandle fParamUni;
@@ -1003,8 +1000,7 @@ void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::emitCode
 }
 
 void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::onSetData(
-                                            const GrGLSLProgramDataManager& pdman,
-                                            const GrProcessor& processor) {
+        const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
     const CircleInside2PtConicalEffect& data = processor.cast<CircleInside2PtConicalEffect>();
     SkScalar centerX = data.centerX();
@@ -1107,7 +1103,7 @@ public:
     static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
     UniformHandle fCenterUni;
     UniformHandle fParamUni;
@@ -1259,8 +1255,7 @@ void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::emitCo
 }
 
 void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::onSetData(
-                                                const GrGLSLProgramDataManager& pdman,
-                                                const GrProcessor& processor) {
+        const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor) {
     INHERITED::onSetData(pdman, processor);
     const CircleOutside2PtConicalEffect& data = processor.cast<CircleOutside2PtConicalEffect>();
     SkASSERT(data.isFlipped() == fIsFlipped);

@@ -39,7 +39,8 @@ public:
         }
     }
 
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) final override {
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& proc) final override {
         if (!fDidIntercept) {
             this->setNormalData(pdman, proc);
         }
@@ -47,7 +48,7 @@ public:
 
 protected:
     virtual void onEmitCode(EmitArgs& args) = 0;
-    virtual void setNormalData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) = 0;
+    virtual void setNormalData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) = 0;
 
 private:
     bool fDidIntercept;

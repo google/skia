@@ -153,13 +153,14 @@ private:
                                 const GrGLSLExpr4& input,
                                 GrGLSLExpr4* output);
     void emitAndInstallXferProc(const GrGLSLExpr4& colorIn, const GrGLSLExpr4& coverageIn);
-    void emitSamplersAndImageStorages(const GrProcessor& processor,
+    void emitSamplersAndImageStorages(const GrResourceIOProcessor& processor,
                                       SkTArray<SamplerHandle>* outTexSamplerHandles,
                                       SkTArray<SamplerHandle>* outBufferSamplerHandles,
                                       SkTArray<ImageStorageHandle>* outImageStorageHandles);
     SamplerHandle emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
                               GrShaderFlags visibility);
-    ImageStorageHandle emitImageStorage(const GrProcessor::ImageStorageAccess&, const char* name);
+    ImageStorageHandle emitImageStorage(const GrResourceIOProcessor::ImageStorageAccess&,
+                                        const char* name);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     bool checkSamplerCounts();
     bool checkImageStorageCounts();

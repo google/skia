@@ -112,7 +112,7 @@ public:
 
     protected:
         void setNormalData(const GrGLSLProgramDataManager& pdman,
-                           const GrProcessor& proc) override {
+                           const GrFragmentProcessor& proc) override {
             const NormalBevelFP& normalBevelFP = proc.cast<NormalBevelFP>();
 
             // Updating uniform if bevel type requires it and data has changed

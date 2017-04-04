@@ -121,7 +121,7 @@ void GrPipeline::init(const InitArgs& args) {
 
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
     GrFragmentProcessor::TextureAccessIter iter(proc);
-    while (const GrProcessor::TextureSampler* sampler = iter.next()) {
+    while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
         SkASSERT(rt->getLastOpList());
         rt->getLastOpList()->addDependency(sampler->texture());
     }

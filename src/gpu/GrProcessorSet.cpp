@@ -210,4 +210,5 @@ void GrProcessorSet::analyzeAndEliminateFragmentProcessors(
                  fFragmentProcessors.count());
         analysis->fInitialColorProcessorsToEliminate = 0;
     }
+    this->makePendingExecution();
 }

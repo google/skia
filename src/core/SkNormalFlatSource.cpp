@@ -39,8 +39,7 @@ public:
         }
 
     protected:
-        void setNormalData(const GrGLSLProgramDataManager& pdman,
-                           const GrProcessor& proc) override {}
+        void setNormalData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override {}
     };
 
     const char* name() const override { return "NormalFlatFP"; }
