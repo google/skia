@@ -107,7 +107,7 @@ static SkImageSubset make_image_subset(const SkBitmap& bitmap) {
     SkAutoLockPixels autoLockPixels(bitmap);
     SkASSERT(bitmap.pixelRef());
     SkBitmap tmp;
-    tmp.setInfo(bitmap.pixelRef()->info(), bitmap.rowBytes());
+    tmp.setInfo(bitmap.info(), bitmap.rowBytes());
     tmp.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
     tmp.lockPixels();
     auto img = SkImage::MakeFromBitmap(tmp);

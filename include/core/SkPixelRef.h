@@ -35,12 +35,24 @@ class SkDiscardableMemory;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
-    explicit SkPixelRef(const SkImageInfo&);
+    explicit SkPixelRef(int width, int height, SkColorType colorType);
     virtual ~SkPixelRef();
+
+    int width() const { return fWidth; }
+    int height() const { return fHeight; }
+    SkColorType colorType() const { return fColorType; }
+
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_API
+    explicit SkPixelRef(const SkImageInfo& info)
+        : SkPixelRef(fInfo.width(), fInfo.height(), fInfo.colorType())
+    {
+        fInfo = info;
+    }
 
     const SkImageInfo& info() const {
         return fInfo;
     }
+#endif
 
     /** Return the pixel memory returned from lockPixels, or null if the
         lockCount is 0.
@@ -126,13 +138,6 @@ public:
      *  getGenerationID().
      */
     void notifyPixelsChanged();
-
-    /**
-     *  Change the info's AlphaType. Note that this does not automatically
-     *  invalidate the generation ID. If the pixel values themselves have
-     *  changed, then you must explicitly call notifyPixelsChanged() as well.
-     */
-    void changeAlphaType(SkAlphaType at);
 
     /** Returns true if this pixelref is marked as immutable, meaning that the
         contents of its pixels will not change for the lifetime of the pixelref.
@@ -247,14 +252,6 @@ protected:
     /** Default impl returns true */
     virtual bool onLockPixelsAreWritable() const;
 
-    /**
-     *  For pixelrefs that don't have access to their raw pixels, they may be
-     *  able to make a copy of them (e.g. if the pixels are on the GPU).
-     *
-     *  The base class implementation returns false;
-     */
-    virtual bool onReadPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subsetOrNull);
-
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
 
@@ -283,14 +280,19 @@ protected:
     void setPreLocked(void*, size_t rowBytes, SkColorTable*);
 
 private:
-    mutable SkMutex fMutex;
+    mutable SkMutex   fMutex;
 
-    // mostly const. fInfo.fAlpahType can be changed at runtime.
-    const SkImageInfo fInfo;
+    const int         fWidth;
+    const int         fHeight;
+    const SkColorType fColorType;
+
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_API
+    SkImageInfo       fInfo;
+#endif
 
     // LockRec is only valid if we're in a locked state (isLocked())
-    LockRec         fRec;
-    int             fLockCount;
+    LockRec           fRec;
+    int               fLockCount;
 
     bool lockPixelsInsideMutex();
 
