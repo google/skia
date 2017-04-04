@@ -39,8 +39,16 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     , fCommandPool(VK_NULL_HANDLE)
     , fBackbuffers(nullptr) {
 
+    GrVkInterface::GetProc proc = [](const char* proc_name,
+                                   VkInstance instance, VkDevice device) {
+        if (device != VK_NULL_HANDLE) {
+            return vkGetDeviceProcAddr(device, proc_name);
+        }
+        return vkGetInstanceProcAddr(instance, proc_name);
+    };
+
     // any config code here (particularly for msaa)?
-    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
+    fBackendContext.reset(GrVkBackendContext::Create(proc, &fPresentQueueIndex, canPresent));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
         !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {

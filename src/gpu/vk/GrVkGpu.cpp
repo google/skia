@@ -7,6 +7,8 @@
 
 #include "GrVkGpu.h"
 
+#include <unistd.h>
+
 #include "GrContextOptions.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -75,14 +77,7 @@ GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
                        GrContext* context) {
     const GrVkBackendContext* vkBackendContext =
         reinterpret_cast<const GrVkBackendContext*>(backendContext);
-    if (!vkBackendContext) {
-        vkBackendContext = GrVkBackendContext::Create();
-        if (!vkBackendContext) {
-            return nullptr;
-        }
-    } else {
-        vkBackendContext->ref();
-    }
+    SkASSERT(vkBackendContext != nullptr);
 
     if (!vkBackendContext->fInterface->validate(vkBackendContext->fExtensions)) {
         return nullptr;
@@ -1380,7 +1375,7 @@ inline bool can_copy_image(const GrSurface* dst,
         }
     }
 
-    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src 
+    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
     // as image usage flags.
     if (src->origin() == dst->origin() &&
         GrBytesPerPixel(src->config()) == GrBytesPerPixel(dst->config())) {
