@@ -236,11 +236,6 @@ class GrXPFactory {
 public:
     typedef GrXferProcessor::DstTexture DstTexture;
 
-    GrXferProcessor* createXferProcessor(const GrProcessorAnalysisColor&,
-                                         GrProcessorAnalysisCoverage,
-                                         bool hasMixedSamples,
-                                         const GrCaps& caps) const;
-
     enum class AnalysisProperties : unsigned {
         kNone = 0x0,
         /**
@@ -273,6 +268,12 @@ public:
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 
+    static sk_sp<GrXferProcessor> MakeXferProcessor(const GrXPFactory*,
+                                                    const GrProcessorAnalysisColor&,
+                                                    GrProcessorAnalysisCoverage,
+                                                    bool hasMixedSamples,
+                                                    const GrCaps& caps);
+
     static AnalysisProperties GetAnalysisProperties(const GrXPFactory*,
                                                     const GrProcessorAnalysisColor&,
                                                     const GrProcessorAnalysisCoverage&,
@@ -282,10 +283,10 @@ protected:
     constexpr GrXPFactory() {}
 
 private:
-    virtual GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                                   const GrProcessorAnalysisColor&,
-                                                   GrProcessorAnalysisCoverage,
-                                                   bool hasMixedSamples) const = 0;
+    virtual sk_sp<GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                     GrProcessorAnalysisCoverage,
+                                                     bool hasMixedSamples,
+                                                     const GrCaps&) const = 0;
 
     /**
      * Subclass analysis implementation. This should not return kNeedsDstInTexture as that will be
