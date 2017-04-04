@@ -14,7 +14,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "ops/GrClearOp.h"
-#include "ops/GrClearStencilClipOp.h"
 #include "ops/GrCopySurfaceOp.h"
 #include "ops/GrDiscardOp.h"
 #include "instanced/InstancedRendering.h"
@@ -74,16 +73,21 @@ void GrRenderTargetOpList::dump() const {
 }
 
 void GrRenderTargetOpList::validateTargetsSingleRenderTarget() const {
-    GrRenderTarget* rt = nullptr;
+    GrRenderTarget* rt1 = nullptr;
+    GrSurfaceProxy::UniqueID id = GrSurfaceProxy::UniqueID::InvalidID();
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (!fRecordedOps[i].fOp) {
             continue;       // combined forward
         }
 
-        if (!rt) {
-            rt = fRecordedOps[i].fRenderTarget.get();
+        if (id.isInvalid()) {
+            SkASSERT(!rt1);
+            id = fRecordedOps[i].fProxyUniqueID;
+            rt1 = fRecordedOps[i].fRenderTarget1.get();
         } else {
-            SkASSERT(fRecordedOps[i].fRenderTarget.get() == rt);
+            SkASSERT(rt1);
+            SkASSERT(fRecordedOps[i].fRenderTarget1.get() == rt1);
+            SkASSERT(fRecordedOps[i].fProxyUniqueID == id);
         }
     }
 }
@@ -96,9 +100,11 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i].fOp) {
             GrOpFlushState::DrawOpArgs opArgs;
-            if (fRecordedOps[i].fRenderTarget) {
+            SkASSERT(SkToBool(fRecordedOps[i].fRenderTarget1.get()) ==
+                     !fRecordedOps[i].fProxyUniqueID.isInvalid());
+            if (fRecordedOps[i].fRenderTarget1) {
                 opArgs = {
-                    fRecordedOps[i].fRenderTarget.get(),
+                    fRecordedOps[i].fRenderTarget1.get(),
                     fRecordedOps[i].fAppliedClip,
                     fRecordedOps[i].fDstTexture
                 };
@@ -123,20 +129,25 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     }
     // Draw all the generated geometry.
     SkRandom random;
-    const GrRenderTarget* currentRenderTarget = nullptr;
+    const GrRenderTarget* currentRenderTarget1 = nullptr;
+    GrSurfaceProxy::UniqueID currentProxyID = GrSurfaceProxy::UniqueID::InvalidID();
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
-        if (fRecordedOps[i].fRenderTarget.get() != currentRenderTarget) {
+        SkASSERT((fRecordedOps[i].fRenderTarget1.get() != currentRenderTarget1) ==
+                 (fRecordedOps[i].fProxyUniqueID != currentProxyID));
+        if (fRecordedOps[i].fRenderTarget1.get() != currentRenderTarget1) {
             if (commandBuffer) {
                 commandBuffer->end();
                 commandBuffer->submit();
                 commandBuffer.reset();
             }
-            currentRenderTarget = fRecordedOps[i].fRenderTarget.get();
-            if (currentRenderTarget) {
+            currentRenderTarget1 = fRecordedOps[i].fRenderTarget1.get();
+            currentProxyID = fRecordedOps[i].fProxyUniqueID;
+            SkASSERT(SkToBool(currentRenderTarget1) == !currentProxyID.isInvalid());
+            if (currentRenderTarget1) {
                 static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
                     { GrGpuCommandBuffer::LoadOp::kLoad,GrGpuCommandBuffer::StoreOp::kStore,
                       GrColor_ILLEGAL };
@@ -146,9 +157,12 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             flushState->setCommandBuffer(commandBuffer.get());
         }
         GrOpFlushState::DrawOpArgs opArgs;
-        if (fRecordedOps[i].fRenderTarget) {
+
+        SkASSERT(SkToBool(fRecordedOps[i].fRenderTarget1.get()) ==
+                 !fRecordedOps[i].fProxyUniqueID.isInvalid());
+        if (fRecordedOps[i].fRenderTarget1) {
             opArgs = {
-                fRecordedOps[i].fRenderTarget.get(),
+                fRecordedOps[i].fRenderTarget1.get(),
                 fRecordedOps[i].fAppliedClip,
                 fRecordedOps[i].fDstTexture
             };
@@ -229,8 +243,11 @@ void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
     // Currently this just inserts a discard op. However, once in MDB this can remove all the
     // previously recorded ops and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        this->recordOp(GrDiscardOp::Make(renderTargetContext->accessRenderTarget()),
-                       renderTargetContext);
+        std::unique_ptr<GrOp> op(GrDiscardOp::Make(renderTargetContext));
+        if (!op) {
+            return;
+        }
+        this->recordOp(std::move(op), renderTargetContext);
     }
 }
 
@@ -287,9 +304,12 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                                      GrRenderTargetContext* renderTargetContext,
                                      GrAppliedClip* clip,
                                      const DstTexture* dstTexture) {
-    GrRenderTarget* renderTarget =
+    GrRenderTarget* renderTarget1 =
             renderTargetContext ? renderTargetContext->accessRenderTarget()
                                 : nullptr;
+    GrSurfaceProxy::UniqueID proxyID =
+            renderTargetContext ? renderTargetContext->asSurfaceProxy()->uniqueID()
+                                : GrSurfaceProxy::UniqueID::InvalidID();
 
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
@@ -298,32 +318,34 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTarget->uniqueID(),
-                          renderTargetContext->asRenderTargetProxy()->uniqueID());
-    GrOP_INFO("Recording (%s, B%u)\n"
-              "\tBounds LRTB (%f, %f, %f, %f)\n",
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTarget1->uniqueID(), proxyID);
+    GrOP_INFO("Recording (%s, opID: %u)\n"
+              "\tBounds: [L: %f T: %f R: %f B: %f]\n",
                op->name(),
                op->uniqueID(),
-               op->bounds().fLeft, op->bounds().fRight,
-               op->bounds().fTop, op->bounds().fBottom);
+               op->bounds().fLeft, op->bounds().fTop,
+               op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", op->bounds().fLeft,
               op->bounds().fTop, op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
     // If we don't have a valid destination render target then we cannot reorder.
-    if (maxCandidates && renderTarget) {
+    if (maxCandidates && renderTarget1) {
         int i = 0;
         while (true) {
             const RecordedOp& candidate = fRecordedOps.fromBack(i);
             // We cannot continue to search backwards if the render target changes
-            if (candidate.fRenderTarget.get() != renderTarget) {
-                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n", candidate.fOp->name(),
+            SkASSERT((candidate.fRenderTarget1.get() != renderTarget1) ==
+                     (candidate.fProxyUniqueID != proxyID));
+            if (candidate.fRenderTarget1.get() != renderTarget1) {
+                GrOP_INFO("\t\tBreaking because of (%s, opID: %u) Rendertarget mismatch\n",
+                          candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
             }
             if (this->combineIfPossible(candidate, op.get(), clip, dstTexture)) {
-                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tCombining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GrOP_INFO("\t\t\tCombined op info:\n");
                 GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
@@ -332,7 +354,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
             }
             // Stop going backwards if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps.fromBack(i).fOp->bounds(), op->bounds())) {
-                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tIntersects with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
             }
@@ -349,7 +371,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     if (clip) {
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
     }
-    fRecordedOps.emplace_back(std::move(op), renderTarget, clip, dstTexture);
+    fRecordedOps.emplace_back(std::move(op), renderTarget1, proxyID, clip, dstTexture);
     fRecordedOps.back().fOp->wasRecorded();
     fLastFullClearOp = nullptr;
     fLastFullClearResourceID.makeInvalid();
@@ -363,17 +385,23 @@ void GrRenderTargetOpList::forwardCombine() {
     }
     for (int i = 0; i < fRecordedOps.count() - 1; ++i) {
         GrOp* op = fRecordedOps[i].fOp.get();
-        GrRenderTarget* renderTarget = fRecordedOps[i].fRenderTarget.get();
+        GrRenderTarget* renderTarget1 = fRecordedOps[i].fRenderTarget1.get();
+        GrSurfaceProxy::UniqueID proxyID = fRecordedOps[i].fProxyUniqueID;
+
+        SkASSERT(SkToBool(renderTarget1) == !proxyID.isInvalid());
         // If we don't have a valid destination render target ID then we cannot reorder.
-        if (!renderTarget) {
+        if (!renderTarget1) {
             continue;
         }
         int maxCandidateIdx = SkTMin(i + fMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
         while (true) {
             const RecordedOp& candidate = fRecordedOps[j];
+
+            SkASSERT((candidate.fRenderTarget1.get() != renderTarget1) ==
+                     (candidate.fProxyUniqueID != proxyID));
             // We cannot continue to search if the render target changes
-            if (candidate.fRenderTarget.get() != renderTarget) {
+            if (candidate.fRenderTarget1.get() != renderTarget1) {
                 GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
@@ -399,14 +427,4 @@ void GrRenderTargetOpList::forwardCombine() {
             }
         }
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void GrRenderTargetOpList::clearStencilClip(const GrFixedClip& clip,
-                                            bool insideStencilMask,
-                                            GrRenderTargetContext* renderTargetContext) {
-    this->recordOp(GrClearStencilClipOp::Make(clip, insideStencilMask,
-                                              renderTargetContext->accessRenderTarget()),
-                   renderTargetContext);
 }
