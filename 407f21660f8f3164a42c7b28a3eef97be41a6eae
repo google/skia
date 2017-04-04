@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87c3c07e_5115c198",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-04T14:18:22Z",
+      "side": 1,
+      "message": "This is the source of the update to all the GrGLSLFragmentProcessor subclasses. This could no longer be GrProcessor (which it shouldn\u0027t have been anyway).",
+      "range": {
+        "startLine": 197,
+        "startChar": 60,
+        "endLine": 197,
+        "endChar": 86
+      },
+      "revId": "407f21660f8f3164a42c7b28a3eef97be41a6eae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
