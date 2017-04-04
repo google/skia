@@ -39,7 +39,8 @@ def is_flutter(builder_cfg):
   return 'Flutter' in builder_cfg.get('extra_config', '')
 
 def is_ios(builder_cfg):
-  return 'iOS' == builder_cfg.get('os', '')
+  return ('iOS' == builder_cfg.get('extra_config', '') or
+          'iOS' == builder_cfg.get('os', ''))
 
 def is_pdfium(builder_cfg):
   return 'PDFium' in builder_cfg.get('extra_config', '')
@@ -73,6 +74,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     return self._f.step(name, cmd, **kwargs)
 
   def compile(self, target):
+    print "COMPILE STEP", target, self._f.compile
     return self._f.compile(target)
 
   def copy_extra_build_products(self, swarming_out_dir):
