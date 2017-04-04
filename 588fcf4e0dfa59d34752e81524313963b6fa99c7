@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f30c3c06_cd17618b",
+        "filename": "infra/bots/assets/armhf_sysroot/README.md",
+        "patchSetId": 17
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-04T17:35:57Z",
+      "side": 1,
+      "message": "I guess I\u0027m just a bit hesitant to \"randomly\" install things in a python script.  I\u0027d rather the user actually be aware of what is going on.  Maybe it\u0027s just me being silly.  WDYT? Would you prefer the script just do it?",
+      "parentUuid": "247f5c78_750a262d",
+      "range": {
+        "startLine": 4,
+        "startChar": 4,
+        "endLine": 4,
+        "endChar": 110
+      },
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71a62080_741dc44a",
         "filename": "infra/bots/assets/armhf_sysroot/create.py",
         "patchSetId": 17
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "20ea1fea_c954147d",
+        "filename": "infra/bots/assets/armhf_sysroot/create.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-04T17:35:57Z",
+      "side": 1,
+      "message": "The raw .so files have a line like:\nGROUP ( /usr/arm-linux-gnueabihf/lib/libpthread.so.0 /usr/arm-linux-gnueabihf/lib/libpthread_nonshared.a )\nThis doesn\u0027t work because the bots won\u0027t have those as an absolute path.  I replace those lines with\nGROUP ( libpthread.so.0 libpthread_nonshared.a )\n\nfileinput.input redirects stdout to be an inline replacement of the file contents, so printing here actually allows for a \none line replacement, while keeping the rest of the contents there.\n\nComment added to clarify.",
+      "parentUuid": "71a62080_741dc44a",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 16
+      },
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f65fa4b6_ccf58396",
         "filename": "infra/bots/assets/chromebook_c100p_lib/README.md",
         "patchSetId": 17
@@ -59,6 +107,30 @@
       "writtenOn": "2017-04-04T17:23:54Z",
       "side": 1,
       "message": "Same question: can we do this in create.py?",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 55
+      },
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5896d26d_15afacdd",
+        "filename": "infra/bots/assets/chromebook_c100p_lib/README.md",
+        "patchSetId": 17
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-04T17:35:57Z",
+      "side": 1,
+      "message": "Same comment as before.",
+      "parentUuid": "f65fa4b6_ccf58396",
       "range": {
         "startLine": 6,
         "startChar": 0,
@@ -118,6 +190,24 @@
       "side": 1,
       "message": "Let\u0027s do that as a separate CL?  First or afterwards?  It\u0027s a good time to switch to release_40 anyway.",
       "parentUuid": "f4ca4be6_8d72968a",
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92567c6c_3f74d842",
+        "filename": "infra/bots/assets/clang_linux/VERSION",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-04T17:35:57Z",
+      "side": 1,
+      "message": "Ok.  Will revert file.  We *should* be able to do it afterward.  I don\u0027t think I was hitting a clang bug.",
+      "parentUuid": "242f46b0_c30b4b5a",
       "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
