@@ -28,6 +28,14 @@ SI Dst bit_cast(const Src& src) {
     return unaligned_load<Dst>(&src);
 }
 
+template <typename Dst, typename Src>
+SI Dst widen_cast(const Src& src) {
+    static_assert(sizeof(Dst) > sizeof(Src), "");
+    Dst dst;
+    memcpy(&dst, &src, sizeof(Src));
+    return dst;
+}
+
 // A couple functions for embedding constants directly into code,
 // so that no .const or .literal4 section is created.
 SI int C(int x) {
