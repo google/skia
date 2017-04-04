@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2c2153_0e80972b",
+        "filename": "src/gpu/GrPrimitiveProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-04T13:07:35Z",
+      "side": 1,
+      "message": "The +2 was leftover from when there was also kDeviceCoords_Flag.",
+      "revId": "771f6c74f9cd9bb195ba01610f1abf2a3266d5f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
