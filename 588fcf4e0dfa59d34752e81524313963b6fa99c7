@@ -103,6 +103,24 @@
       "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "242f46b0_c30b4b5a",
+        "filename": "infra/bots/assets/clang_linux/VERSION",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-04T17:26:52Z",
+      "side": 1,
+      "message": "Let\u0027s do that as a separate CL?  First or afterwards?  It\u0027s a good time to switch to release_40 anyway.",
+      "parentUuid": "f4ca4be6_8d72968a",
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
