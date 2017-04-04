@@ -427,6 +427,12 @@
         "Housekeeper-PerCommit"
       ]
     },
+    "Housekeeper-PerCommit-BundleRecipes": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ]
+    },
     "Housekeeper-PerCommit-InfraTests": {
       "priority": 0.8,
       "tasks": [
@@ -4064,6 +4070,32 @@
       "isolate": "housekeeper_skia.isolate",
       "priority": 0.8
     },
+    "Housekeeper-PerCommit-BundleRecipes": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "bundle_recipes",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-PerCommit-BundleRecipes",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "bundle_recipes.isolate",
+      "priority": 0.95
+    },
     "Housekeeper-PerCommit-InfraTests": {
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -4137,7 +4169,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -4164,7 +4197,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4187,7 +4220,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -4214,7 +4248,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4237,7 +4271,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MMB29K",
@@ -4264,7 +4299,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4287,7 +4322,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MMB29K",
@@ -4314,7 +4350,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4337,7 +4373,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M_G930AUCS4BQC2",
@@ -4364,7 +4401,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4387,7 +4424,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M_G930AUCS4BQC2",
@@ -4414,7 +4452,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4437,7 +4475,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M_G930FXXU1DQAS",
@@ -4464,7 +4503,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4487,7 +4526,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M_G930FXXU1DQAS",
@@ -4514,7 +4554,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4537,7 +4577,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MPJ24.139-64",
@@ -4564,7 +4605,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4587,7 +4628,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MPJ24.139-64",
@@ -4614,7 +4656,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4637,7 +4679,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -4664,7 +4707,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4687,7 +4730,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -4714,7 +4758,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4737,7 +4781,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -4764,7 +4809,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4787,7 +4832,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -4814,7 +4860,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4837,7 +4883,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -4864,7 +4911,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4887,7 +4934,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -4914,7 +4962,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4937,7 +4985,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -4964,7 +5013,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -4987,7 +5036,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -5014,7 +5064,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5037,7 +5087,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:M4B30Z",
@@ -5064,7 +5115,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5087,7 +5138,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:M4B30Z",
@@ -5114,7 +5166,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5137,7 +5189,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -5164,7 +5217,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5187,7 +5240,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -5214,7 +5268,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5237,7 +5291,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -5264,7 +5319,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5287,7 +5342,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -5314,7 +5370,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5337,7 +5393,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY47V",
@@ -5364,7 +5421,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5387,7 +5444,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY47V",
@@ -5414,7 +5472,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5437,7 +5495,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Debug-Android"
+        "Build-Ubuntu-Clang-x86-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -5464,7 +5523,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5487,7 +5546,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Debug-Android"
+        "Build-Ubuntu-Clang-x86-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -5514,7 +5574,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5537,7 +5597,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Release-Android"
+        "Build-Ubuntu-Clang-x86-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -5564,7 +5625,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5587,7 +5648,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -5614,7 +5676,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5637,7 +5699,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -5664,7 +5727,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5687,7 +5750,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -5714,7 +5778,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5737,7 +5801,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -5764,7 +5829,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5787,7 +5852,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26H",
@@ -5814,7 +5880,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5837,7 +5903,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26H",
@@ -5864,7 +5931,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
+      "isolate": "perf_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5877,7 +5944,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26H",
@@ -5904,7 +5972,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "skpbench_skia.isolate",
+      "isolate": "skpbench_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -5917,7 +5985,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26H",
@@ -5944,7 +6013,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "skpbench_skia.isolate",
+      "isolate": "skpbench_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -9928,7 +9997,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -9955,7 +10025,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -9978,7 +10048,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -10005,7 +10076,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10028,7 +10099,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MMB29K",
@@ -10055,7 +10127,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10078,7 +10150,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MMB29K",
@@ -10105,7 +10178,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10128,7 +10201,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M_G930AUCS4BQC2",
@@ -10155,7 +10229,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10178,7 +10252,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M_G930AUCS4BQC2",
@@ -10205,7 +10280,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10228,7 +10303,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M_G930FXXU1DQAS",
@@ -10255,7 +10331,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10278,7 +10354,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M_G930FXXU1DQAS",
@@ -10305,7 +10382,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10328,7 +10405,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:JDQ39",
@@ -10355,7 +10433,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10378,7 +10456,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MPJ24.139-64",
@@ -10405,7 +10484,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10428,7 +10507,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:MPJ24.139-64",
@@ -10455,7 +10535,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10478,7 +10558,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -10505,7 +10586,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10528,7 +10609,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -10555,7 +10637,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10578,7 +10660,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -10605,7 +10688,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10628,7 +10711,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NRD90M",
@@ -10655,7 +10739,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10678,7 +10762,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -10705,7 +10790,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10728,7 +10813,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -10755,7 +10841,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10778,7 +10864,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -10805,7 +10892,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10828,7 +10915,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY49J",
@@ -10855,7 +10943,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10878,7 +10966,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:M4B30Z",
@@ -10905,7 +10994,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10928,7 +11017,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:M4B30Z",
@@ -10955,7 +11045,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -10978,7 +11068,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -11005,7 +11096,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11028,7 +11119,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -11055,7 +11147,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11078,7 +11170,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -11105,7 +11198,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11128,7 +11221,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -11155,7 +11249,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11178,7 +11272,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY47V",
@@ -11205,7 +11300,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11228,7 +11323,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android"
+        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:LMY47V",
@@ -11255,7 +11351,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11278,7 +11374,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Debug-Android"
+        "Build-Ubuntu-Clang-x86-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -11305,7 +11402,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11328,7 +11425,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Release-Android"
+        "Build-Ubuntu-Clang-x86-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -11355,7 +11453,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11378,7 +11476,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Debug-Android"
+        "Build-Ubuntu-Clang-x86-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -11405,7 +11504,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11428,7 +11527,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -11455,7 +11555,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11478,7 +11578,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Release-Android"
+        "Build-Ubuntu-Clang-x86-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -11505,7 +11606,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11528,7 +11629,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-x86-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:N2G10B",
@@ -11555,7 +11657,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11578,7 +11680,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26H",
@@ -11605,7 +11708,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11628,7 +11731,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26H",
@@ -11655,7 +11759,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11678,7 +11782,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -11705,7 +11810,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11728,7 +11833,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -11755,7 +11861,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11778,7 +11884,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -11805,7 +11912,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -11828,7 +11935,8 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
         "device_os:NMF26Q",
@@ -11855,7 +11963,7 @@
         "patch_set=<(PATCHSET)"
       ],
       "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
+      "isolate": "test_skia_bundled.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
