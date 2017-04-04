@@ -482,8 +482,8 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
 
     GrPipeline pipeline;
     GrPipeline::InitArgs args;
-    args.fInputColor = fAnalysisColor;
-    args.fInputCoverage = coverage;
+    args.fXPInputColor = fAnalysisColor;
+    args.fXPInputCoverage = coverage;
     args.fAppliedClip = clip;
     args.fCaps = &state->caps();
     args.fProcessors = &fProcessors;

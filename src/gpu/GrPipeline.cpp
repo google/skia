@@ -19,10 +19,6 @@
 #include "ops/GrOp.h"
 
 void GrPipeline::init(const InitArgs& args) {
-    if (args.fAnalysis) {
-        SkASSERT(args.fAnalysis->outputColor() == args.fInputColor);
-        SkASSERT(args.fAnalysis->outputCoverage() == args.fInputCoverage);
-    }
     SkASSERT(args.fRenderTarget);
 
     fRenderTarget.reset(args.fRenderTarget);
@@ -62,12 +58,12 @@ void GrPipeline::init(const InitArgs& args) {
         const GrXPFactory* xpFactory = args.fProcessors->xpFactory();
         if (xpFactory) {
             xferProcessor.reset(xpFactory->createXferProcessor(
-                    args.fInputColor, args.fInputCoverage, hasMixedSamples, *args.fCaps));
+                    args.fXPInputColor, args.fXPInputCoverage, hasMixedSamples, *args.fCaps));
             SkASSERT(xferProcessor);
         } else {
             // This may return nullptr in the common case of src-over implemented using hw blending.
             xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
-                    *args.fCaps, args.fInputColor, args.fInputCoverage, hasMixedSamples));
+                    *args.fCaps, args.fXPInputColor, args.fXPInputCoverage, hasMixedSamples));
         }
         fXferProcessor.reset(xferProcessor.get());
     }
@@ -76,25 +72,9 @@ void GrPipeline::init(const InitArgs& args) {
         fDstTextureOffset = args.fDstTexture.offset();
     }
 
-    // This is for the legacy GrPipeline creation in GrLegacyMeshDrawOp where analysis does not
-    // eliminate fragment processors from GrProcessorSet.
-    int colorFPsToEliminate = 0;
-    if (args.fAnalysis) {
-        GrColor overrideColor = GrColor_ILLEGAL;
-        colorFPsToEliminate =
-                args.fAnalysis->getInputColorOverrideAndColorProcessorEliminationCount(
-                        &overrideColor);
-        colorFPsToEliminate = SkTMax(colorFPsToEliminate, 0);
-        if (args.fAnalysis->isInputColorIgnored()) {
-            // No need to have an override color if it isn't even going to be used.
-            overrideColor = GrColor_ILLEGAL;
-            colorFPsToEliminate = args.fProcessors->numColorFragmentProcessors();
-        }
-    }
-
     // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline, possibly removing some of the
     // color fragment processors.
-    fNumColorProcessors = args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
+    fNumColorProcessors = args.fProcessors->numColorFragmentProcessors();
     int numTotalProcessors =
             fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
     if (args.fAppliedClip && args.fAppliedClip->clipCoverageFragmentProcessor()) {
@@ -102,8 +82,7 @@ void GrPipeline::init(const InitArgs& args) {
     }
     fFragmentProcessors.reset(numTotalProcessors);
     int currFPIdx = 0;
-    for (int i = colorFPsToEliminate; i < args.fProcessors->numColorFragmentProcessors();
-         ++i, ++currFPIdx) {
+    for (int i = 0; i < args.fProcessors->numColorFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
     }

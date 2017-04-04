@@ -766,7 +766,8 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, *args.fClip, std::move(op));
+    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
+                                                   std::move(op));
 
     return true;
 }

@@ -466,7 +466,7 @@ private:
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
     // dropped (e.g., due to clipping).
     uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
-    uint32_t addLegacyMeshDrawOp(const GrPipelineBuilder&, const GrClip&,
+    uint32_t addLegacyMeshDrawOp(GrPipelineBuilder&&, const GrClip&,
                                  std::unique_ptr<GrLegacyMeshDrawOp>);
 
     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should

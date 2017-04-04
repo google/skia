@@ -640,7 +640,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         }
         GrPipelineBuilder pipelineBuilder(std::move(firstPassPaint), aaType);
         pipelineBuilder.setUserStencil(passes[0]);
-        renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
     }
 
     if (passes[1]) {
@@ -669,7 +669,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
         pipelineBuilder.setUserStencil(passes[1]);
 
-        renderTargetContext->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
     }
     return true;
 }

@@ -310,7 +310,7 @@ inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrClip& 
                              distanceAdjustTable, rtc->isGammaCorrect(), cache));
         GrPipelineBuilder pipelineBuilder(std::move(grPaint), GrAAType::kNone);
 
-        rtc->addLegacyMeshDrawOp(pipelineBuilder, clip, std::move(op));
+        rtc->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
     }
 }
 
