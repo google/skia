@@ -181,7 +181,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #include "GrContext.h"
 #include "GrResourceProvider.h"
 
-static GrTexture* create_texture(GrContext* context) {
+static sk_sp<GrTextureProxy> create_texture(GrContext* context) {
     SkBitmap srcBM = create_bm();
 
     GrSurfaceDesc desc;
@@ -190,7 +190,8 @@ static GrTexture* create_texture(GrContext* context) {
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    return context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, srcBM.getPixels(), 0);
+    return context->resourceProvider()->createTextureProxy(desc, SkBudgeted::kNo,
+                                                           srcBM.getPixels(), srcBM.rowBytes());
 }
 
 static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) {
@@ -208,10 +209,14 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) 
                                         srcBM.rowBytes());
 }
 
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
-    sk_sp<GrTexture> srcTexture(create_texture(ctxInfo.grContext()));
-    if (!srcTexture) {
+    sk_sp<GrTextureProxy> srcProxy(create_texture(ctxInfo.grContext()));
+    if (!srcProxy) {
+        return;
+    }
+
+    GrTexture* tex = srcProxy->instantiate(ctxInfo.grContext()->resourceProvider());
+    if (!tex) {
         return;
     }
 
@@ -222,7 +227,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     backendDesc.fWidth = kFullSize;
     backendDesc.fHeight = kFullSize;
     backendDesc.fSampleCnt = 0;
-    backendDesc.fTextureHandle = srcTexture->getTextureHandle();
+    backendDesc.fTextureHandle = tex->getTextureHandle();
     sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(ctxInfo.grContext(),
                                                      backendDesc,
                                                      kPremul_SkAlphaType));
