@@ -46,7 +46,7 @@ GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (SkBackingFit::kApprox == fFit) {
         fTarget = resourceProvider->createApproxTexture(fDesc, fFlags);
     } else {
-        fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags);
+        fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags).release();
     }
     if (!fTarget) {
         return nullptr;
@@ -217,8 +217,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
                                                    size_t rowBytes) {
     if (srcData) {
         // If we have srcData, for now, we create a wrapped GrTextureProxy
-        sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted, srcData, rowBytes));
-        return GrSurfaceProxy::MakeWrapped(std::move(tex));
+        return resourceProvider->createTextureProxy(desc, budgeted, srcData, rowBytes);
     }
 
     return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, SkBackingFit::kExact, budgeted);
