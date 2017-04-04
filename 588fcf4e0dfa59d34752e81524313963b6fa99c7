@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "247f5c78_750a262d",
+        "filename": "infra/bots/assets/armhf_sysroot/README.md",
+        "patchSetId": 17
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-04T17:23:54Z",
+      "side": 1,
+      "message": "Any reason not to do this in create.py?",
+      "range": {
+        "startLine": 4,
+        "startChar": 4,
+        "endLine": 4,
+        "endChar": 110
+      },
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71a62080_741dc44a",
+        "filename": "infra/bots/assets/armhf_sysroot/create.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-04T17:23:54Z",
+      "side": 1,
+      "message": "I don\u0027t understand what this is doing.  It\u0027s just dumping the contents of these shared libraries?",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 16
+      },
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f65fa4b6_ccf58396",
+        "filename": "infra/bots/assets/chromebook_c100p_lib/README.md",
+        "patchSetId": 17
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-04T17:23:54Z",
+      "side": 1,
+      "message": "Same question: can we do this in create.py?",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 55
+      },
+      "revId": "588fcf4e0dfa59d34752e81524313963b6fa99c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e6248921_46824ecf",
         "filename": "infra/bots/assets/clang_linux/VERSION",
         "patchSetId": 17
