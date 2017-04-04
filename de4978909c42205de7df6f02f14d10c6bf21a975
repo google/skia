@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "407f2335_14b555aa",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-04T19:43:26Z",
+      "side": 1,
+      "message": "Why? (Because libwebp forces us to have an encoded image before we can add a profile?)",
+      "range": {
+        "startLine": 178,
+        "startChar": 7,
+        "endLine": 178,
+        "endChar": 83
+      },
+      "revId": "de4978909c42205de7df6f02f14d10c6bf21a975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a055cced_8f07ba46",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-04T19:43:26Z",
+      "side": 1,
+      "message": "nit: You didn\u0027t introduce this variable, but it seems a little fragile to me. What if we used e.g. SkAutoTCallVProc to ensure calling WebPPictureFree? Then we can remove it, and return when we want to (rather than using the variable to skip stuff).\n\nIn addition, what if we call a method that determines which version of WebPPictureImport to call? Then we can do something like:\n\n  // setup call to WebPPictureFree\n  auto import_proc \u003d ...\n  if (!import_proc(...) || !WebPEncode(...)) {\n    return false;\n  }",
+      "range": {
+        "startLine": 207,
+        "startChar": 9,
+        "endLine": 207,
+        "endChar": 11
+      },
+      "revId": "de4978909c42205de7df6f02f14d10c6bf21a975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d0a7409_a89b30e5",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-04T19:43:26Z",
+      "side": 1,
+      "message": "Should/can we switch to using std::unique_ptr directly?",
+      "range": {
+        "startLine": 216,
+        "startChar": 8,
+        "endLine": 216,
+        "endChar": 24
+      },
+      "revId": "de4978909c42205de7df6f02f14d10c6bf21a975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

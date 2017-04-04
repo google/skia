@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ded2e82d_2b11d60f",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-04T19:43:26Z",
+      "side": 0,
+      "message": "Why this change?",
+      "range": {
+        "startLine": 37,
+        "startChar": 3,
+        "endLine": 37,
+        "endChar": 72
+      },
+      "revId": "2084ffa9a3fa7eb3c7e17ec5b55750be9942bafc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
