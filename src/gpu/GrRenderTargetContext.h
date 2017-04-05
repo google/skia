@@ -469,12 +469,13 @@ private:
     uint32_t addLegacyMeshDrawOp(GrPipelineBuilder&&, const GrClip&,
                                  std::unique_ptr<GrLegacyMeshDrawOp>);
 
-    // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
-    // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
-    // a texture copy could not be made.
-    void setupDstTexture(GrRenderTarget*, const GrClip&, const SkRect& opBounds,
-                         GrXferProcessor::DstTexture*);
-
+    // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
+    // be used by GrXferProcessor to access the destination color in 'result'. If the return
+    // value is false then a texture copy could not be made.
+    bool SK_WARN_UNUSED_RESULT setupDstTexture(GrRenderTargetProxy*,
+                                               const GrClip&,
+                                               const SkRect& opBounds,
+                                               GrXferProcessor::DstTexture* result);
 
     GrRenderTargetOpList* getOpList();
 
