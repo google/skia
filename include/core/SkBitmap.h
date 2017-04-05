@@ -440,25 +440,6 @@ public:
      */
     void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
 
-#ifdef SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF
-    /**
-     *  Assign a pixelref and origin to the bitmap. Pixelrefs are reference,
-     *  so the existing one (if any) will be unref'd and the new one will be
-     *  ref'd. (x,y) specify the offset within the pixelref's pixels for the
-     *  top/left corner of the bitmap. For a bitmap that encompases the entire
-     *  pixels of the pixelref, these will be (0,0).
-     */
-    SkPixelRef* setPixelRef(SkPixelRef* pr, int dx, int dy);
-
-    SkPixelRef* setPixelRef(SkPixelRef* pr, const SkIPoint& origin) {
-        return this->setPixelRef(pr, origin.fX, origin.fY);
-    }
-
-    SkPixelRef* setPixelRef(SkPixelRef* pr) {
-        return this->setPixelRef(pr, 0, 0);
-    }
-#endif
-
     /** Call this to ensure that the bitmap points to the current pixel address
         in the pixelref. Balance it with a call to unlockPixels(). These calls
         are harmless if there is no pixelref.
