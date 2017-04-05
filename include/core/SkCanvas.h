@@ -150,13 +150,6 @@ public:
      */
     virtual SkISize getBaseLayerSize() const;
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
-    /**
-     *  DEPRECATED: call getBaseLayerSize
-     */
-    SkISize getDeviceSize() const { return this->getBaseLayerSize(); }
-#endif
-
     /**
      *  Create a new surface matching the specified info, one that attempts to
      *  be maximally compatible when used with this canvas. If there is no matching Surface type,
@@ -558,18 +551,6 @@ public:
         return !bounds->isEmpty();
     }
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
-    /** Fill the entire canvas' bitmap (restricted to the current clip) with the
-        specified ARGB color, using the specified mode.
-        @param a    the alpha component (0..255) of the color to fill the canvas
-        @param r    the red component (0..255) of the color to fill the canvas
-        @param g    the green component (0..255) of the color to fill the canvas
-        @param b    the blue component (0..255) of the color to fill the canvas
-        @param mode the mode to apply the color in (defaults to SrcOver)
-    */
-    void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode = SkBlendMode::kSrcOver);
-#endif
-
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified color and mode.
         @param color    the color to draw with
@@ -642,15 +623,6 @@ public:
      */
     void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint);
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
-    /** Draws a single pixel in the specified color.
-        @param x        The X coordinate of which pixel to draw
-        @param y        The Y coordiante of which pixel to draw
-        @param color    The color to draw
-    */
-    void drawPoint(SkScalar x, SkScalar y, SkColor color);
-#endif
-
     /** Draw a line segment with the specified start and stop x,y coordinates,
         using the specified paint. NOTE: since a line is always "framed", the
         paint's Style is ignored.
@@ -679,19 +651,6 @@ public:
         r.set(rect);    // promotes the ints to scalars
         this->drawRect(r, paint);
     }
-
-#ifdef SK_SUPPORT_LEGACY_CANVAS_HELPERS
-    /** Draw the specified rectangle using the specified paint. The rectangle
-        will be filled or framed based on the Style in the paint.
-        @param left     The left side of the rectangle to be drawn
-        @param top      The top side of the rectangle to be drawn
-        @param right    The right side of the rectangle to be drawn
-        @param bottom   The bottom side of the rectangle to be drawn
-        @param paint    The paint used to draw the rect
-    */
-    void drawRectCoords(SkScalar left, SkScalar top, SkScalar right,
-                        SkScalar bottom, const SkPaint& paint);
-#endif
 
     /** Draw the outline of the specified region using the specified paint.
         @param region   The region to be drawn
