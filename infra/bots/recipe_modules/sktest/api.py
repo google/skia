@@ -571,7 +571,7 @@ def test_steps(api):
                 urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:
               hashes = w.read()
               with open(sys.argv[1], 'w') as f:
-                f.write(hashes)
+                # f.write(hashes)
                 break
           except Exception as e:
             print 'Failed to get uninteresting hashes from %s:' % HASHES_URL
