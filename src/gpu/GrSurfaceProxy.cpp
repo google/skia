@@ -46,7 +46,7 @@ GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (SkBackingFit::kApprox == fFit) {
         fTarget = resourceProvider->createApproxTexture(fDesc, fFlags);
     } else {
-        fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags);
+        fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags).release();
     }
     if (!fTarget) {
         return nullptr;
@@ -216,9 +216,16 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
                                                    const void* srcData,
                                                    size_t rowBytes) {
     if (srcData) {
-        // If we have srcData, for now, we create a wrapped GrTextureProxy
-        sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted, srcData, rowBytes));
-        return GrSurfaceProxy::MakeWrapped(std::move(tex));
+        GrMipLevel tempTexels;
+        GrMipLevel* texels = nullptr;
+        int levelCount = 0;
+        if (srcData) {
+            tempTexels.fPixels = srcData;
+            tempTexels.fRowBytes = rowBytes;
+            texels = &tempTexels;
+            levelCount = 1;
+        }
+        return resourceProvider->createMipMappedTexture(desc, budgeted, texels, levelCount);
     }
 
     return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, SkBackingFit::kExact, budgeted);
