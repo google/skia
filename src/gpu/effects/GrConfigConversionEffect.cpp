@@ -10,7 +10,6 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
-#include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -19,59 +18,43 @@ class GrGLConfigConversionEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
         const GrConfigConversionEffect& cce = args.fFp.cast<GrConfigConversionEffect>();
-        GrConfigConversionEffect::PMConversion pmConversion = cce.pmConversion();
-
-        // Using highp for GLES here in order to avoid some precision issues on specific GPUs.
-        GrShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
-        SkString tmpDecl;
-        tmpVar.appendDecl(args.fShaderCaps, &tmpDecl);
-
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-        fragBuilder->codeAppendf("%s;", tmpDecl.c_str());
+        // Use highp throughout the shader to avoid some precision issues on specific GPUs.
+        fragBuilder->elevateDefaultPrecision(kHigh_GrSLPrecision);
 
-        fragBuilder->codeAppendf("%s = ", tmpVar.c_str());
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], args.fTransformedCoords[0].c_str(),
-                                         args.fTransformedCoords[0].getType());
-        fragBuilder->codeAppend(";");
+        if (nullptr == args.fInputColor) {
+            // could optimize this case, but we aren't for now.
+            args.fInputColor = "vec4(1)";
+        }
+        fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
 
-        switch (pmConversion) {
+        switch (cce.pmConversion()) {
             case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
-                fragBuilder->codeAppendf(
-                    "%s = vec4(ceil(%s.rgb * %s.a * 255.0) / 255.0, %s.a);",
-                    tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str());
+                fragBuilder->codeAppend(
+                    "color.rgb = ceil(color.rgb * color.a * 255.0) / 255.0;");
                 break;
             case GrConfigConversionEffect::kMulByAlpha_RoundDown_PMConversion:
                 // Add a compensation(0.001) here to avoid the side effect of the floor operation.
                 // In Intel GPUs, the integer value converted from floor(%s.r * 255.0) / 255.0
                 // is less than the integer value converted from  %s.r by 1 when the %s.r is
                 // converted from the integer value 2^n, such as 1, 2, 4, 8, etc.
-                fragBuilder->codeAppendf(
-                    "%s = vec4(floor(%s.rgb * %s.a * 255.0 + 0.001) / 255.0, %s.a);",
-                    tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str());
-
+                fragBuilder->codeAppend(
+                    "color.rgb = floor(color.rgb * color.a * 255.0 + 0.001) / 255.0;");
                 break;
             case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
-                fragBuilder->codeAppendf(
-                    "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(%s.rgb / %s.a * 255.0) / 255.0, %s.a);",
-                    tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(),
-                    tmpVar.c_str());
+                fragBuilder->codeAppend(
+                    "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : ceil(color.rgb / color.a * 255.0) / 255.0;");
                 break;
             case GrConfigConversionEffect::kDivByAlpha_RoundDown_PMConversion:
-                fragBuilder->codeAppendf(
-                    "%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.rgb / %s.a * 255.0) / 255.0, %s.a);",
-                    tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(), tmpVar.c_str(),
-                    tmpVar.c_str());
+                fragBuilder->codeAppend(
+                    "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : floor(color.rgb / color.a * 255.0) / 255.0;");
                 break;
             default:
                 SkFAIL("Unknown conversion op.");
                 break;
         }
-        fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, tmpVar.c_str());
-
-        SkString modulate;
-        GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
-        fragBuilder->codeAppend(modulate.c_str());
+        fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
     }
 
     static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,
@@ -87,17 +70,11 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-GrConfigConversionEffect::GrConfigConversionEffect(GrResourceProvider* resourceProvider,
-                                                   sk_sp<GrTextureProxy> proxy,
-                                                   PMConversion pmConversion,
-                                                   const SkMatrix& matrix)
-        : INHERITED(resourceProvider, kNone_OptimizationFlags, proxy, nullptr, matrix)
+
+GrConfigConversionEffect::GrConfigConversionEffect(PMConversion pmConversion)
+        : INHERITED(kNone_OptimizationFlags)
         , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
-    // We expect to get here with non-BGRA/RGBA only if we're doing not doing a premul/unpremul
-    // conversion.
-    SkASSERT(kRGBA_8888_GrPixelConfig == proxy->config() ||
-             kBGRA_8888_GrPixelConfig == proxy->config());
 }
 
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -112,10 +89,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
     PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
-    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(
-                            d->resourceProvider(),
-                            d->textureProxy(GrProcessorUnitTest::kSkiaPMTextureIdx),
-                            pmConv, GrTest::TestMatrix(d->fRandom)));
+    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(pmConv));
 }
 #endif
 
@@ -203,14 +177,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         GrPaint paint1;
         GrPaint paint2;
         GrPaint paint3;
-        sk_sp<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
-                resourceProvider, dataProxy, *pmToUPMRule, SkMatrix::I()));
-        sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
-                resourceProvider, readRTC->asTextureProxyRef(), *upmToPMRule, SkMatrix::I()));
-        sk_sp<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(
-                resourceProvider, tempRTC->asTextureProxyRef(), *pmToUPMRule, SkMatrix::I()));
+        sk_sp<GrFragmentProcessor> pmToUPM(new GrConfigConversionEffect(*pmToUPMRule));
+        sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(*upmToPMRule));
 
-        paint1.addColorFragmentProcessor(std::move(pmToUPM1));
+        paint1.addColorTextureProcessor(resourceProvider, dataProxy, nullptr, SkMatrix::I());
+        paint1.addColorFragmentProcessor(pmToUPM);
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kDstRect,
@@ -220,13 +191,17 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             continue;
         }
 
+        paint2.addColorTextureProcessor(resourceProvider, readRTC->asTextureProxyRef(), nullptr,
+                                        SkMatrix::I());
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kDstRect,
                                 kSrcRect);
 
-        paint3.addColorFragmentProcessor(std::move(pmToUPM2));
+        paint3.addColorTextureProcessor(resourceProvider, tempRTC->asTextureProxyRef(), nullptr,
+                                        SkMatrix::I());
+        paint3.addColorFragmentProcessor(std::move(pmToUPM));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kDstRect,
@@ -252,16 +227,12 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 }
 
-sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(GrResourceProvider* resourceProvider,
-                                                          sk_sp<GrTextureProxy> proxy,
-                                                          PMConversion pmConversion,
-                                                          const SkMatrix& matrix) {
-    if (kRGBA_8888_GrPixelConfig != proxy->config() &&
-        kBGRA_8888_GrPixelConfig != proxy->config()) {
-        // The PM conversions assume colors are 0..255
+sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(sk_sp<GrFragmentProcessor> fp,
+                                                          PMConversion pmConversion) {
+    if (!fp) {
         return nullptr;
     }
-    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(resourceProvider,
-                                                                   std::move(proxy),
-                                                                   pmConversion, matrix));
+    sk_sp<GrFragmentProcessor> ccFP(new GrConfigConversionEffect(pmConversion));
+    sk_sp<GrFragmentProcessor> fpPipeline[] = { fp, ccFP };
+    return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
