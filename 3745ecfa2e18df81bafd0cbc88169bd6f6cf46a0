@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "404106b3_e90e521c",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-05T15:24:38Z",
+      "side": 1,
+      "message": "I recommend \"in\" here instead of \u003d\u003d.  It\u0027ll work the same right now, but we\u0027re commonly seeing \"Android_Something\", so...",
+      "range": {
+        "startLine": 42,
+        "startChar": 16,
+        "endLine": 42,
+        "endChar": 18
+      },
+      "revId": "3745ecfa2e18df81bafd0cbc88169bd6f6cf46a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
