@@ -246,68 +246,6 @@ public:
      */
     void flush();
 
-   /**
-    * These flags can be used with the read/write pixels functions below.
-    */
-    enum PixelOpsFlags {
-        /** The GrContext will not be flushed before the surface read or write. This means that
-            the read or write may occur before previous draws have executed. */
-        kDontFlush_PixelOpsFlag = 0x1,
-        /** Any surface writes should be flushed to the backend 3D API after the surface operation
-            is complete */
-        kFlushWrites_PixelOp = 0x2,
-        /** The src for write or dst read is unpremultiplied. This is only respected if both the
-            config src and dst configs are an RGBA/BGRA 8888 format. */
-        kUnpremul_PixelOpsFlag  = 0x4,
-    };
-
-    /**
-     * Reads a rectangle of pixels from a surface.
-     * @param surface       the surface to read from.
-     * @param srcColorSpace color space of the surface
-     * @param left          left edge of the rectangle to read (inclusive)
-     * @param top           top edge of the rectangle to read (inclusive)
-     * @param width         width of rectangle to read in pixels.
-     * @param height        height of rectangle to read in pixels.
-     * @param config        the pixel config of the destination buffer
-     * @param dstColorSpace color space of the destination buffer
-     * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
-     *                      packed.
-     * @param pixelOpsFlags see PixelOpsFlags enum above.
-     *
-     * @return true if the read succeeded, false if not. The read can fail because of an unsupported
-     *         pixel configs
-     */
-    bool readSurfacePixels(GrSurface* surface, SkColorSpace* srcColorSpace,
-                           int left, int top, int width, int height,
-                           GrPixelConfig config, SkColorSpace* dstColorSpace, void* buffer,
-                           size_t rowBytes = 0,
-                           uint32_t pixelOpsFlags = 0);
-
-    /**
-     * Writes a rectangle of pixels to a surface.
-     * @param surface       the surface to write to.
-     * @param dstColorSpace color space of the surface
-     * @param left          left edge of the rectangle to write (inclusive)
-     * @param top           top edge of the rectangle to write (inclusive)
-     * @param width         width of rectangle to write in pixels.
-     * @param height        height of rectangle to write in pixels.
-     * @param config        the pixel config of the source buffer
-     * @param srcColorSpace color space of the source buffer
-     * @param buffer        memory to read pixels from
-     * @param rowBytes      number of bytes between consecutive rows. Zero
-     *                      means rows are tightly packed.
-     * @param pixelOpsFlags see PixelOpsFlags enum above.
-     * @return true if the write succeeded, false if not. The write can fail because of an
-     *         unsupported combination of surface and src configs.
-     */
-    bool writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
-                            int left, int top, int width, int height,
-                            GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
-                            size_t rowBytes,
-                            uint32_t pixelOpsFlags = 0);
-
     /**
      * An ID associated with this context, guaranteed to be unique.
      */

@@ -27,11 +27,10 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fSampleCnt = 0;
-    GrSurface* texRT1 = context->resourceProvider()->createTexture(
-            desc, SkBudgeted::kNo, nullptr, 0);
+    sk_sp<GrSurface> texRT1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
 
-    REPORTER_ASSERT(reporter, texRT1 == texRT1->asRenderTarget());
-    REPORTER_ASSERT(reporter, texRT1 == texRT1->asTexture());
+    REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
+    REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT1->asRenderTarget()) ==
                     texRT1->asTexture());
     REPORTER_ASSERT(reporter, texRT1->asRenderTarget() ==
@@ -40,10 +39,10 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     desc.fFlags = kNone_GrSurfaceFlags;
-    GrSurface* tex1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, nullptr, 0);
+    sk_sp<GrTexture> tex1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
-    REPORTER_ASSERT(reporter, tex1 == tex1->asTexture());
-    REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1) == tex1->asTexture());
+    REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
+    REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
     GrBackendObject backendTex = context->getGpu()->createTestingOnlyBackendTexture(
         nullptr, 256, 256, kRGBA_8888_GrPixelConfig);
@@ -66,8 +65,6 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
                     static_cast<GrSurface*>(texRT2->asTexture()));
 
-    texRT1->unref();
-    tex1->unref();
     context->getGpu()->deleteTestingOnlyBackendTexture(backendTex);
 }
 
