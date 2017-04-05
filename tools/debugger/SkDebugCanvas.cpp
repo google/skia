@@ -149,6 +149,7 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     return layer;
 }
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
 class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
 public:
     SkDebugClipVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
@@ -181,6 +182,7 @@ protected:
 private:
     typedef SkCanvas::ClipVisitor INHERITED;
 };
+#endif
 
 // set up the saveLayer commands so that the active ones
 // return true in their 'active' method
@@ -288,6 +290,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         filterCanvas.restore();
     }
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
     if (fMegaVizMode) {
         filterCanvas.save();
         // nuke the CTM
@@ -305,6 +308,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
         filterCanvas.restore();
     }
+#endif
     if (pathOpsMode) {
         this->resetClipStackData();
         const SkClipStack* clipStack = nullptr;//HACK filterCanvas.getClipStack();
