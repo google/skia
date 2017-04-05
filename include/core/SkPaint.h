@@ -114,11 +114,6 @@ public:
         // with a bit-width and you'll have to expand it.
 
         kAllFlags = 0xFFFF,
-
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
-        kUnderlineText_Flag   = 0x08,
-        kStrikeThruText_Flag  = 0x10,
-#endif
     };
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -237,20 +232,6 @@ public:
      *  horizontally.
      */
     void setVerticalText(bool);
-
-    /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
-        @return true if the underlineText bit is set in the paint's flags.
-    */
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
-    bool isUnderlineText() const { return false; }
-#endif
-
-    /** Helper for getFlags(), returns true if kStrikeThruText_Flag bit is set
-        @return true if the strikeThruText bit is set in the paint's flags.
-    */
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION
-    bool isStrikeThruText() const { return false; }
-#endif
 
     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
