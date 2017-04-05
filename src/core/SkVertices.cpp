@@ -169,7 +169,8 @@ sk_sp<SkData> SkVertices::encode() const {
 
     Sizes sizes(fVertexCnt, fIndexCnt, this->hasTexCoords(), this->hasColors());
     SkASSERT(sizes.isValid());
-    const size_t size = kHeaderSize + sizes.fArrays;
+    // need to force alignment to 4 for SkWriter32 -- will pad w/ 0s as needed
+    const size_t size = SkAlign4(kHeaderSize + sizes.fArrays);
 
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     SkWriter32 writer(data->writable_data(), data->size());
@@ -180,7 +181,8 @@ sk_sp<SkData> SkVertices::encode() const {
     writer.write(fPositions, sizes.fVSize);
     writer.write(fTexs, sizes.fTSize);
     writer.write(fColors, sizes.fCSize);
-    writer.write(fIndices, sizes.fISize);
+    // if index-count is odd, we won't be 4-bytes aligned, so we call the pad version
+    writer.writePad(fIndices, sizes.fISize);
 
     return data;
 }
@@ -203,7 +205,8 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     if (!sizes.isValid()) {
         return nullptr;
     }
-    if (kHeaderSize + sizes.fArrays != length) {
+    // logically we can be only 2-byte aligned, but our buffer is always 4-byte aligned
+    if (SkAlign4(kHeaderSize + sizes.fArrays) != length) {
         return nullptr;
     }
 
