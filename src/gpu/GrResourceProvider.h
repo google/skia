@@ -47,28 +47,11 @@ public:
      * @param texels        A contiguous array of mipmap levels
      * @param mipLevelCount The amount of elements in the texels array
      */
-    GrTexture* createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                      const GrMipLevel* texels, int mipLevelCount,
-                                      uint32_t flags = 0,
-                                      SkDestinationSurfaceColorMode mipColorMode =
+    sk_sp<GrTextureProxy> createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                 const GrMipLevel* texels, int mipLevelCount,
+                                                 uint32_t flags = 0,
+                                                 SkDestinationSurfaceColorMode mipColorMode =
                                                         SkDestinationSurfaceColorMode::kLegacy);
-
-    /**
-     * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
-     * It then calls createTexture with that SkTArray.
-     *
-     * @param srcData   Pointer to the pixel values (optional).
-     * @param rowBytes  The number of bytes between rows of the texture. Zero
-     *                  implies tightly packed rows. For compressed pixel configs, this
-     *                  field is ignored.
-     */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* srcData,
-                             size_t rowBytes, uint32_t flags = 0);
-
-    /** Shortcut for creating a texture with no initial data to upload. */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, uint32_t flags = 0) {
-        return this->createTexture(desc, budgeted, nullptr, 0, flags);
-    }
 
     /** Assigns a unique key to the texture. The texture will be findable via this key using
     findTextureByUniqueKey(). If an existing texture has this key, it's key will be removed. */
@@ -85,6 +68,11 @@ public:
      * must balance with a call to unref.
      */
     GrTexture* createApproxTexture(const GrSurfaceDesc&, uint32_t flags);
+
+    /** Create an exact fit texture with no initial data to upload.
+     */
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                   uint32_t flags = 0);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
