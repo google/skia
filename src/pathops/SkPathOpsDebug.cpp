@@ -1073,7 +1073,7 @@ void SkOpSegment::debugMoveNearby(SkPathOpsDebug::GlitchLog* glitches) const {
                 if (test->final()) {
                     if (spanBase == &fHead) {
                         glitches->record(SkPathOpsDebug::kMoveNearbyClearAll_Glitch, this);
-//                        return;
+//                        return true;
                     }
                     glitches->record(SkPathOpsDebug::kMoveNearbyReleaseFinal_Glitch, spanBase, ptT);
                 } else if (test->prev()) {
@@ -1089,13 +1089,17 @@ void SkOpSegment::debugMoveNearby(SkPathOpsDebug::GlitchLog* glitches) const {
     spanBase = &fHead;
     do {  // iterate through all spans associated with start
         const SkOpSpanBase* test = spanBase->upCast()->next();
-        if (this->spansNearby(spanBase, test)) {
+        bool found;
+        if (!this->spansNearby(spanBase, test, &found)) {
+            glitches->record(SkPathOpsDebug::kMoveNearbyRelease_Glitch, spanBase);
+        }
+        if (found) {
             if (test->final()) {
                 if (spanBase->prev()) {
                     glitches->record(SkPathOpsDebug::kMoveNearbyMergeFinal_Glitch, test);
                 } else {
                     glitches->record(SkPathOpsDebug::kMoveNearbyClearAll2_Glitch, this);
-                    // return
+                    // return true;
                 }
             } else {
                 glitches->record(SkPathOpsDebug::kMoveNearbyMerge_Glitch, spanBase);
@@ -1104,6 +1108,7 @@ void SkOpSegment::debugMoveNearby(SkPathOpsDebug::GlitchLog* glitches) const {
         spanBase = test;
     } while (!spanBase->final());
     debugValidate();
+    // return true;
 }
 #endif
 
