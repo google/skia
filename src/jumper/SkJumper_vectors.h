@@ -55,6 +55,12 @@
         ptr[2] = b;
         ptr[3] = a;
     }
+    SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
+        ptr[0] = r;
+        ptr[1] = g;
+        ptr[2] = b;
+        ptr[3] = a;
+    }
 
     SI F from_half(U16 h) {
         if ((int16_t)h < 0x0400) { h = 0; }   // Flush denorm and negative to zero.
@@ -102,6 +108,10 @@
     SI void store4(void* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
         uint16x4x4_t rgba = {{r,g,b,a}};
         vst4_u16((uint16_t*)ptr, rgba);
+    }
+    SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
+        float32x4x4_t rgba = {{r,g,b,a}};
+        vst4q_f32(ptr, rgba);
     }
 
     SI F from_half(U16 h) { return vcvt_f32_f16(h); }
@@ -159,6 +169,10 @@
         }};
         vst4_lane_u16(ptr + 0, rgba, 0);
         vst4_lane_u16(ptr + 4, rgba, 1);
+    }
+    SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
+        float32x2x4_t rgba = {{r,g,b,a}};
+        vst4_f32(ptr, rgba);
     }
 
     SI F from_half(U16 h) {
@@ -278,6 +292,36 @@
             _mm_storeu_si128((__m128i*)ptr + 3, _67);
         }
     }
+    SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
+        F rg0145 = _mm256_unpacklo_ps(r, g),  // r0 g0 r1 g1 | r4 g4 r5 g5
+          rg2367 = _mm256_unpackhi_ps(r, g),  // r2 ...      | r6 ...
+          ba0145 = _mm256_unpacklo_ps(b, a),  // b0 a0 b1 a1 | b4 a4 b5 a5
+          ba2367 = _mm256_unpackhi_ps(b, a);  // b2 ...      | b6 ...
+
+        F _04 = _mm256_unpacklo_pd(rg0145, ba0145),  // r0 g0 b0 a0 | r4 g4 b4 a4
+          _15 = _mm256_unpackhi_pd(rg0145, ba0145),  // r1 ...      | r5 ...
+          _26 = _mm256_unpacklo_pd(rg2367, ba2367),  // r2 ...      | r6 ...
+          _37 = _mm256_unpackhi_pd(rg2367, ba2367);  // r3 ...      | r7 ...
+
+        if (__builtin_expect(tail, 0)) {
+            if (tail > 0) { _mm_storeu_ps(ptr+ 0, _mm256_extractf128_ps(_04, 0)); }
+            if (tail > 1) { _mm_storeu_ps(ptr+ 4, _mm256_extractf128_ps(_15, 0)); }
+            if (tail > 2) { _mm_storeu_ps(ptr+ 8, _mm256_extractf128_ps(_26, 0)); }
+            if (tail > 3) { _mm_storeu_ps(ptr+12, _mm256_extractf128_ps(_37, 0)); }
+            if (tail > 4) { _mm_storeu_ps(ptr+16, _mm256_extractf128_ps(_04, 1)); }
+            if (tail > 5) { _mm_storeu_ps(ptr+20, _mm256_extractf128_ps(_15, 1)); }
+            if (tail > 6) { _mm_storeu_ps(ptr+24, _mm256_extractf128_ps(_26, 1)); }
+        } else {
+            F _01 = _mm256_permute2f128_ps(_04, _15, 32),  // 32 == 0010 0000 == lo, lo
+              _23 = _mm256_permute2f128_ps(_26, _37, 32),
+              _45 = _mm256_permute2f128_ps(_04, _15, 49),  // 49 == 0011 0001 == hi, hi
+              _67 = _mm256_permute2f128_ps(_26, _37, 49);
+            _mm256_storeu_ps(ptr+ 0, _01);
+            _mm256_storeu_ps(ptr+ 8, _23);
+            _mm256_storeu_ps(ptr+16, _45);
+            _mm256_storeu_ps(ptr+24, _67);
+        }
+    }
 
     SI F from_half(U16 h) {
     #if defined(__AVX2__)
@@ -370,6 +414,13 @@
              ba = _mm_unpacklo_epi16(widen_cast<__m128i>(b), widen_cast<__m128i>(a));
         _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg, ba));
         _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg, ba));
+    }
+    SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
+        _MM_TRANSPOSE4_PS(r,g,b,a);
+        _mm_storeu_ps(ptr+ 0, r);
+        _mm_storeu_ps(ptr+ 4, g);
+        _mm_storeu_ps(ptr+ 8, b);
+        _mm_storeu_ps(ptr+12, a);
     }
 
     SI F from_half(U16 h) {
