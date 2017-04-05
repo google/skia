@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b653dcaf_844688ee",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-05T19:36:27Z",
+      "side": 1,
+      "message": "dst?",
+      "range": {
+        "startLine": 790,
+        "startChar": 56,
+        "endLine": 790,
+        "endChar": 59
+      },
+      "revId": "734da7299b3164c8ace6e3884914b678c7860460",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
