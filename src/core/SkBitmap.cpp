@@ -737,41 +737,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
         return false;
     }
 
-    // if we have a texture, first get those pixels
-    SkBitmap tmpSrc;
-    const SkBitmap* src = this;
-
-    if (fPixelRef) {
-        SkIRect subset;
-        subset.setXYWH(fPixelRefOrigin.fX, fPixelRefOrigin.fY,
-                       fInfo.width(), fInfo.height());
-        if (fPixelRef->readPixels(&tmpSrc, dstColorType, &subset)) {
-            if (fPixelRef->info().alphaType() == kUnpremul_SkAlphaType) {
-                // FIXME: The only meaningful implementation of readPixels
-                // (GrPixelRef) assumes premultiplied pixels.
-                return false;
-            }
-            SkASSERT(tmpSrc.width() == this->width());
-            SkASSERT(tmpSrc.height() == this->height());
-
-            // did we get lucky and we can just return tmpSrc?
-            if (tmpSrc.colorType() == dstColorType && nullptr == alloc) {
-                dst->swap(tmpSrc);
-                // If the result is an exact copy, clone the gen ID.
-                SkPixelRef* dstPixelRef = dst->pixelRef();
-                if (!dstPixelRef && dstPixelRef->info() == fPixelRef->info()) {
-                    dstPixelRef->cloneGenID(*fPixelRef);
-                }
-                return true;
-            }
-
-            // fall through to the raster case
-            src = &tmpSrc;
-        }
-    }
-
     SkAutoPixmapUnlock srcUnlocker;
-    if (!src->requestLock(&srcUnlocker)) {
+    if (!this->requestLock(&srcUnlocker)) {
         return false;
     }
     SkPixmap srcPM = srcUnlocker.pixmap();
