@@ -430,17 +430,26 @@ SkImageInfo SkImageCacherator::buildCacheInfo(CachedFormat format) {
         case kLegacy_CachedFormat:
             return fInfo.makeColorSpace(nullptr);
         case kLinearF16_CachedFormat:
-            return fInfo
-                .makeColorType(kRGBA_F16_SkColorType)
-                .makeColorSpace(as_CSB(fInfo.colorSpace())->makeLinearGamma());
+            return fInfo.makeColorType(kRGBA_F16_SkColorType)
+                        .makeColorSpace(as_CSB(fInfo.colorSpace())->makeLinearGamma());
         case kSRGB8888_CachedFormat:
-            return fInfo
-                .makeColorType(kRGBA_8888_SkColorType)
-                .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
+            // If the transfer function is nearly (but not exactly) sRGB, we don't want the codec
+            // to bother trans-coding. It would be slow, and do more harm than good visually,
+            // so we make sure to leave the colorspace as-is.
+            if (fInfo.colorSpace()->gammaCloseToSRGB()) {
+                return fInfo.makeColorType(kRGBA_8888_SkColorType);
+            } else {
+                return fInfo.makeColorType(kRGBA_8888_SkColorType)
+                            .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
+            }
         case kSBGR8888_CachedFormat:
-            return fInfo
-                .makeColorType(kBGRA_8888_SkColorType)
-                .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());;
+            // See note above about not-quite-sRGB transfer functions.
+            if (fInfo.colorSpace()->gammaCloseToSRGB()) {
+                return fInfo.makeColorType(kBGRA_8888_SkColorType);
+            } else {
+                return fInfo.makeColorType(kBGRA_8888_SkColorType)
+                            .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
+            }
         default:
             SkDEBUGFAIL("Invalid cached format");
             return fInfo;
