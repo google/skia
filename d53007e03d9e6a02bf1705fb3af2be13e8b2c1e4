@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74818dac_9c9ea5e2",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-05T14:52:58Z",
+      "side": 1,
+      "message": "I realize that this code is repeated in multiple places.  Once, I add an SkEncodeImage API with SkEncodeOptions, I\u0027ll be able to move it to one place...",
+      "range": {
+        "startLine": 85,
+        "startChar": 4,
+        "endLine": 85,
+        "endChar": 73
+      },
+      "revId": "d53007e03d9e6a02bf1705fb3af2be13e8b2c1e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
