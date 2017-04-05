@@ -14,6 +14,8 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
+#include <cstdlib>
+
 class GrGLConfigConversionEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
@@ -224,6 +226,11 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     if (failed) {
         *pmToUPMRule = kPMConversionCnt;
         *upmToPMRule = kPMConversionCnt;
+        SkFAIL("No round trip conversion found!\n");
+        _Exit(1);
+    } else {
+        SkDebugf("Round-trip conversion rule: (%d, %d)\n", *pmToUPMRule, *upmToPMRule);
+        _Exit(0);
     }
 }
 
