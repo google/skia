@@ -15,7 +15,7 @@ def dm_flags(bot):
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test. Limit testing until we're sure it's not going to cause an
   # avalanche of problems.
-  if 'Ubuntu' in bot or 'Win' in bot or 'Mac' in bot:
+  if 'Ubuntu' in bot or 'Win' in bot or 'Mac' in bot or 'iOS' in bot:
     args.append('--randomProcessorTest')
 
   # 32-bit desktop bots tend to run out of memory, because they have relatively
