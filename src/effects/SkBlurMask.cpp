@@ -75,17 +75,17 @@ SkScalar SkBlurMask::ConvertSigmaToRadius(SkScalar sigma) {
  *          }
  *      }
  */
+template <bool Transpose>
 static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
-                   int leftRadius, int rightRadius, int width, int height,
-                   bool transpose)
+                   int leftRadius, int rightRadius, int width, int height)
 {
     int diameter = leftRadius + rightRadius;
     int kernelSize = diameter + 1;
     int border = SkMin32(width, diameter);
     uint32_t scale = (1 << 24) / kernelSize;
     int new_width = width + SkMax32(leftRadius, rightRadius) * 2;
-    int dst_x_stride = transpose ? height : 1;
-    int dst_y_stride = transpose ? 1 : new_width;
+    int dst_x_stride = Transpose ? height : 1;
+    int dst_y_stride = Transpose ? 1 : new_width;
     uint32_t half = 1 << 23;
     for (int y = 0; y < height; ++y) {
         uint32_t sum = 0;
@@ -277,9 +277,10 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
  *  return new_width;
  */
 
+template <bool Transpose>
 static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
                          int radius, int width, int height,
-                         bool transpose, uint8_t outer_weight)
+                         uint8_t outer_weight)
 {
     int diameter = radius * 2;
     int kernelSize = diameter + 1;
@@ -291,8 +292,8 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
     uint32_t inner_scale = (inner_weight << 16) / (kernelSize - 2);
     uint32_t half = 1 << 23;
     int new_width = width + diameter;
-    int dst_x_stride = transpose ? height : 1;
-    int dst_y_stride = transpose ? 1 : new_width;
+    int dst_x_stride = Transpose ? height : 1;
+    int dst_y_stride = Transpose ? 1 : new_width;
     for (int y = 0; y < height; ++y) {
         uint32_t outer_sum = 0, inner_sum = 0;
         uint8_t* dptr = dst + y * dst_y_stride;
@@ -553,30 +554,30 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
             get_adjusted_radii(passRadius, &loRadius, &hiRadius);
             if (kHigh_SkBlurQuality == quality) {
                 // Do three X blurs, with a transpose on the final one.
-                w = boxBlur(sp, src.fRowBytes, tp, loRadius, hiRadius, w, h, false);
-                w = boxBlur(tp, w,             dp, hiRadius, loRadius, w, h, false);
-                w = boxBlur(dp, w,             tp, hiRadius, hiRadius, w, h, true);
+                w = boxBlur<false>(sp, src.fRowBytes, tp, loRadius, hiRadius, w, h);
+                w = boxBlur<false>(tp, w,             dp, hiRadius, loRadius, w, h);
+                w = boxBlur<true>(dp, w,             tp, hiRadius, hiRadius, w, h);
                 // Do three Y blurs, with a transpose on the final one.
-                h = boxBlur(tp, h,             dp, loRadius, hiRadius, h, w, false);
-                h = boxBlur(dp, h,             tp, hiRadius, loRadius, h, w, false);
-                h = boxBlur(tp, h,             dp, hiRadius, hiRadius, h, w, true);
+                h = boxBlur<false>(tp, h,             dp, loRadius, hiRadius, h, w);
+                h = boxBlur<false>(dp, h,             tp, hiRadius, loRadius, h, w);
+                h = boxBlur<true>(tp, h,             dp, hiRadius, hiRadius, h, w);
             } else {
-                w = boxBlur(sp, src.fRowBytes, tp, rx, rx, w, h, true);
-                h = boxBlur(tp, h,             dp, ry, ry, h, w, true);
+                w = boxBlur<true>(sp, src.fRowBytes, tp, rx, rx, w, h);
+                h = boxBlur<true>(tp, h,             dp, ry, ry, h, w);
             }
         } else {
             if (kHigh_SkBlurQuality == quality) {
                 // Do three X blurs, with a transpose on the final one.
-                w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, false, outerWeight);
-                w = boxBlurInterp(tp, w,             dp, rx, w, h, false, outerWeight);
-                w = boxBlurInterp(dp, w,             tp, rx, w, h, true, outerWeight);
+                w = boxBlurInterp<false>(sp, src.fRowBytes, tp, rx, w, h, outerWeight);
+                w = boxBlurInterp<false>(tp, w,             dp, rx, w, h, outerWeight);
+                w = boxBlurInterp<true>(dp, w,             tp, rx, w, h, outerWeight);
                 // Do three Y blurs, with a transpose on the final one.
-                h = boxBlurInterp(tp, h,             dp, ry, h, w, false, outerWeight);
-                h = boxBlurInterp(dp, h,             tp, ry, h, w, false, outerWeight);
-                h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outerWeight);
+                h = boxBlurInterp<false>(tp, h,             dp, ry, h, w, outerWeight);
+                h = boxBlurInterp<false>(dp, h,             tp, ry, h, w, outerWeight);
+                h = boxBlurInterp<true>(tp, h,             dp, ry, h, w, outerWeight);
             } else {
-                w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, true, outerWeight);
-                h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outerWeight);
+                w = boxBlurInterp<true>(sp, src.fRowBytes, tp, rx, w, h, outerWeight);
+                h = boxBlurInterp<true>(tp, h,             dp, ry, h, w, outerWeight);
             }
         }
 
