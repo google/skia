@@ -1539,6 +1539,9 @@ static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap
         case SkEncodedImageFormat::kJPEG:
             SkEncodeImageAsJPEG(stream, pixmap, opts);
             break;
+        case SkEncodedImageFormat::kWEBP:
+            SkEncodeImageAsWEBP(stream, pixmap, opts);
+            break;
         default:
             SkASSERT(false);
             break;
@@ -1587,4 +1590,5 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
 DEF_TEST(Codec_EncodeICC, r) {
     test_encode_icc(r, SkEncodedImageFormat::kPNG);
     test_encode_icc(r, SkEncodedImageFormat::kJPEG);
+    test_encode_icc(r, SkEncodedImageFormat::kWEBP);
 }
