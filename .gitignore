@@ -42,3 +42,6 @@ bin/gn
 bin/gn.exe
 bin/clang-format
 bin/clang-format.exe
+
+vulkan-out
+gl-out
