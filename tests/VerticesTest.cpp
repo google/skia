@@ -50,8 +50,8 @@ static bool equal(const SkVertices* v0, const SkVertices* v1) {
 }
 
 DEF_TEST(Vertices, reporter) {
-    int vCount = 4;
-    int iCount = 6;
+    int vCount = 5;
+    int iCount = 9; // odd value exercises padding logic in encode()
 
     const uint32_t texFlags[] = { 0, SkVertices::kHasTexCoords_BuilderFlag };
     const uint32_t colFlags[] = { 0, SkVertices::kHasColors_BuilderFlag };
