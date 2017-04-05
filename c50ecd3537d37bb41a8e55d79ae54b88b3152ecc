@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c8a9281_bee9d5e7",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-05T16:12:35Z",
+      "side": 1,
+      "message": "It\u0027s probably ok to leave off this if () { }.  I don\u0027t think having an empty string in include_dirs will hurt anything.",
+      "revId": "c50ecd3537d37bb41a8e55d79ae54b88b3152ecc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
