@@ -19,6 +19,10 @@ DEPS = [
 
 def RunSteps(api):
   api.core.setup()
+  # Recipe bundling requires that any changes be committed.
+  if api.vars.is_trybot:
+    api.run(api.step, 'Commit Patch', infra_step=True,
+            cmd=['git', 'commit', '-a', '-m', 'Commit Patch'])
   recipes_py = api.vars.infrabots_dir.join('recipes.py')
   api.run(api.step, 'Bundle Recipes', infra_step=True,
           cmd=['python', recipes_py, 'bundle'])
@@ -38,7 +42,10 @@ def GenTests(api):
                    repository='https://skia.googlesource.com/skia.git',
                    revision='abc123',
                    path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   nobuildbot='True',
+                   patch_issue='10101',
+                   patch_set='3') +
     api.path.exists(
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     )
