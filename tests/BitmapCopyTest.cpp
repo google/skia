@@ -664,7 +664,7 @@ DEF_TEST(BitmapReadPixels, reporter) {
 DEF_TEST(BitmapCopy_ColorSpaceMatch, r) {
     // We should support matching color spaces, even if they are parametric.
     SkColorSpaceTransferFn fn;
-    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
+    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fE = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
     sk_sp<SkColorSpace> cs = SkColorSpace::MakeRGB(fn, SkColorSpace::kRec2020_Gamut);
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1, cs);
