@@ -302,10 +302,16 @@ struct CacheCaps {
     bool supportsSBGR() const {
         return !fCaps || fCaps->srgbSupport();
     }
+
+    bool supportsSGray() const {
+        return !fCaps ||
+            (fCaps->srgbSupport() && fCaps->isConfigTexturable(kSGray_8_GrPixelConfig));
+    }
 #else
     bool supportsHalfFloat() const { return true; }
     bool supportsSRGB() const { return true; }
     bool supportsSBGR() const { return true; }
+    bool supportsSGray() const { return true; }
 #endif
 
     const GrCaps* fCaps;
@@ -352,12 +358,34 @@ SkImageCacherator::CachedFormat SkImageCacherator::chooseCacheFormat(SkColorSpac
             // TODO: What do we do with grayscale sources that have strange color spaces attached?
             // The codecs and color space xform don't handle this correctly (yet), so drop it on
             // the floor. (Also, inflating by a factor of 8 is going to be unfortunate).
-            // As it is, we don't directly support sRGB grayscale, so ask the codec to convert
-            // it for us. This bypasses some really sketchy code GrUploadPixmapToTexture.
-            if (cs->gammaCloseToSRGB() && caps.supportsSRGB()) {
-                return kSRGB8888_CachedFormat;
-            } else {
+            // As it is, we may not directly support sRGB grayscale. If not, ask the codec to
+            // convert it for us. This bypasses some really sketchy code in GrUploadPixmapToTexture.
+            if (cs->gammaCloseToSRGB()) {
+                if (caps.supportsSRGB()) {
+                    if (caps.supportsSGray()) {
+                        return kSGray_CachedFormat;
+                    } else {
+                        return kSRGB8888_CachedFormat;
+                    }
+                } else {
+                    // Single channel half-float would be ideal, but we don't have that. I'm not
+                    // going to inflate this by a factor of 8, so just fall back to legacy.
+                    return kLegacy_CachedFormat;
+                }
+            } else if (cs->gammaIsLinear()) {
+                // Bytes will be the same as kLegacy, but we want to preserve the color space?
                 return kLegacy_CachedFormat;
+            } else {
+                if (caps.supportsSRGB()) {
+                    if (caps.supportsSGray()) {
+                        return kSGray_CachedFormat;
+                    } else {
+                        return kSRGB8888_CachedFormat;
+                    }
+                } else {
+                    // Again, single channel half-float would be nice. Failover to legacy.
+                    return kLegacy_CachedFormat;
+                }
             }
 
         case kRGBA_8888_SkColorType:
@@ -429,10 +457,15 @@ SkImageInfo SkImageCacherator::buildCacheInfo(CachedFormat format) {
     switch (format) {
         case kLegacy_CachedFormat:
             return fInfo.makeColorSpace(nullptr);
+        // This also means kSGray_CachedFormat. See the definition of the enum.
         case kLinearF16_CachedFormat:
-            return fInfo
-                .makeColorType(kRGBA_F16_SkColorType)
-                .makeColorSpace(as_CSB(fInfo.colorSpace())->makeLinearGamma());
+            if (kGray_8_SkColorType == fInfo.colorType()) {
+                return fInfo.makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
+            } else {
+                return fInfo
+                    .makeColorType(kRGBA_F16_SkColorType)
+                    .makeColorSpace(as_CSB(fInfo.colorSpace())->makeLinearGamma());
+            }
         case kSRGB8888_CachedFormat:
             return fInfo
                 .makeColorType(kRGBA_8888_SkColorType)

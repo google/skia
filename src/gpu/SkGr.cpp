@@ -370,7 +370,8 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& c
         case kIndex_8_SkColorType:
             return kSkia8888_GrPixelConfig;
         case kGray_8_SkColorType:
-            return kGray_8_GrPixelConfig;
+            return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
+                    ? kSGray_8_GrPixelConfig : kGray_8_GrPixelConfig;
         case kRGBA_F16_SkColorType:
             return kRGBA_half_GrPixelConfig;
     }
@@ -385,6 +386,9 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
             ct = kAlpha_8_SkColorType;
             break;
         case kGray_8_GrPixelConfig:
+            ct = kGray_8_SkColorType;
+            break;
+        case kSGray_8_GrPixelConfig:
             ct = kGray_8_SkColorType;
             break;
         case kRGB_565_GrPixelConfig:
