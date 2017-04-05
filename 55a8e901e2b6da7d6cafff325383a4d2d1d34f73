@@ -16,6 +16,24 @@
       "revId": "55a8e901e2b6da7d6cafff325383a4d2d1d34f73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2355c82f_00f99f2c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2144,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-05T20:12:12Z",
+      "side": 1,
+      "message": "Done.\n\nSince the fallback was using kDefault before I believe that should\u0027ve resolved to kBottomLeft prior to this CL.",
+      "parentUuid": "4bb7b737_67e40b46",
+      "revId": "55a8e901e2b6da7d6cafff325383a4d2d1d34f73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
