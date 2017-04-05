@@ -46,6 +46,30 @@
       "revId": "3410d28f917ea97eca7fd9c5e111bf24eb70d8d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dfcd210_89e8ae97",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1542,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-05T17:53:18Z",
+      "side": 1,
+      "message": "Wow! Nice catch. Still seems to work.",
+      "parentUuid": "a8dc67e0_2ebbd35a",
+      "range": {
+        "startLine": 1542,
+        "startChar": 27,
+        "endLine": 1542,
+        "endChar": 31
+      },
+      "revId": "3410d28f917ea97eca7fd9c5e111bf24eb70d8d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
