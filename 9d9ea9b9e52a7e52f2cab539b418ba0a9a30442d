@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "40f5fea9_5d7fffd5",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5725
+      },
+      "writtenOn": "2017-04-05T16:00:35Z",
+      "side": 1,
+      "message": "We overwrite this when we build, so that\u0027s fine.",
+      "parentUuid": "e10d65ed_a816da65",
+      "range": {
+        "startLine": 39,
+        "startChar": 26,
+        "endLine": 39,
+        "endChar": 30
+      },
+      "revId": "9d9ea9b9e52a7e52f2cab539b418ba0a9a30442d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "86f3a55a_9deca029",
         "filename": "BUILD.gn",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-03-07T17:49:11Z",
       "side": 1,
       "message": "Why don\u0027t you move this down to the next declare_args() block and write it something like this?\n\n    if (is_win) {\n        skia_vulkan_headers_path \u003d \"$skia_vulkan_sdk/Include\"\n    } else {\n        skia_vulkan_headers_path \u003d \"$skia_vulkan_sdk/include\"\n    }\n\nThat way we can fold our existing defaults and whatever you want to override it to together into one unconditional path below.",
+      "revId": "9d9ea9b9e52a7e52f2cab539b418ba0a9a30442d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de0533d7_cb8d4d11",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5725
+      },
+      "writtenOn": "2017-04-05T16:00:35Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "86f3a55a_9deca029",
       "revId": "9d9ea9b9e52a7e52f2cab539b418ba0a9a30442d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -62,6 +104,30 @@
       "revId": "9d9ea9b9e52a7e52f2cab539b418ba0a9a30442d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1964ce4_4894d5fc",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5725
+      },
+      "writtenOn": "2017-04-05T16:00:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2626b4ed_1f53b148",
+      "range": {
+        "startLine": 140,
+        "startChar": 37,
+        "endLine": 140,
+        "endChar": 39
+      },
+      "revId": "9d9ea9b9e52a7e52f2cab539b418ba0a9a30442d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
