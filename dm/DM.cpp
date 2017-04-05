@@ -322,7 +322,7 @@ static void gather_gold() {
 static SkTHashSet<SkString> gUninterestingHashes;
 
 static void gather_uninteresting_hashes() {
-    if (!FLAGS_uninterestingHashesFile.isEmpty()) {
+    if (0 && !FLAGS_uninterestingHashesFile.isEmpty()) {
         sk_sp<SkData> data(SkData::MakeFromFileName(FLAGS_uninterestingHashesFile[0]));
         if (!data) {
             info("WARNING: unable to read uninteresting hashes from %s\n",
