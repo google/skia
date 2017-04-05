@@ -22,6 +22,30 @@
       "revId": "3410d28f917ea97eca7fd9c5e111bf24eb70d8d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8dc67e0_2ebbd35a",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1542,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-05T17:49:32Z",
+      "side": 1,
+      "message": "Uh oh...",
+      "parentUuid": "fba3c247_cf0a7b7a",
+      "range": {
+        "startLine": 1542,
+        "startChar": 27,
+        "endLine": 1542,
+        "endChar": 31
+      },
+      "revId": "3410d28f917ea97eca7fd9c5e111bf24eb70d8d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
