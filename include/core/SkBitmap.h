@@ -291,6 +291,11 @@ public:
         this->allocPixels(info);
     }
 
+    // TEMPORARY -- remove after updating Android BitmapTests.cpp:35
+    void allocPixels(const SkImageInfo& info, std::nullptr_t, SkColorTable* ctable) {
+        this->allocPixels(info, sk_ref_sp(ctable));
+    }
+
     /**
      *  Install a pixelref that wraps the specified pixels and rowBytes, and
      *  optional ReleaseProc and context. When the pixels are no longer
