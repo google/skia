@@ -77,7 +77,7 @@ public:
     void emitCode(EmitArgs&) override;
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override {}
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override {}
 
 private:
     GrColor4f fColors[SkOverdrawColorFilter::kNumColors];

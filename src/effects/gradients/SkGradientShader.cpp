@@ -1301,7 +1301,7 @@ static inline void set_before_interp_color_uni_array(const GrGLSLProgramDataMana
 }
 
 void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
-                                                const GrFragmentProcessor& processor) {
+                                                const GrProcessor& processor) {
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 
     switch (e.getColorType()) {

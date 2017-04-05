@@ -72,7 +72,7 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fInnerThresholdVar;
@@ -132,7 +132,7 @@ void GrGLAlphaThresholdFragmentProcessor::emitCode(EmitArgs& args) {
 }
 
 void GrGLAlphaThresholdFragmentProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
-                                                    const GrFragmentProcessor& proc) {
+                                                    const GrProcessor& proc) {
     const GrAlphaThresholdFragmentProcessor& atfp = proc.cast<GrAlphaThresholdFragmentProcessor>();
     pdman.set1f(fInnerThresholdVar, atfp.innerThreshold());
     pdman.set1f(fOuterThresholdVar, atfp.outerThreshold());

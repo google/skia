@@ -465,7 +465,7 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 protected:
     /**

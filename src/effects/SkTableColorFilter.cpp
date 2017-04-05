@@ -407,15 +407,14 @@ public:
     static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     UniformHandle fRGBAYValuesUni;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
-void GLColorTableEffect::onSetData(const GrGLSLProgramDataManager& pdm,
-                                   const GrFragmentProcessor& proc) {
+void GLColorTableEffect::onSetData(const GrGLSLProgramDataManager& pdm, const GrProcessor& proc) {
     // The textures are organized in a strip where the rows are ordered a, r, g, b.
     float rgbaYValues[4];
     const ColorTableEffect& cte = proc.cast<ColorTableEffect>();

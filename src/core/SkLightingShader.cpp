@@ -199,8 +199,7 @@ public:
         }
 
     protected:
-        void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrFragmentProcessor& proc) override {
+        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
             const LightingFP& lightingFP = proc.cast<LightingFP>();
 
             const SkTArray<SkLights::Light>& directionalLights = lightingFP.directionalLights();

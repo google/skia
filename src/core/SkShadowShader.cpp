@@ -461,8 +461,7 @@ public:
         }
 
     protected:
-        void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrFragmentProcessor& proc) override {
+        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {
             const ShadowFP &shadowFP = proc.cast<ShadowFP>();
 
             for (int i = 0; i < shadowFP.numLights(); i++) {

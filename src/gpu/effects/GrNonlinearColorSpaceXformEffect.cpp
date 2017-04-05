@@ -108,8 +108,7 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& processor) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& processor) override {
         const GrNonlinearColorSpaceXformEffect& csxe =
                 processor.cast<GrNonlinearColorSpaceXformEffect>();
         if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kSrcTransfer_Op)) {

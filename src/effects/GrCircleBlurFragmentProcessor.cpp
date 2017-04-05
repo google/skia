@@ -23,7 +23,7 @@ public:
     void emitCode(EmitArgs&) override;
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     GrGLSLProgramDataManager::UniformHandle fDataUniform;
@@ -68,7 +68,7 @@ void GrCircleBlurFragmentProcessor::GLSLProcessor::emitCode(EmitArgs& args) {
 }
 
 void GrCircleBlurFragmentProcessor::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
-                                                             const GrFragmentProcessor& proc) {
+                                                             const GrProcessor& proc) {
     const GrCircleBlurFragmentProcessor& cbfp = proc.cast<GrCircleBlurFragmentProcessor>();
     const SkRect& circle = cbfp.fCircle;
 

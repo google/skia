@@ -23,7 +23,7 @@ class GrSwizzle;
     GrCoordTransforms to receive a transformation of the local coordinates that map from local space
     to the fragment being processed.
  */
-class GrFragmentProcessor : public GrResourceIOProcessor {
+class GrFragmentProcessor : public GrProcessor {
 public:
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
@@ -228,9 +228,9 @@ public:
                                           &GrFragmentProcessor::coordTransform>;
 
     using TextureAccessIter = FPItemIter<TextureSampler,
-                                         GrResourceIOProcessor,
-                                         &GrResourceIOProcessor::numTextureSamplers,
-                                         &GrResourceIOProcessor::textureSampler>;
+                                         GrProcessor,
+                                         &GrProcessor::numTextureSamplers,
+                                         &GrProcessor::textureSampler>;
 
 protected:
     enum OptimizationFlags : uint32_t {

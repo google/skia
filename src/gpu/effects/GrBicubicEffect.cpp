@@ -27,7 +27,7 @@ public:
     }
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 
 private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
@@ -118,7 +118,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
 }
 
 void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                  const GrFragmentProcessor& processor) {
+                                  const GrProcessor& processor) {
     const GrBicubicEffect& bicubicEffect = processor.cast<GrBicubicEffect>();
     GrTexture* texture = processor.textureSampler(0).texture();
     float imageIncrement[2];

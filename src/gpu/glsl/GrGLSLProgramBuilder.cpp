@@ -264,14 +264,14 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrGLSLExpr4& colorIn,
 }
 
 void GrGLSLProgramBuilder::emitSamplersAndImageStorages(
-        const GrResourceIOProcessor& processor,
+        const GrProcessor& processor,
         SkTArray<SamplerHandle>* outTexSamplerHandles,
         SkTArray<SamplerHandle>* outBufferSamplerHandles,
         SkTArray<ImageStorageHandle>* outImageStorageHandles) {
     SkString name;
     int numTextureSamplers = processor.numTextureSamplers();
     for (int t = 0; t < numTextureSamplers; ++t) {
-        const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(t);
+        const GrProcessor::TextureSampler& sampler = processor.textureSampler(t);
         name.printf("TextureSampler_%d", outTexSamplerHandles->count());
         GrSLType samplerType = sampler.texture()->texturePriv().samplerType();
         if (kTextureExternalSampler_GrSLType == samplerType) {
@@ -291,7 +291,7 @@ void GrGLSLProgramBuilder::emitSamplersAndImageStorages(
         GrShaderFlags texelBufferVisibility = kNone_GrShaderFlags;
 
         for (int b = 0; b < numBuffers; ++b) {
-            const GrResourceIOProcessor::BufferAccess& access = processor.bufferAccess(b);
+            const GrProcessor::BufferAccess& access = processor.bufferAccess(b);
             name.printf("BufferSampler_%d", outBufferSamplerHandles->count());
             outBufferSamplerHandles->emplace_back(
                     this->emitSampler(kBufferSampler_GrSLType, access.texelConfig(), name.c_str(),
@@ -307,8 +307,7 @@ void GrGLSLProgramBuilder::emitSamplersAndImageStorages(
     }
     int numImageStorages = processor.numImageStorages();
     for (int i = 0; i < numImageStorages; ++i) {
-        const GrResourceIOProcessor::ImageStorageAccess& imageStorageAccess =
-                processor.imageStorageAccess(i);
+        const GrProcessor::ImageStorageAccess& imageStorageAccess = processor.imageStorageAccess(i);
         name.printf("Image_%d", outImageStorageHandles->count());
         outImageStorageHandles->emplace_back(
                 this->emitImageStorage(imageStorageAccess, name.c_str()));
@@ -335,7 +334,7 @@ GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(GrSLType s
 }
 
 GrGLSLProgramBuilder::ImageStorageHandle GrGLSLProgramBuilder::emitImageStorage(
-        const GrResourceIOProcessor::ImageStorageAccess& access, const char* name) {
+        const GrProcessor::ImageStorageAccess& access, const char* name) {
     if (access.visibility() & kVertex_GrShaderFlag) {
         ++fNumVertexImageStorages;
     }

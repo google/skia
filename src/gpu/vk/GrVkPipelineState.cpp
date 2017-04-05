@@ -172,13 +172,12 @@ void GrVkPipelineState::abandonGPUResources() {
     }
 }
 
-static void append_texture_bindings(
-        const GrResourceIOProcessor& processor,
-        SkTArray<const GrResourceIOProcessor::TextureSampler*>* textureBindings) {
+static void append_texture_bindings(const GrProcessor& processor,
+                                    SkTArray<const GrProcessor::TextureSampler*>* textureBindings) {
     // We don't support image storages in VK.
     SkASSERT(!processor.numImageStorages());
     if (int numTextureSamplers = processor.numTextureSamplers()) {
-        const GrResourceIOProcessor::TextureSampler** bindings =
+        const GrProcessor::TextureSampler** bindings =
                 textureBindings->push_back_n(numTextureSamplers);
         int i = 0;
         do {
@@ -196,7 +195,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
 
     this->setRenderTargetState(pipeline.getRenderTarget());
 
-    SkSTArray<8, const GrResourceIOProcessor::TextureSampler*> textureBindings;
+    SkSTArray<8, const GrProcessor::TextureSampler*> textureBindings;
 
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
@@ -218,7 +217,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.dstTexture(&offset);
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
-    GrResourceIOProcessor::TextureSampler dstTextureSampler;
+    GrProcessor::TextureSampler dstTextureSampler;
     if (dstTexture) {
         dstTextureSampler.reset(dstTexture);
         textureBindings.push_back(&dstTextureSampler);
@@ -314,7 +313,7 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
 
 void GrVkPipelineState::writeSamplers(
         GrVkGpu* gpu,
-        const SkTArray<const GrResourceIOProcessor::TextureSampler*>& textureBindings,
+        const SkTArray<const GrProcessor::TextureSampler*>& textureBindings,
         bool allowSRGBInputs) {
     SkASSERT(fNumSamplers == textureBindings.count());
 
