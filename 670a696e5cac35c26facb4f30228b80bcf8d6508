@@ -22,6 +22,30 @@
       "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50ef950b_1cdd965c",
+        "filename": "infra/bots/recipe_modules/upload_dm_results/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-05T19:55:20Z",
+      "side": 1,
+      "message": "Agreed. Also, it may have been fixed, but a few years ago we had a LOT of problems with multithreaded uploads where some would fail silently and we\u0027d have missing files.  That led us to write our own gsutil client.  Hopefully it\u0027s fixed now though.",
+      "parentUuid": "9ac37ab0_98ed14ca",
+      "range": {
+        "startLine": 22,
+        "startChar": 22,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
