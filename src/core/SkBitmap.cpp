@@ -215,13 +215,6 @@ void SkBitmap::updatePixelsFromRef() const {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF
-SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
-    this->setPixelRef(sk_ref_sp(pr), dx, dy);
-    return pr;
-}
-#endif
-
 void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
