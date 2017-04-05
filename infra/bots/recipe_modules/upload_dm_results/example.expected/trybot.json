@@ -88,6 +88,7 @@
   {
     "cmd": [
       "gsutil",
+      "-m",
       "cp",
       "[START_DIR]/dm/*",
       "gs://skia-infra-gm/dm-images-v1"
@@ -97,6 +98,7 @@
   {
     "cmd": [
       "gsutil",
+      "-m",
       "cp",
       "-z",
       "json,log",

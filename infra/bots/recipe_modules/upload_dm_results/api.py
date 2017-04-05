@@ -19,7 +19,7 @@ VERBOSE_LOG = 'verbose.log'
 
 class UploadDmResultsApi(recipe_api.RecipeApi):
   def cp(self, name, src, dst, extra_args=None):
-    cmd = ['gsutil', 'cp']
+    cmd = ['gsutil', '-m', 'cp']
     if extra_args:
       cmd.extend(extra_args)
     cmd.extend([src, dst])
