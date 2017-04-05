@@ -163,17 +163,7 @@ struct LazyCtx {
 extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
 
 
-// We could start defining normal Stages now.  But first, some helper functions and types.
-
-// Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
-#if defined(JUMPER)
-    using F4 = float __attribute__((ext_vector_type(4)));
-#else
-    struct F4 {
-        float vals[4];
-        float operator[](int i) const { return vals[i]; }
-    };
-#endif
+// We could start defining normal Stages now.  But first, some helper functions.
 
 // These load() and store() methods are tail-aware,
 // but focus mainly on keeping the at-stride tail==0 case fast.
@@ -301,7 +291,7 @@ STAGE(seed_shader) {
 }
 
 STAGE(constant_color) {
-    auto rgba = ctx.load<F4>();
+    auto rgba = (const float*)ctx;
     r = rgba[0];
     g = rgba[1];
     b = rgba[2];
@@ -763,7 +753,7 @@ STAGE(matrix_perspective) {
 }
 
 STAGE(linear_gradient_2stops) {
-    struct Ctx { F4 c0, dc; };
+    struct Ctx { float c0[4], dc[4]; };
     auto c = ctx.load<Ctx>();
 
     auto t = r;
