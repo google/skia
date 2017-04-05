@@ -11,6 +11,12 @@ import os
 import subprocess
 import sys
 
+'''
+If called with arguments, this script will verify that those headers are
+self-sufficient and idempotent.
+
+Otherwise, test all checked-in headers except for those in the ignore list.
+'''
 
 public_header_args = [
     '-Iinclude/core',
@@ -130,20 +136,22 @@ def compile_header(header):
         return '\n\033[7m ERROR: %s \033[0m\n%s\n\n' % (header, errors)
     return None
 
-def main():
+#     for h in headers:
+#         compile_header(h)
+# ...Except use a multiprocessing pool.
+# Exit at first error.
+def compile_headers(headers):
     class N: good = True
-    # N.good is a global scoped to main() to make a print_and_exit_if() a closure
+    # N.good is a global scoped to this function to make a print_and_exit_if() a closure
     pool = multiprocessing.Pool()
     def print_and_exit_if(r):
         if r is not None:
             sys.stdout.write(r)
             N.good = False
             pool.terminate()
-
-    os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
-    for path in subprocess.check_output(['git', 'ls-files']).splitlines():
-        if path.endswith('.h') and not any(fnmatch.fnmatch(path, pattern) for pattern in ignore):
-            pool.apply_async(compile_header, args=(path, ), callback=print_and_exit_if)
+    for path in headers:
+        assert os.path.exists(path)
+        pool.apply_async(compile_header, args=(path, ), callback=print_and_exit_if)
     pool.close()
     pool.join()
     if N.good:
@@ -151,6 +159,20 @@ def main():
     else:
         exit(1)
 
+
+def main(argv):
+    skia_dir = os.path.join(os.path.dirname(__file__), os.pardir)
+    if len(argv) > 1:
+        paths = [os.path.relpath(os.path.abspath(arg), skia_dir) for arg in argv[1:]]
+        os.chdir(skia_dir)
+    else:
+        os.chdir(skia_dir)
+        paths = [path for path in subprocess.check_output(['git', 'ls-files']).splitlines()
+                 if path.endswith('.h')
+                 and not any(fnmatch.fnmatch(path, pattern) for pattern in ignore)]
+    compile_headers(paths)
+
+
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
 
