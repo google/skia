@@ -192,9 +192,6 @@ public:
 
     bool requestLock(const LockRequest&, LockResult*);
 
-    /** Populates dst with the pixels of this pixelRef, converting them to colorType. */
-    bool readPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subset = NULL);
-
     // Register a listener that may be called the next time our generation ID changes.
     //
     // We'll only call the listener if we're confident that we are the only SkPixelRef with this
@@ -246,14 +243,6 @@ protected:
 
     /** Default impl returns true */
     virtual bool onLockPixelsAreWritable() const;
-
-    /**
-     *  For pixelrefs that don't have access to their raw pixels, they may be
-     *  able to make a copy of them (e.g. if the pixels are on the GPU).
-     *
-     *  The base class implementation returns false;
-     */
-    virtual bool onReadPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subsetOrNull);
 
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
