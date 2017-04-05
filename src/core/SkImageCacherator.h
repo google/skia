@@ -39,6 +39,11 @@ public:
         kSRGB8888_CachedFormat,  // sRGB bytes
         kSBGR8888_CachedFormat,  // sRGB bytes, in BGR order
 
+        // sRGB encoded single-channel (grayscale). The situations where we choose this are
+        // mutually exclusive (based on original color type) with when we would pick Linear F16.
+        // Therefore, save a slot in the array and re-use that index.
+        kSGray_CachedFormat = kLinearF16_CachedFormat,
+
         kNumCachedFormats,
     };
 
