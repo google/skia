@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bd11199_9cee67f8",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-05T20:50:03Z",
+      "side": 1,
+      "message": "nit: The other methods call mux.get(). I assume they can just use mux directly, as here? I don\u0027t have a preference, but can they be consistent?",
+      "range": {
+        "startLine": 233,
+        "startChar": 43,
+        "endLine": 233,
+        "endChar": 46
+      },
+      "revId": "8d4de7f76458ebbaced172396a988b9587861d40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
