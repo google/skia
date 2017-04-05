@@ -84,11 +84,13 @@ HIDDEN _sk_constant_color_aarch64
 .globl _sk_constant_color_aarch64
 _sk_constant_color_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0x3dc00103                          // ldr           q3, [x8]
-  .long  0x4e040460                          // dup           v0.4s, v3.s[0]
-  .long  0x4e0c0461                          // dup           v1.4s, v3.s[1]
-  .long  0x4e140462                          // dup           v2.4s, v3.s[2]
-  .long  0x4e1c0463                          // dup           v3.4s, v3.s[3]
+  .long  0xaa0803ea                          // mov           x10, x8
+  .long  0x4ddfc940                          // ld1r          {v0.4s}, [x10], #4
+  .long  0x91002109                          // add           x9, x8, #0x8
+  .long  0x91003108                          // add           x8, x8, #0xc
+  .long  0x4d40c922                          // ld1r          {v2.4s}, [x9]
+  .long  0x4d40c903                          // ld1r          {v3.4s}, [x8]
+  .long  0x4d40c941                          // ld1r          {v1.4s}, [x10]
   .long  0xd61f0060                          // br            x3
 
 HIDDEN _sk_clear_aarch64
@@ -1928,15 +1930,19 @@ HIDDEN _sk_linear_gradient_2stops_aarch64
 .globl _sk_linear_gradient_2stops_aarch64
 _sk_linear_gradient_2stops_aarch64:
   .long  0xa8c10c28                          // ldp           x8, x3, [x1], #16
-  .long  0xad404503                          // ldp           q3, q17, [x8]
-  .long  0x4e040470                          // dup           v16.4s, v3.s[0]
-  .long  0x4e0c0461                          // dup           v1.4s, v3.s[1]
-  .long  0x4e140462                          // dup           v2.4s, v3.s[2]
-  .long  0x4e1c0463                          // dup           v3.4s, v3.s[3]
-  .long  0x4f911010                          // fmla          v16.4s, v0.4s, v17.s[0]
-  .long  0x4fb11001                          // fmla          v1.4s, v0.4s, v17.s[1]
-  .long  0x4f911802                          // fmla          v2.4s, v0.4s, v17.s[2]
-  .long  0x4fb11803                          // fmla          v3.4s, v0.4s, v17.s[3]
+  .long  0xaa0803e9                          // mov           x9, x8
+  .long  0x2d424501                          // ldp           s1, s17, [x8, #16]
+  .long  0x4ddfc930                          // ld1r          {v16.4s}, [x9], #4
+  .long  0x9100210a                          // add           x10, x8, #0x8
+  .long  0x2d434d12                          // ldp           s18, s19, [x8, #24]
+  .long  0x91003108                          // add           x8, x8, #0xc
+  .long  0x4d40c942                          // ld1r          {v2.4s}, [x10]
+  .long  0x4d40c903                          // ld1r          {v3.4s}, [x8]
+  .long  0x4f811010                          // fmla          v16.4s, v0.4s, v1.s[0]
+  .long  0x4d40c921                          // ld1r          {v1.4s}, [x9]
+  .long  0x4f921002                          // fmla          v2.4s, v0.4s, v18.s[0]
+  .long  0x4f931003                          // fmla          v3.4s, v0.4s, v19.s[0]
+  .long  0x4f911001                          // fmla          v1.4s, v0.4s, v17.s[0]
   .long  0x4eb01e00                          // mov           v0.16b, v16.16b
   .long  0xd61f0060                          // br            x3
 #elif defined(__arm__)
@@ -2003,13 +2009,17 @@ _sk_seed_shader_vfp4:
 HIDDEN _sk_constant_color_vfp4
 .globl _sk_constant_color_vfp4
 _sk_constant_color_vfp4:
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf4630a0f                          // vld1.8        {d16-d17}, [r3]
-  .long  0xf3b40c20                          // vdup.32       d0, d16[0]
-  .long  0xf3bc1c20                          // vdup.32       d1, d16[1]
-  .long  0xf3b42c21                          // vdup.32       d2, d17[0]
-  .long  0xf3bc3c21                          // vdup.32       d3, d17[1]
+  .long  0xe283400c                          // add           r4, r3, #12
+  .long  0xe1a0e003                          // mov           lr, r3
+  .long  0xe2833008                          // add           r3, r3, #8
+  .long  0xf4ae0c9d                          // vld1.32       {d0[]}, [lr :32]!
+  .long  0xf4a43c9f                          // vld1.32       {d3[]}, [r4 :32]
+  .long  0xf4a32c9f                          // vld1.32       {d2[]}, [r3 :32]
+  .long  0xf4ae1c9f                          // vld1.32       {d1[]}, [lr :32]
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_clear_vfp4
@@ -4109,23 +4119,30 @@ _sk_matrix_perspective_vfp4:
 HIDDEN _sk_linear_gradient_2stops_vfp4
 .globl _sk_linear_gradient_2stops_vfp4
 _sk_linear_gradient_2stops_vfp4:
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf4632a0d                          // vld1.8        {d18-d19}, [r3]!
-  .long  0xf4634a0f                          // vld1.8        {d20-d21}, [r3]
-  .long  0xf3f40c22                          // vdup.32       d16, d18[0]
-  .long  0xf3f41c24                          // vdup.32       d17, d20[0]
-  .long  0xf2400c31                          // vfma.f32      d16, d0, d17
-  .long  0xf3fc6c24                          // vdup.32       d22, d20[1]
-  .long  0xf3bc1c22                          // vdup.32       d1, d18[1]
-  .long  0xf3b42c23                          // vdup.32       d2, d19[0]
-  .long  0xf2001c36                          // vfma.f32      d1, d0, d22
-  .long  0xf3f41c25                          // vdup.32       d17, d21[0]
-  .long  0xf3fc4c25                          // vdup.32       d20, d21[1]
-  .long  0xf2002c31                          // vfma.f32      d2, d0, d17
-  .long  0xf3bc3c23                          // vdup.32       d3, d19[1]
-  .long  0xf2003c34                          // vfma.f32      d3, d0, d20
+  .long  0xe283401c                          // add           r4, r3, #28
+  .long  0xe1a0e003                          // mov           lr, r3
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe2834018                          // add           r4, r3, #24
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
+  .long  0xe2834014                          // add           r4, r3, #20
+  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
+  .long  0xe2834010                          // add           r4, r3, #16
+  .long  0xf4ee0c9d                          // vld1.32       {d16[]}, [lr :32]!
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
+  .long  0xe2834008                          // add           r4, r3, #8
+  .long  0xf2400c34                          // vfma.f32      d16, d0, d20
+  .long  0xe283300c                          // add           r3, r3, #12
+  .long  0xf4a42c9f                          // vld1.32       {d2[]}, [r4 :32]
+  .long  0xf2002c32                          // vfma.f32      d2, d0, d18
+  .long  0xf4ae1c9f                          // vld1.32       {d1[]}, [lr :32]
+  .long  0xf2001c33                          // vfma.f32      d1, d0, d19
+  .long  0xf4a33c9f                          // vld1.32       {d3[]}, [r3 :32]
+  .long  0xf2003c31                          // vfma.f32      d3, d0, d17
   .long  0xf22001b0                          // vorr          d0, d16, d16
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 #elif defined(__x86_64__)
 
@@ -9355,19 +9372,19 @@ _sk_linear_gradient_2stops_avx:
   .byte  196,226,125,24,72,16                // vbroadcastss  0x10(%rax),%ymm1
   .byte  196,226,125,24,16                   // vbroadcastss  (%rax),%ymm2
   .byte  197,244,89,200                      // vmulps        %ymm0,%ymm1,%ymm1
-  .byte  197,108,88,193                      // vaddps        %ymm1,%ymm2,%ymm8
+  .byte  197,116,88,194                      // vaddps        %ymm2,%ymm1,%ymm8
   .byte  196,226,125,24,72,20                // vbroadcastss  0x14(%rax),%ymm1
   .byte  196,226,125,24,80,4                 // vbroadcastss  0x4(%rax),%ymm2
   .byte  197,244,89,200                      // vmulps        %ymm0,%ymm1,%ymm1
-  .byte  197,236,88,201                      // vaddps        %ymm1,%ymm2,%ymm1
+  .byte  197,244,88,202                      // vaddps        %ymm2,%ymm1,%ymm1
   .byte  196,226,125,24,80,24                // vbroadcastss  0x18(%rax),%ymm2
   .byte  196,226,125,24,88,8                 // vbroadcastss  0x8(%rax),%ymm3
   .byte  197,236,89,208                      // vmulps        %ymm0,%ymm2,%ymm2
-  .byte  197,228,88,210                      // vaddps        %ymm2,%ymm3,%ymm2
+  .byte  197,236,88,211                      // vaddps        %ymm3,%ymm2,%ymm2
   .byte  196,226,125,24,88,28                // vbroadcastss  0x1c(%rax),%ymm3
   .byte  196,98,125,24,72,12                 // vbroadcastss  0xc(%rax),%ymm9
   .byte  197,228,89,192                      // vmulps        %ymm0,%ymm3,%ymm0
-  .byte  197,180,88,216                      // vaddps        %ymm0,%ymm9,%ymm3
+  .byte  196,193,124,88,217                  // vaddps        %ymm9,%ymm0,%ymm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  197,124,41,192                      // vmovaps       %ymm8,%ymm0
   .byte  255,224                             // jmpq          *%rax
@@ -9452,14 +9469,14 @@ HIDDEN _sk_constant_color_sse41
 .globl _sk_constant_color_sse41
 _sk_constant_color_sse41:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,16,24                            // movups        (%rax),%xmm3
-  .byte  15,40,195                           // movaps        %xmm3,%xmm0
+  .byte  243,15,16,0                         // movss         (%rax),%xmm0
+  .byte  243,15,16,72,4                      // movss         0x4(%rax),%xmm1
   .byte  15,198,192,0                        // shufps        $0x0,%xmm0,%xmm0
-  .byte  15,40,203                           // movaps        %xmm3,%xmm1
-  .byte  15,198,201,85                       // shufps        $0x55,%xmm1,%xmm1
-  .byte  15,40,211                           // movaps        %xmm3,%xmm2
-  .byte  15,198,210,170                      // shufps        $0xaa,%xmm2,%xmm2
-  .byte  15,198,219,255                      // shufps        $0xff,%xmm3,%xmm3
+  .byte  15,198,201,0                        // shufps        $0x0,%xmm1,%xmm1
+  .byte  243,15,16,80,8                      // movss         0x8(%rax),%xmm2
+  .byte  15,198,210,0                        // shufps        $0x0,%xmm2,%xmm2
+  .byte  243,15,16,88,12                     // movss         0xc(%rax),%xmm3
+  .byte  15,198,219,0                        // shufps        $0x0,%xmm3,%xmm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -11697,33 +11714,33 @@ _sk_matrix_perspective_sse41:
 HIDDEN _sk_linear_gradient_2stops_sse41
 .globl _sk_linear_gradient_2stops_sse41
 _sk_linear_gradient_2stops_sse41:
+  .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,16,8                          // movups        (%rax),%xmm9
-  .byte  15,16,88,16                         // movups        0x10(%rax),%xmm3
-  .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
-  .byte  69,15,198,192,0                     // shufps        $0x0,%xmm8,%xmm8
-  .byte  65,15,40,201                        // movaps        %xmm9,%xmm1
+  .byte  243,15,16,64,16                     // movss         0x10(%rax),%xmm0
+  .byte  15,198,192,0                        // shufps        $0x0,%xmm0,%xmm0
+  .byte  243,15,16,8                         // movss         (%rax),%xmm1
+  .byte  243,15,16,80,4                      // movss         0x4(%rax),%xmm2
   .byte  15,198,201,0                        // shufps        $0x0,%xmm1,%xmm1
-  .byte  68,15,89,192                        // mulps         %xmm0,%xmm8
-  .byte  68,15,88,193                        // addps         %xmm1,%xmm8
-  .byte  15,40,203                           // movaps        %xmm3,%xmm1
-  .byte  15,198,201,85                       // shufps        $0x55,%xmm1,%xmm1
-  .byte  65,15,40,209                        // movaps        %xmm9,%xmm2
-  .byte  15,198,210,85                       // shufps        $0x55,%xmm2,%xmm2
-  .byte  15,89,200                           // mulps         %xmm0,%xmm1
+  .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
+  .byte  15,88,193                           // addps         %xmm1,%xmm0
+  .byte  243,15,16,72,20                     // movss         0x14(%rax),%xmm1
+  .byte  15,198,201,0                        // shufps        $0x0,%xmm1,%xmm1
+  .byte  15,198,210,0                        // shufps        $0x0,%xmm2,%xmm2
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  15,88,202                           // addps         %xmm2,%xmm1
-  .byte  15,40,211                           // movaps        %xmm3,%xmm2
-  .byte  15,198,210,170                      // shufps        $0xaa,%xmm2,%xmm2
-  .byte  69,15,40,209                        // movaps        %xmm9,%xmm10
-  .byte  69,15,198,210,170                   // shufps        $0xaa,%xmm10,%xmm10
-  .byte  15,89,208                           // mulps         %xmm0,%xmm2
-  .byte  65,15,88,210                        // addps         %xmm10,%xmm2
-  .byte  15,198,219,255                      // shufps        $0xff,%xmm3,%xmm3
-  .byte  69,15,198,201,255                   // shufps        $0xff,%xmm9,%xmm9
-  .byte  15,89,216                           // mulps         %xmm0,%xmm3
+  .byte  243,15,16,80,24                     // movss         0x18(%rax),%xmm2
+  .byte  15,198,210,0                        // shufps        $0x0,%xmm2,%xmm2
+  .byte  243,15,16,88,8                      // movss         0x8(%rax),%xmm3
+  .byte  15,198,219,0                        // shufps        $0x0,%xmm3,%xmm3
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  15,88,211                           // addps         %xmm3,%xmm2
+  .byte  243,15,16,88,28                     // movss         0x1c(%rax),%xmm3
+  .byte  15,198,219,0                        // shufps        $0x0,%xmm3,%xmm3
+  .byte  243,68,15,16,72,12                  // movss         0xc(%rax),%xmm9
+  .byte  69,15,198,201,0                     // shufps        $0x0,%xmm9,%xmm9
+  .byte  65,15,89,216                        // mulps         %xmm8,%xmm3
   .byte  65,15,88,217                        // addps         %xmm9,%xmm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
 
 HIDDEN _sk_start_pipeline_sse2
@@ -11806,14 +11823,14 @@ HIDDEN _sk_constant_color_sse2
 .globl _sk_constant_color_sse2
 _sk_constant_color_sse2:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,16,24                            // movups        (%rax),%xmm3
-  .byte  15,40,195                           // movaps        %xmm3,%xmm0
+  .byte  243,15,16,0                         // movss         (%rax),%xmm0
+  .byte  243,15,16,72,4                      // movss         0x4(%rax),%xmm1
   .byte  15,198,192,0                        // shufps        $0x0,%xmm0,%xmm0
-  .byte  15,40,203                           // movaps        %xmm3,%xmm1
-  .byte  15,198,201,85                       // shufps        $0x55,%xmm1,%xmm1
-  .byte  15,40,211                           // movaps        %xmm3,%xmm2
-  .byte  15,198,210,170                      // shufps        $0xaa,%xmm2,%xmm2
-  .byte  15,198,219,255                      // shufps        $0xff,%xmm3,%xmm3
+  .byte  15,198,201,0                        // shufps        $0x0,%xmm1,%xmm1
+  .byte  243,15,16,80,8                      // movss         0x8(%rax),%xmm2
+  .byte  15,198,210,0                        // shufps        $0x0,%xmm2,%xmm2
+  .byte  243,15,16,88,12                     // movss         0xc(%rax),%xmm3
+  .byte  15,198,219,0                        // shufps        $0x0,%xmm3,%xmm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
 
@@ -14156,32 +14173,32 @@ _sk_matrix_perspective_sse2:
 HIDDEN _sk_linear_gradient_2stops_sse2
 .globl _sk_linear_gradient_2stops_sse2
 _sk_linear_gradient_2stops_sse2:
+  .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  68,15,16,8                          // movups        (%rax),%xmm9
-  .byte  15,16,88,16                         // movups        0x10(%rax),%xmm3
-  .byte  68,15,40,195                        // movaps        %xmm3,%xmm8
-  .byte  69,15,198,192,0                     // shufps        $0x0,%xmm8,%xmm8
-  .byte  65,15,40,201                        // movaps        %xmm9,%xmm1
+  .byte  243,15,16,64,16                     // movss         0x10(%rax),%xmm0
+  .byte  15,198,192,0                        // shufps        $0x0,%xmm0,%xmm0
+  .byte  243,15,16,8                         // movss         (%rax),%xmm1
+  .byte  243,15,16,80,4                      // movss         0x4(%rax),%xmm2
   .byte  15,198,201,0                        // shufps        $0x0,%xmm1,%xmm1
-  .byte  68,15,89,192                        // mulps         %xmm0,%xmm8
-  .byte  68,15,88,193                        // addps         %xmm1,%xmm8
-  .byte  15,40,203                           // movaps        %xmm3,%xmm1
-  .byte  15,198,201,85                       // shufps        $0x55,%xmm1,%xmm1
-  .byte  65,15,40,209                        // movaps        %xmm9,%xmm2
-  .byte  15,198,210,85                       // shufps        $0x55,%xmm2,%xmm2
-  .byte  15,89,200                           // mulps         %xmm0,%xmm1
+  .byte  65,15,89,192                        // mulps         %xmm8,%xmm0
+  .byte  15,88,193                           // addps         %xmm1,%xmm0
+  .byte  243,15,16,72,20                     // movss         0x14(%rax),%xmm1
+  .byte  15,198,201,0                        // shufps        $0x0,%xmm1,%xmm1
+  .byte  15,198,210,0                        // shufps        $0x0,%xmm2,%xmm2
+  .byte  65,15,89,200                        // mulps         %xmm8,%xmm1
   .byte  15,88,202                           // addps         %xmm2,%xmm1
-  .byte  15,40,211                           // movaps        %xmm3,%xmm2
-  .byte  15,198,210,170                      // shufps        $0xaa,%xmm2,%xmm2
-  .byte  69,15,40,209                        // movaps        %xmm9,%xmm10
-  .byte  69,15,198,210,170                   // shufps        $0xaa,%xmm10,%xmm10
-  .byte  15,89,208                           // mulps         %xmm0,%xmm2
-  .byte  65,15,88,210                        // addps         %xmm10,%xmm2
-  .byte  15,198,219,255                      // shufps        $0xff,%xmm3,%xmm3
-  .byte  69,15,198,201,255                   // shufps        $0xff,%xmm9,%xmm9
-  .byte  15,89,216                           // mulps         %xmm0,%xmm3
+  .byte  243,15,16,80,24                     // movss         0x18(%rax),%xmm2
+  .byte  15,198,210,0                        // shufps        $0x0,%xmm2,%xmm2
+  .byte  243,15,16,88,8                      // movss         0x8(%rax),%xmm3
+  .byte  15,198,219,0                        // shufps        $0x0,%xmm3,%xmm3
+  .byte  65,15,89,208                        // mulps         %xmm8,%xmm2
+  .byte  15,88,211                           // addps         %xmm3,%xmm2
+  .byte  243,15,16,88,28                     // movss         0x1c(%rax),%xmm3
+  .byte  15,198,219,0                        // shufps        $0x0,%xmm3,%xmm3
+  .byte  243,68,15,16,72,12                  // movss         0xc(%rax),%xmm9
+  .byte  69,15,198,201,0                     // shufps        $0x0,%xmm9,%xmm9
+  .byte  65,15,89,216                        // mulps         %xmm8,%xmm3
   .byte  65,15,88,217                        // addps         %xmm9,%xmm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  65,15,40,192                        // movaps        %xmm8,%xmm0
   .byte  255,224                             // jmpq          *%rax
 #endif

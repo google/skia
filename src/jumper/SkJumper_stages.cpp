@@ -41,8 +41,8 @@ SI void* load_and_inc(void**& program) {
 #endif
 }
 
-// LazyCtx doesn't do anything unless you call operator T*() or load(), encapsulating the
-// logic from above that stages without a context pointer are represented by just 1 void*.
+// LazyCtx doesn't do anything unless you call operator T*(), encapsulating the logic
+// from above that stages without a context pointer are represented by just 1 void*.
 struct LazyCtx {
     void*   ptr;
     void**& program;
@@ -53,12 +53,6 @@ struct LazyCtx {
     operator T*() {
         if (!ptr) { ptr = load_and_inc(program); }
         return (T*)ptr;
-    }
-
-    template <typename T>
-    T load() {
-        if (!ptr) { ptr = load_and_inc(program); }
-        return unaligned_load<T>(ptr);
     }
 };
 
@@ -163,17 +157,7 @@ struct LazyCtx {
 extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
 
 
-// We could start defining normal Stages now.  But first, some helper functions and types.
-
-// Sometimes we want to work with 4 floats directly, regardless of the depth of the F vector.
-#if defined(JUMPER)
-    using F4 = float __attribute__((ext_vector_type(4)));
-#else
-    struct F4 {
-        float vals[4];
-        float operator[](int i) const { return vals[i]; }
-    };
-#endif
+// We could start defining normal Stages now.  But first, some helper functions.
 
 // These load() and store() methods are tail-aware,
 // but focus mainly on keeping the at-stride tail==0 case fast.
@@ -301,7 +285,7 @@ STAGE(seed_shader) {
 }
 
 STAGE(constant_color) {
-    auto rgba = ctx.load<F4>();
+    auto rgba = (const float*)ctx;
     r = rgba[0];
     g = rgba[1];
     b = rgba[2];
@@ -763,12 +747,12 @@ STAGE(matrix_perspective) {
 }
 
 STAGE(linear_gradient_2stops) {
-    struct Ctx { F4 c0, dc; };
-    auto c = ctx.load<Ctx>();
+    struct Ctx { float c0[4], dc[4]; };
+    auto c = (const Ctx*)ctx;
 
     auto t = r;
-    r = mad(t, c.dc[0], c.c0[0]);
-    g = mad(t, c.dc[1], c.c0[1]);
-    b = mad(t, c.dc[2], c.c0[2]);
-    a = mad(t, c.dc[3], c.c0[3]);
+    r = mad(t, c->dc[0], c->c0[0]);
+    g = mad(t, c->dc[1], c->c0[1]);
+    b = mad(t, c->dc[2], c->c0[2]);
+    a = mad(t, c->dc[3], c->c0[3]);
 }
