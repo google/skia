@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ff1f30b_d49b0882",
+        "filename": "src/gpu/vk/GrVkBackendContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-05T13:16:40Z",
+      "side": 1,
+      "message": "Instead of setting up the default getProc in multiple other spots, what if we just check if it is valid here and if not set it to the default function.",
+      "range": {
+        "startLine": 53,
+        "startChar": 4,
+        "endLine": 53,
+        "endChar": 33
+      },
+      "revId": "7735a6894435f8df560db5a364e7114919e390dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
