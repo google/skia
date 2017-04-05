@@ -8,7 +8,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrAppliedClip.h"
 #include "GrColor.h"
-#include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
@@ -163,14 +162,18 @@ bool GrRenderTargetContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBu
 
     // TODO: this seems to duplicate code in SkImage_Gpu::onReadPixels
     if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
-        flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
+        flags |= GrContext::kUnpremul_PixelOpsFlag;
     }
 
-    return fContext->contextPriv().readSurfacePixels(fRenderTargetProxy.get(),
-                                                     this->getColorSpace(), x, y,
-                                                     dstInfo.width(), dstInfo.height(), config,
-                                                     dstInfo.colorSpace(),
-                                                     dstBuffer, dstRowBytes, flags);
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrRenderTarget> rt(
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
+    if (!rt) {
+        return false;
+    }
+
+    return rt->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
+                          config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
 }
 
 // TODO: move this (and GrTextureContext::onReadPixels) to GrSurfaceContext?
@@ -182,14 +185,18 @@ bool GrRenderTargetContext::onWritePixels(const SkImageInfo& srcInfo, const void
         return false;
     }
     if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
-        flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
+        flags |= GrContext::kUnpremul_PixelOpsFlag;
     }
 
-    return fContext->contextPriv().writeSurfacePixels(fRenderTargetProxy.get(),
-                                                      this->getColorSpace(), x, y,
-                                                      srcInfo.width(), srcInfo.height(),
-                                                      config, srcInfo.colorSpace(),
-                                                      srcBuffer, srcRowBytes, flags);
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrRenderTarget> rt(
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
+    if (!rt) {
+        return false;
+    }
+
+    return rt->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
+                           config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
 }
 
 
@@ -1780,7 +1787,7 @@ void GrRenderTargetContext::setupDstTexture(GrRenderTarget* rt, const GrClip& cl
         desc.fHeight = rt->height();
         dstPoint = {copyRect.fLeft, copyRect.fTop};
         dstOffset = {0, 0};
-        copy = fContext->resourceProvider()->createTexture(desc, SkBudgeted::kYes, kFlags);
+        copy.reset(fContext->resourceProvider()->createTexture(desc, SkBudgeted::kYes, kFlags));
     } else {
         desc.fWidth = copyRect.width();
         desc.fHeight = copyRect.height();
