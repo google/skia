@@ -14,10 +14,6 @@
 #include "SkRect.h"
 #include "SkRefCnt.h"
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
-#include "SkCanvas.h"
-#endif
-
 /**
  * An immutable set of vertex data that can be used with SkCanvas::drawVertices.
  */
@@ -47,25 +43,6 @@ public:
         return MakeCopy(mode, vertexCount, positions, texs, colors, 0, nullptr);
     }
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
-    static sk_sp<SkVertices> MakeCopy(SkCanvas::VertexMode mode, int vertexCount,
-                                      const SkPoint positions[],
-                                      const SkPoint texs[],
-                                      const SkColor colors[],
-                                      int indexCount,
-                                      const uint16_t indices[]) {
-        return MakeCopy(static_cast<VertexMode>(mode), vertexCount, positions, texs, colors,
-                        indexCount, indices);
-    }
-
-    static sk_sp<SkVertices> MakeCopy(SkCanvas::VertexMode mode, int vertexCount,
-                                      const SkPoint positions[],
-                                      const SkPoint texs[],
-                                      const SkColor colors[]) {
-        return MakeCopy(static_cast<VertexMode>(mode), vertexCount, positions, texs, colors);
-    }
-#endif
-
     struct Sizes;
 
     enum BuilderFlags {
@@ -75,10 +52,6 @@ public:
     class Builder {
     public:
         Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
-
-#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
-        Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
-#endif
 
         bool isValid() const { return fVertices != nullptr; }
 

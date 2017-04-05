@@ -63,16 +63,6 @@ SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
     this->init(mode, vertexCount, indexCount, sizes);
 }
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
-SkVertices::Builder::Builder(SkCanvas::VertexMode mode, int vertexCount, int indexCount,
-                             uint32_t builderFlags) {
-    bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
-    bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
-    this->init(static_cast<VertexMode>(mode), vertexCount, indexCount,
-               SkVertices::Sizes(vertexCount, indexCount, hasTexs, hasColors));
-}
-#endif
-
 void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
                                const SkVertices::Sizes& sizes) {
     if (!sizes.isValid()) {
