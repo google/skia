@@ -109,7 +109,14 @@ GR_STATIC_ASSERT(sizeof(VkFence) <= sizeof(sk_gpu_test::PlatformFence));
 class VkTestContextImpl : public sk_gpu_test::VkTestContext {
 public:
     static VkTestContext* Create() {
-        sk_sp<const GrVkBackendContext> backendContext(GrVkBackendContext::Create());
+        GrVkInterface::GetProc proc = [](const char* proc_name,
+                                   VkInstance instance, VkDevice device) {
+            if (device != VK_NULL_HANDLE) {
+                return vkGetDeviceProcAddr(device, proc_name);
+            }
+            return vkGetInstanceProcAddr(instance, proc_name);
+        };
+        sk_sp<const GrVkBackendContext> backendContext(GrVkBackendContext::Create(proc));
         if (!backendContext) {
             return nullptr;
         }

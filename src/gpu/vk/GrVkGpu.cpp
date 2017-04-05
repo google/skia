@@ -73,10 +73,17 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
 
 GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
                        GrContext* context) {
+     GrVkInterface::GetProc proc = [](const char* proc_name,
+                                    VkInstance instance, VkDevice device) {
+         if (device != VK_NULL_HANDLE) {
+             return vkGetDeviceProcAddr(device, proc_name);
+         }
+         return vkGetInstanceProcAddr(instance, proc_name);
+     };
     const GrVkBackendContext* vkBackendContext =
         reinterpret_cast<const GrVkBackendContext*>(backendContext);
     if (!vkBackendContext) {
-        vkBackendContext = GrVkBackendContext::Create();
+        vkBackendContext = GrVkBackendContext::Create(proc);
         if (!vkBackendContext) {
             return nullptr;
         }
@@ -1380,7 +1387,7 @@ inline bool can_copy_image(const GrSurface* dst,
         }
     }
 
-    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src 
+    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
     // as image usage flags.
     if (src->origin() == dst->origin() &&
         GrBytesPerPixel(src->config()) == GrBytesPerPixel(dst->config())) {
