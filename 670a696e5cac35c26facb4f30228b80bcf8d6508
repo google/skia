@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ac37ab0_98ed14ca",
+        "filename": "infra/bots/recipe_modules/upload_dm_results/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-05T19:50:59Z",
+      "side": 1,
+      "message": "This does things in parallel, right?  Perhaps make the commit message more clear?  This appears to be the only change, and I don\u0027t see how it impacts redundant uploads.",
+      "range": {
+        "startLine": 22,
+        "startChar": 22,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
