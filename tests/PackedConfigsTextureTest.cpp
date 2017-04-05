@@ -15,7 +15,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
 
@@ -117,13 +116,10 @@ void runTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fHeight = DEV_H;
         desc.fConfig = config;
         desc.fOrigin = 0 == origin ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-        sk_sp<GrTextureProxy> fpProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                     desc, SkBudgeted::kNo,
-                                                                     controlPixelData.begin(), 0);
-        SkASSERT(fpProxy);
-        context->contextPriv().readSurfacePixels(fpProxy.get(), nullptr, 0, 0, DEV_W, DEV_H,
-                                                 kRGBA_8888_GrPixelConfig, nullptr,
-                                                 readBuffer.begin(), 0);
+        sk_sp<GrTexture> fpTexture(context->resourceProvider()->createTexture(
+            desc, SkBudgeted::kNo, controlPixelData.begin(), 0));
+        SkASSERT(fpTexture);
+        fpTexture->readPixels(0, 0, DEV_W, DEV_H, kRGBA_8888_GrPixelConfig, readBuffer.begin(), 0);
         if (kRGBA_4444_GrPixelConfig == config) {
             check_4444(reporter, controlPixelData, readBuffer);
         } else {
