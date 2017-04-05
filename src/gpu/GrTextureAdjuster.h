@@ -9,6 +9,7 @@
 #define GrTextureAdjuster_DEFINED
 
 #include "GrTextureProducer.h"
+#include "GrTextureProxy.h"
 #include "SkTLazy.h"
 
 /**

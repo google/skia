@@ -14,6 +14,8 @@
 #include "GrOp.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContext.h"
+#include "GrResourceProvider.h"
 
 class GrClearOp final : public GrOp {
 public:
