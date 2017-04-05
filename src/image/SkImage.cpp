@@ -302,7 +302,13 @@ bool SkImage::isAlphaOnly() const {
     return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
 }
 
-sk_sp<SkImage> SkImage_Base::makeColorSpace(sk_sp<SkColorSpace> target) const {
+sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
+                                       SkTransferFunctionBehavior premulBehavior) const {
+    if (SkTransferFunctionBehavior::kRespect == premulBehavior) {
+        // TODO (msarett, brianosman): Implement this.
+        return nullptr;
+    }
+
     SkColorSpaceTransferFn fn;
     if (!target || !target->isNumericalTransferFn(&fn)) {
         return nullptr;
@@ -313,11 +319,12 @@ sk_sp<SkImage> SkImage_Base::makeColorSpace(sk_sp<SkColorSpace> target) const {
     // (2) The color type is kAlpha8.
     if ((!this->colorSpace() && target->isSRGB()) ||
             SkColorSpace::Equals(this->colorSpace(), target.get()) ||
-            kAlpha_8_SkColorType == this->onImageInfo().colorType()) {
-        return sk_ref_sp(const_cast<SkImage_Base*>(this));
+            kAlpha_8_SkColorType == as_IB(this)->onImageInfo().colorType()) {
+        return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    return this->onMakeColorSpace(std::move(target));
+    // TODO: We might consider making this a deferred conversion?
+    return as_IB(this)->onMakeColorSpace(std::move(target));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

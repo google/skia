@@ -437,6 +437,22 @@ public:
      */
     bool isLazyGenerated() const;
 
+    /**
+     *  If |target| is supported, returns an SkImage in the |target| color space.
+     *  Otherwise, returns nullptr.
+     *
+     *  This will leave the image as is if it already in the |target| color space.
+     *  Otherwise, it will convert the pixels from the src color space to the |target|
+     *  color space.  If this->colorSpace() is nullptr, the src color space will be
+     *  treated as sRGB.
+     *
+     *  If |premulBehavior| is kIgnore, any premultiplication or unpremultiplication will
+     *  be performed in the gamma encoded space.  If it is kRespect, premultiplication is
+     *  assumed to be linear.
+     */
+    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
+                                  SkTransferFunctionBehavior premulBehavior) const;
+
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
 
