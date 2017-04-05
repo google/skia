@@ -40,8 +40,10 @@ extern "C" {
 #include "webp/mux.h"
 }
 
-static transform_scanline_proc choose_proc(const SkImageInfo& info) {
-    const bool isGammaEncoded = info.gammaCloseToSRGB();
+static transform_scanline_proc choose_proc(const SkImageInfo& info,
+                                           SkTransferFunctionBehavior unpremulBehavior) {
+    const bool isSRGBTransferFn =
+            (SkTransferFunctionBehavior::kRespect == unpremulBehavior) && info.gammaCloseToSRGB();
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
             switch (info.alphaType()) {
@@ -50,8 +52,8 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
                 case kUnpremul_SkAlphaType:
                     return transform_scanline_memcpy;
                 case kPremul_SkAlphaType:
-                    return isGammaEncoded ? transform_scanline_srgbA :
-                                            transform_scanline_rgbA;
+                    return isSRGBTransferFn ? transform_scanline_srgbA :
+                                              transform_scanline_rgbA;
                 default:
                     return nullptr;
             }
@@ -62,8 +64,8 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
                 case kUnpremul_SkAlphaType:
                     return transform_scanline_BGRA;
                 case kPremul_SkAlphaType:
-                    return isGammaEncoded ? transform_scanline_sbgrA :
-                                            transform_scanline_bgrA;
+                    return isSRGBTransferFn ? transform_scanline_sbgrA :
+                                              transform_scanline_bgrA;
                 default:
                     return nullptr;
             }
@@ -121,21 +123,16 @@ static int stream_writer(const uint8_t* data, size_t data_size,
   return stream->write(data, data_size) ? 1 : 0;
 }
 
-static bool do_encode(SkWStream* stream, const SkPixmap& srcPixmap, const SkEncodeOptions& opts,
+static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeOptions& opts,
                       int quality) {
-    SkASSERT(!srcPixmap.colorSpace() || srcPixmap.colorSpace()->gammaCloseToSRGB() ||
-            srcPixmap.colorSpace()->gammaIsLinear());
-
-    SkPixmap pixmap = srcPixmap;
-    if (SkTransferFunctionBehavior::kIgnore == opts.fUnpremulBehavior) {
-        pixmap.setColorSpace(nullptr);
-    } else {
-        if (!pixmap.colorSpace()) {
+    if (SkTransferFunctionBehavior::kRespect == opts.fUnpremulBehavior) {
+        if (!pixmap.colorSpace() || (!pixmap.colorSpace()->gammaCloseToSRGB() &&
+                                     !pixmap.colorSpace()->gammaIsLinear())) {
             return false;
         }
     }
 
-    const transform_scanline_proc proc = choose_proc(pixmap.info());
+    const transform_scanline_proc proc = choose_proc(pixmap.info(), opts.fUnpremulBehavior);
     if (!proc) {
         return false;
     }
@@ -162,7 +159,7 @@ static bool do_encode(SkWStream* stream, const SkPixmap& srcPixmap, const SkEnco
         if (kPremul_SkAlphaType == pixmap.alphaType()) {
             // Unpremultiply the colors.
             const SkImageInfo rgbaInfo = pixmap.info().makeColorType(kRGBA_8888_SkColorType);
-            transform_scanline_proc proc = choose_proc(rgbaInfo);
+            transform_scanline_proc proc = choose_proc(rgbaInfo, opts.fUnpremulBehavior);
             proc((char*) storage, (const char*) colors, pixmap.ctable()->count(), 4, nullptr);
             colors = storage;
         }
