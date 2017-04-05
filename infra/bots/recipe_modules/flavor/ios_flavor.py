@@ -7,6 +7,7 @@
 
 import default_flavor
 import gn_flavor
+import os
 
 # Infra step failures interact really annoyingly with swarming retries.
 kInfraStep = False
@@ -23,12 +24,20 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
         svg_dir='svgs',
         tmp_dir='tmp')
 
+  def compile(self, unused_target, **kwargs):
+    """ Build Skia with GN and sign the iOS apps"""
+    # Use the generic compile sets.
+    super(iOSFlavorUtils, self).compile(unused_target, **kwargs)
+
+    # Sign the apps.
+    for app in ['dm', 'nanobench']:
+      self._py('package ' + app,
+              self.m.vars.skia_dir.join('gn', 'package_ios.py'),
+              args=[self.out_dir.join(app)])
+
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
 
-    self._py('package ' + name,
-             self.m.vars.skia_dir.join('gn', 'package_ios.py'),
-             args=[str(app)])
     self._run(name,
               ['ios-deploy', '-b', '%s.app' % app,
                '-I', '--args', ' '.join(map(str, cmd[1:]))])
