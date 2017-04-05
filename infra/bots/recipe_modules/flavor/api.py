@@ -44,7 +44,8 @@ def is_flutter(builder_cfg):
   return 'Flutter' in builder_cfg.get('extra_config', '')
 
 def is_ios(builder_cfg):
-  return 'iOS' == builder_cfg.get('os', '')
+  return ('iOS' in builder_cfg.get('extra_config', '') or
+          'iOS' == builder_cfg.get('os', ''))
 
 def is_pdfium(builder_cfg):
   return 'PDFium' in builder_cfg.get('extra_config', '')
