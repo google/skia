@@ -22,6 +22,30 @@
       "revId": "2084ffa9a3fa7eb3c7e17ec5b55750be9942bafc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c487a4e_164118b1",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-05T13:03:33Z",
+      "side": 0,
+      "message": "Oops, I don\u0027t remember.  Maybe I thought it was unnecessary.  Will bring this back.  At best, it\u0027s unrelated.",
+      "parentUuid": "ded2e82d_2b11d60f",
+      "range": {
+        "startLine": 37,
+        "startChar": 3,
+        "endLine": 37,
+        "endChar": 72
+      },
+      "revId": "2084ffa9a3fa7eb3c7e17ec5b55750be9942bafc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
