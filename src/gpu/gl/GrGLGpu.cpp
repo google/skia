@@ -2212,7 +2212,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
         desc.fWidth = desc.fHeight = 16;
         if (this->glCaps().isConfigRenderable(rtConfig, false)) {
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            temp.reset(this->createTexture(desc, SkBudgeted::kNo));
+            temp.reset(this->createTexture2(desc, SkBudgeted::kNo));
             if (!temp) {
                 return false;
             }
@@ -2220,7 +2220,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
             this->flushRenderTarget(glrt, &SkIRect::EmptyIRect());
             return true;
         } else if (this->glCaps().canConfigBeFBOColorAttachment(rtConfig)) {
-            temp.reset(this->createTexture(desc, SkBudgeted::kNo));
+            temp.reset(this->createTexture2(desc, SkBudgeted::kNo));
             if (!temp) {
                 return false;
             }

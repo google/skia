@@ -28,10 +28,12 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
     // guarantee we do not recieve a texture with pending IO
     // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(ctx->resourceProvider()->createApproxTexture(desc, kFlags));
+    sk_sp<GrTexture> texture(ctx->resourceProvider()->createApproxTexture7(desc, kFlags));
     if (!texture) {
         return nullptr;
     }
+
+    // no discard needed - not a RT
 
     // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
     // possess the correct properties (e.g., no pendingIO) should fall out of the system but
