@@ -1099,49 +1099,6 @@ public:
     }
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_VERTICES
-    enum VertexMode {
-        kTriangles_VertexMode,
-        kTriangleStrip_VertexMode,
-        kTriangleFan_VertexMode
-    };
-
-    /** Draw the array of vertices, interpreted as triangles (based on mode).
-
-        If both textures and vertex-colors are NULL, it strokes hairlines with
-        the paint's color. This behavior is a useful debugging mode to visualize
-        the mesh.
-
-        @param vmode How to interpret the array of vertices
-        @param vertexCount The number of points in the vertices array (and
-                    corresponding texs and colors arrays if non-null)
-        @param vertices Array of vertices for the mesh
-        @param texs May be null. If not null, specifies the coordinate
-                    in _texture_ space (not uv space) for each vertex.
-        @param colors May be null. If not null, specifies a color for each
-                      vertex, to be interpolated across the triangle.
-        @param mode Used if both texs and colors are present and paint has a
-                    shader. In this case the colors are combined with the texture
-                    using mode, before being drawn using the paint.
-        @param indices If not null, array of indices to reference into the
-                    vertex (texs, colors) array.
-        @param indexCount number of entries in the indices array (if not null)
-        @param paint Specifies the shader/texture if present.
-    */
-    void drawVertices(VertexMode vmode, int vertexCount,
-                      const SkPoint vertices[], const SkPoint texs[],
-                      const SkColor colors[], SkBlendMode mode,
-                      const uint16_t indices[], int indexCount,
-                      const SkPaint& paint);
-    void drawVertices(VertexMode vmode, int vertexCount,
-                      const SkPoint vertices[], const SkPoint texs[],
-                      const SkColor colors[], const uint16_t indices[], int indexCount,
-                      const SkPaint& paint) {
-        this->drawVertices(vmode, vertexCount, vertices, texs, colors, SkBlendMode::kModulate,
-                           indices, indexCount, paint);
-    }
-#endif
-
     /** Draw vertices from an immutable SkVertices object.
 
         @param vertices The mesh to draw.
