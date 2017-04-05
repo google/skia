@@ -24,13 +24,13 @@ static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
     //draw control points
     SkPaint paint;
     SkPoint bottom[SkPatchUtils::kNumPtsCubic];
-    SkPatchUtils::getBottomCubic(cubics, bottom);
+    SkPatchUtils::GetBottomCubic(cubics, bottom);
     SkPoint top[SkPatchUtils::kNumPtsCubic];
-    SkPatchUtils::getTopCubic(cubics, top);
+    SkPatchUtils::GetTopCubic(cubics, top);
     SkPoint left[SkPatchUtils::kNumPtsCubic];
-    SkPatchUtils::getLeftCubic(cubics, left);
+    SkPatchUtils::GetLeftCubic(cubics, left);
     SkPoint right[SkPatchUtils::kNumPtsCubic];
-    SkPatchUtils::getRightCubic(cubics, right);
+    SkPatchUtils::GetRightCubic(cubics, right);
 
     paint.setColor(SK_ColorBLACK);
     paint.setStrokeWidth(0.5f);

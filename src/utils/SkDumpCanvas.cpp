@@ -478,14 +478,10 @@ void SkDumpCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
     this->dump(kDrawPatch_Verb, &paint, "drawPatch(Vertices{[%f, %f], [%f, %f], [%f, %f], [%f, %f]}\
               | Colors{[0x%x], [0x%x], [0x%x], [0x%x]} | TexCoords{[%f,%f], [%f,%f], [%f,%f], \
                [%f,%f]})",
-              cubics[SkPatchUtils::kTopP0_CubicCtrlPts].fX,
-              cubics[SkPatchUtils::kTopP0_CubicCtrlPts].fY,
-              cubics[SkPatchUtils::kTopP3_CubicCtrlPts].fX,
-              cubics[SkPatchUtils::kTopP3_CubicCtrlPts].fY,
-              cubics[SkPatchUtils::kBottomP3_CubicCtrlPts].fX,
-              cubics[SkPatchUtils::kBottomP3_CubicCtrlPts].fY,
-              cubics[SkPatchUtils::kBottomP0_CubicCtrlPts].fX,
-              cubics[SkPatchUtils::kBottomP0_CubicCtrlPts].fY,
+              cubics[0].fX, cubics[0].fY,
+              cubics[3].fX, cubics[3].fY,
+              cubics[6].fX, cubics[6].fY,
+              cubics[9].fX, cubics[9].fY,
               colors[0], colors[1], colors[2], colors[3],
               texCoords[0].x(), texCoords[0].y(), texCoords[1].x(), texCoords[1].y(),
               texCoords[2].x(), texCoords[2].y(), texCoords[3].x(), texCoords[3].y());
