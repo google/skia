@@ -3233,7 +3233,9 @@ SkNoDrawCanvas::SkNoDrawCanvas(int width, int height)
     : INHERITED(SkIRect::MakeWH(width, height), kConservativeRasterClip_InitFlag) {}
 
 SkNoDrawCanvas::SkNoDrawCanvas(const SkIRect& bounds)
-    : INHERITED(bounds, kConservativeRasterClip_InitFlag) {}
+    : INHERITED(bounds, kConservativeRasterClip_InitFlag) {
+    resetForNextPicture(bounds);
+}
 
 SkCanvas::SaveLayerStrategy SkNoDrawCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
     (void)this->INHERITED::getSaveLayerStrategy(rec);
