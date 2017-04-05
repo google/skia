@@ -32,8 +32,6 @@ protected:
         return this->doProcessorAnalysis(caps, clip).requiresDstTexture();
     }
 
-    void wasRecorded() override { fProcessorSet.makePendingExecution(); }
-
 protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fAnalysis.inputColor(); }
@@ -42,8 +40,8 @@ protected:
     void initPipeline(const GrOpFlushState&, GrPipeline*);
     const GrProcessorSet::Analysis& doProcessorAnalysis(const GrCaps& caps,
                                                         const GrAppliedClip* clip) {
-        fProcessorSet.analyzeAndEliminateFragmentProcessors(
-                &fAnalysis, fAnalysis.inputColor(), GrProcessorAnalysisCoverage::kNone, clip, caps);
+        fAnalysis = fProcessorSet.finalize(fAnalysis.inputColor(),
+                                           GrProcessorAnalysisCoverage::kNone, clip, caps);
         return fAnalysis;
     }
     const GrProcessorSet::Analysis& processorAnalysis() const {

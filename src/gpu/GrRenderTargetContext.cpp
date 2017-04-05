@@ -1710,8 +1710,8 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
         }
     }
 
-    GrProcessorSet::Analysis analysis;
-    op->analyzeProcessors(&analysis, &pipelineBuilder, &appliedClip, *this->caps());
+    GrProcessorSet::Analysis analysis =
+            op->analyzeUpdateAndRecordProcessors(&pipelineBuilder, &appliedClip, *this->caps());
 
     GrPipeline::InitArgs args;
     pipelineBuilder.getPipelineInitArgs(&args);
