@@ -22,6 +22,7 @@ TEST_BUILDERS = {
       'Build-Mac-Clang-x64-Release-iOS',
       'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
       'Build-Mac-Clang-x86_64-Release-GN',
+      'Build-Ubuntu-Clang-arm-Release-Chromebook_C100p',
       'Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot',
       'Build-Ubuntu-Clang-arm64-Debug-GN_Android_FrameworkDefs',
       'Build-Ubuntu-Clang-arm64-Release-GN_Android',

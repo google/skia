@@ -102,6 +102,9 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		} else if task_os == "Chromecast" {
 			task_os = "Ubuntu"
 			ec = "Chromecast"
+		} else if strings.HasPrefix(task_os, "Chromebook") {
+			ec = task_os
+			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
 			ec = task_os
 			task_os = "Mac"
@@ -260,6 +263,12 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
+	} else if strings.Contains(name, "Chromebook") {
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
+		if strings.Contains(name, "Chromebook_C100p") {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_c100p_lib"))
+		}
 	} else if strings.Contains(name, "Ubuntu") {
 		if strings.Contains(name, "Clang") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))

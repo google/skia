@@ -11,6 +11,7 @@ from recipe_engine import recipe_api
 from . import default_flavor
 from . import flutter_flavor
 from . import gn_android_flavor
+from . import gn_chromebook_flavor
 from . import gn_chromecast_flavor
 from . import gn_flavor
 from . import ios_flavor
@@ -35,6 +36,10 @@ def is_chromecast(builder_cfg):
   return ('Chromecast' in builder_cfg.get('extra_config', '') or
           'Chromecast' in builder_cfg.get('os', ''))
 
+def is_chromebook(builder_cfg):
+  return ('Chromebook' in builder_cfg.get('extra_config', '') or
+          'Chromebook' in builder_cfg.get('os', ''))
+
 def is_flutter(builder_cfg):
   return 'Flutter' in builder_cfg.get('extra_config', '')
 
@@ -55,6 +60,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return flutter_flavor.FlutterFlavorUtils(self.m)
     if is_chromecast(builder_cfg):
       return gn_chromecast_flavor.GNChromecastFlavorUtils(self.m)
+    if is_chromebook(builder_cfg):
+      return gn_chromebook_flavor.GNChromebookFlavorUtils(self.m)
     if is_android(builder_cfg):
       return gn_android_flavor.GNAndroidFlavorUtils(self.m)
     elif is_ios(builder_cfg):
