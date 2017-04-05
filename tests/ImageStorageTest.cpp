@@ -20,17 +20,9 @@
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
     class TestFP : public GrFragmentProcessor {
     public:
-        static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                               sk_sp<GrTextureProxy> proxy,
-                                               GrSLMemoryModel mm,
+        static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTexture> texture, GrSLMemoryModel mm,
                                                GrSLRestrict restrict) {
-            // MDB TODO: remove this once ImageStorageAccess is converted to GrTextureProxy
-            sk_sp<GrTexture> tex(sk_ref_sp(proxy->instantiate(resourceProvider)));
-            if (!tex) {
-                return nullptr;
-            }
-
-            return sk_sp<GrFragmentProcessor>(new TestFP(std::move(tex), mm, restrict));
+            return sk_sp<GrFragmentProcessor>(new TestFP(std::move(texture), mm, restrict));
         }
 
         const char* name() const override { return "Image Load Test FP"; }
@@ -135,17 +127,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                     continue;
                 }
                 desc.fConfig = test.fConfig;
-                sk_sp<GrTextureProxy> imageStorageTexture =
-                    GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
-                                                 SkBudgeted::kYes, test.fData.get(), 0);
+                sk_sp<GrTexture> imageStorageTexture(context->resourceProvider()->createTexture(
+                        desc, SkBudgeted::kYes, test.fData.get(), 0));
 
                 sk_sp<GrRenderTargetContext> rtContext =
                     context->makeRenderTargetContext(SkBackingFit::kExact, kS, kS,
                                                      kRGBA_8888_GrPixelConfig, nullptr);
                 GrPaint paint;
                 paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-                paint.addColorFragmentProcessor(TestFP::Make(context->resourceProvider(),
-                                                             imageStorageTexture, mm, restrict));
+                paint.addColorFragmentProcessor(TestFP::Make(imageStorageTexture, mm, restrict));
                 rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
                 std::unique_ptr<uint32_t[]> readData(new uint32_t[kS * kS]);
                 SkImageInfo info = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
