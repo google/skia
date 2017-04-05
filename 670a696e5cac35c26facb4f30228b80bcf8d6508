@@ -46,6 +46,30 @@
       "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6aa18d8_44d6a2e8",
+        "filename": "infra/bots/recipe_modules/upload_dm_results/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-05T19:56:11Z",
+      "side": 1,
+      "message": "IIRC there are a few copy modes that can be used though, ie. only copying the file if it changed, only copying if it doesn\u0027t already exist, etc.",
+      "parentUuid": "50ef950b_1cdd965c",
+      "range": {
+        "startLine": 22,
+        "startChar": 22,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
