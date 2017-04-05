@@ -28,6 +28,8 @@ public:
     // TODO: investigate the users of this ctor.
     SkNoDrawCanvas(const SkIRect&);
 
+    using SkCanvas::resetForNextPicture;
+
 protected:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
 
