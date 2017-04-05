@@ -307,15 +307,8 @@ void SkPixelRef::restoreMutability() {
     fMutability = kMutable;
 }
 
-bool SkPixelRef::readPixels(SkBitmap* dst, SkColorType ct, const SkIRect* subset) {
-    return this->onReadPixels(dst, ct, subset);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkPixelRef::onReadPixels(SkBitmap* dst, SkColorType, const SkIRect* subset) {
-    return false;
-}
 
 void SkPixelRef::onNotifyPixelsChanged() { }
 
