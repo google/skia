@@ -95,6 +95,8 @@ static K kConstants = {
     M(store_8888)         \
     M(load_f16)           \
     M(store_f16)          \
+    M(load_u16_be)        \
+    M(store_u16_be)       \
     M(store_f32)          \
     M(luminance_to_alpha) \
     M(matrix_2x3)         \

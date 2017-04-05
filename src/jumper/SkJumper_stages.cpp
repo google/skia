@@ -638,6 +638,28 @@ STAGE(store_f16) {
                               , to_half(a));
 }
 
+STAGE(load_u16_be) {
+    auto ptr = *(const uint64_t**)ctx + x;
+
+    U16 R,G,B,A;
+    load4((const uint16_t*)ptr,tail, &R,&G,&B,&A);
+
+    r = C(1/65535.0f) * cast(expand(bswap(R)));
+    g = C(1/65535.0f) * cast(expand(bswap(G)));
+    b = C(1/65535.0f) * cast(expand(bswap(B)));
+    a = C(1/65535.0f) * cast(expand(bswap(A)));
+}
+STAGE(store_u16_be) {
+    auto ptr = *(uint64_t**)ctx + x;
+
+    U16 R = bswap(pack(round(r, 65535.0_f))),
+        G = bswap(pack(round(g, 65535.0_f))),
+        B = bswap(pack(round(b, 65535.0_f))),
+        A = bswap(pack(round(a, 65535.0_f)));
+
+    store4((uint16_t*)ptr,tail, R,G,B,A);
+}
+
 STAGE(store_f32) {
     auto ptr = *(float**)ctx + 4*x;
     store4(ptr,tail, r,g,b,a);

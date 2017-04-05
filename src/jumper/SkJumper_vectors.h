@@ -445,4 +445,16 @@
     SI U32 expand(U8  v) { return (U32)v; }
 #endif
 
+SI U16 bswap(U16 x) {
+#if defined(JUMPER) && defined(__SSE2__) && !defined(__AVX__)
+    // Somewhat inexplicably Clang decides to do (x<<8) | (x>>8) in 32-bit lanes
+    // when generating code for SSE2 and SSE4.1.  We'll do it manually...
+    auto v = widen_cast<__m128i>(x);
+    v = _mm_slli_epi16(v,8) | _mm_srli_epi16(v,8);
+    return unaligned_load<U16>(&v);
+#else
+    return (x<<8) | (x>>8);
+#endif
+}
+
 #endif//SkJumper_vectors_DEFINED
