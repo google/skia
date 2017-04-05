@@ -22,14 +22,6 @@ public:
 
     ~GrProcessorSet();
 
-    /**
-     * If an op is recorded with this processor set then this must be called to ensure pending
-     * reads and writes are propagated to resources referred to by the processors. Otherwise,
-     * data hazards may occur.
-     */
-    void makePendingExecution();
-    bool isPendingExecution() const { return SkToBool(kPendingExecution_Flag & fFlags); }
-
     int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
     int numCoverageFragmentProcessors() const {
         return this->numFragmentProcessors() - fColorFragmentProcessorCnt;
@@ -84,38 +76,26 @@ public:
                 , fIgnoresInputColor(false)
                 , fRequiresBarrierBetweenOverlappingDraws(false)
                 , fOutputCoverageType(static_cast<unsigned>(GrProcessorAnalysisCoverage::kNone))
-                , fOutputColorType(static_cast<unsigned>(ColorType::kUnknown))
-                , fInitialColorProcessorsToEliminate(0) {}
-
-        // This version is used by a unit test that assumes no clip and no fragment processors.
-        Analysis(const GrProcessorAnalysisColor&, GrProcessorAnalysisCoverage, const GrXPFactory*,
-                 const GrCaps&);
-
-        void init(const GrProcessorAnalysisColor&, GrProcessorAnalysisCoverage,
-                  const GrProcessorSet&, const GrAppliedClip*, const GrCaps&);
+                , fOutputColorType(static_cast<unsigned>(ColorType::kUnknown)) {}
 
         bool isInitializedWithProcessorSet() const { return fIsInitializedWithProcessorSet; }
 
         /**
-         * If the return is greater than or equal to zero then 'newInputColor' should be used as the
-         * input color to the GrPipeline derived from this processor set, replacing the GrDrawOp's
-         * initial color. If the return is less than zero then newInputColor has not been
-         * modified and no modification need be made to the pipeline's input color by the op.
+         * This returns the color that should be input to a pipeline created from the processor set.
+         * This will be valid if the analysis was initialized with a known color or if the analysis
+         * determined that the input color should be overridden.
          */
-        int getInputColorOverrideAndColorProcessorEliminationCount(GrColor* newInputColor) const {
+        int getInputColorIfValid(GrColor* newInputColor) const {
             if (fValidInputColor) {
                 *newInputColor = fInputColor;
-                return fInitialColorProcessorsToEliminate;
+                return true;
             }
-            SkASSERT(!fInitialColorProcessorsToEliminate);
-            return -1;
+            return false;
         }
 
         /**
-         * Valid if initialProcessorsToEliminate returns true or this analysis was initialized with
-         * a known color via constructor or init(). If color fragment processors are eliminated then
-         * this returns the expected input to the first non-eliminated processors. Otherwise it is
-         * the color passed to the constructor or init().
+         * A unconditional version of the above that should only be called when the caller knows that
+         * the analysis was initialized with a valid color.
          */
         GrColor inputColor() const {
             SkASSERT(fValidInputColor);
@@ -149,6 +129,12 @@ public:
         }
 
     private:
+        void analyzeAndUpdateProcessorSet(GrProcessorSet*,
+                                          const GrProcessorAnalysisColor&,
+                                          GrProcessorAnalysisCoverage,
+                                          const GrAppliedClip*,
+                                          const GrCaps&);
+
         enum class ColorType : unsigned { kUnknown, kConstant, kOpaque };
 
         ColorType outputColorType() const { return static_cast<ColorType>(fOutputColorType); }
@@ -171,8 +157,6 @@ public:
         unsigned fOutputCoverageType : 2;
         unsigned fOutputColorType : 2;
 
-        unsigned fInitialColorProcessorsToEliminate : 32 - 12;
-
         GrColor fInputColor;
         // This could be removed if we created the XP from the XPFactory when doing analysis.
         GrColor fKnownOutputColor;
@@ -181,12 +165,18 @@ public:
     };
     GR_STATIC_ASSERT(sizeof(Analysis) == 2 * sizeof(GrColor) + sizeof(uint32_t));
 
-    void analyzeAndEliminateFragmentProcessors(Analysis*,
-                                               const GrProcessorAnalysisColor& colorInput,
-                                               const GrProcessorAnalysisCoverage coverageInput,
-                                               const GrAppliedClip*, const GrCaps&);
+    /**
+     * If an op is recorded with this processor set then this must be called to ensure pending
+     * reads and writes are propagated to resources referred to by the processors. Otherwise,
+     * data hazards may occur.
+     */
+    void analyzeUpdateAndRecord(Analysis*, const GrProcessorAnalysisColor& colorInput,
+                                const GrProcessorAnalysisCoverage coverageInput,
+                                const GrAppliedClip*, const GrCaps&);
 
 private:
+    bool isPendingExecution() const { return SkToBool(kPendingExecution_Flag & fFlags); }
+
     // This absurdly large limit allows Analysis and this to pack fields together.
     static constexpr int kMaxColorProcessors = UINT8_MAX;
 

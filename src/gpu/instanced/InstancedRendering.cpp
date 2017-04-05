@@ -340,8 +340,9 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
     } else {
         coverageInput = GrProcessorAnalysisCoverage::kNone;
     }
-    fProcessors.analyzeAndEliminateFragmentProcessors(&analysis, this->getSingleInstance().fColor,
-                                                      coverageInput, clip, caps);
+    fProcessors.analyzeUpdateAndRecord(&analysis, this->getSingleInstance().fColor, coverageInput,
+                                       clip,
+                                       caps);
     fAnalysisColor = analysis.outputColor();
 
     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
@@ -364,7 +365,7 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
     }
 
     GrColor overrideColor;
-    if (analysis.getInputColorOverrideAndColorProcessorEliminationCount(&overrideColor) >= 0) {
+    if (analysis.getInputColorIfValid(&overrideColor) >= 0) {
         SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
         this->getSingleDraw().fInstance.fColor = overrideColor;
     }
@@ -378,7 +379,6 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
 void InstancedRendering::Op::wasRecorded() {
     SkASSERT(!fIsTracked);
     fInstancedRendering->fTrackedOps.addToTail(this);
-    fProcessors.makePendingExecution();
     fIsTracked = true;
 }
 
