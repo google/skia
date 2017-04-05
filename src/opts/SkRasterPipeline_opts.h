@@ -314,27 +314,6 @@ SI void from_f16(const void* px, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     *a = SkHalfToFloat_finite_ftz(ah);
 }
 
-STAGE_CTX(trace, const char*) {
-    SkDebugf("%s\n", ctx);
-}
-STAGE(registers) {
-    auto print = [](const char* name, const SkNf& v) {
-        SkDebugf("%s:", name);
-        for (int i = 0; i < N; i++) {
-            SkDebugf(" %g", v[i]);
-        }
-        SkDebugf("\n");
-    };
-    print(" r",  r);
-    print(" g",  g);
-    print(" b",  b);
-    print(" a",  a);
-    print("dr", dr);
-    print("dg", dg);
-    print("db", db);
-    print("da", da);
-}
-
 STAGE(clamp_0) {
     a = SkNf::Max(a, 0.0f);
     r = SkNf::Max(r, 0.0f);
