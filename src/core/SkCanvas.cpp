@@ -1573,6 +1573,7 @@ void SkCanvas::validateClip() const {
 }
 #endif
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
 void SkCanvas::replayClips(ClipVisitor* visitor) const {
 #if 0
     SkClipStack::B2TIter                iter(*fClipStack);
@@ -1583,6 +1584,7 @@ void SkCanvas::replayClips(ClipVisitor* visitor) const {
     }
 #endif
 }
+#endif
 
 bool SkCanvas::androidFramework_isClipAA() const {
     bool containsAA = false;
@@ -3127,7 +3129,9 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
 SkCanvasClipVisitor::~SkCanvasClipVisitor() { }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

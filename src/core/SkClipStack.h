@@ -21,7 +21,9 @@
 #include "GrResourceKey.h"
 #endif
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
 class SkCanvasClipVisitor;
+#endif
 
 // Because a single save/restore state can have multiple clips, this class
 // stores the stack depth (fSaveCount) and clips (fDeque) separately.
@@ -196,10 +198,12 @@ public:
             return kPath_Type == fType && fPath.get()->isInverseFillType();
         }
 
+#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
         /**
         * Replay this clip into the visitor.
         */
         void replay(SkCanvasClipVisitor*) const;
+#endif
 
 #ifdef SK_DEBUG
         /**
