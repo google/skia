@@ -236,11 +236,12 @@ void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrRenderTargetOpList::copySurface(GrSurface* dst,
-                                       GrSurface* src,
+bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
+                                       GrSurfaceProxy* dst,
+                                       GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
