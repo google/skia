@@ -80,8 +80,6 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
         }
 
         copyDstDesc.fFlags = flags;
-        copyDstDesc.fOrigin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
-                                                              : kBottomLeft_GrSurfaceOrigin;
 
         sk_sp<GrSurfaceContext> dstContext(GrSurfaceProxy::TestCopy(context, copyDstDesc, proxy));
 
@@ -108,8 +106,6 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrResourceProvider* reso
 
     for (auto flags : { kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag }) {
         copySrcDesc.fFlags = flags;
-        copySrcDesc.fOrigin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
-                                                              : kBottomLeft_GrSurfaceOrigin;
 
         sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(resourceProvider,
                                                                copySrcDesc,

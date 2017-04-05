@@ -285,29 +285,27 @@ bool GrDrawingManager::ProgramUnitTest(GrContext*, int) { return true; }
 bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     GrDrawingManager* drawingManager = context->contextPriv().drawingManager();
 
-    sk_sp<GrTextureProxy> proxies[2];
-
     // setup dummy textures
     GrSurfaceDesc dummyDesc;
     dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    dummyDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
-    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                              dummyDesc, SkBudgeted::kNo, nullptr, 0);
+    sk_sp<GrTexture> dummyTexture1(
+        context->resourceProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
-    dummyDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
-    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                              dummyDesc, SkBudgeted::kNo, nullptr, 0);
+    sk_sp<GrTexture> dummyTexture2(
+        context->resourceProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
 
-    if (!proxies[0] || !proxies[1]) {
+    if (!dummyTexture1 || ! dummyTexture2) {
         SkDebugf("Could not allocate dummy textures");
         return false;
     }
+
+    GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
 
     // dummy scissor state
     GrScissorState scissor;
@@ -328,7 +326,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
         SkASSERT(op);
 
-        GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
+        GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
         set_random_color_coverage_stages(&grPaint, &ptd, maxStages);
         set_random_xpf(&grPaint, &ptd);
         bool snapToCenters = set_random_state(&grPaint, &random);
@@ -362,7 +360,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         for (int j = 0; j < 10; ++j) {
             std::unique_ptr<GrLegacyMeshDrawOp> op(GrRandomDrawOp(&random, context));
             SkASSERT(op);
-            GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
+            GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 

@@ -10,7 +10,6 @@
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
@@ -48,13 +47,9 @@ bool GrResourceProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
 }
 
-// MDB TODO: this should probably be a factory on GrSurfaceProxy
-sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
-                                                      const GrSurfaceDesc& desc,
-                                                      SkBudgeted budgeted,
-                                                      const GrMipLevel* texels,
-                                                      int mipLevelCount,
-                                                      uint32_t flags,
+GrTexture* GrResourceProvider::createMipMappedTexture(const GrSurfaceDesc& desc,
+                                                      SkBudgeted budgeted, const GrMipLevel* texels,
+                                                      int mipLevelCount, uint32_t flags,
                                                       SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
@@ -79,19 +74,17 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         if (mipLevelCount < 2) {
             flags |= kExact_Flag | kNoCreate_Flag;
-            sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
-            if (tex) {
-                sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex);
+            if (GrTexture* texture = this->refScratchTexture(desc, flags)) {
                 if (!mipLevelCount ||
-                    fGpu->getContext()->contextPriv().writeSurfacePixels(
-                                proxy.get(), nullptr, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                nullptr, texels[0].fPixels, texels[0].fRowBytes)) {
+                    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                                         texels[0].fPixels, texels[0].fRowBytes)) {
                     if (SkBudgeted::kNo == budgeted) {
-                        tex->resourcePriv().makeUnbudgeted();
+                        texture->resourcePriv().makeUnbudgeted();
                     }
-                    tex->texturePriv().setMipColorMode(mipColorMode);
-                    return proxy;
+                    texture->texturePriv().setMipColorMode(mipColorMode);
+                    return texture;
                 }
+                texture->unref();
             }
         }
     }
@@ -100,34 +93,25 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
     for (int i = 0; i < mipLevelCount; ++i) {
         texelsShallowCopy.push_back(texels[i]);
     }
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsShallowCopy));
-    if (tex) {
-        tex->texturePriv().setMipColorMode(mipColorMode);
+    GrTexture* texture = fGpu->createTexture(desc, budgeted, texelsShallowCopy);
+    if (texture) {
+        texture->texturePriv().setMipColorMode(mipColorMode);
     }
-
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return texture;
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                   uint32_t flags) {
-    if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
-        !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
-        return nullptr;
+GrTexture* GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                             const void* srcData, size_t rowBytes, uint32_t flags) {
+    GrMipLevel tempTexels;
+    GrMipLevel* texels = nullptr;
+    int levelCount = 0;
+    if (srcData) {
+        tempTexels.fPixels = srcData;
+        tempTexels.fRowBytes = rowBytes;
+        texels = &tempTexels;
+        levelCount = 1;
     }
-
-    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        flags |= kExact_Flag | kNoCreate_Flag;
-        sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
-        if (tex) {
-            if (SkBudgeted::kNo == budgeted) {
-                tex->resourcePriv().makeUnbudgeted();
-            }
-            return tex;
-        }
-    }
-
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted));
-    return tex;
+    return this->createMipMappedTexture(desc, budgeted, texels, levelCount, flags);
 }
 
 GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {

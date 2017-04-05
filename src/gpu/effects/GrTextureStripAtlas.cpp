@@ -162,7 +162,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
         // that is not currently in use
         fTexContext->writePixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(),
                                  0, rowNumber * fDesc.fRowHeight,
-                                 GrContextPriv::kDontFlush_PixelOpsFlag);
+                                 GrContext::kDontFlush_PixelOpsFlag);
     }
 
     SkASSERT(rowNumber >= 0);

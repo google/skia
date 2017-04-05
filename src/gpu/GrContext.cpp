@@ -26,8 +26,6 @@
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
 
-#define ASSERT_OWNED_PROXY(P) \
-SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == this)
 #define ASSERT_OWNED_PROXY_PRIV(P) \
 SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == fContext)
 
@@ -39,7 +37,6 @@ SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getC
 #define RETURN_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return false; }
-#define RETURN_FALSE_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return nullptr; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,25 +264,19 @@ static bool valid_unpremul_config(GrPixelConfig config) {
     return GrPixelConfigIs8888Unorm(config) || kRGBA_half_GrPixelConfig == config;
 }
 
-bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* dstColorSpace,
-                                       int left, int top, int width, int height,
-                                       GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
-                                       const void* buffer, size_t rowBytes,
-                                       uint32_t pixelOpsFlags) {
+bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
+                                   int left, int top, int width, int height,
+                                   GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
+                                   const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags) {
     // TODO: Color space conversion
 
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_FALSE_IF_ABANDONED_PRIV
-    ASSERT_OWNED_PROXY_PRIV(srcProxy);
-    SkASSERT(srcProxy);
-    GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::writeSurfacePixels");
+    ASSERT_SINGLE_OWNER
+    RETURN_FALSE_IF_ABANDONED
+    ASSERT_OWNED_RESOURCE(surface);
+    SkASSERT(surface);
+    GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::writeSurfacePixels");
 
-    GrSurface* surface = srcProxy->instantiate(fContext->resourceProvider());
-    if (!surface) {
-        return false;
-    }
-
-    fContext->testPMConversionsIfNecessary(pixelOpsFlags);
+    this->testPMConversionsIfNecessary(pixelOpsFlags);
 
     // Trim the params here so that if we wind up making a temporary surface it can be as small as
     // necessary and because GrGpu::getWritePixelsInfo requires it.
@@ -307,23 +298,23 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
     GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
     // Don't prefer to draw for the conversion (and thereby access a texture from the cache) when
     // we've already determined that there isn't a roundtrip preserving conversion processor pair.
-    if (applyPremulToSrc && fContext->validPMUPMConversionExists(srcConfig)) {
+    if (applyPremulToSrc && this->validPMUPMConversionExists(srcConfig)) {
         drawPreference = GrGpu::kCallerPrefersDraw_DrawPreference;
     }
 
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getWritePixelsInfo(surface, width, height, srcConfig,
-                                            &drawPreference, &tempDrawInfo)) {
+    if (!fGpu->getWritePixelsInfo(surface, width, height, srcConfig, &drawPreference,
+                                  &tempDrawInfo)) {
         return false;
     }
 
     if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && surface->surfacePriv().hasPendingIO()) {
-        this->flush(nullptr); // MDB TODO: tighten this
+        this->contextPriv().flush(nullptr); // MDB TODO: tighten this
     }
 
     sk_sp<GrTextureProxy> tempProxy;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        tempProxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(),
+        tempProxy = GrSurfaceProxy::MakeDeferred(this->resourceProvider(),
                                                  tempDrawInfo.fTempSurfaceDesc,
                                                  SkBackingFit::kApprox,
                                                  SkBudgeted::kYes);
@@ -337,7 +328,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
     if (tempProxy) {
         sk_sp<GrFragmentProcessor> fp;
         if (applyPremulToSrc) {
-            fp = fContext->createUPMToPMEffect(tempProxy, SkMatrix::I());
+            fp = this->createUPMToPMEffect(tempProxy, SkMatrix::I());
             fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
             // If premultiplying was the only reason for the draw, fall back to a straight write.
             if (!fp) {
@@ -350,7 +341,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
         }
         if (tempProxy) {
             if (!fp) {
-                fp = GrSimpleTextureEffect::Make(fContext->resourceProvider(), tempProxy, nullptr,
+                fp = GrSimpleTextureEffect::Make(this->resourceProvider(), tempProxy, nullptr,
                                                  SkMatrix::I());
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
 
@@ -359,9 +350,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
                 }
             }
             if (tempProxy->priv().hasPendingIO()) {
-                this->flush(tempProxy.get());
+                this->contextPriv().flush(tempProxy.get());
             }
-            GrTexture* texture = tempProxy->instantiate(fContext->resourceProvider());
+            GrTexture* texture = tempProxy->instantiate(this->resourceProvider());
             if (!texture) {
                 return false;
             }
@@ -376,9 +367,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
                 buffer = tmpPixels.get();
                 applyPremulToSrc = false;
             }
-            if (!fContext->fGpu->writePixels(texture, 0, 0, width, height,
-                                             tempDrawInfo.fWriteConfig, buffer,
-                                             rowBytes)) {
+            if (!fGpu->writePixels(texture, 0, 0, width, height,
+                                   tempDrawInfo.fWriteConfig, buffer,
+                                   rowBytes)) {
                 return false;
             }
             SkMatrix matrix;
@@ -389,7 +380,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
             GrRenderTarget* renderTarget = surface->asRenderTarget();
             SkASSERT(renderTarget);
             sk_sp<GrRenderTargetContext> renderTargetContext(
-                this->makeWrappedRenderTargetContext(sk_ref_sp(renderTarget), nullptr));
+                this->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(renderTarget),
+                                                                   nullptr));
             if (!renderTargetContext) {
                 return false;
             }
@@ -402,7 +394,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
                                           nullptr);
 
             if (kFlushWrites_PixelOp & pixelOpsFlags) {
-                this->flushSurfaceWrites(renderTargetContext->asRenderTargetProxy());
+                this->contextPriv().flushSurfaceWrites(renderTargetContext->asRenderTargetProxy());
             }
         }
     }
@@ -418,31 +410,24 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
             buffer = tmpPixels.get();
             applyPremulToSrc = false;
         }
-        return fContext->fGpu->writePixels(surface, left, top, width, height, srcConfig,
-                                           buffer, rowBytes);
+        return fGpu->writePixels(surface, left, top, width, height, srcConfig, buffer, rowBytes);
     }
     return true;
 }
 
-bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* srcColorSpace,
-                                      int left, int top, int width, int height,
-                                      GrPixelConfig dstConfig, SkColorSpace* dstColorSpace,
-                                      void* buffer, size_t rowBytes, uint32_t flags) {
+bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
+                                  int left, int top, int width, int height,
+                                  GrPixelConfig dstConfig, SkColorSpace* dstColorSpace,
+                                  void* buffer, size_t rowBytes, uint32_t flags) {
     // TODO: Color space conversion
 
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_FALSE_IF_ABANDONED_PRIV
-    ASSERT_OWNED_PROXY_PRIV(srcProxy);
-    SkASSERT(srcProxy);
-    GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::readSurfacePixels");
+    ASSERT_SINGLE_OWNER
+    RETURN_FALSE_IF_ABANDONED
+    ASSERT_OWNED_RESOURCE(src);
+    SkASSERT(src);
+    GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::readSurfacePixels");
 
-    // MDB TODO: delay this instantiation until later in the method
-    GrSurface* src = srcProxy->instantiate(fContext->resourceProvider());
-    if (!src) {
-        return false;
-    }
-
-    fContext->testPMConversionsIfNecessary(flags);
+    this->testPMConversionsIfNecessary(flags);
 
     // Adjust the params so that if we wind up using an intermediate surface we've already done
     // all the trimming and the temporary can be the min size required.
@@ -453,7 +438,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
     }
 
     if (!(kDontFlush_PixelOpsFlag & flags) && src->surfacePriv().hasPendingWrite()) {
-        this->flush(nullptr); // MDB TODO: tighten this
+        this->contextPriv().flush(nullptr); // MDB TODO: tighten this
     }
 
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
@@ -469,17 +454,18 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
     GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
     // Don't prefer to draw for the conversion (and thereby access a texture from the cache) when
     // we've already determined that there isn't a roundtrip preserving conversion processor pair.
-    if (unpremul && fContext->validPMUPMConversionExists(src->config())) {
+    if (unpremul && this->validPMUPMConversionExists(src->config())) {
         drawPreference = GrGpu::kCallerPrefersDraw_DrawPreference;
     }
 
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getReadPixelsInfo(src, width, height, rowBytes, dstConfig,
-                                           &drawPreference, &tempDrawInfo)) {
+    if (!fGpu->getReadPixelsInfo(src, width, height, rowBytes, dstConfig, &drawPreference,
+                                 &tempDrawInfo)) {
         return false;
     }
 
-    sk_sp<GrSurfaceProxy> proxyToRead = sk_ref_sp(srcProxy);
+    sk_sp<GrSurface> surfaceToRead(SkRef(src));
+    sk_sp<GrTextureProxy> drawnProxy;
     bool didTempDraw = false;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
         if (SkBackingFit::kExact == tempDrawInfo.fTempSurfaceFit) {
@@ -492,7 +478,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
         // TODO: Need to decide the semantics of this function for color spaces. Do we support
         // conversion to a passed-in color space? For now, specifying nullptr means that this
         // path will do no conversion, so it will match the behavior of the non-draw path.
-        sk_sp<GrRenderTargetContext> tempRTC = fContext->makeRenderTargetContext(
+        sk_sp<GrRenderTargetContext> tempRTC = this->makeRenderTargetContext(
                                                            tempDrawInfo.fTempSurfaceFit,
                                                            tempDrawInfo.fTempSurfaceDesc.fWidth,
                                                            tempDrawInfo.fTempSurfaceDesc.fHeight,
@@ -502,10 +488,10 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempRTC) {
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
-            sk_sp<GrTextureProxy> proxy = sk_ref_sp(srcProxy->asTextureProxy());
+            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(sk_ref_sp(src->asTexture()));
             sk_sp<GrFragmentProcessor> fp;
             if (unpremul) {
-                fp = fContext->createPMToUPMEffect(proxy, textureMatrix);
+                fp = this->createPMToUPMEffect(proxy, textureMatrix);
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
                 if (fp) {
                     unpremul = false; // we no longer need to do this on CPU after the read back.
@@ -516,7 +502,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
                 }
             }
             if (!fp && tempRTC) {
-                fp = GrSimpleTextureEffect::Make(fContext->resourceProvider(), std::move(proxy),
+                fp = GrSimpleTextureEffect::Make(this->resourceProvider(), std::move(proxy),
                                                  nullptr, textureMatrix);
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
             }
@@ -528,7 +514,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 tempRTC->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect,
                                   nullptr);
-                proxyToRead = tempRTC->asTextureProxyRef();
+                drawnProxy = tempRTC->asTextureProxyRef();
+                surfaceToRead = sk_ref_sp(drawnProxy->instantiate(this->resourceProvider()));
                 left = 0;
                 top = 0;
                 didTempDraw = true;
@@ -536,11 +523,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
         }
     }
 
-    if (!proxyToRead) {
-        return false;
-    }
-
-    GrSurface* surfaceToRead = proxyToRead->instantiate(fContext->resourceProvider());
     if (!surfaceToRead) {
         return false;
     }
@@ -550,11 +532,11 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
     }
     GrPixelConfig configToRead = dstConfig;
     if (didTempDraw) {
-        this->flushSurfaceWrites(proxyToRead.get());
+        this->contextPriv().flushSurfaceWrites(drawnProxy.get());
         configToRead = tempDrawInfo.fReadConfig;
     }
-    if (!fContext->fGpu->readPixels(surfaceToRead, left, top, width, height, configToRead,
-                                    buffer, rowBytes)) {
+    if (!fGpu->readPixels(surfaceToRead.get(), left, top, width, height, configToRead, buffer,
+                          rowBytes)) {
         return false;
     }
 
@@ -833,7 +815,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit
 
     sk_sp<GrTexture> tex;
     if (SkBackingFit::kExact == fit) {
-        tex = this->resourceProvider()->createTexture(desc, budgeted);
+        tex.reset(this->resourceProvider()->createTexture(desc, budgeted));
     } else {
         tex.reset(this->resourceProvider()->createApproxTexture(desc, 0));
     }
@@ -896,7 +878,7 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 
 void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     ASSERT_SINGLE_OWNER
-    if (SkToBool(GrContextPriv::kUnpremul_PixelOpsFlag & flags)) {
+    if (SkToBool(kUnpremul_PixelOpsFlag & flags)) {
         if (!fDidTestPMConversions) {
             test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
             fDidTestPMConversions = true;
