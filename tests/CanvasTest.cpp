@@ -275,24 +275,6 @@ private:
     }
 };
 
-class Canvas2CanvasClipVisitor : public SkCanvas::ClipVisitor {
-public:
-    Canvas2CanvasClipVisitor(SkCanvas* target) : fTarget(target) {}
-
-    void clipRect(const SkRect& r, SkClipOp op, bool aa) override {
-        fTarget->clipRect(r, op, aa);
-    }
-    void clipRRect(const SkRRect& r, SkClipOp op, bool aa) override {
-        fTarget->clipRRect(r, op, aa);
-    }
-    void clipPath(const SkPath& p, SkClipOp op, bool aa) override {
-        fTarget->clipPath(p, op, aa);
-    }
-
-private:
-    SkCanvas* fTarget;
-};
-
 // Format strings that describe the test context.  The %s token is where
 // the name of the test step is inserted.  The context is required for
 // disambiguating the error in the case of failures that are reported in
