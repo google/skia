@@ -86,17 +86,10 @@ public:
         fAddedToCache.store(true);
     }
 
-    // Transforms image into the input color space.
-    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
-
     virtual bool onPinAsTexture(GrContext*) const { return false; }
     virtual void onUnpinAsTexture(GrContext*) const {}
 
-protected:
-    virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const {
-        // TODO: Make this pure virtual.
-        return sk_ref_sp(const_cast<SkImage_Base*>(this));
-    }
+    virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const = 0;
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.
