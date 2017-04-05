@@ -78,6 +78,8 @@ static K kConstants = {
     M(unpremul)           \
     M(from_srgb)          \
     M(to_srgb)            \
+    M(from_2dot2)         \
+    M(to_2dot2)           \
     M(scale_1_float)      \
     M(scale_u8)           \
     M(lerp_1_float)       \
