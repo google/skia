@@ -329,8 +329,12 @@ static void gather_uninteresting_hashes() {
                  FLAGS_uninterestingHashesFile[0]);
             return;
         }
+
+        // Copy to a string to make sure SkStrSplit has a terminating \0 to find.
+        SkString contents((const char*)data->data(), data->size());
+
         SkTArray<SkString> hashes;
-        SkStrSplit((const char*)data->data(), kNewline, &hashes);
+        SkStrSplit(contents.c_str(), kNewline, &hashes);
         for (const SkString& hash : hashes) {
             gUninterestingHashes.add(hash);
         }
