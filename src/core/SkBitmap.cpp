@@ -719,7 +719,7 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY,
     return true;
 }
 
-bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc) const {
+bool SkBitmap::internalCopyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc) const {
     if (!this->canCopyTo(dstColorType)) {
         return false;
     }
@@ -814,6 +814,16 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     return true;
 }
 
+bool SkBitmap::copyTo(SkBitmap* dst, SkColorType ct) const {
+    return this->internalCopyTo(dst, ct, nullptr);
+}
+
+#ifdef SK_BUILD_FOR_ANDROID
+bool SkBitmap::copyTo(SkBitmap* dst, SkColorType ct, Allocator* alloc) const {
+    return this->internalCopyTo(dst, ct, alloc);
+}
+#endif
+
 // TODO: can we merge this with copyTo?
 bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     const SkColorType dstCT = this->colorType();
@@ -821,7 +831,7 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     if (!this->canCopyTo(dstCT)) {
         return false;
     }
-    return this->copyTo(dst, dstCT, nullptr);
+    return this->copyTo(dst, dstCT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
