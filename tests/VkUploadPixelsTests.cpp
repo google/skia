@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_VULKAN)
 
 #include "GrContextFactory.h"
+#include "GrContextPriv.h"
 #include "GrTest.h"
 #include "Test.h"
 #include "vk/GrVkGpu.h"
@@ -82,51 +83,60 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     surfDesc.fHeight = kHeight;
     surfDesc.fConfig = config;
     surfDesc.fSampleCnt = 0;
-    GrTexture* tex0 = gpu->createTexture(surfDesc, SkBudgeted::kNo, srcBuffer, 0);
+    sk_sp<GrTexture> tex0(gpu->createTexture(surfDesc, SkBudgeted::kNo, srcBuffer, 0));
     if (tex0) {
         REPORTER_ASSERT(reporter, canCreate);
-        gpu->readPixels(tex0, 0, 0, kWidth, kHeight, config, dstBuffer, 0);
+        gpu->readPixels(tex0.get(), 0, 0, kWidth, kHeight, config, dstBuffer, 0);
         REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
                                                                          dstBuffer,
                                                                          config,
                                                                          kWidth,
                                                                          kHeight));
 
-        tex0->writePixels(2, 10, 10, 2, config, srcBuffer);
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex0);
+
+        bool success = context->contextPriv().writeSurfacePixels(proxy.get(), nullptr,
+                                                                 2, 10, 10, 2,
+                                                                 config, nullptr, srcBuffer, 0);
+        REPORTER_ASSERT(reporter, success);
+
         memset(dstBuffer, 0, kWidth*kHeight*sizeof(GrColor));
-        gpu->readPixels(tex0, 2, 10, 10, 2, config, dstBuffer, 0);
+        gpu->readPixels(tex0.get(), 2, 10, 10, 2, config, dstBuffer, 0);
         REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
                                                                          dstBuffer,
                                                                          config,
                                                                          10,
                                                                          2));
-
-        tex0->unref();
     } else {
         REPORTER_ASSERT(reporter, !canCreate);
     }
 
     surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    GrTexture* tex1 = gpu->createTexture(surfDesc, SkBudgeted::kNo, srcBuffer, 0);
+    sk_sp<GrTexture> tex1(gpu->createTexture(surfDesc, SkBudgeted::kNo, srcBuffer, 0));
     if (tex1) {
         REPORTER_ASSERT(reporter, canCreate);
-        gpu->readPixels(tex1, 0, 0, kWidth, kHeight, config, dstBuffer, 0);
+        gpu->readPixels(tex1.get(), 0, 0, kWidth, kHeight, config, dstBuffer, 0);
         REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
                                                                          dstBuffer,
                                                                          config,
                                                                          kWidth,
                                                                          kHeight));
 
-        tex1->writePixels(5, 4, 4, 5, config, srcBuffer);
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex1);
+
+        bool success = context->contextPriv().writeSurfacePixels(proxy.get(), nullptr,
+                                                                 5, 4, 4, 5, config, nullptr,
+                                                                 srcBuffer, 0);
+        REPORTER_ASSERT(reporter, success);
+
         memset(dstBuffer, 0, kWidth*kHeight*sizeof(GrColor));
-        gpu->readPixels(tex1, 5, 4, 4, 5, config, dstBuffer, 0);
+        gpu->readPixels(tex1.get(), 5, 4, 4, 5, config, dstBuffer, 0);
         REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
                                                                          dstBuffer,
                                                                          config,
                                                                          4,
                                                                          5));
 
-        tex1->unref();
     } else {
         REPORTER_ASSERT(reporter, !canCreate);
     }
