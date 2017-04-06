@@ -335,29 +335,26 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
     // temp buffer for doing sw premul conversion, if needed.
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
     if (tempProxy) {
+        sk_sp<GrFragmentProcessor> texFP = GrSimpleTextureEffect::Make(
+                fContext->resourceProvider(), tempProxy, nullptr, SkMatrix::I());
         sk_sp<GrFragmentProcessor> fp;
         if (applyPremulToSrc) {
-            fp = fContext->createUPMToPMEffect(tempProxy, SkMatrix::I());
-            fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-            // If premultiplying was the only reason for the draw, fall back to a straight write.
-            if (!fp) {
-                if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
-                    tempProxy.reset(nullptr);
-                }
-            } else {
+            fp = fContext->createUPMToPMEffect(texFP, tempProxy->config());
+            if (fp) {
+                // We no longer need to do this on CPU before the upload.
                 applyPremulToSrc = false;
+            } else if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
+                // We only wanted to do the draw to perform the premul so don't bother.
+                tempProxy.reset(nullptr);
             }
         }
         if (tempProxy) {
             if (!fp) {
-                fp = GrSimpleTextureEffect::Make(fContext->resourceProvider(), tempProxy, nullptr,
-                                                 SkMatrix::I());
-                fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-
-                if (!fp) {
-                    return false;
-                }
+                fp = std::move(texFP);
             }
+            fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
+            SkASSERT(fp);
+
             if (tempProxy->priv().hasPendingIO()) {
                 this->flush(tempProxy.get());
             }
@@ -503,24 +500,26 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
         if (tempRTC) {
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrTextureProxy> proxy = sk_ref_sp(srcProxy->asTextureProxy());
+            sk_sp<GrFragmentProcessor> texFP = GrSimpleTextureEffect::Make(
+                    fContext->resourceProvider(), proxy, nullptr, textureMatrix);
             sk_sp<GrFragmentProcessor> fp;
             if (unpremul) {
-                fp = fContext->createPMToUPMEffect(proxy, textureMatrix);
-                fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
+                fp = fContext->createPMToUPMEffect(texFP, proxy->config());
                 if (fp) {
-                    unpremul = false; // we no longer need to do this on CPU after the read back.
+                    // We no longer need to do this on CPU after the read back.
+                    unpremul = false;
                 } else if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
-                    // We only wanted to do the draw in order to perform the unpremul so don't
-                    // bother.
+                    // We only wanted to do the draw to perform the unpremul so don't bother.
                     tempRTC.reset(nullptr);
                 }
             }
-            if (!fp && tempRTC) {
-                fp = GrSimpleTextureEffect::Make(fContext->resourceProvider(), std::move(proxy),
-                                                 nullptr, textureMatrix);
+            if (tempRTC) {
+                if (!fp) {
+                    fp = std::move(texFP);
+                }
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-            }
-            if (fp) {
+                SkASSERT(fp);
+
                 GrPaint paint;
                 paint.addColorFragmentProcessor(std::move(fp));
                 paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -904,14 +903,11 @@ void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     }
 }
 
-sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrTextureProxy> proxy,
-                                                          const SkMatrix& matrix) {
+sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrFragmentProcessor> fp,
+                                                          GrPixelConfig config) {
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    GrPixelConfig config = proxy->config();
-    sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(this->resourceProvider(),
-                                                                std::move(proxy), nullptr, matrix);
     if (kRGBA_half_GrPixelConfig == config) {
         return GrFragmentProcessor::UnpremulOutput(std::move(fp));
     } else if (kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config) {
@@ -924,14 +920,11 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrTextureProxy> 
     return nullptr;
 }
 
-sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrTextureProxy> proxy,
-                                                          const SkMatrix& matrix) {
+sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrFragmentProcessor> fp,
+                                                          GrPixelConfig config) {
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    GrPixelConfig config = proxy->config();
-    sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(this->resourceProvider(),
-                                                                std::move(proxy), nullptr, matrix);
     if (kRGBA_half_GrPixelConfig == config) {
         return GrFragmentProcessor::PremulOutput(std::move(fp));
     } else if (kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config) {
