@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05e62004_cf3062ea",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 0,
+      "message": "This is fine, but I think we can probably just revert this file?",
+      "revId": "46a45ba907b81517dc301781443cc63fe3b5ccb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

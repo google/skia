@@ -1,0 +1,323 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d078b75_60748789",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "I don\u0027t really mind not handling dither by just ignoring the feature.",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "816b74d7_a41cb3c0",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "If the gradient... ?",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8893598_4c70cf44",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "Bet this would read more clearly if the ? and : were aligned vertically.",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f30faa0_e2c59bcc",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "// linear_gradient_few_stops doesn\u0027t need explicit clamping, and it\u0027d break hard stops at 0 or 1.\n?",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82686a7c_ac53346e",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "It\u0027s time to harmonize notation, either c0 and dc or f and b, but not both.",
+      "range": {
+        "startLine": 166,
+        "startChar": 40,
+        "endLine": 166,
+        "endChar": 44
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef8be282_7cfcf402",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "probably clearer to stick to calling pos \"t\" or \"t_l\"?",
+      "range": {
+        "startLine": 166,
+        "startChar": 28,
+        "endLine": 166,
+        "endChar": 31
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "360d963f_d8fae4d5",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "Probably better as \"Stop\"?",
+      "range": {
+        "startLine": 166,
+        "startChar": 15,
+        "endLine": 166,
+        "endChar": 19
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59ece1c6_8217ad46",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "I\u0027m not really sure this math makes things clearer.  Might help to write out some English about what we\u0027re trying to do instead?  I don\u0027t think it\u0027s essential that you show all your work, as long as we know what you\u0027re trying to accomplish.\n\n// For each stop we calculate a bias B and a scale factor F, such that \n// for any t between stops n and n+1, the color we want is B[n] + F[n]*t.",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e293cbdf_cd99ab4f",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "It looks like things would read more clearly below if you fused calcF and calcB into a single function that filled in the stop,\n\n    auto fill_stop \u003d [](float t_l, float t_r, SkPM4f c_l, SkPM4f c_r, Stop* stop) { ... };",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4df0cb81_97beff01",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "This sentence runs on?",
+      "range": {
+        "startLine": 190,
+        "startChar": 15,
+        "endLine": 191,
+        "endChar": 29
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "915c7be1_d7a1e36f",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "Might be clearer to write ctx-\u003estart?",
+      "range": {
+        "startLine": 194,
+        "startChar": 25,
+        "endLine": 194,
+        "endChar": 56
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e51782b2_6f077ea6",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "Move this up a line so the code always reads t then c?",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1142fee4_2907a1fb",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "Why?",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57769c90_c081ca8e",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "So, uh, we delete all this?",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae924c86_0a56d7c1",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "This might be clearer transposed?\n\nF fr \u003d 0, fg \u003d 0, fb \u003d 0, fa \u003d 0;\nF br \u003d c-\u003estart[0],\n  bg \u003d c-\u003estart[1],\n  bb \u003d c-\u003estart[2],\n  ba \u003d c-\u003estart[3];",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40c3fbf6_a40ee8b5",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "Might be clearer swapped around to a \u003c ?\n\n   x \u003d if_then_else(t \u003c c-\u003estops[i].pos, x, new_val);\n\n?",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e12a2d6_f3c063e9",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-06T21:42:25Z",
+      "side": 1,
+      "message": "We can\u0027t not implement this yet.",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
