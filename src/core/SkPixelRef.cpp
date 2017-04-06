@@ -30,18 +30,13 @@ uint32_t SkNextID::ImageID() {
 // just need a > 0 value, so pick a funny one to aid in debugging
 #define SKPIXELREF_PRELOCKED_LOCKCOUNT     123456789
 
-static SkImageInfo validate_info(const SkImageInfo& info) {
-    SkAlphaType newAlphaType = info.alphaType();
-    SkAssertResult(SkColorTypeValidateAlphaType(info.colorType(), info.alphaType(), &newAlphaType));
-    return info.makeAlphaType(newAlphaType);
-}
-
 #ifdef SK_TRACE_PIXELREF_LIFETIME
     static int32_t gInstCounter;
 #endif
 
-SkPixelRef::SkPixelRef(const SkImageInfo& info)
-    : fInfo(validate_info(info))
+SkPixelRef::SkPixelRef(int width, int height)
+    : fWidth(width)
+    , fHeight(height)
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     , fStableID(SkNextID::ImageID())
 #endif
@@ -88,20 +83,8 @@ void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     SkASSERT(!that. genIDIsUnique());
 }
 
-static void validate_pixels_ctable(const SkImageInfo& info, const SkColorTable* ctable) {
-    if (info.isEmpty()) {
-        return; // can't require ctable if the dimensions are empty
-    }
-    if (kIndex_8_SkColorType == info.colorType()) {
-        SkASSERT(ctable);
-    } else {
-        SkASSERT(nullptr == ctable);
-    }
-}
-
 void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable) {
     SkASSERT(pixels);
-    validate_pixels_ctable(fInfo, ctable);
     // only call me in your constructor, otherwise fLockCount tracking can get
     // out of sync.
     fRec.fPixels = pixels;
@@ -124,7 +107,6 @@ bool SkPixelRef::lockPixelsInsideMutex() {
         }
     }
     if (fRec.fPixels) {
-        validate_pixels_ctable(fInfo, fRec.fColorTable);
         return true;
     }
     // no pixels, so we failed (somehow)
@@ -154,7 +136,6 @@ bool SkPixelRef::lockPixels() {
         }
     }
     if (fRec.fPixels) {
-        validate_pixels_ctable(fInfo, fRec.fColorTable);
         return true;
     }
     return false;
@@ -193,7 +174,7 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
         return false;
     }
     // until we support subsets, we have to check this...
-    if (request.fSize.width() != fInfo.width() || request.fSize.height() != fInfo.height()) {
+    if (request.fSize.width() != fWidth || request.fSize.height() != fHeight) {
         return false;
     }
 
@@ -203,7 +184,7 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
         result->fCTable = fRec.fColorTable;
         result->fPixels = fRec.fPixels;
         result->fRowBytes = fRec.fRowBytes;
-        result->fSize.set(fInfo.width(), fInfo.height());
+        result->fSize.set(fWidth, fHeight);
     } else {
         SkAutoMutexAcquire  ac(fMutex);
         if (!this->onRequestLock(request, result)) {
@@ -211,7 +192,6 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
         }
     }
     if (result->fPixels) {
-        validate_pixels_ctable(fInfo, result->fCTable);
         return true;
     }
     return false;
@@ -278,10 +258,6 @@ void SkPixelRef::notifyPixelsChanged() {
     this->onNotifyPixelsChanged();
 }
 
-void SkPixelRef::changeAlphaType(SkAlphaType at) {
-    *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeAlphaType(at);
-}
-
 void SkPixelRef::setImmutable() {
     fMutability = kImmutable;
 }
@@ -309,7 +285,6 @@ void SkPixelRef::restoreMutability() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 void SkPixelRef::onNotifyPixelsChanged() { }
 
 size_t SkPixelRef::getAllocatedSizeInBytes() const {
@@ -332,6 +307,6 @@ bool SkPixelRef::onRequestLock(const LockRequest& request, LockResult* result) {
     result->fCTable = fRec.fColorTable;
     result->fPixels = fRec.fPixels;
     result->fRowBytes = fRec.fRowBytes;
-    result->fSize.set(fInfo.width(), fInfo.height());
+    result->fSize.set(fWidth, fHeight);
     return true;
 }

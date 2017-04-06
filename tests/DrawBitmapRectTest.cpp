@@ -21,7 +21,9 @@
 
 class FailurePixelRef : public SkPixelRef {
 public:
-    FailurePixelRef(const SkImageInfo& info) : SkPixelRef(info) {}
+    FailurePixelRef(const SkImageInfo& info)
+        : SkPixelRef(info.width(), info.height())
+    {}
 protected:
     bool onNewLockPixels(LockRec*) override { return false; }
     void onUnlockPixels() override {}

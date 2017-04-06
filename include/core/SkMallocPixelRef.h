@@ -118,6 +118,7 @@ private:
                                        sk_sp<SkColorTable>);
 
     void*               fStorage;
+    SkColorType         fColorType;
     sk_sp<SkColorTable> fCTable;
     size_t              fRB;
     ReleaseProc         fReleaseProc;

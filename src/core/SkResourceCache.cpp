@@ -102,6 +102,7 @@ protected:
 
 private:
     SkDiscardableMemory* fDM;
+    SkColorType          fColorType;
     size_t               fRB;
     bool                 fFirstTime;
     SkColorTable*        fCTable;
@@ -113,8 +114,9 @@ SkOneShotDiscardablePixelRef::SkOneShotDiscardablePixelRef(const SkImageInfo& in
                                              SkDiscardableMemory* dm,
                                              size_t rowBytes,
                                              SkColorTable* ctable)
-    : INHERITED(info)
+    : INHERITED(info.width(), info.height())
     , fDM(dm)
+    , fColorType(info.colorType())
     , fRB(rowBytes)
     , fCTable(ctable)
 {
@@ -161,7 +163,9 @@ void SkOneShotDiscardablePixelRef::onUnlockPixels() {
 }
 
 size_t SkOneShotDiscardablePixelRef::getAllocatedSizeInBytes() const {
-    return this->info().getSafeSize(fRB);
+    SkImageInfo info = SkImageInfo::Make(this->width(), this->height(), fColorType,
+                                         kPremul_SkAlphaType);
+    return info.getSafeSize(fRB);
 }
 
 class SkResourceCacheDiscardableAllocator : public SkBitmap::Allocator {

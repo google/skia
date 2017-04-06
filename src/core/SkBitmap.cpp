@@ -187,9 +187,6 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
     }
     if (fInfo.alphaType() != newAlphaType) {
         fInfo = fInfo.makeAlphaType(newAlphaType);
-        if (fPixelRef) {
-            fPixelRef->changeAlphaType(newAlphaType);
-        }
     }
     return true;
 }
@@ -219,31 +216,14 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
         if (kUnknown_SkColorType != fInfo.colorType()) {
-            const SkImageInfo& prInfo = pr->info();
-            SkASSERT(fInfo.width() <= prInfo.width());
-            SkASSERT(fInfo.height() <= prInfo.height());
-            SkASSERT(fInfo.colorType() == prInfo.colorType());
-            switch (prInfo.alphaType()) {
-                case kUnknown_SkAlphaType:
-                    SkASSERT(fInfo.alphaType() == kUnknown_SkAlphaType);
-                    break;
-                case kOpaque_SkAlphaType:
-                case kPremul_SkAlphaType:
-                    SkASSERT(fInfo.alphaType() == kOpaque_SkAlphaType ||
-                             fInfo.alphaType() == kPremul_SkAlphaType);
-                    break;
-                case kUnpremul_SkAlphaType:
-                    SkASSERT(fInfo.alphaType() == kOpaque_SkAlphaType ||
-                             fInfo.alphaType() == kUnpremul_SkAlphaType);
-                    break;
-            }
+            SkASSERT(fInfo.width() <= pr->width());
+            SkASSERT(fInfo.height() <= pr->height());
         }
     }
 #endif
 
     if (pr) {
-        const SkImageInfo& info = pr->info();
-        fPixelRefOrigin.set(SkTPin(dx, 0, info.width()), SkTPin(dy, 0, info.height()));
+        fPixelRefOrigin.set(SkTPin(dx, 0, pr->width()), SkTPin(dy, 0, pr->height()));
     } else {
         // ignore dx,dy if there is no pixelref
         fPixelRefOrigin.setZero();
@@ -803,11 +783,9 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     //  TODO: should we ignore rowbytes (i.e. getSize)? Then it could just be
     //      if (src_pixelref->info == dst_pixelref->info)
     //
-    if (srcPM.colorType() == dstColorType && tmpDst.getSize() == srcPM.getSize64()) {
-        SkPixelRef* dstPixelRef = tmpDst.pixelRef();
-        if (dstPixelRef->info() == fPixelRef->info()) {
-            dstPixelRef->cloneGenID(*fPixelRef);
-        }
+    if (srcPM.colorType() == dstColorType && tmpDst.getSize() == srcPM.getSize64() &&
+            tmpDst.info() == this->info() && fPixelRefOrigin.isZero()) {
+        tmpDst.pixelRef()->cloneGenID(*fPixelRef);
     }
 
     dst->swap(tmpDst);
@@ -1034,7 +1012,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     if (!pr) {
         return false;
     }
-    bitmap->setInfo(pr->info());
+    bitmap->setInfo(info);
     bitmap->setPixelRef(std::move(pr), 0, 0);
     return true;
 }
@@ -1071,8 +1049,8 @@ void SkBitmap::validate() const {
         SkASSERT(fPixelRef->rowBytes() == fRowBytes);
         SkASSERT(fPixelRefOrigin.fX >= 0);
         SkASSERT(fPixelRefOrigin.fY >= 0);
-        SkASSERT(fPixelRef->info().width() >= (int)this->width() + fPixelRefOrigin.fX);
-        SkASSERT(fPixelRef->info().height() >= (int)this->height() + fPixelRefOrigin.fY);
+        SkASSERT(fPixelRef->width() >= (int)this->width() + fPixelRefOrigin.fX);
+        SkASSERT(fPixelRef->height() >= (int)this->height() + fPixelRefOrigin.fY);
         SkASSERT(fPixelRef->rowBytes() >= fInfo.minRowBytes());
     } else {
         SkASSERT(nullptr == fColorTable);
@@ -1133,7 +1111,8 @@ bool SkBitmap::requestLock(SkAutoPixmapUnlock* result) const {
 
     // We have to lock the whole thing (using the pixelref's dimensions) until the api supports
     // a partial lock (with offset/origin). Hence we can't use our fInfo.
-    SkPixelRef::LockRequest req = { pr->info().dimensions(), kNone_SkFilterQuality };
+    SkPixelRef::LockRequest req = { SkISize::Make(pr->width(), pr->height()),
+                                    kNone_SkFilterQuality };
     SkPixelRef::LockResult res;
     if (pr->requestLock(req, &res)) {
         SkASSERT(res.fPixels);

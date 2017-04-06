@@ -147,7 +147,8 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeWithData(const SkImageInfo& info,
 SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
                                    size_t rowBytes, SkColorTable* ctable,
                                    bool ownsPixels)
-    : INHERITED(info)
+    : INHERITED(info.width(), info.height())
+    , fColorType(info.colorType())
     , fCTable(sk_ref_sp(ctable))
     , fReleaseProc(ownsPixels ? sk_free_releaseproc : nullptr)
     , fReleaseProcContext(nullptr) {
@@ -169,7 +170,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
                                    size_t rowBytes, sk_sp<SkColorTable> ctable,
                                    SkMallocPixelRef::ReleaseProc proc,
                                    void* context)
-    : INHERITED(info)
+    : INHERITED(info.width(), info.height())
     , fReleaseProc(proc)
     , fReleaseProcContext(context)
 {
@@ -206,7 +207,9 @@ void SkMallocPixelRef::onUnlockPixels() {
 }
 
 size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
-    return this->info().getSafeSize(fRB);
+    SkImageInfo info = SkImageInfo::Make(this->width(), this->height(), fColorType,
+                                         kPremul_SkAlphaType);
+    return info.getSafeSize(fRB);
 }
 
 #ifdef SK_SUPPORT_LEGACY_PIXELREFFACTORY
