@@ -94,6 +94,30 @@
       "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42e6ccdf_2b150b29",
+        "filename": "infra/bots/recipe_modules/upload_dm_results/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-06T14:34:06Z",
+      "side": 1,
+      "message": "The gsutil client was stuck in the distant past for a long time, so if it\u0027s been updated and we think it works properly now, then I\u0027m willing to believe that.\n\nAnyway, my local gsutil has -n:\n\n  -n             No-clobber. When specified, existing files or objects at the\n                 destination will not be overwritten. Any items that are skipped\n                 by this option will be reported as being skipped. This option\n                 will perform an additional GET request to check if an item\n                 exists before attempting to upload the data. This will save\n                 retransmitting data, but the additional HTTP requests may make\n                 small object transfers slower and more expensive.\n\nI think that might be the option you want?  BUT my local gsutil doesn\u0027t have -m, so I don\u0027t know what\u0027s going on.  At any rate, I\u0027m 99% sure that -m would only enable multithreaded uploads and doesn\u0027t have anything to do with hashing and preventing uploads of unchanged files.",
+      "parentUuid": "acdc2e9e_b8ff1b39",
+      "range": {
+        "startLine": 22,
+        "startChar": 22,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
