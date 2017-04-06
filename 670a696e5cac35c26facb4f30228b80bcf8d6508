@@ -70,6 +70,30 @@
       "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acdc2e9e_b8ff1b39",
+        "filename": "infra/bots/recipe_modules/upload_dm_results/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-06T14:26:24Z",
+      "side": 1,
+      "message": "If you look at the test run I included you see that it goes through a lot files \n\nhttps://chromium-swarm.appspot.com/task?id\u003d355867be1c0a7c10\u0026refresh\u003d10\n\n(I suppressed the hashes file to force uploads). \nI did a spot check and the files I checked were indeed already in GS.\nPdfium did a similar thing recently. \n\nhttps://chromium-review.googlesource.com/c/457560/3/scripts/slave/recipes/pdfium.py\n\nI cannot vouch in either cases that this really works. I assumed this works, but using the built \nin the MD5 mechanism of GS and parallel uploads to insure ourselves against CQ slowdowns \nis something we should definitely do. \n\nWhat\u0027s the best way to get to the point where we have confidence in this working ?",
+      "parentUuid": "c6aa18d8_44d6a2e8",
+      "range": {
+        "startLine": 22,
+        "startChar": 22,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "670a696e5cac35c26facb4f30228b80bcf8d6508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
