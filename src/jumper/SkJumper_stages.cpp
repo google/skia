@@ -673,6 +673,10 @@ STAGE(store_u16_be) {
     store4((uint16_t*)ptr,tail, R,G,B,A);
 }
 
+STAGE(load_f32) {
+    auto ptr = *(const float**)ctx + 4*x;
+    load4(ptr,tail, &r,&g,&b,&a);
+}
 STAGE(store_f32) {
     auto ptr = *(float**)ctx + 4*x;
     store4(ptr,tail, r,g,b,a);
