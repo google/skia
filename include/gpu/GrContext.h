@@ -348,8 +348,8 @@ private:
      * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
      * return NULL. They also can perform a swizzle as part of the draw.
      */
-    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrTextureProxy>, const SkMatrix&);
-    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrTextureProxy>, const SkMatrix&);
+    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrFragmentProcessor>, GrPixelConfig);
+    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrFragmentProcessor>, GrPixelConfig);
     /** Called before either of the above two functions to determine the appropriate fragment
         processors for conversions. */
     void testPMConversionsIfNecessary(uint32_t flags);
