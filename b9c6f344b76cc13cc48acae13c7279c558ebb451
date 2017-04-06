@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "052d8731_d47e0ca2",
+        "filename": "src/jumper/SkJumper_generated.S",
+        "patchSetId": 4
+      },
+      "lineNbr": 6203,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-06T15:37:07Z",
+      "side": 1,
+      "message": "Can we handle this relative %rip instruction?",
+      "range": {
+        "startLine": 6203,
+        "startChar": 3,
+        "endLine": 6203,
+        "endChar": 78
+      },
+      "revId": "b9c6f344b76cc13cc48acae13c7279c558ebb451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
