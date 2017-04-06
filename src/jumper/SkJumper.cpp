@@ -263,7 +263,9 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     once([] {
         atexit([] {
             for (int i = 0; i < (int)SK_ARRAY_COUNT(gMissing); i++) {
-                SkDebugf("%10d %s\n", gMissing[i].load(), gNames[i]);
+                if (int n = gMissing[i].load()) {
+                    SkDebugf("%10d %s\n", n, gNames[i]);
+                }
             }
         });
     });
