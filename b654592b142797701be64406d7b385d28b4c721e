@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "823de396_7a630856",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-06T14:31:39Z",
+      "side": 1,
+      "message": "Passing this w/o moving violates the single-ownership rule that we\u0027d need to enforce to use unique_ptr (even though there are only going to be two refs for a very short period of time). But it avoids re-creating the texture effect. Inlining the UPM/PM stuff here (or moving ALL of this FP juggling into one helper function) could help, too.  Regardless, I like this step, because it does cut down on the number of FP instantiations, and unifies the structure of the two functions.",
+      "revId": "b654592b142797701be64406d7b385d28b4c721e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
