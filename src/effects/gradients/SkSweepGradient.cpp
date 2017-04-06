@@ -7,14 +7,86 @@
 
 #include "SkSweepGradient.h"
 
-static SkMatrix translate(SkScalar dx, SkScalar dy) {
-    SkMatrix matrix;
-    matrix.setTranslate(dx, dy);
-    return matrix;
+#include "Sk4fGradientBase.h"
+
+// define to test the 4f gradient path
+// #define FORCE_4F_CONTEXT
+
+namespace {
+
+bool use_4f_context(const SkShader::ContextRec& rec) {
+#ifdef FORCE_4F_CONTEXT
+    return true;
+#else
+    return rec.fPreferredDstType == SkShader::ContextRec::kPM4f_DstType;
+#endif
 }
 
+SkScalar t(SkScalar x, SkScalar y) {
+    float result = sk_float_atan2(y, x);
+    if (result < 0) {
+        result += 2 * SK_ScalarPI;
+    }
+
+    return result * (1 / (2 * SK_ScalarPI));
+}
+
+} // anonymous ns
+
+class SkSweepGradient::SweepGradient4fContext final : public GradientShaderBase4fContext {
+public:
+    SweepGradient4fContext(const SkSweepGradient& shader, const ContextRec& rec)
+        : INHERITED(shader, rec) {
+        fIntervals.init(shader.fOrigColors, shader.fOrigPos, shader.fColorCount, shader.fTileMode,
+                        fColorsArePremul, rec.fPaint->getAlpha() * (1.0f / 255), false);
+    }
+
+protected:
+    void mapTs(int x, int y, SkScalar ts[], int count) const override {
+        SkMatrix::MapXYProc   proc = fDstToPosProc;
+        const SkMatrix&     matrix = fDstToPos;
+        SkPoint srcPt;
+
+        if (fDstToPosClass != kPerspective_MatrixClass) {
+            proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
+                         SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+            SkScalar dx, fx = srcPt.fX;
+            SkScalar dy, fy = srcPt.fY;
+
+            if (fDstToPosClass == kFixedStepInX_MatrixClass) {
+                const auto step = matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf);
+                dx = step.fX;
+                dy = step.fY;
+            } else {
+                SkASSERT(fDstToPosClass == kLinear_MatrixClass);
+                dx = matrix.getScaleX();
+                dy = matrix.getSkewY();
+            }
+
+            for (; count > 0; --count) {
+                *ts++ = t(fx, fy);
+                fx += dx;
+                fy += dy;
+            }
+        } else {
+            // perspective
+            for (int stop = x + count; x < stop; x++) {
+                proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
+                             SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+                // Perspective may yield NaN values. Short of a better idea, drop to 0.
+                *ts++ = SkScalarIsNaN(srcPt.x()) || SkScalarIsNaN(srcPt.y())
+                        ? 0
+                        : t(srcPt.x(), srcPt.y());
+            }
+        }
+    }
+
+private:
+    using INHERITED = GradientShaderBase4fContext;
+};
+
 SkSweepGradient::SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor& desc)
-    : SkGradientShaderBase(desc, translate(-cx, -cy))
+    : SkGradientShaderBase(desc, SkMatrix::MakeTrans(-cx, -cy))
     , fCenter(SkPoint::Make(cx, cy))
 {
     // overwrite the tilemode to a canonical value (since sweep ignores it)
@@ -48,7 +120,9 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
 SkShader::Context* SkSweepGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
-    return CheckedMakeContext<SweepGradientContext>(alloc, *this, rec);
+    return use_4f_context(rec)
+        ? CheckedMakeContext<SweepGradient4fContext>(alloc, *this, rec)
+        : CheckedMakeContext<  SweepGradientContext>(alloc, *this, rec);
 }
 
 SkSweepGradient::SweepGradientContext::SweepGradientContext(

@@ -38,6 +38,8 @@ protected:
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
 private:
+    class SweepGradient4fContext;
+
     const SkPoint fCenter;
 
     friend class SkGradientShader;
