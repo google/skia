@@ -32,42 +32,68 @@ static void write_bm(const char* name, const SkBitmap& bm) {
 }
 
 DEF_TEST(Codec_frames, r) {
+    #define kOpaque     kOpaque_SkAlphaType
+    #define kUnpremul   kUnpremul_SkAlphaType
     static const struct {
-        const char*         fName;
-        size_t              fFrameCount;
+        const char*              fName;
+        size_t                   fFrameCount;
         // One less than fFramecount, since the first frame is always
         // independent.
-        std::vector<size_t> fRequiredFrames;
+        std::vector<size_t>      fRequiredFrames;
+        // Same, since the first frame should match getInfo.
+        std::vector<SkAlphaType> fAlphaTypes;
         // The size of this one should match fFrameCount for animated, empty
         // otherwise.
-        std::vector<size_t> fDurations;
-        int                 fRepetitionCount;
+        std::vector<size_t>      fDurations;
+        int                      fRepetitionCount;
     } gRecs[] = {
+        { "alphabetAnim.gif", 13,
+            { SkCodec::kNone, 0, 0, 0, 0, 5, 6, SkCodec::kNone,
+              SkCodec::kNone, SkCodec::kNone, 10, 11 },
+            { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
+              kUnpremul, kUnpremul, kUnpremul, kOpaque, kOpaque, kUnpremul },
+            { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
+            0 },
+        { "randPixelsAnim2.gif", 4,
+            // required frames
+            { 0, 0, 1 },
+            // alphas
+            { kOpaque, kOpaque, kOpaque },
+            // durations
+            { 0, 1000, 170, 40 },
+            // repetition count
+            0 },
         { "randPixelsAnim.gif", 13,
             // required frames
-            { SkCodec::kNone, 1, 2, 3, 4, 4, 6, 7, 7, 7, 7, 7 },
+            { SkCodec::kNone, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
+            { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
+              kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
             // durations
             { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
             // repetition count
             0 },
-        { "box.gif", 1, {}, {}, 0 },
-        { "color_wheel.gif", 1, {}, {}, 0 },
-        { "test640x479.gif", 4, { 0, 1, 2 }, { 200, 200, 200, 200 },
+        { "box.gif", 1, {}, {}, {}, 0 },
+        { "color_wheel.gif", 1, {}, {}, {}, 0 },
+        { "test640x479.gif", 4, { 0, 1, 2 },
+                { kOpaque, kOpaque, kOpaque },
+                { 200, 200, 200, 200 },
                 SkCodec::kRepetitionCountInfinite },
-        { "colorTables.gif", 2, { 0 }, { 1000, 1000 }, 5 },
+        { "colorTables.gif", 2, { 0 }, { kOpaque }, { 1000, 1000 }, 5 },
 
-        { "arrow.png",  1, {}, {}, 0 },
-        { "google_chrome.ico", 1, {}, {}, 0 },
-        { "brickwork-texture.jpg", 1, {}, {}, 0 },
+        { "arrow.png",  1, {}, {}, {}, 0 },
+        { "google_chrome.ico", 1, {}, {}, {}, 0 },
+        { "brickwork-texture.jpg", 1, {}, {}, {}, 0 },
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-        { "dng_with_preview.dng", 1, {}, {}, 0 },
+        { "dng_with_preview.dng", 1, {}, {}, {}, 0 },
 #endif
-        { "mandrill.wbmp", 1, {}, {}, 0 },
-        { "randPixels.bmp", 1, {}, {}, 0 },
-        { "yellow_rose.webp", 1, {}, {}, 0 },
+        { "mandrill.wbmp", 1, {}, {}, {}, 0 },
+        { "randPixels.bmp", 1, {}, {}, {}, 0 },
+        { "yellow_rose.webp", 1, {}, {}, {}, 0 },
     };
+    #undef kOpaque
+    #undef kUnpremul
 
-    for (auto rec : gRecs) {
+    for (const auto& rec : gRecs) {
         std::unique_ptr<SkStream> stream(GetResourceAsStream(rec.fName));
         if (!stream) {
             // Useful error statement, but sometimes people run tests without
@@ -107,12 +133,29 @@ DEF_TEST(Codec_frames, r) {
             continue;
         }
 
+        auto to_string = [](SkAlphaType type) {
+            switch (type) {
+                case kUnpremul_SkAlphaType:
+                    return "unpremul";
+                case kOpaque_SkAlphaType:
+                    return "opaque";
+                default:
+                    return "other";
+            }
+        };
         // From here on, we are only concerned with animated images.
         REPORTER_ASSERT(r, frameInfos[0].fRequiredFrame == SkCodec::kNone);
+        REPORTER_ASSERT(r, frameInfos[0].fAlphaType == codec->getInfo().alphaType());
         for (size_t i = 1; i < frameCount; i++) {
             if (rec.fRequiredFrames[i-1] != frameInfos[i].fRequiredFrame) {
                 ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
                        rec.fName, i, rec.fRequiredFrames[i-1], frameInfos[i].fRequiredFrame);
+            }
+            auto expectedAlpha = rec.fAlphaTypes[i-1];
+            auto alpha = frameInfos[i].fAlphaType;
+            if (expectedAlpha != alpha) {
+                ERRORF(r, "%s's frame %i has wrong alpha type! expected: %s\tactual: %s",
+                       rec.fName, i, to_string(expectedAlpha), to_string(alpha));
             }
         }
 
