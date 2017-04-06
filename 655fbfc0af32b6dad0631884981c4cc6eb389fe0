@@ -22,6 +22,30 @@
       "revId": "655fbfc0af32b6dad0631884981c4cc6eb389fe0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc2a9ded_acf3405f",
+        "filename": "include/gpu/GrSemaphore.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-06T19:07:19Z",
+      "side": 1,
+      "message": "Sure. Any reason you can think of for that to be exposed publicly or just keep in private for debugging use?",
+      "parentUuid": "b113cf82_dbdaffee",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 17,
+        "endChar": 17
+      },
+      "revId": "655fbfc0af32b6dad0631884981c4cc6eb389fe0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
