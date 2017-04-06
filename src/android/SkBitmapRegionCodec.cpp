@@ -88,6 +88,10 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
         // bitmap in order to avoid a behavior change.
         outInfo = outInfo.makeColorType(kAlpha_8_SkColorType).makeAlphaType(kPremul_SkAlphaType);
     }
+    if (outInfo.colorSpace() && outInfo.colorSpace()->isSRGB()) {
+        // The framework uses nullptr to mark sRGB bitmaps.
+        outInfo = outInfo.makeColorSpace(nullptr);
+    }
     bitmap->setInfo(outInfo);
     if (!bitmap->tryAllocPixels(allocator, colorTable.get())) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
