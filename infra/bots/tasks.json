@@ -506,16 +506,16 @@
         "Upload-Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android"
       ]
     },
-    "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
+    "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android"
+        "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
+    "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android"
+        "Upload-Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android"
       ]
     },
     "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
@@ -1208,16 +1208,16 @@
         "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android"
       ]
     },
-    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
+    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android"
+        "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android"
       ]
     },
-    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
+    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android"
+        "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android"
       ]
     },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android": {
@@ -4650,7 +4650,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
+    "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -4669,11 +4669,11 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:MPJ24.139-64",
+        "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -4685,7 +4685,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android",
+        "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -4701,7 +4701,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
+    "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -4720,11 +4720,11 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:MPJ24.139-64",
+        "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -4736,7 +4736,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
+        "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -10478,7 +10478,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
+    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -10497,11 +10497,11 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Android",
+        "Build-Ubuntu-Clang-arm64-Debug-Android",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:MPJ24.139-64",
+        "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -10513,7 +10513,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android",
+        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -10529,7 +10529,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
+    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -10548,11 +10548,11 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Android",
+        "Build-Ubuntu-Clang-arm64-Release-Android",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:MPJ24.139-64",
+        "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -10564,7 +10564,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
+        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -16293,9 +16293,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
+    "Upload-Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android": {
       "dependencies": [
-        "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android"
+        "Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -16308,7 +16308,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
+        "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -18033,9 +18033,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android": {
+    "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android": {
       "dependencies": [
-        "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android"
+        "Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -18048,7 +18048,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android",
+        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -18063,9 +18063,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android": {
+    "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android": {
       "dependencies": [
-        "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android"
+        "Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -18078,7 +18078,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
+        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
