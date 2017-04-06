@@ -87,11 +87,15 @@ static K kConstants = {
     M(lerp_565)           \
     M(load_tables)        \
     M(load_a8)            \
+    M(gather_a8)          \
     M(store_a8)           \
     M(load_g8)            \
+    M(gather_g8)          \
     M(load_565)           \
+    M(gather_565)         \
     M(store_565)          \
     M(load_4444)          \
+    M(gather_4444)        \
     M(store_4444)         \
     M(load_8888)          \
     M(gather_8888)        \

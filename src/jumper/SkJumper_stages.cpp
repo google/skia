@@ -584,6 +584,12 @@ STAGE(load_a8) {
     r = g = b = 0.0f;
     a = cast(expand(load<U8>(ptr, tail))) * C(1/255.0f);
 }
+STAGE(gather_a8) {
+    const uint8_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    r = g = b = 0.0f;
+    a = cast(expand(gather(ptr, ix))) * C(1/255.0f);
+}
 STAGE(store_a8) {
     auto ptr = *(uint8_t**)ctx + x;
 
@@ -597,11 +603,23 @@ STAGE(load_g8) {
     r = g = b = cast(expand(load<U8>(ptr, tail))) * C(1/255.0f);
     a = 1.0_f;
 }
+STAGE(gather_g8) {
+    const uint8_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    r = g = b = cast(expand(gather(ptr, ix))) * C(1/255.0f);
+    a = 1.0_f;
+}
 
 STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
     from_565(load<U16>(ptr, tail), &r,&g,&b);
+    a = 1.0_f;
+}
+STAGE(gather_565) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    from_565(gather(ptr, ix), &r,&g,&b);
     a = 1.0_f;
 }
 STAGE(store_565) {
@@ -616,6 +634,11 @@ STAGE(store_565) {
 STAGE(load_4444) {
     auto ptr = *(const uint16_t**)ctx + x;
     from_4444(load<U16>(ptr, tail), &r,&g,&b,&a);
+}
+STAGE(gather_4444) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    from_4444(gather(ptr, ix), &r,&g,&b,&a);
 }
 STAGE(store_4444) {
     auto ptr = *(uint16_t**)ctx + x;
