@@ -80,7 +80,8 @@ public:
      *
      *  Returns the appropriate color space to decode to.
      */
-    sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType);
+    sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType,
+                                                sk_sp<SkColorSpace> prefColorSpace = nullptr);
 
     /**
      *  Returns the dimensions of the scaled output image, for an input
