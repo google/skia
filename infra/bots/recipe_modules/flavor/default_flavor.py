@@ -75,9 +75,8 @@ class DefaultFlavorUtils(object):
   copying files between the host and Android device, as well as the
   'step' function, so that commands may be run through ADB.
   """
-  def __init__(self, module):
-    self.module = module
-    self.m = module.m
+  def __init__(self, m):
+    self.m = m
     self._chrome_path = None
     self._win_toolchain_dir = self.m.vars.slave_dir.join(WIN_TOOLCHAIN_DIR)
     win_toolchain_asset_path = self.m.vars.infrabots_dir.join(

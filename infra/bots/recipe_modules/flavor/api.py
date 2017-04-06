@@ -58,21 +58,21 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
     if is_flutter(builder_cfg):
-      return flutter_flavor.FlutterFlavorUtils(self)
+      return flutter_flavor.FlutterFlavorUtils(self.m)
     if is_chromecast(builder_cfg):
-      return gn_chromecast_flavor.GNChromecastFlavorUtils(self)
+      return gn_chromecast_flavor.GNChromecastFlavorUtils(self.m)
     if is_chromebook(builder_cfg):
-      return gn_chromebook_flavor.GNChromebookFlavorUtils(self)
+      return gn_chromebook_flavor.GNChromebookFlavorUtils(self.m)
     if is_android(builder_cfg):
-      return gn_android_flavor.GNAndroidFlavorUtils(self)
+      return gn_android_flavor.GNAndroidFlavorUtils(self.m)
     elif is_ios(builder_cfg):
-      return ios_flavor.iOSFlavorUtils(self)
+      return ios_flavor.iOSFlavorUtils(self.m)
     elif is_pdfium(builder_cfg):
-      return pdfium_flavor.PDFiumFlavorUtils(self)
+      return pdfium_flavor.PDFiumFlavorUtils(self.m)
     elif is_valgrind(builder_cfg):
-      return valgrind_flavor.ValgrindFlavorUtils(self)
+      return valgrind_flavor.ValgrindFlavorUtils(self.m)
     else:
-      return gn_flavor.GNFlavorUtils(self)
+      return gn_flavor.GNFlavorUtils(self.m)
 
   def setup(self):
     self._f = self.get_flavor(self.m.vars.builder_cfg)

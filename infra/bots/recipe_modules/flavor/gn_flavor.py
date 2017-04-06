@@ -170,7 +170,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args = [self.m.vars.slave_dir] + [str(x) for x in cmd]
       with self.m.step.context({'cwd': self.m.vars.skia_dir, 'env': env}):
         self._py('symbolized %s' % name,
-                 self.module.resource('symbolize_stack_trace.py'),
+                 self.m.vars.infrabots_dir.join('recipe_modules', 'core',
+                 'resources', 'symbolize_stack_trace.py'),
                  args=args,
                  infra_step=False)
 
