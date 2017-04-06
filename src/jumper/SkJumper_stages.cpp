@@ -610,6 +610,14 @@ STAGE(gather_g8) {
     a = 1.0_f;
 }
 
+STAGE(gather_i8) {
+    auto c = (const GatherCtx*)ctx;
+    const uint8_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    ix = expand(gather(ptr, ix));
+    from_8888(gather(c->ctable, ix), &r,&g,&b,&a);
+}
+
 STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
 
