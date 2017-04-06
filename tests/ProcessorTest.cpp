@@ -146,12 +146,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                                                                       desc,
                                                                       SkBackingFit::kExact,
                                                                       SkBudgeted::kYes));
-            sk_sp<GrTexture> texture2(
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes));
-            sk_sp<GrTexture> texture3(
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes));
-            sk_sp<GrTexture> texture4(
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes));
+            sk_sp<GrTexture> texture2 =
+                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
+            sk_sp<GrTexture> texture3 =
+                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
+            sk_sp<GrTexture> texture4 =
+                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
             sk_sp<GrBuffer> buffer(texelBufferSupport
                                            ? context->resourceProvider()->createBuffer(
                                                      1024, GrBufferType::kTexel_GrBufferType,
@@ -298,6 +298,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
+    sk_sp<GrTextureProxy> proxies[2];
+
     // Put premul data into the RGBA texture that the test FPs can optionally use.
     std::unique_ptr<GrColor[]> rgbaData(new GrColor[256 * 256]);
     for (int y = 0; y < 256; ++y) {
@@ -306,8 +308,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                     texel_color(random.nextULessThan(256), random.nextULessThan(256));
         }
     }
-    sk_sp<GrTexture> tex0(context->resourceProvider()->createTexture(
-            desc, SkBudgeted::kYes, rgbaData.get(), 256 * sizeof(GrColor)));
+    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+                                              rgbaData.get(), 256 * sizeof(GrColor));
 
     // Put random values into the alpha texture that the test FPs can optionally use.
     desc.fConfig = kAlpha_8_GrPixelConfig;
@@ -317,10 +319,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             alphaData.get()[256 * y + x] = random.nextULessThan(256);
         }
     }
-    sk_sp<GrTexture> tex1(context->resourceProvider()->createTexture(desc, SkBudgeted::kYes,
-                                                                     alphaData.get(), 256));
-    GrTexture* textures[] = {tex0.get(), tex1.get()};
-    GrProcessorTestData testData(&random, context, rtc.get(), textures);
+    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+                                              alphaData.get(), 256);
+    GrProcessorTestData testData(&random, context, rtc.get(), proxies);
 
     // Use a different array of premul colors for the output of the fragment processor that preceeds
     // the fragment processor under test.

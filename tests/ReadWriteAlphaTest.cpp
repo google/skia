@@ -159,9 +159,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                     rgbaData[y * X_SIZE + x] = GrColorPackRGBA(6, 7, 8, alphaData[y * X_SIZE + x]);
                 }
             }
-            sk_sp<GrTexture> texture(
-                context->resourceProvider()->createTexture(desc, SkBudgeted::kNo, rgbaData, 0));
-            if (!texture) {
+            sk_sp<GrTextureProxy> proxy =
+                GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kNo,
+                                             rgbaData, 0);
+            if (!proxy) {
                 // We always expect to be able to create a RGBA texture
                 if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {
                     ERRORF(reporter, "Failed to create RGBA texture.");
@@ -177,8 +178,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 
                 // read the texture back
-                bool result = texture->readPixels(0, 0, desc.fWidth, desc.fHeight,
-                                                  kAlpha_8_GrPixelConfig,
+                bool result = context->contextPriv().readSurfacePixels(
+                                                  proxy.get(), nullptr,
+                                                  0, 0, desc.fWidth, desc.fHeight,
+                                                  kAlpha_8_GrPixelConfig, nullptr,
                                                   readback.get(), rowBytes);
                 REPORTER_ASSERT_MESSAGE(reporter, result, "8888 readPixels failed");
 
