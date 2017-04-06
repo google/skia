@@ -1065,7 +1065,7 @@ STAGE_CTX(gather_i8, const SkImageShaderContext*) {
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     SkNi ix = SkNx_cast<int>(gather(tail, p, offset));
-    from_8888(gather(tail, ctx->ctable->readColors(), ix), &r, &g, &b, &a);
+    from_8888(gather(tail, ctx->ctable, ix), &r, &g, &b, &a);
 }
 STAGE_CTX(gather_g8, const SkImageShaderContext*) {
     const uint8_t* p;

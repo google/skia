@@ -17,21 +17,21 @@
 // Otherwise, completely uninteresting.
 
 struct SkImageShaderContext {
-    std::unique_ptr<SkBitmapController::State> state;
+    const void*     pixels;
+    const uint32_t* ctable;
+    int             stride;
+    SkColor4f       color4f;
+    float           width;
+    float           height;
+    float           matrix[9];
+    float           x[8];
+    float           y[8];
+    float           fx[8];
+    float           fy[8];
+    float           scalex[8];
+    float           scaley[8];
 
-    const void*   pixels;
-    SkColorTable* ctable;
-    SkColor4f     color4f;
-    int           stride;
-    float         width;
-    float         height;
-    float         matrix[9];
-    float         x[8];
-    float         y[8];
-    float         fx[8];
-    float         fy[8];
-    float         scalex[8];
-    float         scaley[8];
+    std::unique_ptr<SkBitmapController::State> state;
 };
 
 #endif//SkImageShaderContext_DEFINED
