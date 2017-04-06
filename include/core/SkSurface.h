@@ -16,6 +16,7 @@ class SkCanvas;
 class SkPaint;
 class GrContext;
 class GrRenderTarget;
+class GrSemaphore;
 
 /**
  *  SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
@@ -301,6 +302,24 @@ public:
      * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
      */
     void prepareForExternalIO();
+
+    /**
+     * Issue any pending surface IO to the current backend 3D API
+     */
+    void flush();
+
+    /**
+     * Issue any pending surface IO to the current backend 3D API. After issuing all commands, we
+     * will submit the passed in semaphores which the backing GPU will signal after all commands
+     * have completed.
+     */
+    void flush(int numSemaphores, const GrSemaphore* signalSemaphores);
+
+    /**
+     * Inserts a list of GPU semaphores that the current backend 3D API must wait on before
+     * executing any more commands on the GPU.
+     */
+    void wait(int numSemaphores, const GrSemaphore* signalSemaphores);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps*);

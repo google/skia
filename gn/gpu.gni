@@ -26,6 +26,7 @@ skia_gpu_sources = [
   "$_include/gpu/GrGpuResourceRef.h",
   "$_include/gpu/GrRenderTarget.h",
   "$_include/gpu/GrResourceKey.h",
+  "$_include/gpu/GrSemaphore.h",
   "$_include/gpu/GrShaderCaps.h",
   "$_include/gpu/GrShaderVar.h",
   "$_include/gpu/GrSurface.h",
