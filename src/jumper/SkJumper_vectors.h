@@ -15,16 +15,25 @@
 
 // Every function in this file should be marked static and inline using SI (see SkJumper_misc.h).
 
+#if defined(JUMPER)
+    // Since we know we're using Clang, we can use its vector extensions.
+    template <int N, typename T>
+    using V = T __attribute__((ext_vector_type(N)));
+#else
+    template <int N, typename T>
+    using V = T;
+#endif
+
 #if !defined(JUMPER)
     // This path should lead to portable code that can be compiled directly into Skia.
     // (All other paths are compiled offline by Clang into SkJumper_generated.S.)
     #include <math.h>
 
-    using F   = float;
-    using I32 =  int32_t;
-    using U32 = uint32_t;
-    using U16 = uint16_t;
-    using U8  = uint8_t;
+    using F   = V<1,float   >;
+    using I32 = V<1, int32_t>;
+    using U32 = V<1,uint32_t>;
+    using U16 = V<1,uint16_t>;
+    using U8  = V<1,uint8_t >;
 
     SI F   mad(F f, F m, F a)   { return f*m+a; }
     SI F   min(F a, F b)        { return fminf(a,b); }
@@ -39,8 +48,8 @@
 
     SI F if_then_else(I32 c, F t, F e) { return c ? t : e; }
 
-    SI F   gather(const float*    p, U32 ix) { return p[ix]; }
-    SI U32 gather(const uint32_t* p, U32 ix) { return p[ix]; }
+    template <typename T>
+    SI V<1,T> gather(const T* p, U32 ix) { return p[ix]; }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         *r = ptr[0];
@@ -81,12 +90,11 @@
 #elif defined(__aarch64__)
     #include <arm_neon.h>
 
-    // Since we know we're using Clang, we can use its vector extensions.
-    using F   = float    __attribute__((ext_vector_type(4)));
-    using I32 =  int32_t __attribute__((ext_vector_type(4)));
-    using U32 = uint32_t __attribute__((ext_vector_type(4)));
-    using U16 = uint16_t __attribute__((ext_vector_type(4)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(4)));
+    using F   = V<4, float   >;
+    using I32 = V<4,  int32_t>;
+    using U32 = V<4, uint32_t>;
+    using U16 = V<4, uint16_t>;
+    using U8  = V<4, uint8_t >;
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
     SI F   mad(F f, F m, F a)                    { return vfmaq_f32(a,f,m);        }
@@ -102,8 +110,10 @@
 
     SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
-    SI F   gather(const float*    p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
-    SI U32 gather(const uint32_t* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    template <typename T>
+    SI V<4,T> gather(const T* p, U32 ix) {
+        return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
+    }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba = vld4_u16(ptr);
@@ -137,11 +147,11 @@
     #include <arm_neon.h>
 
     // We can pass {s0-s15} as arguments under AAPCS-VFP.  We'll slice that as 8 d-registers.
-    using F   = float    __attribute__((ext_vector_type(2)));
-    using I32 =  int32_t __attribute__((ext_vector_type(2)));
-    using U32 = uint32_t __attribute__((ext_vector_type(2)));
-    using U16 = uint16_t __attribute__((ext_vector_type(2)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(2)));
+    using F   = V<2, float   >;
+    using I32 = V<2,  int32_t>;
+    using U32 = V<2, uint32_t>;
+    using U16 = V<2, uint16_t>;
+    using U8  = V<2, uint8_t >;
 
     SI F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
     SI F   min(F a, F b)                       { return vmin_f32(a,b);          }
@@ -160,8 +170,10 @@
         return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
     }
 
-    SI F   gather(const float*    p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
-    SI U32 gather(const uint32_t* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
+    template <typename T>
+    SI V<2,T> gather(const T* p, U32 ix) {
+        return {p[ix[0]], p[ix[1]]};
+    }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba;
@@ -208,11 +220,11 @@
     #include <immintrin.h>
 
     // These are __m256 and __m256i, but friendlier and strongly-typed.
-    using F   = float    __attribute__((ext_vector_type(8)));
-    using I32 =  int32_t __attribute__((ext_vector_type(8)));
-    using U32 = uint32_t __attribute__((ext_vector_type(8)));
-    using U16 = uint16_t __attribute__((ext_vector_type(8)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(8)));
+    using F   = V<8, float   >;
+    using I32 = V<8,  int32_t>;
+    using U32 = V<8, uint32_t>;
+    using U16 = V<8, uint16_t>;
+    using U8  = V<8, uint8_t >;
 
     SI F mad(F f, F m, F a)  {
     #if defined(__FMA__)
@@ -241,22 +253,15 @@
 
     SI F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
 
-    SI F gather(const float* p, U32 ix) {
-    #if defined(__AVX2__)
-        return _mm256_i32gather_ps(p, ix, 4);
-    #else
+    template <typename T>
+    SI V<8,T> gather(const T* p, U32 ix) {
         return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
                  p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
-    #endif
     }
-    SI U32 gather(const uint32_t* p, U32 ix) {
     #if defined(__AVX2__)
-        return _mm256_i32gather_epi32(p, ix, 4);
-    #else
-        return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
-                 p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
+        SI F   gather(const float*    p, U32 ix) { return _mm256_i32gather_ps   (p, ix, 4); }
+        SI U32 gather(const uint32_t* p, U32 ix) { return _mm256_i32gather_epi32(p, ix, 4); }
     #endif
-    }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         __m128i _01, _23, _45, _67;
@@ -401,11 +406,11 @@
 #elif defined(__SSE2__)
     #include <immintrin.h>
 
-    using F   = float    __attribute__((ext_vector_type(4)));
-    using I32 =  int32_t __attribute__((ext_vector_type(4)));
-    using U32 = uint32_t __attribute__((ext_vector_type(4)));
-    using U16 = uint16_t __attribute__((ext_vector_type(4)));
-    using U8  = uint8_t  __attribute__((ext_vector_type(4)));
+    using F   = V<4, float   >;
+    using I32 = V<4,  int32_t>;
+    using U32 = V<4, uint32_t>;
+    using U16 = V<4, uint16_t>;
+    using U8  = V<4, uint8_t >;
 
     SI F   mad(F f, F m, F a)  { return f*m+a;              }
     SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
@@ -444,8 +449,10 @@
     #endif
     }
 
-    SI F   gather(const float*    p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
-    SI U32 gather(const uint32_t* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    template <typename T>
+    SI V<4,T> gather(const T* p, U32 ix) {
+        return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
+    }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
