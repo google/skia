@@ -4673,7 +4673,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:MPJ24.139-64",
+        "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -4724,7 +4724,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:MPJ24.139-64",
+        "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -10501,7 +10501,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:MPJ24.139-64",
+        "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
@@ -10552,7 +10552,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "device_os:MPJ24.139-64",
+        "device_os:NPJ25.93-14",
         "device_type:athene",
         "os:Android",
         "pool:Skia"
