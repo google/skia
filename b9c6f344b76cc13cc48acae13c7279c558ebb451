@@ -22,6 +22,30 @@
       "revId": "b9c6f344b76cc13cc48acae13c7279c558ebb451",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07a0084f_45028fb7",
+        "filename": "src/jumper/SkJumper_generated.S",
+        "patchSetId": 4
+      },
+      "lineNbr": 6203,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-06T15:42:05Z",
+      "side": 1,
+      "message": "Yep.  ip-relative loads are ok.  It\u0027s just non-text sections that are not.  This 0x85(%rip) is only 133 bytes ahead, to the table at the end of the function, staying in the text section.  There are oodles of others for HSW and AVX code to handle the tails.",
+      "parentUuid": "052d8731_d47e0ca2",
+      "range": {
+        "startLine": 6203,
+        "startChar": 3,
+        "endLine": 6203,
+        "endChar": 78
+      },
+      "revId": "b9c6f344b76cc13cc48acae13c7279c558ebb451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
