@@ -12,7 +12,7 @@
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
 
-#if defined(JUMPER) && defined(__ANDROID__)
+#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
     // To reduce SkJumper's dependency on the Android NDK,
     // we provide what we need from <string.h>, <stdint.h>, and <stddef.h> ourselves.
     #define memcpy __builtin_memcpy
