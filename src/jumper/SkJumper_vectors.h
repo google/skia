@@ -53,6 +53,13 @@
         ptr[2] = b;
         ptr[3] = a;
     }
+
+    SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
+        *r = ptr[0];
+        *g = ptr[1];
+        *b = ptr[2];
+        *a = ptr[3];
+    }
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
         ptr[0] = r;
         ptr[1] = g;
@@ -105,6 +112,14 @@
     }
     SI void store4(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
         vst4_u16(ptr, (uint16x4x4_t{{r,g,b,a}}));
+    }
+
+    SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
+        float32x4x4_t rgba = vld4q_f32(ptr);
+        *r = rgba.val[0];
+        *g = rgba.val[1];
+        *b = rgba.val[2];
+        *a = rgba.val[3];
     }
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
         vst4q_f32(ptr, (float32x4x4_t{{r,g,b,a}}));
@@ -163,6 +178,14 @@
         }};
         vst4_lane_u16(ptr + 0, rgba, 0);
         vst4_lane_u16(ptr + 4, rgba, 1);
+    }
+
+    SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
+        float32x2x4_t rgba = vld4_f32(ptr);
+        *r = rgba.val[0];
+        *g = rgba.val[1];
+        *b = rgba.val[2];
+        *a = rgba.val[3];
     }
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
         vst4_f32(ptr, (float32x2x4_t{{r,g,b,a}}));
@@ -284,6 +307,36 @@
             _mm_storeu_si128((__m128i*)ptr + 2, _45);
             _mm_storeu_si128((__m128i*)ptr + 3, _67);
         }
+    }
+
+    SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
+        F _01, _23, _45, _67;
+        if (__builtin_expect(tail, 0)) {
+            if (tail > 0) { _01 = _mm256_insertf128_ps(_01, _mm_loadu_ps(ptr+ 0), 0); }
+            if (tail > 1) { _01 = _mm256_insertf128_ps(_01, _mm_loadu_ps(ptr+ 4), 1); }
+            if (tail > 2) { _23 = _mm256_insertf128_ps(_23, _mm_loadu_ps(ptr+ 8), 0); }
+            if (tail > 3) { _23 = _mm256_insertf128_ps(_23, _mm_loadu_ps(ptr+12), 1); }
+            if (tail > 4) { _45 = _mm256_insertf128_ps(_45, _mm_loadu_ps(ptr+16), 0); }
+            if (tail > 5) { _45 = _mm256_insertf128_ps(_45, _mm_loadu_ps(ptr+20), 1); }
+            if (tail > 6) { _67 = _mm256_insertf128_ps(_67, _mm_loadu_ps(ptr+24), 0); }
+        } else {
+            _01 = _mm256_loadu_ps(ptr+ 0);
+            _23 = _mm256_loadu_ps(ptr+ 8);
+            _45 = _mm256_loadu_ps(ptr+16);
+            _67 = _mm256_loadu_ps(ptr+24);
+        }
+
+        F rg0213 = _mm256_unpacklo_ps(_01,_23),  // r0 r2 g0 g2 | r1 r3 g1 g3
+          rg4657 = _mm256_unpacklo_ps(_45,_67),
+          ba0213 = _mm256_unpackhi_ps(_01,_23),  // b0 b2 a0 ...
+          ba4657 = _mm256_unpackhi_ps(_45,_67);
+
+        F reo = _mm256_unpacklo_pd(rg0213, rg4657),  // r0 r2 r4 r6 | r1 r3 r5 r7
+          geo = _mm256_unpackhi_pd(rg0213, rg4657),  // g0 g2 ...
+          beo = _mm256_unpacklo_pd(ba0213, ba4657),
+          aeo = _mm256_unpackhi_pd(ba0213, ba4657);
+
+        // TODO
     }
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
         F rg0145 = _mm256_unpacklo_ps(r, g),  // r0 g0 r1 g1 | r4 g4 r5 g5
@@ -407,6 +460,18 @@
              ba = _mm_unpacklo_epi16(widen_cast<__m128i>(b), widen_cast<__m128i>(a));
         _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg, ba));
         _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg, ba));
+    }
+
+    SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
+        auto _0 = _mm_loadu_ps(ptr+ 0),
+             _1 = _mm_loadu_ps(ptr+ 4),
+             _2 = _mm_loadu_ps(ptr+ 8),
+             _3 = _mm_loadu_ps(ptr+12);
+        _MM_TRANSPOSE4_PS(_0,_1,_2,_3);
+        *r = _0;
+        *g = _1;
+        *b = _2;
+        *a = _3;
     }
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
         _MM_TRANSPOSE4_PS(r,g,b,a);
