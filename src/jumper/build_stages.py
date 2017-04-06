@@ -14,7 +14,6 @@ objdump = sys.argv[2] if len(sys.argv) > 2 else 'gobjdump'
 
 clang = ['ccache', clang, '-x', 'c++']
 
-
 cflags = ['-std=c++11', '-Os', '-DJUMPER',
           '-fomit-frame-pointer', '-ffp-contract=fast',
           '-fno-exceptions', '-fno-rtti', '-fno-unwind-tables']
