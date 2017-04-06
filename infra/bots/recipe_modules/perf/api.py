@@ -48,6 +48,8 @@ def nanobench_flags(bot):
       sample_count = ''
   elif 'Intel' in bot:
     sample_count = ''
+  elif 'ChromeOS' in bot:
+    gl_prefix = 'gles'
 
   configs.append(gl_prefix)
   if sample_count is not '':
@@ -77,6 +79,10 @@ def nanobench_flags(bot):
     configs = ['angle_d3d11_es2']
     if sample_count is not '':
       configs.append('angle_d3d11_es2_msaa' + sample_count)
+
+  if 'ChromeOS' in bot:
+    # Just run GLES for now - maybe add gles_msaa4 in the future
+    configs = ['gles']
 
   args.append('--config')
   args.extend(configs)
