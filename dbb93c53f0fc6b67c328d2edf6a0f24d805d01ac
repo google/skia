@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4aa6077c_ae7d6790",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-06T18:46:45Z",
+      "side": 1,
+      "message": "Recommend strings.Contains like the others below.",
+      "range": {
+        "startLine": 105,
+        "startChar": 12,
+        "endLine": 105,
+        "endChar": 29
+      },
+      "revId": "dbb93c53f0fc6b67c328d2edf6a0f24d805d01ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "428b69b1_170a8cf0",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromebook_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-06T18:46:45Z",
+      "side": 1,
+      "message": "I disagree with this strategy.  If I ask to create a directory, I expect it to exist.  The copy_file_to_device method takes the full path of the file, so this problem won\u0027t affect us there.  I think just adding \"/*\" to src in _copy_dir will solve the problem.",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 69
+      },
+      "revId": "dbb93c53f0fc6b67c328d2edf6a0f24d805d01ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cad170e9_997784bc",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromebook_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-06T18:46:45Z",
+      "side": 1,
+      "message": "Seems like most of this should be part of the install step?",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 215,
+        "endChar": 55
+      },
+      "revId": "dbb93c53f0fc6b67c328d2edf6a0f24d805d01ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
