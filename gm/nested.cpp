@@ -88,7 +88,7 @@ protected:
                                             10, 10);
                 SkPaint p;
                 p.setColor(rand.nextU() | 0xFF000000);
-                canvas->drawRect(r, p);
+                //                canvas->drawRect(r, p);
             }
         }
 

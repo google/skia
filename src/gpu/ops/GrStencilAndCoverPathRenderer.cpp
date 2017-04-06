@@ -145,9 +145,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                            std::move(coverOp));
         }
     } else {
-        GrAA aa = GrBoolToAA(GrAATypeIsHW(args.fAAType));
         std::unique_ptr<GrDrawOp> op =
-                GrDrawPathOp::Make(viewMatrix, std::move(args.fPaint), aa, path.get());
+                GrDrawPathOp::Make(viewMatrix, std::move(args.fPaint), args.fAAType, path.get());
         args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     }
 
