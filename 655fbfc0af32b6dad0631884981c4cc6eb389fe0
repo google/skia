@@ -46,6 +46,30 @@
       "revId": "655fbfc0af32b6dad0631884981c4cc6eb389fe0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a804d8d5_31a2b925",
+        "filename": "include/gpu/GrSemaphore.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-06T19:11:30Z",
+      "side": 1,
+      "message": "Actually, another option is adding GrBackend to GrContext (which I\"m already doing for a different change), and then for debugging it we can they get it off of the GrGpu object we\u0027re storing here.",
+      "parentUuid": "dc2a9ded_acf3405f",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 17,
+        "endChar": 17
+      },
+      "revId": "655fbfc0af32b6dad0631884981c4cc6eb389fe0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
