@@ -856,3 +856,34 @@ DEF_TEST(CanvasClipType, r) {
     SkDynamicMemoryWStream stream;
     test_cliptype(SkDocument::MakePDF(&stream)->beginPage(100, 100), r);
 }
+
+    static void DeleteCallback(void*, void* context) {
+        delete (char*) context;  // data returned by accessTopRasterHandle
+    }
+
+    class CustomAllocator : public SkRasterHandleAllocator {
+    public:
+        bool allocHandle(const SkImageInfo& info, Rec* rec) override {
+            char* context = new char[4]{'s', 'k', 'i', 'a'};
+            rec->fReleaseProc = DeleteCallback;
+            rec->fReleaseCtx = context;
+            rec->fHandle = context;  // data returned by accessTopRasterHandle
+            rec->fPixels = context;
+            rec->fRowBytes = 4;
+            return true;
+        }
+
+        void updateHandle(Handle handle, const SkMatrix& ctm, const SkIRect& clip_bounds) override {
+            // apply canvas matrix and clip to custom environment
+        }
+    };
+    
+    DEF_TEST(AccessTopRasterHandle, r) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    std::unique_ptr<SkCanvas> c2 =
+            SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<CustomAllocator>(
+            new CustomAllocator()), info);
+    char* context = (char*)c2->accessTopRasterHandle();
+    SkDebugf("context = %.4s\n", context);
+}
+
