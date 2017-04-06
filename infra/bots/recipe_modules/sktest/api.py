@@ -12,6 +12,8 @@ from recipe_engine import recipe_api
 def dm_flags(bot):
   args = []
 
+  raise Exception('My trybots are trying!')
+
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test. Limit testing until we're sure it's not going to cause an
   # avalanche of problems.
@@ -370,9 +372,6 @@ def dm_flags(bot):
 
   if 'GalaxyJ5' in bot:
     match.append('~SRGBReadWritePixels') # skia:6097
-
-  if 'GalaxyS6' in bot:
-    match.append('~SpecialImage') # skia:6338
 
   if 'GalaxyS7_G930A' in bot:
     match.append('~WritePixels') # skia:6427
