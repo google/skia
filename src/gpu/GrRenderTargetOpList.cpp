@@ -117,7 +117,7 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
-bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
+bool GrRenderTargetOpList::executeOps1(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }
@@ -237,11 +237,16 @@ void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
-                                       GrSurfaceProxy* dst,
+                                       GrRenderTargetContext* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst, src, srcRect, dstPoint);
+//    GrRenderTarget* rt = dst->instantiate(resourceProvider);
+//    if (!rt) {
+//        return false;
+//    }
+
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst->asSurfaceProxy(), src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -249,10 +254,12 @@ bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
     this->addDependency(src);
 #endif
 
+    SkASSERT(this->isEmpty());
+
     // Copy surface doesn't work through a GrGpuCommandBuffer. By passing nullptr for the context we
     // force this to occur between command buffers and execute directly on GrGpu. This workaround
     // goes away with MDB.
-    this->recordOp(std::move(op), nullptr);
+    this->recordOp(std::move(op), dst);
     return true;
 }
 
@@ -291,6 +298,13 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     GrRenderTarget* renderTarget =
             renderTargetContext ? renderTargetContext->accessRenderTarget()
                                 : nullptr;
+
+    //SkASSERT(renderTarget);
+
+    if (!fRecordedOps.empty()) {
+        GrRenderTargetOpList::RecordedOp& back = fRecordedOps.back();
+        //SkASSERT(back.fRenderTarget == renderTarget);
+    }
 
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());

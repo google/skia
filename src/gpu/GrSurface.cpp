@@ -188,7 +188,7 @@ void GrSurface::onAbandon() {
 void GrSurface::setLastOpList(GrOpList* opList) {
     if (fLastOpList) {
         // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
+#if 1
         SkASSERT(fLastOpList->isClosed());
 #endif
         fLastOpList->clearTarget();
