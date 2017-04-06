@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c8ef7f5_17213eeb",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-06T21:19:47Z",
+      "side": 1,
+      "message": "+1 for this behavior",
+      "range": {
+        "startLine": 615,
+        "startChar": 0,
+        "endLine": 617,
+        "endChar": 73
+      },
+      "revId": "452b5fb01b7b9a060e603d558d9bf14931634f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1dc9cd6_b6c8d045",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-06T21:19:47Z",
+      "side": 1,
+      "message": "Does it ever matter what this is initialized to?  The Chrome model seems to be: set as premul until we have finished filling in all of the pixels, then mark as opaque if it is opaque.",
+      "range": {
+        "startLine": 204,
+        "startChar": 21,
+        "endLine": 204,
+        "endChar": 26
+      },
+      "revId": "452b5fb01b7b9a060e603d558d9bf14931634f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

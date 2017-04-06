@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30f6609f_03151eb4",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-06T21:19:47Z",
+      "side": 0,
+      "message": "Bug fix?",
+      "range": {
+        "startLine": 763,
+        "startChar": 31,
+        "endLine": 763,
+        "endChar": 41
+      },
+      "revId": "70131b97f97f97d6fbcf4545b97827dfe8509654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
