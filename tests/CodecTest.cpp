@@ -1590,6 +1590,8 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
 DEF_TEST(Codec_EncodeICC, r) {
     test_encode_icc(r, SkEncodedImageFormat::kPNG, SkTransferFunctionBehavior::kRespect);
     test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kRespect);
+    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kRespect);
     test_encode_icc(r, SkEncodedImageFormat::kPNG, SkTransferFunctionBehavior::kIgnore);
     test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kIgnore);
+    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kIgnore);
 }
