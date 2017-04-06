@@ -23,19 +23,18 @@ public:
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
     // Create a renderTargetContext that wraps an existing renderTarget
-    sk_sp<GrRenderTargetContext> makeWrappedRenderTargetContext(sk_sp<GrRenderTarget> rt,
-                                                                sk_sp<SkColorSpace> colorSpace,
+    sk_sp<GrRenderTargetContext> makeWrappedRenderTargetContext(sk_sp<GrRenderTarget>,
+                                                                sk_sp<SkColorSpace>,
                                                                 const SkSurfaceProps* = nullptr);
 
     // Create a surfaceContext that wraps an existing texture or renderTarget
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurface> tex);
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurface>);
 
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
-                                                      sk_sp<SkColorSpace>);
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
 
-    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
-                                                       SkBackingFit dstFit,
-                                                       SkBudgeted isDstBudgeted);
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc&,
+                                                       SkBackingFit,
+                                                       SkBudgeted);
 
     // TODO: Maybe add a 'surfaceProps' param (that is ignored for non-RTs) and remove
     // makeBackendTextureRenderTargetContext & makeBackendTextureAsRenderTargetRenderTargetContext
