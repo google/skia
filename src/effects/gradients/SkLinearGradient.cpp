@@ -82,7 +82,6 @@ SkShader::Context* SkLinearGradient::onMakeContext(
            : CheckedMakeContext<  LinearGradientContext>(alloc, *this, rec);
 }
 
-// For now, only a 2-stop raster pipeline specialization.
 //
 // Stages:
 //
@@ -95,9 +94,11 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
                                       SkColorSpace* cs,
                                       SkArenaAlloc* alloc,
                                       const SkMatrix& ctm,
-                                      const SkPaint&,
-                                      const SkMatrix* localM) const {
-    if (fColorCount > 2) {
+                                      const SkPaint& paint,
+                                      const SkMatrix* localM) const
+{
+    // Don't handle dither.
+    if (paint.isDither()) {
         return false;
     }
 
@@ -106,15 +107,19 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
         return false;
     }
 
-    SkASSERT(fColorCount == 2);
-    SkASSERT(fOrigPos == nullptr || (fOrigPos[0] == 0 && fOrigPos[1] == 1));
-
     SkMatrix dstToPts;
     if (!ctm.invert(&dstToPts)) {
         return false;
     }
 
     const auto dstToUnit = SkMatrix::Concat(fPtsToUnit, dstToPts);
+
+    // The gradient is less than a quarter of a pixel, this falls into the subpixel gradient code
+    // handled on a different path.
+    SkVector dx = dstToUnit.mapVector(1, 0);
+    if (dx.fX >= 4) {
+        return false;
+    }
 
     auto* m = alloc->makeArrayDefault<float>(9);
     if (dstToUnit.asAffine(m)) {
@@ -128,23 +133,216 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
     // TODO: clamp/repeat/mirror const 1f stages?
     auto* limit = alloc->make<float>(1.0f);
 
-    switch (fTileMode) {
-        case kClamp_TileMode:  p->append(SkRasterPipeline:: clamp_x, limit); break;
-        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
-        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
-    }
-
     const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
-    const SkColor4f c0 = to_colorspace(fOrigColors4f[0], fColorSpace.get(), cs),
-                    c1 = to_colorspace(fOrigColors4f[1], fColorSpace.get(), cs);
-    const SkPM4f  pmc0 = premulGrad ? c0.premul() : SkPM4f::From4f(Sk4f::Load(&c0)),
-                  pmc1 = premulGrad ? c1.premul() : SkPM4f::From4f(Sk4f::Load(&c1));
+    auto prepareColor = [premulGrad, cs, this](SkColor4f c) {
+        auto correctedColor = to_colorspace(c, fColorSpace.get(), cs);
+        return premulGrad ? correctedColor.premul() : SkPM4f::From4f(
+            Sk4f::Load(&correctedColor));
+    };
 
-    auto* c0_and_dc = alloc->makeArrayDefault<SkPM4f>(2);
-    c0_and_dc[0] = pmc0;
-    c0_and_dc[1] = SkPM4f::From4f(pmc1.to4f() - pmc0.to4f());
+    // The two-stop case with stops at 0 and 1.
+    if (fColorCount == 2 && fOrigPos == nullptr) {
+        switch (fTileMode) {
+            case kClamp_TileMode:  p->append(SkRasterPipeline:: clamp_x, limit); break;
+            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
+            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
+        }
 
-    p->append(SkRasterPipeline::linear_gradient_2stops, c0_and_dc);
+        const SkPM4f pmc0 = prepareColor(fOrigColors4f[0]),
+                     pmc1 = prepareColor(fOrigColors4f[1]);
+
+        auto* c0_and_dc = alloc->makeArrayDefault<SkPM4f>(2);
+        c0_and_dc[0] = pmc0;
+        c0_and_dc[1] = SkPM4f::From4f(pmc1.to4f() - pmc0.to4f());
+
+        p->append(SkRasterPipeline::linear_gradient_2stops, c0_and_dc);
+    } else {
+        switch (fTileMode) {
+            case kClamp_TileMode: break;
+            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
+            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
+        }
+
+        struct stop { float pos; SkPM4f f, b; };
+        struct Ctx { size_t n; stop* stops; SkPM4f start; };
+
+        auto* ctx = alloc->make<Ctx>();
+        ctx->start = prepareColor(fOrigColors4f[0]);
+
+        //    (t - t_l) / (t_r - t_l) * (c_r - c_l) + c_l
+        // => (c_r - c_l) / (t_r - t_l) * (t - t_l) + c_l
+        // Let F = (c_r - c_l) / (t_r - t_l).
+        // => F * (t - t_l) + c_l
+        // => F * t - F * t_l + c_l
+        // Let B = -F * t_l + c_l
+        // => F * t + B.
+        auto calcF = [](float t_l, float t_r, SkPM4f c_l, SkPM4f c_r) {
+            return SkPM4f::From4f((c_r.to4f() - c_l.to4f()) / (t_r - t_l));
+        };
+        auto calcB = [](SkPM4f F, float t_l, SkPM4f c_l) {
+            return SkPM4f::From4f(c_l.to4f() - (F.to4f() * t_l));
+        };
+
+        if (fOrigPos == nullptr) {
+            // Handle evenly distributed stops.
+
+            float dt = 1.0f / (fColorCount - 1);
+            // In the evenly distributed case fColorCount is the number of stops there are no
+            // dummy entries.
+            auto* stopsArray = alloc->makeArrayDefault<stop>(fColorCount);
+
+            SkPM4f c_l = prepareColor(fOrigColors4f[0]);
+            float t_l = 0;
+            for (int i = 0; i < fColorCount - 1; i++) {
+                // Use multiply instead of accumulating error using repeated addition.
+                stopsArray[i].pos = t_l;
+                float t_r = (i + 1) * dt;
+                SkPM4f c_r = prepareColor(fOrigColors4f[i + 1]);
+                SkPM4f F = calcF(t_l, t_r, c_l, c_r);
+                stopsArray[i].f = F;
+                stopsArray[i].b = calcB(F, t_l, c_l);
+
+                t_l = t_r;
+                c_l = c_r;
+            }
+
+            // Force the last stop.
+            stopsArray[fColorCount - 1].pos = 1;
+            stopsArray[fColorCount - 1].f = SkPM4f::From4f(Sk4f{0});
+            stopsArray[fColorCount - 1].b = prepareColor(fOrigColors4f[fColorCount - 1]);
+
+            ctx->n = fColorCount;
+            ctx->stops = stopsArray;
+        } else {
+            // Handle arbitrary stops.
+
+            // Remove the dummy stops inserted by SkGradientShaderBase::SkGradientShaderBase.
+            int firstStop;
+            int lastStop;
+            if (fColorCount > 2) {
+                firstStop = fOrigColors4f[0] != fOrigColors4f[1] ? 0 : 1;
+                lastStop = fOrigColors4f[fColorCount - 2] != fOrigColors4f[fColorCount - 1]
+                           ? fColorCount - 1 : fColorCount - 2;
+            } else {
+                firstStop = 0;
+                lastStop = 1;
+            }
+            int realCount = lastStop - firstStop + 1;
+
+            // This is the maximum number of stops. There may be fewer as the duplicate points of
+            // hard stops are removed.
+            auto* stopsArray = alloc->makeArrayDefault<stop>(realCount);
+
+            size_t stopCount = 0;
+            SkPM4f c_l = prepareColor(fOrigColors4f[firstStop]);
+            float t_l = fOrigPos[firstStop];
+            // N.B. lastStop is the index of the last stop, not one after.
+            for (int i = firstStop; i < lastStop; i++) {
+                float t_r = fOrigPos[i + 1];
+                SkPM4f c_r = prepareColor(fOrigColors4f[i + 1]);
+                if (t_l != t_r) {
+                    stopsArray[stopCount].pos = t_l;
+                    SkPM4f F = calcF(t_l, t_r, c_l, c_r);
+                    stopsArray[stopCount].f = F;
+                    stopsArray[stopCount].b = calcB(F, t_l, c_l);
+                    stopCount += 1;
+                }
+                t_l = t_r;
+                c_l = c_r;
+            }
+
+            stopsArray[stopCount].pos = t_l;
+            stopsArray[stopCount].f = SkPM4f::From4f(Sk4f{0});
+            stopsArray[stopCount].b = c_l;
+            stopCount += 1;
+
+            ctx->n = stopCount;
+            ctx->stops = stopsArray;
+        }
+
+        p->append(SkRasterPipeline::linear_gradient_few_stops, ctx);
+
+        ///////////////
+        /*
+        // Remove the dummy stops.
+        int firstStop;
+        int lastStop;
+        if (fColorCount > 2) {
+            firstStop = fOrigColors4f[0] != fOrigColors4f[1] ? 0 : 1;
+            lastStop = fOrigColors4f[fColorCount - 2] != fOrigColors4f[fColorCount - 1]
+                       ? fColorCount - 1 : fColorCount - 2;
+        } else {
+            firstStop = 0;
+            lastStop = 1;
+        }
+        int realCount = lastStop - firstStop + 1;
+
+        struct stop { float pos; SkPM4f f, b; };
+        struct Ctx { size_t n; stop* stops; SkPM4f start; };
+
+        auto* stopsArray = alloc->makeArrayDefault<stop>(realCount);
+
+        auto* ctx = alloc->make<Ctx>();
+
+        if (fColorCount == 2 && fOrigPos != nullptr) {
+            stopsArray[0].pos = fOrigPos[0];
+            stopsArray[1].pos = fOrigPos[1];
+            realCount = 2;
+        } else {
+            for (int i = 0; i < realCount; i++) {
+                //float pos = SkFixedToScalar(fRecs[i + firstStop].fPos);
+                stopsArray[i].pos = fOrigPos[i + firstStop];
+            }
+        }
+
+        ctx->n = realCount;
+        ctx->stops = stopsArray;
+
+
+        SkPM4f c_l = prepareColor(fOrigColors4f[firstStop]);
+        ctx->start = prepareColor(fOrigColors4f[0]);
+        for (int i = 0; i < realCount - 1; i++) {
+            SkPM4f c_r = prepareColor(fOrigColors4f[i + firstStop + 1]);
+            if (stopsArray[i].pos != stopsArray[i + 1].pos) {
+                SkPM4f F = calcF(stopsArray[i].pos, stopsArray[i + 1].pos, c_l, c_r);
+                stopsArray[i].f = F;
+                stopsArray[i].b = calcB(F, stopsArray[i].pos, c_l);
+            } else {
+                stopsArray[i].f = SkPM4f::From4f(Sk4f{0});
+                stopsArray[i].b = c_l;
+            }
+            c_l = c_r;
+        }
+
+        stopsArray[realCount - 1].f = SkPM4f::From4f(Sk4f{0});
+        stopsArray[realCount - 1].b = c_l;
+
+        if (0 && realCount >= 2) {
+            SkDebugf("firstStop: %d, lastStop: %d\n", firstStop, lastStop);
+            SkDebugf("fColorCount: %d realCount %d\n", fColorCount, realCount);
+            for (int i = 0; i < realCount; i++) {
+                SkDebugf(" i: %d, pos: %f, f: %f %f %f %f, b: %f %f %f %f\n", i, stopsArray[i].pos,
+                         stopsArray[i].f.to4f()[0],
+                         stopsArray[i].f.to4f()[1],
+                         stopsArray[i].f.to4f()[2],
+                         stopsArray[i].f.to4f()[3],
+                         stopsArray[i].b.to4f()[0],
+                         stopsArray[i].b.to4f()[1],
+                         stopsArray[i].b.to4f()[2],
+                         stopsArray[i].b.to4f()[3]
+                );
+            }
+            for (int i = 0; i < fColorCount; i++) {
+                SkDebugf(" i: %d, pos: %f %d,  c: %f %f %f %f\n", i,
+                         SkFixedToScalar(fRecs[i].fPos), fRecs[i].fScale,
+                         fOrigColors4f[i].fR, fOrigColors4f[i].fG,
+                         fOrigColors4f[i].fB, fOrigColors4f[i].fA);
+            }
+        }
+
+        p->append(SkRasterPipeline::linear_gradient_few_stops, ctx);
+        */
+    }
 
     if (!premulGrad && !this->colorsAreOpaque()) {
         p->append(SkRasterPipeline::premul);
