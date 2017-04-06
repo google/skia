@@ -268,6 +268,18 @@ SI void from_4444(U16 _4444, F* r, F* g, F* b, F* a) {
     *b = cast(wide & C(15<< 4)) * C(1.0f / (15<< 4));
     *a = cast(wide & C(15<< 0)) * C(1.0f / (15<< 0));
 }
+SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
+    *r = cast((_8888      ) & 0xff_i) * C(1/255.0f);
+    *g = cast((_8888 >>  8) & 0xff_i) * C(1/255.0f);
+    *b = cast((_8888 >> 16) & 0xff_i) * C(1/255.0f);
+    *a = cast((_8888 >> 24)         ) * C(1/255.0f);
+}
+
+template <typename T>
+SI U32 ix_and_ptr(T** ptr, const GatherCtx* ctx, F x, F y) {
+    *ptr = (const T*)ctx->pixels;
+    return trunc_(y)*ctx->stride + trunc_(x);
+}
 
 // Now finally, normal Stages!
 
@@ -616,12 +628,12 @@ STAGE(store_4444) {
 
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
-
-    auto px = load<U32>(ptr, tail);
-    r = cast((px      ) & 0xff_i) * C(1/255.0f);
-    g = cast((px >>  8) & 0xff_i) * C(1/255.0f);
-    b = cast((px >> 16) & 0xff_i) * C(1/255.0f);
-    a = cast((px >> 24)         ) * C(1/255.0f);
+    from_8888(load<U32>(ptr, tail), &r,&g,&b,&a);
+}
+STAGE(gather_8888) {
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    from_8888(gather(ptr, ix), &r,&g,&b,&a);
 }
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
