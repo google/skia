@@ -1,7 +1,18 @@
 {
-  'variables': {
-    'command': [
-      '../../../recipe_bundle/recipes', 'run', '--timestamps',
-    ],
-  },
+  'conditions': [
+    ['"Win" in OS', {
+      'variables': {
+        'command': [
+          '../../../recipe_bundle/recipes.bat', 'run', '--timestamps',
+        ],
+      },
+    }],
+    ['"Win" not in OS', {
+      'variables': {
+        'command': [
+          '../../../recipe_bundle/recipes', 'run', '--timestamps',
+        ],
+      },
+    }],
+  ],
 }
