@@ -106,7 +106,7 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/skia/infra/bots/recipe_modules/core/resources/symbolize_stack_trace.py",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
       "[START_DIR]/out/Release/nanobench",

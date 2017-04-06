@@ -35,6 +35,10 @@
       "{\"skia\": \"got_revision\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
+      "--issue",
+      "10101",
+      "--patchset",
+      "3",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
@@ -78,10 +82,31 @@
   },
   {
     "cmd": [
+      "git",
+      "commit",
+      "-a",
+      "-m",
+      "Commit Patch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Commit Patch"
+  },
+  {
+    "cmd": [
       "python",
       "[CUSTOM_/_B_WORK]/skia/infra/bots/recipes.py",
-      "bundle"
+      "bundle",
+      "--destination",
+      "[CUSTOM_[SWARM_OUT_DIR]]/recipe_bundle"
     ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
@@ -90,17 +115,6 @@
     },
     "infra_step": true,
     "name": "Bundle Recipes"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copytree(sys.argv[1], sys.argv[2], symlinks=bool(sys.argv[3]))\n",
-      "[START_DIR]/bundle",
-      "[CUSTOM_[SWARM_OUT_DIR]]/recipe_bundle",
-      "0"
-    ],
-    "name": "Copy Recipe Bundle"
   },
   {
     "name": "$result",

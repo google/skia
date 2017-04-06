@@ -244,6 +244,13 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 	return BUNDLE_RECIPES_NAME
 }
 
+// useBundledRecipes returns true iff the given bot should use bundled recipes
+// instead of syncing recipe DEPS itself.
+func useBundledRecipes(parts map[string]string) bool {
+	// Use bundled recipes for all test/perf tasks.
+	return true
+}
+
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
@@ -477,7 +484,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		MaxAttempts: 1,
 		Priority:    0.8,
 	}
-	if parts["os"] == "Android" {
+	if useBundledRecipes(parts) {
 		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
 		s.Isolate = "test_skia_bundled.isolate"
 	}
@@ -527,10 +534,10 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if strings.Contains(parts["extra_config"], "Skpbench") {
 		recipe = "swarm_skpbench"
 		isolate = "skpbench_skia.isolate"
-		if parts["os"] == "Android" {
+		if useBundledRecipes(parts) {
 			isolate = "skpbench_skia_bundled.isolate"
 		}
-	} else if parts["os"] == "Android" {
+	} else if useBundledRecipes(parts) {
 		isolate = "perf_skia_bundled.isolate"
 	}
 	s := &specs.TaskSpec{
@@ -558,7 +565,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		MaxAttempts: 1,
 		Priority:    0.8,
 	}
-	if parts["os"] == "Android" {
+	if useBundledRecipes(parts) {
 		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
