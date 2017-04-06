@@ -401,12 +401,3 @@ void GrRenderTargetOpList::forwardCombine() {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-void GrRenderTargetOpList::clearStencilClip(const GrFixedClip& clip,
-                                            bool insideStencilMask,
-                                            GrRenderTargetContext* renderTargetContext) {
-    this->recordOp(GrClearStencilClipOp::Make(clip, insideStencilMask,
-                                              renderTargetContext->accessRenderTarget()),
-                   renderTargetContext);
-}

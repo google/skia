@@ -237,8 +237,6 @@ public:
     const GrCaps* caps() const { return fCaps.get(); }
 
 private:
-    GrTexture* internalCreateApproxTexture(const GrSurfaceDesc& desc, uint32_t scratchTextureFlags);
-
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
     void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
         SkASSERT(key.isValid());

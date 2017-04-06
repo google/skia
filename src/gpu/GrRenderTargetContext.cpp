@@ -25,6 +25,7 @@
 #include "effects/GrRRectEffect.h"
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
+#include "ops/GrClearStencilClipOp.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawVerticesOp.h"
@@ -656,12 +657,13 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
                               "GrRenderTargetContextPriv::clearStencilClip");
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
-    // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
-    if (!fRenderTargetContext->accessRenderTarget()) {
+
+    std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(clip, insideStencilMask,
+                                                        fRenderTargetContext));
+    if (!op) {
         return;
     }
-    fRenderTargetContext->getOpList()->clearStencilClip(clip, insideStencilMask,
-                                                        fRenderTargetContext);
+    fRenderTargetContext->getOpList()->addOp(std::move(op), fRenderTargetContext);
 }
 
 void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
@@ -713,10 +715,13 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
                                                      appliedClip.hasStencilClip(),
                                                      stencilAttachment->bits(),
                                                      appliedClip.scissorState(),
-                                                     fRenderTargetContext->accessRenderTarget(),
+                                                     fRenderTargetContext,
                                                      path);
+    if (!op) {
+        return;
+    }
     op->setClippedBounds(bounds);
-    fRenderTargetContext->getOpList()->recordOp(std::move(op), fRenderTargetContext);
+    fRenderTargetContext->getOpList()->addOp(std::move(op), fRenderTargetContext);
 }
 
 void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,

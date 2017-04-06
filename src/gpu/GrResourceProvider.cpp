@@ -139,12 +139,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
 GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
-    return this->internalCreateApproxTexture(desc, flags);
-}
 
-GrTexture* GrResourceProvider::internalCreateApproxTexture(const GrSurfaceDesc& desc,
-                                                           uint32_t scratchFlags) {
-    ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -152,7 +147,7 @@ GrTexture* GrResourceProvider::internalCreateApproxTexture(const GrSurfaceDesc& 
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         return nullptr;
     } else {
-        return this->refScratchTexture(desc, scratchFlags);
+        return this->refScratchTexture(desc, flags);
     }
 }
 
