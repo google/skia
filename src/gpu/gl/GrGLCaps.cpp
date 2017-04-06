@@ -11,7 +11,6 @@
 #include "GrGLRenderTarget.h"
 #include "GrGLTexture.h"
 #include "GrShaderCaps.h"
-#include "GrSurfaceProxyPriv.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 #include "instanced/GLInstancedRendering.h"
@@ -2072,7 +2071,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 #endif
 }
 
-bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+bool GrGLCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc,
                                   bool* rectsMustMatch, bool* disallowSubrect) const {
     // By default, we don't require rects to match.
     *rectsMustMatch = false;
@@ -2082,22 +2081,17 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
-    if (src->asTextureProxy() && this->isConfigRenderable(src->config(), false)) {
-        desc->fOrigin = kBottomLeft_GrSurfaceOrigin;
+    if (src->asTexture() && this->isConfigRenderable(src->config(), false)) {
+        desc->fOrigin = kDefault_GrSurfaceOrigin;
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
         desc->fConfig = src->config();
         return true;
     }
 
-    {
-        // The only way we could see a non-GR_GL_TEXTURE_2D texture would be if it were
-        // wrapped. In that case the proxy would already be instantiated.
-        const GrTexture* srcTexture = src->priv().peekTexture();
-        const GrGLTexture* glSrcTexture = static_cast<const GrGLTexture*>(srcTexture);
-        if (glSrcTexture && glSrcTexture->target() != GR_GL_TEXTURE_2D) {
-            // Not supported for FBO blit or CopyTexSubImage
-            return false;
-        }
+    const GrGLTexture* srcTexture = static_cast<const GrGLTexture*>(src->asTexture());
+    if (srcTexture && srcTexture->target() != GR_GL_TEXTURE_2D) {
+        // Not supported for FBO blit or CopyTexSubImage
+        return false;
     }
 
     // We look for opportunities to use CopyTexSubImage, or fbo blit. If neither are
@@ -2136,20 +2130,18 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
         return false;
     }
 
-    {
-        bool srcIsMSAARenderbuffer = src->desc().fSampleCnt > 0 && this->usesMSAARenderBuffers();
-        if (srcIsMSAARenderbuffer) {
-            // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO
-            // blit or fail.
-            if (this->canConfigBeFBOColorAttachment(src->config())) {
-                desc->fOrigin = originForBlitFramebuffer;
-                desc->fConfig = src->config();
-                *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
-                *disallowSubrect = disallowSubrectForBlitFramebuffer;
-                return true;
-            }
-            return false;
+    const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src);
+    if (srcRT->renderFBOID() != srcRT->textureFBOID()) {
+        // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
+        // fail.
+        if (this->canConfigBeFBOColorAttachment(src->config())) {
+            desc->fOrigin = originForBlitFramebuffer;
+            desc->fConfig = src->config();
+            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
+            *disallowSubrect = disallowSubrectForBlitFramebuffer;
+            return true;
         }
+        return false;
     }
 
     // We'll do a CopyTexSubImage. Make the dst a plain old texture.
