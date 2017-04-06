@@ -183,6 +183,7 @@ func swarmDimensions(parts map[string]string) []string {
 				// AVX2 is not correctly detected on Windows. Fall back on other
 				// dimensions to ensure that we correctly target machines which we know
 				// have AVX2 support.
+				d["cpu"] = "x86-64"
 				d["os"] = "Windows-2008ServerR2-SP1"
 			}
 		} else {
