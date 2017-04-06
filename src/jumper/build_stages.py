@@ -16,7 +16,8 @@ clang = ['ccache', clang, '-x', 'c++']
 
 
 cflags = ['-std=c++11', '-Os', '-DJUMPER',
-          '-fomit-frame-pointer', '-ffp-contract=fast' ]
+          '-fomit-frame-pointer', '-ffp-contract=fast',
+          '-fno-exceptions', '-fno-rtti', '-fno-unwind-tables']
 
 win = ['-DWIN', '-mno-red-zone']
 sse2 = ['-msse2', '-mno-sse3', '-mno-ssse3', '-mno-sse4.1']
@@ -51,15 +52,14 @@ subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_hsw.o'])
 
-aarch64 = [ '--target=aarch64-linux-android' ]
+aarch64 = [ '--target=aarch64' ]
 subprocess.check_call(clang + cflags + aarch64 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'aarch64.o'])
 
 vfp4 = [
-    '--target=armv7a-linux-android',
+    '--target=armv7a-linux-gnueabihf',
     '-mfpu=neon-vfpv4',
-    '-mfloat-abi=hard',
 ]
 subprocess.check_call(clang + cflags + vfp4 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
