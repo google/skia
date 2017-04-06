@@ -56,4 +56,10 @@ struct SkJumper_constants {
     float iota[8];      //  0,1,2,3,4,5,6,7
 };
 
+struct GatherCtx {
+    const void*     pixels;
+    const uint32_t* ctable;
+    int             stride;
+};
+
 #endif//SkJumper_DEFINED

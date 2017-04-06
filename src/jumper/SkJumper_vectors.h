@@ -39,7 +39,8 @@
 
     SI F if_then_else(I32 c, F t, F e) { return c ? t : e; }
 
-    SI F gather(const float* p, U32 ix) { return p[ix]; }
+    SI F   gather(const float*    p, U32 ix) { return p[ix]; }
+    SI U32 gather(const uint32_t* p, U32 ix) { return p[ix]; }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         *r = ptr[0];
@@ -101,7 +102,8 @@
 
     SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
-    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    SI F   gather(const float*    p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    SI U32 gather(const uint32_t* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba = vld4_u16(ptr);
@@ -158,7 +160,8 @@
         return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
     }
 
-    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
+    SI F   gather(const float*    p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
+    SI U32 gather(const uint32_t* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba;
@@ -241,6 +244,14 @@
     SI F gather(const float* p, U32 ix) {
     #if defined(__AVX2__)
         return _mm256_i32gather_ps(p, ix, 4);
+    #else
+        return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
+                 p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
+    #endif
+    }
+    SI U32 gather(const uint32_t* p, U32 ix) {
+    #if defined(__AVX2__)
+        return _mm256_i32gather_epi32(p, ix, 4);
     #else
         return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
                  p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
@@ -433,7 +444,8 @@
     #endif
     }
 
-    SI F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    SI F   gather(const float*    p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    SI U32 gather(const uint32_t* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
@@ -496,11 +508,13 @@
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
 #if defined(JUMPER)
-    SI F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
-    SI U32 expand(U16 v) { return __builtin_convertvector(     v, U32); }
-    SI U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
+    SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
+    SI U32 trunc_(F   v) { return (U32)__builtin_convertvector(     v, I32); }
+    SI U32 expand(U16 v) { return      __builtin_convertvector(     v, U32); }
+    SI U32 expand(U8  v) { return      __builtin_convertvector(     v, U32); }
 #else
     SI F   cast  (U32 v) { return   (F)v; }
+    SI U32 trunc_(F   v) { return (U32)v; }
     SI U32 expand(U16 v) { return (U32)v; }
     SI U32 expand(U8  v) { return (U32)v; }
 #endif
