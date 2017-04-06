@@ -668,7 +668,7 @@ DEF_TEST(BitmapCopy_ColorSpaceMatch, r) {
     bitmap.eraseColor(0);
 
     SkBitmap copy;
-    bool success = bitmap.copyTo(&copy, kN32_SkColorType, nullptr);
+    bool success = bitmap.copyTo(&copy, kN32_SkColorType);
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, cs.get() == copy.colorSpace());
 }

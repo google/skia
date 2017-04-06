@@ -596,6 +596,7 @@ public:
     */
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
 
+#ifdef SK_BUILD_FOR_ANDROID
     /** Makes a deep copy of this bitmap, respecting the requested colorType,
      *  and allocating the dst pixels on the cpu.
      *  Returns false if either there is an error (i.e. the src does not have
@@ -608,10 +609,25 @@ public:
      *                   will be used.
      *  @return true if the copy was made.
      */
-    bool copyTo(SkBitmap* dst, SkColorType ct, Allocator* = NULL) const;
+    bool copyTo(SkBitmap* dst, SkColorType ct, Allocator*) const;
 
-    bool copyTo(SkBitmap* dst, Allocator* allocator = NULL) const {
+    bool copyTo(SkBitmap* dst, Allocator* allocator) const {
         return this->copyTo(dst, this->colorType(), allocator);
+    }
+#endif
+
+    /** Makes a deep copy of this bitmap, respecting the requested colorType.
+     *  Returns false if either there is an error (i.e. the src does not have
+     *  pixels) or the request cannot be satisfied (e.g. the src has per-pixel
+     *  alpha, and the requested colortype does not support alpha).
+     *  @param dst The bitmap to be sized and allocated
+     *  @param ct The desired colorType for dst
+     *  @return true if the copy was made.
+     */
+    bool copyTo(SkBitmap* dst, SkColorType ct) const;
+
+    bool copyTo(SkBitmap* dst) const {
+        return this->copyTo(dst, this->colorType());
     }
 
     /**
@@ -769,6 +785,8 @@ private:
     uint8_t                   fFlags;
 
     bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
+
+    bool internalCopyTo(SkBitmap* dst, SkColorType ct, Allocator*) const;
 
     /*  Unreference any pixelrefs or colortables
     */
