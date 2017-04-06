@@ -74,9 +74,7 @@ public:
      *              unsupported pixel config.
      */
     bool readPixels(const SkImageInfo& dstInfo, void* dstBuffer, size_t dstRowBytes,
-                    int x, int y, uint32_t flags = 0) {
-        return this->onReadPixels(dstInfo, dstBuffer, dstRowBytes, x, y, flags);
-    }
+                    int x, int y, uint32_t flags = 0);
 
     /**
      * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the
@@ -91,9 +89,7 @@ public:
      *              unsupported pixel config.
      */
     bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
-                     int x, int y, uint32_t flags = 0) {
-        return this->onWritePixels(srcInfo, srcBuffer, srcRowBytes, x, y, flags);
-    }
+                     int x, int y, uint32_t flags = 0);
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
     virtual GrSurfaceProxy* asSurfaceProxy() = 0;
@@ -129,19 +125,13 @@ protected:
     sk_sp<SkColorSpace>   fColorSpace;
     GrAuditTrail*         fAuditTrail;
 
-    // In debug builds we guard against improper thread handling
-    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
-
 private:
-    virtual bool onCopy(GrSurfaceProxy* src,
-                        const SkIRect& srcRect,
-                        const SkIPoint& dstPoint) = 0;
-    virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
-                              size_t dstRowBytes, int x, int y, uint32_t flags) = 0;
-    virtual bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                               size_t srcRowBytes, int x, int y, uint32_t flags) = 0;
+    virtual bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
 
     GrDrawingManager*     fDrawingManager;
+
+    // In debug builds we guard against improper thread handling
+    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 
     typedef SkRefCnt INHERITED;
 };
