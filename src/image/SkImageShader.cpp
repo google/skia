@@ -258,13 +258,13 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
     }
 
     auto ctx = scratch->make<SkImageShaderContext>();
-    ctx->state   = std::move(state);  // Extend lifetime to match the pipeline's.
     ctx->pixels  = pm.addr();
-    ctx->ctable  = pm.ctable();
-    ctx->color4f = SkColor4f_from_SkColor(paint.getColor(), dst);
+    ctx->ctable  = pm.ctable() ? pm.ctable()->readColors() : nullptr;
     ctx->stride  = pm.rowBytesAsPixels();
+    ctx->color4f = SkColor4f_from_SkColor(paint.getColor(), dst);
     ctx->width   = (float)pm.width();
     ctx->height  = (float)pm.height();
+    ctx->state   = std::move(state);  // Extend lifetime to match the pipeline's.
     if (matrix.asAffine(ctx->matrix)) {
         p->append(SkRasterPipeline::matrix_2x3, ctx->matrix);
     } else {
