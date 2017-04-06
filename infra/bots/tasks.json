@@ -9794,7 +9794,7 @@
         "Build-Win-MSVC-x86-Debug"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -9844,7 +9844,7 @@
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -9894,7 +9894,7 @@
         "Build-Win-MSVC-x86_64-Debug-GDI"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -9944,7 +9944,7 @@
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -15797,7 +15797,7 @@
         "Build-Win-MSVC-x86-Debug"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -15847,7 +15847,7 @@
         "Build-Win-MSVC-x86-Release"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -15897,7 +15897,7 @@
         "Build-Win-MSVC-x86_64-Debug"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -15947,7 +15947,7 @@
         "Build-Win-MSVC-x86_64-Debug-GDI"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -15997,7 +15997,7 @@
         "Build-Win-MSVC-x86_64-Release"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -16047,7 +16047,7 @@
         "Build-Win-MSVC-x86_64-Release-GDI"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
