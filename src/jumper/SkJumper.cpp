@@ -91,6 +91,7 @@ static K kConstants = {
     M(store_a8)           \
     M(load_g8)            \
     M(gather_g8)          \
+    M(gather_i8)          \
     M(load_565)           \
     M(gather_565)         \
     M(store_565)          \
