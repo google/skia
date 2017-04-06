@@ -14,16 +14,35 @@ static const char* boolStr(bool value) {
     return value ? "true" : "false";
 }
 
-// these are in the same order as the SkColorType enum
-static const char* gColorTypeName[] = {
-    "None", "A8", "565", "4444", "RGBA", "BGRA", "Index8"
-};
+static const char* color_type_name(SkColorType colorType) {
+    switch (colorType) {
+        case kUnknown_SkColorType:
+            return "None";
+        case kAlpha_8_SkColorType:
+            return "A8";
+        case kRGB_565_SkColorType:
+            return "565";
+        case kARGB_4444_SkColorType:
+            return "4444";
+        case kRGBA_8888_SkColorType:
+            return "RGBA";
+        case kBGRA_8888_SkColorType:
+            return "BGRA";
+        case kIndex_8_SkColorType:
+            return "Index8";
+        case kGray_8_SkColorType:
+            return "Gray8";
+        case kRGBA_F16_SkColorType:
+            return "F16";
+    }
+    return "";
+}
 
 static void report_opaqueness(skiatest::Reporter* reporter, const SkBitmap& src,
                               const SkBitmap& dst) {
     ERRORF(reporter, "src %s opaque:%d, dst %s opaque:%d",
-           gColorTypeName[src.colorType()], src.isOpaque(),
-           gColorTypeName[dst.colorType()], dst.isOpaque());
+           color_type_name(src.colorType()), src.isOpaque(),
+           color_type_name(dst.colorType()), dst.isOpaque());
 }
 
 static bool canHaveAlpha(SkColorType ct) {
@@ -168,7 +187,7 @@ static void reportCopyVerification(const SkBitmap& bm1, const SkBitmap& bm2,
         uint32_t p2 = getPixel(coords[i]->fX, coords[i]->fY, bm2);
 //        SkDebugf("[%d] (%d %d) p1=%x p2=%x\n", i, coords[i]->fX, coords[i]->fY, p1, p2);
         if (p1 != p2) {
-            ERRORF(reporter, "%s [colortype = %s]", msg, gColorTypeName[bm1.colorType()]);
+            ERRORF(reporter, "%s [colortype = %s]", msg, color_type_name(bm1.colorType()));
             break;
         }
     }
@@ -181,12 +200,13 @@ static void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
 }
 
 static const Pair gPairs[] = {
-    { kUnknown_SkColorType,     "000000"  },
-    { kAlpha_8_SkColorType,     "010000"  },
-    { kIndex_8_SkColorType,     "010111"  },
-    { kRGB_565_SkColorType,     "010101"  },
-    { kARGB_4444_SkColorType,   "010111"  },
-    { kN32_SkColorType,         "010111"  },
+    { kUnknown_SkColorType,     "0000000"  },
+    { kAlpha_8_SkColorType,     "0100000"  },
+    { kIndex_8_SkColorType,     "0101111"  },
+    { kRGB_565_SkColorType,     "0101011"  },
+    { kARGB_4444_SkColorType,   "0101111"  },
+    { kN32_SkColorType,         "0101111"  },
+    { kRGBA_F16_SkColorType,    "0101011"  },
 };
 
 static const int W = 20;
@@ -199,11 +219,17 @@ static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
         ctable = init_ctable();
     }
 
-    srcOpaque->allocPixels(SkImageInfo::Make(W, H, ct, kOpaque_SkAlphaType),
+    sk_sp<SkColorSpace> colorSpace = nullptr;
+    if (kRGBA_F16_SkColorType == ct) {
+        colorSpace = SkColorSpace::MakeSRGBLinear();
+    }
+
+    srcOpaque->allocPixels(SkImageInfo::Make(W, H, ct, kOpaque_SkAlphaType, colorSpace),
                            nullptr, ctable);
-    srcPremul->allocPixels(SkImageInfo::Make(W, H, ct, kPremul_SkAlphaType),
+    srcPremul->allocPixels(SkImageInfo::Make(W, H, ct, kPremul_SkAlphaType, colorSpace),
                            nullptr, ctable);
     SkSafeUnref(ctable);
+
     init_src(*srcOpaque);
     init_src(*srcPremul);
 }
@@ -281,14 +307,16 @@ DEF_TEST(BitmapCopy, reporter) {
             bool expected = gPairs[i].fValid[j] != '0';
             if (success != expected) {
                 ERRORF(reporter, "SkBitmap::copyTo from %s to %s. expected %s "
-                       "returned %s", gColorTypeName[i], gColorTypeName[j],
+                       "returned %s", color_type_name(gPairs[i].fColorType),
+                       color_type_name(gPairs[j].fColorType),
                        boolStr(expected), boolStr(success));
             }
 
             bool canSucceed = srcPremul.canCopyTo(gPairs[j].fColorType);
             if (success != canSucceed) {
                 ERRORF(reporter, "SkBitmap::copyTo from %s to %s. returned %s "
-                       "canCopyTo %s", gColorTypeName[i], gColorTypeName[j],
+                       "canCopyTo %s", color_type_name(gPairs[i].fColorType),
+                       color_type_name(gPairs[j].fColorType),
                        boolStr(success), boolStr(canSucceed));
             }
 
@@ -337,7 +365,7 @@ DEF_TEST(BitmapCopy, reporter) {
             int64_t safeSize = tstSafeSize.computeSafeSize64();
             if (safeSize < 0) {
                 ERRORF(reporter, "getSafeSize64() negative: %s",
-                       gColorTypeName[tstSafeSize.colorType()]);
+                       color_type_name(tstSafeSize.colorType()));
             }
             bool sizeFail = false;
             // Compare against hand-computed values.
@@ -370,7 +398,7 @@ DEF_TEST(BitmapCopy, reporter) {
             }
             if (sizeFail) {
                 ERRORF(reporter, "computeSafeSize64() wrong size: %s",
-                       gColorTypeName[tstSafeSize.colorType()]);
+                       color_type_name(tstSafeSize.colorType()));
             }
 
             int subW = 2;
@@ -633,3 +661,19 @@ DEF_TEST(BitmapReadPixels, reporter) {
     }
 }
 
+DEF_TEST(BitmapCopy_ColorSpaceMatch, r) {
+    // We should support matching color spaces, even if they are parametric.
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
+    sk_sp<SkColorSpace> cs = SkColorSpace::MakeRGB(fn, SkColorSpace::kRec2020_Gamut);
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1, cs);
+    SkBitmap bitmap;
+    bitmap.allocPixels(info);
+    bitmap.eraseColor(0);
+
+    SkBitmap copy;
+    bool success = bitmap.copyTo(&copy, kN32_SkColorType, nullptr);
+    REPORTER_ASSERT(r, success);
+    REPORTER_ASSERT(r, cs.get() == copy.colorSpace());
+}
