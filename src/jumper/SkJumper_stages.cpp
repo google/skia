@@ -86,9 +86,7 @@ struct LazyCtx {
     // tail is always < kStride.
     using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
 
-    #if defined(JUMPER) && defined(WIN)
-    __attribute__((ms_abi))
-    #endif
+    MAYBE_MSABI
     extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
         F v{};
         auto start = (Stage*)load_and_inc(program);
@@ -124,9 +122,7 @@ struct LazyCtx {
     using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
 
     // On Windows, start_pipeline() has a normal Windows ABI, and then the rest is System V.
-    #if defined(JUMPER) && defined(WIN)
-    __attribute__((ms_abi))
-    #endif
+    MAYBE_MSABI
     extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
         F v{};
         auto start = (Stage*)load_and_inc(program);
@@ -836,4 +832,9 @@ STAGE(linear_gradient_2stops) {
     g = mad(t, c->dc[1], c->c0[1]);
     b = mad(t, c->dc[2], c->c0[2]);
     a = mad(t, c->dc[3], c->c0[3]);
+}
+
+STAGE(escape) {
+    auto c = (const EscapeCtx*)ctx;
+    c->fn(c->arg, tail ? tail : kStride);
 }
