@@ -456,10 +456,8 @@ void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 size_t SkRRect::writeToMemory(void* buffer) const {
-    SkASSERT(kSizeInMemory == sizeof(SkRect) + sizeof(fRadii));
-
-    memcpy(buffer, &fRect, sizeof(SkRect));
-    memcpy((char*)buffer + sizeof(SkRect), fRadii, sizeof(fRadii));
+    // Serialize only the rect and corners, but not the derived type tag.
+    memcpy(buffer, this, kSizeInMemory);
     return kSizeInMemory;
 }
 
@@ -468,14 +466,10 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
         return 0;
     }
 
-    SkScalar storage[12];
-    SkASSERT(sizeof(storage) == kSizeInMemory);
+    // Deserialize rect and corners, then rederive the type tag.
+    memcpy(this, buffer, kSizeInMemory);
+    this->computeType();
 
-    // we make a local copy, to ensure alignment before we cast
-    memcpy(storage, buffer, kSizeInMemory);
-
-    this->setRectRadii(*(const SkRect*)&storage[0],
-                       (const SkVector*)&storage[4]);
     return kSizeInMemory;
 }
 
