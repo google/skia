@@ -254,7 +254,9 @@ SI void store(T* dst, V v, size_t tail) {
     }
 #endif
 
-
+SI F from_byte(U8 b) {
+    return cast(expand(b)) * C(1/255.0f);
+}
 SI void from_565(U16 _565, F* r, F* g, F* b) {
     U32 wide = expand(_565);
     *r = cast(wide & C(31<<11)) * C(1.0f / (31<<11));
@@ -521,7 +523,7 @@ STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     auto scales = load<U8>(ptr, tail);
-    auto c = cast(expand(scales)) * C(1/255.0f);
+    auto c = from_byte(scales);
 
     r = r * c;
     g = g * c;
@@ -545,7 +547,7 @@ STAGE(lerp_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     auto scales = load<U8>(ptr, tail);
-    auto c = cast(expand(scales)) * C(1/255.0f);
+    auto c = from_byte(scales);
 
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
@@ -578,17 +580,37 @@ STAGE(load_tables) {
     a = cast(        (px >> 24)) * C(1/255.0f);
 }
 
+STAGE(byte_tables) {
+    struct Tables { const uint8_t *r, *g, *b, *a; };
+    auto tables = (const Tables*)ctx;
+
+    r = from_byte(gather(tables->r, round(r, 255.0_f)));
+    g = from_byte(gather(tables->g, round(g, 255.0_f)));
+    b = from_byte(gather(tables->b, round(b, 255.0_f)));
+    a = from_byte(gather(tables->a, round(a, 255.0_f)));
+}
+
+STAGE(byte_tables_rgb) {
+    struct Tables { const uint8_t *r, *g, *b; int n; };
+    auto tables = (const Tables*)ctx;
+
+    F scale = tables->n - 1;
+    r = from_byte(gather(tables->r, round(r, scale)));
+    g = from_byte(gather(tables->g, round(g, scale)));
+    b = from_byte(gather(tables->b, round(b, scale)));
+}
+
 STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
     r = g = b = 0.0f;
-    a = cast(expand(load<U8>(ptr, tail))) * C(1/255.0f);
+    a = from_byte(load<U8>(ptr, tail));
 }
 STAGE(gather_a8) {
     const uint8_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
     r = g = b = 0.0f;
-    a = cast(expand(gather(ptr, ix))) * C(1/255.0f);
+    a = from_byte(gather(ptr, ix));
 }
 STAGE(store_a8) {
     auto ptr = *(uint8_t**)ctx + x;
@@ -600,13 +622,13 @@ STAGE(store_a8) {
 STAGE(load_g8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
-    r = g = b = cast(expand(load<U8>(ptr, tail))) * C(1/255.0f);
+    r = g = b = from_byte(load<U8>(ptr, tail));
     a = 1.0_f;
 }
 STAGE(gather_g8) {
     const uint8_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    r = g = b = cast(expand(gather(ptr, ix))) * C(1/255.0f);
+    r = g = b = from_byte(gather(ptr, ix));
     a = 1.0_f;
 }
 
