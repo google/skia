@@ -686,6 +686,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         colorSpaceOffset = size;
         colorSpaceSize = info.colorSpace()->writeToMemory(nullptr);
         size += colorSpaceSize;
+    } else if (this->colorSpace()) {
+        // Even in legacy mode, preserve the color space tag on the SkImage.
+        colorSpaceOffset = size;
+        colorSpaceSize = this->colorSpace()->writeToMemory(nullptr);
+        size += colorSpaceSize;
     }
     if (!fillMode) {
         return size;
@@ -730,7 +735,12 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         void* colorSpace = bufferAsCharPtr + colorSpaceOffset;
         FILL_MEMBER(dtiBufferFiller, fColorSpace, &colorSpace);
         FILL_MEMBER(dtiBufferFiller, fColorSpaceSize, &colorSpaceSize);
-        info.colorSpace()->writeToMemory(bufferAsCharPtr + colorSpaceOffset);
+        if (info.colorSpace()) {
+            info.colorSpace()->writeToMemory(bufferAsCharPtr + colorSpaceOffset);
+        } else {
+            SkASSERT(this->colorSpace());
+            this->colorSpace()->writeToMemory(bufferAsCharPtr + colorSpaceOffset);
+        }
     } else {
         memset(bufferAsCharPtr + offsetof(DeferredTextureImage, fColorSpace),
                0, sizeof(DeferredTextureImage::fColorSpace));
