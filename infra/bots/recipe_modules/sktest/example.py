@@ -60,6 +60,7 @@ TEST_BUILDERS = {
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot',
       'Test-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
       'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release',
+      'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release-RaspberryPi',
       ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_' +
         'SCALEDIMAGECACHE'),
     ],

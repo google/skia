@@ -114,7 +114,7 @@ ios_mount() {
 
 # ios_umount: unmounts the ios device.
 ios_umount() {
-  umount $IOS_MOUNT_POINT
+  sudo umount $IOS_MOUNT_POINT
   sleep 1
 }
 
