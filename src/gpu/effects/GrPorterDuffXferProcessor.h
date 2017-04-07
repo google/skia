@@ -23,12 +23,13 @@ public:
 
     /** Because src-over is so common we special case it for performance reasons. If this returns
         null then the SimpleSrcOverXP() below should be used. */
-    static sk_sp<GrXferProcessor> MakeSrcOverXferProcessor(const GrProcessorAnalysisColor&,
-                                                           GrProcessorAnalysisCoverage,
-                                                           bool hasMixedSamples, const GrCaps&);
+    static sk_sp<const GrXferProcessor> MakeSrcOverXferProcessor(const GrProcessorAnalysisColor&,
+                                                                 GrProcessorAnalysisCoverage,
+                                                                 bool hasMixedSamples,
+                                                                 const GrCaps&);
 
     /** Returns a simple non-LCD porter duff blend XP with no optimizations or coverage. */
-    static sk_sp<GrXferProcessor> CreateNoCoverageXP(SkBlendMode);
+    static sk_sp<const GrXferProcessor> MakeNoCoverageXP(SkBlendMode);
 
     /** This XP implements non-LCD src-over using hw blend with no optimizations. It is returned
         by reference because it is global and its ref-cnting methods are not thread safe. */
@@ -41,10 +42,10 @@ public:
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    sk_sp<GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
-                                             GrProcessorAnalysisCoverage,
-                                             bool hasMixedSamples,
-                                             const GrCaps&) const override;
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
