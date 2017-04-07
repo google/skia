@@ -14,6 +14,7 @@
 #include "SkTemplates.h"
 
 class GrAppliedClip;
+class GrXferProcessor;
 class GrXPFactory;
 
 class GrProcessorSet : private SkNoncopyable {
@@ -21,14 +22,6 @@ public:
     GrProcessorSet(GrPaint&& paint);
 
     ~GrProcessorSet();
-
-    /**
-     * If an op is recorded with this processor set then this must be called to ensure pending
-     * reads and writes are propagated to resources referred to by the processors. Otherwise,
-     * data hazards may occur.
-     */
-    void makePendingExecution();
-    bool isPendingExecution() const { return SkToBool(kPendingExecution_Flag & fFlags); }
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
     int numCoverageFragmentProcessors() const {
@@ -46,7 +39,10 @@ public:
         return fFragmentProcessors[idx + fColorFragmentProcessorCnt + fFragmentProcessorOffset];
     }
 
-    const GrXPFactory* xpFactory() const { return fXPFactory; }
+    const GrXferProcessor* xferProcessor() const {
+        SkASSERT(this->isFinalized());
+        return fXP.fProcessor;
+    }
 
     bool usesDistanceVectorField() const { return SkToBool(fFlags & kUseDistanceVectorField_Flag); }
     bool disableOutputConversionToSRGB() const {
@@ -54,74 +50,20 @@ public:
     }
     bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
 
+    /** Comparisons are only legal on finalized processor sets. */
     bool operator==(const GrProcessorSet& that) const;
     bool operator!=(const GrProcessorSet& that) const { return !(*this == that); }
 
     /**
-     * This is used to track analysis of color and coverage values through the processors.
+     * This is used to report results of processor analysis when a processor set is finalized (see
+     * below).
      */
     class Analysis {
     public:
-        /**
-         * This constructor allows an op to record its initial color in an Analysis member and then
-         * then run analysis later when the analysis inputs are available. If the analysis produces
-         * color fragment processor elimination then the input color is replaced by the expected
-         * input to the first non-eliminated processor. Otherwise, the original input color is
-         * preserved. The only reason to use this is to save space on the op by not separately
-         * storing the initial color.
-         */
-        explicit Analysis(GrColor initialColor) : Analysis() {
-            fInputColor = initialColor;
-            fValidInputColor = true;
-        }
+        Analysis(const Analysis&) = default;
+        Analysis() { *reinterpret_cast<uint32_t*>(this) = 0; }
 
-        Analysis()
-                : fIsInitializedWithProcessorSet(false)
-                , fCompatibleWithCoverageAsAlpha(true)
-                , fValidInputColor(false)
-                , fRequiresDstTexture(false)
-                , fCanCombineOverlappedStencilAndCover(true)
-                , fIgnoresInputColor(false)
-                , fRequiresBarrierBetweenOverlappingDraws(false)
-                , fOutputCoverageType(static_cast<unsigned>(GrProcessorAnalysisCoverage::kNone))
-                , fOutputColorType(static_cast<unsigned>(ColorType::kUnknown))
-                , fInitialColorProcessorsToEliminate(0) {}
-
-        // This version is used by a unit test that assumes no clip and no fragment processors.
-        Analysis(const GrProcessorAnalysisColor&, GrProcessorAnalysisCoverage, const GrXPFactory*,
-                 const GrCaps&);
-
-        void init(const GrProcessorAnalysisColor&, GrProcessorAnalysisCoverage,
-                  const GrProcessorSet&, const GrAppliedClip*, const GrCaps&);
-
-        bool isInitializedWithProcessorSet() const { return fIsInitializedWithProcessorSet; }
-
-        /**
-         * If the return is greater than or equal to zero then 'newInputColor' should be used as the
-         * input color to the GrPipeline derived from this processor set, replacing the GrDrawOp's
-         * initial color. If the return is less than zero then newInputColor has not been
-         * modified and no modification need be made to the pipeline's input color by the op.
-         */
-        int getInputColorOverrideAndColorProcessorEliminationCount(GrColor* newInputColor) const {
-            if (fValidInputColor) {
-                *newInputColor = fInputColor;
-                return fInitialColorProcessorsToEliminate;
-            }
-            SkASSERT(!fInitialColorProcessorsToEliminate);
-            return -1;
-        }
-
-        /**
-         * Valid if initialProcessorsToEliminate returns true or this analysis was initialized with
-         * a known color via constructor or init(). If color fragment processors are eliminated then
-         * this returns the expected input to the first non-eliminated processors. Otherwise it is
-         * the color passed to the constructor or init().
-         */
-        GrColor inputColor() const {
-            SkASSERT(fValidInputColor);
-            return fInputColor;
-        }
-
+        bool isInitialized() const { return fIsInitialized; }
         bool usesLocalCoords() const { return fUsesLocalCoords; }
         bool requiresDstTexture() const { return fRequiresDstTexture; }
         bool canCombineOverlappedStencilAndCover() const {
@@ -131,60 +73,54 @@ public:
             return fRequiresBarrierBetweenOverlappingDraws;
         }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
-        bool isInputColorIgnored() const { return fIgnoresInputColor; }
-        GrProcessorAnalysisCoverage outputCoverage() const {
-            return static_cast<GrProcessorAnalysisCoverage>(fOutputCoverageType);
-        }
-        GrProcessorAnalysisColor outputColor() const {
-            switch (this->outputColorType()) {
-                case ColorType::kConstant:
-                    return fKnownOutputColor;
-                case ColorType::kOpaque:
-                    return GrProcessorAnalysisColor::Opaque::kYes;
-                case ColorType::kUnknown:
-                    return GrProcessorAnalysisColor::Opaque::kNo;
-            }
-            SkFAIL("Unexpected color type");
-            return GrProcessorAnalysisColor::Opaque::kNo;
+
+        bool inputColorIsIgnored() const { return fInputColorType == kIgnored_InputColorType; }
+        bool inputColorIsOverridden() const {
+            return fInputColorType == kOverridden_InputColorType;
         }
 
     private:
-        enum class ColorType : unsigned { kUnknown, kConstant, kOpaque };
+        enum InputColorType : uint32_t {
+            kOriginal_InputColorType,
+            kOverridden_InputColorType,
+            kIgnored_InputColorType
+        };
 
-        ColorType outputColorType() const { return static_cast<ColorType>(fOutputColorType); }
+        // MSVS 2015 won't pack different underlying types
+        using PackedBool = uint32_t;
+        using PackedInputColorType = uint32_t;
 
-        void internalInit(const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage,
-                          const GrProcessorSet&, const GrFragmentProcessor* clipFP, const GrCaps&);
-
-        // MSVS 2015 won't pack a bool with an unsigned.
-        using PackedBool = unsigned;
-
-        PackedBool fIsInitializedWithProcessorSet : 1;
         PackedBool fUsesLocalCoords : 1;
         PackedBool fCompatibleWithCoverageAsAlpha : 1;
-        PackedBool fValidInputColor : 1;
         PackedBool fRequiresDstTexture : 1;
         PackedBool fCanCombineOverlappedStencilAndCover : 1;
-        // These could be removed if we created the XP from the XPFactory when doing analysis.
-        PackedBool fIgnoresInputColor : 1;
         PackedBool fRequiresBarrierBetweenOverlappingDraws : 1;
-        unsigned fOutputCoverageType : 2;
-        unsigned fOutputColorType : 2;
-
-        unsigned fInitialColorProcessorsToEliminate : 32 - 12;
-
-        GrColor fInputColor;
-        // This could be removed if we created the XP from the XPFactory when doing analysis.
-        GrColor fKnownOutputColor;
+        PackedBool fIsInitialized : 1;
+        PackedInputColorType fInputColorType : 2;
 
         friend class GrProcessorSet;
     };
-    GR_STATIC_ASSERT(sizeof(Analysis) == 2 * sizeof(GrColor) + sizeof(uint32_t));
+    GR_STATIC_ASSERT(sizeof(Analysis) == sizeof(uint32_t));
 
-    void analyzeAndEliminateFragmentProcessors(Analysis*,
-                                               const GrProcessorAnalysisColor& colorInput,
-                                               const GrProcessorAnalysisCoverage coverageInput,
-                                               const GrAppliedClip*, const GrCaps&);
+    /**
+     * This analyzes the processors given an op's input color and coverage as well as a clip. The
+     * state of the processor set may change to an equivalent but more optimal set of processors.
+     * This new state requires that the caller respect the returned 'inputColorOverride'. This is
+     * indicated by the returned Analysis's inputColorIsOverriden(). 'inputColorOverride' will not
+     * be written if the analysis does not override the input color.
+     *
+     * This must be called before the processor set is used to construct a GrPipeline and may only
+     * be called once.
+     *
+     * This also puts the processors in "pending execution" state and must be called when an op
+     * that owns a processor set is recorded to ensure pending and writes are propagated to
+     * resources referred to by the processors. Otherwise, data hazards may occur.
+     */
+    Analysis finalize(const GrProcessorAnalysisColor& colorInput,
+                      const GrProcessorAnalysisCoverage coverageInput, const GrAppliedClip*,
+                      bool isMixedSamples, const GrCaps&, GrColor* inputColorOverride);
+
+    bool isFinalized() const { return SkToBool(kFinalized_Flag & fFlags); }
 
 private:
     // This absurdly large limit allows Analysis and this to pack fields together.
@@ -194,11 +130,22 @@ private:
         kUseDistanceVectorField_Flag = 0x1,
         kDisableOutputConversionToSRGB_Flag = 0x2,
         kAllowSRGBInputs_Flag = 0x4,
-        kPendingExecution_Flag = 0x8
+        kFinalized_Flag = 0x8
     };
 
-    const GrXPFactory* fXPFactory = nullptr;
+    union XP {
+        XP(const GrXPFactory* factory) : fFactory(factory) {}
+        const GrXPFactory* fFactory;
+        const GrXferProcessor* fProcessor;
+    };
+
+    const GrXPFactory* xpFactory() const {
+        SkASSERT(!this->isFinalized());
+        return fXP.fFactory;
+    }
+
     SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
+    XP fXP;
     uint8_t fColorFragmentProcessorCnt;
     uint8_t fFragmentProcessorOffset = 0;
     uint8_t fFlags;
