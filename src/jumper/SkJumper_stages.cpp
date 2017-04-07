@@ -686,6 +686,18 @@ STAGE(load_f16) {
     b = from_half(B);
     a = from_half(A);
 }
+STAGE(gather_f16) {
+    const uint64_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    auto px = gather(ptr, ix);
+
+    U16 R,G,B,A;
+    load4((const uint16_t*)&px,0, &R,&G,&B,&A);
+    r = from_half(R);
+    g = from_half(G);
+    b = from_half(B);
+    a = from_half(A);
+}
 STAGE(store_f16) {
     auto ptr = *(uint64_t**)ctx + x;
     store4((uint16_t*)ptr,tail, to_half(r)
