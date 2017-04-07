@@ -46,6 +46,30 @@
       "revId": "a2e4c742d20f50470c3cbb4781020a2488cfffb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f17544a_c0ff535e",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-07T12:11:06Z",
+      "side": 1,
+      "message": "Can you add a comment to that effect?  Some handwaving is allowed.",
+      "parentUuid": "e54202e7_68f6b622",
+      "range": {
+        "startLine": 79,
+        "startChar": 9,
+        "endLine": 79,
+        "endChar": 15
+      },
+      "revId": "a2e4c742d20f50470c3cbb4781020a2488cfffb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
