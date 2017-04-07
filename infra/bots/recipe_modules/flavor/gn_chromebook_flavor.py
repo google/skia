@@ -97,6 +97,7 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
       '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
                                 'arm-linux-gnueabihf'),
        '-DMESA_EGL_NO_X11_HEADERS',
+       '-funwind-tables',
     ]
 
     extra_ldflags = [
