@@ -16,6 +16,24 @@
       "revId": "46a45ba907b81517dc301781443cc63fe3b5ccb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acd4348c_dff3b26d",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "05e62004_cf3062ea",
+      "revId": "46a45ba907b81517dc301781443cc63fe3b5ccb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

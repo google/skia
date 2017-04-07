@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2a0b0422_fb0713db",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d078b75_60748789",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "816b74d7_a41cb3c0",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 14
@@ -33,6 +51,24 @@
       "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "787213c1_b1dbf415",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "816b74d7_a41cb3c0",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "aabf4298_4f3f7326",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8893598_4c70cf44",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f30faa0_e2c59bcc",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 14
@@ -67,6 +121,24 @@
       "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53ee03af_14d55e7a",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f30faa0_e2c59bcc",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +211,78 @@
     },
     {
       "key": {
+        "uuid": "950a3869_fc85b2a7",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82686a7c_ac53346e",
+      "range": {
+        "startLine": 166,
+        "startChar": 40,
+        "endLine": 166,
+        "endChar": 44
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bae5b9ea_f80ea70e",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "360d963f_d8fae4d5",
+      "range": {
+        "startLine": 166,
+        "startChar": 15,
+        "endLine": 166,
+        "endChar": 19
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5fd6af48_86853692",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef8be282_7cfcf402",
+      "range": {
+        "startLine": 166,
+        "startChar": 28,
+        "endLine": 166,
+        "endChar": 31
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59ece1c6_8217ad46",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 14
@@ -156,6 +300,24 @@
     },
     {
       "key": {
+        "uuid": "0020d920_c0ebeea8",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59ece1c6_8217ad46",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e293cbdf_cd99ab4f",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 14
@@ -170,6 +332,24 @@
       "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ee2338d_8078daad",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e293cbdf_cd99ab4f",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -196,6 +376,30 @@
     },
     {
       "key": {
+        "uuid": "2286cf55_90621b32",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df0cb81_97beff01",
+      "range": {
+        "startLine": 190,
+        "startChar": 15,
+        "endLine": 191,
+        "endChar": 29
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "915c7be1_d7a1e36f",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 14
@@ -219,6 +423,30 @@
     },
     {
       "key": {
+        "uuid": "3d48a885_f487ad64",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "915c7be1_d7a1e36f",
+      "range": {
+        "startLine": 194,
+        "startChar": 25,
+        "endLine": 194,
+        "endChar": 56
+      },
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e51782b2_6f077ea6",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 14
@@ -233,6 +461,24 @@
       "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a3414fe_1c658f7d",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e51782b2_6f077ea6",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -253,6 +499,24 @@
     },
     {
       "key": {
+        "uuid": "1a033b86_b440f11a",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1142fee4_2907a1fb",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57769c90_c081ca8e",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 14
@@ -267,6 +531,24 @@
       "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2196d97e_dc5f7734",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57769c90_c081ca8e",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -287,6 +569,24 @@
     },
     {
       "key": {
+        "uuid": "ab3b53c8_bc14c419",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae924c86_0a56d7c1",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40c3fbf6_a40ee8b5",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 14
@@ -301,6 +601,24 @@
       "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e97c5b7_76b40ce6",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T16:19:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40c3fbf6_a40ee8b5",
+      "revId": "7ef329be6b6b15fce51f50f5391d4b17216c7004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
