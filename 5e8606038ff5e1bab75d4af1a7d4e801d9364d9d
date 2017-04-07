@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "907d86c8_8a31e07c",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T14:25:39Z",
+      "side": 1,
+      "message": "Why is this needed?",
+      "range": {
+        "startLine": 1196,
+        "startChar": 10,
+        "endLine": 1196,
+        "endChar": 17
+      },
+      "revId": "5e8606038ff5e1bab75d4af1a7d4e801d9364d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01186628_abb8b193",
+        "filename": "src/utils/SkMultiPictureDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T14:25:39Z",
+      "side": 1,
+      "message": "Explain magic.",
+      "range": {
+        "startLine": 32,
+        "startChar": 22,
+        "endLine": 32,
+        "endChar": 28
+      },
+      "revId": "5e8606038ff5e1bab75d4af1a7d4e801d9364d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcd93c57_4b01bbf9",
+        "filename": "src/utils/SkMultiPictureDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T14:25:39Z",
+      "side": 1,
+      "message": "n?",
+      "range": {
+        "startLine": 15,
+        "startChar": 16,
+        "endLine": 15,
+        "endChar": 17
+      },
+      "revId": "5e8606038ff5e1bab75d4af1a7d4e801d9364d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
