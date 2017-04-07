@@ -26,7 +26,7 @@ class SkColorSpace;
 class SkSurfaceProps;
 
 /*
- * This is the base class from which all per-flush callback objects must be derived. It
+ * This is the base class from which all pre-flush callback objects must be derived. It
  * provides the "preFlush" interface.
  */
 class GrPreFlushCallbackObject : public GrNonAtomicRef<GrPreFlushCallbackObject> {
