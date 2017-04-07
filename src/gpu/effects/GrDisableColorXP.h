@@ -31,10 +31,10 @@ private:
                AnalysisProperties::kIgnoresInputColor;
     }
 
-    sk_sp<GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
-                                             GrProcessorAnalysisCoverage,
-                                             bool hasMixedSamples,
-                                             const GrCaps&) const override;
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
 
