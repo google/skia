@@ -28,7 +28,6 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #endif
 
-namespace {
 class ArithmeticImageFilterImpl : public SkImageFilter {
 public:
     ArithmeticImageFilterImpl(float k1, float k2, float k3, float k4, bool enforcePMColor,
@@ -62,6 +61,8 @@ protected:
 
     void drawForeground(SkCanvas* canvas, SkSpecialImage*, const SkIRect&) const;
 
+    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
+
 private:
     const float fK[4];
     const bool fEnforcePMColor;
@@ -70,7 +71,6 @@ private:
 
     typedef SkImageFilter INHERITED;
 };
-}
 
 sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
@@ -455,6 +455,22 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
             proc(fK, dst.writable_addr32(r.fLeft, y), r.width());
         }
     }
+}
+
+sk_sp<SkImageFilter> ArithmeticImageFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
+const {
+    SkASSERT(2 == this->countInputs());
+    if (!this->getInput(0) && !this->getInput(1)) {
+        return sk_ref_sp(const_cast<ArithmeticImageFilterImpl*>(this));
+    }
+
+    sk_sp<SkImageFilter> background =
+            this->getInput(0) ? this->getInput(0)->makeColorSpace(xformer) : nullptr;
+    sk_sp<SkImageFilter> foreground =
+            this->getInput(1) ? this->getInput(1)->makeColorSpace(xformer) : nullptr;
+    return SkArithmeticImageFilter::Make(fK[0], fK[1], fK[2], fK[3], fEnforcePMColor,
+                                         std::move(background), std::move(foreground),
+                                         getCropRectIfSet());
 }
 
 #ifndef SK_IGNORE_TO_STRING
