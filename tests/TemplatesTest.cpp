@@ -126,3 +126,20 @@ DEF_TEST(AutoReallocToZero, reporter) {
     test_realloc_to_zero<SkAutoTMalloc<int> >(reporter);
     test_realloc_to_zero<SkAutoSTMalloc<kStackPreallocCount, int> >(reporter);
 }
+
+DEF_TEST(SkAutoTMallocSelfMove, r) {
+#if defined(__clang__)
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wself-move"
+#endif
+
+    SkAutoTMalloc<int> foo(20);
+    REPORTER_ASSERT(r, foo.get());
+
+    foo = std::move(foo);
+    REPORTER_ASSERT(r, foo.get());
+
+#if defined(__clang__)
+    #pragma clang diagnostic pop
+#endif
+}
