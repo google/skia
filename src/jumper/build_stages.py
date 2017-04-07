@@ -86,7 +86,7 @@ def parse_object_file(dot_o, directive, target=None):
       assert snippet not in section_headers
 
   # Ok.  Let's disassemble.
-  disassemble = ['-d', '--insn-width=10', dot_o]
+  disassemble = ['-d', '--insn-width=11', dot_o]
   for line in subprocess.check_output(cmd + disassemble).split('\n'):
     line = line.strip()
 
