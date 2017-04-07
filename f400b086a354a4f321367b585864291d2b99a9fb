@@ -22,6 +22,30 @@
       "revId": "f400b086a354a4f321367b585864291d2b99a9fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bd1b694_18cfed53",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-07T18:44:59Z",
+      "side": 1,
+      "message": "I can type it up and see what it looks like. Obviously it means additional if statements in all the client codes to first check for kUknown for calling the function, and then again after to see if that was returned.\n\nAs far as you know is kUnknown ever used intentionally? Or is it simply a signal for some \"bad\" config?",
+      "parentUuid": "d1ce4406_e6edddfe",
+      "range": {
+        "startLine": 199,
+        "startChar": 3,
+        "endLine": 201,
+        "endChar": 76
+      },
+      "revId": "f400b086a354a4f321367b585864291d2b99a9fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
