@@ -760,8 +760,8 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                     m_firstFrameSupportsIndex8 = true;
                 } else {
                     const bool frameIsSubset = xOffset > 0 || yOffset > 0
-                            || xOffset + width < m_screenWidth
-                            || yOffset + height < m_screenHeight;
+                            || width < m_screenWidth
+                            || height < m_screenHeight;
                     m_firstFrameHasAlpha = frameIsSubset;
                     m_firstFrameSupportsIndex8 = !frameIsSubset;
                 }
