@@ -887,3 +887,23 @@ DEF_TEST(CanvasClipType, r) {
     SkDynamicMemoryWStream stream;
     test_cliptype(SkDocument::MakePDF(&stream)->beginPage(100, 100), r);
 }
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+DEF_TEST(Canvas_LegacyColorBehavior, r) {
+    sk_sp<SkColorSpace> cs = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                   SkColorSpace::kAdobeRGB_Gamut);
+
+    // Make a Adobe RGB bitmap.
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32(1, 1, kOpaque_SkAlphaType, cs));
+    bitmap.eraseColor(0xFF000000);
+
+    // Wrap it in a legacy canvas.  Test that the canvas behaves like a legacy canvas.
+    SkCanvas canvas(bitmap, SkCanvas::ColorBehavior::kLegacy);
+    REPORTER_ASSERT(r, !canvas.imageInfo().colorSpace());
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    canvas.drawIRect(SkIRect::MakeWH(1, 1), p);
+    REPORTER_ASSERT(r, SK_ColorRED == SkSwizzle_BGRA_to_PMColor(*bitmap.getAddr32(0, 0)));
+}
+#endif
