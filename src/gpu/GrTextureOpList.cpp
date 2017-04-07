@@ -42,6 +42,13 @@ void GrTextureOpList::dump() const {
                     clippedBounds.fBottom);
     }
 }
+
+void GrTextureOpList::validateTargetsSingleRenderTarget() const {
+    SkASSERT(1 == fRecordedOps.count() || 0 == fRecordedOps.count());
+
+
+}
+
 #endif
 
 void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
@@ -56,7 +63,7 @@ void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
     }
 }
 
-bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
+bool GrTextureOpList::executeOps1(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }

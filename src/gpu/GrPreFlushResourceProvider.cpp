@@ -30,6 +30,7 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
         return nullptr;
     }
 
+#if 0
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                     proxy->asRenderTargetProxy(),
                                                     fDrawingMgr->fContext->getGpu(),
@@ -37,6 +38,7 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
                                                     fDrawingMgr->fContext->getAuditTrail(),
                                                     fDrawingMgr->fOptionsForOpLists));
     proxy->setLastOpList(opList.get());
+#endif
 
     return fDrawingMgr->makeRenderTargetContext(std::move(proxy),
                                                 std::move(colorSpace),
@@ -50,6 +52,7 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
 
+#if 0
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                     proxy->asRenderTargetProxy(),
                                                     fDrawingMgr->fContext->getGpu(),
@@ -57,6 +60,7 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
                                                     fDrawingMgr->fContext->getAuditTrail(),
                                                     fDrawingMgr->fOptionsForOpLists));
     proxy->setLastOpList(opList.get());
+#endif
 
     return fDrawingMgr->makeRenderTargetContext(std::move(proxy),
                                                 std::move(colorSpace),

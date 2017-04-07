@@ -27,12 +27,12 @@ public:
 
     // These two methods are invoked as flush time
     virtual void prepareOps(GrOpFlushState* flushState) = 0;
-    virtual bool executeOps(GrOpFlushState* flushState) = 0;
+    virtual bool executeOps1(GrOpFlushState* flushState) = 0;
 
     virtual void makeClosed() {
         // We only close GrOpLists when MDB is enabled. When MDB is disabled there is only
         // ever one GrOpLists and all calls will be funnelled into it.
-#ifdef ENABLE_MDB
+#if 1
         this->setFlag(kClosed_Flag);
 #endif    
     }
@@ -54,7 +54,7 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurface* dependedOn);
+    void addDependency(GrSurfaceProxy* dependedOn);
 
     /*
      * Does this opList depend on 'dependedOn'?
@@ -79,6 +79,8 @@ public:
      * Dump out the GrOpList dependency DAG
      */
     SkDEBUGCODE(virtual void dump() const;)
+
+    SkDEBUGCODE(virtual void validateTargetsSingleRenderTarget() const = 0;)
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
