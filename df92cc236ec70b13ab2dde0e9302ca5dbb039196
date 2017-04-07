@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "079bccaa_262ea8c3",
+        "filename": "src/effects/gradients/Sk4fLinearGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T19:29:00Z",
+      "side": 1,
+      "message": "Nice.",
+      "range": {
+        "startLine": 376,
+        "startChar": 0,
+        "endLine": 376,
+        "endChar": 95
+      },
+      "revId": "df92cc236ec70b13ab2dde0e9302ca5dbb039196",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
