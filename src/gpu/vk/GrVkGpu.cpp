@@ -368,7 +368,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
         } else {
             int newMipLevels = texels.count();
             int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
-            if (newMipLevels != currentMipLevels) {
+            if (newMipLevels > currentMipLevels) {
                 if (!vkTex->reallocForMipmap(this, newMipLevels)) {
                     return false;
                 }
@@ -517,6 +517,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     SkASSERT(1 == texels.count() ||
              (0 == left && 0 == top && width == tex->width() && height == tex->height()));
 
+    // We assume that if the texture has mip levels, we either upload to all the levels or just the
+    // first.
+    SkASSERT(1 == texels.count() || texels.count() == (tex->texturePriv().maxMipMapLevel() + 1));
+
     // If we're uploading compressed data then we should be using uploadCompressedTexData
     SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
 
@@ -642,6 +646,9 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                                          regions.count(),
                                          regions.begin());
     transferBuffer->unref();
+    if (1 == texelsShallowCopy.count()) {
+       tex->texturePriv().dirtyMipMaps(true);
+    }
 
     return true;
 }
