@@ -150,10 +150,7 @@ config("default") {
       "-fPIC",
       "-Werror",
     ]
-    cflags_cc += [
-      "-std=c++11",
-      "-fno-threadsafe-statics",
-    ]
+    cflags_cc += [ "-std=c++11" ]
 
     # The main idea is to slim the exported API, but these flags also improve link time on Mac.
     # These would make stack traces worse on Linux, so we don't just set them willy-nilly.
