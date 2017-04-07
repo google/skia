@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf690554_4a308e9e",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-07T16:04:53Z",
+      "side": 1,
+      "message": "\u0026\u0026 remainingGlyphCount\n\nmakes it a little easier to know this is  part of the loop logic",
+      "range": {
+        "startLine": 304,
+        "startChar": 35,
+        "endLine": 304,
+        "endChar": 36
+      },
+      "revId": "576649a436d7be0b802a16a5a54330e701164fac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
