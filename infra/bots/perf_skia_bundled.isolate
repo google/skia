@@ -8,6 +8,7 @@
   'variables': {
     'files': [
       '../../../.gclient',
+      '../../tools/valgrind.supp',
     ],
   },
 }
