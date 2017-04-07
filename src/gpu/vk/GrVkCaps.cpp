@@ -6,7 +6,7 @@
  */
 
 #include "GrVkCaps.h"
-#include "GrRenderTarget.h"
+#include "GrRenderTargetProxy.h"
 #include "GrShaderCaps.h"
 #include "GrVkUtil.h"
 #include "vk/GrVkBackendContext.h"
@@ -53,7 +53,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     this->init(contextOptions, vkInterface, physDev, featureFlags, extensionFlags);
 }
 
-bool GrVkCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc,
+bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                                   bool* rectsMustMatch, bool* disallowSubrect) const {
     // Vk doesn't use rectsMustMatch or disallowSubrect. Always return false.
     *rectsMustMatch = false;
@@ -64,7 +64,7 @@ bool GrVkCaps::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc
     // render target as well.
     desc->fOrigin = src->origin();
     desc->fConfig = src->config();
-    if (src->numColorSamples() > 1 || (src->asTexture() && this->supportsCopiesAsDraws())) {
+    if (src->numColorSamples() > 1 || (src->asTextureProxy() && this->supportsCopiesAsDraws())) {
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
     } else {
         // Just going to use CopyImage here
