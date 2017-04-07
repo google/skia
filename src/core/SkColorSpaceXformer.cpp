@@ -11,6 +11,7 @@
 #include "SkDrawLooper.h"
 #include "SkGradientShader.h"
 #include "SkImage_Base.h"
+#include "SkImageFilter.h"
 #include "SkImagePriv.h"
 #include "SkMakeUnique.h"
 
@@ -172,8 +173,10 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
         get_dst()->setDrawLooper(looper->makeColorSpace(this));
     }
 
-    // TODO:
-    //    - image filters?
+    if (auto imageFilter = src.getImageFilter()) {
+        get_dst()->setImageFilter(imageFilter->makeColorSpace(this));
+    }
+
     return *result;
 }
 
