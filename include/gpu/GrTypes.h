@@ -721,6 +721,11 @@ struct GrBackendTextureDesc {
     GrSurfaceOrigin                 fOrigin;
     int                             fWidth;         //<! width in pixels
     int                             fHeight;        //<! height in pixels
+    /**
+     * If the 3D API is Vulkan, than this value will be inferred based on the VkFormat
+     * in the GrBackendObject (GrVkImageInfo). Thus it can be set to kUnknown_GrPixelConfig in this
+     * case.
+     */
     GrPixelConfig                   fConfig;        //<! color format
     /**
      * If the render target flag is set and sample count is greater than 0
@@ -751,6 +756,11 @@ struct GrBackendRenderTargetDesc {
     GrBackendRenderTargetDesc() { memset(this, 0, sizeof(*this)); }
     int                             fWidth;         //<! width in pixels
     int                             fHeight;        //<! height in pixels
+    /**
+     * If the 3D API is Vulkan, than this value will be inferred based on the VkFormat
+     * in the GrBackendObject (GrVkImageInfo). Thus it can be set to kUnknown_GrPixelConfig in this
+     * case.
+     */
     GrPixelConfig                   fConfig;        //<! color format
     GrSurfaceOrigin                 fOrigin;        //<! pixel origin
     /**

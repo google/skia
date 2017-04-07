@@ -335,3 +335,13 @@ void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
     InitConfigFlags(props.linearTilingFeatures, &fLinearFlags);
     InitConfigFlags(props.optimalTilingFeatures, &fOptimalFlags);
 }
+
+bool GrVkCaps::getBackendPixelConfig(GrPixelConfig config,
+                                     const GrBackendObject& handle,
+                                     GrPixelConfig* backendConfig) const {
+    const GrVkImageInfo* info = reinterpret_cast<const GrVkImageInfo*>(handle);
+    return GrVkFormatToPixelConfig(info->fFormat, backendConfig);
+}
+
+
+

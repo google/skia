@@ -203,11 +203,17 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc,
                                            GrWrapOwnership ownership) {
     this->handleDirtyContext();
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+    GrPixelConfig backendConfig;
+    if (!this->caps()->getBackendPixelConfig(desc.fConfig, desc.fTextureHandle,
+                                             &backendConfig)) {
+        return nullptr;
+    }
+
+    if (!this->caps()->isConfigTexturable(backendConfig)) {
         return nullptr;
     }
     if ((desc.fFlags & kRenderTarget_GrBackendTextureFlag) &&
-        !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        !this->caps()->isConfigRenderable(backendConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
     int maxSize = this->caps()->maxTextureSize();
@@ -227,7 +233,13 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc,
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
-    if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+    GrPixelConfig backendConfig;
+    if (!this->caps()->getBackendPixelConfig(desc.fConfig, desc.fRenderTargetHandle,
+                                             &backendConfig)) {
+        return nullptr;
+    }
+
+    if (!this->caps()->isConfigRenderable(backendConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
     this->handleDirtyContext();
@@ -239,7 +251,14 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
     if (!(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
       return nullptr;
     }
-    if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+
+    GrPixelConfig backendConfig;
+    if (!this->caps()->getBackendPixelConfig(desc.fConfig, desc.fTextureHandle,
+                                             &backendConfig)) {
+        return nullptr;
+    }
+
+    if (!this->caps()->isConfigRenderable(backendConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
     int maxSize = this->caps()->maxTextureSize();

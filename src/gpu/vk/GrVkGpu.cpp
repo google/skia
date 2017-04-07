@@ -778,20 +778,16 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     if (VK_NULL_HANDLE == info->fImage || VK_NULL_HANDLE == info->fAlloc.fMemory) {
         return nullptr;
     }
-#ifdef SK_DEBUG
-    VkFormat format;
-    if (!GrPixelConfigToVkFormat(desc.fConfig, &format)) {
-        return nullptr;
-    }
-    SkASSERT(format == info->fFormat);
-#endif
 
     GrSurfaceDesc surfDesc;
+    if (!this->caps()->getBackendPixelConfig(kUnknown_GrPixelConfig, desc.fTextureHandle,
+                                             &surfDesc.fConfig)) {
+        return nullptr;
+    }
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     surfDesc.fFlags = (GrSurfaceFlags)desc.fFlags;
     surfDesc.fWidth = desc.fWidth;
     surfDesc.fHeight = desc.fHeight;
-    surfDesc.fConfig = desc.fConfig;
     surfDesc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
     SkASSERT(!renderTarget || kAdoptAndCache_GrWrapOwnership != ownership);  // Not supported
@@ -814,7 +810,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     }
 
     GrSurfaceDesc desc;
-    desc.fConfig = wrapDesc.fConfig;
+    if (!this->caps()->getBackendPixelConfig(kUnknown_GrPixelConfig, wrapDesc.fRenderTargetHandle,
+                                             &desc.fConfig)) {
+        return nullptr;
+    }
     desc.fFlags = kCheckAllocation_GrSurfaceFlag | kRenderTarget_GrSurfaceFlag;
     desc.fWidth = wrapDesc.fWidth;
     desc.fHeight = wrapDesc.fHeight;

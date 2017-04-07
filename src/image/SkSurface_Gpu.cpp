@@ -223,7 +223,13 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
     if (!SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context, desc.fConfig, colorSpace.get())) {
+
+    GrPixelConfig backendConfig;
+    if (!context->caps()->getBackendPixelConfig(desc.fConfig, desc.fTextureHandle,
+                                                &backendConfig)) {
+        return nullptr;
+    }
+    if (!SkSurface_Gpu::Valid(context, backendConfig, colorSpace.get())) {
         return nullptr;
     }
 
@@ -250,7 +256,14 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     if (!context) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context, desc.fConfig, colorSpace.get())) {
+
+    GrPixelConfig backendConfig;
+    if (!context->caps()->getBackendPixelConfig(desc.fConfig, desc.fRenderTargetHandle,
+                                                &backendConfig)) {
+        return nullptr;
+    }
+
+    if (!SkSurface_Gpu::Valid(context, backendConfig, colorSpace.get())) {
         return nullptr;
     }
 
@@ -278,7 +291,13 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!context) {
         return nullptr;
     }
-    if (!SkSurface_Gpu::Valid(context, desc.fConfig, colorSpace.get())) {
+
+    GrPixelConfig backendConfig;
+    if (!context->caps()->getBackendPixelConfig(desc.fConfig, desc.fTextureHandle,
+                                                &backendConfig)) {
+        return nullptr;
+    }
+    if (!SkSurface_Gpu::Valid(context, backendConfig, colorSpace.get())) {
         return nullptr;
     }
 

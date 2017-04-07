@@ -196,6 +196,13 @@ public:
     virtual bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc,
                                     bool* rectsMustMatch, bool* disallowSubrect) const = 0;
 
+    virtual bool getBackendPixelConfig(GrPixelConfig config,
+                                       const GrBackendObject&,
+                                       GrPixelConfig* backendConfig) const {
+        *backendConfig = config;
+        return true;
+    }
+
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
         overrides requested by the client. Note that overrides will only reduce the caps never

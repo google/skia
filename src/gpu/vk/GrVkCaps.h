@@ -39,6 +39,10 @@ public:
 
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
 
+    bool getBackendPixelConfig(GrPixelConfig config,
+                               const GrBackendObject&,
+                               GrPixelConfig* backendConfig) const override;
+
     bool isConfigTexturableLinearly(GrPixelConfig config) const {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);
     }

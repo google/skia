@@ -250,8 +250,6 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
 }
 
 void VulkanWindowContext::createBuffers(VkFormat format) {
-    GrVkFormatToPixelConfig(format, &fPixelConfig);
-
     fGetSwapchainImagesKHR(fBackendContext->fDevice, fSwapchain, &fImageCount, nullptr);
     SkASSERT(fImageCount);
     fImages = new VkImage[fImageCount];
@@ -273,7 +271,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         info.fLevelCount = 1;
         desc.fWidth = fWidth;
         desc.fHeight = fHeight;
-        desc.fConfig = fPixelConfig;
+        desc.fConfig = kUnknown_GrPixelConfig;
         desc.fOrigin = kTopLeft_GrSurfaceOrigin;
         desc.fSampleCnt = fSampleCount;
         desc.fStencilBits = fStencilBits;
