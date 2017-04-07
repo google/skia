@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c8bc8a2_744da3ea",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-07T16:26:21Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 1
+      },
+      "revId": "9652e7f1528547d3c8d7e581e3afd74df1408823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3857563_c6a29e05",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-07T16:26:21Z",
+      "side": 1,
+      "message": "// See below for what F and B are.\n\n?",
+      "range": {
+        "startLine": 149,
+        "startChar": 14,
+        "endLine": 149,
+        "endChar": 21
+      },
+      "revId": "9652e7f1528547d3c8d7e581e3afd74df1408823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7150870d_aaa05de6",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-07T16:26:21Z",
+      "side": 1,
+      "message": "Nice, thank you.",
+      "range": {
+        "startLine": 208,
+        "startChar": 15,
+        "endLine": 208,
+        "endChar": 70
+      },
+      "revId": "9652e7f1528547d3c8d7e581e3afd74df1408823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e15c7a8_e65e39c6",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-07T16:26:21Z",
+      "side": 1,
+      "message": "Probably clearest to call this Stop too?",
+      "range": {
+        "startLine": 778,
+        "startChar": 11,
+        "endLine": 778,
+        "endChar": 12
+      },
+      "revId": "9652e7f1528547d3c8d7e581e3afd74df1408823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
