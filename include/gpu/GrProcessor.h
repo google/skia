@@ -61,7 +61,7 @@ private:
     Dynamically allocated GrProcessors are managed by a per-thread memory pool. The ref count of an
     processor must reach 0 before the thread terminates and the pool is destroyed.
  */
-class GrProcessor : public GrProgramElement<GrProcessor> {
+class GrProcessor {
 public:
     virtual ~GrProcessor() = default;
 
@@ -123,6 +123,9 @@ protected:
     }
 
 private:
+    GrProcessor(const GrProcessor&) = delete;
+    GrProcessor& operator=(const GrProcessor&) = delete;
+
     static uint32_t GenClassID() {
         // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
         // atomic inc returns the old value not the incremented value. So we add
@@ -135,11 +138,6 @@ private:
         return id;
     }
 
-    friend class GrProgramElement<GrProcessor>;
-    virtual void addPendingIOs() const {}
-    virtual void removeRefs() const {}
-    virtual void pendingIOComplete() const {}
-
     enum {
         kIllegalProcessorClassID = 0,
     };
@@ -147,8 +145,6 @@ private:
 
     uint32_t                                        fClassID;
     RequiredFeatures                                fRequiredFeatures;
-
-    typedef GrProgramElement INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
@@ -195,12 +191,12 @@ protected:
 
     bool hasSameSamplersAndAccesses(const GrResourceIOProcessor&) const;
 
-private:
-    friend class GrProgramElement<GrProcessor>;
-    void addPendingIOs() const override;
-    void removeRefs() const override;
-    void pendingIOComplete() const override;
+    // These methods can be used by derived classes that also derive from GrProgramElement.
+    void addPendingIOs() const;
+    void removeRefs() const;
+    void pendingIOComplete() const;
 
+private:
     SkSTArray<4, const TextureSampler*, true> fTextureSamplers;
     SkSTArray<1, const BufferAccess*, true> fBufferAccesses;
     SkSTArray<1, const ImageStorageAccess*, true> fImageStorageAccesses;
