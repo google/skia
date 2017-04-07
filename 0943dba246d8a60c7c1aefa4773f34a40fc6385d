@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8c99e8d_d0997756",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-07T19:19:47Z",
+      "side": 1,
+      "message": "not sure what is cleaner but could just do \"return thisXP.isEqual(thatXP)\"",
+      "range": {
+        "startLine": 78,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "0943dba246d8a60c7c1aefa4773f34a40fc6385d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcadd472_b09919e9",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-07T19:19:47Z",
+      "side": 1,
+      "message": "is it worth making a copy of this here? Looks like you\u0027re just passing it into the XP later on",
+      "range": {
+        "startLine": 126,
+        "startChar": 3,
+        "endLine": 126,
+        "endChar": 68
+      },
+      "revId": "0943dba246d8a60c7c1aefa4773f34a40fc6385d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
