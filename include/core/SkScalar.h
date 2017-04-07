@@ -215,10 +215,4 @@ static inline bool SkScalarsEqual(const SkScalar a[], const SkScalar b[], int n)
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_SCALARMUL
-    #define SkScalarMul(a, b)       ((SkScalar)(a) * (b))
-    #define SkScalarMulAdd(a, b, c) ((SkScalar)(a) * (b) + (c))
-    #define SkScalarMulDiv(a, b, c) ((SkScalar)(a) * (b) / (c))
-#endif
-
 #endif
