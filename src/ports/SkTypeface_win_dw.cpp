@@ -18,6 +18,7 @@
 #include "SkDWriteFontFileStream.h"
 #include "SkFontDescriptor.h"
 #include "SkFontStream.h"
+#include "SkOTTable_fvar.h"
 #include "SkOTTable_head.h"
 #include "SkOTTable_hhea.h"
 #include "SkOTTable_OS_2.h"
@@ -374,6 +375,13 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     AutoTDWriteTable<SkOTTableOS2> os2Table(fDWriteFontFace.get());
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
         return info;
+    }
+
+    // There are versions of DirectWrite which support named instances for system variation fonts,
+    // but no means to indicate that such a typeface is a variation.
+    AutoTDWriteTable<SkOTTableFontVariations> fvarTable(fDWriteFontFace.get());
+    if (fvarTable.fExists) {
+        info->fFlags |= SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag;
     }
 
     //There exist CJK fonts which set the IsFixedPitch and Monospace bits,
