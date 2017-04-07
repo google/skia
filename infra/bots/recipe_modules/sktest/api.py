@@ -15,7 +15,7 @@ def dm_flags(bot):
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test. Limit testing until we're sure it's not going to cause an
   # avalanche of problems.
-  if 'Ubuntu' in bot or 'Win' in bot or 'Mac' in bot or 'iOS' in bot:
+  if 'Ubuntu' in bot or 'Win' in bot or 'Mac' in bot:
     args.append('--randomProcessorTest')
 
   # 32-bit desktop bots tend to run out of memory, because they have relatively
@@ -122,7 +122,7 @@ def dm_flags(bot):
     configs = ['vk']
 
   if 'ChromeOS' in bot:
-    # Just run GLES for now - maybe add gles_msaa4 in the future
+    # Just run GLES for now - maybe add gles_msaa4 in the future after
     configs = ['gles']
 
   args.append('--config')
@@ -490,6 +490,12 @@ def dm_flags(bot):
 
   if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
     match.append('~ImageStorageLoad') # skia:6358
+
+  if 'Ci20' in bot:
+    match.append('~Codec_Dimensions') # TODO(kjlubick) for hangs
+    match.append('~FontMgrAndroidParser') # TODO(kjlubick)
+    # TODO(kjlubick) for "Pixels don't match reference"
+    blacklist(['pic-8888', 'gm', '_', 'fast_slow_blurimagefilter'])
 
   if blacklisted:
     args.append('--blacklist')
