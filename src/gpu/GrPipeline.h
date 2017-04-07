@@ -131,7 +131,7 @@ public:
     int numFragmentProcessors() const { return fFragmentProcessors.count(); }
 
     const GrXferProcessor& getXferProcessor() const {
-        if (fXferProcessor.get()) {
+        if (fXferProcessor) {
             return *fXferProcessor.get();
         } else {
             // A null xp member means the common src-over case. GrXferProcessor's ref'ing
@@ -228,7 +228,6 @@ private:
     using DstTexture = GrPendingIOResource<GrTexture, kRead_GrIOType>;
     using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
     using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
-    using ProgramXferProcessor = GrPendingProgramElement<const GrXferProcessor>;
 
     DstTexture fDstTexture;
     SkIPoint fDstTextureOffset;
@@ -238,7 +237,7 @@ private:
     const GrUserStencilSettings* fUserStencilSettings;
     uint16_t fDrawFace;
     uint16_t fFlags;
-    ProgramXferProcessor fXferProcessor;
+    sk_sp<const GrXferProcessor> fXferProcessor;
     FragmentProcessorArray fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
