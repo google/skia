@@ -1485,7 +1485,7 @@ bool SVGSrc::veto(SinkFlags flags) const {
 
 MSKPSrc::MSKPSrc(Path path) : fPath(path) {
     std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
-    int count = SkMultiPictureDocumentReadPageCount(stream.get());
+    int count = SkMultiPictureDocument::ReadPageCount(stream.get());
     if (count > 0) {
         fPages.reset(count);
         (void)SkMultiPictureDocumentReadPageSizes(stream.get(), &fPages[0], fPages.count());
@@ -1513,7 +1513,7 @@ Error MSKPSrc::draw(int i, SkCanvas* canvas) const {
         if (!stream) {
             return SkStringPrintf("Unable to open file: %s", fPath.c_str());
         }
-        if (!SkMultiPictureDocumentRead(stream.get(), &fPages[0], fPages.count())) {
+        if (!SkMultiPictureDocument::Read(stream.get(), &fPages[0], fPages.count())) {
             return SkStringPrintf("SkMultiPictureDocument reader failed on page %d: %s", i,
                                   fPath.c_str());
         }

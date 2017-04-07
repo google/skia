@@ -15,7 +15,7 @@
  *  the entire file.  Used by DM.
  */
 bool SkMultiPictureDocumentReadPageSizes(SkStreamSeekable* src,
-                                         SkDocumentPage* dstArray,
+                                         SkMultiPictureDocument::Page* dstArray,
                                          int dstArrayCount);
 
 #endif  // SkMultiPictureDocumentPriv_DEFINED
