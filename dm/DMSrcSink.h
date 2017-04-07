@@ -322,7 +322,7 @@ public:
 
 private:
     Path fPath;
-    mutable SkTArray<SkDocumentPage> fPages;
+    mutable SkTArray<SkMultiPictureDocument::Page> fPages;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
