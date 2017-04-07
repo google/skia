@@ -50,7 +50,7 @@ void GrPipeline::init(const InitArgs& args) {
 
     fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
-    fXferProcessor.reset(args.fProcessors->xferProcessor());
+    fXferProcessor = args.fProcessors->refXferProcessor();
 
     if (args.fDstTexture.texture()) {
         fDstTexture.reset(args.fDstTexture.texture());
@@ -103,16 +103,15 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
 }
 
 GrPipeline::GrPipeline(GrRenderTarget* rt, SkBlendMode blendmode)
-    : fRenderTarget(rt)
-    , fScissorState()
-    , fWindowRectsState()
-    , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-    , fDrawFace(static_cast<uint16_t>(GrDrawFace::kBoth))
-    , fFlags()
-    , fXferProcessor(GrPorterDuffXPFactory::CreateNoCoverageXP(blendmode).get())
-    , fFragmentProcessors()
-    , fNumColorProcessors(0) {
-}
+        : fRenderTarget(rt)
+        , fScissorState()
+        , fWindowRectsState()
+        , fUserStencilSettings(&GrUserStencilSettings::kUnused)
+        , fDrawFace(static_cast<uint16_t>(GrDrawFace::kBoth))
+        , fFlags()
+        , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
+        , fFragmentProcessors()
+        , fNumColorProcessors(0) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
