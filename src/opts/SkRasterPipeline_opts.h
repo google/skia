@@ -1139,6 +1139,14 @@ STAGE_CTX(shader_adapter, SkShader::Context*) {
     SkNf::Load4(buf, &r, &g, &b, &a);
 }
 
+STAGE_CTX(escape, const void*) {
+    // See EscapeCtx in SkJumper.h.
+    struct Ctx { void (*fn)(void* arg, int active_pixels); };
+
+    auto c = (const Ctx*)ctx;
+    c->fn(c->arg, tail ? tail : N);
+}
+
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
     switch (st) {
     #define M(stage) case SkRasterPipeline::stage: return stage;
