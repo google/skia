@@ -56,6 +56,7 @@
 // the Stage*.  This mostly matters on 64-bit Windows where every register is precious.
 
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
+    M(callback)                                                  \
     M(move_src_dst) M(move_dst_src) M(swap)                      \
     M(clamp_0) M(clamp_1) M(clamp_a)                             \
     M(unpremul) M(premul)                                        \

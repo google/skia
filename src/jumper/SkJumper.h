@@ -12,6 +12,13 @@
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
 
+// Sometimes we need to make sure externally facing functions are called with MS' ABI, not System V.
+#if defined(JUMPER) && defined(WIN)
+    #define MAYBE_MSABI __attribute__((ms_abi))
+#else
+    #define MAYBE_MSABI
+#endif
+
 #if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
     // To reduce SkJumper's dependency on the Android NDK,
     // we provide what we need from <string.h>, <stdint.h>, and <stddef.h> ourselves.
@@ -72,6 +79,11 @@ struct SkJumper_SamplerCtx {
     float     fy[SkJumper_kMaxStride];
     float scalex[SkJumper_kMaxStride];
     float scaley[SkJumper_kMaxStride];
+};
+
+struct SkJumper_CallbackCtx {
+    MAYBE_MSABI void (*fn)(void* arg, int active_pixels/*<= SkJumper_kMaxStride*/);
+    void* arg;
 };
 
 #endif//SkJumper_DEFINED
