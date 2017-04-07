@@ -45,6 +45,30 @@
       "revId": "452b5fb01b7b9a060e603d558d9bf14931634f68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4e73dfd_87319d4a",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-07T14:22:12Z",
+      "side": 1,
+      "message": "\u003e Does it ever matter what this is initialized to?\n\nI currently will always set it, so this initial value is never read. Alternatively, we could pick a default and then set to the other one as necessary. I\u0027m not sure what the interesting default would be.\n\n\u003e  The Chrome model seems to be: set as premul until we have finished filling in all of the pixels, then mark as opaque if it is opaque.\n\nIndeed. This makes sense in Chrome because they assume the frame might be incomplete and therefore have transparent pixels. They then correct after the fact.\n\nWe want to avoid correcting after the fact, which would require checking each pixel for alpha, so we give our best guess up front based on what we already know. So I do not see a meaningful default.",
+      "parentUuid": "f1dc9cd6_b6c8d045",
+      "range": {
+        "startLine": 204,
+        "startChar": 21,
+        "endLine": 204,
+        "endChar": 26
+      },
+      "revId": "452b5fb01b7b9a060e603d558d9bf14931634f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
