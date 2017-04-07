@@ -22,6 +22,30 @@
       "revId": "a2e4c742d20f50470c3cbb4781020a2488cfffb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e54202e7_68f6b622",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-07T11:58:42Z",
+      "side": 1,
+      "message": "Module is the *recipe module*, where \"m\" is just \"m\", which, honestly, I don\u0027t know what it stands for, but it allows us to use the \"self.m.whatever\" convention that all recipe modules use to interact with other modules.  This is kind of a weird result of us splitting the flavor module a bunch of ways and having these other classes which aren\u0027t recipe modules themselves.",
+      "parentUuid": "263db3bc_072725d9",
+      "range": {
+        "startLine": 79,
+        "startChar": 9,
+        "endLine": 79,
+        "endChar": 15
+      },
+      "revId": "a2e4c742d20f50470c3cbb4781020a2488cfffb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
