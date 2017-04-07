@@ -121,6 +121,7 @@ static K kConstants = {
     M(repeat_y)           \
     M(mirror_x)           \
     M(mirror_y)           \
+    M(linear_gradient)    \
     M(linear_gradient_2stops)
 
 // We can't express the real types of most stage functions portably, so we use a stand-in.
