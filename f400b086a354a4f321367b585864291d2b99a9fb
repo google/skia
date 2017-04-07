@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1ce4406_e6edddfe",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-07T18:11:24Z",
+      "side": 1,
+      "message": "Do you think it\u0027d be cleaner to make so that this doesn\u0027t take a config and is only called when the client specified kUnknown? Also, instead of a return bool and GrPixelConfig out param could kUnknown as the return indicate that no translation from the native format was found?",
+      "range": {
+        "startLine": 199,
+        "startChar": 3,
+        "endLine": 201,
+        "endChar": 76
+      },
+      "revId": "f400b086a354a4f321367b585864291d2b99a9fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
