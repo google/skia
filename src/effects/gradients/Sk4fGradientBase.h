@@ -18,18 +18,21 @@
 #include "SkTArray.h"
 
 struct Sk4fGradientInterval {
-    Sk4fGradientInterval(const Sk4f& c0, SkScalar p0,
-                         const Sk4f& c1, SkScalar p1);
+    Sk4fGradientInterval(const Sk4f& c0, SkScalar t0,
+                         const Sk4f& c1, SkScalar t1);
 
     bool contains(SkScalar t) const {
         // True if t is in [p0,p1].  Note: this helper assumes a
         // natural/increasing interval - so it's not usable in Sk4fLinearGradient.
-        SkASSERT(fP0 < fP1);
-        return t >= fP0 && t <= fP1;
+        SkASSERT(fT0 < fT1);
+        return t >= fT0 && t <= fT1;
     }
 
-    SkPM4f   fC0, fDc;
-    SkScalar fP0, fP1;
+    // Color bias and color gradient, such that for a t in this interval
+    //
+    //   C = fCb + t * fCg;
+    SkPM4f   fCb, fCg;
+    SkScalar fT0, fT1;
     bool     fZeroRamp;
 };
 
