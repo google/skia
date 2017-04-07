@@ -190,6 +190,45 @@ bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo& in
     return true;
 }
 
+bool SkImageGenerator::getPixels(const SkPixmap& pmap, int originX, int originY) {
+    const SkImageInfo& genInfo = this->getInfo();
+    const SkIRect srcR = SkIRect::MakeWH(genInfo.width(), genInfo.height());
+    const SkIRect dstR = SkIRect::MakeXYWH(originX, originY, pmap.width(), pmap.height());
+    if (!srcR.contains(dstR)) {
+        return false;
+    }
+
+    // If they are requesting a subset, we have to have a temp allocation for full image, and
+    // then copy the subset into their allocation
+    SkBitmap full;
+    SkPixmap fullPM;
+    const SkPixmap* dstPM = &pmap;
+    if (srcR != dstR) {
+        if (!full.tryAllocPixels(genInfo)) {
+            return false;
+        }
+        if (!full.peekPixels(&fullPM)) {
+            return false;
+        }
+        dstPM = &fullPM;
+    }
+
+    SkColorTable* ctable = pmap.ctable();
+    SkPMColor* colors = ctable ? const_cast<SkPMColor*>(ctable->readColors()) : nullptr;
+    int colorCount = ctable ? ctable->count() : 0;
+    if (!this->getPixels(dstPM->info(), dstPM->writable_addr(), dstPM->rowBytes(),
+                         colors, &colorCount)) {
+        return false;
+    }
+
+    if (srcR != dstR) {
+        if (!full.readPixels(pmap, originX, originY)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 #include "SkGraphics.h"
 
 static SkGraphics::ImageGeneratorFromEncodedDataFactory gFactory;

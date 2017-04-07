@@ -90,6 +90,8 @@ public:
      */
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
+    bool getPixels(const SkPixmap&, int originX, int originY);
+
     /**
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
      *  returns false and does not modify any of the parameters.
