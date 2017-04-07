@@ -86,6 +86,8 @@ static K kConstants = {
     M(lerp_u8)            \
     M(lerp_565)           \
     M(load_tables)        \
+    M(byte_tables)        \
+    M(byte_tables_rgb)    \
     M(load_a8)            \
     M(gather_a8)          \
     M(store_a8)           \
