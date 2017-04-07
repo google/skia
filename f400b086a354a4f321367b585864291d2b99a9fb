@@ -46,6 +46,30 @@
       "revId": "f400b086a354a4f321367b585864291d2b99a9fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03eb1d8b_c8b000d2",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-07T18:55:41Z",
+      "side": 1,
+      "message": "You mean client of this function but in our code? That doesn\u0027t seem like a problem. It just felt odd to me to completely ignore the field if the client specified. The backend desc stuff is all pretty badly designed anyway so I\u0027m not pushing hard on this at all.\n\nI think kUknown just means bad config.",
+      "parentUuid": "4bd1b694_18cfed53",
+      "range": {
+        "startLine": 199,
+        "startChar": 3,
+        "endLine": 201,
+        "endChar": 76
+      },
+      "revId": "f400b086a354a4f321367b585864291d2b99a9fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
