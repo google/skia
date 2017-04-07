@@ -39,7 +39,7 @@ class GrGpuResourceRef;
  * children processors. Similarly, the subclass implements a removeRefs function in order to remove
  * refs from resources once the processor is only owned for pending execution.
  */
-template<typename DERIVED> class GrProgramElement : public SkNoncopyable {
+class GrProgramElement : public SkNoncopyable {
 public:
     virtual ~GrProgramElement() {
         // fRefCnt can be one when an effect is created statically using GR_CREATE_STATIC_EFFECT
@@ -65,7 +65,7 @@ public:
                 delete this;
                 return;
             } else {
-                static_cast<const DERIVED*>(this)->removeRefs();
+                this->removeRefs();
             }
         }
         this->validate();
@@ -85,7 +85,7 @@ protected:
     void addPendingExecution() const {
         this->validate();
         if (0 == fPendingExecutions) {
-            static_cast<const DERIVED*>(this)->addPendingIOs();
+            this->addPendingIOs();
         }
         ++fPendingExecutions;
         this->validate();
@@ -99,13 +99,17 @@ protected:
                 delete this;
                 return;
             } else {
-                static_cast<const DERIVED*>(this)->pendingIOComplete();
+                this->pendingIOComplete();
             }
         }
         this->validate();
     }
 
 private:
+    virtual void addPendingIOs() const = 0;
+    virtual void removeRefs() const = 0;
+    virtual void pendingIOComplete() const = 0;
+
     /** This will be called when the ref cnt is zero. The object may or may not have pending
         executions. */
     virtual void notifyRefCntIsZero() const = 0;
