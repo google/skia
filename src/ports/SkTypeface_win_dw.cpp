@@ -298,6 +298,7 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
                                       SkTDArray<SkUnichar>* glyphToUnicode) {
     //Do this like free type instead
     SkAutoTMalloc<SkUnichar> glyphToUni(glyphCount);
+    sk_bzero(glyphToUni.get(), sizeof(SkUnichar) * glyphCount);
     int maxGlyph = -1;
     for (UINT32 c = 0; c < 0x10FFFF; ++c) {
         UINT16 glyph = 0;
@@ -309,7 +310,9 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
         }
         if (0 < glyph) {
             maxGlyph = SkTMax(static_cast<int>(glyph), maxGlyph);
-            glyphToUni[glyph] = c;
+            if (glyphToUni[glyph] == 0) {
+                glyphToUni[glyph] = c;  // Always use lowest-index unichar.
+            }
         }
     }
 
