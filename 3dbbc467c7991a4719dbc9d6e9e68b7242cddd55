@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ccc00e5b_93e6f418",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-07T18:26:14Z",
+      "side": 1,
+      "message": "Right, let\u0027s just call it linear_gradient?",
+      "parentUuid": "c718289d_a92bb528",
+      "range": {
+        "startLine": 99,
+        "startChar": 22,
+        "endLine": 99,
+        "endChar": 25
+      },
+      "revId": "3dbbc467c7991a4719dbc9d6e9e68b7242cddd55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "90cf852c_0e106994",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 16
