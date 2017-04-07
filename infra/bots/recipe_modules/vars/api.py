@@ -169,6 +169,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
       self.android_bin_dir  = '/cache/skia/'
       self.android_data_dir = '/cache/skia/'
 
+    self.chromeos_homedir = '/home/chronos/user/'
+
   @property
   def upload_dm_results(self):
     # TODO(borenet): Move this into the swarm_test recipe.

@@ -102,8 +102,8 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		} else if task_os == "Chromecast" {
 			task_os = "Ubuntu"
 			ec = "Chromecast"
-		} else if strings.HasPrefix(task_os, "Chromebook") {
-			ec = task_os
+		} else if strings.Contains(task_os, "ChromeOS") {
+			ec = parts["model"]
 			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
 			ec = task_os
@@ -142,6 +142,7 @@ func swarmDimensions(parts map[string]string) []string {
 		d["os"] = map[string]string{
 			"Android":    "Android",
 			"Chromecast": "Android",
+			"ChromeOS":   "ChromeOS",
 			"Mac":        "Mac-10.11",
 			"Ubuntu":     DEFAULT_OS_LINUX,
 			"Ubuntu16":   "Ubuntu-16.10",

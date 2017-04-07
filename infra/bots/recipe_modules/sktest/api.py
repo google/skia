@@ -40,6 +40,8 @@ def dm_flags(bot):
       gl_prefix = 'gles'
   elif 'Intel' in bot:
     sample_count = ''
+  elif 'ChromeOS' in bot:
+    gl_prefix = 'gles'
 
   configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb'])
   if sample_count is not '':
@@ -118,6 +120,10 @@ def dm_flags(bot):
   # Vulkan bot *only* runs the vk config.
   if 'Vulkan' in bot:
     configs = ['vk']
+
+  if 'ChromeOS' in bot:
+    # Just run GLES for now - maybe add gles_msaa4 in the future
+    configs = ['gles']
 
   args.append('--config')
   args.extend(configs)
@@ -484,10 +490,6 @@ def dm_flags(bot):
 
   if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
     match.append('~ImageStorageLoad') # skia:6358
-
-  if 'Vivante' in bot:
-    # This causes the bot to spin for >3.5 hours.
-    blacklist(['_', 'gm', '_', 'scaled_tilemodes_npot'])
 
   if blacklisted:
     args.append('--blacklist')

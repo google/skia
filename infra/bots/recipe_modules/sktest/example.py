@@ -23,7 +23,6 @@ TEST_BUILDERS = {
       'Test-Android-Clang-GalaxyJ5-GPU-Adreno306-arm-Release-Android',
       'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android',
       'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android',
-      'Test-Android-Clang-GalaxyTab3-GPU-Vivante-arm-Debug-Android',
       'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android',
       'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android',
@@ -34,6 +33,7 @@ TEST_BUILDERS = {
       ('Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-'
        'GN_Android_Vulkan'),
       'Test-Android-Clang-PixelC-GPU-TegraX1-arm64-Debug-GN_Android',
+      'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug',
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
@@ -101,6 +101,10 @@ def GenTests(api):
                                  rietveld='https://codereview.chromium.org')
         if 'Win' in builder:
           test += api.platform('win', 64)
+
+        if 'ChromeOS' in builder:
+          test += api.step_data('read chromeos ip',
+                  stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
 
 
         yield test
