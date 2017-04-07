@@ -70,6 +70,30 @@
       "revId": "a2e4c742d20f50470c3cbb4781020a2488cfffb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17d56b0b_413c86b5",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-07T12:31:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f17544a_c0ff535e",
+      "range": {
+        "startLine": 79,
+        "startChar": 9,
+        "endLine": 79,
+        "endChar": 15
+      },
+      "revId": "a2e4c742d20f50470c3cbb4781020a2488cfffb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
