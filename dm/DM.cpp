@@ -256,7 +256,7 @@ static void find_culprit() {
         void* stack[64];
         int count = backtrace(stack, SK_ARRAY_COUNT(stack));
         char** symbols = backtrace_symbols(stack, count);
-        info("\nStack trace:\n");
+        info("\nStack trace (%d):\n", count);
         for (int i = 0; i < count; i++) {
             info("    %s\n", symbols[i]);
         }
