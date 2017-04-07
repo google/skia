@@ -101,39 +101,41 @@ void addMirrorIntervals(const SkColor colors[],
                         bool premulColors, bool reverse,
                         Sk4fGradientIntervalBuffer::BufferType* buffer) {
     const IntervalIterator iter(colors, pos, count, reverse);
-    iter.iterate([&] (SkColor c0, SkColor c1, SkScalar p0, SkScalar p1) {
-        SkASSERT(buffer->empty() || buffer->back().fP1 == 2 - p0);
+    iter.iterate([&] (SkColor c0, SkColor c1, SkScalar t0, SkScalar t1) {
+        SkASSERT(buffer->empty() || buffer->back().fT1 == 2 - t0);
 
-        const auto mirror_p0 = 2 - p0;
-        const auto mirror_p1 = 2 - p1;
+        const auto mirror_t0 = 2 - t0;
+        const auto mirror_t1 = 2 - t1;
         // mirror_p1 & mirror_p1 may collapse for very small values - recheck to avoid
         // triggering Interval asserts.
-        if (mirror_p0 != mirror_p1) {
-            buffer->emplace_back(pack_color(c0, premulColors, componentScale), mirror_p0,
-                                 pack_color(c1, premulColors, componentScale), mirror_p1);
+        if (mirror_t0 != mirror_t1) {
+            buffer->emplace_back(pack_color(c0, premulColors, componentScale), mirror_t0,
+                                 pack_color(c1, premulColors, componentScale), mirror_t1);
         }
     });
 }
 
 } // anonymous namespace
 
-Sk4fGradientInterval::Sk4fGradientInterval(const Sk4f& c0, SkScalar p0,
-                                           const Sk4f& c1, SkScalar p1)
-    : fP0(p0)
-    , fP1(p1)
+Sk4fGradientInterval::Sk4fGradientInterval(const Sk4f& c0, SkScalar t0,
+                                           const Sk4f& c1, SkScalar t1)
+    : fT0(t0)
+    , fT1(t1)
     , fZeroRamp((c0 == c1).allTrue()) {
-    SkASSERT(p0 != p1);
+    SkASSERT(t0 != t1);
     // Either p0 or p1 can be (-)inf for synthetic clamp edge intervals.
-    SkASSERT(SkScalarIsFinite(p0) || SkScalarIsFinite(p1));
+    SkASSERT(SkScalarIsFinite(t0) || SkScalarIsFinite(t1));
 
-    const auto dp = p1 - p0;
+    const auto dt = t1 - t0;
 
     // Clamp edge intervals are always zero-ramp.
-    SkASSERT(SkScalarIsFinite(dp) || fZeroRamp);
-    const Sk4f dc = SkScalarIsFinite(dp) ? (c1 - c0) / dp : 0;
+    SkASSERT(SkScalarIsFinite(dt) || fZeroRamp);
+    SkASSERT(SkScalarIsFinite(t0) || fZeroRamp);
+    const Sk4f   dc = SkScalarIsFinite(dt) ? (c1 - c0) / dt : 0;
+    const Sk4f bias = c0 - (SkScalarIsFinite(t0) ? t0 * dc : 0);
 
-    c0.store(&fC0.fVec);
-    dc.store(&fDc.fVec);
+    bias.store(&fCb.fVec);
+    dc.store(&fCg.fVec);
 }
 
 void Sk4fGradientIntervalBuffer::init(const SkColor colors[], const SkScalar pos[], int count,
@@ -206,11 +208,11 @@ void Sk4fGradientIntervalBuffer::init(const SkColor colors[], const SkScalar pos
     }
 
     const IntervalIterator iter(colors, pos, count, reverse);
-    iter.iterate([&] (SkColor c0, SkColor c1, SkScalar p0, SkScalar p1) {
-        SkASSERT(fIntervals.empty() || fIntervals.back().fP1 == p0);
+    iter.iterate([&] (SkColor c0, SkColor c1, SkScalar t0, SkScalar t1) {
+        SkASSERT(fIntervals.empty() || fIntervals.back().fT1 == t0);
 
-        fIntervals.emplace_back(pack_color(c0, premulColors, componentScale), p0,
-                                pack_color(c1, premulColors, componentScale), p1);
+        fIntervals.emplace_back(pack_color(c0, premulColors, componentScale), t0,
+                                pack_color(c1, premulColors, componentScale), t1);
     });
 
     if (tileMode == SkShader::kClamp_TileMode) {
@@ -232,11 +234,11 @@ const Sk4fGradientInterval* Sk4fGradientIntervalBuffer::find(SkScalar t) const {
 
     while (i0 != i1) {
         SkASSERT(i0 < i1);
-        SkASSERT(t >= i0->fP0 && t <= i1->fP1);
+        SkASSERT(t >= i0->fT0 && t <= i1->fT1);
 
         const auto* i = i0 + ((i1 - i0) >> 1);
 
-        if (t > i->fP1) {
+        if (t > i->fT1) {
             i0 = i + 1;
         } else {
             i1 = i;
@@ -252,7 +254,7 @@ const Sk4fGradientInterval* Sk4fGradientIntervalBuffer::findNext(
 
     SkASSERT(!prev->contains(t));
     SkASSERT(prev >= fIntervals.begin() && prev < fIntervals.end());
-    SkASSERT(t >= fIntervals.front().fP0 && t <= fIntervals.back().fP1);
+    SkASSERT(t >= fIntervals.front().fT0 && t <= fIntervals.back().fT1);
 
     const auto* i = prev;
 
@@ -433,18 +435,18 @@ private:
 
     Sk4f lerp(SkScalar t) {
         SkASSERT(fInterval->contains(t));
-        return fCc + fDc * (t - fInterval->fP0);
+        return fCb + fCg * t;
     }
 
     void loadIntervalData(const Sk4fGradientInterval* i) {
-        fCc = DstTraits<dstType, premul>::load(i->fC0);
-        fDc = DstTraits<dstType, premul>::load(i->fDc);
+        fCb = DstTraits<dstType, premul>::load(i->fCb);
+        fCg = DstTraits<dstType, premul>::load(i->fCg);
     }
 
     const GradientShaderBase4fContext& fCtx;
     const Sk4fGradientInterval*        fInterval;
     SkScalar                           fPrevT;
     SkScalar                           fLargestIntervalValue;
-    Sk4f                               fCc;
-    Sk4f                               fDc;
+    Sk4f                               fCb;
+    Sk4f                               fCg;
 };

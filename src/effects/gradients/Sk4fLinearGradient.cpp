@@ -138,14 +138,14 @@ LinearGradient4fContext::LinearGradient4fContext(const SkLinearGradient& shader,
 
 const Sk4fGradientInterval*
 SkLinearGradient::LinearGradient4fContext::findInterval(SkScalar fx) const {
-    SkASSERT(in_range(fx, fIntervals->front().fP0, fIntervals->back().fP1));
+    SkASSERT(in_range(fx, fIntervals->front().fT0, fIntervals->back().fT1));
 
     if (1) {
         // Linear search, using the last scanline interval as a starting point.
         SkASSERT(fCachedInterval >= fIntervals->begin());
         SkASSERT(fCachedInterval < fIntervals->end());
         const int search_dir = fDstToPos.getScaleX() >= 0 ? 1 : -1;
-        while (!in_range(fx, fCachedInterval->fP0, fCachedInterval->fP1)) {
+        while (!in_range(fx, fCachedInterval->fT0, fCachedInterval->fT1)) {
             fCachedInterval += search_dir;
             if (fCachedInterval >= fIntervals->end()) {
                 fCachedInterval = fIntervals->begin();
@@ -161,19 +161,19 @@ SkLinearGradient::LinearGradient4fContext::findInterval(SkScalar fx) const {
 
         while (i0 != i1) {
             SkASSERT(i0 < i1);
-            SkASSERT(in_range(fx, i0->fP0, i1->fP1));
+            SkASSERT(in_range(fx, i0->fT0, i1->fT1));
 
             const auto* i = i0 + ((i1 - i0) >> 1);
 
-            if (in_range(fx, i0->fP0, i->fP1)) {
+            if (in_range(fx, i0->fT0, i->fT1)) {
                 i1 = i;
             } else {
-                SkASSERT(in_range(fx, i->fP1, i1->fP1));
+                SkASSERT(in_range(fx, i->fT1, i1->fT1));
                 i0 = i + 1;
             }
         }
 
-        SkASSERT(in_range(fx, i0->fP0, i0->fP1));
+        SkASSERT(in_range(fx, i0->fT0, i0->fT1));
         return i0;
     }
 }
@@ -296,7 +296,7 @@ public:
                             SkScalar fx,
                             SkScalar dx,
                             bool is_vertical)
-        : fAdvX(is_vertical ? SK_ScalarInfinity : (i->fP1 - fx) / dx)
+        : fAdvX(is_vertical ? SK_ScalarInfinity : (i->fT1 - fx) / dx)
         , fFirstInterval(firstInterval)
         , fLastInterval(lastInterval)
         , fInterval(i)
@@ -305,10 +305,9 @@ public:
     {
         SkASSERT(fAdvX >= 0);
         SkASSERT(firstInterval <= lastInterval);
-        SkASSERT(in_range(fx, i->fP0, i->fP1));
 
         if (tileMode != kClamp_TileMode && !is_vertical) {
-            const auto spanX = (lastInterval->fP1 - firstInterval->fP0) / dx;
+            const auto spanX = (lastInterval->fT1 - firstInterval->fT0) / dx;
             SkASSERT(spanX >= 0);
 
             // If we're in a repeating tile mode and the whole gradient is compressed into a
@@ -322,12 +321,12 @@ public:
             }
         }
 
-        this->compute_interval_props(fx - i->fP0);
+        this->compute_interval_props(fx);
     }
 
     SkScalar currentAdvance() const {
         SkASSERT(fAdvX >= 0);
-        SkASSERT(fAdvX <= (fInterval->fP1 - fInterval->fP0) / fDx || !std::isfinite(fAdvX));
+        SkASSERT(fAdvX <= (fInterval->fT1 - fInterval->fT0) / fDx || !std::isfinite(fAdvX));
         return fAdvX;
     }
 
@@ -350,13 +349,15 @@ public:
 
 private:
     void compute_interval_props(SkScalar t) {
+        SkASSERT(in_range(t, fInterval->fT0, fInterval->fT1));
+
         fZeroRamp     = fIsVertical || fInterval->fZeroRamp;
-        fCc           = DstTraits<dstType, premul>::load(fInterval->fC0);
+        fCc           = DstTraits<dstType, premul>::load(fInterval->fCb);
 
         if (fInterval->fZeroRamp) {
             fDcDx = 0;
         } else {
-            const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fDc);
+            const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fCg);
             fCc           = fCc + dC * Sk4f(t);
             fDcDx         = dC * fDx;
         }
@@ -372,16 +373,15 @@ private:
         for (const auto* i = fFirstInterval; i <= fLastInterval; ++i) {
             // Each interval contributes its average color to the total/weighted average:
             //
-            //   C = (c0 + c1) / 2 = (c0 + c0 + dc * (p1 - p0)) / 2
+            //   C = (c0 + c1) / 2 = (Cb + Cg * t0 + Cb + Cg * t1) / 2 = Cb + Cg *(t0 + t1) / 2
             //
-            //   Avg += C * (p1 - p0)
+            //   Avg += C * (t1 - t0)
             //
-            const auto dp = i->fP1 - i->fP0;
-            auto c = DstTraits<dstType, premul>::load(i->fC0);
+            auto c = DstTraits<dstType, premul>::load(i->fCb);
             if (!i->fZeroRamp) {
-                c = c + DstTraits<dstType, premul>::load(i->fDc) * dp * 0.5f;
+                c = c + DstTraits<dstType, premul>::load(i->fCg) * (i->fT0 + i->fT1) * 0.5f;
             }
-            fCc = fCc + c * dp;
+            fCc = fCc + c * (i->fT1 - i->fT0);
         }
     }
 
@@ -404,11 +404,11 @@ private:
         do {
             advX -= fAdvX;
             fInterval = this->next_interval(fInterval);
-            fAdvX = (fInterval->fP1 - fInterval->fP0) / fDx;
+            fAdvX = (fInterval->fT1 - fInterval->fT0) / fDx;
             SkASSERT(fAdvX > 0);
         } while (advX >= fAdvX);
 
-        compute_interval_props(0);
+        compute_interval_props(fInterval->fT0);
 
         SkASSERT(advX >= 0);
         return advX;
