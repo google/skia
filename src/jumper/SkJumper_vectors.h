@@ -22,6 +22,7 @@
 
     using F   = float   ;
     using I32 =  int32_t;
+    using U64 = uint64_t;
     using U32 = uint32_t;
     using U16 = uint16_t;
     using U8  = uint8_t ;
@@ -85,6 +86,7 @@
     template <typename T> using V = T __attribute__((ext_vector_type(4)));
     using F   = V<float   >;
     using I32 = V< int32_t>;
+    using U64 = V<uint64_t>;
     using U32 = V<uint32_t>;
     using U16 = V<uint16_t>;
     using U8  = V<uint8_t >;
@@ -143,6 +145,7 @@
     template <typename T> using V = T __attribute__((ext_vector_type(2)));
     using F   = V<float   >;
     using I32 = V< int32_t>;
+    using U64 = V<uint64_t>;
     using U32 = V<uint32_t>;
     using U16 = V<uint16_t>;
     using U8  = V<uint8_t >;
@@ -217,6 +220,7 @@
     template <typename T> using V = T __attribute__((ext_vector_type(8)));
     using F   = V<float   >;
     using I32 = V< int32_t>;
+    using U64 = V<uint64_t>;
     using U32 = V<uint32_t>;
     using U16 = V<uint16_t>;
     using U8  = V<uint8_t >;
@@ -256,6 +260,13 @@
     #if defined(__AVX2__)
         SI F   gather(const float*    p, U32 ix) { return _mm256_i32gather_ps   (p, ix, 4); }
         SI U32 gather(const uint32_t* p, U32 ix) { return _mm256_i32gather_epi32(p, ix, 4); }
+        SI U64 gather(const uint64_t* p, U32 ix) {
+            __m256i parts[] = {
+                _mm256_i32gather_epi64(p, _mm256_extracti128_si256(ix,0), 8),
+                _mm256_i32gather_epi64(p, _mm256_extracti128_si256(ix,1), 8),
+            };
+            return bit_cast<U64>(parts);
+        }
     #endif
 
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
@@ -404,6 +415,7 @@
     template <typename T> using V = T __attribute__((ext_vector_type(4)));
     using F   = V<float   >;
     using I32 = V< int32_t>;
+    using U64 = V<uint64_t>;
     using U32 = V<uint32_t>;
     using U16 = V<uint16_t>;
     using U8  = V<uint8_t >;

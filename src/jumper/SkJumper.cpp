@@ -102,6 +102,7 @@ static K kConstants = {
     M(gather_8888)        \
     M(store_8888)         \
     M(load_f16)           \
+    M(gather_f16)         \
     M(store_f16)          \
     M(load_u16_be)        \
     M(store_u16_be)       \
