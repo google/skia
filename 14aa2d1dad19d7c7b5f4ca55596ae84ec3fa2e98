@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a83c1e44_57ee3b06",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-07T14:24:57Z",
+      "side": 1,
+      "message": "0 \u003c glyph \u0026\u0026 glyphToUni[glyph] \u003d\u003d 0\n\nthen remove the inner \u0027if\u0027 (don\u0027t update maxGlyph if we\u0027re not actually going to assign to that index).",
+      "range": {
+        "startLine": 311,
+        "startChar": 12,
+        "endLine": 311,
+        "endChar": 21
+      },
+      "revId": "14aa2d1dad19d7c7b5f4ca55596ae84ec3fa2e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
