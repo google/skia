@@ -69,6 +69,30 @@
       "revId": "3dbbc467c7991a4719dbc9d6e9e68b7242cddd55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7780f180_ed6f46d8",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-07T19:44:24Z",
+      "side": 1,
+      "message": "Bad comment, ignore.",
+      "parentUuid": "90cf852c_0e106994",
+      "range": {
+        "startLine": 139,
+        "startChar": 28,
+        "endLine": 139,
+        "endChar": 47
+      },
+      "revId": "3dbbc467c7991a4719dbc9d6e9e68b7242cddd55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
