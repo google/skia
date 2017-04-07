@@ -12,13 +12,15 @@
 #include "SkTemplates.h"
 
 GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&& paint,
-                                   GrPathRendering::FillType fill, GrAA aa)
+                                   GrPathRendering::FillType fill, GrAAType aaType)
         : INHERITED(classID)
         , fViewMatrix(viewMatrix)
+        , fInputColor(paint.getColor())
         , fProcessorSet(std::move(paint))
-        , fAnalysis(paint.getColor())
         , fFillType(fill)
-        , fAA(aa) {}
+        , fAAType(aaType) {
+    SkASSERT(fAAType != GrAAType::kCoverage);
+}
 
 SkString GrDrawPathOp::dumpInfo() const {
     SkString string;
@@ -38,16 +40,13 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
                     0xffff>()
     };
     GrPipeline::InitArgs args;
-    auto analysis = this->processorAnalysis();
     args.fProcessors = &this->processors();
-    args.fFlags = GrAA::kYes == fAA ? GrPipeline::kHWAntialias_Flag : 0;
+    args.fFlags = GrAATypeIsHW(fAAType) ? GrPipeline::kHWAntialias_Flag : 0;
     args.fUserStencil = &kCoverPass;
     args.fAppliedClip = state.drawOpArgs().fAppliedClip;
     args.fRenderTarget = state.drawOpArgs().fRenderTarget;
     args.fCaps = &state.caps();
     args.fDstTexture = state.drawOpArgs().fDstTexture;
-    args.fXPInputColor = analysis.outputColor();
-    args.fXPInputCoverage = analysis.outputCoverage();
 
     return pipeline->init(args);
 }
@@ -90,9 +89,9 @@ SkString GrDrawPathRangeOp::dumpInfo() const {
 
 GrDrawPathRangeOp::GrDrawPathRangeOp(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x,
                                      SkScalar y, GrPaint&& paint, GrPathRendering::FillType fill,
-                                     GrAA aa, GrPathRange* range, const InstanceData* instanceData,
-                                     const SkRect& bounds)
-        : INHERITED(ClassID(), viewMatrix, std::move(paint), fill, aa)
+                                     GrAAType aaType, GrPathRange* range,
+                                     const InstanceData* instanceData, const SkRect& bounds)
+        : INHERITED(ClassID(), viewMatrix, std::move(paint), fill, aaType)
         , fPathRange(range)
         , fTotalPathCount(instanceData->count())
         , fScale(scale) {
