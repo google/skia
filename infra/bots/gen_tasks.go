@@ -244,6 +244,13 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 	return BUNDLE_RECIPES_NAME
 }
 
+// useBundledRecipes returns true iff the given bot should use bundled recipes
+// instead of syncing recipe DEPS itself.
+func useBundledRecipes(parts map[string]string) bool {
+	// Use bundled recipes for all test/perf tasks.
+	return true
+}
+
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
@@ -477,9 +484,13 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		MaxAttempts: 1,
 		Priority:    0.8,
 	}
-	if parts["os"] == "Android" {
+	if useBundledRecipes(parts) {
 		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
-		s.Isolate = "test_skia_bundled.isolate"
+		if strings.Contains(parts["os"], "Win") {
+			s.Isolate = "test_skia_bundled_win.isolate"
+		} else {
+			s.Isolate = "test_skia_bundled_unix.isolate"
+		}
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
@@ -527,11 +538,19 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if strings.Contains(parts["extra_config"], "Skpbench") {
 		recipe = "swarm_skpbench"
 		isolate = "skpbench_skia.isolate"
-		if parts["os"] == "Android" {
-			isolate = "skpbench_skia_bundled.isolate"
+		if useBundledRecipes(parts) {
+			if strings.Contains(parts["os"], "Win") {
+				isolate = "skpbench_skia_bundled_win.isolate"
+			} else {
+				isolate = "skpbench_skia_bundled_unix.isolate"
+			}
 		}
-	} else if parts["os"] == "Android" {
-		isolate = "perf_skia_bundled.isolate"
+	} else if useBundledRecipes(parts) {
+		if strings.Contains(parts["os"], "Win") {
+			isolate = "perf_skia_bundled_win.isolate"
+		} else {
+			isolate = "perf_skia_bundled_unix.isolate"
+		}
 	}
 	s := &specs.TaskSpec{
 		CipdPackages:     pkgs,
@@ -558,7 +577,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		MaxAttempts: 1,
 		Priority:    0.8,
 	}
-	if parts["os"] == "Android" {
+	if useBundledRecipes(parts) {
 		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
