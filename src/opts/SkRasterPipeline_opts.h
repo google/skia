@@ -20,6 +20,7 @@
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkSRGB.h"
+#include "../jumper/SkJumper.h"
 
 namespace {
 
@@ -1137,6 +1138,11 @@ STAGE_CTX(shader_adapter, SkShader::Context*) {
     static_assert(sizeof(buf) == sizeof(r) + sizeof(g) + sizeof(b) + sizeof(a), "");
     ctx->shadeSpan4f(x, (int)g[0], buf, N);
     SkNf::Load4(buf, &r, &g, &b, &a);
+}
+
+STAGE_CTX(callback, const void*) {
+    auto c = (const SkJumper_CallbackCtx*)ctx;
+    c->fn(c->arg, tail ? tail : N);
 }
 
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
