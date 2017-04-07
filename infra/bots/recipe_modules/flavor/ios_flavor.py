@@ -36,11 +36,16 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
               args=[self.out_dir.join(app)])
 
   def step(self, name, cmd, env=None, **kwargs):
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    app_name = cmd[0]
+    app_path = self.m.vars.skia_out.join(self.m.vars.configuration, app_name)
 
+    # Install the app.
+    self._run(name, ['ideviceinstaller','-i', app_path])
+
+    # Run the app.
     self._run(name,
-              ['ios-deploy', '-b', '%s.app' % app,
-               '-I', '--args', ' '.join(map(str, cmd[1:]))])
+              ['idevicedebug', '-d', 'run', 'com.google.%s' % app_name] +
+              map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
     full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_' + script)
