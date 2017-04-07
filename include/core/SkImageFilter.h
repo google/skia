@@ -20,6 +20,7 @@
 class GrContext;
 class GrFragmentProcessor;
 class SkColorFilter;
+class SkColorSpaceXformer;
 struct SkIPoint;
 class SkSpecialImage;
 class SkImageFilterCache;
@@ -395,8 +396,20 @@ protected:
     static sk_sp<SkSpecialImage> ImageToColorSpace(SkSpecialImage* src, const OutputProperties&);
 #endif
 
+
+    /**
+     *  Returns an image filter transformed into a new color space via the |xformer|.
+     */
+    sk_sp<SkImageFilter> makeColorSpace(SkColorSpaceXformer* xformer) const {
+        return this->onMakeColorSpace(xformer);
+    }
+    virtual sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const {
+        return sk_ref_sp(const_cast<SkImageFilter*>(this));
+    }
+
 private:
     friend class SkGraphics;
+    friend class SkColorSpaceXformer;
     static void PurgeCache();
 
     void init(sk_sp<SkImageFilter>* inputs, int inputCount, const CropRect* cropRect);
