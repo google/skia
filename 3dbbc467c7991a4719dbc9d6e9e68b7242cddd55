@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c718289d_a92bb528",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-07T17:22:43Z",
+      "side": 1,
+      "message": "Naming nit: is the \"few\" bit significant?  If we\u0027re not limiting this to a low number of stops, linear_gradient_multiple_stops seems more descriptive.",
+      "range": {
+        "startLine": 99,
+        "startChar": 22,
+        "endLine": 99,
+        "endChar": 25
+      },
+      "revId": "3dbbc467c7991a4719dbc9d6e9e68b7242cddd55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90cf852c_0e106994",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-07T17:22:43Z",
+      "side": 1,
+      "message": "I don\u0027t think you need the second part of this condition: when fColorCount \u003d\u003d 2, the stops are always at 0 and 1 (regardless of fOrigPos).  See prev assert.",
+      "range": {
+        "startLine": 139,
+        "startChar": 28,
+        "endLine": 139,
+        "endChar": 47
+      },
+      "revId": "3dbbc467c7991a4719dbc9d6e9e68b7242cddd55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
