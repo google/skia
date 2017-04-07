@@ -156,8 +156,6 @@ public:
                                                              SkImage::BitDepth,
                                                              sk_sp<SkColorSpace>);
 
-    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator);
-
 protected:
     enum {
         kNeedNewImageUniqueID = 0

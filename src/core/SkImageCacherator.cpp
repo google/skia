@@ -89,6 +89,12 @@ SkImageCacherator::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRec
     fInfo   = info.makeWH(subset->width(), subset->height());
     fOrigin = SkIPoint::Make(subset->x(), subset->y());
 
+    // colortables are poorly to not-at-all supported in our resourcecache, so we
+    // bully them into N32 (the generator will perform the up-sample)
+    if (fInfo.colorType() == kIndex_8_SkColorType) {
+        fInfo = fInfo.makeColorType(kN32_SkColorType);
+    }
+
     // If the encoded data is in a strange color space (it's not an XYZ matrix space), we won't be
     // able to preserve the gamut of the encoded data when we decode it. Instead, we'll have to
     // decode to a known color space (linear sRGB is a good choice). But we need to adjust the
@@ -119,6 +125,7 @@ SkImageCacherator::SkImageCacherator(Validator* validator)
         fUniqueIDs[i] = kNeedNewImageUniqueID;
     }
     SkASSERT(fSharedGenerator);
+    SkASSERT(fInfo.colorType() != kIndex_8_SkColorType);
 }
 
 SkImageCacherator::~SkImageCacherator() {}
@@ -135,6 +142,31 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
     return true;
 }
 
+static bool reset_and_return_false(SkBitmap* bitmap) {
+    bitmap->reset();
+    return false;
+}
+
+static bool try_generate_bitmap(SkImageGenerator* gen, SkBitmap* bitmap, const SkImageInfo& info,
+                                SkBitmap::Allocator* allocator) {
+    SkASSERT(info.colorType() != kIndex_8_SkColorType);
+    if (0 == info.getSafeSize(info.minRowBytes())) {
+        return false;
+    }
+    if (!bitmap->setInfo(info)) {
+        return reset_and_return_false(bitmap);
+    }
+    if (!bitmap->tryAllocPixels(allocator, nullptr)) {
+        return reset_and_return_false(bitmap);
+    }
+    SkASSERT(bitmap->getPixels());  // we're already locked
+
+    if (!gen->getPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes())) {
+        return reset_and_return_false(bitmap);
+    }
+    return true;
+}
+
 // Note, this returns a new, mutable, bitmap, with a new genID.
 // If you want the immutable bitmap with the same ID as our cacherator, call tryLockAsBitmap()
 //
@@ -146,18 +178,18 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap, const SkImageInfo& deco
     if (decodeInfo.dimensions() == genInfo.dimensions()) {
         SkASSERT(fOrigin.x() == 0 && fOrigin.y() == 0);
         // fast-case, no copy needed
-        return generator->tryGenerateBitmap(bitmap, decodeInfo, allocator);
+        return try_generate_bitmap(generator, bitmap, decodeInfo, allocator);
     } else {
         // need to handle subsetting, so we first generate the full size version, and then
         // "read" from it to get our subset. See https://bug.skia.org/4213
 
         SkBitmap full;
-        if (!generator->tryGenerateBitmap(&full,
-                                          decodeInfo.makeWH(genInfo.width(), genInfo.height()),
-                                          allocator)) {
+        if (!try_generate_bitmap(generator, &full,
+                                 decodeInfo.makeWH(genInfo.width(), genInfo.height()), allocator)) {
             return false;
         }
-        if (!bitmap->tryAllocPixels(decodeInfo, sk_ref_sp(full.getColorTable()))) {
+        SkASSERT(decodeInfo.colorType() != kIndex_8_SkColorType);
+        if (!bitmap->tryAllocPixels(decodeInfo)) {
             return false;
         }
         return full.readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(),
