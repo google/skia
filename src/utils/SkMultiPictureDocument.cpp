@@ -93,13 +93,13 @@ struct MultiPictureDocument final : public SkDocument {
 };
 }
 
-sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
+sk_sp<SkDocument> SkMultiPictureDocument::Make(SkWStream* wStream, const SkSerialProcs* procs) {
     return sk_make_sp<MultiPictureDocument>(wStream, procs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* stream) {
+int SkMultiPictureDocument::ReadPageCount(SkStreamSeekable* stream) {
     if (!stream) {
         return 0;
     }
@@ -123,12 +123,12 @@ int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* stream) {
 }
 
 bool SkMultiPictureDocumentReadPageSizes(SkStreamSeekable* stream,
-                                         SkDocumentPage* dstArray,
+                                         SkMultiPictureDocument::Page* dstArray,
                                          int dstArrayCount) {
     if (!dstArray || dstArrayCount < 1) {
         return false;
     }
-    int pageCount = SkMultiPictureDocumentReadPageCount(stream);
+    int pageCount = SkMultiPictureDocument::ReadPageCount(stream);
     if (pageCount < 1 || pageCount != dstArrayCount) {
         return false;
     }
@@ -145,10 +145,10 @@ bool SkMultiPictureDocumentReadPageSizes(SkStreamSeekable* stream,
 namespace {
 struct PagerCanvas : public SkNWayCanvas {
     SkPictureRecorder fRecorder;
-    SkDocumentPage* fDst;
+    SkMultiPictureDocument::Page* fDst;
     int fCount;
     int fIndex = 0;
-    PagerCanvas(SkISize wh, SkDocumentPage* dst, int count)
+    PagerCanvas(SkISize wh, SkMultiPictureDocument::Page* dst, int count)
             : SkNWayCanvas(wh.width(), wh.height()), fDst(dst), fCount(count) {
         this->nextCanvas();
     }
@@ -173,10 +173,10 @@ struct PagerCanvas : public SkNWayCanvas {
 };
 }  // namespace
 
-bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
-                                SkDocumentPage* dstArray,
-                                int dstArrayCount,
-                                const SkDeserialProcs* procs) {
+bool SkMultiPictureDocument::Read(SkStreamSeekable* stream,
+                                  SkMultiPictureDocument::Page* dstArray,
+                                  int dstArrayCount,
+                                  const SkDeserialProcs* procs) {
     if (!SkMultiPictureDocumentReadPageSizes(stream, dstArray, dstArrayCount)) {
         return false;
     }
