@@ -75,8 +75,15 @@ class DefaultFlavorUtils(object):
   copying files between the host and Android device, as well as the
   'step' function, so that commands may be run through ADB.
   """
-  def __init__(self, m):
-    self.m = m
+  def __init__(self, module):
+    # Store a pointer to the parent recipe module (SkiaFlavorApi) so that
+    # FlavorUtils objects can do recipe module-like things, like run steps or
+    # access module-level resources.
+    self.module = module
+
+    # self.m is just a shortcut so that FlavorUtils objects can use the same
+    # syntax as regular recipe modules to run steps, eg: self.m.step(...)
+    self.m = module.m
     self._chrome_path = None
     self._win_toolchain_dir = self.m.vars.slave_dir.join(WIN_TOOLCHAIN_DIR)
     win_toolchain_asset_path = self.m.vars.infrabots_dir.join(
