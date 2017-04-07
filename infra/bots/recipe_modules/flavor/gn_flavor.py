@@ -6,12 +6,12 @@ import default_flavor
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def _run(self, title, cmd, infra_step=False):
-    self.m.run(self.m.step, title, cmd=cmd,
-               infra_step=infra_step)
+  def _run(self, title, cmd, infra_step=False, **kwargs):
+    return self.m.run(self.m.step, title, cmd=cmd,
+               infra_step=infra_step, **kwargs)
 
   def _py(self, title, script, infra_step=True, args=()):
-    self.m.run(self.m.python, title, script=script, args=args,
+    return self.m.run(self.m.python, title, script=script, args=args,
                infra_step=infra_step)
 
   def build_command_buffer(self):
