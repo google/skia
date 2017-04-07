@@ -1423,8 +1423,10 @@ static void populate_glyph_to_unicode_slow(CTFontRef ctFont, CFIndex glyphCount,
     while (glyphCount > 0) {
         CGGlyph glyph;
         if (CTFontGetGlyphsForCharacters(ctFont, &unichar, &glyph, 1)) {
-            out[glyph] = unichar;
-            --glyphCount;
+            if (out[glyph] != 0) {
+                out[glyph] = unichar;
+                --glyphCount;
+            }
         }
         if (++unichar == 0) {
             break;

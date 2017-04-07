@@ -300,7 +300,8 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
     SkAutoTMalloc<SkUnichar> glyphToUni(
             (SkUnichar*)sk_calloc_throw(sizeof(SkUnichar) * glyphCount));
     int maxGlyph = -1;
-    for (UINT32 c = 0; c < 0x10FFFF; ++c) {
+    unsigned remainingGlyphCount = glyphCount;
+    for (UINT32 c = 0; c < 0x10FFFF && remainingGlyphCount != 0; ++c) {
         UINT16 glyph = 0;
         HRVM(fontFace->GetGlyphIndices(&c, 1, &glyph),
              "Failed to get glyph index.");
@@ -308,11 +309,10 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
         if (glyph >= glyphCount) {
           return;
         }
-        if (0 < glyph) {
+        if (0 < glyph && glyphToUni[glyph] == 0) {
             maxGlyph = SkTMax(static_cast<int>(glyph), maxGlyph);
-            if (glyphToUni[glyph] == 0) {
-                glyphToUni[glyph] = c;  // Always use lowest-index unichar.
-            }
+            glyphToUni[glyph] = c;  // Always use lowest-index unichar.
+            --remainingGlyphCount;
         }
     }
     SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
