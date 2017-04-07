@@ -67,7 +67,7 @@ static inline SkColor SkColorSetARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 /** return the blue byte from a SkColor value */
 #define SkColorGetB(color)      (((color) >>  0) & 0xFF)
 
-static inline SkColor SkColorSetA(SkColor c, U8CPU a) {
+static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a) {
     return (c & 0x00FFFFFF) | (a << 24);
 }
 
