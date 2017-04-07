@@ -57,11 +57,21 @@ public:
     static bool Find(const SkBitmapCacheDesc&, SkBitmap* result,
                     SkResourceCache* localCache = nullptr);
 
+#if 0
     /*
      *  result must be marked isImmutable()
      */
     static bool Add(const SkBitmapCacheDesc&, const SkBitmap& result,
                     SkResourceCache* localCache = nullptr);
+#endif
+
+    class Rec;
+    struct RecDeleter { void operator()(Rec* r) { PrivateDeleteRec(r); } };
+    typedef std::unique_ptr<Rec, RecDeleter> RecPtr;
+
+    static RecPtr Alloc(const SkBitmapCacheDesc&, const SkImageInfo&, SkPixmap*);
+    static void Add(RecPtr, SkBitmap*);
+    static void PrivateDeleteRec(Rec*);
 };
 
 class SkMipMapCache {
