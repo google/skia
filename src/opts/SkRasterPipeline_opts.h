@@ -1098,6 +1098,11 @@ STAGE_CTX(shader_adapter, SkShader::Context*) {
     SkNf::Load4(buf, &r, &g, &b, &a);
 }
 
+STAGE_CTX(callback, const void*) {
+    auto c = (const SkJumper_CallbackCtx*)ctx;
+    c->fn(c->arg, tail ? tail : N);
+}
+
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
     switch (st) {
     #define M(stage) case SkRasterPipeline::stage: return stage;
