@@ -142,61 +142,6 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
     return true;
 }
 
-static bool reset_and_return_false(SkBitmap* bitmap) {
-    bitmap->reset();
-    return false;
-}
-
-static bool try_generate_bitmap(SkImageGenerator* gen, SkBitmap* bitmap, const SkImageInfo& info,
-                                SkBitmap::Allocator* allocator) {
-    SkASSERT(info.colorType() != kIndex_8_SkColorType);
-    if (0 == info.getSafeSize(info.minRowBytes())) {
-        return false;
-    }
-    if (!bitmap->setInfo(info)) {
-        return reset_and_return_false(bitmap);
-    }
-    if (!bitmap->tryAllocPixels(allocator, nullptr)) {
-        return reset_and_return_false(bitmap);
-    }
-    SkASSERT(bitmap->getPixels());  // we're already locked
-
-    if (!gen->getPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes())) {
-        return reset_and_return_false(bitmap);
-    }
-    return true;
-}
-
-// Note, this returns a new, mutable, bitmap, with a new genID.
-// If you want the immutable bitmap with the same ID as our cacherator, call tryLockAsBitmap()
-//
-bool SkImageCacherator::generateBitmap(SkBitmap* bitmap, const SkImageInfo& decodeInfo) {
-    SkBitmap::Allocator* allocator = SkResourceCache::GetAllocator();
-
-    ScopedGenerator generator(fSharedGenerator);
-    const SkImageInfo& genInfo = generator->getInfo();
-    if (decodeInfo.dimensions() == genInfo.dimensions()) {
-        SkASSERT(fOrigin.x() == 0 && fOrigin.y() == 0);
-        // fast-case, no copy needed
-        return try_generate_bitmap(generator, bitmap, decodeInfo, allocator);
-    } else {
-        // need to handle subsetting, so we first generate the full size version, and then
-        // "read" from it to get our subset. See https://bug.skia.org/4213
-
-        SkBitmap full;
-        if (!try_generate_bitmap(generator, &full,
-                                 decodeInfo.makeWH(genInfo.width(), genInfo.height()), allocator)) {
-            return false;
-        }
-        SkASSERT(decodeInfo.colorType() != kIndex_8_SkColorType);
-        if (!bitmap->tryAllocPixels(decodeInfo)) {
-            return false;
-        }
-        return full.readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(),
-                               fOrigin.x(), fOrigin.y());
-    }
-}
-
 bool SkImageCacherator::directGeneratePixels(const SkImageInfo& info, void* pixels, size_t rb,
                                              int srcX, int srcY,
                                              SkTransferFunctionBehavior behavior) {
@@ -221,26 +166,90 @@ bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap, Cached
         check_output_bitmap(*bitmap, fUniqueIDs[format]);
 }
 
+static bool generate_pixels(SkImageGenerator* gen, const SkPixmap& pmap, int originX, int originY) {
+    const int genW = gen->getInfo().width();
+    const int genH = gen->getInfo().height();
+    const SkIRect srcR = SkIRect::MakeWH(genW, genH);
+    const SkIRect dstR = SkIRect::MakeXYWH(originX, originY, pmap.width(), pmap.height());
+    if (!srcR.contains(dstR)) {
+        return false;
+    }
+
+    // If they are requesting a subset, we have to have a temp allocation for full image, and
+    // then copy the subset into their allocation
+    SkBitmap full;
+    SkPixmap fullPM;
+    const SkPixmap* dstPM = &pmap;
+    if (srcR != dstR) {
+        if (!full.tryAllocPixels(pmap.info().makeWH(genW, genH))) {
+            return false;
+        }
+        if (!full.peekPixels(&fullPM)) {
+            return false;
+        }
+        dstPM = &fullPM;
+    }
+
+    if (!gen->getPixels(dstPM->info(), dstPM->writable_addr(), dstPM->rowBytes())) {
+        return false;
+    }
+
+    if (srcR != dstR) {
+        if (!full.readPixels(pmap, originX, originY)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
                                         SkImage::CachingHint chint, CachedFormat format,
                                         const SkImageInfo& info) {
     if (this->lockAsBitmapOnlyIfAlreadyCached(bitmap, format)) {
         return true;
     }
-    if (!this->generateBitmap(bitmap, info)) {
+
+    uint32_t uniqueID = fUniqueIDs[format];
+    if (uniqueID == kNeedNewImageUniqueID) {
+        uniqueID = SkNextID::ImageID();
+    }
+
+    SkBitmap tmpBitmap;
+    SkBitmapCache::RecPtr cacheRec;
+    SkPixmap pmap;
+    if (SkImage::kAllow_CachingHint == chint) {
+        auto desc = SkBitmapCacheDesc::Make(uniqueID, info.width(), info.height());
+        cacheRec = SkBitmapCache::Alloc(desc, info, &pmap);
+        if (!cacheRec) {
+            return false;
+        }
+    } else {
+        if (!tmpBitmap.tryAllocPixels(info)) {
+            return false;
+        }
+        if (!tmpBitmap.peekPixels(&pmap)) {
+            return false;
+        }
+    }
+
+    ScopedGenerator generator(fSharedGenerator);
+    if (!generate_pixels(generator, pmap, fOrigin.x(), fOrigin.y())) {
         return false;
     }
 
-    if (kNeedNewImageUniqueID == fUniqueIDs[format]) {
-        fUniqueIDs[format] = SkNextID::ImageID();
-    }
-    bitmap->pixelRef()->setImmutableWithID(fUniqueIDs[format]);
-    if (SkImage::kAllow_CachingHint == chint) {
-        SkBitmapCache::Add(SkBitmapCacheDesc::Make(fUniqueIDs[format],
-                                                   fInfo.width(), fInfo.height()), *bitmap);
+    fUniqueIDs[format] = uniqueID;  // in case it was previously kNeedNewImageUniqueID
+    if (cacheRec) {
+        SkBitmapCache::Add(std::move(cacheRec), bitmap);
+        SkASSERT(bitmap->getPixels());  // we're locked
+        SkASSERT(bitmap->isImmutable());
+        SkASSERT(bitmap->getGenerationID() == uniqueID);
         if (client) {
             as_IB(client)->notifyAddedToCache();
         }
+    } else {
+        *bitmap = tmpBitmap;
+        bitmap->lockPixels();
+        bitmap->pixelRef()->setImmutableWithID(uniqueID);
     }
     return true;
 }
@@ -277,9 +286,20 @@ bool SkImageCacherator::lockAsBitmap(GrContext* context, SkBitmap* bitmap, const
         return false;
     }
 
-    if (!bitmap->tryAllocPixels(cacheInfo)) {
-        bitmap->reset();
-        return false;
+    const auto desc = SkBitmapCacheDesc::Make(fUniqueIDs[format], fInfo.width(), fInfo.height());
+    SkBitmapCache::RecPtr rec;
+    SkPixmap pmap;
+    if (SkImage::kAllow_CachingHint == chint) {
+        rec = SkBitmapCache::Alloc(desc, cacheInfo, &pmap);
+        if (!rec) {
+            bitmap->reset();
+            return false;
+        }
+    } else {
+        if (!bitmap->tryAllocPixels(cacheInfo)) {
+            bitmap->reset();
+            return false;
+        }
     }
 
     sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
@@ -290,15 +310,13 @@ bool SkImageCacherator::lockAsBitmap(GrContext* context, SkBitmap* bitmap, const
         return false;
     }
 
-    if (!sContext->readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(), 0, 0)) {
+    if (!sContext->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), 0, 0)) {
         bitmap->reset();
         return false;
     }
 
-    bitmap->pixelRef()->setImmutableWithID(fUniqueIDs[format]);
-    if (SkImage::kAllow_CachingHint == chint) {
-        SkBitmapCache::Add(SkBitmapCacheDesc::Make(fUniqueIDs[format],
-                                                   fInfo.width(), fInfo.height()), *bitmap);
+    if (rec) {
+        SkBitmapCache::Add(std::move(rec), bitmap);
         if (client) {
             as_IB(client)->notifyAddedToCache();
         }
