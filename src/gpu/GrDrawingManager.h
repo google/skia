@@ -44,8 +44,8 @@ public:
 
     // The caller automatically gets a ref on the returned opList. It must
     // be balanced by an unref call.
-    GrRenderTargetOpList* newOpList(GrRenderTargetProxy* rtp);
-    GrTextureOpList* newOpList(GrTextureProxy* textureProxy);
+    sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp);
+    sk_sp<GrTextureOpList> newTextureOpList(GrTextureProxy* textureProxy);
 
     GrContext* getContext() { return fContext; }
 

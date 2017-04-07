@@ -57,13 +57,13 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        if (!state->commandBuffer()) {
+//        if (!state->commandBuffer()) {
             state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
-        } else {
+//        } else {
             // Currently we are not sending copies through the GrGpuCommandBuffer. See comment in
             // renderTargetUniqueID().
-            SkASSERT(false);
-        }
+//            SkASSERT(false);
+//        }
     }
 
     // MDB TODO: remove the proxy IDs once the GrSurfaceProxy carries the ref since they will

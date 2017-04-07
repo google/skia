@@ -90,22 +90,23 @@ void GrPipeline::init(const InitArgs& args) {
     }
 }
 
-static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
+static void add_dependencies_for_processor(const GrFragmentProcessor* proc,
+                                           GrRenderTargetProxy* rtp) {
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
-        SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(sampler->texture());
+        SkASSERT(rtp->getLastOpList());
+        //rtp->getLastOpList()->addDependency(sampler->texture());
     }
 }
 
-void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
+void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        add_dependencies_for_processor(fFragmentProcessors[i].get(), rt);
+        add_dependencies_for_processor(fFragmentProcessors[i].get(), rtp);
     }
 
     if (fDstTexture) {
-        SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(fDstTexture.get());
+        SkASSERT(rtp->getLastOpList());
+        //rtp->getLastOpList()->addDependency(fDstTexture.get());
     }
 }
 
