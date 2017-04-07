@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "3feeb3a3_1282df27",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T19:59:09Z",
+      "side": 1,
+      "message": "Changed to linear_gradient.",
+      "parentUuid": "ccc00e5b_93e6f418",
+      "range": {
+        "startLine": 99,
+        "startChar": 22,
+        "endLine": 99,
+        "endChar": 25
+      },
+      "revId": "3dbbc467c7991a4719dbc9d6e9e68b7242cddd55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "90cf852c_0e106994",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 16
@@ -83,6 +107,30 @@
       "writtenOn": "2017-04-07T19:44:24Z",
       "side": 1,
       "message": "Bad comment, ignore.",
+      "parentUuid": "90cf852c_0e106994",
+      "range": {
+        "startLine": 139,
+        "startChar": 28,
+        "endLine": 139,
+        "endChar": 47
+      },
+      "revId": "3dbbc467c7991a4719dbc9d6e9e68b7242cddd55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dadff5b4_94d4e2e4",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T19:59:09Z",
+      "side": 1,
+      "message": "The invariants for two stops is different from \u003e 2 stops. This is needed to ensure the [0, 1) case otherwise it is just an [a, b) case.",
       "parentUuid": "90cf852c_0e106994",
       "range": {
         "startLine": 139,

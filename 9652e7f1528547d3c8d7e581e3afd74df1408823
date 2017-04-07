@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "843c1a7c_38dade9f",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T19:59:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c8bc8a2_744da3ea",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 1
+      },
+      "revId": "9652e7f1528547d3c8d7e581e3afd74df1408823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c3857563_c6a29e05",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 15
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ac363b1f_908cb991",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T19:59:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3857563_c6a29e05",
+      "range": {
+        "startLine": 149,
+        "startChar": 14,
+        "endLine": 149,
+        "endChar": 21
+      },
+      "revId": "9652e7f1528547d3c8d7e581e3afd74df1408823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7150870d_aaa05de6",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 15
@@ -68,6 +116,30 @@
       "revId": "9652e7f1528547d3c8d7e581e3afd74df1408823",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc9b321e_126853b6",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-07T19:59:09Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7150870d_aaa05de6",
+      "range": {
+        "startLine": 208,
+        "startChar": 15,
+        "endLine": 208,
+        "endChar": 70
+      },
+      "revId": "9652e7f1528547d3c8d7e581e3afd74df1408823",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
