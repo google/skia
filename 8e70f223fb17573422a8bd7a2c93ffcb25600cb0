@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aea7b8f8_9deb6f9a",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-07T18:54:21Z",
+      "side": 1,
+      "message": "I don\u0027t remember -- will this try to generate mipmaps if the texture doesn\u0027t already have them?",
+      "range": {
+        "startLine": 650,
+        "startChar": 26,
+        "endLine": 650,
+        "endChar": 38
+      },
+      "revId": "8e70f223fb17573422a8bd7a2c93ffcb25600cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
