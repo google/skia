@@ -6,7 +6,6 @@
  */
 
 #include "SkCodec.h"
-#include "SkMSAN.h"
 #include "SkJpegCodec.h"
 #include "SkJpegDecoderMgr.h"
 #include "SkCodecPriv.h"
@@ -521,8 +520,6 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
 
     for (int y = 0; y < count; y++) {
         uint32_t lines = jpeg_read_scanlines(fDecoderMgr->dinfo(), &decodeDst, 1);
-        size_t srcRowBytes = get_row_bytes(fDecoderMgr->dinfo());
-        sk_msan_mark_initialized(decodeDst, decodeDst + srcRowBytes, "skbug.com/4550");
         if (0 == lines) {
             return y;
         }
