@@ -258,18 +258,20 @@ static void make_size_str(size_t size, SkString* str) {
 
 static bool gDumpCacheTransactions;
 
-void SkResourceCache::add(Rec* rec) {
+void SkResourceCache::add(Rec* rec, void* payload) {
     this->checkMessages();
 
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
-    if (nullptr != fHash->find(rec->getKey())) {
+    if (Rec** preexisting = fHash->find(rec->getKey())) {
+        (*preexisting)->postAddInstall(payload);
         delete rec;
         return;
     }
 
     this->addToHead(rec);
     fHash->set(rec);
+    rec->postAddInstall(payload);
 
     if (gDumpCacheTransactions) {
         SkString bytesStr, totalStr;
@@ -284,6 +286,7 @@ void SkResourceCache::add(Rec* rec) {
 }
 
 void SkResourceCache::remove(Rec* rec) {
+    SkASSERT(rec->canBePurged());
     size_t used = rec->bytesUsed();
     SkASSERT(used <= fTotalBytesUsed);
 
@@ -292,6 +295,8 @@ void SkResourceCache::remove(Rec* rec) {
 
     fTotalBytesUsed -= used;
     fCount -= 1;
+
+    //SkDebugf("-RC count [%3d] bytes %d\n", fCount, fTotalBytesUsed);
 
     if (gDumpCacheTransactions) {
         SkString bytesStr, totalStr;
@@ -323,7 +328,11 @@ void SkResourceCache::purgeAsNeeded(bool forcePurge) {
         }
 
         Rec* prev = rec->fPrev;
-        this->remove(rec);
+        if (rec->canBePurged()) {
+            this->remove(rec);
+        } else {
+         //   SkDebugf("---- can't purge %p\n", rec);
+        }
         rec = prev;
     }
 }
@@ -350,8 +359,11 @@ void SkResourceCache::purgeSharedID(uint64_t sharedID) {
     while (rec) {
         Rec* prev = rec->fPrev;
         if (rec->getKey().getSharedID() == sharedID) {
-//            SkDebugf("purgeSharedID id=%llx rec=%p\n", sharedID, rec);
-            this->remove(rec);
+            // even though the "src" is now dead, caches could still be in-flight, so
+            // we have to check if it can be removed.
+            if (rec->canBePurged()) {
+                this->remove(rec);
+            }
 #ifdef SK_TRACK_PURGE_SHAREDID_HITRATE
             found = true;
 #endif
@@ -457,6 +469,7 @@ void SkResourceCache::addToHead(Rec* rec) {
     fTotalBytesUsed += rec->bytesUsed();
     fCount += 1;
 
+    //SkDebugf("+RC count [%3d] bytes %d\n", fCount, fTotalBytesUsed);
     this->validate();
 }
 
@@ -627,9 +640,9 @@ bool SkResourceCache::Find(const Key& key, FindVisitor visitor, void* context) {
     return get_cache()->find(key, visitor, context);
 }
 
-void SkResourceCache::Add(Rec* rec) {
+void SkResourceCache::Add(Rec* rec, void* payload) {
     SkAutoMutexAcquire am(gMutex);
-    get_cache()->add(rec);
+    get_cache()->add(rec, payload);
 }
 
 void SkResourceCache::VisitAll(Visitor visitor, void* context) {

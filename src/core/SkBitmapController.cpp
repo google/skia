@@ -133,21 +133,36 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
         if (!orig.requestLock(&src)) {
             return false;
         }
-        if (!SkBitmapScaler::Resize(&fResultBitmap, src.pixmap(), kHQ_RESIZE_METHOD,
-                                    dstW, dstH, SkResourceCache::GetAllocator())) {
+
+        SkPixmap dst;
+        SkBitmapCache::RecPtr rec;
+        const SkImageInfo info = SkImageInfo::MakeN32(desc.fScaledWidth, desc.fScaledHeight,
+                                                      src.pixmap().alphaType());
+        if (provider.isVolatile()) {
+            if (!fResultBitmap.tryAllocPixels(info)) {
+                return false;
+            }
+            SkASSERT(fResultBitmap.getPixels());
+            fResultBitmap.peekPixels(&dst);
+            fResultBitmap.setImmutable();   // a little cheat, as we haven't resized yet, but ok
+        } else {
+            rec = SkBitmapCache::Alloc(desc, info, &dst);
+            if (!rec) {
+                return false;
+            }
+        }
+        if (!SkBitmapScaler::Resize(dst, src.pixmap(), kHQ_RESIZE_METHOD)) {
             return false; // we failed to create fScaledBitmap
         }
-
-        SkASSERT(fResultBitmap.getPixels());
-        fResultBitmap.setImmutable();
-        if (!provider.isVolatile()) {
-            if (SkBitmapCache::Add(desc, fResultBitmap)) {
-                provider.notifyAddedToCache();
-            }
+        if (rec) {
+            SkBitmapCache::Add(std::move(rec), &fResultBitmap);
+            SkASSERT(fResultBitmap.getPixels());
+            provider.notifyAddedToCache();
         }
     }
 
     SkASSERT(fResultBitmap.getPixels());
+    SkASSERT(fResultBitmap.isImmutable());
 
     fInvMatrix.postScale(SkIntToScalar(dstW) / provider.width(),
                          SkIntToScalar(dstH) / provider.height());

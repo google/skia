@@ -8,6 +8,7 @@
 #include "SkBitmapCache.h"
 #include "SkImage.h"
 #include "SkResourceCache.h"
+#include "SkMakeUnique.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkRect.h"
@@ -91,6 +92,9 @@ SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
     return { image->uniqueID(), 0, 0, get_bounds_from_image(image) };
 }
 
+#define CHECK_LOCAL(localCache, localName, globalName, ...) \
+    ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
+
 namespace {
 static unsigned gBitmapKeyNamespaceLabel;
 
@@ -109,56 +113,178 @@ public:
 
     const SkBitmapCacheDesc fDesc;
 };
+}
 
-struct BitmapRec : public SkResourceCache::Rec {
-    BitmapRec(const SkBitmapCacheDesc& desc, const SkBitmap& result)
+//////////////////////
+#include "SkDiscardableMemory.h"
+#include "SkNextID.h"
+
+void SkBitmapCache_setImmutableWithID(SkPixelRef* pr, uint32_t id) {
+    pr->setImmutableWithID(id);
+}
+
+//#define REC_TRACE   SkDebugf
+static void REC_TRACE(const char format[], ...) {}
+
+class SkBitmapCache::Rec : public SkResourceCache::Rec {
+public:
+    Rec(const SkBitmapCacheDesc& desc, const SkImageInfo& info, size_t rowBytes,
+        std::unique_ptr<SkDiscardableMemory> dm, void* block)
         : fKey(desc)
-        , fBitmap(result)
+        , fDM(std::move(dm))
+        , fMalloc(block)
+        , fPR(nullptr)
+        , fInfo(info)
+        , fRowBytes(rowBytes)
     {
-#ifdef TRACE_NEW_BITMAP_CACHE_RECS
-        fKey.dump();
-#endif
+        if (desc.fScaledWidth == 0 && desc.fScaledHeight == 0) {
+            fPrUniqueID = desc.fImageID;
+        } else {
+            fPrUniqueID = SkNextID::ImageID();
+        }
+        REC_TRACE(" Rec: [%d %d] %d\n", fInfo.width(), fInfo.height(), fPrUniqueID);
+    }
+
+    ~Rec() override {
+        SkASSERT(nullptr == fPR);
+        REC_TRACE("~Rec: [%d %d] %d\n", fInfo.width(), fInfo.height(), fPrUniqueID);
+        sk_free(fMalloc);   // may be null
     }
 
     const Key& getKey() const override { return fKey; }
-    size_t bytesUsed() const override { return sizeof(fKey) + fBitmap.getSize(); }
+    size_t bytesUsed() const override {
+        return sizeof(fKey) + fInfo.getSafeSize(fRowBytes);
+    }
+    bool canBePurged() override {
+        SkAutoMutexAcquire ama(fMutex);
+        return fPR == nullptr;
+    }
+    void postAddInstall(void* payload) override {
+        this->install(static_cast<SkBitmap*>(payload));
+        //    dst->pixelRef()->setImmutableWithID(this->uniqueID());
+    }
 
     const char* getCategory() const override { return "bitmap"; }
     SkDiscardableMemory* diagnostic_only_getDiscardable() const override {
-        return fBitmap.pixelRef()->diagnostic_only_getDiscardable();
+        return fDM.get();
+    }
+
+    static void ReleaseProc(void* addr, void* ctx) {
+        Rec* rec = static_cast<Rec*>(ctx);
+        SkAutoMutexAcquire ama(rec->fMutex);
+
+        REC_TRACE(" Rec: [%d] releaseproc\n", rec->fPrUniqueID);
+
+        SkASSERT(rec->fPR);
+        rec->fPR = nullptr;
+        if (rec->fDM) {
+            SkASSERT(rec->fMalloc == nullptr);
+            rec->fDM->unlock();
+        } else {
+            SkASSERT(rec->fMalloc != nullptr);
+        }
+    }
+    
+    bool install(SkBitmap* bitmap) {
+        SkAutoMutexAcquire ama(fMutex);
+
+        // are we still valid
+        if (!fDM && !fMalloc) {
+            REC_TRACE(" Rec: [%d] invalid\n", fPrUniqueID);
+            return false;
+        }
+
+        if (fPR) {
+            bitmap->setInfo(fInfo, fRowBytes);
+            bitmap->setPixelRef(sk_ref_sp(fPR), 0, 0);
+            bitmap->lockPixels();
+
+            SkASSERT(fPR->getGenerationID() == fPrUniqueID);
+            REC_TRACE(" Rec: [%d] install existing pr\n", fPrUniqueID);
+        } else {
+            if (fDM && !fDM->lock()) {
+                fDM.reset(nullptr);
+                return false;
+            }
+            bitmap->installPixels(fInfo, fDM ? fDM->data() : fMalloc, fRowBytes, nullptr,
+                                  ReleaseProc, this);
+            fPR = bitmap->pixelRef();
+            SkBitmapCache_setImmutableWithID(fPR, fPrUniqueID);
+
+            REC_TRACE(" Rec: [%d] install new pr\n", fPrUniqueID);
+        }
+        return true;
     }
 
     static bool Finder(const SkResourceCache::Rec& baseRec, void* contextBitmap) {
-        const BitmapRec& rec = static_cast<const BitmapRec&>(baseRec);
+        Rec* rec = (Rec*)&baseRec;
         SkBitmap* result = (SkBitmap*)contextBitmap;
-
-        *result = rec.fBitmap;
-        result->lockPixels();
-        return SkToBool(result->getPixels());
+        REC_TRACE(" Rec: [%d] found\n", rec->fPrUniqueID);
+        return rec->install(result);
     }
 
 private:
     BitmapKey   fKey;
-    SkBitmap    fBitmap;
-};
-} // namespace
 
-#define CHECK_LOCAL(localCache, localName, globalName, ...) \
-    ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
+    SkBaseMutex fMutex;
+
+    // either fDM or fMalloc can be non-null, but not both
+    std::unique_ptr<SkDiscardableMemory> fDM;
+    void*       fMalloc;
+
+    // null if we have no external owners.
+    // bare-pointer, we are not an owner.
+    // signal (if null) that we can be purged
+    SkPixelRef* fPR;
+
+    SkImageInfo fInfo;
+    size_t      fRowBytes;
+    uint32_t    fPrUniqueID;
+};
+
+void SkBitmapCache::PrivateDeleteRec(Rec* rec) { delete rec; }
+
+SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc,
+                                                         const SkImageInfo& info,
+                                                         SkPixmap* pmap) {
+    if (desc.fScaledWidth == 0 && desc.fScaledHeight == 0) {
+        SkASSERT(info.width() == desc.fSubset.width());
+        SkASSERT(info.height() == desc.fSubset.height());
+    } else {
+        SkASSERT(info.width() == desc.fScaledWidth);
+        SkASSERT(info.height() == desc.fScaledHeight);
+    }
+
+    const size_t rb = info.minRowBytes();
+    size_t size = info.getSafeSize(rb);
+    if (0 == size) {
+        return nullptr;
+    }
+
+    std::unique_ptr<SkDiscardableMemory> dm;
+    void* block = nullptr;
+
+    auto factory = SkResourceCache::GetDiscardableFactory();
+    if (factory) {
+        dm.reset(factory(size));
+    } else {
+        block = sk_malloc_flags(size, 0);
+    }
+    if (!dm && !block) {
+        return nullptr;
+    }
+    *pmap = SkPixmap(info, dm ? dm->data() : block, rb);
+    return RecPtr(new Rec(desc, info, rb, std::move(dm), block));
+}
+
+void SkBitmapCache::Add(RecPtr rec, SkBitmap* bitmap) {
+    SkResourceCache::Add(rec.release(), bitmap);
+}
 
 bool SkBitmapCache::Find(const SkBitmapCacheDesc& desc, SkBitmap* result,
                          SkResourceCache* localCache) {
     desc.validate();
-    return CHECK_LOCAL(localCache, find, Find, BitmapKey(desc), BitmapRec::Finder, result);
-}
-
-bool SkBitmapCache::Add(const SkBitmapCacheDesc& desc, const SkBitmap& result,
-                        SkResourceCache* localCache) {
-    desc.validate();
-    SkASSERT(result.isImmutable());
-    BitmapRec* rec = new BitmapRec(desc, result);
-    CHECK_LOCAL(localCache, add, Add, rec);
-    return true;
+    return CHECK_LOCAL(localCache, find, Find, BitmapKey(desc), SkBitmapCache::Rec::Finder, result);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
