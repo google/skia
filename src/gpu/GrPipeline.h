@@ -56,9 +56,7 @@ public:
     struct InitArgs {
         uint32_t fFlags = 0;
         GrDrawFace fDrawFace = GrDrawFace::kBoth;
-        const GrProcessorSet* fProcessors = nullptr;
-        GrProcessorAnalysisColor fXPInputColor;
-        GrProcessorAnalysisCoverage fXPInputCoverage = GrProcessorAnalysisCoverage::kNone;
+        const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTarget* fRenderTarget = nullptr;

@@ -55,16 +55,30 @@ enum {
     kISCModulate_OutputType
 };
 
+static GrProcessorSet::Analysis do_analysis(const GrXPFactory* xpf,
+                                            const GrProcessorAnalysisColor& colorInput,
+                                            GrProcessorAnalysisCoverage coverageInput,
+                                            const GrCaps& caps) {
+    GrPaint paint;
+    paint.setXPFactory(xpf);
+    GrProcessorSet procs(std::move(paint));
+    GrColor overrideColor;
+    GrProcessorSet::Analysis analysis =
+            procs.finalize(colorInput, coverageInput, nullptr, false, caps, &overrideColor);
+    return analysis;
+}
+
 class GrPorterDuffTest {
 public:
     struct XPInfo {
         XPInfo(skiatest::Reporter* reporter, SkBlendMode xfermode, const GrCaps& caps,
                GrProcessorAnalysisColor inputColor, GrProcessorAnalysisCoverage inputCoverage) {
             const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(xfermode);
-            GrProcessorSet::Analysis analysis(inputColor, inputCoverage, xpf, caps);
+
+            GrProcessorSet::Analysis analysis = do_analysis(xpf, inputColor, inputCoverage, caps);
             fCompatibleWithCoverageAsAlpha = analysis.isCompatibleWithCoverageAsAlpha();
             fCanCombineOverlappedStencilAndCover = analysis.canCombineOverlappedStencilAndCover();
-            fIgnoresInputColor = analysis.isInputColorIgnored();
+            fIgnoresInputColor = analysis.inputColorIsIgnored();
             sk_sp<GrXferProcessor> xp(
                     GrXPFactory::MakeXferProcessor(xpf, inputColor, inputCoverage, false, caps));
             TEST_ASSERT(!analysis.requiresDstTexture());
@@ -1040,8 +1054,6 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
             for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
                 SkBlendMode xfermode = static_cast<SkBlendMode>(m);
                 const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(xfermode);
-                GrProcessorSet::Analysis analysis;
-                analysis = GrProcessorSet::Analysis(colorInput, coverageType, xpf, caps);
                 sk_sp<GrXferProcessor> xp(
                         GrXPFactory::MakeXferProcessor(xpf, colorInput, coverageType, false, caps));
                 if (!xp) {
