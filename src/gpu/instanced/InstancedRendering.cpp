@@ -332,17 +332,19 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
 }
 
 bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) {
-    GrProcessorSet::Analysis analysis;
+    SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
     GrProcessorAnalysisCoverage coverageInput;
+    bool isMixedSamples = false;
     if (GrAAType::kCoverage == fInfo.aaType() ||
         (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
         coverageInput = GrProcessorAnalysisCoverage::kSingleChannel;
     } else {
         coverageInput = GrProcessorAnalysisCoverage::kNone;
+        isMixedSamples = GrAAType::kMixedSamples == fInfo.aaType();
     }
-    fProcessors.analyzeAndEliminateFragmentProcessors(&analysis, this->getSingleInstance().fColor,
-                                                      coverageInput, clip, caps);
-    fAnalysisColor = analysis.outputColor();
+    GrProcessorSet::Analysis analysis =
+            fProcessors.finalize(this->getSingleInstance().fColor, coverageInput, clip,
+                                 isMixedSamples, caps, &this->getSingleDraw().fInstance.fColor);
 
     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());
@@ -363,11 +365,6 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
         fInstancedRendering->fParams.push_back_n(fParams.count(), fParams.begin());
     }
 
-    GrColor overrideColor;
-    if (analysis.getInputColorOverrideAndColorProcessorEliminationCount(&overrideColor) >= 0) {
-        SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
-        this->getSingleDraw().fInstance.fColor = overrideColor;
-    }
     fInfo.fCannotTweakAlphaForCoverage = !analysis.isCompatibleWithCoverageAsAlpha();
 
     fInfo.fUsesLocalCoords = analysis.usesLocalCoords();
@@ -378,7 +375,6 @@ bool InstancedRendering::Op::xpRequiresDstTexture(const GrCaps& caps, const GrAp
 void InstancedRendering::Op::wasRecorded() {
     SkASSERT(!fIsTracked);
     fInstancedRendering->fTrackedOps.addToTail(this);
-    fProcessors.makePendingExecution();
     fIsTracked = true;
 }
 
@@ -413,7 +409,6 @@ bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps
     this->joinBounds(*that);
     fInfo = combinedInfo;
     fPixelLoad += that->fPixelLoad;
-    fAnalysisColor = GrProcessorAnalysisColor::Combine(fAnalysisColor, that->fAnalysisColor);
     // Adopt the other op's draws.
     fNumDraws += that->fNumDraws;
     fNumChangesInGeometry += that->fNumChangesInGeometry;
@@ -470,21 +465,9 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
 
     state->gpu()->handleDirtyContext();
 
-    const GrAppliedClip* clip = state->drawOpArgs().fAppliedClip;
-    GrProcessorAnalysisCoverage coverage;
-    if (GrAAType::kCoverage == fInfo.aaType() ||
-        (clip && clip->clipCoverageFragmentProcessor()) ||
-        (GrAAType::kNone == fInfo.aaType() && !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    } else {
-        coverage = GrProcessorAnalysisCoverage::kNone;
-    }
-
     GrPipeline pipeline;
     GrPipeline::InitArgs args;
-    args.fXPInputColor = fAnalysisColor;
-    args.fXPInputCoverage = coverage;
-    args.fAppliedClip = clip;
+    args.fAppliedClip = state->drawOpArgs().fAppliedClip;
     args.fCaps = &state->caps();
     args.fProcessors = &fProcessors;
     args.fFlags = GrAATypeIsHW(fInfo.aaType()) ? GrPipeline::kHWAntialias_Flag : 0;
