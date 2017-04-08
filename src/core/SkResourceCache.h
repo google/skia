@@ -81,6 +81,7 @@ public:
 
         virtual const Key& getKey() const = 0;
         virtual size_t bytesUsed() const = 0;
+        virtual bool canBePurged() { return true; }
 
         // for memory usage diagnostics
         virtual const char* getCategory() const = 0;

@@ -284,6 +284,7 @@ void SkResourceCache::add(Rec* rec) {
 }
 
 void SkResourceCache::remove(Rec* rec) {
+    SkASSERT(rec->canBePurged());
     size_t used = rec->bytesUsed();
     SkASSERT(used <= fTotalBytesUsed);
 
@@ -323,7 +324,9 @@ void SkResourceCache::purgeAsNeeded(bool forcePurge) {
         }
 
         Rec* prev = rec->fPrev;
-        this->remove(rec);
+        if (rec->canBePurged()) {
+            this->remove(rec);
+        }
         rec = prev;
     }
 }
