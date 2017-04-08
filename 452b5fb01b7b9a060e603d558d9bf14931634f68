@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "228f85b8_fcbfc871",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2017-04-08T01:21:16Z",
+      "side": 1,
+      "message": "Reading \"Takes into account compositing with fRequiredFrame.\" didn\u0027t seem perfectly clear to me.\nI think it means a pixel might be transparent this frame but allows the fRequiredFrame\u0027s pixel to be seen. And fRequiredFrame\u0027s pixel was not transparent. So in total, this new pixel is not transparent. Is that what it means?\n\nSaid another way, a transparent pixel this frame may not actually be transparent if it reveals an opaque pixel from fRequiredFrame, right?",
+      "parentUuid": "1c8ef7f5_17213eeb",
+      "range": {
+        "startLine": 615,
+        "startChar": 0,
+        "endLine": 617,
+        "endChar": 73
+      },
+      "revId": "452b5fb01b7b9a060e603d558d9bf14931634f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f1dc9cd6_b6c8d045",
         "filename": "third_party/gif/SkGifImageReader.h",
         "patchSetId": 11
