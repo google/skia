@@ -63,12 +63,12 @@ public:
 
     const GrProcessorSet& processors() const { return fProcessors; }
 
-    GrProcessorSet::Analysis finalizeProcessors(const GrProcessorAnalysisColor& colorInput,
-                                                const GrProcessorAnalysisCoverage coverageInput,
-                                                const GrAppliedClip* clip, bool isMixedSamples,
-                                                const GrCaps& caps, GrColor* overrideColor) {
-        return fProcessors.finalize(colorInput, coverageInput, clip, isMixedSamples, caps,
-                                    overrideColor);
+    void analyzeAndEliminateFragmentProcessors(GrProcessorSet::Analysis* analysis,
+                                               const GrProcessorAnalysisColor& colorInput,
+                                               const GrProcessorAnalysisCoverage coverageInput,
+                                               const GrAppliedClip* clip, const GrCaps& caps) {
+        fProcessors.analyzeAndEliminateFragmentProcessors(analysis, colorInput, coverageInput, clip,
+                                                          caps);
     }
 
     /// @}

@@ -1688,33 +1688,30 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
     }
 
     GrResourceProvider* resourceProvider = fContext->resourceProvider();
-    bool usesStencil = pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip();
-    if (usesStencil) {
+    if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
         if (!resourceProvider->attachStencilAttachment(this->accessRenderTarget())) {
             SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
             return SK_InvalidUniqueID;
         }
     }
 
-    bool isMixedSamples = fRenderTargetProxy->isMixedSampled() &&
-                          (pipelineBuilder.isHWAntialias() || usesStencil);
-
-    GrColor overrideColor;
-    GrProcessorSet::Analysis analysis = op->analyzeUpdateAndRecordProcessors(
-            &pipelineBuilder, &appliedClip, isMixedSamples, *this->caps(), &overrideColor);
+    GrProcessorSet::Analysis analysis;
+    op->analyzeProcessors(&analysis, &pipelineBuilder, &appliedClip, *this->caps());
 
     GrPipeline::InitArgs args;
     pipelineBuilder.getPipelineInitArgs(&args);
     args.fAppliedClip = &appliedClip;
     args.fRenderTarget = rt;
     args.fCaps = this->caps();
+    args.fXPInputColor = analysis.outputColor();
+    args.fXPInputCoverage = analysis.outputCoverage();
 
     if (analysis.requiresDstTexture()) {
         if (!this->setupDstTexture(fRenderTargetProxy.get(), clip, bounds, &args.fDstTexture)) {
             return SK_InvalidUniqueID;
         }
     }
-    op->initPipeline(args, analysis, overrideColor);
+    op->initPipeline(args, analysis);
     // TODO: We need to add pipeline dependencies on textures, etc before recording this op.
     op->setClippedBounds(bounds);
     return this->getOpList()->addOp(std::move(op), this);

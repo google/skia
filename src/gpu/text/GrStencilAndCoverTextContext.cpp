@@ -570,7 +570,9 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  SkScalar y, const SkIRect& clipBounds,
                                                  GrAtlasTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
+    GrAA runAA = this->isAntiAlias();
     SkASSERT(fInstanceData);
+    SkASSERT(renderTargetContext->isStencilBufferMultisampled() || GrAA::kNo == runAA);
 
     if (fInstanceData->count()) {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -604,18 +606,9 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                               renderTargetContext->height());
 
         // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
-        GrAAType aaType;
-        if (this->aa() == GrAA::kYes) {
-            SkASSERT(renderTargetContext->isStencilBufferMultisampled());
-            aaType = renderTargetContext->isUnifiedMultisampled() ? GrAAType::kMSAA
-                                                                  : GrAAType::kMixedSamples;
-        } else {
-            aaType = GrAAType::kNone;
-        }
-
         std::unique_ptr<GrDrawOp> op = GrDrawPathRangeOp::Make(
                 viewMatrix, fTextRatio, fTextInverseRatio * x, fTextInverseRatio * y,
-                std::move(grPaint), GrPathRendering::kWinding_FillType, aaType, glyphs.get(),
+                std::move(grPaint), GrPathRendering::kWinding_FillType, runAA, glyphs.get(),
                 fInstanceData.get(), bounds);
 
         renderTargetContext->addDrawOp(clip, std::move(op));
