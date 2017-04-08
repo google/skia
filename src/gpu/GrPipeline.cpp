@@ -20,8 +20,6 @@
 
 void GrPipeline::init(const InitArgs& args) {
     SkASSERT(args.fRenderTarget);
-    SkASSERT(args.fProcessors);
-    SkASSERT(args.fProcessors->isFinalized());
 
     fRenderTarget.reset(args.fRenderTarget);
 
@@ -50,8 +48,17 @@ void GrPipeline::init(const InitArgs& args) {
 
     fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
-    fXferProcessor.reset(args.fProcessors->xferProcessor());
+    bool isHWAA = kHWAntialias_Flag & args.fFlags;
 
+    // Create XferProcessor from DS's XPFactory
+    {
+        bool hasMixedSamples =
+                args.fRenderTarget->isMixedSampled() && (isHWAA || this->isStencilEnabled());
+        sk_sp<GrXferProcessor> xferProcessor =
+                GrXPFactory::MakeXferProcessor(args.fProcessors->xpFactory(), args.fXPInputColor,
+                                               args.fXPInputCoverage, hasMixedSamples, *args.fCaps);
+        fXferProcessor.reset(xferProcessor.get());
+    }
     if (args.fDstTexture.texture()) {
         fDstTexture.reset(args.fDstTexture.texture());
         fDstTextureOffset = args.fDstTexture.offset();

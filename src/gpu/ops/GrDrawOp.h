@@ -76,8 +76,7 @@ public:
      * This is called after the GrAppliedClip has been computed and just prior to recording the op
      * or combining it with a previously recorded op. It is used to determine whether a copy of the
      * destination (or destination texture itself) needs to be provided to the xp when this op
-     * executes. This is guaranteed to be called before an op is recorded. However, this is also
-     * called on ops that are not recorded because they combine with a previously recorded op.
+     * executes.
      */
     virtual bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) = 0;
 

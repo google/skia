@@ -101,22 +101,20 @@ public:
      * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
      * initial color and coverage from this op's geometry processor.
      */
-    GrProcessorSet::Analysis analyzeUpdateAndRecordProcessors(GrPipelineBuilder* pipelineBuilder,
-                                                              const GrAppliedClip* appliedClip,
-                                                              bool isMixedSamples,
-                                                              const GrCaps& caps,
-                                                              GrColor* overrideColor) const {
+    void analyzeProcessors(GrProcessorSet::Analysis* analysis,
+                           GrPipelineBuilder* pipelineBuilder,
+                           const GrAppliedClip* appliedClip,
+                           const GrCaps& caps) const {
         GrProcessorAnalysisColor inputColor;
         GrProcessorAnalysisCoverage inputCoverage;
         this->getProcessorAnalysisInputs(&inputColor, &inputCoverage);
-        return pipelineBuilder->finalizeProcessors(inputColor, inputCoverage, appliedClip,
-                                                   isMixedSamples, caps, overrideColor);
+        pipelineBuilder->analyzeAndEliminateFragmentProcessors(analysis, inputColor, inputCoverage,
+                                                               appliedClip, caps);
     }
 
-    void initPipeline(const GrPipeline::InitArgs& args, const GrProcessorSet::Analysis& analysis,
-                      GrColor overrideColor) {
+    void initPipeline(const GrPipeline::InitArgs& args, const GrProcessorSet::Analysis& analysis) {
         fPipeline.init(args);
-        this->applyPipelineOptimizations(PipelineOptimizations(analysis, overrideColor));
+        this->applyPipelineOptimizations(PipelineOptimizations(analysis));
     }
 
     /**
@@ -140,11 +138,11 @@ protected:
      */
     class PipelineOptimizations {
     public:
-        PipelineOptimizations(const GrProcessorSet::Analysis& analysis, GrColor overrideColor) {
+        PipelineOptimizations(const GrProcessorSet::Analysis& analysis) {
             fFlags = 0;
-            if (analysis.inputColorIsOverridden()) {
+            if (analysis.getInputColorOverrideAndColorProcessorEliminationCount(&fOverrideColor) >=
+                0) {
                 fFlags |= kUseOverrideColor_Flag;
-                fOverrideColor = overrideColor;
             }
             if (analysis.usesLocalCoords()) {
                 fFlags |= kReadsLocalCoords_Flag;

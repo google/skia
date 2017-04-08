@@ -151,6 +151,7 @@ protected:
         OpInfo fInfo;
         SkScalar fPixelLoad;
         GrProcessorSet fProcessors;
+        GrProcessorAnalysisColor fAnalysisColor;
         SkSTArray<5, ParamsTexel, true> fParams;
         bool fIsTracked : 1;
         bool fRequiresBarrierOnOverlap : 1;
