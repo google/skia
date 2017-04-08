@@ -60,7 +60,7 @@ typedef signed long int GrGLintptr;
 typedef signed long int GrGLsizeiptr;
 #endif
 typedef void* GrGLeglImage;
-typedef void* GrGLsync;
+typedef struct __GLsync* GrGLsync;
 
 struct GrGLDrawArraysIndirectCommand {
     GrGLuint fCount;
