@@ -130,7 +130,6 @@ private:
     CachedFormat chooseCacheFormat(SkColorSpace* dstColorSpace, const GrCaps* = nullptr);
     SkImageInfo buildCacheInfo(CachedFormat);
 
-    bool generateBitmap(SkBitmap*, const SkImageInfo&);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
                          const SkImageInfo&);
 #if SK_SUPPORT_GPU
