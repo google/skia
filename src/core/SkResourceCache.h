@@ -81,6 +81,8 @@ public:
 
         virtual const Key& getKey() const = 0;
         virtual size_t bytesUsed() const = 0;
+        virtual bool canBePurged() { return true; }
+        virtual void postAddInstall(void*) {}
 
         // for memory usage diagnostics
         virtual const char* getCategory() const = 0;
@@ -135,7 +137,7 @@ public:
      *      false : Rec is "stale" -- the cache will purge it.
      */
     static bool Find(const Key& key, FindVisitor, void* context);
-    static void Add(Rec*);
+    static void Add(Rec*, void* payload = nullptr);
 
     typedef void (*Visitor)(const Rec&, void* context);
     // Call the visitor for every Rec in the cache.
@@ -208,7 +210,7 @@ public:
      *      false : Rec is "stale" -- the cache will purge it.
      */
     bool find(const Key&, FindVisitor, void* context);
-    void add(Rec*);
+    void add(Rec*, void* payload = nullptr);
     void visitAll(Visitor, void* context);
 
     size_t getTotalBytesUsed() const { return fTotalBytesUsed; }
