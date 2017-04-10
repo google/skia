@@ -28,22 +28,6 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flag
     fResolveRect.setLargestInverted();
 }
 
-void GrRenderTarget::discard() {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getContext();
-    if (!context) {
-        return;
-    }
-
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(this), nullptr));
-    if (!renderTargetContext) {
-        return;
-    }
-
-    renderTargetContext->discard();
-}
-
 void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
     if (kCanResolve_ResolveType == getResolveType()) {
         if (rect) {

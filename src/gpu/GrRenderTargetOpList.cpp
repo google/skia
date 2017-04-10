@@ -14,7 +14,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "ops/GrClearOp.h"
-#include "ops/GrClearStencilClipOp.h"
 #include "ops/GrCopySurfaceOp.h"
 #include "ops/GrDiscardOp.h"
 #include "instanced/InstancedRendering.h"
@@ -229,8 +228,11 @@ void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
     // Currently this just inserts a discard op. However, once in MDB this can remove all the
     // previously recorded ops and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        this->recordOp(GrDiscardOp::Make(renderTargetContext->accessRenderTarget()),
-                       renderTargetContext);
+        std::unique_ptr<GrOp> op(GrDiscardOp::Make(renderTargetContext));
+        if (!op) {
+            return;
+        }
+        this->recordOp(std::move(op), renderTargetContext);
     }
 }
 
@@ -301,12 +303,12 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     // 3) find a 'blocker'
     GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTarget->uniqueID(),
                           renderTargetContext->asRenderTargetProxy()->uniqueID());
-    GrOP_INFO("Recording (%s, B%u)\n"
-              "\tBounds LRTB (%f, %f, %f, %f)\n",
+    GrOP_INFO("Recording (%s, opID: %u)\n"
+              "\tBounds: [L: %f T: %f R: %f B: %f]\n",
                op->name(),
                op->uniqueID(),
-               op->bounds().fLeft, op->bounds().fRight,
-               op->bounds().fTop, op->bounds().fBottom);
+               op->bounds().fLeft, op->bounds().fTop,
+               op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", op->bounds().fLeft,
               op->bounds().fTop, op->bounds().fRight, op->bounds().fBottom);
@@ -319,12 +321,13 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
             const RecordedOp& candidate = fRecordedOps.fromBack(i);
             // We cannot continue to search backwards if the render target changes
             if (candidate.fRenderTarget.get() != renderTarget) {
-                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tBreaking because of (%s, opID: %u) Rendertarget mismatch\n",
+                          candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
             }
             if (this->combineIfPossible(candidate, op.get(), clip, dstTexture)) {
-                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tCombining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 GrOP_INFO("\t\t\tCombined op info:\n");
                 GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
@@ -333,7 +336,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
             }
             // Stop going backwards if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps.fromBack(i).fOp->bounds(), op->bounds())) {
-                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate.fOp->name(),
+                GrOP_INFO("\t\tIntersects with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
                 break;
             }
