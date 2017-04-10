@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4e6a103_2c3caf0d",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2017-04-10T13:07:23Z",
+      "side": 1,
+      "message": "Thanks for the fixup. Is there a reason this is gdiTextSize? I thought it might be clearer to use the realTextSize here?",
+      "revId": "ea0765224a595ed42a9ad713a87db16b4211e5f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
