@@ -224,6 +224,8 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const
  */
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider*,
                                                    const SkPixmap&, SkBudgeted);
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxyNoCheck(GrResourceProvider*,
+                                                          const SkPixmap&, SkBudgeted);
 
 /**
  * Creates a new texture populated with the mipmap levels.

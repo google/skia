@@ -682,9 +682,17 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size += pixelSize;
     size_t colorSpaceOffset = 0;
     size_t colorSpaceSize = 0;
+    SkColorSpaceTransferFn fn;
     if (info.colorSpace()) {
         colorSpaceOffset = size;
         colorSpaceSize = info.colorSpace()->writeToMemory(nullptr);
+        size += colorSpaceSize;
+    } else if (this->colorSpace() && this->colorSpace()->isNumericalTransferFn(&fn)) {
+        // In legacy mode, preserve the color space tag on the SkImage.  This is only
+        // supported if the color space has a parametric transfer function.
+        SkASSERT(!dstColorSpace);
+        colorSpaceOffset = size;
+        colorSpaceSize = this->colorSpace()->writeToMemory(nullptr);
         size += colorSpaceSize;
     }
     if (!fillMode) {
@@ -730,7 +738,13 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         void* colorSpace = bufferAsCharPtr + colorSpaceOffset;
         FILL_MEMBER(dtiBufferFiller, fColorSpace, &colorSpace);
         FILL_MEMBER(dtiBufferFiller, fColorSpaceSize, &colorSpaceSize);
-        info.colorSpace()->writeToMemory(bufferAsCharPtr + colorSpaceOffset);
+        if (info.colorSpace()) {
+            info.colorSpace()->writeToMemory(bufferAsCharPtr + colorSpaceOffset);
+        } else {
+            SkASSERT(this->colorSpace() && this->colorSpace()->isNumericalTransferFn(&fn));
+            SkASSERT(!dstColorSpace);
+            this->colorSpace()->writeToMemory(bufferAsCharPtr + colorSpaceOffset);
+        }
     } else {
         memset(bufferAsCharPtr + offsetof(DeferredTextureImage, fColorSpace),
                0, sizeof(DeferredTextureImage::fColorSpace));
@@ -803,8 +817,14 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
     if (mipLevelCount == 1) {
         SkPixmap pixmap;
         pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData, dti->fMipMapLevelData[0].fRowBytes);
-        sk_sp<GrTextureProxy> proxy(GrUploadPixmapToTextureProxy(context->resourceProvider(),
-                                                                 pixmap, budgeted));
+
+        // Use the NoCheck version because we have already validated the SkImage.  The |data|
+        // used to be an SkImage before calling getDeferredTextureImageData().  In legacy mode,
+        // getDeferredTextureImageData() will allow parametric transfer functions for images
+        // generated from codecs - which is slightly more lenient than typical SkImage
+        // constructors.
+        sk_sp<GrTextureProxy> proxy(GrUploadPixmapToTextureProxyNoCheck(
+                context->resourceProvider(), pixmap, budgeted));
         if (!proxy) {
             return nullptr;
         }
