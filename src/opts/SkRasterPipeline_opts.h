@@ -23,11 +23,7 @@
 
 namespace {
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    static constexpr int N = 8;
-#else
     static constexpr int N = 4;
-#endif
 
     using SkNf = SkNx<N, float>;
     using SkNi = SkNx<N, int32_t>;
@@ -201,71 +197,6 @@ SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
     }
     v.store(dst);
 }
-
-#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    SI __m256i mask(size_t tail) {
-        static const int masks[][8] = {
-            {~0,~0,~0,~0, ~0,~0,~0,~0 },  // remember, tail == 0 ~~> load all N
-            {~0, 0, 0, 0,  0, 0, 0, 0 },
-            {~0,~0, 0, 0,  0, 0, 0, 0 },
-            {~0,~0,~0, 0,  0, 0, 0, 0 },
-            {~0,~0,~0,~0,  0, 0, 0, 0 },
-            {~0,~0,~0,~0, ~0, 0, 0, 0 },
-            {~0,~0,~0,~0, ~0,~0, 0, 0 },
-            {~0,~0,~0,~0, ~0,~0,~0, 0 },
-        };
-        return SkNi::Load(masks + tail).fVec;
-    }
-
-    SI SkNi load(size_t tail, const  int32_t* src) {
-        return tail ? _mm256_maskload_epi32((const int*)src, mask(tail))
-                    : SkNi::Load(src);
-    }
-    SI SkNu load(size_t tail, const uint32_t* src) {
-        return tail ? _mm256_maskload_epi32((const int*)src, mask(tail))
-                    : SkNu::Load(src);
-    }
-    SI SkNf load(size_t tail, const float* src) {
-        return tail ? _mm256_maskload_ps((const float*)src, mask(tail))
-                    : SkNf::Load(src);
-    }
-    SI SkNi gather(size_t tail, const  int32_t* src, const SkNi& offset) {
-        auto m = mask(tail);
-        return _mm256_mask_i32gather_epi32(SkNi(0).fVec, (const int*)src, offset.fVec, m, 4);
-    }
-    SI SkNu gather(size_t tail, const uint32_t* src, const SkNi& offset) {
-        auto m = mask(tail);
-        return _mm256_mask_i32gather_epi32(SkNi(0).fVec, (const int*)src, offset.fVec, m, 4);
-    }
-    SI SkNf gather(size_t tail, const float* src, const SkNi& offset) {
-        auto m = _mm256_castsi256_ps(mask(tail));
-        return _mm256_mask_i32gather_ps(SkNf(0).fVec, (const float*)src, offset.fVec, m, 4);
-    }
-
-    static const char* bug = "I don't think MSAN understands maskstore.";
-
-    SI void store(size_t tail, const SkNi& v,  int32_t* dst) {
-        if (tail) {
-            _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec);
-            return sk_msan_mark_initialized(dst, dst+tail, bug);
-        }
-        v.store(dst);
-    }
-    SI void store(size_t tail, const SkNu& v, uint32_t* dst) {
-        if (tail) {
-            _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec);
-            return sk_msan_mark_initialized(dst, dst+tail, bug);
-        }
-        v.store(dst);
-    }
-    SI void store(size_t tail, const SkNf& v, float* dst) {
-        if (tail) {
-            _mm256_maskstore_ps((float*)dst, mask(tail), v.fVec);
-            return sk_msan_mark_initialized(dst, dst+tail, bug);
-        }
-        v.store(dst);
-    }
-#endif
 
 SI SkNf SkNf_fma(const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); }
 
