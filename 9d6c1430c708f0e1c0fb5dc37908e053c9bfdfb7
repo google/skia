@@ -16,6 +16,24 @@
       "revId": "9d6c1430c708f0e1c0fb5dc37908e053c9bfdfb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a503efe_9f003f01",
+        "filename": "infra/bots/recipes/ct_skps.expected/CT_CPU_BENCH_10k_SKPs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-10T14:22:40Z",
+      "side": 1,
+      "message": "So that was the question. We no longer provide the fake build number (2), so I guess this defaults to -1?  I assume that\u0027s from the swarming recipe module in build.git.  If it\u0027s not actually being used (it shouldn\u0027t be; we\u0027ve been using a fake build number since the transition off of buildbot), then the -1 instead of the 2 shouldn\u0027t matter.",
+      "parentUuid": "b54faf64_c54d038a",
+      "revId": "9d6c1430c708f0e1c0fb5dc37908e053c9bfdfb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
