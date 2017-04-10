@@ -80,7 +80,6 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      patch_storage='gerrit',
-                     nobuildbot='True',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.properties.tryserver(
           buildername='Housekeeper-PerCommit',

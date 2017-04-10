@@ -142,96 +142,20 @@ def GenTests(api):
         else:
           test += api.platform('linux', 64)
         if 'Trybot' in builder:
-          test += api.properties(issue=500,
-                                 patchset=1,
-                                 rietveld='https://codereview.chromium.org')
+          test += api.properties(
+              patch_issue=500,
+              patch_set=1,
+              patch_storage='gerrit')
+          test += api.properties.tryserver(
+              buildername=builder,
+              gerrit_project='skia',
+              gerrit_url='https://skia-review.googlesource.com/',
+          )
 
         yield test
 
   mastername = 'client.skia.compile'
   slavename = 'skiabot-win-compile-000'
-  buildername = 'Build-Win-MSVC-x86-Debug'
-  yield (
-      api.test('big_issue_number') +
-      api.properties(buildername=buildername,
-                     mastername=mastername,
-                     slavename=slavename,
-                     buildnumber=5,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
-                     rietveld='https://codereview.chromium.org',
-                     patchset=1,
-                     issue=2147533002L) +
-      api.path.exists(
-          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-      ) +
-      api.platform('win', 64)
-  )
-
-  yield (
-      api.test('recipe_with_gerrit_patch') +
-      api.properties(
-          buildername=buildername + '-Trybot',
-          mastername=mastername,
-          slavename=slavename,
-          buildnumber=5,
-          path_config='kitchen',
-          swarm_out_dir='[SWARM_OUT_DIR]',
-          repository='https://skia.googlesource.com/skia.git',
-          revision='abc123',
-          patch_storage='gerrit') +
-      api.properties.tryserver(
-          buildername=buildername + '-Trybot',
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      ) +
-      api.platform('win', 64)
-  )
-
-  yield (
-      api.test('buildbotless_trybot_rietveld') +
-      api.properties(
-          buildername=buildername,
-          mastername=mastername,
-          slavename=slavename,
-          buildnumber=5,
-          path_config='kitchen',
-          swarm_out_dir='[SWARM_OUT_DIR]',
-          repository='https://skia.googlesource.com/skia.git',
-          revision='abc123',
-          nobuildbot='True',
-          issue=500,
-          patchset=1,
-          patch_storage='rietveld',
-          rietveld='https://codereview.chromium.org') +
-      api.platform('win', 64)
-  )
-
-  yield (
-      api.test('buildbotless_trybot_gerrit') +
-      api.properties(
-          repository='https://skia.googlesource.com/skia.git',
-          buildername=buildername,
-          mastername=mastername,
-          slavename=slavename,
-          buildnumber=5,
-          path_config='kitchen',
-          swarm_out_dir='[SWARM_OUT_DIR]',
-          revision='abc123',
-          nobuildbot='True',
-          patch_issue=500,
-          patch_set=1,
-          patch_storage='gerrit') +
-      api.properties.tryserver(
-          buildername=buildername,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      ) +
-      api.platform('win', 64)
-  )
-
   buildername = 'Build-Win-MSVC-x86_64-Release-Vulkan'
   yield (
       api.test('alternate_repo') +
@@ -260,7 +184,6 @@ def GenTests(api):
           path_config='kitchen',
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
-          nobuildbot='True',
           patch_issue=500,
           patch_set=1,
           patch_storage='gerrit') +
@@ -286,7 +209,6 @@ def GenTests(api):
           path_config='kitchen',
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
-          nobuildbot='True',
           patch_issue=500,
           patch_set=1,
           patch_storage='gerrit') +

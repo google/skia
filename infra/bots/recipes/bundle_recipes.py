@@ -44,9 +44,13 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
-                   nobuildbot='True',
-                   patch_issue='10101',
-                   patch_set='3') +
+                   patch_issue=500,
+                   patch_set=1,
+                   patch_storage='gerrit') +
+    api.properties.tryserver(
+        buildername='Housekeeper-PerCommit-BundleRecipes',
+        gerrit_project='skia',
+        gerrit_url='https://skia-review.googlesource.com/') +
     api.path.exists(
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     )

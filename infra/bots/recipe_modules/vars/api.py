@@ -25,9 +25,6 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     """Prepare the variables."""
     # Setup
     self.builder_name = self.m.properties['buildername']
-    self.master_name = self.m.properties['mastername']
-    self.slave_name = self.m.properties['slavename']
-    self.build_number = self.m.properties['buildnumber']
 
     self.slave_dir = self.m.path['start_dir']
     self.checkout_root = self.slave_dir
@@ -38,8 +35,6 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     ])
     self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
-    self.no_buildbot = self.m.properties.get('nobuildbot', '') == 'True'
-    self.skia_task_id = self.m.properties.get('skia_task_id', None)
 
     self.default_env['CHROME_HEADLESS'] = '1'
     # The 'depot_tools' directory comes from recipe DEPS and isn't provided by
@@ -127,30 +122,15 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
 
-    self.patch_storage = self.m.properties.get('patch_storage', 'rietveld')
+    self.patch_storage = self.m.properties.get('patch_storage', 'gerrit')
     self.issue = None
     self.patchset = None
-    if self.no_buildbot:
-      self.is_trybot = False
-      if (self.m.properties.get('issue', '') and
-          self.m.properties.get('patchset', '')):
-        self.is_trybot = True
-        self.issue = self.m.properties['issue']
-        self.patchset = self.m.properties['patchset']
-      elif (self.m.properties.get('patch_issue', '') and
-            self.m.properties.get('patch_set', '')):
-        self.is_trybot = True
-        self.issue = self.m.properties['patch_issue']
-        self.patchset = self.m.properties['patch_set']
-    else:
-      self.is_trybot = self.builder_cfg['is_trybot']
-      if self.is_trybot:
-        if self.patch_storage == 'gerrit':
-          self.issue = self.m.properties['patch_issue']
-          self.patchset = self.m.properties['patch_set']
-        else:
-          self.issue = self.m.properties['issue']
-          self.patchset = self.m.properties['patchset']
+    self.is_trybot = False
+    if (self.m.properties.get('patch_issue', '') and
+        self.m.properties.get('patch_set', '')):
+      self.is_trybot = True
+      self.issue = self.m.properties['patch_issue']
+      self.patchset = self.m.properties['patch_set']
 
     self.dm_dir = self.m.path.join(
         self.swarming_out_dir, 'dm')

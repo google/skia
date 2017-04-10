@@ -460,11 +460,11 @@ def GenTests(api):
     )
   )
 
+  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot'
   yield(
     api.test('CT_DM_10k_SKPs_Trybot') +
     api.properties(
-        buildername=
-            'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot',
+        buildername=builder,
         mastername=mastername,
         slavename=slavename,
         buildnumber=buildnumber,
@@ -472,18 +472,21 @@ def GenTests(api):
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
-        rietveld='codereview.chromium.org',
-        issue=1499623002,
-        patchset=1,
         repository='https://skia.googlesource.com/skia.git',
+        patch_storage='gerrit') +
+    api.properties.tryserver(
+        buildername=builder,
+        gerrit_project='skia',
+        gerrit_url='https://skia-review.googlesource.com/',
     )
   )
 
+  builder = ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
+             '10k_SKPs_Trybot')
   yield(
     api.test('CT_IMG_DECODE_10k_SKPs_Trybot') +
     api.properties(
-        buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-                    '10k_SKPs_Trybot',
+        buildername=builder,
         mastername=mastername,
         slavename=slavename,
         buildnumber=buildnumber,
@@ -493,5 +496,10 @@ def GenTests(api):
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
+        patch_storage='gerrit') +
+    api.properties.tryserver(
+        buildername=builder,
+        gerrit_project='skia',
+        gerrit_url='https://skia-review.googlesource.com/',
     )
   )
