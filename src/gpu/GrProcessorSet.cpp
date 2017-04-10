@@ -47,7 +47,7 @@ GrProcessorSet::~GrProcessorSet() {
         }
     }
     if (this->isFinalized() && this->xferProcessor()) {
-        this->xferProcessor()->completedExecution();
+        this->xferProcessor()->unref();
     }
 }
 
@@ -168,12 +168,9 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
 
     auto xp = GrXPFactory::MakeXferProcessor(this->xpFactory(), colorAnalysis.outputColor(),
                                              outputCoverage, isMixedSamples, caps);
-    fXP.fProcessor = xp.get();
-    if (fXP.fProcessor) {
-        fXP.fProcessor->addPendingExecution();
-    }
-    fFlags |= kFinalized_Flag;
+    fXP.fProcessor = xp.release();
 
+    fFlags |= kFinalized_Flag;
     analysis.fIsInitialized = true;
     return analysis;
 }

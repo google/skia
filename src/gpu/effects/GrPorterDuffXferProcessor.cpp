@@ -518,8 +518,8 @@ GrGLSLXferProcessor* ShaderPDXferProcessor::createGLSLInstance() const {
 
 class PDLCDXferProcessor : public GrXferProcessor {
 public:
-    static sk_sp<GrXferProcessor> Make(SkBlendMode xfermode,
-                                       const GrProcessorAnalysisColor& inputColor);
+    static sk_sp<const GrXferProcessor> Make(SkBlendMode mode,
+                                             const GrProcessorAnalysisColor& inputColor);
 
     ~PDLCDXferProcessor() override;
 
@@ -600,9 +600,9 @@ PDLCDXferProcessor::PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha)
     this->initClassID<PDLCDXferProcessor>();
 }
 
-sk_sp<GrXferProcessor> PDLCDXferProcessor::Make(SkBlendMode xfermode,
-                                                const GrProcessorAnalysisColor& color) {
-    if (SkBlendMode::kSrcOver != xfermode) {
+sk_sp<const GrXferProcessor> PDLCDXferProcessor::Make(SkBlendMode mode,
+                                                      const GrProcessorAnalysisColor& color) {
+    if (SkBlendMode::kSrcOver != mode) {
         return nullptr;
     }
     GrColor blendConstant;
@@ -696,7 +696,7 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
     }
 }
 
-sk_sp<GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
+sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor& color, GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples, const GrCaps& caps) const {
     BlendFormula blendFormula;
@@ -716,9 +716,9 @@ sk_sp<GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
     }
 
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
-        return sk_sp<GrXferProcessor>(new ShaderPDXferProcessor(hasMixedSamples, fBlendMode));
+        return sk_sp<const GrXferProcessor>(new ShaderPDXferProcessor(hasMixedSamples, fBlendMode));
     }
-    return sk_sp<GrXferProcessor>(new PorterDuffXferProcessor(blendFormula));
+    return sk_sp<const GrXferProcessor>(new PorterDuffXferProcessor(blendFormula));
 }
 
 static inline GrXPFactory::AnalysisProperties analysis_properties(
@@ -801,7 +801,7 @@ const GrXferProcessor& GrPorterDuffXPFactory::SimpleSrcOverXP() {
     return gSrcOverXP;
 }
 
-sk_sp<GrXferProcessor> GrPorterDuffXPFactory::MakeSrcOverXferProcessor(
+sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeSrcOverXferProcessor(
         const GrProcessorAnalysisColor& color, GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples, const GrCaps& caps) {
     // We want to not make an xfer processor if possible. Thus for the simple case where we are not
@@ -833,7 +833,7 @@ sk_sp<GrXferProcessor> GrPorterDuffXPFactory::MakeSrcOverXferProcessor(
     return sk_sp<GrXferProcessor>(new PorterDuffXferProcessor(blendFormula));
 }
 
-sk_sp<GrXferProcessor> GrPorterDuffXPFactory::CreateNoCoverageXP(SkBlendMode blendmode) {
+sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeNoCoverageXP(SkBlendMode blendmode) {
     BlendFormula formula = get_blend_formula(false, false, false, blendmode);
     return sk_make_sp<PorterDuffXferProcessor>(formula);
 }

@@ -10,6 +10,7 @@
 
 #include "GrBlend.h"
 #include "GrColor.h"
+#include "GrNonAtomicRef.h"
 #include "GrProcessor.h"
 #include "GrProcessorSet.h"
 #include "GrTexture.h"
@@ -46,7 +47,7 @@ GR_STATIC_ASSERT(SkToBool(kNone_GrXferBarrierType) == false);
  * A GrXferProcessor is never installed directly into our draw state, but instead is created from a
  * GrXPFactory once we have finalized the state of our draw.
  */
-class GrXferProcessor : public GrProcessor {
+class GrXferProcessor : public GrProcessor, public GrNonAtomicRef<GrXferProcessor> {
 public:
     /**
      * A texture that contains the dst pixel values and an integer coord offset from device space
@@ -177,8 +178,6 @@ protected:
     GrXferProcessor(bool willReadDstColor, bool hasMixedSamples);
 
 private:
-    void notifyRefCntIsZero() const final {}
-
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
      * processor's GL backend implementation.
@@ -268,11 +267,11 @@ public:
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 
-    static sk_sp<GrXferProcessor> MakeXferProcessor(const GrXPFactory*,
-                                                    const GrProcessorAnalysisColor&,
-                                                    GrProcessorAnalysisCoverage,
-                                                    bool hasMixedSamples,
-                                                    const GrCaps& caps);
+    static sk_sp<const GrXferProcessor> MakeXferProcessor(const GrXPFactory*,
+                                                          const GrProcessorAnalysisColor&,
+                                                          GrProcessorAnalysisCoverage,
+                                                          bool hasMixedSamples,
+                                                          const GrCaps& caps);
 
     static AnalysisProperties GetAnalysisProperties(const GrXPFactory*,
                                                     const GrProcessorAnalysisColor&,
@@ -283,10 +282,10 @@ protected:
     constexpr GrXPFactory() {}
 
 private:
-    virtual sk_sp<GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
-                                                     GrProcessorAnalysisCoverage,
-                                                     bool hasMixedSamples,
-                                                     const GrCaps&) const = 0;
+    virtual sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                           GrProcessorAnalysisCoverage,
+                                                           bool hasMixedSamples,
+                                                           const GrCaps&) const = 0;
 
     /**
      * Subclass analysis implementation. This should not return kNeedsDstInTexture as that will be

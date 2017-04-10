@@ -30,9 +30,10 @@ public:
 private:
     constexpr GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
-    sk_sp<GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
-                                             GrProcessorAnalysisCoverage, bool hasMixedSamples,
-                                             const GrCaps&) const override;
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,

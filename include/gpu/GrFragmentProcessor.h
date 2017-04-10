@@ -23,7 +23,7 @@ class GrSwizzle;
     GrCoordTransforms to receive a transformation of the local coordinates that map from local space
     to the fragment being processed.
  */
-class GrFragmentProcessor : public GrResourceIOProcessor {
+class GrFragmentProcessor : public GrResourceIOProcessor, public GrProgramElement {
 public:
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
@@ -300,6 +300,10 @@ protected:
     void setWillUseDistanceVectorField() { fFlags |= kUsesDistanceVectorField_Flag; }
 
 private:
+    void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
+    void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
+    void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
+
     void notifyRefCntIsZero() const final;
 
     virtual GrColor4f constantOutputForConstantInput(GrColor4f /* inputColor */) const {

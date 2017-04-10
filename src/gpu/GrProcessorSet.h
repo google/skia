@@ -43,6 +43,10 @@ public:
         SkASSERT(this->isFinalized());
         return fXP.fProcessor;
     }
+    sk_sp<const GrXferProcessor> refXferProcessor() const {
+        SkASSERT(this->isFinalized());
+        return sk_ref_sp(fXP.fProcessor);
+    }
 
     bool usesDistanceVectorField() const { return SkToBool(fFlags & kUseDistanceVectorField_Flag); }
     bool disableOutputConversionToSRGB() const {

@@ -167,11 +167,11 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
     return result;
 }
 
-sk_sp<GrXferProcessor> GrXPFactory::MakeXferProcessor(const GrXPFactory* factory,
-                                                      const GrProcessorAnalysisColor& color,
-                                                      GrProcessorAnalysisCoverage coverage,
-                                                      bool hasMixedSamples,
-                                                      const GrCaps& caps) {
+sk_sp<const GrXferProcessor> GrXPFactory::MakeXferProcessor(const GrXPFactory* factory,
+                                                            const GrProcessorAnalysisColor& color,
+                                                            GrProcessorAnalysisCoverage coverage,
+                                                            bool hasMixedSamples,
+                                                            const GrCaps& caps) {
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
     if (factory) {
         return factory->makeXferProcessor(color, coverage, hasMixedSamples, caps);

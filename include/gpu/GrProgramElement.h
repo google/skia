@@ -17,15 +17,10 @@ class GrGpuResourceRef;
  * Note: We are converting GrProcessor from ref counting to a single owner model using move
  * semantics. This class will be removed.
  *
- * Base class for GrProcessor. This exists to manage transitioning a GrProcessor from being owned by
- * a client to being scheduled for execution. While a GrProcessor is ref'ed by drawing code its
- * GrGpu resources must also be ref'ed to prevent incorrectly recycling them through the cache.
- * However, once the GrProcessor is baked into a GrPipeline and the drawing code has stopped ref'ing
- * it, it's internal resources can be recycled in some cases.
- *
- * We track this using two types of refs on GrProgramElement. A regular ref is owned by any client
- * that may continue to issue draws that use the GrProgramElement. The GrPipeline owns "pending
- * executions" instead of refs. A pending execution is cleared by ~GrPipeline().
+ * This is used to track "refs" for two separate types GrProcessor ownership. A regular ref is owned
+ * by any client that may continue to issue draws that use the GrProgramElement. A recorded op or
+ * GrPipeline uses "pending executions" instead of refs. A pending execution is cleared after the
+ * draw is executed (or aborted).
  *
  * While a GrProgramElement is ref'ed any resources it owns are also ref'ed. However, once it gets
  * into the state where it has pending executions AND no refs then it converts its ownership of
@@ -33,13 +28,18 @@ class GrGpuResourceRef;
  * safe to recycle a resource even though we still have buffered GrOps that read or write to the
  * the resource.
  *
- * To make this work the subclass, GrProcessor, implements addPendingIOs and pendingIOComplete. The
- * former adds pending reads/writes as appropriate when the processor is recorded in a GrOpList. The
- * latter removes them after the op list executes the operation. These calls must propagate to any
- * children processors. Similarly, the subclass implements a removeRefs function in order to remove
- * refs from resources once the processor is only owned for pending execution.
+ * To make this work the subclass GrProcessor implements addPendingIOs, removeRefs, and
+ * pendingIOComplete. addPendingIOs adds pending reads/writes to GrGpuResources owned by the
+ * processor as appropriate when the processor is recorded in a GrOpList. removeRefs is called when
+ * the ref count reaches 0 and the GrProcessor is only owned by "pending executions".
+ * pendingIOComplete occurs if the resource is still owned by a ref but all recorded draws have been
+ * completed. Whenever pending executions and refs reach zero the processor is deleted.
+ *
+ * The GrProcessor may also implement notifyRefCntIsZero in order to change its ownership of child
+ * processors from ref to pending execution when the processor is first owned exclusively in pending
+ * execution mode.
  */
-template<typename DERIVED> class GrProgramElement : public SkNoncopyable {
+class GrProgramElement : public SkNoncopyable {
 public:
     virtual ~GrProgramElement() {
         // fRefCnt can be one when an effect is created statically using GR_CREATE_STATIC_EFFECT
@@ -65,7 +65,7 @@ public:
                 delete this;
                 return;
             } else {
-                static_cast<const DERIVED*>(this)->removeRefs();
+                this->removeRefs();
             }
         }
         this->validate();
@@ -85,7 +85,7 @@ protected:
     void addPendingExecution() const {
         this->validate();
         if (0 == fPendingExecutions) {
-            static_cast<const DERIVED*>(this)->addPendingIOs();
+            this->addPendingIOs();
         }
         ++fPendingExecutions;
         this->validate();
@@ -99,13 +99,17 @@ protected:
                 delete this;
                 return;
             } else {
-                static_cast<const DERIVED*>(this)->pendingIOComplete();
+                this->pendingIOComplete();
             }
         }
         this->validate();
     }
 
 private:
+    virtual void addPendingIOs() const = 0;
+    virtual void removeRefs() const = 0;
+    virtual void pendingIOComplete() const = 0;
+
     /** This will be called when the ref cnt is zero. The object may or may not have pending
         executions. */
     virtual void notifyRefCntIsZero() const = 0;
@@ -114,7 +118,7 @@ private:
     // Count of deferred executions not yet issued to the 3D API.
     mutable int32_t fPendingExecutions;
 
-    // Only this class can access addPendingExecution() and completedExecution().
+    // Only these classes can access addPendingExecution() and completedExecution().
     template <typename T> friend class GrPendingProgramElement;
     friend class GrProcessorSet;
 

@@ -213,10 +213,10 @@ public:
             : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
 
 private:
-    sk_sp<GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
-                                             GrProcessorAnalysisCoverage,
-                                             bool hasMixedSamples,
-                                             const GrCaps&) const override;
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
@@ -233,10 +233,11 @@ private:
 #pragma GCC diagnostic pop
 #endif
 
-sk_sp<GrXferProcessor> CustomXPFactory::makeXferProcessor(const GrProcessorAnalysisColor&,
-                                                          GrProcessorAnalysisCoverage coverage,
-                                                          bool hasMixedSamples,
-                                                          const GrCaps& caps) const {
+sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
+        const GrProcessorAnalysisColor&,
+        GrProcessorAnalysisCoverage coverage,
+        bool hasMixedSamples,
+        const GrCaps& caps) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
