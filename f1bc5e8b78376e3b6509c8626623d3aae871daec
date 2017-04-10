@@ -16,6 +16,24 @@
       "revId": "f1bc5e8b78376e3b6509c8626623d3aae871daec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c6acee5_e7057abd",
+        "filename": "src/core/SkImageCacherator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-10T15:50:14Z",
+      "side": 0,
+      "message": "Only within this function. I think we\u0027re still racy in tryLockAsBitmap.\n\nAs per discussion, I will try using SkOnce to resolve these.",
+      "parentUuid": "ab6a9860_40c4d49d",
+      "revId": "f1bc5e8b78376e3b6509c8626623d3aae871daec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
