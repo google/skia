@@ -137,7 +137,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     desc.fHeight = 10;
 
     for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
-        sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+        sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                 SkBackingFit::kApprox, 1, 1, kRGBA_8888_GrPixelConfig, nullptr));
         {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
@@ -290,7 +290,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     // hard-code that value here:
     SkRandom random(seed);
 
-    sk_sp<GrRenderTargetContext> rtc = context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
             SkBackingFit::kExact, 256, 256, kRGBA_8888_GrPixelConfig, nullptr);
     GrSurfaceDesc desc;
     desc.fWidth = 256;
