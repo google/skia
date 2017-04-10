@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef8338ce_be1367ca",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-10T20:31:41Z",
+      "side": 1,
+      "message": "jobs.json too?",
+      "revId": "e45c893f3e5ba1aad261ff9360fdc81e2a50c969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
