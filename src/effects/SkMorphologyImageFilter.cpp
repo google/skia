@@ -660,3 +660,17 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst, &source->props());
 }
+
+sk_sp<SkImageFilter> SkMorphologyImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(1 == this->countInputs());
+    if (!this->getInput(0)) {
+        return sk_ref_sp(const_cast<SkMorphologyImageFilter*>(this));
+    }
+
+    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
+    return (SkMorphologyImageFilter::kDilate_Op == this->op())
+            ? SkDilateImageFilter::Make(fRadius.width(), fRadius.height(), std::move(input),
+                                        this->getCropRectIfSet())
+            : SkErodeImageFilter::Make(fRadius.width(), fRadius.height(), std::move(input),
+                                       this->getCropRectIfSet());
+}
