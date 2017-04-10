@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d38e5d1e_54730fd8",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-10T12:45:04Z",
+      "side": 1,
+      "message": "More or less - it could mean that this frame is subset, but the frame behind it covers the image and is opaque.\n\nMaybe the statement is unnecessary, since the client will only ever see/use the result of compositing with fRequiredFrame? (Mostly - a client could \"cheat\", and set fHasPriorFrame to true, but fill it with transparent. That would allow seeing the frame without compositing.)",
+      "parentUuid": "228f85b8_fcbfc871",
+      "range": {
+        "startLine": 615,
+        "startChar": 0,
+        "endLine": 617,
+        "endChar": 73
+      },
+      "revId": "452b5fb01b7b9a060e603d558d9bf14931634f68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f1dc9cd6_b6c8d045",
         "filename": "third_party/gif/SkGifImageReader.h",
         "patchSetId": 11
