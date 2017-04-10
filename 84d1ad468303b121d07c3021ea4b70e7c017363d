@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05e929be_3048e4bf",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-10T19:04:43Z",
+      "side": 1,
+      "message": "Why not just\n\n  python infra/bots/assets/clang_linux/download.py -t ~/clang\n\n?",
+      "revId": "84d1ad468303b121d07c3021ea4b70e7c017363d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
