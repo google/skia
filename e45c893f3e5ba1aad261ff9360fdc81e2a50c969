@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "8c15b7d1_782830eb",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-10T20:33:32Z",
+      "side": 1,
+      "message": "Would be nice to point to more-detailed docs for this. (Or add detailed docs to this file.)",
+      "range": {
+        "startLine": 9,
+        "startChar": 4,
+        "endLine": 9,
+        "endChar": 16
+      },
+      "revId": "e45c893f3e5ba1aad261ff9360fdc81e2a50c969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef8338ce_be1367ca",
         "filename": "infra/bots/README.md",
         "patchSetId": 1
@@ -13,6 +36,75 @@
       "writtenOn": "2017-04-10T20:31:41Z",
       "side": 1,
       "message": "jobs.json too?",
+      "revId": "e45c893f3e5ba1aad261ff9360fdc81e2a50c969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c634bacc_11479d71",
+        "filename": "infra/bots/recipe_modules/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-10T20:33:32Z",
+      "side": 1,
+      "message": "nit \"... in infra/bots/recipes\"",
+      "range": {
+        "startLine": 4,
+        "startChar": 62,
+        "endLine": 4,
+        "endChar": 69
+      },
+      "revId": "e45c893f3e5ba1aad261ff9360fdc81e2a50c969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e696d8fb_9e5405d1",
+        "filename": "infra/bots/recipe_modules/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-10T20:33:32Z",
+      "side": 1,
+      "message": "Would it be difficult to rename?",
+      "range": {
+        "startLine": 7,
+        "startChar": 65,
+        "endLine": 8,
+        "endChar": 22
+      },
+      "revId": "e45c893f3e5ba1aad261ff9360fdc81e2a50c969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e79d50a2_c9494325",
+        "filename": "infra/bots/recipe_modules/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-04-10T20:33:32Z",
+      "side": 1,
+      "message": "I think it will be less confusing to change this to \"./infra/bots/recipes.py\". (same in other README, x2)",
+      "range": {
+        "startLine": 22,
+        "startChar": 9,
+        "endLine": 22,
+        "endChar": 19
+      },
       "revId": "e45c893f3e5ba1aad261ff9360fdc81e2a50c969",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
