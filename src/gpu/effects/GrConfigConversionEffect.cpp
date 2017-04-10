@@ -27,7 +27,11 @@ public:
             // could optimize this case, but we aren't for now.
             args.fInputColor = "vec4(1)";
         }
+
+        // Aggressively round to the nearest exact (N / 255) floating point value. This lets us
+        // find a round-trip preserving pair on some GPUs that do odd byte to float conversion.
         fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+//        fragBuilder->codeAppend("color = floor(color * 255.0 + 0.5) / 255.0;");
 
         switch (cce.pmConversion()) {
             case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
@@ -42,6 +46,11 @@ public:
                 fragBuilder->codeAppend(
                     "color.rgb = floor(color.rgb * color.a * 255.0 + 0.001) / 255.0;");
                 break;
+            case GrConfigConversionEffect::kMulByAlpha_RoundNearest_PMConversion:
+                fragBuilder->codeAppend(
+                    "color.rgb = floor(color.rgb * color.a * 255.0 + 0.5) / 255.0;");
+                break;
+
             case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
                 fragBuilder->codeAppend(
                     "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : ceil(color.rgb / color.a * 255.0) / 255.0;");
@@ -50,6 +59,19 @@ public:
                 fragBuilder->codeAppend(
                     "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : floor(color.rgb / color.a * 255.0) / 255.0;");
                 break;
+            case GrConfigConversionEffect::kDivByAlpha_RoundNearest_PMConversion:
+                fragBuilder->codeAppend(
+                    "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : floor(color.rgb / color.a * 255.0 + 0.5) / 255.0;");
+                break;
+
+            case GrConfigConversionEffect::kRemainder:
+                fragBuilder->codeAppend(
+                    "vec4 enc = vec4(1.0, 255.0, 65025.0, 160681375.0) * color.r;"
+                    "enc = fract(enc);"
+                    "enc -= enc.yzww * vec4(1.0/255.0, 1.0/255.0, 1.0/255.0, 0.0);"
+                    "color = enc;");
+                break;
+
             default:
                 SkFAIL("Unknown conversion op.");
                 break;
@@ -109,6 +131,12 @@ GrGLSLFragmentProcessor* GrConfigConversionEffect::onCreateGLSLInstance() const 
 void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context,
                                                               PMConversion* pmToUPMRule,
                                                               PMConversion* upmToPMRule) {
+    if (context->caps()->isConfigRenderable(kRGBA_half_GrPixelConfig, false)) {
+        SkDebugf("Half support\n");
+    } else {
+        SkDebugf("No half support\n");
+    }
+
     *pmToUPMRule = kPMConversionCnt;
     *upmToPMRule = kPMConversionCnt;
     static constexpr int kSize = 256;
@@ -130,7 +158,20 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         }
     }
 
+    SkAutoTMalloc<uint32_t> testData(kSize * 2);
+    uint32_t* srcTestData = testData.get();
+    uint32_t* testRead = testData.get() + kSize;
+    for (int x = 0; x < kSize; ++x) {
+        uint8_t* color = reinterpret_cast<uint8_t*>(&srcTestData[x]);
+        color[3] =
+        color[2] =
+        color[1] =
+        color[0] = x;
+    }
+
     const SkImageInfo ii = SkImageInfo::Make(kSize, kSize,
+                                             kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    const SkImageInfo testInfo = SkImageInfo::Make(kSize, 1,
                                              kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
     sk_sp<GrRenderTargetContext> readRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
@@ -139,13 +180,24 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     sk_sp<GrRenderTargetContext> tempRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
                                                                           kSize, kSize,
                                                                           kConfig, nullptr));
+    sk_sp<GrRenderTargetContext> testRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
+                                                                          kSize, 1,
+                                                                          kConfig, nullptr));
     if (!readRTC || !tempRTC) {
+        return;
+    }
+    if (!testRTC) {
+        SkDebugf("Failed to create RTC\n");
         return;
     }
     GrSurfaceDesc desc;
     desc.fWidth = kSize;
     desc.fHeight = kSize;
     desc.fConfig = kConfig;
+    GrSurfaceDesc testDesc;
+    testDesc.fWidth = kSize;
+    testDesc.fHeight = 1;
+    testDesc.fConfig = kConfig;
 
     GrResourceProvider* resourceProvider = context->resourceProvider();
     sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
@@ -154,14 +206,51 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         return;
     }
 
+    sk_sp<GrTextureProxy> testDataProxy = GrSurfaceProxy::MakeDeferred(resourceProvider, testDesc,
+                                                                   SkBudgeted::kYes, testData, 0);
+    if (!testDataProxy) {
+        SkDebugf("Failed to create test data proxy\n");
+        return;
+    }
+
+    if (true) {
+        static const SkRect kDstRect = SkRect::MakeIWH(kSize, 1);
+        static const SkRect kSrcRect = SkRect::MakeIWH(kSize, 1);
+        GrPaint paint;
+        sk_sp<GrFragmentProcessor> fp(new GrConfigConversionEffect(kRemainder));
+
+        paint.addColorTextureProcessor(resourceProvider, testDataProxy, nullptr, SkMatrix::I());
+        paint.addColorFragmentProcessor(std::move(fp));
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+        testRTC->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), kDstRect,
+                                kSrcRect);
+        if (!testRTC->readPixels(testInfo, testRead, 0, 0, 0)) {
+            SkDebugf("Failed to read\n");
+            return;
+        }
+        for (int x = 0; x < kSize; ++x) {
+            uint8_t* color = reinterpret_cast<uint8_t*>(&testRead[x]);
+            float r = color[0] / 255.0f;
+            float g = color[1] / 255.0f;
+            float b = color[2] / 255.0f;
+            float a = color[3] / 255.0f;
+            float c = r + g / 255.0f + b / 65025.0f + a / 160581375.0f;
+            SkDebugf("%d : %f\n", x, c);
+        }
+        _exit(0);
+    }
+
+
     static const PMConversion kConversionRules[][2] = {
+        {kDivByAlpha_RoundNearest_PMConversion, kMulByAlpha_RoundNearest_PMConversion},
         {kDivByAlpha_RoundDown_PMConversion, kMulByAlpha_RoundUp_PMConversion},
         {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha_RoundDown_PMConversion},
     };
 
-    bool failed = true;
+    uint32_t bestFailCount = 0xFFFFFFFF;
+    size_t bestRule = 0;
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kConversionRules) && failed; ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kConversionRules) && bestFailCount; ++i) {
         *pmToUPMRule = kConversionRules[i][0];
         *upmToPMRule = kConversionRules[i][1];
 
@@ -211,20 +300,24 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             continue;
         }
 
-        failed = false;
-        for (int y = 0; y < kSize && !failed; ++y) {
+        uint32_t failCount = 0;
+        for (int y = 0; y < kSize; ++y) {
             for (int x = 0; x <= y; ++x) {
                 if (firstRead[kSize * y + x] != secondRead[kSize * y + x]) {
-                    failed = true;
-                    break;
+                    if (++failCount >= bestFailCount) {
+                        //break;
+                    }
                 }
             }
         }
+        SkDebugf("Rule: %d FailCount: %d\n", i, failCount);
+        if (failCount < bestFailCount) {
+            bestFailCount = failCount;
+            bestRule = i;
+        }
     }
-    if (failed) {
-        *pmToUPMRule = kPMConversionCnt;
-        *upmToPMRule = kPMConversionCnt;
-    }
+    *pmToUPMRule = kConversionRules[bestRule][0];
+    *upmToPMRule = kConversionRules[bestRule][1];
 }
 
 sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(sk_sp<GrFragmentProcessor> fp,
