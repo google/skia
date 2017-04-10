@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b904110_ad2a19f0",
+        "filename": "infra/bots/recipes/RecreateSKPs.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-04-10T12:10:44Z",
+      "side": 1,
+      "message": "This file should probably be called recreate_skps.py but it doesn\u0027t bother me too much.",
+      "revId": "de0f1267508737901695c3d72716cf10a774af7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
