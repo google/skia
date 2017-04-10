@@ -338,11 +338,6 @@ def dm_flags(bot):
     for raw_ext in r:
       blacklist('_ image _ .%s' % raw_ext)
 
-  # Large image that overwhelms older Mac bots
-  if 'MacMini4.1-GPU' in bot:
-    blacklist('_ image _ abnormal.wbmp')
-    blacklist([gl_prefix + 'msaa' + sample_count, 'gm', '_', 'blurcircles'])
-
   if 'IntelHD405' in bot and 'Ubuntu16' in bot:
     # skia:6331
     blacklist(['glmsaa8',   'image', 'gen_codec_gpu', 'abnormal.wbmp'])
@@ -721,7 +716,6 @@ TEST_BUILDERS = [
    'GN_Android_Vulkan'),
   'Test-Android-Clang-PixelC-GPU-TegraX1-arm64-Debug-GN_Android',
   'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug',
-  'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
   'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
   'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
