@@ -94,17 +94,6 @@ SkImageCacherator::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRec
     if (fInfo.colorType() == kIndex_8_SkColorType) {
         fInfo = fInfo.makeColorType(kN32_SkColorType);
     }
-
-    // If the encoded data is in a strange color space (it's not an XYZ matrix space), we won't be
-    // able to preserve the gamut of the encoded data when we decode it. Instead, we'll have to
-    // decode to a known color space (linear sRGB is a good choice). But we need to adjust the
-    // stored color space, because drawing code will ask the SkImage for its color space, which
-    // will in turn ask the cacherator. If we return the A2B color space, then we will be unable to
-    // construct a source-to-dest gamut transformation matrix.
-    if (fInfo.colorSpace() &&
-        SkColorSpace_Base::Type::kXYZ != as_CSB(fInfo.colorSpace())->type()) {
-        fInfo = fInfo.makeColorSpace(SkColorSpace::MakeSRGBLinear());
-    }
 }
 
 SkImageCacherator* SkImageCacherator::NewFromGenerator(std::unique_ptr<SkImageGenerator> gen,
