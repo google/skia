@@ -10,9 +10,9 @@
 
 #undef GetGlyphIndices
 
-#include "SkDraw.h"
 #include "SkDWrite.h"
 #include "SkDWriteGeometrySink.h"
+#include "SkDraw.h"
 #include "SkEndian.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
@@ -21,8 +21,11 @@
 #include "SkMutex.h"
 #include "SkOTTable_EBLC.h"
 #include "SkOTTable_EBSC.h"
+#include "SkOTTable_cvt.h"
+#include "SkOTTable_fpgm.h"
 #include "SkOTTable_gasp.h"
 #include "SkOTTable_maxp.h"
+#include "SkOTTable_prep.h"
 #include "SkPath.h"
 #include "SkRasterClip.h"
 #include "SkScalerContext.h"
@@ -46,27 +49,16 @@ static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
 
-static bool is_hinted_without_gasp(DWriteFontTypeface* typeface) {
+static bool is_not_hinted(DWriteFontTypeface* typeface) {
     SkAutoExclusive l(DWriteFactoryMutex);
-    AutoTDWriteTable<SkOTTableMaximumProfile> maxp(typeface->fDWriteFontFace.get());
-    if (!maxp.fExists) {
-        return false;
-    }
-    if (maxp.fSize < sizeof(SkOTTableMaximumProfile::Version::TT)) {
-        return false;
-    }
-    if (maxp->version.version != SkOTTableMaximumProfile::Version::TT::VERSION) {
-        return false;
-    }
+    AutoTDWriteTable<SkOTTableControlValueTable> cvt(typeface->fDWriteFontFace.get());
+    AutoTDWriteTable<SkOTTableControlValueProgram> prep(typeface->fDWriteFontFace.get());
+    AutoTDWriteTable<SkOTTableFontProgram> fpgm(typeface->fDWriteFontFace.get());
 
-    if (0 == maxp->version.tt.maxSizeOfInstructions) {
-        // No hints.
-        return false;
-    }
-
-    AutoTDWriteTable<SkOTTableGridAndScanProcedure> gasp(typeface->fDWriteFontFace.get());
-    return !gasp.fExists;
+    return !cvt.fExists && !prep.fExists && !fpgm.fExists;
 }
+
+static SkScalar kSymmetricRenderingPpemThreshold = 20.0f;
 
 /** A GaspRange is inclusive, [min, max]. */
 struct GaspRange {
@@ -315,25 +307,21 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextSizeMeasure = gdiTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
 
-    // Fonts that have hints but no gasp table get non-symmetric rendering.
-    // Usually such fonts have low quality hints which were never tested
-    // with anything but GDI ClearType classic. Such fonts often rely on
-    // drop out control in the y direction in order to be legible.
-    } else if (is_hinted_without_gasp(typeface)) {
-        fTextSizeRender = gdiTextSize;
-        fRenderingMode = DWRITE_RENDERING_MODE_NATURAL;
-        fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
-        fTextSizeMeasure = realTextSize;
-        fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
-
     // The normal case is to use natural symmetric rendering (if permitted) and linear metrics.
     } else {
         fTextSizeRender = realTextSize;
         GaspRange range(0, 0xFFFF, GaspRange::Behavior());
-        get_gasp_range(typeface, SkScalarRoundToInt(gdiTextSize), &range);
-        fRenderingMode = gasp_allows_cleartype_symmetric(range.fFlags)
-                       ? DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC
-                       : DWRITE_RENDERING_MODE_NATURAL;
+        bool has_gasp = get_gasp_range(typeface, SkScalarRoundToInt(gdiTextSize), &range);
+        if (has_gasp) {
+            fRenderingMode = gasp_allows_cleartype_symmetric(range.fFlags)
+                                     ? DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC
+                                     : DWRITE_RENDERING_MODE_NATURAL;
+        } else {
+            fRenderingMode =
+                    realTextSize < kSymmetricRenderingPpemThreshold || !is_not_hinted(typeface)
+                            ? DWRITE_RENDERING_MODE_NATURAL
+                            : DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
+        }
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
