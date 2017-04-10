@@ -194,7 +194,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
         if (isRT && texels.empty()) {
             GrRenderTarget* rt = tex->asRenderTarget();
             SkASSERT(rt);
-            rt->discard();
+            rt->discard1();
         }
     }
     return tex;

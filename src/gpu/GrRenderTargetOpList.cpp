@@ -117,7 +117,7 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
-bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
+bool GrRenderTargetOpList::executeOps1(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }
@@ -209,6 +209,9 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
         // As currently implemented, fLastFullClearOp should be the last op because we would
         // have cleared it when another op was recorded.
         SkASSERT(fRecordedOps.back().fOp.get() == fLastFullClearOp);
+        SkDebugf("Fusing clears opID: %d %x -> %x\n",
+                 fLastFullClearOp->uniqueID(),
+                 fLastFullClearOp->color(), color);
         fLastFullClearOp->setColor(color);
         return;
     }
@@ -225,7 +228,7 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
     }
 }
 
-void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
+void GrRenderTargetOpList::discard7(GrRenderTargetContext* renderTargetContext) {
     // Currently this just inserts a discard op. However, once in MDB this can remove all the
     // previously recorded ops and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
@@ -237,11 +240,16 @@ void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
-                                       GrSurfaceProxy* dst,
+                                       GrRenderTargetContext* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst, src, srcRect, dstPoint);
+//    GrRenderTarget* rt = dst->instantiate(resourceProvider);
+//    if (!rt) {
+//        return false;
+//    }
+
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst->asSurfaceProxy(), src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -249,10 +257,12 @@ bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
     this->addDependency(src);
 #endif
 
+    SkASSERT(this->isEmpty());
+
     // Copy surface doesn't work through a GrGpuCommandBuffer. By passing nullptr for the context we
     // force this to occur between command buffers and execute directly on GrGpu. This workaround
     // goes away with MDB.
-    this->recordOp(std::move(op), nullptr);
+    this->recordOp(std::move(op), dst);
     return true;
 }
 
@@ -292,8 +302,15 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
             renderTargetContext ? renderTargetContext->accessRenderTarget()
                                 : nullptr;
 
+    SkASSERT(renderTarget);
+
+    if (!fRecordedOps.empty()) {
+        GrRenderTargetOpList::RecordedOp& back = fRecordedOps.back();
+        SkASSERT(back.fRenderTarget == renderTarget);
+    }
+
     // A closed GrOpList should never receive new/more ops
-    SkASSERT(!this->isClosed());
+    SkASSERT(!this->isClosed1());
 
     // Check if there is an op we can combine with by linearly searching back until we either
     // 1) check every op
@@ -301,15 +318,14 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     // 3) find a 'blocker'
     GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTarget->uniqueID(),
                           renderTargetContext->asRenderTargetProxy()->uniqueID());
-    GrOP_INFO("Recording (%s, B%u)\n"
-              "\tBounds LRTB (%f, %f, %f, %f)\n",
+    GrOP_INFO("%d Recording (%s, opID: %u)\n"
+              "\tBounds [L: %.2f, T: %.2f R: %.2f B: %.2f]\n",
+               this->uniqueID(),
                op->name(),
                op->uniqueID(),
-               op->bounds().fLeft, op->bounds().fRight,
-               op->bounds().fTop, op->bounds().fBottom);
+               op->bounds().fLeft, op->bounds().fTop,
+               op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
-    GrOP_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", op->bounds().fLeft,
-              op->bounds().fTop, op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
     // If we don't have a valid destination render target then we cannot reorder.

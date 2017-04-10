@@ -28,7 +28,7 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flag
     fResolveRect.setLargestInverted();
 }
 
-void GrRenderTarget::discard() {
+void GrRenderTarget::discard1() {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
     if (!context) {
@@ -41,7 +41,7 @@ void GrRenderTarget::discard() {
         return;
     }
 
-    renderTargetContext->discard();
+    renderTargetContext->discard3();
 }
 
 void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
@@ -79,7 +79,7 @@ void GrRenderTarget::onAbandon() {
 
     // The contents of this renderTarget are gone/invalid. It isn't useful to point back
     // the creating opList.
-    this->setLastOpList(nullptr);
+    //this->setLastOpList(nullptr);
 
     INHERITED::onAbandon();
 }
