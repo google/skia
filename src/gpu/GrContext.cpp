@@ -267,7 +267,7 @@ static bool valid_unpremul_config(GrPixelConfig config) {
     return GrPixelConfigIs8888Unorm(config) || kRGBA_half_GrPixelConfig == config;
 }
 
-bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* dstColorSpace,
+bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* dstColorSpace,
                                        int left, int top, int width, int height,
                                        GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
                                        const void* buffer, size_t rowBytes,
@@ -276,11 +276,11 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
 
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_FALSE_IF_ABANDONED_PRIV
-    ASSERT_OWNED_PROXY_PRIV(srcProxy);
-    SkASSERT(srcProxy);
+    ASSERT_OWNED_PROXY_PRIV(dstProxy);
+    SkASSERT(dstProxy);
     GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::writeSurfacePixels");
 
-    GrSurface* surface = srcProxy->instantiate(fContext->resourceProvider());
+    GrSurface* surface = dstProxy->instantiate(fContext->resourceProvider());
     if (!surface) {
         return false;
     }
@@ -847,6 +847,8 @@ sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit
         return nullptr;
     }
 
+    renderTargetContext->discard();
+
     return renderTargetContext;
 }
 
@@ -873,9 +875,18 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
         return nullptr;
     }
 
-    return fDrawingManager->makeRenderTargetContext(std::move(rtp),
-                                                    std::move(colorSpace),
-                                                    surfaceProps);
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        fDrawingManager->makeRenderTargetContext(std::move(rtp),
+                                                 std::move(colorSpace),
+                                                 surfaceProps));
+
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    renderTargetContext->discard();
+
+    return renderTargetContext;
 }
 
 bool GrContext::abandoned() const {
