@@ -27,7 +27,11 @@ public:
             // could optimize this case, but we aren't for now.
             args.fInputColor = "vec4(1)";
         }
-        fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+
+        // Aggressively round to the nearest exact (N / 255) floating point value. This lets us
+        // find a round-trip preserving pair on some GPUs that do odd byte to float conversion.
+        fragBuilder->codeAppendf("vec4 color = floor(%s * 255.0 + 0.5) / 255.0;",
+                                args.fInputColor);
 
         switch (cce.pmConversion()) {
             case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
@@ -42,6 +46,11 @@ public:
                 fragBuilder->codeAppend(
                     "color.rgb = floor(color.rgb * color.a * 255.0 + 0.001) / 255.0;");
                 break;
+            case GrConfigConversionEffect::kMulByAlpha_RoundNearest_PMConversion:
+                fragBuilder->codeAppend(
+                    "color.rgb = floor(color.rgb * color.a * 255.0 + 0.5) / 255.0;");
+                break;
+
             case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
                 fragBuilder->codeAppend(
                     "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : ceil(color.rgb / color.a * 255.0) / 255.0;");
@@ -50,6 +59,11 @@ public:
                 fragBuilder->codeAppend(
                     "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : floor(color.rgb / color.a * 255.0) / 255.0;");
                 break;
+            case GrConfigConversionEffect::kDivByAlpha_RoundNearest_PMConversion:
+                fragBuilder->codeAppend(
+                    "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : floor(color.rgb / color.a * 255.0 + 0.5) / 255.0;");
+                break;
+
             default:
                 SkFAIL("Unknown conversion op.");
                 break;
@@ -155,13 +169,15 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 
     static const PMConversion kConversionRules[][2] = {
+        {kDivByAlpha_RoundNearest_PMConversion, kMulByAlpha_RoundNearest_PMConversion},
         {kDivByAlpha_RoundDown_PMConversion, kMulByAlpha_RoundUp_PMConversion},
         {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha_RoundDown_PMConversion},
     };
 
-    bool failed = true;
+    uint32_t bestFailCount = 0xFFFFFFFF;
+    size_t bestRule = 0;
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kConversionRules) && failed; ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kConversionRules) && bestFailCount; ++i) {
         *pmToUPMRule = kConversionRules[i][0];
         *upmToPMRule = kConversionRules[i][1];
 
@@ -211,19 +227,27 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
             continue;
         }
 
-        failed = false;
-        for (int y = 0; y < kSize && !failed; ++y) {
+        uint32_t failCount = 0;
+        for (int y = 0; y < kSize; ++y) {
             for (int x = 0; x <= y; ++x) {
                 if (firstRead[kSize * y + x] != secondRead[kSize * y + x]) {
-                    failed = true;
-                    break;
+                    if (++failCount >= bestFailCount) {
+                        break;
+                    }
                 }
             }
         }
+        if (failCount < bestFailCount) {
+            bestFailCount = failCount;
+            bestRule = i;
+        }
     }
-    if (failed) {
+    if (bestFailCount > 0) {
         *pmToUPMRule = kPMConversionCnt;
         *upmToPMRule = kPMConversionCnt;
+    } else {
+        *pmToUPMRule = kConversionRules[bestRule][0];
+        *upmToPMRule = kConversionRules[bestRule][1];
     }
 }
 
