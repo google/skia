@@ -226,7 +226,7 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
 
 uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
         GrPaint&& paint,

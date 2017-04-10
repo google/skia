@@ -47,10 +47,6 @@ private:
     friend class GrDrawingManager; // for ctor
 
     bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-    bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
-                      size_t dstRowBytes, int x, int y, uint32_t flags) override;
-    bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                       size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
     GrTextureOpList* getOpList();
 
