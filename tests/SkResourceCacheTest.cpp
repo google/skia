@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkGraphics.h"
+#include "SkMakeUnique.h"
 #include "SkMipMap.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -199,5 +200,90 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
                                             SkImage::BitDepth::kU8,
                                             SkColorSpace::MakeSRGB());
         });
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void* gTestNamespace;
+
+struct TestKey : SkResourceCache::Key {
+    int32_t fData;
+
+    TestKey(int sharedID, int32_t data) : fData(data) {
+        this->init(&gTestNamespace, sharedID, sizeof(fData));
+    }
+};
+
+struct TestRec : SkResourceCache::Rec {
+    enum {
+        kDidInstall = 1 << 0,
+    };
+
+    TestKey fKey;
+    int*    fFlags;
+    bool    fCanBePurged;
+
+    TestRec(int sharedID, int32_t data, int* flagPtr) : fKey(sharedID, data), fFlags(flagPtr) {
+        fCanBePurged = false;
+    }
+
+    const Key& getKey() const override { return fKey; }
+    size_t bytesUsed() const override { return 1024; /* just need a value */ }
+    bool canBePurged() override { return fCanBePurged; }
+    void postAddInstall(void*) override {
+        *fFlags |= kDidInstall;
+    }
+    const char* getCategory() const override { return "test-category"; }
+};
+
+static void test_duplicate_add(SkResourceCache* cache, skiatest::Reporter* reporter,
+                               bool purgable) {
+    int sharedID = 1;
+    int data = 0;
+
+    int flags0 = 0, flags1 = 0;
+
+    auto rec0 = skstd::make_unique<TestRec>(sharedID, data, &flags0);
+    auto rec1 = skstd::make_unique<TestRec>(sharedID, data, &flags1);
+    SkASSERT(rec0->getKey() == rec1->getKey());
+
+    TestRec* r0 = rec0.get();   // save the bare-pointer since we will release rec0
+    r0->fCanBePurged = purgable;
+
+    REPORTER_ASSERT(reporter, !(flags0 & TestRec::kDidInstall));
+    REPORTER_ASSERT(reporter, !(flags1 & TestRec::kDidInstall));
+
+    cache->add(rec0.release(), nullptr);
+    REPORTER_ASSERT(reporter, flags0 & TestRec::kDidInstall);
+    REPORTER_ASSERT(reporter, !(flags1 & TestRec::kDidInstall));
+    flags0 = 0; // reset the flag
+
+    cache->add(rec1.release(), nullptr);
+    if (purgable) {
+        // we purged rec0, and did install rec1
+        REPORTER_ASSERT(reporter, !(flags0 & TestRec::kDidInstall));
+        REPORTER_ASSERT(reporter, flags1 & TestRec::kDidInstall);
+    } else {
+        // we re-used rec0 and did not install rec1
+        REPORTER_ASSERT(reporter, flags0 & TestRec::kDidInstall);
+        REPORTER_ASSERT(reporter, !(flags1 & TestRec::kDidInstall));
+        r0->fCanBePurged = true;  // so we can cleanup the cache
+    }
+}
+
+/*
+ *  Test behavior when the same key is added more than once.
+ */
+DEF_TEST(ResourceCache_purge, reporter) {
+    for (bool purgable : { false, true }) {
+        {
+            SkResourceCache cache(1024 * 1024);
+            test_duplicate_add(&cache, reporter, purgable);
+        }
+        {
+            SkResourceCache cache(SkDiscardableMemory::Create);
+            test_duplicate_add(&cache, reporter, purgable);
+        }
     }
 }
