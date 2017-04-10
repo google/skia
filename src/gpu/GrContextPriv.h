@@ -151,7 +151,7 @@ public:
      * @return true if the write succeeded, false if not. The write can fail because of an
      *         unsupported combination of surface and src configs.
      */
-    bool writeSurfacePixels(GrSurfaceProxy* src, SkColorSpace* dstColorSpace,
+    bool writeSurfacePixels(GrSurfaceProxy* dst, SkColorSpace* dstColorSpace,
                             int left, int top, int width, int height,
                             GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,
