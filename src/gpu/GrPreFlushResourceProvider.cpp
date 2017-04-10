@@ -38,9 +38,14 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
                                                     fDrawingMgr->fOptionsForOpLists));
     proxy->setLastOpList(opList.get());
 
-    return fDrawingMgr->makeRenderTargetContext(std::move(proxy),
-                                                std::move(colorSpace),
-                                                props);
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        fDrawingMgr->makeRenderTargetContext1(std::move(proxy),
+                                              std::move(colorSpace),
+                                              props));
+
+    renderTargetContext->discard();
+
+    return renderTargetContext;
 }
 
 // TODO: we only need this entry point as long as we have to pre-allocate the atlas.
@@ -58,8 +63,13 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
                                                     fDrawingMgr->fOptionsForOpLists));
     proxy->setLastOpList(opList.get());
 
-    return fDrawingMgr->makeRenderTargetContext(std::move(proxy),
-                                                std::move(colorSpace),
-                                                props);
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        fDrawingMgr->makeRenderTargetContext1(std::move(proxy),
+                                              std::move(colorSpace),
+                                              props));
+
+    renderTargetContext->discard();
+
+    return renderTargetContext;
 }
 

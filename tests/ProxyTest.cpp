@@ -48,7 +48,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, rtProxy->numStencilSamples() == numSamples);
 
     GrSurfaceProxy::UniqueID idBefore = rtProxy->uniqueID();
-    GrRenderTarget* rt = rtProxy->instantiate(provider);
+    GrRenderTarget* rt = rtProxy->instantiate2(provider);
     REPORTER_ASSERT(reporter, rt);
 
     REPORTER_ASSERT(reporter, rtProxy->uniqueID() == idBefore);
@@ -85,7 +85,7 @@ static void check_texture(skiatest::Reporter* reporter,
                           SkBackingFit fit,
                           bool wasWrapped) {
     GrSurfaceProxy::UniqueID idBefore = texProxy->uniqueID();
-    GrTexture* tex = texProxy->instantiate(provider);
+    GrTexture* tex = texProxy->instantiate3(provider);
     REPORTER_ASSERT(reporter, tex);
 
     REPORTER_ASSERT(reporter, texProxy->uniqueID() == idBefore);
@@ -135,9 +135,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
-                                    tex.reset(provider->createApproxTexture(desc, 0));
+                                    tex.reset(provider->createApproxTexture7(desc, 0));
                                 } else {
-                                    tex = provider->createTexture(desc, budgeted);
+                                    tex = provider->createTexture4(desc, budgeted);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(
@@ -168,9 +168,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
-                                    tex.reset(provider->createApproxTexture(desc, 0));
+                                    tex.reset(provider->createApproxTexture7(desc, 0));
                                 } else {
-                                    tex = provider->createTexture(desc, budgeted);
+                                    tex = provider->createTexture4(desc, budgeted);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(provider,
@@ -249,7 +249,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     // Internal offscreen render target.
                     if (renderable) {
                         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-                        tex = provider->createTexture(desc, budgeted);
+                        tex = provider->createTexture4(desc, budgeted);
                         sk_sp<GrRenderTarget> rt(sk_ref_sp(tex->asRenderTarget()));
 
                         sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(rt));
@@ -264,7 +264,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     if (!tex) {
                         SkASSERT(kNone_GrSurfaceFlags == desc.fFlags );
                         desc.fSampleCnt = 0;
-                        tex = provider->createTexture(desc, budgeted);
+                        tex = provider->createTexture4(desc, budgeted);
                     }
 
                     sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(tex));

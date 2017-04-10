@@ -23,12 +23,12 @@ public:
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
     // Create a renderTargetContext that wraps an existing renderTarget
-    sk_sp<GrRenderTargetContext> makeWrappedRenderTargetContext(sk_sp<GrRenderTarget>,
+    sk_sp<GrRenderTargetContext> makeWrappedRenderTargetContext1(sk_sp<GrRenderTarget>,
                                                                 sk_sp<SkColorSpace>,
                                                                 const SkSurfaceProps* = nullptr);
 
     // Create a surfaceContext that wraps an existing texture or renderTarget
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurface>);
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext1(sk_sp<GrSurface>);
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
 
@@ -151,7 +151,7 @@ public:
      * @return true if the write succeeded, false if not. The write can fail because of an
      *         unsupported combination of surface and src configs.
      */
-    bool writeSurfacePixels(GrSurfaceProxy* src, SkColorSpace* dstColorSpace,
+    bool writeSurfacePixels(GrSurfaceProxy* dst, SkColorSpace* dstColorSpace,
                             int left, int top, int width, int height,
                             GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,

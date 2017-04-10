@@ -144,7 +144,7 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
-    GrSurface* surface = fProxy->instantiate(fContext->resourceProvider());
+    GrSurface* surface = fProxy->instantiate3(fContext->resourceProvider());
     if (surface && surface->asTexture()) {
         if (flushPendingGrContextIO) {
             fContext->contextPriv().prepareSurfaceForExternalIO(fProxy.get());
@@ -163,7 +163,7 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
         return nullptr;
     }
 
-    return proxy->instantiate(fContext->resourceProvider());
+    return proxy->instantiate3(fContext->resourceProvider());
 }
 
 bool SkImage_Gpu::onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
@@ -829,6 +829,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
                                               const GrMipLevel* texels, int mipLevelCount,
                                               SkBudgeted budgeted,
                                               SkDestinationSurfaceColorMode colorMode) {
+    SkASSERT(mipLevelCount >= 1);
     if (!ctx) {
         return nullptr;
     }

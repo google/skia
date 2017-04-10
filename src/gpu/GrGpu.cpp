@@ -143,7 +143,7 @@ static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDes
     return true;
 }
 
-GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
+GrTexture* GrGpu::createTexture1(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
                                 const SkTArray<GrMipLevel>& texels) {
     GrSurfaceDesc desc = origDesc;
 
@@ -188,6 +188,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
                 fStats.incTextureUploads();
             }
         }
+#if 0
         // This is a current work around to get discards into newly created textures. Once we are in
         // MDB world, we should remove this code a rely on the draw target having specified load
         // operations.
@@ -196,6 +197,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
             SkASSERT(rt);
             rt->discard();
         }
+#endif
     }
     return tex;
 }

@@ -183,7 +183,7 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
         this->flush(proxy);
     }
 
-    GrSurface* surface = proxy->instantiate(fContext->resourceProvider());
+    GrSurface* surface = proxy->instantiate1(fContext->resourceProvider());
     if (!surface) {
         return;
     }
@@ -282,7 +282,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
-sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
+sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext1(
                                                             sk_sp<GrSurfaceProxy> sProxy,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps) {
@@ -308,7 +308,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
     if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
         rtp->isStencilBufferMultisampled()) {
         // TODO: defer stencil buffer attachment for PathRenderingDrawContext
-        sk_sp<GrRenderTarget> rt(sk_ref_sp(rtp->instantiate(fContext->resourceProvider())));
+        sk_sp<GrRenderTarget> rt(sk_ref_sp(rtp->instantiate2(fContext->resourceProvider())));
         if (!rt) {
             return nullptr;
         }

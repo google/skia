@@ -25,7 +25,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                                                GrSLMemoryModel mm,
                                                GrSLRestrict restrict) {
             // MDB TODO: remove this once ImageStorageAccess is converted to GrTextureProxy
-            sk_sp<GrTexture> tex(sk_ref_sp(proxy->instantiate(resourceProvider)));
+            sk_sp<GrTexture> tex(sk_ref_sp(proxy->instantiate3(resourceProvider)));
             if (!tex) {
                 return nullptr;
             }

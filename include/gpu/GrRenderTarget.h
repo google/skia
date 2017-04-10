@@ -90,7 +90,7 @@ public:
      * Provide a performance hint that the render target's contents are allowed
      * to become undefined.
      */
-    void discard();
+    void discard1();
 
     // a MSAA RT may require explicit resolving , it may auto-resolve (e.g. FBO
     // 0 in GL), or be unresolvable because the client didn't give us the

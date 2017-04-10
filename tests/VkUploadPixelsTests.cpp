@@ -83,7 +83,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     surfDesc.fHeight = kHeight;
     surfDesc.fConfig = config;
     surfDesc.fSampleCnt = 0;
-    sk_sp<GrTexture> tex0(gpu->createTexture(surfDesc, SkBudgeted::kNo, srcBuffer, 0));
+    sk_sp<GrTexture> tex0(gpu->createTexture3(surfDesc, SkBudgeted::kNo, srcBuffer, 0));
     if (tex0) {
         REPORTER_ASSERT(reporter, canCreate);
         gpu->readPixels(tex0.get(), 0, 0, kWidth, kHeight, config, dstBuffer, 0);
@@ -112,7 +112,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     }
 
     surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    sk_sp<GrTexture> tex1(gpu->createTexture(surfDesc, SkBudgeted::kNo, srcBuffer, 0));
+    sk_sp<GrTexture> tex1(gpu->createTexture3(surfDesc, SkBudgeted::kNo, srcBuffer, 0));
     if (tex1) {
         REPORTER_ASSERT(reporter, canCreate);
         gpu->readPixels(tex1.get(), 0, 0, kWidth, kHeight, config, dstBuffer, 0);

@@ -38,15 +38,15 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkSafeUnref(fLastOpList);
 }
 
-GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
+GrSurface* GrSurfaceProxy::instantiate1(GrResourceProvider* resourceProvider) {
     if (fTarget) {
         return fTarget;
     }
 
     if (SkBackingFit::kApprox == fFit) {
-        fTarget = resourceProvider->createApproxTexture(fDesc, fFlags);
+        fTarget = resourceProvider->createApproxTexture7(fDesc, fFlags);
     } else {
-        fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags).release();
+        fTarget = resourceProvider->createTexture4(fDesc, fBudgeted, fFlags).release();
     }
     if (!fTarget) {
         return nullptr;

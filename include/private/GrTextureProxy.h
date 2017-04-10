@@ -22,7 +22,7 @@ public:
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
     // Actually instantiate the backing texture, if necessary
-    GrTexture* instantiate(GrResourceProvider*);
+    GrTexture* instantiate3(GrResourceProvider*);
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
 

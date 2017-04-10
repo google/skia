@@ -84,7 +84,7 @@ static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    sk_sp<GrTexture> tex(context->resourceProvider()->createTexture(desc, SkBudgeted::kNo));
+    sk_sp<GrTexture> tex(context->resourceProvider()->createTexture4(desc, SkBudgeted::kNo));
 
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
 
@@ -115,7 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                                        caps.discardRenderTargetSupport();
             int expectedWrites = 1 + (proxyGetsDiscardRef ? kWritesForDiscard : 0);
 
-            proxy->instantiate(provider);
+            proxy->instantiate3(provider);
 
             // In the deferred case, this checks that the refs transfered to the GrSurface
             check_refs(reporter, proxy.get(), 1, 1, 0, expectedWrites);
@@ -135,7 +135,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                                        caps.discardRenderTargetSupport();
             int expectedWrites = proxyGetsDiscardRef ? kWritesForDiscard : 0;
 
-            proxy->instantiate(provider);
+            proxy->instantiate3(provider);
 
             // In the deferred case, this checks that the refs transfered to the GrSurface
             check_refs(reporter, proxy.get(), 1, 1, 1, expectedWrites);
@@ -155,7 +155,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                                        caps.discardRenderTargetSupport();
             int expectedWrites = 1 + (proxyGetsDiscardRef ? kWritesForDiscard : 0);
 
-            proxy->instantiate(provider);
+            proxy->instantiate3(provider);
 
             // In the deferred case, this checks that the refs transferred to the GrSurface
             check_refs(reporter, proxy.get(), 1, 1, 1, expectedWrites);
@@ -173,7 +173,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                                        caps.discardRenderTargetSupport();
             int expectedWrites = proxyGetsDiscardRef ? kWritesForDiscard : 0;
 
-            proxy->instantiate(provider);
+            proxy->instantiate3(provider);
 
             // In the deferred case, this checks that the refs transferred to the GrSurface
             check_refs(reporter, proxy.get(), 3, 3, 0, expectedWrites);
@@ -195,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                                        caps.discardRenderTargetSupport();
             int expectedWrites = 1 + (proxyGetsDiscardRef ? kWritesForDiscard : 0);
 
-            proxy->instantiate(provider);
+            proxy->instantiate3(provider);
 
             // In the deferred case, this checks that the refs transfered to the GrSurface
             check_refs(reporter, proxy.get(), 2, 2, 0, expectedWrites);

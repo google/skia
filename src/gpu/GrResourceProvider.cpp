@@ -58,6 +58,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
                                                       SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
+    SkASSERT(mipLevelCount >= 1);
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -79,9 +80,14 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         if (mipLevelCount < 2) {
             flags |= kExact_Flag | kNoCreate_Flag;
-            sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
+            sk_sp<GrTexture> tex(this->refScratchTexture1(desc, flags));
             if (tex) {
                 sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex);
+
+                if (GrRenderTarget* rt = tex->asRenderTarget()) {
+                    rt->discard1();
+                }
+
                 if (!mipLevelCount ||
                     fGpu->getContext()->contextPriv().writeSurfacePixels(
                                 proxy.get(), nullptr, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
@@ -100,15 +106,21 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
     for (int i = 0; i < mipLevelCount; ++i) {
         texelsShallowCopy.push_back(texels[i]);
     }
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsShallowCopy));
+    sk_sp<GrTexture> tex(fGpu->createTexture1(desc, budgeted, texelsShallowCopy));
     if (tex) {
+        if (GrRenderTarget* rt = tex->asRenderTarget()) {
+            if (texelsShallowCopy.empty()) {
+                rt->discard1();
+            }
+        }
+
         tex->texturePriv().setMipColorMode(mipColorMode);
     }
 
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+sk_sp<GrTexture> GrResourceProvider::createTexture4(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    uint32_t flags) {
     ASSERT_SINGLE_OWNER
 
@@ -123,7 +135,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
 
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         flags |= kExact_Flag | kNoCreate_Flag;
-        sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
+        sk_sp<GrTexture> tex(this->refScratchTexture1(desc, flags));
         if (tex) {
             if (SkBudgeted::kNo == budgeted) {
                 tex->resourcePriv().makeUnbudgeted();
@@ -132,26 +144,36 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         }
     }
 
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted));
+    sk_sp<GrTexture> tex(fGpu->createTexture2(desc, budgeted));
     return tex;
 }
 
-GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
+GrTexture* GrResourceProvider::createApproxTexture7(const GrSurfaceDesc& desc, uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
 
     if (this->isAbandoned()) {
         return nullptr;
     }
+    SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
+
     // Currently we don't recycle compressed textures as scratch.
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         return nullptr;
-    } else {
-        return this->refScratchTexture(desc, flags);
+    } 
+
+    GrTexture* tex =  this->refScratchTexture1(desc, flags);
+
+    if (tex) {
+        if (GrRenderTarget* rt = tex->asRenderTarget()) {
+            rt->discard1();
+        }
     }
+
+    return tex;
 }
 
-GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
+GrTexture* GrResourceProvider::refScratchTexture1(const GrSurfaceDesc& inDesc,
                                                  uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
@@ -182,16 +204,31 @@ GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
                                                                    scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
+            // discard moved upstack
+
+#if 0
             GrRenderTarget* rt = surface->asRenderTarget();
             if (rt && fGpu->caps()->discardRenderTargetSupport()) {
                 rt->discard();
             }
+#endif
             return surface->asTexture();
         }
     }
 
     if (!(kNoCreate_Flag & flags)) {
-        return fGpu->createTexture(*desc, SkBudgeted::kYes);
+        GrTexture* tex = fGpu->createTexture2(*desc, SkBudgeted::kYes);
+
+        // discard moved upstack
+#if 0
+        if (tex) {
+            if (GrRenderTarget* rt = tex->asRenderTarget()) {
+                rt->discard1();
+            }
+        }
+#endif
+
+        return tex;
     }
 
     return nullptr;
@@ -246,7 +283,7 @@ void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextur
         return;
     }
 
-    GrTexture* texture = proxy->instantiate(this);
+    GrTexture* texture = proxy->instantiate3(this);
     if (!texture) {
         return;
     }
