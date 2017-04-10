@@ -73,6 +73,17 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
     }
 }
 
+sk_sp<SkImageFilter> SkOffsetImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(1 == this->countInputs());
+    if (!this->getInput(0)) {
+        return sk_ref_sp(const_cast<SkOffsetImageFilter*>(this));
+    }
+
+    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
+    return SkOffsetImageFilter::Make(fOffset.fX, fOffset.fY, std::move(input),
+                                     this->getCropRectIfSet());
+}
+
 SkRect SkOffsetImageFilter::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
     bounds.offset(fOffset.fX, fOffset.fY);

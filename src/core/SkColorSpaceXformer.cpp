@@ -44,6 +44,16 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
     return xformed;
 }
 
+sk_sp<SkColorFilter> SkColorSpaceXformer::apply(const SkColorFilter* colorFilter) {
+    SkColor color;
+    SkBlendMode mode;
+    if (colorFilter->asColorMode(&color, &mode)) {
+        return SkColorFilter::MakeModeFilter(this->apply(color), mode);
+    }
+
+    return sk_ref_sp(const_cast<SkColorFilter*>(colorFilter));
+}
+
 void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) {
     SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
                                     SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
@@ -162,10 +172,9 @@ const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
 
     // As far as I know, SkModeColorFilter is the only color filter that holds a color.
     if (auto cf = src.getColorFilter()) {
-        SkColor color;
-        SkBlendMode mode;
-        if (cf->asColorMode(&color, &mode)) {
-            get_dst()->setColorFilter(SkColorFilter::MakeModeFilter(this->apply(color), mode));
+        auto replacement = this->apply(cf);
+        if (replacement.get() != cf) {
+            get_dst()->setColorFilter(std::move(replacement));
         }
     }
 
