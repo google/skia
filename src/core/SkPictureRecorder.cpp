@@ -56,20 +56,11 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
 
     if (fRecord->count() == 0) {
-        if (finishFlags & kReturnNullForEmpty_FinishFlag) {
-            return nullptr;
-        }
         return fMiniRecorder.detachAsPicture(fCullRect);
     }
 
     // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord.get());
-
-    if (fRecord->count() == 0) {
-        if (finishFlags & kReturnNullForEmpty_FinishFlag) {
-            return nullptr;
-        }
-    }
 
     SkDrawableList* drawableList = fRecorder->getDrawableList();
     SkBigPicture::SnapshotArray* pictList =
@@ -124,12 +115,6 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFl
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
 
     SkRecordOptimize(fRecord.get());
-
-    if (fRecord->count() == 0) {
-        if (finishFlags & kReturnNullForEmpty_FinishFlag) {
-            return nullptr;
-        }
-    }
 
     if (fBBH.get()) {
         SkAutoTMalloc<SkRect> bounds(fRecord->count());
