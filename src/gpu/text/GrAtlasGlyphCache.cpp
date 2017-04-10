@@ -413,7 +413,7 @@ GrGlyph* GrAtlasTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::Packe
     }
     GrMaskFormat format = get_packed_glyph_mask_format(skGlyph);
 
-    GrGlyph* glyph = (GrGlyph*)fPool.alloc(sizeof(GrGlyph));
+    GrGlyph* glyph = fPool.make<GrGlyph>();
     glyph->init(packed, bounds, format);
     fCache.add(glyph);
     return glyph;
