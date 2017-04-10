@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e9a07da_8c2eb3d1",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T20:14:49Z",
+      "side": 1,
+      "message": "I promise to undo this the next time I edit this :)",
+      "range": {
+        "startLine": 122,
+        "startChar": 8,
+        "endLine": 128,
+        "endChar": 45
+      },
+      "revId": "b98875568c20384484258dd21c705ee436139af4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
