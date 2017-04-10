@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d20fc7b8_bd559599",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-10T21:01:07Z",
+      "side": 1,
+      "message": "What is that version currently used for? Happy to delete if we don\u0027t think it is needed. Though it is easier to funnel the old calls into this one if we have this version available.",
+      "parentUuid": "e1c6b556_17d76919",
+      "range": {
+        "startLine": 135,
+        "startChar": 4,
+        "endLine": 135,
+        "endChar": 57
+      },
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "73db3e90_bff55d10",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 2
@@ -63,6 +87,24 @@
       "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fd05cd7_247e8c58",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-10T21:01:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73db3e90_bff55d10",
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -89,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "fee22dda_de8f4b8b",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-10T21:01:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11606c52_580a46e7",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 22
+      },
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "294bc1eb_32e249a4",
         "filename": "include/gpu/GrBackendSurface.h",
         "patchSetId": 2
@@ -112,6 +178,30 @@
     },
     {
       "key": {
+        "uuid": "c9a744b1_fb8be060",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-10T21:01:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "294bc1eb_32e249a4",
+      "range": {
+        "startLine": 21,
+        "startChar": 44,
+        "endLine": 21,
+        "endChar": 56
+      },
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d2ec9aa_d3ff2935",
         "filename": "include/gpu/GrBackendSurface.h",
         "patchSetId": 2
@@ -123,6 +213,24 @@
       "writtenOn": "2017-04-10T20:24:13Z",
       "side": 1,
       "message": "Can this be private and just set by the factories?",
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40cf10ad_ea322a6e",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-10T21:01:07Z",
+      "side": 1,
+      "message": "The reason this, width, height, and sample/stencil in RT are public is for the consumers who read from this guy. Instead we could make a bunch of getters or just make everything private with lots of friending of the various consumers.",
+      "parentUuid": "3d2ec9aa_d3ff2935",
       "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
