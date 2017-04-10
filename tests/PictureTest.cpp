@@ -1136,3 +1136,39 @@ DEF_TEST(PictureGpuAnalyzer, r) {
 }
 
 #endif // SK_SUPPORT_GPU
+
+// If we record bounded ops into a picture with a big cull and calculate the
+// bounds of those ops, we should trim down the picture cull to the ops' bounds.
+// If we're not using an SkBBH, we shouldn't change it.
+DEF_TEST(Picture_UpdatedCull_1, r) {
+    // Testing 1 draw exercises SkMiniPicture.
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+
+    auto canvas = recorder.beginRecording(SkRect::MakeLargest(), &factory);
+    canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
+    auto pic = recorder.finishRecordingAsPicture();
+    REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeWH(20,20));
+
+    canvas = recorder.beginRecording(SkRect::MakeLargest());
+    canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
+    pic = recorder.finishRecordingAsPicture();
+    REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeLargest());
+}
+DEF_TEST(Picture_UpdatedCull_2, r) {
+    // Testing >1 draw exercises SkBigPicture.
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+
+    auto canvas = recorder.beginRecording(SkRect::MakeLargest(), &factory);
+    canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
+    canvas->drawRect(SkRect::MakeWH(10,40), SkPaint{});
+    auto pic = recorder.finishRecordingAsPicture();
+    REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeWH(20,40));
+
+    canvas = recorder.beginRecording(SkRect::MakeLargest());
+    canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
+    canvas->drawRect(SkRect::MakeWH(10,40), SkPaint{});
+    pic = recorder.finishRecordingAsPicture();
+    REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeLargest());
+}

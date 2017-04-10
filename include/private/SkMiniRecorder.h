@@ -25,11 +25,12 @@ public:
     bool drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y, const SkPaint&);
 
     // Detach anything we've recorded as a picture, resetting this SkMiniRecorder.
-    sk_sp<SkPicture> detachAsPicture(const SkRect& cull);
+    // If cull is nullptr we'll calculate it.
+    sk_sp<SkPicture> detachAsPicture(const SkRect* cull);
 
     // Flush anything we've recorded to the canvas, resetting this SkMiniRecorder.
     // This is logically the same as but rather more efficient than:
-    //    sk_sp<SkPicture> pic(this->detachAsPicture(SkRect::MakeEmpty()));
+    //    sk_sp<SkPicture> pic(this->detachAsPicture(nullptr));
     //    pic->playback(canvas);
     void flushAndReset(SkCanvas*);
 
