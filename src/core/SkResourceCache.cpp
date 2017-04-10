@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkDiscardableMemory.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkMutex.h"
 #include "SkOpts.h"
-#include "SkPixelRef.h"
 #include "SkResourceCache.h"
 #include "SkTraceMemoryDump.h"
 
@@ -75,140 +75,15 @@ void SkResourceCache::init() {
     fTotalBytesUsed = 0;
     fCount = 0;
     fSingleAllocationByteLimit = 0;
-    fAllocator = nullptr;
 
     // One of these should be explicit set by the caller after we return.
     fTotalByteLimit = 0;
     fDiscardableFactory = nullptr;
 }
 
-#include "SkDiscardableMemory.h"
-
-class SkOneShotDiscardablePixelRef : public SkPixelRef {
-public:
-
-    // Ownership of the discardablememory is transfered to the pixelref
-    // The pixelref will ref() the colortable (if not NULL), and unref() in destructor
-    SkOneShotDiscardablePixelRef(const SkImageInfo&, SkDiscardableMemory*, size_t rowBytes,
-                                 SkColorTable*);
-    ~SkOneShotDiscardablePixelRef() override;
-
-protected:
-    bool onNewLockPixels(LockRec*) override;
-    void onUnlockPixels() override;
-    size_t getAllocatedSizeInBytes() const override;
-
-    SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return fDM; }
-
-private:
-    SkDiscardableMemory* fDM;
-    size_t               fRB;
-    bool                 fFirstTime;
-    SkColorTable*        fCTable;
-
-    typedef SkPixelRef INHERITED;
-};
-
-SkOneShotDiscardablePixelRef::SkOneShotDiscardablePixelRef(const SkImageInfo& info,
-                                             SkDiscardableMemory* dm,
-                                             size_t rowBytes,
-                                             SkColorTable* ctable)
-    : INHERITED(info)
-    , fDM(dm)
-    , fRB(rowBytes)
-    , fCTable(ctable)
-{
-    SkASSERT(dm->data());
-    fFirstTime = true;
-    SkSafeRef(ctable);
-}
-
-SkOneShotDiscardablePixelRef::~SkOneShotDiscardablePixelRef() {
-    delete fDM;
-    SkSafeUnref(fCTable);
-}
-
-bool SkOneShotDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
-    if (fFirstTime) {
-        // we're already locked
-        SkASSERT(fDM->data());
-        fFirstTime = false;
-        goto SUCCESS;
-    }
-
-    // A previous call to onUnlock may have deleted our DM, so check for that
-    if (nullptr == fDM) {
-        return false;
-    }
-
-    if (!fDM->lock()) {
-        // since it failed, we delete it now, to free-up the resource
-        delete fDM;
-        fDM = nullptr;
-        return false;
-    }
-
-SUCCESS:
-    rec->fPixels = fDM->data();
-    rec->fColorTable = fCTable;
-    rec->fRowBytes = fRB;
-    return true;
-}
-
-void SkOneShotDiscardablePixelRef::onUnlockPixels() {
-    SkASSERT(!fFirstTime);
-    fDM->unlock();
-}
-
-size_t SkOneShotDiscardablePixelRef::getAllocatedSizeInBytes() const {
-    return this->info().getSafeSize(fRB);
-}
-
-class SkResourceCacheDiscardableAllocator : public SkBitmap::Allocator {
-public:
-    SkResourceCacheDiscardableAllocator(SkResourceCache::DiscardableFactory factory) {
-        SkASSERT(factory);
-        fFactory = factory;
-    }
-
-    bool allocPixelRef(SkBitmap*, SkColorTable*) override;
-
-private:
-    SkResourceCache::DiscardableFactory fFactory;
-};
-
-bool SkResourceCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap, SkColorTable* ctable) {
-    size_t size = bitmap->getSize();
-    uint64_t size64 = bitmap->computeSize64();
-    if (0 == size || size64 > (uint64_t)size) {
-        return false;
-    }
-
-    if (kIndex_8_SkColorType == bitmap->colorType()) {
-        if (!ctable) {
-            return false;
-        }
-    } else {
-        ctable = nullptr;
-    }
-
-    SkDiscardableMemory* dm = fFactory(size);
-    if (nullptr == dm) {
-        return false;
-    }
-
-    SkImageInfo info = bitmap->info();
-    bitmap->setPixelRef(
-            sk_make_sp<SkOneShotDiscardablePixelRef>(info, dm, bitmap->rowBytes(), ctable), 0, 0);
-    bitmap->lockPixels();
-    return bitmap->readyToDraw();
-}
-
 SkResourceCache::SkResourceCache(DiscardableFactory factory) {
     this->init();
     fDiscardableFactory = factory;
-
-    fAllocator = new SkResourceCacheDiscardableAllocator(factory);
 }
 
 SkResourceCache::SkResourceCache(size_t byteLimit) {
@@ -217,8 +92,6 @@ SkResourceCache::SkResourceCache(size_t byteLimit) {
 }
 
 SkResourceCache::~SkResourceCache() {
-    SkSafeUnref(fAllocator);
-
     Rec* rec = fHead;
     while (rec) {
         Rec* next = rec->fNext;
@@ -258,18 +131,27 @@ static void make_size_str(size_t size, SkString* str) {
 
 static bool gDumpCacheTransactions;
 
-void SkResourceCache::add(Rec* rec) {
+void SkResourceCache::add(Rec* rec, void* payload) {
     this->checkMessages();
 
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
-    if (nullptr != fHash->find(rec->getKey())) {
-        delete rec;
-        return;
+    if (Rec** preexisting = fHash->find(rec->getKey())) {
+        Rec* prev = *preexisting;
+        if (prev->canBePurged()) {
+            // if it can be purged, the install may fail, so we have to remove it
+            this->remove(prev);
+        } else {
+            // if it cannot be purged, we reuse it and delete the new one
+            prev->postAddInstall(payload);
+            delete rec;
+            return;
+        }
     }
 
     this->addToHead(rec);
     fHash->set(rec);
+    rec->postAddInstall(payload);
 
     if (gDumpCacheTransactions) {
         SkString bytesStr, totalStr;
@@ -284,6 +166,7 @@ void SkResourceCache::add(Rec* rec) {
 }
 
 void SkResourceCache::remove(Rec* rec) {
+    SkASSERT(rec->canBePurged());
     size_t used = rec->bytesUsed();
     SkASSERT(used <= fTotalBytesUsed);
 
@@ -292,6 +175,8 @@ void SkResourceCache::remove(Rec* rec) {
 
     fTotalBytesUsed -= used;
     fCount -= 1;
+
+    //SkDebugf("-RC count [%3d] bytes %d\n", fCount, fTotalBytesUsed);
 
     if (gDumpCacheTransactions) {
         SkString bytesStr, totalStr;
@@ -323,7 +208,9 @@ void SkResourceCache::purgeAsNeeded(bool forcePurge) {
         }
 
         Rec* prev = rec->fPrev;
-        this->remove(rec);
+        if (rec->canBePurged()) {
+            this->remove(rec);
+        }
         rec = prev;
     }
 }
@@ -350,8 +237,11 @@ void SkResourceCache::purgeSharedID(uint64_t sharedID) {
     while (rec) {
         Rec* prev = rec->fPrev;
         if (rec->getKey().getSharedID() == sharedID) {
-//            SkDebugf("purgeSharedID id=%llx rec=%p\n", sharedID, rec);
-            this->remove(rec);
+            // even though the "src" is now dead, caches could still be in-flight, so
+            // we have to check if it can be removed.
+            if (rec->canBePurged()) {
+                this->remove(rec);
+            }
 #ifdef SK_TRACK_PURGE_SHAREDID_HITRATE
             found = true;
 #endif
@@ -587,11 +477,6 @@ SkResourceCache::DiscardableFactory SkResourceCache::GetDiscardableFactory() {
     return get_cache()->discardableFactory();
 }
 
-SkBitmap::Allocator* SkResourceCache::GetAllocator() {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->allocator();
-}
-
 SkCachedData* SkResourceCache::NewCachedData(size_t bytes) {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->newCachedData(bytes);
@@ -627,9 +512,9 @@ bool SkResourceCache::Find(const Key& key, FindVisitor visitor, void* context) {
     return get_cache()->find(key, visitor, context);
 }
 
-void SkResourceCache::Add(Rec* rec) {
+void SkResourceCache::Add(Rec* rec, void* payload) {
     SkAutoMutexAcquire am(gMutex);
-    get_cache()->add(rec);
+    get_cache()->add(rec, payload);
 }
 
 void SkResourceCache::VisitAll(Visitor visitor, void* context) {
