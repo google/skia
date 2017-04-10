@@ -1928,7 +1928,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-arm-Debug-iOS",
         "mastername=fake-master",
@@ -1953,7 +1953,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-arm-Release-iOS",
         "mastername=fake-master",
@@ -1985,7 +1985,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-arm64-Debug-Android",
         "mastername=fake-master",
@@ -2010,7 +2010,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-arm64-Debug-iOS",
         "mastername=fake-master",
@@ -2035,7 +2035,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-arm64-Release-iOS",
         "mastername=fake-master",
@@ -2060,7 +2060,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x64-Release-iOS",
         "mastername=fake-master",
@@ -2085,7 +2085,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x86_64-Debug",
         "mastername=fake-master",
@@ -2110,7 +2110,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x86_64-Debug-CommandBuffer",
         "mastername=fake-master",
@@ -2135,7 +2135,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x86_64-Release",
         "mastername=fake-master",
@@ -2160,7 +2160,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x86_64-Release-CommandBuffer",
         "mastername=fake-master",
@@ -2193,7 +2193,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm-Debug-Android",
         "mastername=fake-master",
@@ -2236,7 +2236,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p",
         "mastername=fake-master",
@@ -2269,7 +2269,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm-Release-Android",
         "mastername=fake-master",
@@ -2312,7 +2312,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm-Release-Chromebook_C100p",
         "mastername=fake-master",
@@ -2345,7 +2345,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm64-Debug-Android",
         "mastername=fake-master",
@@ -2378,7 +2378,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs",
         "mastername=fake-master",
@@ -2411,7 +2411,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -2444,7 +2444,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm64-Release-Android",
         "mastername=fake-master",
@@ -2477,7 +2477,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -2510,7 +2510,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-mips64el-Debug-Android",
         "mastername=fake-master",
@@ -2543,7 +2543,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-mips64el-Release-Android",
         "mastername=fake-master",
@@ -2576,7 +2576,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-mipsel-Debug-Android",
         "mastername=fake-master",
@@ -2609,7 +2609,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-mipsel-Release-Android",
         "mastername=fake-master",
@@ -2642,7 +2642,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x64-Debug-Android",
         "mastername=fake-master",
@@ -2675,7 +2675,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x64-Release-Android",
         "mastername=fake-master",
@@ -2708,7 +2708,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86-Debug-Android",
         "mastername=fake-master",
@@ -2741,7 +2741,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -2774,7 +2774,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86-Release-Android",
         "mastername=fake-master",
@@ -2807,7 +2807,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -2840,7 +2840,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Debug",
         "mastername=fake-master",
@@ -2873,7 +2873,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Debug-ASAN",
         "mastername=fake-master",
@@ -2906,7 +2906,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Debug-MSAN",
         "mastername=fake-master",
@@ -2944,7 +2944,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -2977,7 +2977,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release",
         "mastername=fake-master",
@@ -3010,7 +3010,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-ASAN",
         "mastername=fake-master",
@@ -3043,7 +3043,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Fast",
         "mastername=fake-master",
@@ -3076,7 +3076,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Mini",
         "mastername=fake-master",
@@ -3109,7 +3109,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-TSAN",
         "mastername=fake-master",
@@ -3147,7 +3147,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -3180,7 +3180,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-arm-Debug-Chromecast",
         "mastername=fake-master",
@@ -3213,7 +3213,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-arm-Release-Chromecast",
         "mastername=fake-master",
@@ -3239,7 +3239,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86-Debug",
         "mastername=fake-master",
@@ -3265,7 +3265,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86-Release",
         "mastername=fake-master",
@@ -3291,7 +3291,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Debug",
         "mastername=fake-master",
@@ -3317,7 +3317,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Debug-NoGPU",
         "mastername=fake-master",
@@ -3343,7 +3343,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "mastername=fake-master",
@@ -3369,7 +3369,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release",
         "mastername=fake-master",
@@ -3395,7 +3395,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -3428,7 +3428,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Flutter_Android",
         "mastername=fake-master",
@@ -3454,7 +3454,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Mesa",
         "mastername=fake-master",
@@ -3480,7 +3480,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-NoGPU",
         "mastername=fake-master",
@@ -3506,7 +3506,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-PDFium",
         "mastername=fake-master",
@@ -3532,7 +3532,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths",
         "mastername=fake-master",
@@ -3558,7 +3558,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD",
         "mastername=fake-master",
@@ -3584,7 +3584,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Shared",
         "mastername=fake-master",
@@ -3616,7 +3616,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-Clang-arm64-Release-Android",
         "mastername=fake-master",
@@ -3648,7 +3648,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86-Debug",
         "mastername=fake-master",
@@ -3680,7 +3680,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86-Debug-ANGLE",
         "mastername=fake-master",
@@ -3712,7 +3712,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86-Debug-Exceptions",
         "mastername=fake-master",
@@ -3744,7 +3744,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86-Debug-GDI",
         "mastername=fake-master",
@@ -3776,7 +3776,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86-Release",
         "mastername=fake-master",
@@ -3808,7 +3808,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86-Release-ANGLE",
         "mastername=fake-master",
@@ -3840,7 +3840,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86-Release-GDI",
         "mastername=fake-master",
@@ -3872,7 +3872,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Debug",
         "mastername=fake-master",
@@ -3904,7 +3904,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -3936,7 +3936,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Debug-GDI",
         "mastername=fake-master",
@@ -3973,7 +3973,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -4005,7 +4005,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Release",
         "mastername=fake-master",
@@ -4037,7 +4037,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -4069,7 +4069,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Release-GDI",
         "mastername=fake-master",
@@ -4106,7 +4106,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_compile",
+        "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -4133,7 +4133,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_RecreateSKPs",
+        "recreate_skps",
         "repository=<(REPO)",
         "buildername=Housekeeper-Nightly-RecreateSKPs_Canary",
         "mastername=fake-master",
@@ -4170,7 +4170,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_housekeeper",
+        "housekeeper",
         "repository=<(REPO)",
         "buildername=Housekeeper-PerCommit",
         "mastername=fake-master",
@@ -4222,7 +4222,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_infra",
+        "infra",
         "repository=<(REPO)",
         "buildername=Housekeeper-PerCommit-InfraTests",
         "mastername=fake-master",
@@ -4249,7 +4249,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_RecreateSKPs",
+        "recreate_skps",
         "repository=<(REPO)",
         "buildername=Housekeeper-Weekly-RecreateSKPs",
         "mastername=fake-master",
@@ -4299,7 +4299,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
         "mastername=fake-master",
@@ -4350,7 +4350,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "mastername=fake-master",
@@ -4401,7 +4401,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android",
         "mastername=fake-master",
@@ -4452,7 +4452,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android",
         "mastername=fake-master",
@@ -4503,7 +4503,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android",
         "mastername=fake-master",
@@ -4554,7 +4554,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "mastername=fake-master",
@@ -4605,7 +4605,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android",
         "mastername=fake-master",
@@ -4656,7 +4656,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android",
         "mastername=fake-master",
@@ -4707,7 +4707,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android",
         "mastername=fake-master",
@@ -4758,7 +4758,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
         "mastername=fake-master",
@@ -4809,7 +4809,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android",
         "mastername=fake-master",
@@ -4860,7 +4860,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -4911,7 +4911,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
         "mastername=fake-master",
@@ -4962,7 +4962,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -5013,7 +5013,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android",
         "mastername=fake-master",
@@ -5064,7 +5064,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android",
         "mastername=fake-master",
@@ -5115,7 +5115,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android",
         "mastername=fake-master",
@@ -5166,7 +5166,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android",
         "mastername=fake-master",
@@ -5217,7 +5217,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android",
         "mastername=fake-master",
@@ -5268,7 +5268,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android",
         "mastername=fake-master",
@@ -5319,7 +5319,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
         "mastername=fake-master",
@@ -5370,7 +5370,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -5421,7 +5421,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "mastername=fake-master",
@@ -5472,7 +5472,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -5523,7 +5523,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android",
         "mastername=fake-master",
@@ -5574,7 +5574,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
         "mastername=fake-master",
@@ -5625,7 +5625,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
         "mastername=fake-master",
@@ -5676,7 +5676,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
         "mastername=fake-master",
@@ -5727,7 +5727,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
         "mastername=fake-master",
@@ -5778,7 +5778,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android",
         "mastername=fake-master",
@@ -5829,7 +5829,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -5880,7 +5880,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android",
         "mastername=fake-master",
@@ -5931,7 +5931,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -5982,7 +5982,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android",
         "mastername=fake-master",
@@ -6033,7 +6033,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
         "mastername=fake-master",
@@ -6074,7 +6074,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_skpbench",
+        "skpbench",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
         "mastername=fake-master",
@@ -6115,7 +6115,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_skpbench",
+        "skpbench",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench",
         "mastername=fake-master",
@@ -6165,7 +6165,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug",
         "mastername=fake-master",
@@ -6215,7 +6215,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release",
         "mastername=fake-master",
@@ -6256,7 +6256,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug",
         "mastername=fake-master",
@@ -6297,7 +6297,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
         "mastername=fake-master",
@@ -6347,7 +6347,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug",
         "mastername=fake-master",
@@ -6397,7 +6397,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release",
         "mastername=fake-master",
@@ -6448,7 +6448,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug",
         "mastername=fake-master",
@@ -6499,7 +6499,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",
         "mastername=fake-master",
@@ -6549,7 +6549,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug",
         "mastername=fake-master",
@@ -6599,7 +6599,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release",
         "mastername=fake-master",
@@ -6649,7 +6649,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer",
         "mastername=fake-master",
@@ -6700,7 +6700,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug",
         "mastername=fake-master",
@@ -6756,7 +6756,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
         "mastername=fake-master",
@@ -6812,7 +6812,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
         "mastername=fake-master",
@@ -6863,7 +6863,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
@@ -6919,7 +6919,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
         "mastername=fake-master",
@@ -6970,7 +6970,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
         "mastername=fake-master",
@@ -7025,7 +7025,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
         "mastername=fake-master",
@@ -7080,7 +7080,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
         "mastername=fake-master",
@@ -7131,7 +7131,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
         "mastername=fake-master",
@@ -7182,7 +7182,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
         "mastername=fake-master",
@@ -7233,7 +7233,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "mastername=fake-master",
@@ -7284,7 +7284,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
@@ -7310,7 +7310,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_ct_skps",
+        "ct_skps",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs",
         "mastername=fake-master",
@@ -7335,7 +7335,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_ct_skps",
+        "ct_skps",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs",
         "mastername=fake-master",
@@ -7384,7 +7384,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
         "mastername=fake-master",
@@ -7434,7 +7434,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
         "mastername=fake-master",
@@ -7484,7 +7484,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "mastername=fake-master",
@@ -7534,7 +7534,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
         "mastername=fake-master",
@@ -7584,7 +7584,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
         "mastername=fake-master",
@@ -7634,7 +7634,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "mastername=fake-master",
@@ -7689,7 +7689,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug",
         "mastername=fake-master",
@@ -7744,7 +7744,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
         "mastername=fake-master",
@@ -7799,7 +7799,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "mastername=fake-master",
@@ -7859,7 +7859,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -7914,7 +7914,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "mastername=fake-master",
@@ -7974,7 +7974,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -8029,7 +8029,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug",
         "mastername=fake-master",
@@ -8084,7 +8084,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release",
         "mastername=fake-master",
@@ -8139,7 +8139,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug",
         "mastername=fake-master",
@@ -8194,7 +8194,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
         "mastername=fake-master",
@@ -8244,7 +8244,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug",
         "mastername=fake-master",
@@ -8294,7 +8294,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -8344,7 +8344,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -8394,7 +8394,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
         "mastername=fake-master",
@@ -8444,7 +8444,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -8494,7 +8494,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -8544,7 +8544,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
         "mastername=fake-master",
@@ -8594,7 +8594,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -8644,7 +8644,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -8694,7 +8694,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "mastername=fake-master",
@@ -8744,7 +8744,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -8794,7 +8794,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -8844,7 +8844,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "mastername=fake-master",
@@ -8894,7 +8894,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -8944,7 +8944,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -8995,7 +8995,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug",
         "mastername=fake-master",
@@ -9046,7 +9046,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release",
         "mastername=fake-master",
@@ -9096,7 +9096,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug",
         "mastername=fake-master",
@@ -9146,7 +9146,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release",
         "mastername=fake-master",
@@ -9196,7 +9196,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "mastername=fake-master",
@@ -9246,7 +9246,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -9296,7 +9296,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
         "mastername=fake-master",
@@ -9346,7 +9346,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -9396,7 +9396,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug",
         "mastername=fake-master",
@@ -9446,7 +9446,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release",
         "mastername=fake-master",
@@ -9497,7 +9497,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
         "mastername=fake-master",
@@ -9548,7 +9548,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -9599,7 +9599,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
         "mastername=fake-master",
@@ -9650,7 +9650,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -9700,7 +9700,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
         "mastername=fake-master",
@@ -9750,7 +9750,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -9800,7 +9800,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -9850,7 +9850,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
         "mastername=fake-master",
@@ -9900,7 +9900,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -9950,7 +9950,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -10001,7 +10001,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
         "mastername=fake-master",
@@ -10052,7 +10052,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
         "mastername=fake-master",
@@ -10103,7 +10103,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
         "mastername=fake-master",
@@ -10154,7 +10154,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
@@ -10204,7 +10204,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
         "mastername=fake-master",
@@ -10254,7 +10254,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_perf",
+        "perf",
         "repository=<(REPO)",
         "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "mastername=fake-master",
@@ -10305,7 +10305,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
         "mastername=fake-master",
@@ -10356,7 +10356,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "mastername=fake-master",
@@ -10407,7 +10407,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android",
         "mastername=fake-master",
@@ -10458,7 +10458,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-Android",
         "mastername=fake-master",
@@ -10509,7 +10509,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android",
         "mastername=fake-master",
@@ -10560,7 +10560,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-Android",
         "mastername=fake-master",
@@ -10611,7 +10611,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-Android",
         "mastername=fake-master",
@@ -10662,7 +10662,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-Android",
         "mastername=fake-master",
@@ -10713,7 +10713,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-Android",
         "mastername=fake-master",
@@ -10764,7 +10764,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-Android",
         "mastername=fake-master",
@@ -10815,7 +10815,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android",
         "mastername=fake-master",
@@ -10866,7 +10866,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -10917,7 +10917,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
         "mastername=fake-master",
@@ -10968,7 +10968,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -11019,7 +11019,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Debug-Android",
         "mastername=fake-master",
@@ -11070,7 +11070,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android",
         "mastername=fake-master",
@@ -11121,7 +11121,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android",
         "mastername=fake-master",
@@ -11172,7 +11172,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android",
         "mastername=fake-master",
@@ -11223,7 +11223,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android",
         "mastername=fake-master",
@@ -11274,7 +11274,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android",
         "mastername=fake-master",
@@ -11325,7 +11325,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
         "mastername=fake-master",
@@ -11376,7 +11376,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -11427,7 +11427,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "mastername=fake-master",
@@ -11478,7 +11478,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -11529,7 +11529,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android",
         "mastername=fake-master",
@@ -11580,7 +11580,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
         "mastername=fake-master",
@@ -11631,7 +11631,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
         "mastername=fake-master",
@@ -11682,7 +11682,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android",
         "mastername=fake-master",
@@ -11733,7 +11733,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
         "mastername=fake-master",
@@ -11784,7 +11784,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -11835,7 +11835,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
         "mastername=fake-master",
@@ -11886,7 +11886,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -11937,7 +11937,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android",
         "mastername=fake-master",
@@ -11988,7 +11988,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
         "mastername=fake-master",
@@ -12039,7 +12039,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android",
         "mastername=fake-master",
@@ -12090,7 +12090,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
@@ -12141,7 +12141,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android",
         "mastername=fake-master",
@@ -12192,7 +12192,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
@@ -12242,7 +12242,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug",
         "mastername=fake-master",
@@ -12292,7 +12292,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release",
         "mastername=fake-master",
@@ -12342,7 +12342,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug",
         "mastername=fake-master",
@@ -12392,7 +12392,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release",
         "mastername=fake-master",
@@ -12443,7 +12443,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug",
         "mastername=fake-master",
@@ -12494,7 +12494,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",
         "mastername=fake-master",
@@ -12544,7 +12544,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug",
         "mastername=fake-master",
@@ -12594,7 +12594,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer",
         "mastername=fake-master",
@@ -12644,7 +12644,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release",
         "mastername=fake-master",
@@ -12695,7 +12695,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug",
         "mastername=fake-master",
@@ -12751,7 +12751,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
         "mastername=fake-master",
@@ -12807,7 +12807,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
         "mastername=fake-master",
@@ -12858,7 +12858,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
@@ -12914,7 +12914,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
         "mastername=fake-master",
@@ -12965,7 +12965,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
         "mastername=fake-master",
@@ -13021,7 +13021,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN",
         "mastername=fake-master",
@@ -13076,7 +13076,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
         "mastername=fake-master",
@@ -13131,7 +13131,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
         "mastername=fake-master",
@@ -13186,7 +13186,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN",
         "mastername=fake-master",
@@ -13237,7 +13237,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
         "mastername=fake-master",
@@ -13288,7 +13288,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
         "mastername=fake-master",
@@ -13314,7 +13314,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_ct_skps",
+        "ct_skps",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
         "mastername=fake-master",
@@ -13339,7 +13339,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_ct_skps",
+        "ct_skps",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs",
         "mastername=fake-master",
@@ -13364,7 +13364,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_ct_skps",
+        "ct_skps",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
         "mastername=fake-master",
@@ -13414,7 +13414,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "mastername=fake-master",
@@ -13465,7 +13465,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
@@ -13516,7 +13516,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
         "mastername=fake-master",
@@ -13566,7 +13566,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
         "mastername=fake-master",
@@ -13616,7 +13616,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
         "mastername=fake-master",
@@ -13666,7 +13666,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext",
         "mastername=fake-master",
@@ -13716,7 +13716,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "mastername=fake-master",
@@ -13766,7 +13766,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
         "mastername=fake-master",
@@ -13816,7 +13816,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
         "mastername=fake-master",
@@ -13866,7 +13866,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "mastername=fake-master",
@@ -13921,7 +13921,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug",
         "mastername=fake-master",
@@ -13976,7 +13976,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release",
         "mastername=fake-master",
@@ -14031,7 +14031,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "mastername=fake-master",
@@ -14091,7 +14091,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -14146,7 +14146,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "mastername=fake-master",
@@ -14206,7 +14206,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -14261,7 +14261,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug",
         "mastername=fake-master",
@@ -14316,7 +14316,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release",
         "mastername=fake-master",
@@ -14371,7 +14371,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug",
         "mastername=fake-master",
@@ -14426,7 +14426,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
         "mastername=fake-master",
@@ -14476,7 +14476,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug",
         "mastername=fake-master",
@@ -14526,7 +14526,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -14576,7 +14576,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -14626,7 +14626,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release",
         "mastername=fake-master",
@@ -14676,7 +14676,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -14726,7 +14726,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -14776,7 +14776,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
         "mastername=fake-master",
@@ -14826,7 +14826,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -14876,7 +14876,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -14926,7 +14926,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug",
         "mastername=fake-master",
@@ -14976,7 +14976,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -15026,7 +15026,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -15076,7 +15076,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release",
         "mastername=fake-master",
@@ -15126,7 +15126,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -15176,7 +15176,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -15227,7 +15227,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Debug",
         "mastername=fake-master",
@@ -15278,7 +15278,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-NUC6i7KYK-GPU-GTX960-x86_64-Release",
         "mastername=fake-master",
@@ -15328,7 +15328,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug",
         "mastername=fake-master",
@@ -15378,7 +15378,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release",
         "mastername=fake-master",
@@ -15428,7 +15428,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
         "mastername=fake-master",
@@ -15478,7 +15478,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -15528,7 +15528,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
         "mastername=fake-master",
@@ -15578,7 +15578,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug",
         "mastername=fake-master",
@@ -15628,7 +15628,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release",
         "mastername=fake-master",
@@ -15679,7 +15679,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
         "mastername=fake-master",
@@ -15730,7 +15730,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -15781,7 +15781,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
         "mastername=fake-master",
@@ -15832,7 +15832,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -15882,7 +15882,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
         "mastername=fake-master",
@@ -15932,7 +15932,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
         "mastername=fake-master",
@@ -15982,7 +15982,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
         "mastername=fake-master",
@@ -16032,7 +16032,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
         "mastername=fake-master",
@@ -16082,7 +16082,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
         "mastername=fake-master",
@@ -16132,7 +16132,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
         "mastername=fake-master",
@@ -16183,7 +16183,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
         "mastername=fake-master",
@@ -16234,7 +16234,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
         "mastername=fake-master",
@@ -16285,7 +16285,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
         "mastername=fake-master",
@@ -16336,7 +16336,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
         "mastername=fake-master",
@@ -16387,7 +16387,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
@@ -16438,7 +16438,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
         "mastername=fake-master",
@@ -16488,7 +16488,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
         "mastername=fake-master",
@@ -16538,7 +16538,7 @@
       "extra_args": [
         "--workdir",
         "../../..",
-        "swarm_test",
+        "test",
         "repository=<(REPO)",
         "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "mastername=fake-master",
