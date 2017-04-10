@@ -187,7 +187,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "[DEPOT_TOOLS]:%(PATH)s"
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
     },
     "name": "Recreate SKPs"
   },
@@ -247,7 +247,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "[DEPOT_TOOLS]:%(PATH)s"
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
     },
     "name": "Upload SKPs"
   },

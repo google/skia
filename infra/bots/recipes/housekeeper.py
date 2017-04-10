@@ -6,6 +6,7 @@
 # Recipe for the Skia PerCommit Housekeeper.
 
 DEPS = [
+  'depot_tools/bot_update',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -35,7 +36,7 @@ def RunSteps(api):
   # TODO(borenet): Detect static initializers?
 
   with api.step.context({'cwd': cwd}):
-    gsutil_path = api.path['depot_tools'].join('gsutil.py')
+    gsutil_path = api.bot_update._module.PACKAGE_REPO_ROOT.join('gsutil.py')
     if not api.vars.is_trybot:
       api.run(
         api.step,

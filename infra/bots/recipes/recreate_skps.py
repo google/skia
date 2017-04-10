@@ -107,7 +107,8 @@ def RunSteps(api):
   api.file.makedirs('skp_output', output_dir)
 
   # Capture the SKPs.
-  path_var= api.path.pathsep.join([str(api.path['depot_tools']), '%(PATH)s'])
+  path_var= api.path.pathsep.join([
+      str(api.gclient._module.PACKAGE_REPO_ROOT), '%(PATH)s'])
   env = {
       'CHROME_HEADLESS': '1',
       'PATH': path_var,
