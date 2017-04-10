@@ -3,8 +3,14 @@ MSAN, ASAN, & TSAN
 
 *Testing Skia with memory, address, and thread santizers.*
 
-Get Clang binaries
-------------------
+Downloading Clang Binaries (Googlers Only)
+------------------------------------------
+
+    CLANGDIR="${HOME}/clang"
+    python infra/bots/assets/clang_linux/download.py -t $CLANGDIR
+
+Building Clang from scratch
+---------------------------
 
     CLANGDIR="${HOME}/clang"
 
