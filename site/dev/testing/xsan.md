@@ -3,8 +3,17 @@ MSAN, ASAN, & TSAN
 
 *Testing Skia with memory, address, and thread santizers.*
 
-Get Clang binaries
-------------------
+Downloading Clang Binaries (Googlers Only)
+------------------------------------------
+
+    CLANGDIR="${HOME}/clang"
+    mkdir -p $CLANGDIR && cd $CLANGDIR
+    cipd install skia/bots/clang_linux version:4
+
+Note that the 4 at the end of the command corresponds to `infra/bots/assets/clang_linux/VERSION`.
+
+Building Clang from scratch
+---------------------------
 
     CLANGDIR="${HOME}/clang"
 
