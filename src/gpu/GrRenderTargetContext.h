@@ -77,7 +77,7 @@ public:
      * Provides a perfomance hint that the render target's contents are allowed
      * to become undefined.
      */
-    void discard();
+    void discard3();
 
     /**
      * Clear the entire or rect of the render target, ignoring any clips.
@@ -483,7 +483,7 @@ private:
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
-    GrRenderTargetOpList*             fOpList;
+    sk_sp<GrRenderTargetOpList>       fOpList1;
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
     sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;

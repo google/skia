@@ -42,6 +42,13 @@ void GrTextureOpList::dump() const {
                     clippedBounds.fBottom);
     }
 }
+
+void GrTextureOpList::validateTargetsSingleRenderTarget() const {
+    SkASSERT(1 == fRecordedOps.count() || 0 == fRecordedOps.count());
+
+
+}
+
 #endif
 
 void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
@@ -56,7 +63,7 @@ void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
     }
 }
 
-bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
+bool GrTextureOpList::executeOps1(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }
@@ -100,7 +107,7 @@ void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op,
                                GrGpuResource::UniqueID resourceUniqueID,
                                GrSurfaceProxy::UniqueID proxyUniqueID) {
     // A closed GrOpList should never receive new/more ops
-    SkASSERT(!this->isClosed());
+    SkASSERT(!this->isClosed1());
 
     GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), resourceUniqueID, proxyUniqueID);
     GrOP_INFO("Re-Recording (%s, B%u)\n"
