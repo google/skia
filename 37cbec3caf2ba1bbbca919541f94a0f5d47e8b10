@@ -16,6 +16,24 @@
       "revId": "37cbec3caf2ba1bbbca919541f94a0f5d47e8b10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fac15086_3a014000",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-10T18:34:00Z",
+      "side": 1,
+      "message": "Done.  PTAL... the logic has changed here a bit to handle the gamuts correctly.\n\nWe use fOrigColors when drawing into legacy (null dstCS) destinations, and fOrigColors4f when not.\n\nfOrigColors is loaded with no non-linear transform (legacy style) and is not gamut transformed (legacy style).\n\nfOrigColors4f (already linear) is transformed from fColorSpace gamut to dstCS gamut.",
+      "parentUuid": "74ae40ad_9d9b89e1",
+      "revId": "37cbec3caf2ba1bbbca919541f94a0f5d47e8b10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
