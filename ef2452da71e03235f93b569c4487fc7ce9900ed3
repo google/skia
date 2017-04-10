@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "013fe63a_2939bb0b",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-10T19:54:10Z",
+      "side": 1,
+      "message": "we can add more or different versions of these Make calls here, but these were the versions that seemed most useful",
+      "range": {
+        "startLine": 135,
+        "startChar": 4,
+        "endLine": 135,
+        "endChar": 57
+      },
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
