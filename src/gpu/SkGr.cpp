@@ -158,13 +158,9 @@ static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
     return pmap;
 }
 
-sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
-                                                   const SkPixmap& pixmap,
-                                                   SkBudgeted budgeted) {
-    if (!SkImageInfoIsValid(pixmap.info())) {
-        return nullptr;
-    }
-
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxyNoCheck(GrResourceProvider* resourceProvider,
+                                                          const SkPixmap& pixmap,
+                                                          SkBudgeted budgeted) {
     SkBitmap tmpBitmap;
     SkPixmap tmpPixmap;
     GrSurfaceDesc desc;
@@ -176,6 +172,16 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceP
     }
 
     return nullptr;
+}
+
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
+                                                   const SkPixmap& pixmap,
+                                                   SkBudgeted budgeted) {
+    if (!SkImageInfoIsValid(pixmap.info())) {
+        return nullptr;
+    }
+
+    return GrUploadPixmapToTextureProxyNoCheck(resourceProvider, pixmap, budgeted);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
