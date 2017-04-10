@@ -717,6 +717,34 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "adb",
       "push",
       "[START_DIR]/out/Release/dm",
@@ -737,7 +765,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "set -x; /data/local/tmp/dm --undefok --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 master client.skia builder Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android build_number 5 --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch x86 compiler Clang configuration Release cpu_or_gpu CPU cpu_or_gpu_value SSE4 extra_config GN_Android model NexusPlayer os Android --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --nogpu --config 8888 srgb gles glessrgb --src tests gm image colorImage svg --blacklist glessrgb image _ _ 8888 image _ _ _ test _ GrShape --match ~ResourceCache --noRAW_threading; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/dm --undefok --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 builder Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android swarming_bot_id \"\" swarming_task_id \"\" --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch x86 compiler Clang configuration Release cpu_or_gpu CPU cpu_or_gpu_value SSE4 extra_config GN_Android model NexusPlayer os Android --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --nogpu --config 8888 srgb gles glessrgb --src tests gm image colorImage svg --blacklist glessrgb image _ _ 8888 image _ _ _ test _ GrShape --match ~ResourceCache --noRAW_threading; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/dm.sh"
     ],
     "env": {

@@ -38,13 +38,10 @@ def RunSteps(api):
       str(now.month).zfill(2), str(now.day).zfill(2), str(now.hour).zfill(2),
       builder_name))
 
-  issue = str(api.properties.get('issue', ''))
-  patchset = str(api.properties.get('patchset', ''))
-  if api.properties.get('patch_storage', '') == 'gerrit':
-    issue = str(api.properties['patch_issue'])
-    patchset = str(api.properties['patch_set'])
+  issue = api.properties.get('patch_issue')
+  patchset = api.properties.get('patch_set')
   if issue and patchset:
-    gs_path = '/'.join(('trybot', gs_path, issue, patchset))
+    gs_path = '/'.join(('trybot', gs_path, str(issue), str(patchset)))
 
   dst = '/'.join((
       'gs://%s' % api.properties['gs_bucket'], gs_path, basename))
@@ -72,21 +69,10 @@ def GenTests(api):
                    gs_bucket='skia-perf',
                    revision='abc123',
                    path_config='kitchen',
-                   issue='12345',
-                   patchset='1002')
-  )
-
-  yield (
-      api.test('recipe_with_gerrit_patch') +
-      api.properties(
-          buildername=builder,
-          gs_bucket='skia-perf',
-          revision='abc123',
-          path_config='kitchen',
-          patch_storage='gerrit') +
-      api.properties.tryserver(
-          buildername=builder,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      )
+                   patch_storage='gerrit') +
+    api.properties.tryserver(
+        buildername=builder,
+        gerrit_project='skia',
+        gerrit_url='https://skia-review.googlesource.com/',
+    )
   )

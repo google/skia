@@ -83,14 +83,11 @@ def RunSteps(api):
       str(int(calendar.timegm(now.utctimetuple())))])
 
   # Trybot results are further siloed by issue/patchset.
-  issue = str(api.properties.get('issue', ''))
-  patchset = str(api.properties.get('patchset', ''))
-  if api.properties.get('patch_storage', '') == 'gerrit':
-    issue = str(api.properties['patch_issue'])
-    patchset = str(api.properties['patch_set'])
+  issue = api.properties.get('patch_issue')
+  patchset = api.properties.get('patch_set')
   if issue and patchset:
     summary_dest_path = '/'.join((
-        'trybot', summary_dest_path, issue, patchset))
+        'trybot', summary_dest_path, str(issue), str(patchset)))
 
   summary_dest_path = 'gs://%s/%s' % (api.properties['gs_bucket'],
                                       summary_dest_path)
@@ -133,17 +130,7 @@ def GenTests(api):
 
   builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot'
   yield (
-    api.test('trybot') +
-    api.properties(buildername=builder,
-                   gs_bucket='skia-infra-gm',
-                   revision='abc123',
-                   path_config='kitchen',
-                   issue='12345',
-                   patchset='1002')
-  )
-
-  yield (
-      api.test('recipe_with_gerrit_patch') +
+      api.test('trybot') +
       api.properties(
           buildername=builder,
           gs_bucket='skia-infra-gm',

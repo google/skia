@@ -138,17 +138,12 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  mastername = 'client.skia.compile'
-  slavename = 'skiabot-linux-swarm-000'
   builder = 'Housekeeper-Nightly-RecreateSKPs_Canary'
   yield (
       api.test(builder) +
       api.properties(buildername=builder,
-                     mastername=mastername,
-                     slavename=slavename,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.path.exists(api.path['start_dir'].join('skp_output'))
@@ -158,11 +153,8 @@ def GenTests(api):
   yield (
       api.test(builder) +
       api.properties(buildername=builder,
-                     mastername=mastername,
-                     slavename=slavename,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.path.exists(api.path['start_dir'].join('skp_output'))
@@ -171,11 +163,8 @@ def GenTests(api):
   yield (
       api.test('failed_upload') +
       api.properties(buildername=builder,
-                     mastername=mastername,
-                     slavename=slavename,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.path.exists(api.path['start_dir'].join('skp_output')) +
