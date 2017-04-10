@@ -45,6 +45,30 @@
       "revId": "2e07db328f51750cca0beabde054e8702f717a53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe411218_b6bb106e",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T16:26:24Z",
+      "side": 1,
+      "message": "I thought about this but I plan to unify this with another enum class declared in GrXPFactory anyway.",
+      "parentUuid": "1c148104_1859c756",
+      "range": {
+        "startLine": 120,
+        "startChar": 6,
+        "endLine": 120,
+        "endChar": 0
+      },
+      "revId": "2e07db328f51750cca0beabde054e8702f717a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
