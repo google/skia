@@ -99,9 +99,6 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
                                            const GrClip& clip,
                                            const SkRect& opBounds,
                                            GrXferProcessor::DstTexture* dstTexture) {
-    SkRect bounds = opBounds;
-    bounds.outset(0.5f, 0.5f);
-
     if (this->caps()->textureBarrierSupport()) {
         if (GrTexture* rtTex = rt->asTexture()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
@@ -112,12 +109,15 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
         }
     }
 
-    SkIRect copyRect;
-    clip.getConservativeBounds(rt->width(), rt->height(), &copyRect);
+    SkIRect copyRect = SkIRect::MakeWH(rt->width(), rt->height());
 
+    SkIRect clippedRect;
+    clip.getConservativeBounds(rt->width(), rt->height(), &clippedRect);
     SkIRect drawIBounds;
-    bounds.roundOut(&drawIBounds);
-    if (!copyRect.intersect(drawIBounds)) {
+    opBounds.roundOut(&drawIBounds);
+    // Cover up for any precision issues by outsetting the op bounds a pixel in each direction.
+    drawIBounds.outset(1, 1);
+    if (!clippedRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "Missed an early reject. "
                                    "Bailing on draw from setupDstTexture.\n");
@@ -128,26 +128,45 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrSurfaceDesc desc;
-    if (!fGpu->initDescForDstCopy(rt, &desc)) {
+    bool rectsMustMatch = false;
+    bool disallowSubrect = false;
+    if (!fGpu->initDescForDstCopy(rt, &desc, &rectsMustMatch, &disallowSubrect)) {
         desc.fOrigin = kDefault_GrSurfaceOrigin;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fConfig = rt->config();
     }
 
-    desc.fWidth = copyRect.width();
-    desc.fHeight = copyRect.height();
+    if (!disallowSubrect) {
+        copyRect = clippedRect;
+    }
 
+    SkIPoint dstPoint;
+    SkIPoint dstOffset;
     static const uint32_t kFlags = 0;
-    sk_sp<GrTexture> copy(fResourceProvider->createApproxTexture(desc, kFlags));
+    sk_sp<GrTexture> copy;
+    if (rectsMustMatch) {
+        SkASSERT(desc.fOrigin == rt->origin());
+        desc.fWidth = rt->width();
+        desc.fHeight = rt->height();
+        dstPoint = {copyRect.fLeft, copyRect.fTop};
+        dstOffset = {0, 0};
+        copy.reset(fContext->resourceProvider()->createTexture(desc, SkBudgeted::kYes, kFlags));
+    } else {
+        desc.fWidth = copyRect.width();
+        desc.fHeight = copyRect.height();
+        dstPoint = {0, 0};
+        dstOffset = {copyRect.fLeft, copyRect.fTop};
+        copy.reset(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
+    }
 
     if (!copy) {
         SkDebugf("Failed to create temporary copy of destination texture.\n");
         return;
     }
-    SkIPoint dstPoint = {0, 0};
-    this->copySurface(copy.get(), rt, copyRect, dstPoint);
+
+    fGpu->copySurface(copy.get(), rt, copyRect, dstPoint);
     dstTexture->setTexture(std::move(copy));
-    dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
+    dstTexture->setOffset(dstOffset);
 }
 
 void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
