@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74ae40ad_9d9b89e1",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-10T17:47:31Z",
+      "side": 1,
+      "message": "swizzle_rb(Sk4f_fromL32(fOrigColors[i])).store(\u0026c) ?",
+      "revId": "37cbec3caf2ba1bbbca919541f94a0f5d47e8b10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
