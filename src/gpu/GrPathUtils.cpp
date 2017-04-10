@@ -617,15 +617,16 @@ static int calc_inverse_transpose_power_basis_matrix(const SkPoint pts[4], SkMat
     }
 
     // The matrix is 3x4. In order to invert it, we first need to make it square by throwing out one
-    // of the top three rows. We toss the row that leaves us with the largest determinant. Since the
-    // right column will be [0 0 1], the determinant reduces to x0*y1 - y0*x1.
-    SkScalar det[4];
-    SkScalar4 DETX1 = SkNx_shuffle<1,0,0,3>(X), DETY1 = SkNx_shuffle<1,0,0,3>(Y);
-    SkScalar4 DETX2 = SkNx_shuffle<2,2,1,3>(X), DETY2 = SkNx_shuffle<2,2,1,3>(Y);
-    (DETX1 * DETY2 - DETY1 * DETX2).store(det);
-    const int skipRow = det[0] > det[2] ? (det[0] > det[1] ? 0 : 1)
-                                        : (det[1] > det[2] ? 1 : 2);
-    const SkScalar rdet = 1 / det[skipRow];
+    // of the top three rows. We toss the row that leaves us with the largest absolute determinant.
+    // Since the right column will be [0 0 1], the determinant reduces to x0*y1 - y0*x1.
+    SkScalar absDet[4];
+    const SkScalar4 DETX1 = SkNx_shuffle<1,0,0,3>(X), DETY1 = SkNx_shuffle<1,0,0,3>(Y);
+    const SkScalar4 DETX2 = SkNx_shuffle<2,2,1,3>(X), DETY2 = SkNx_shuffle<2,2,1,3>(Y);
+    const SkScalar4 DET = DETX1 * DETY2 - DETY1 * DETX2;
+    DET.abs().store(absDet);
+    const int skipRow = absDet[0] > absDet[2] ? (absDet[0] > absDet[1] ? 0 : 1)
+                                              : (absDet[1] > absDet[2] ? 1 : 2);
+    const SkScalar rdet = 1 / DET[skipRow];
     const int row0 = (0 != skipRow) ? 0 : 1;
     const int row1 = (2 == skipRow) ? 1 : 2;
 
