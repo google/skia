@@ -25,6 +25,7 @@ class SkPicture;
 class SkPixelSerializer;
 class SkString;
 class SkSurface;
+class GrBackendTexture;
 class GrContext;
 class GrContextThreadSafeProxy;
 class GrTexture;
@@ -114,7 +115,6 @@ public:
                                           ReleaseContext rc) {
         return MakeFromTexture(ctx, desc, at, nullptr, trp, rc);
     }
-
     /**
     *  Create a new image from the specified descriptor. The underlying platform texture must stay
     *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
@@ -126,12 +126,48 @@ public:
                                           sk_sp<SkColorSpace>, TextureReleaseProc, ReleaseContext);
 
     /**
+     *  Create a new image from the specified descriptor. Note - the caller is responsible for
+     *  managing the lifetime of the underlying platform texture.
+     *
+     *  Will return NULL if the specified descriptor is unsupported.
+     */
+    static sk_sp<SkImage> MakeFromTexture(GrContext* ctx,
+                                          const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                          SkAlphaType at, sk_sp<SkColorSpace> cs) {
+        return MakeFromTexture(ctx, tex, origin, at, cs, nullptr, nullptr);
+    }
+
+    /**
+     *  Create a new image from the GrBackendTexture. The underlying platform texture must stay
+     *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
+     *  no longer is holding a reference to it.
+     *
+     *  Will return NULL if the specified descriptor is unsupported.
+     */
+    static sk_sp<SkImage> MakeFromTexture(GrContext*,
+                                          const GrBackendTexture&, GrSurfaceOrigin origin,
+                                          SkAlphaType, sk_sp<SkColorSpace>,
+                                          TextureReleaseProc, ReleaseContext);
+
+
+    /**
      *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the
      *  texture when the image is released.
      *
      *  Will return NULL if the specified descriptor is unsupported.
      */
     static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&,
+                                                 SkAlphaType = kPremul_SkAlphaType,
+                                                 sk_sp<SkColorSpace> = nullptr);
+
+    /**
+     *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the
+     *  texture when the image is released.
+     *
+     *  Will return NULL if the specified descriptor is unsupported.
+     */
+    static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext*,
+                                                 const GrBackendTexture&, GrSurfaceOrigin,
                                                  SkAlphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> = nullptr);
 

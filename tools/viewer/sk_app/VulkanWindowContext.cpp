@@ -175,8 +175,8 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
     bool wantSRGB = srgbColorSpace == params.fColorSpace;
     for (uint32_t i = 0; i < surfaceFormatCount; ++i) {
-        GrPixelConfig config;
-        if (GrVkFormatToPixelConfig(surfaceFormats[i].format, &config) &&
+        GrPixelConfig config = GrVkFormatToPixelConfig(surfaceFormats[i].format);
+        if (kUnknown_GrPixelConfig != config &&
             GrPixelConfigIsSRGB(config) == wantSRGB) {
             surfaceFormat = surfaceFormats[i].format;
             colorSpace = surfaceFormats[i].colorSpace;
@@ -250,7 +250,8 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
 }
 
 void VulkanWindowContext::createBuffers(VkFormat format) {
-    GrVkFormatToPixelConfig(format, &fPixelConfig);
+    fPixelConfig = GrVkFormatToPixelConfig(format);
+    SkASSERT(kUnknown_GrPixelConfig != fPixelConfig);
 
     fGetSwapchainImagesKHR(fBackendContext->fDevice, fSwapchain, &fImageCount, nullptr);
     SkASSERT(fImageCount);

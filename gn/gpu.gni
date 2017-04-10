@@ -8,6 +8,7 @@ _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_gpu_sources = [
+  "$_include/gpu/GrBackendSurface.h",
   "$_include/gpu/GrBlend.h",
   "$_include/gpu/GrBuffer.h",
   "$_include/gpu/GrCaps.h",
@@ -63,6 +64,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrAuditTrail.cpp",
   "$_src/gpu/GrAutoLocaleSetter.h",
   "$_src/gpu/GrAllocator.h",
+  "$_src/gpu/GrBackendSurface.cpp",
   "$_src/gpu/GrBitmapTextureMaker.cpp",
   "$_src/gpu/GrBitmapTextureMaker.h",
   "$_src/gpu/GrBlend.cpp",
