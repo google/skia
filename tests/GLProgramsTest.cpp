@@ -148,7 +148,7 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
                                                 : kBottomLeft_GrSurfaceOrigin;
     int sampleCnt = random->nextBool() ? SkTMin(4, caps->maxSampleCount()) : 0;
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                                                                            SkBackingFit::kExact,
                                                                            kRenderTargetWidth,
                                                                            kRenderTargetHeight,
@@ -345,7 +345,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     drawingManager->flush(nullptr);
 
     // Validate that GrFPs work correctly without an input.
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                                                                            SkBackingFit::kExact,
                                                                            kRenderTargetWidth,
                                                                            kRenderTargetHeight,

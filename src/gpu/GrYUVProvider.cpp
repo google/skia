@@ -121,7 +121,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
     }
 
     // We never want to perform color-space conversion during the decode
-    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeDeferredRenderTargetContext(
                                                                           SkBackingFit::kExact,
                                                                           desc.fWidth, desc.fHeight,
                                                                           desc.fConfig, nullptr,
