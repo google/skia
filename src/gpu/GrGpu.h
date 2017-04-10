@@ -118,7 +118,7 @@ public:
         GrMipLevel level = { level0Data, rowBytes };
         SkSTArray<1, GrMipLevel> array;
         array.push_back() = level;
-        return this->createTexture(desc, budgeted, array);
+        return  this->createTexture(desc, budgeted, array);
     }
 
     /**
