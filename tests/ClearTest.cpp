@@ -57,8 +57,8 @@ static bool reset_rtc(sk_sp<GrRenderTargetContext>* rtc, GrContext* context, int
     }
     context->freeGpuResources();
 
-    *rtc = context->makeRenderTargetContext(SkBackingFit::kExact, w, h, kRGBA_8888_GrPixelConfig,
-                                            nullptr);
+    *rtc = context->makeDeferredRenderTargetContext(SkBackingFit::kExact, w, h,
+                                                    kRGBA_8888_GrPixelConfig, nullptr);
 
     SkASSERT((*rtc)->accessRenderTarget()->uniqueID() != oldID);
 
