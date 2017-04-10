@@ -11,9 +11,9 @@
 #include "GrCaps.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGlyph.h"
+#include "SkArenaAlloc.h"
 #include "SkGlyphCache.h"
 #include "SkTDynamicHash.h"
-#include "SkVarAlloc.h"
 
 class GrAtlasGlyphCache;
 class GrGpu;
@@ -85,7 +85,7 @@ public:
 private:
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID> fCache;
     SkAutoDescriptor fFontScalerKey;
-    SkVarAlloc fPool;
+    SkArenaAlloc fPool{512};
 
     GrAtlasGlyphCache* fAtlasGlyphCache;
     int fAtlasedGlyphs;
