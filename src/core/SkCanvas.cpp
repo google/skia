@@ -2837,7 +2837,7 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
  *  For now we pick a conservatively small value, though measurement (and other heuristics like
  *  the type of ops contained) may justify changing this value.
  */
-#define kMaxPictureOpsToUnrollInsteadOfRef  1
+#define kMaxPictureOpsToUnrollInsteadOfRef      1
 
 void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
     RETURN_ON_NULL(picture);
