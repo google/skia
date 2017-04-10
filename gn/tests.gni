@@ -89,7 +89,6 @@ tests_sources = [
   "$_tests/GrContextAbandonTest.cpp",
   "$_tests/GrContextFactoryTest.cpp",
   "$_tests/GrDrawTargetTest.cpp",
-  "$_tests/GrGetCoeffBlendKnownComponentsTest.cpp",
   "$_tests/GrGLSLPrettyPrintTest.cpp",
   "$_tests/GrMemoryPoolTest.cpp",
   "$_tests/GrPorterDuffTest.cpp",
