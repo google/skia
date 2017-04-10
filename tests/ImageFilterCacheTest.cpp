@@ -204,7 +204,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
         return;
     }
 
-    GrTexture* tex = srcProxy->instantiate(context->resourceProvider());
+    GrTexture* tex = srcProxy->instantiate3(context->resourceProvider());
     if (!tex) {
         return;
     }

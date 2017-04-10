@@ -20,8 +20,8 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf)
     : INHERITED(std::move(surf), SkBackingFit::kExact) {
 }
 
-GrTexture* GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
-    GrSurface* surf = this->INHERITED::instantiate(resourceProvider);
+GrTexture* GrTextureProxy::instantiate3(GrResourceProvider* resourceProvider) {
+    GrSurface* surf = this->INHERITED::instantiate1(resourceProvider);
     if (!surf) {
         return nullptr;
     }

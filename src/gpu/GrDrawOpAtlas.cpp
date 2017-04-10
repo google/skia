@@ -33,6 +33,8 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
         return nullptr;
     }
 
+    // no discard needed - not a RT
+
     // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
     // possess the correct properties (e.g., no pendingIO) should fall out of the system but
     // should receive special attention.
@@ -210,7 +212,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
-        GrTexture* texture = fProxy->instantiate(fContext->resourceProvider());
+        GrTexture* texture = fProxy->instantiate3(fContext->resourceProvider());
         if (!texture) {
             return false;
         }
@@ -289,7 +291,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
-    GrTexture* texture = fProxy->instantiate(fContext->resourceProvider());
+    GrTexture* texture = fProxy->instantiate3(fContext->resourceProvider());
     if (!texture) {
         return false;
     }

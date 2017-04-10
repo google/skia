@@ -101,14 +101,18 @@ public:
      *                    uninitialized.
      * @return    The texture object if successful, otherwise nullptr.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+    GrTexture* createTexture1(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                              const SkTArray<GrMipLevel>& texels);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
     GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
-        return this->createTexture(desc, budgeted, SkTArray<GrMipLevel>());
+        GrTexture* tex = this->createTexture1(desc, budgeted, SkTArray<GrMipLevel>());
+
+        // discard moved upstack
+
+        return tex;
     }
 
     /** Simplified createTexture() interface for when there is only a base level */
@@ -118,7 +122,7 @@ public:
         GrMipLevel level = { level0Data, rowBytes };
         SkSTArray<1, GrMipLevel> array;
         array.push_back() = level;
-        return this->createTexture(desc, budgeted, array);
+        return  this->createTexture1(desc, budgeted, array);
     }
 
     /**

@@ -194,7 +194,7 @@ void GrRenderTargetContext::discard() {
 
     // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
     sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
+                        sk_ref_sp(fRenderTargetProxy->instantiate2(fContext->resourceProvider())));
     if (!rt) {
         return;
     }
@@ -1685,7 +1685,7 @@ bool GrRenderTargetContext::setupDstTexture(GrRenderTargetProxy* rtProxy, const 
     if (this->caps()->textureBarrierSupport()) {
         if (GrTextureProxy* texProxy = rtProxy->asTextureProxy()) {
             // MDB TODO: remove this instantiation. Blocked on making DstTexture be proxy-based
-            sk_sp<GrTexture> tex(sk_ref_sp(texProxy->instantiate(fContext->resourceProvider())));
+            sk_sp<GrTexture> tex(sk_ref_sp(texProxy->instantiate3(fContext->resourceProvider())));
             if (!tex) {
                 SkDebugf("setupDstTexture: instantiation of src texture failed.\n");
                 return false;  // We have bigger problems now
@@ -1762,7 +1762,7 @@ bool GrRenderTargetContext::setupDstTexture(GrRenderTargetProxy* rtProxy, const 
 
     GrTextureProxy* copyProxy = sContext->asTextureProxy();
     // MDB TODO: remove this instantiation once DstTexture is proxy-backed
-    sk_sp<GrTexture> copy(sk_ref_sp(copyProxy->instantiate(fContext->resourceProvider())));
+    sk_sp<GrTexture> copy(sk_ref_sp(copyProxy->instantiate3(fContext->resourceProvider())));
     if (!copy) {
         SkDebugf("setupDstTexture: instantiation of copied texture failed.\n");
         return false;

@@ -267,7 +267,7 @@ static bool valid_unpremul_config(GrPixelConfig config) {
     return GrPixelConfigIs8888Unorm(config) || kRGBA_half_GrPixelConfig == config;
 }
 
-bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* dstColorSpace,
+bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* dstColorSpace,
                                        int left, int top, int width, int height,
                                        GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
                                        const void* buffer, size_t rowBytes,
@@ -276,11 +276,11 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
 
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_FALSE_IF_ABANDONED_PRIV
-    ASSERT_OWNED_PROXY_PRIV(srcProxy);
-    SkASSERT(srcProxy);
+    ASSERT_OWNED_PROXY_PRIV(dstProxy);
+    SkASSERT(dstProxy);
     GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::writeSurfacePixels");
 
-    GrSurface* surface = srcProxy->instantiate(fContext->resourceProvider());
+    GrSurface* surface = dstProxy->instantiate1(fContext->resourceProvider());
     if (!surface) {
         return false;
     }
@@ -358,7 +358,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* d
             if (tempProxy->priv().hasPendingIO()) {
                 this->flush(tempProxy.get());
             }
-            GrTexture* texture = tempProxy->instantiate(fContext->resourceProvider());
+            GrTexture* texture = tempProxy->instantiate3(fContext->resourceProvider());
             if (!texture) {
                 return false;
             }
@@ -434,7 +434,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
     GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::readSurfacePixels");
 
     // MDB TODO: delay this instantiation until later in the method
-    GrSurface* src = srcProxy->instantiate(fContext->resourceProvider());
+    GrSurface* src = srcProxy->instantiate1(fContext->resourceProvider());
     if (!src) {
         return false;
     }
@@ -539,7 +539,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceProxy* srcProxy, SkColorSpace* sr
         return false;
     }
 
-    GrSurface* surfaceToRead = proxyToRead->instantiate(fContext->resourceProvider());
+    GrSurface* surfaceToRead = proxyToRead->instantiate1(fContext->resourceProvider());
     if (!surfaceToRead) {
         return false;
     }
@@ -632,7 +632,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeWrappedRenderTargetContext(
         return nullptr;
     }
 
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+    return this->drawingManager()->makeRenderTargetContext1(std::move(proxy),
                                                            std::move(colorSpace),
                                                            surfaceProps);
 }
@@ -642,7 +642,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
     ASSERT_SINGLE_OWNER_PRIV
 
     if (proxy->asRenderTargetProxy()) {
-        return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+        return this->drawingManager()->makeRenderTargetContext1(std::move(proxy),
                                                                std::move(colorSpace), nullptr);
     } else {
         SkASSERT(proxy->asTextureProxy());
@@ -665,7 +665,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
                                                                   SkBackingFit fit,
                                                                   SkBudgeted isDstBudgeted) {
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(),
+    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(),
                                                                dstDesc, fit, isDstBudgeted);
     if (!proxy) {
         return nullptr;
@@ -708,7 +708,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
         return nullptr;
     }
 
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+    return this->drawingManager()->makeRenderTargetContext1(std::move(proxy),
                                                            std::move(colorSpace), props);
 }
 
@@ -728,7 +728,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
         return nullptr;
     }
 
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+    return this->drawingManager()->makeRenderTargetContext1(std::move(proxy),
                                                            std::move(colorSpace),
                                                            surfaceProps);
 }
@@ -750,7 +750,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
         return nullptr;
     }
 
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+    return this->drawingManager()->makeRenderTargetContext1(std::move(proxy),
                                                            std::move(colorSpace),
                                                            surfaceProps);
 }
@@ -847,6 +847,8 @@ sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit
         return nullptr;
     }
 
+    renderTargetContext->discard();
+
     return renderTargetContext;
 }
 
@@ -873,9 +875,14 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
         return nullptr;
     }
 
-    return fDrawingManager->makeRenderTargetContext(std::move(rtp),
-                                                    std::move(colorSpace),
-                                                    surfaceProps);
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        fDrawingManager->makeRenderTargetContext1(std::move(rtp),
+                                                 std::move(colorSpace),
+                                                 surfaceProps));
+
+    renderTargetContext->discard();
+
+    return renderTargetContext;
 }
 
 bool GrContext::abandoned() const {

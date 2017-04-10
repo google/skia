@@ -38,7 +38,7 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkSafeUnref(fLastOpList);
 }
 
-GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
+GrSurface* GrSurfaceProxy::instantiate1(GrResourceProvider* resourceProvider) {
     if (fTarget) {
         return fTarget;
     }

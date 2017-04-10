@@ -48,7 +48,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, rtProxy->numStencilSamples() == numSamples);
 
     GrSurfaceProxy::UniqueID idBefore = rtProxy->uniqueID();
-    GrRenderTarget* rt = rtProxy->instantiate(provider);
+    GrRenderTarget* rt = rtProxy->instantiate2(provider);
     REPORTER_ASSERT(reporter, rt);
 
     REPORTER_ASSERT(reporter, rtProxy->uniqueID() == idBefore);
@@ -85,7 +85,7 @@ static void check_texture(skiatest::Reporter* reporter,
                           SkBackingFit fit,
                           bool wasWrapped) {
     GrSurfaceProxy::UniqueID idBefore = texProxy->uniqueID();
-    GrTexture* tex = texProxy->instantiate(provider);
+    GrTexture* tex = texProxy->instantiate3(provider);
     REPORTER_ASSERT(reporter, tex);
 
     REPORTER_ASSERT(reporter, texProxy->uniqueID() == idBefore);

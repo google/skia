@@ -24,7 +24,7 @@ public:
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
 
     // Actually instantiate the backing rendertarget, if necessary.
-    GrRenderTarget* instantiate(GrResourceProvider* resourceProvider);
+    GrRenderTarget* instantiate2(GrResourceProvider* resourceProvider);
 
     bool isStencilBufferMultisampled() const { return fDesc.fSampleCnt > 0; }
 
