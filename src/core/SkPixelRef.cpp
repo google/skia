@@ -217,14 +217,6 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
     return false;
 }
 
-bool SkPixelRef::lockPixelsAreWritable() const {
-    return this->onLockPixelsAreWritable();
-}
-
-bool SkPixelRef::onLockPixelsAreWritable() const {
-    return true;
-}
-
 uint32_t SkPixelRef::getGenerationID() const {
     uint32_t id = fTaggedGenID.load();
     if (0 == id) {

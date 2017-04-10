@@ -452,15 +452,6 @@ public:
     */
     void unlockPixels() const;
 
-    /**
-     *  Some bitmaps can return a copy of their pixels for lockPixels(), but
-     *  that copy, if modified, will not be pushed back. These bitmaps should
-     *  not be used as targets for a raster device/canvas (since all pixels
-     *  modifications will be lost when unlockPixels() is called.)
-     */
-    // DEPRECATED
-    bool lockPixelsAreWritable() const;
-
     bool requestLock(SkAutoPixmapUnlock* result) const;
 
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.

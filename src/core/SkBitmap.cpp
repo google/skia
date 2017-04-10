@@ -278,10 +278,6 @@ void SkBitmap::unlockPixels() const {
     SkDEBUGCODE(this->validate();)
 }
 
-bool SkBitmap::lockPixelsAreWritable() const {
-    return fPixelRef ? fPixelRef->lockPixelsAreWritable() : false;
-}
-
 void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
     if (nullptr == p) {
         this->setPixelRef(nullptr, 0, 0);
