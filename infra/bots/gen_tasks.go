@@ -309,7 +309,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		CipdPackages: pkgs,
 		Dimensions:   dimensions,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_compile",
+			"--workdir", "../../..", "compile",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
 			"mastername=fake-master",
@@ -342,7 +342,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 		Dimensions:       linuxGceDimensions(),
 		ExecutionTimeout: 4 * time.Hour,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_RecreateSKPs",
+			"--workdir", "../../..", "recreate_skps",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
 			"mastername=fake-master",
@@ -370,7 +370,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 		Dimensions:       []string{"pool:SkiaCT"},
 		ExecutionTimeout: 24 * time.Hour,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_ct_skps",
+			"--workdir", "../../..", "ct_skps",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
 			"mastername=fake-master",
@@ -398,7 +398,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 		Dependencies: []string{compileTaskName},
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_housekeeper",
+			"--workdir", "../../..", "housekeeper",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
 			"mastername=fake-master",
@@ -424,7 +424,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 		CipdPackages: []*specs.CipdPackage{},
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_infra",
+			"--workdir", "../../..", "infra",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
 			"mastername=fake-master",
@@ -467,7 +467,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		ExecutionTimeout: 4 * time.Hour,
 		Expiration:       20 * time.Hour,
 		ExtraArgs: []string{
-			"--workdir", "../../..", "swarm_test",
+			"--workdir", "../../..", "test",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
 			"mastername=fake-master",
@@ -534,10 +534,10 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 // perf generates a Perf task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
-	recipe := "swarm_perf"
+	recipe := "perf"
 	isolate := "perf_skia.isolate"
 	if strings.Contains(parts["extra_config"], "Skpbench") {
-		recipe = "swarm_skpbench"
+		recipe = "skpbench"
 		isolate = "skpbench_skia.isolate"
 		if useBundledRecipes(parts) {
 			if strings.Contains(parts["os"], "Win") {
