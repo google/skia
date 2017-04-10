@@ -3574,8 +3574,13 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
         }
     }
     if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples() && dstRT && !dstRT->numColorSamples()) {
-            return false;
+        if (srcRT && srcRT->numColorSamples()) {
+            if (dstRT && !dstRT->numColorSamples()) {
+                return false;
+            }
+            if (SkRect::Make(srcRect) != srcRT->getBoundsRect()) {
+                return false;
+            }
         }
     }
     if (GrGLCaps::kNoMSAADst_BlitFramebufferFlag & blitFramebufferFlags) {
@@ -3594,9 +3599,13 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
         }
     }
     if (GrGLCaps::kRectsMustMatchForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
-        if (srcRT && srcRT->numColorSamples() &&
-            (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop)) {
-            return false;
+        if (srcRT && srcRT->numColorSamples()) {
+            if (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop) {
+                return false;
+            }
+            if (dst->origin() != src->origin()) {
+                return false;
+            }
         }
     }
     return true;
@@ -3693,7 +3702,14 @@ void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface
     }
 }
 
-bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc,
+                                 bool* rectsMustMatch, bool* disallowSubrect) const {
+    // By default, we don't require rects to match.
+    *rectsMustMatch = false;
+
+    // By default, we allow subrects.
+    *disallowSubrect = false;
+
     // If the src is a texture, we can implement the blit as a draw assuming the config is
     // renderable.
     if (src->asTexture() && this->caps()->isConfigRenderable(src->config(), false)) {
@@ -3713,21 +3729,35 @@ bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
     // possible and we return false to fallback to creating a render target dst for render-to-
     // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
-
     GrSurfaceOrigin originForBlitFramebuffer = kDefault_GrSurfaceOrigin;
-    if (this->glCaps().blitFramebufferSupportFlags() &
-        GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag) {
+    bool rectsMustMatchForBlitFramebuffer = false;
+    bool disallowSubrectForBlitFramebuffer = false;
+    if (src->numColorSamples() && (this->glCaps().blitFramebufferSupportFlags() &
+                                   GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag)) {
+        rectsMustMatchForBlitFramebuffer = true;
+        disallowSubrectForBlitFramebuffer = true;
+        // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
+    } else if (src->numColorSamples() &&
+               (this->glCaps().blitFramebufferSupportFlags() &
+                GrGLCaps::kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
+        rectsMustMatchForBlitFramebuffer = true;
+        // Mirroring causes rects to mismatch later, don't allow it.
+        originForBlitFramebuffer = src->origin();
+    } else if (this->glCaps().blitFramebufferSupportFlags() &
+               GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag) {
         originForBlitFramebuffer = src->origin();
     }
 
     // Check for format issues with glCopyTexSubImage2D
-    if (kGLES_GrGLStandard == this->glStandard() && this->glCaps().bgraIsInternalFormat() &&
-        kBGRA_8888_GrPixelConfig == src->config()) {
+    if (this->glCaps().bgraIsInternalFormat() && kBGRA_8888_GrPixelConfig == src->config()) {
         // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
         // then we set up for that, otherwise fail.
         if (this->glCaps().canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
             desc->fOrigin = originForBlitFramebuffer;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
+            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
+            *disallowSubrect = disallowSubrectForBlitFramebuffer;
             return true;
         }
         return false;
@@ -3740,6 +3770,8 @@ bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
         if (this->glCaps().canConfigBeFBOColorAttachment(src->config())) {
             desc->fOrigin = originForBlitFramebuffer;
             desc->fConfig = src->config();
+            *rectsMustMatch = rectsMustMatchForBlitFramebuffer;
+            *disallowSubrect = disallowSubrectForBlitFramebuffer;
             return true;
         }
         return false;

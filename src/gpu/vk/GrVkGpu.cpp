@@ -1590,14 +1590,18 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
     return false;
 }
 
-bool GrVkGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const {
+bool GrVkGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc,
+                                 bool* rectsMustMatch, bool* disallowSubrect) const {
+    // Vk doesn't use rectsMustMatch or disallowSubrect. Always return false.
+    *rectsMustMatch = false;
+    *disallowSubrect = false;
+
     // We can always succeed here with either a CopyImage (none msaa src) or ResolveImage (msaa).
     // For CopyImage we can make a simple texture, for ResolveImage we require the dst to be a
     // render target as well.
     desc->fOrigin = src->origin();
     desc->fConfig = src->config();
-    if (src->numColorSamples() > 1 ||
-        (src->asTexture() && this->vkCaps().supportsCopiesAsDraws())) {
+    if (src->numColorSamples() > 1 || (src->asTexture() && this->supportsCopiesAsDraws())) {
         desc->fFlags = kRenderTarget_GrSurfaceFlag;
     } else {
         // Just going to use CopyImage here
