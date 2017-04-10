@@ -16,6 +16,24 @@
       "revId": "de0f1267508737901695c3d72716cf10a774af7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9ecb354_74a15310",
+        "filename": "infra/bots/recipes/RecreateSKPs.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-10T12:14:50Z",
+      "side": 1,
+      "message": "Agreed, done.",
+      "parentUuid": "9b904110_ad2a19f0",
+      "revId": "de0f1267508737901695c3d72716cf10a774af7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
