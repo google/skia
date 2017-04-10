@@ -244,9 +244,8 @@ public:
                                                                          cropRect));
         }
         {
-            SkRTreeFactory factory;
             SkPictureRecorder recorder;
-            SkCanvas* recordingCanvas = recorder.beginRecording(64, 64, &factory, 0);
+            SkCanvas* recordingCanvas = recorder.beginRecording(64, 64);
 
             SkPaint greenPaint;
             greenPaint.setColor(SK_ColorGREEN);
