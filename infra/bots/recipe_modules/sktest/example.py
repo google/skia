@@ -20,6 +20,7 @@ TEST_BUILDERS = {
     'skiabot-linux-swarm-000': [
       'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android',
       'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android',
+      'Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android',
       'Test-Android-Clang-GalaxyJ5-GPU-Adreno306-arm-Release-Android',
       'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android',
       'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android',
