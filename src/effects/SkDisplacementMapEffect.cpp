@@ -412,6 +412,23 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                           dst);
 }
 
+sk_sp<SkImageFilter> SkDisplacementMapEffect::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(2 == this->countInputs());
+    if (!this->getInput(1)) {
+        return sk_ref_sp(const_cast<SkDisplacementMapEffect*>(this));
+    }
+
+    // Intentionally avoid xforming the displacement filter.  The values will be used as
+    // offsets, not as colors.
+    sk_sp<SkImageFilter> displacement = sk_ref_sp(const_cast<SkImageFilter*>(this->getInput(0)));
+    sk_sp<SkImageFilter> color =
+            this->getInput(1) ? this->getInput(1)->makeColorSpace(xformer) : nullptr;
+
+    return SkDisplacementMapEffect::Make(fXChannelSelector, fYChannelSelector, fScale,
+                                         std::move(displacement), std::move(color),
+                                         this->getCropRectIfSet());
+}
+
 SkRect SkDisplacementMapEffect::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getColorInput() ? this->getColorInput()->computeFastBounds(src) : src;
     bounds.outset(SkScalarAbs(fScale) * SK_ScalarHalf, SkScalarAbs(fScale) * SK_ScalarHalf);

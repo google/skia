@@ -8,6 +8,7 @@
 #include "SkImageSource.h"
 
 #include "SkCanvas.h"
+#include "SkColorSpaceXformer.h"
 #include "SkImage.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
@@ -129,6 +130,12 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
     offset->fX = dstIRect.fLeft;
     offset->fY = dstIRect.fTop;
     return surf->makeImageSnapshot();
+}
+
+sk_sp<SkImageFilter> SkImageSource::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(0 == this->countInputs());
+
+    return SkImageSource::Make(xformer->apply(fImage.get()), fSrcRect, fDstRect, fFilterQuality);
 }
 
 SkRect SkImageSource::computeFastBounds(const SkRect& src) const {

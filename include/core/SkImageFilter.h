@@ -411,8 +411,24 @@ protected:
     }
 
 private:
+    // For makeColorSpace().
     friend class ArithmeticImageFilterImpl;
+    friend class SkAlphaThresholdFilterImpl;
+    friend class SkBlurImageFilterImpl;
+    friend class SkColorFilterImageFilter;
     friend class SkColorSpaceXformer;
+    friend class SkComposeImageFilter;
+    friend class SkDisplacementMapEffect;
+    friend class SkDropShadowImageFilter;
+    friend class SkImageSource;
+    friend class SkMagnifierImageFilter;
+    friend class SkMatrixConvolutionImageFilter;
+    friend class SkMergeImageFilter;
+    friend class SkMorphologyImageFilter;
+    friend class SkOffsetImageFilter;
+    friend class SkTileImageFilter;
+    friend class SkXfermodeImageFilter_Base;
+
     friend class SkGraphics;
 
     static void PurgeCache();

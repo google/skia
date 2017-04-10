@@ -447,6 +447,17 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
                                           dst);
 }
 
+sk_sp<SkImageFilter> SkMagnifierImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(1 == this->countInputs());
+    if (!this->getInput(0)) {
+        return sk_ref_sp(const_cast<SkMagnifierImageFilter*>(this));
+    }
+
+    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
+    return SkMagnifierImageFilter::Make(fSrcRect, fInset, std::move(input),
+                                        this->getCropRectIfSet());
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkMagnifierImageFilter::toString(SkString* str) const {
     str->appendf("SkMagnifierImageFilter: (");

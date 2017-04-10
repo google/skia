@@ -116,6 +116,16 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     return surf->makeImageSnapshot();
 }
 
+sk_sp<SkImageFilter> SkTileImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(1 == this->countInputs());
+    if (!this->getInput(0)) {
+        return sk_ref_sp(const_cast<SkTileImageFilter*>(this));
+    }
+
+    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
+    return SkTileImageFilter::Make(fSrcRect, fDstRect, std::move(input));
+}
+
 SkIRect SkTileImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                               MapDirection direction) const {
     SkRect rect = kReverse_MapDirection == direction ? fSrcRect : fDstRect;

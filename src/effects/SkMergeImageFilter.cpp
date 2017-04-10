@@ -143,6 +143,18 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
     return surf->makeImageSnapshot();
 }
 
+sk_sp<SkImageFilter> SkMergeImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkSTArray<5, sk_sp<SkImageFilter>> inputs(this->countInputs());
+    SkSTArray<5, SkBlendMode> modes(this->countInputs());
+    for (int i = 0; i < this->countInputs(); i++) {
+        inputs.push_back(this->getInput(i) ? this->getInput(i)->makeColorSpace(xformer) : nullptr);
+        modes.push_back((SkBlendMode) fModes[i]);
+    }
+
+    return SkMergeImageFilter::MakeN(inputs.begin(), this->countInputs(), modes.begin(),
+                                     this->getCropRectIfSet());
+}
+
 sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
     Common common;
     if (!common.unflatten(buffer, -1)) {

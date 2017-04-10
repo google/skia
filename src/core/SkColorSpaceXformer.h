@@ -18,12 +18,13 @@ public:
 
     sk_sp<SkImage> apply(const SkImage* src);
     sk_sp<SkImage> apply(const SkBitmap& bitmap);
+    sk_sp<SkColorFilter> apply(const SkColorFilter* shader);
     const SkPaint* apply(const SkPaint* src);
     const SkPaint& apply(const SkPaint& src);
     void apply(SkColor dst[], const SkColor src[], int n);
+    SkColor apply(SkColor srgb);
 
 private:
-    SkColor apply(SkColor srgb);
     sk_sp<SkShader> apply(const SkShader* shader);
 
     SkColorSpaceXformer() {}

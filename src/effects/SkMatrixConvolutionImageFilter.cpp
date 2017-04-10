@@ -388,6 +388,19 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
                                           dst);
 }
 
+sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer)
+const {
+    SkASSERT(1 == this->countInputs());
+    if (!this->getInput(0)) {
+        return sk_ref_sp(const_cast<SkMatrixConvolutionImageFilter*>(this));
+    }
+
+    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
+    return SkMatrixConvolutionImageFilter::Make(fKernelSize, fKernel, fGain, fBias, fKernelOffset,
+                                                fTileMode, fConvolveAlpha, std::move(input),
+                                                this->getCropRectIfSet());
+}
+
 SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                                            MapDirection direction) const {
     SkIRect dst = src;

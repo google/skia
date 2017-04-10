@@ -9,6 +9,7 @@
 
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -110,6 +111,16 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(SkSpecialImage* sou
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
     return surf->makeImageSnapshot();
+}
+
+sk_sp<SkImageFilter> SkDropShadowImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(1 == this->countInputs());
+
+    sk_sp<SkImageFilter> input =
+            this->getInput(0) ? this->getInput(0)->makeColorSpace(xformer) : nullptr;
+
+    return SkDropShadowImageFilter::Make(fDx, fDy, fSigmaX, fSigmaY, xformer->apply(fColor),
+                                         fShadowMode, std::move(input));
 }
 
 SkRect SkDropShadowImageFilter::computeFastBounds(const SkRect& src) const {

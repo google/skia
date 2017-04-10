@@ -61,6 +61,13 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(SkSpecialImage* source
     return outer;
 }
 
+sk_sp<SkImageFilter> SkComposeImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkASSERT(2 == this->countInputs() && this->getInput(0) && this->getInput(1));
+
+    return SkComposeImageFilter::Make(this->getInput(0)->makeColorSpace(xformer),
+                                      this->getInput(1)->makeColorSpace(xformer));
+}
+
 SkIRect SkComposeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                              MapDirection direction) const {
     SkImageFilter* outer = this->getInput(0);
