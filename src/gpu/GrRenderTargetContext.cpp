@@ -42,9 +42,9 @@
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define ASSERT_SINGLE_OWNER_PRIV \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
 #define RETURN_IF_ABANDONED        if (this->drawingManager()->wasAbandoned()) { return; }
 #define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
@@ -140,47 +140,6 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     return this->getOpList()->copySurface(fContext->resourceProvider(),
                                           fRenderTargetProxy.get(), srcProxy, srcRect, dstPoint);
 }
-
-// TODO: move this (and GrTextureContext::onReadPixels) to GrSurfaceContext?
-bool GrRenderTargetContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
-                                         size_t dstRowBytes, int x, int y, uint32_t flags) {
-    // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-
-    // TODO: this seems to duplicate code in SkImage_Gpu::onReadPixels
-    if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
-        flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
-    }
-
-    return fContext->contextPriv().readSurfacePixels(fRenderTargetProxy.get(),
-                                                     this->getColorSpace(), x, y,
-                                                     dstInfo.width(), dstInfo.height(), config,
-                                                     dstInfo.colorSpace(),
-                                                     dstBuffer, dstRowBytes, flags);
-}
-
-// TODO: move this (and GrTextureContext::onReadPixels) to GrSurfaceContext?
-bool GrRenderTargetContext::onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                                          size_t srcRowBytes, int x, int y, uint32_t flags) {
-    // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-    if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
-        flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
-    }
-
-    return fContext->contextPriv().writeSurfacePixels(fRenderTargetProxy.get(),
-                                                      this->getColorSpace(), x, y,
-                                                      srcInfo.width(), srcInfo.height(),
-                                                      config, srcInfo.colorSpace(),
-                                                      srcBuffer, srcRowBytes, flags);
-}
-
 
 void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
                                      const SkMatrix& viewMatrix, const char text[],

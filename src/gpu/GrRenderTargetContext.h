@@ -457,10 +457,6 @@ private:
             const GrClip&, GrPaint&&, GrAA, const SkMatrix&, const SkPath&, const GrStyle&);
 
     bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-    bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
-                      size_t dstRowBytes, int x, int y, uint32_t flags) override;
-    bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                       size_t srcRowBytes, int x, int y, uint32_t flags) override;
 
     // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
