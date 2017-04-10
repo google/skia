@@ -29,22 +29,13 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.slave_dir = self.m.path['start_dir']
     self.checkout_root = self.slave_dir
     self.default_env = self.m.step.get_from_context('env', {})
+    self.default_env['CHROME_HEADLESS'] = '1'
     self.default_env['PATH'] = self.m.path.pathsep.join([
         self.default_env.get('PATH', '%(PATH)s'),
         str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
     ])
     self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
-
-    self.default_env['CHROME_HEADLESS'] = '1'
-    # The 'depot_tools' directory comes from recipe DEPS and isn't provided by
-    # default. We have to set it manually.
-    self.m.path.c.base_paths['depot_tools'] = (
-        self.m.path.c.base_paths['start_dir'] +
-        ('skia', 'infra', 'bots', '.recipe_deps', 'depot_tools'))
-    if 'Win' in self.builder_name:
-      self.m.path.c.base_paths['depot_tools'] = (
-          'c:\\', 'Users', 'chrome-bot', 'depot_tools')
 
     # Compile bots keep a persistent checkout.
     self.persistent_checkout = (self.is_compile_bot or

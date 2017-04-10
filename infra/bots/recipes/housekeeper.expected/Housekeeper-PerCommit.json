@@ -122,7 +122,7 @@
       "--githash",
       "abc123",
       "--gsutil_path",
-      "[DEPOT_TOOLS]/gsutil.py"
+      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
