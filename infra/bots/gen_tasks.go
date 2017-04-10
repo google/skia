@@ -621,6 +621,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	// These bots do not need a compile task.
 	if parts["role"] != "Build" &&
+		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "-CT_") {
