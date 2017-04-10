@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab6a9860_40c4d49d",
+        "filename": "src/core/SkImageCacherator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-10T13:59:20Z",
+      "side": 0,
+      "message": "ScopedGenerator was preventing races before.",
+      "revId": "f1bc5e8b78376e3b6509c8626623d3aae871daec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
