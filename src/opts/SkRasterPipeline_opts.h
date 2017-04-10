@@ -1101,10 +1101,38 @@ STAGE_CTX(gather_f16, const SkImageShaderContext*) {
     from_f16(&px, &r, &g, &b, &a);
 }
 
+STAGE_CTX(linear_gradient, const SkPM4f*) {
+    struct Stop { float pos; float f[4], b[4]; };
+    struct Ctx { size_t n; Stop *stops; float start[4]; };
+
+    auto c = (const Ctx*)ctx;
+    Sk4f fr = 0, fg = 0, fb = 0, fa = 0;
+    Sk4f br = c->start[0],
+         bg = c->start[1],
+         bb = c->start[2],
+         ba = c->start[3];
+    auto t = r;
+    for (size_t i = 0; i < c->n; i++) {
+        fr = (t < c->stops[i].pos).thenElse(fr, c->stops[i].f[0]);
+        fg = (t < c->stops[i].pos).thenElse(fg, c->stops[i].f[1]);
+        fb = (t < c->stops[i].pos).thenElse(fb, c->stops[i].f[2]);
+        fa = (t < c->stops[i].pos).thenElse(fa, c->stops[i].f[3]);
+        br = (t < c->stops[i].pos).thenElse(br, c->stops[i].b[0]);
+        bg = (t < c->stops[i].pos).thenElse(bg, c->stops[i].b[1]);
+        bb = (t < c->stops[i].pos).thenElse(bb, c->stops[i].b[2]);
+        ba = (t < c->stops[i].pos).thenElse(ba, c->stops[i].b[3]);
+    }
+
+    r = SkNf_fma(t, fr, br);
+    g = SkNf_fma(t, fg, bg);
+    b = SkNf_fma(t, fb, bb);
+    a = SkNf_fma(t, fa, ba);
+}
+
 STAGE_CTX(linear_gradient_2stops, const SkPM4f*) {
     auto t = r;
     SkPM4f c0 = ctx[0],
-           dc = ctx[1];
+        dc = ctx[1];
 
     r = SkNf_fma(t, dc.r(), c0.r());
     g = SkNf_fma(t, dc.g(), c0.g());

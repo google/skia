@@ -22,6 +22,7 @@ static const size_t kStride = sizeof(F) / sizeof(float);
 // Not all constants can be generated using C() or _i/_f.  Stages read the rest from this struct.
 using K = const SkJumper_constants;
 
+
 // Let's start first with the mechanisms we use to build Stages.
 
 // Our program is an array of void*, either
@@ -827,13 +828,41 @@ STAGE(matrix_perspective) {
     g = G * rcp(Z);
 }
 
+STAGE(linear_gradient) {
+    struct Stop { float pos; float f[4], b[4]; };
+    struct Ctx { size_t n; Stop *stops; float start[4]; };
+
+    auto c = (const Ctx*)ctx;
+    F fr = 0, fg = 0, fb = 0, fa = 0;
+    F br = c->start[0],
+      bg = c->start[1],
+      bb = c->start[2],
+      ba = c->start[3];
+    auto t = r;
+    for (size_t i = 0; i < c->n; i++) {
+        fr = if_then_else(t < c->stops[i].pos, fr, c->stops[i].f[0]);
+        fg = if_then_else(t < c->stops[i].pos, fg, c->stops[i].f[1]);
+        fb = if_then_else(t < c->stops[i].pos, fb, c->stops[i].f[2]);
+        fa = if_then_else(t < c->stops[i].pos, fa, c->stops[i].f[3]);
+        br = if_then_else(t < c->stops[i].pos, br, c->stops[i].b[0]);
+        bg = if_then_else(t < c->stops[i].pos, bg, c->stops[i].b[1]);
+        bb = if_then_else(t < c->stops[i].pos, bb, c->stops[i].b[2]);
+        ba = if_then_else(t < c->stops[i].pos, ba, c->stops[i].b[3]);
+    }
+
+    r = mad(t, fr, br);
+    g = mad(t, fg, bg);
+    b = mad(t, fb, bb);
+    a = mad(t, fa, ba);
+}
+
 STAGE(linear_gradient_2stops) {
-    struct Ctx { float c0[4], dc[4]; };
+    struct Ctx { float f[4], b[4]; };
     auto c = (const Ctx*)ctx;
 
     auto t = r;
-    r = mad(t, c->dc[0], c->c0[0]);
-    g = mad(t, c->dc[1], c->c0[1]);
-    b = mad(t, c->dc[2], c->c0[2]);
-    a = mad(t, c->dc[3], c->c0[3]);
+    r = mad(t, c->f[0], c->b[0]);
+    g = mad(t, c->f[1], c->b[1]);
+    b = mad(t, c->f[2], c->b[2]);
+    a = mad(t, c->f[3], c->b[3]);
 }
