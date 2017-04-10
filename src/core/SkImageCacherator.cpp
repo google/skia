@@ -361,24 +361,8 @@ SkImageCacherator::CachedFormat SkImageCacherator::chooseCacheFormat(SkColorSpac
             return kLegacy_CachedFormat;
 
         case kIndex_8_SkColorType:
-            // We can't draw from indexed textures with a color space, so ask the codec to expand
-            if (cs->gammaCloseToSRGB()) {
-                if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            } else {
-                if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            }
+            SkDEBUGFAIL("Index_8 should have been remapped at construction time.");
+            return kLegacy_CachedFormat;
 
         case kGray_8_SkColorType:
             // TODO: What do we do with grayscale sources that have strange color spaces attached?
