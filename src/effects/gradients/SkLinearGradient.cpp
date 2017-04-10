@@ -91,7 +91,7 @@ SkShader::Context* SkLinearGradient::onMakeContext(
 //   * optional premul
 //
 bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
-                                      SkColorSpace* cs,
+                                      SkColorSpace* dstCS,
                                       SkArenaAlloc* alloc,
                                       const SkMatrix& ctm,
                                       const SkPaint& paint,
@@ -128,10 +128,11 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
     auto* limit = alloc->make<float>(1.0f);
 
     const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
-    auto prepareColor = [premulGrad, cs, this](SkColor4f c) {
-        auto correctedColor = to_colorspace(c, fColorSpace.get(), cs);
-        return premulGrad ? correctedColor.premul()
-                          : SkPM4f::From4f(Sk4f::Load(&correctedColor));
+    auto prepareColor = [premulGrad, dstCS, this](int i) {
+        SkColor4f c = dstCS ? to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS)
+                            : SkColor4f_from_SkColor(fOrigColors[i], nullptr);
+        return premulGrad ? c.premul()
+                          : SkPM4f::From4f(Sk4f::Load(&c));
     };
 
     // The two-stop case with stops at 0 and 1.
@@ -142,8 +143,8 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
         }
 
-        const SkPM4f c_l = prepareColor(fOrigColors4f[0]),
-                     c_r = prepareColor(fOrigColors4f[1]);
+        const SkPM4f c_l = prepareColor(0),
+                     c_r = prepareColor(1);
 
         // See F and B below.
         auto* f_and_b = alloc->makeArrayDefault<SkPM4f>(2);
@@ -164,7 +165,7 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
         struct Ctx { size_t n; Stop* stops; SkPM4f start; };
 
         auto* ctx = alloc->make<Ctx>();
-        ctx->start = prepareColor(fOrigColors4f[0]);
+        ctx->start = prepareColor(0);
 
         // For each stop we calculate a bias B and a scale factor F, such that
         // for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
@@ -187,7 +188,7 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
             for (int i = 0; i < fColorCount - 1; i++) {
                 // Use multiply instead of accumulating error using repeated addition.
                 float  t_r = (i + 1) * dt;
-                SkPM4f c_r = prepareColor(fOrigColors4f[i + 1]);
+                SkPM4f c_r = prepareColor(i + 1);
                 init_stop(t_l, t_r, c_l, c_r, &stopsArray[i]);
 
                 t_l = t_r;
@@ -197,7 +198,7 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
             // Force the last stop.
             stopsArray[fColorCount - 1].t = 1;
             stopsArray[fColorCount - 1].f = SkPM4f::From4f(Sk4f{0});
-            stopsArray[fColorCount - 1].b = prepareColor(fOrigColors4f[fColorCount - 1]);
+            stopsArray[fColorCount - 1].b = prepareColor(fColorCount - 1);
 
             ctx->n = fColorCount;
             ctx->stops = stopsArray;
@@ -224,11 +225,11 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
 
             size_t stopCount = 0;
             float  t_l = fOrigPos[firstStop];
-            SkPM4f c_l = prepareColor(fOrigColors4f[firstStop]);
+            SkPM4f c_l = prepareColor(firstStop);
             // N.B. lastStop is the index of the last stop, not one after.
             for (int i = firstStop; i < lastStop; i++) {
                 float  t_r = fOrigPos[i + 1];
-                SkPM4f c_r = prepareColor(fOrigColors4f[i + 1]);
+                SkPM4f c_r = prepareColor(i + 1);
                 if (t_l < t_r) {
                     init_stop(t_l, t_r, c_l, c_r, &stopsArray[stopCount]);
                     stopCount += 1;
@@ -239,7 +240,7 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
 
             stopsArray[stopCount].t = fOrigPos[lastStop];
             stopsArray[stopCount].f = SkPM4f::From4f(Sk4f{0});
-            stopsArray[stopCount].b = prepareColor(fOrigColors4f[lastStop]);
+            stopsArray[stopCount].b = prepareColor(lastStop);
             stopCount += 1;
 
             ctx->n = stopCount;
