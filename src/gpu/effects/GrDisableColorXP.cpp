@@ -74,11 +74,12 @@ void DisableColorXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<GrXferProcessor> GrDisableColorXPFactory::makeXferProcessor(const GrProcessorAnalysisColor&,
-                                                                  GrProcessorAnalysisCoverage,
-                                                                  bool hasMixedSamples,
-                                                                  const GrCaps& caps) const {
-    return sk_sp<GrXferProcessor>(new DisableColorXP);
+sk_sp<const GrXferProcessor> GrDisableColorXPFactory::makeXferProcessor(
+        const GrProcessorAnalysisColor&,
+        GrProcessorAnalysisCoverage,
+        bool hasMixedSamples,
+        const GrCaps& caps) const {
+    return sk_sp<const GrXferProcessor>(new DisableColorXP);
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory);
