@@ -44,7 +44,7 @@ GrSurface* GrSurfaceProxy::instantiate(GrResourceProvider* resourceProvider) {
     }
 
     if (SkBackingFit::kApprox == fFit) {
-        fTarget = resourceProvider->createApproxTexture(fDesc, fFlags);
+        fTarget = resourceProvider->createApproxTexture7(fDesc, fFlags);
     } else {
         fTarget = resourceProvider->createTexture(fDesc, fBudgeted, fFlags).release();
     }
