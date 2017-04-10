@@ -138,6 +138,10 @@ def dm_flags(bot):
     # Just run GLES for now - maybe add gles_msaa4 in the future
     configs = ['gles']
 
+  if 'Ci20' in bot:
+    # This bot is really slow, cut it down to just 8888.
+    configs = ['8888']
+
   args.append('--config')
   args.extend(configs)
 
@@ -504,6 +508,18 @@ def dm_flags(bot):
   if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
     match.append('~ImageStorageLoad') # skia:6358
 
+  if 'Ci20' in bot:
+    # TODO(kjlubick) for hangs
+    match.append('~Codec_Dimensions')
+    match.append('~FontMgrAndroidParser')
+    # TODO(kjlubick) for assert
+    match.append('~PathOpsSimplify')
+    # TODO(kjlubick) for "Pixels don't match reference"
+    # TODO(kjlubick) for include/core/SkColorPriv.h:408: fatal error: "assert(g <= a)"
+    # https://chromium-swarm.appspot.com/task?id=357146d589a74010&refresh=10
+    blacklist(['_', 'gm', '_', 'fast_slow_blurimagefilter'])
+
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
@@ -707,6 +723,7 @@ def RunSteps(api):
 TEST_BUILDERS = [
   'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android',
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android',
+  'Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android',
   'Test-Android-Clang-GalaxyJ5-GPU-Adreno306-arm-Release-Android',
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android',
   'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android',
@@ -772,7 +789,7 @@ def GenTests(api):
       )
     )
     if 'Trybot' in builder:
-      test += api.properties(patch_storage='gerrit') 
+      test += api.properties(patch_storage='gerrit')
       test += api.properties.tryserver(
           buildername=builder,
           gerrit_project='skia',
