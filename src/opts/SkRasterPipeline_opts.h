@@ -1106,8 +1106,8 @@ STAGE_CTX(linear_gradient, const SkPM4f*) {
     struct Ctx { size_t n; Stop *stops; float start[4]; };
 
     auto c = (const Ctx*)ctx;
-    Sk4f fr = 0, fg = 0, fb = 0, fa = 0;
-    Sk4f br = c->start[0],
+    SkNf fr = 0, fg = 0, fb = 0, fa = 0;
+    SkNf br = c->start[0],
          bg = c->start[1],
          bb = c->start[2],
          ba = c->start[3];
