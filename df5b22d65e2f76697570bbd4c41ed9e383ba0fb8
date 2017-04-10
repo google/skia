@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "089a3719_26013ddc",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T18:57:56Z",
+      "side": 1,
+      "message": "Can this just be:\n\nfTransformedHeightFunc \u003d [fHeightFunc] { return fHeightFunc(0,0); }",
+      "revId": "df5b22d65e2f76697570bbd4c41ed9e383ba0fb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "706ea1a1_b887914d",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T18:57:56Z",
+      "side": 1,
+      "message": "It seems like one of lamba, std::function, or member functions could be removed here.\n\nCould zparams, determinants, etc be locals that get captured into a lambda rather than members used in a member function?\n\nOr if you want to keep constHeightFunc and perspHeightFunc as member functions then maybe fTransformedHeightFunc should just be a member function pointer? Or replace both with a single function and a bool member that stores whether we\u0027re in the const height case or not and branches?\n\nIn any case it looks like fCTMDeterminant doesn\u0027t need to be a member.",
+      "revId": "df5b22d65e2f76697570bbd4c41ed9e383ba0fb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
