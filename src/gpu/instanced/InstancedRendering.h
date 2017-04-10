@@ -178,7 +178,7 @@ protected:
     const GrBuffer* indexBuffer() const { SkASSERT(fIndexBuffer); return fIndexBuffer.get(); }
 
     virtual void onBeginFlush(GrResourceProvider*) = 0;
-    virtual void onDraw(const GrPipeline&, const InstanceProcessor&, const Op*) = 0;
+    virtual void onDraw(const GrPipeline&, GrRenderTarget*, const InstanceProcessor&, const Op*) = 0;
     virtual void onEndFlush() = 0;
     virtual void onResetGpuResources(ResetType) = 0;
 

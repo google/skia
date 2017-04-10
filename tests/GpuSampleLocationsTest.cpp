@@ -10,6 +10,7 @@
 #include "Test.h"
 #include <vector>
 
+#if 0
 #if SK_SUPPORT_GPU
 
 #include "GrAppliedClip.h"
@@ -193,4 +194,5 @@ DEF_GPUTEST(GLSampleLocations, reporter, /*factory*/) {
     test_sampleLocations(reporter, &testInterface, ctx.get());
 }
 
+#endif
 #endif

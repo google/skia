@@ -162,6 +162,7 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                                                  fp.numCoordTransforms()), b);
 }
 
+// TODO: is this after the flush?
 bool GrProgramDesc::Build(GrProgramDesc* desc,
                           const GrPrimitiveProcessor& primProc,
                           bool hasPointSize,
@@ -217,7 +218,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    GrRenderTarget* rt = pipeline.getRenderTarget();
+    GrRenderTarget* rt = pipeline.getRenderTargetProxy()->instantiate(nullptr);
 
     if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
         SkASSERT(pipeline.isHWAntialiasState());

@@ -61,6 +61,7 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
 }
 
 void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
+
     SkASSERT(!state->drawOpArgs().fAppliedClip);
     SkASSERT(!state->drawOpArgs().fDstTexture.texture());
     int currUploadIdx = 0;
@@ -69,15 +70,21 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
     SkASSERT(fQueuedDraws.empty() || fBaseDrawToken == state->nextTokenToFlush());
 
     for (int currDrawIdx = 0; currDrawIdx < fQueuedDraws.count(); ++currDrawIdx) {
+        const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
+
+        SkASSERT(draw.fPipeline->getRenderTargetProxy() == state->drawOpArgs().fRenderTargetProxy);
+        GrRenderTarget* rt = draw.fPipeline->getRenderTargetProxy()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
         GrDrawOpUploadToken drawToken = state->nextTokenToFlush();
         while (currUploadIdx < fInlineUploads.count() &&
                fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
             state->commandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload,
-                                                 state->drawOpArgs().fRenderTarget);
+                                                 rt);
         }
-        const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
-        SkASSERT(draw.fPipeline->getRenderTarget() == state->drawOpArgs().fRenderTarget);
-        state->commandBuffer()->draw(*draw.fPipeline, *draw.fGeometryProcessor.get(),
+        state->commandBuffer()->draw(*draw.fPipeline, rt, *draw.fGeometryProcessor.get(),
                                      fMeshes.begin() + currMeshIdx, draw.fMeshCnt, this->bounds());
         currMeshIdx += draw.fMeshCnt;
         state->flushToken();

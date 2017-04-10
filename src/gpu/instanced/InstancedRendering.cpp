@@ -460,6 +460,11 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
 }
 
 void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
+    GrRenderTarget* rt = state->drawOpArgs().fRenderTargetProxy->instantiate(nullptr);
+    if (!rt) {
+        return;
+    }
+
     SkASSERT(State::kFlushing == fInstancedRendering->fState);
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 
@@ -471,15 +476,15 @@ void InstancedRendering::Op::onExecute(GrOpFlushState* state) {
     args.fCaps = &state->caps();
     args.fProcessors = &fProcessors;
     args.fFlags = GrAATypeIsHW(fInfo.aaType()) ? GrPipeline::kHWAntialias_Flag : 0;
-    args.fRenderTarget = state->drawOpArgs().fRenderTarget;
+    args.fRenderTargetProxy = state->drawOpArgs().fRenderTargetProxy;
     args.fDstTexture = state->drawOpArgs().fDstTexture;
     pipeline.init(args);
 
     if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*state->gpu()->caps())) {
-        state->gpu()->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        state->gpu()->xferBarrier(rt, barrierType);
     }
     InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer.get());
-    fInstancedRendering->onDraw(pipeline, instProc, this);
+    fInstancedRendering->onDraw(pipeline, rt, instProc, this);
 }
 
 void InstancedRendering::endFlush() {

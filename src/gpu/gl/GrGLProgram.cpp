@@ -65,8 +65,9 @@ void GrGLProgram::abandon() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline) {
-    this->setRenderTargetState(primProc, pipeline.getRenderTarget());
+void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+                          GrRenderTarget* rt) {
+    this->setRenderTargetState(primProc, rt);
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
@@ -115,6 +116,7 @@ void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
 }
 
 
+// TODO: is this after the flush
 void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
                                        const GrRenderTarget* rt) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.

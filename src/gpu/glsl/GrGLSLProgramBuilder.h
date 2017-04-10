@@ -114,7 +114,7 @@ protected:
 
     void cleanupFragmentProcessors();
 
-    void finalizeShaders();
+    void finalizeShaders(GrRenderTarget*);
 
 private:
     // reset is called by program creator between each processor's emit code.  It increments the

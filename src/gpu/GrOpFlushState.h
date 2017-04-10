@@ -98,7 +98,7 @@ public:
 
     /** Additional data required on a per-op basis when executing GrDrawOps. */
     struct DrawOpArgs {
-        GrRenderTarget* fRenderTarget;
+        GrRenderTargetProxy* fRenderTargetProxy;
         const GrAppliedClip* fAppliedClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
