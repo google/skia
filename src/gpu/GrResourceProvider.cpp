@@ -58,12 +58,17 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
                                                       SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
+    if (!mipLevelCount) {
+        if (texels) {
+            return nullptr;
+        }
+        return GrSurfaceProxy::MakeDeferred(this, desc, budgeted, nullptr, 0);
+    }
+
     if (this->isAbandoned()) {
         return nullptr;
     }
-    if (mipLevelCount && !texels) {
-        return nullptr;
-    }
+
     for (int i = 0; i < mipLevelCount; ++i) {
         if (!texels[i].fPixels) {
             return nullptr;
@@ -82,8 +87,14 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
             sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
             if (tex) {
                 sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex);
-                if (!mipLevelCount ||
-                    fGpu->getContext()->contextPriv().writeSurfacePixels(
+
+                sk_sp<GrSurfaceContext> sContext = fGpu->getContext->makeSurfaceContext(std::move(proxy), nullptr);
+                
+                if (sContext->writePixels(??, texels[0].fPixels, texels[0].fRowBytes, 0, 0)) {
+                    return sContext->asTextureProxyRef();
+                }
+
+                if (fGpu->getContext()->contextPriv().writeSurfacePixels(
                                 proxy.get(), nullptr, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                 nullptr, texels[0].fPixels, texels[0].fRowBytes)) {
                     if (SkBudgeted::kNo == budgeted) {
