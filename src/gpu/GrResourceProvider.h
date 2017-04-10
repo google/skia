@@ -67,7 +67,7 @@ public:
      * The contents of the texture are undefined. The caller owns a ref on the returned texture and
      * must balance with a call to unref.
      */
-    GrTexture* createApproxTexture(const GrSurfaceDesc&, uint32_t flags);
+    GrTexture* createApproxTexture7(const GrSurfaceDesc&, uint32_t flags);
 
     /** Create an exact fit texture with no initial data to upload.
      */
@@ -243,7 +243,7 @@ private:
         this->assignUniqueKeyToResource(key, texture);
     }
 
-    GrTexture* refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
+    GrTexture* refScratchTexture1(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
