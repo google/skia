@@ -34,6 +34,24 @@
       "revId": "37cbec3caf2ba1bbbca919541f94a0f5d47e8b10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dcf14f3_52526521",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-10T18:39:56Z",
+      "side": 1,
+      "message": "LGTM++.",
+      "parentUuid": "fac15086_3a014000",
+      "revId": "37cbec3caf2ba1bbbca919541f94a0f5d47e8b10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
