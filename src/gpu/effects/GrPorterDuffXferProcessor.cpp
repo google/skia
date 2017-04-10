@@ -49,6 +49,15 @@ public:
         kLast_Property = kCanTweakAlphaForCoverage_Property
     };
 
+    constexpr BlendFormula(OutputType primaryOut, OutputType secondaryOut, GrBlendEquation equation, GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff)
+        : fPrimaryOutputType(primaryOut)
+        , fSecondaryOutputType(secondaryOut)
+        , fBlendEquation(equation)
+        , fSrcCoeff(srcCoeff)
+        , fDstCoeff(dstCoeff)
+        , fProps(GetProperties(primaryOut, secondaryOut, equation, srcCoeff, dstCoeff)) {
+    }
+
     BlendFormula& operator =(const BlendFormula& other) {
         fData = other.fData;
         return *this;
@@ -67,37 +76,9 @@ public:
     }
 
     /**
-     * Deduce the properties of a compile-time constant BlendFormula.
+     * Deduce the properties of a BlendFormula.
      */
-    template<OutputType PrimaryOut, OutputType SecondaryOut,
-             GrBlendEquation BlendEquation, GrBlendCoeff SrcCoeff, GrBlendCoeff DstCoeff>
-    struct get_properties : std::integral_constant<Properties, static_cast<Properties>(
-
-        (GR_BLEND_MODIFIES_DST(BlendEquation, SrcCoeff, DstCoeff) ?
-            kModifiesDst_Property : 0) |
-
-        (GR_BLEND_COEFFS_USE_DST_COLOR(SrcCoeff, DstCoeff) ?
-            kUsesDstColor_Property : 0) |
-
-        ((PrimaryOut >= kModulate_OutputType && GR_BLEND_COEFFS_USE_SRC_COLOR(SrcCoeff,DstCoeff)) ||
-         (SecondaryOut >= kModulate_OutputType && GR_BLEND_COEFF_REFS_SRC2(DstCoeff)) ?
-            kUsesInputColor_Property : 0) |  // We assert later that SrcCoeff doesn't ref src2.
-
-        ((kModulate_OutputType == PrimaryOut || kNone_OutputType == PrimaryOut) &&
-         kNone_OutputType == SecondaryOut &&
-         GR_BLEND_CAN_TWEAK_ALPHA_FOR_COVERAGE(BlendEquation, SrcCoeff, DstCoeff) ?
-            kCanTweakAlphaForCoverage_Property : 0))> {
-
-        // The provided formula should already be optimized.
-        GR_STATIC_ASSERT((kNone_OutputType == PrimaryOut) ==
-                         !GR_BLEND_COEFFS_USE_SRC_COLOR(SrcCoeff, DstCoeff));
-        GR_STATIC_ASSERT(!GR_BLEND_COEFF_REFS_SRC2(SrcCoeff));
-        GR_STATIC_ASSERT((kNone_OutputType == SecondaryOut) ==
-                         !GR_BLEND_COEFF_REFS_SRC2(DstCoeff));
-        GR_STATIC_ASSERT(PrimaryOut != SecondaryOut || kNone_OutputType == PrimaryOut);
-        GR_STATIC_ASSERT(kNone_OutputType != PrimaryOut || kNone_OutputType == SecondaryOut);
-    };
-
+    static inline constexpr Properties GetProperties(OutputType PrimaryOut, OutputType SecondaryOut, GrBlendEquation BlendEquation, GrBlendCoeff SrcCoeff, GrBlendCoeff DstCoeff);
     union {
         struct {
             // We allot the enums one more bit than they require because MSVC seems to sign-extend
@@ -122,15 +103,33 @@ GR_STATIC_ASSERT(4 == sizeof(BlendFormula));
 
 GR_MAKE_BITFIELD_OPS(BlendFormula::Properties);
 
+constexpr BlendFormula::Properties BlendFormula::GetProperties(OutputType PrimaryOut, OutputType SecondaryOut, GrBlendEquation BlendEquation, GrBlendCoeff SrcCoeff, GrBlendCoeff DstCoeff) {
+    // The provided formula should already be optimized.
+#if 0
+    GR_STATIC_ASSERT((kNone_OutputType == PrimaryOut) ==
+                     !GrBlendCoeffsUseSrcColor(SrcCoeff, DstCoeff));
+    GR_STATIC_ASSERT(!GrBlendCoeffRefsSrc2(SrcCoeff));
+    GR_STATIC_ASSERT((kNone_OutputType == SecondaryOut) ==
+                     !GrBlendCoeffRefsSrc2(DstCoeff));
+    GR_STATIC_ASSERT(PrimaryOut != SecondaryOut || kNone_OutputType == PrimaryOut);
+    GR_STATIC_ASSERT(kNone_OutputType != PrimaryOut || kNone_OutputType == SecondaryOut);
+#endif
+    return static_cast<Properties>((GrBlendModifiesDst(BlendEquation, SrcCoeff, DstCoeff) ? kModifiesDst_Property : 0) |
+           (GrBlendCoeffsUseDstColor(SrcCoeff, DstCoeff) ? kUsesDstColor_Property : 0) |
+    ((PrimaryOut >= kModulate_OutputType && GrBlendCoeffsUseSrcColor(SrcCoeff,DstCoeff)) ||
+     (SecondaryOut >= kModulate_OutputType && GrBlendCoeffRefsSrc2(DstCoeff)) ?
+        kUsesInputColor_Property : 0) |  // We assert later that SrcCoeff doesn't ref src2.
+    ((kModulate_OutputType == PrimaryOut || kNone_OutputType == PrimaryOut) &&
+     kNone_OutputType == SecondaryOut &&
+     GrBlendAllowsCoverageAsAlpha(BlendEquation, SrcCoeff, DstCoeff) ?
+        kCanTweakAlphaForCoverage_Property : 0));
+}
+
 /**
  * Initialize a compile-time constant BlendFormula and automatically deduce fProps.
  */
 #define INIT_BLEND_FORMULA(PRIMARY_OUT, SECONDARY_OUT, BLEND_EQUATION, SRC_COEFF, DST_COEFF) \
-    {{{PRIMARY_OUT, \
-       SECONDARY_OUT, \
-       BLEND_EQUATION, SRC_COEFF, DST_COEFF, \
-       BlendFormula::get_properties<PRIMARY_OUT, SECONDARY_OUT, \
-                                    BLEND_EQUATION, SRC_COEFF, DST_COEFF>::value}}}
+    BlendFormula(PRIMARY_OUT, SECONDARY_OUT, BLEND_EQUATION, SRC_COEFF, DST_COEFF)
 
 /**
  * When there is no coverage, or the blend mode can tweak alpha for coverage, we use the standard
