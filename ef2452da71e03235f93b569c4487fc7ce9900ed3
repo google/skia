@@ -22,6 +22,110 @@
       "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1c6b556_17d76919",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T20:24:13Z",
+      "side": 1,
+      "message": "Should we hold off on the ReleaseProc variation for now?",
+      "parentUuid": "013fe63a_2939bb0b",
+      "range": {
+        "startLine": 135,
+        "startChar": 4,
+        "endLine": 135,
+        "endChar": 57
+      },
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73db3e90_bff55d10",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T20:24:13Z",
+      "side": 1,
+      "message": "Maybe say something about if sampleCnt \u003e 0 we will create an intermediate msaa surface to render into and then resolve into the texture? Want to be clear that this isn\u0027t the sample count of the texture.",
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11606c52_580a46e7",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T20:24:13Z",
+      "side": 1,
+      "message": "I somewhat question whether the inheritance is worth it. There isn\u0027t that much to share. I think as a client its slightly more complex to understand, and it adds a bit of resistance to these diverging over time (if they ought to), particularly when we get around to GrFramebuffer.",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 22
+      },
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "294bc1eb_32e249a4",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T20:24:13Z",
+      "side": 1,
+      "message": "There is no sample count here",
+      "range": {
+        "startLine": 21,
+        "startChar": 44,
+        "endLine": 21,
+        "endChar": 56
+      },
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d2ec9aa_d3ff2935",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-10T20:24:13Z",
+      "side": 1,
+      "message": "Can this be private and just set by the factories?",
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
