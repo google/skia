@@ -16,6 +16,24 @@
       "revId": "ea0765224a595ed42a9ad713a87db16b4211e5f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cac445d8_7fd7730a",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-04-10T14:13:17Z",
+      "side": 1,
+      "message": "Mostly for consistency, and gdiTextSize is somewhat oddly named because GDI only supported integer sizes but the GDI rendering in DirectWrite at least kinda supports non-integer sizes. So here gdiTextSize isn\u0027t actually an integer but a float that\u0027s been rounded to the nearest 1/64 of a pixel  to prevent flip flopping near half-pixel sizes. This is another thing I\u0027m taking a look at at the moment.",
+      "parentUuid": "b4e6a103_2c3caf0d",
+      "revId": "ea0765224a595ed42a9ad713a87db16b4211e5f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
