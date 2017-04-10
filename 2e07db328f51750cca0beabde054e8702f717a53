@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f69abcd7_7de0947c",
+        "filename": "include/gpu/GrBlend.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-04-10T15:34:18Z",
+      "side": 1,
+      "message": "Better name!",
+      "range": {
+        "startLine": 136,
+        "startChar": 22,
+        "endLine": 136,
+        "endChar": 50
+      },
+      "revId": "2e07db328f51750cca0beabde054e8702f717a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c148104_1859c756",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-04-10T15:34:18Z",
+      "side": 1,
+      "message": "nit: Might be nice to make this an enum class while we\u0027re at it C++11-ifying things.\n\nGR_DECL_BITFIELD_CLASS_OPS_FRIENDS",
+      "range": {
+        "startLine": 120,
+        "startChar": 6,
+        "endLine": 120,
+        "endChar": 0
+      },
+      "revId": "2e07db328f51750cca0beabde054e8702f717a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
