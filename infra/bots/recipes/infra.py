@@ -32,9 +32,6 @@ def GenTests(api):
   yield (
       api.test('infra_tests') +
       api.properties(buildername='Housekeeper-PerCommit-InfraTests',
-                     mastername='client.skia.fyi',
-                     slavename='dummy-slave',
-                     buildnumber=5,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
@@ -44,9 +41,6 @@ def GenTests(api):
   yield (
     api.test('failed_one_update') +
       api.properties(buildername='Housekeeper-PerCommit-InfraTests',
-                     mastername='client.skia.fyi',
-                     slavename='dummy-slave',
-                     buildnumber=5,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
@@ -57,9 +51,6 @@ def GenTests(api):
   yield (
     api.test('failed_all_updates') +
       api.properties(buildername='Housekeeper-PerCommit-InfraTests',
-                     mastername='client.skia.fyi',
-                     slavename='dummy-slave',
-                     buildnumber=5,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',

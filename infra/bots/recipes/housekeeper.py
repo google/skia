@@ -61,9 +61,6 @@ def GenTests(api):
   yield (
       api.test('Housekeeper-PerCommit') +
       api.properties(buildername='Housekeeper-PerCommit',
-                     mastername='client.skia.fyi',
-                     slavename='skiabot-linux-housekeeper-000',
-                     buildnumber=5,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
@@ -73,14 +70,10 @@ def GenTests(api):
   yield (
       api.test('Housekeeper-PerCommit-Trybot') +
       api.properties(buildername='Housekeeper-PerCommit',
-                     mastername='client.skia.fyi',
-                     slavename='skiabot-linux-housekeeper-000',
-                     buildnumber=5,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
                      patch_storage='gerrit',
-                     nobuildbot='True',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.properties.tryserver(
           buildername='Housekeeper-PerCommit',

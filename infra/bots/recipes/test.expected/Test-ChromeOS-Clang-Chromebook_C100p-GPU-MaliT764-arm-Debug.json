@@ -803,6 +803,34 @@
     "cmd": [
       "python",
       "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
       "[START_DIR]/out/Debug/dm",
       "foo@127.0.0.1:/home/chronos/user/bin/dm"
@@ -868,12 +896,12 @@
       "--properties",
       "gitHash",
       "abc123",
-      "master",
-      "client.skia",
       "builder",
       "Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug",
-      "build_number",
-      "5",
+      "swarming_bot_id",
+      "",
+      "swarming_task_id",
+      "",
       "--svgs",
       "/home/chronos/user/svgs",
       "--key",
