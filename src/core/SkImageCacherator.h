@@ -31,7 +31,7 @@ public:
     ~SkImageCacherator();
 
     const SkImageInfo& info() const { return fInfo; }
-    uint32_t uniqueID() const { return fUniqueIDs[kLegacy_CachedFormat]; }
+    uint32_t uniqueID() const { return this->getUniqueID(kLegacy_CachedFormat); }
 
     enum CachedFormat {
         kLegacy_CachedFormat,    // The format from the generator, with any color space stripped out
@@ -130,7 +130,6 @@ private:
     CachedFormat chooseCacheFormat(SkColorSpace* dstColorSpace, const GrCaps* = nullptr);
     SkImageInfo buildCacheInfo(CachedFormat);
 
-    bool generateBitmap(SkBitmap*, const SkImageInfo&);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
                          const SkImageInfo&);
 #if SK_SUPPORT_GPU
@@ -152,7 +151,14 @@ private:
     sk_sp<SharedGenerator> fSharedGenerator;
     const SkImageInfo      fInfo;
     const SkIPoint         fOrigin;
-    uint32_t               fUniqueIDs[kNumCachedFormats];
+
+    struct IDRec {
+        SkOnce      fOnce;
+        uint32_t    fUniqueID;
+    };
+    mutable IDRec fIDRecs[kNumCachedFormats];
+
+    uint32_t getUniqueID(CachedFormat) const;
 
     friend class GrImageTextureMaker;
     friend class SkImage;
