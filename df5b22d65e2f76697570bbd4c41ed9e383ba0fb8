@@ -69,6 +69,24 @@
       "revId": "df5b22d65e2f76697570bbd4c41ed9e383ba0fb8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a8ad4fb_a567505f",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-11T16:34:32Z",
+      "side": 1,
+      "message": "this part lgtm, defer to others for the rest of the review.",
+      "parentUuid": "5738173c_0bc25aae",
+      "revId": "df5b22d65e2f76697570bbd4c41ed9e383ba0fb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
