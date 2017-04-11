@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fb00531_eece37dd",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-11T13:43:46Z",
+      "side": 1,
+      "message": "Maybe document why/when this might not return its pref space...\n- 565\n- transfer function limitations\n- blah blah blah",
+      "range": {
+        "startLine": 84,
+        "startChar": 24,
+        "endLine": 84,
+        "endChar": 47
+      },
+      "revId": "63d87bddc2871e99e2f1e46c40e75c6d3d48818d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
