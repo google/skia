@@ -40,8 +40,8 @@ static void copy_v(void* dst, const S* src, int n, Rest&&... rest) {
 
 // Helper for getting back at arrays which have been copy_v'd together after an Op.
 template <typename D, typename T>
-static D* pod(T* op, size_t offset = 0) {
-    return SkTAddOffset<D>(op+1, offset);
+static const D* pod(const T* op, size_t offset = 0) {
+    return SkTAddOffset<const D>(op+1, offset);
 }
 
 namespace {
@@ -73,7 +73,7 @@ namespace {
         SetDrawFilter(SkDrawFilter* df) : drawFilter(sk_ref_sp(df)) {}
         sk_sp<SkDrawFilter> drawFilter;
 #endif
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
             c->setDrawFilter(drawFilter.get());
 #endif
@@ -82,11 +82,11 @@ namespace {
 
     struct Save final : Op {
         static const auto kType = Type::Save;
-        void draw(SkCanvas* c, const SkMatrix&) { c->save(); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->save(); }
     };
     struct Restore final : Op {
         static const auto kType = Type::Restore;
-        void draw(SkCanvas* c, const SkMatrix&) { c->restore(); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->restore(); }
     };
     struct SaveLayer final : Op {
         static const auto kType = Type::SaveLayer;
@@ -101,7 +101,7 @@ namespace {
         SkPaint                    paint;
         sk_sp<const SkImageFilter> backdrop;
         SkCanvas::SaveLayerFlags   flags;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->saveLayer({ maybe_unset(bounds), &paint, backdrop.get(), flags });
         }
     };
@@ -110,13 +110,13 @@ namespace {
         static const auto kType = Type::Concat;
         Concat(const SkMatrix& matrix) : matrix(matrix) {}
         SkMatrix matrix;
-        void draw(SkCanvas* c, const SkMatrix&) { c->concat(matrix); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->concat(matrix); }
     };
     struct SetMatrix final : Op {
         static const auto kType = Type::SetMatrix;
         SetMatrix(const SkMatrix& matrix) : matrix(matrix) {}
         SkMatrix matrix;
-        void draw(SkCanvas* c, const SkMatrix& original) {
+        void draw(SkCanvas* c, const SkMatrix& original) const {
             c->setMatrix(SkMatrix::Concat(original, matrix));
         }
     };
@@ -124,7 +124,7 @@ namespace {
         static const auto kType = Type::Translate;
         Translate(SkScalar dx, SkScalar dy) : dx(dx), dy(dy) {}
         SkScalar dx,dy;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->translate(dx, dy);
         }
     };
@@ -132,7 +132,7 @@ namespace {
         static const auto kType = Type::TranslateZ;
         TranslateZ(SkScalar dz) : dz(dz) {}
         SkScalar dz;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
         #ifdef SK_EXPERIMENTAL_SHADOWING
             c->translateZ(dz);
         #endif
@@ -145,7 +145,7 @@ namespace {
         SkPath   path;
         SkClipOp op;
         bool     aa;
-        void draw(SkCanvas* c, const SkMatrix&) { c->clipPath(path, op, aa); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->clipPath(path, op, aa); }
     };
     struct ClipRect final : Op {
         static const auto kType = Type::ClipRect;
@@ -153,7 +153,7 @@ namespace {
         SkRect   rect;
         SkClipOp op;
         bool     aa;
-        void draw(SkCanvas* c, const SkMatrix&) { c->clipRect(rect, op, aa); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->clipRect(rect, op, aa); }
     };
     struct ClipRRect final : Op {
         static const auto kType = Type::ClipRRect;
@@ -161,49 +161,49 @@ namespace {
         SkRRect  rrect;
         SkClipOp op;
         bool     aa;
-        void draw(SkCanvas* c, const SkMatrix&) { c->clipRRect(rrect, op, aa); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->clipRRect(rrect, op, aa); }
     };
     struct ClipRegion final : Op {
         static const auto kType = Type::ClipRegion;
         ClipRegion(const SkRegion& region, SkClipOp op) : region(region), op(op) {}
         SkRegion region;
         SkClipOp op;
-        void draw(SkCanvas* c, const SkMatrix&) { c->clipRegion(region, op); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->clipRegion(region, op); }
     };
 
     struct DrawPaint final : Op {
         static const auto kType = Type::DrawPaint;
         DrawPaint(const SkPaint& paint) : paint(paint) {}
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawPaint(paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawPaint(paint); }
     };
     struct DrawPath final : Op {
         static const auto kType = Type::DrawPath;
         DrawPath(const SkPath& path, const SkPaint& paint) : path(path), paint(paint) {}
         SkPath  path;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawPath(path, paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawPath(path, paint); }
     };
     struct DrawRect final : Op {
         static const auto kType = Type::DrawRect;
         DrawRect(const SkRect& rect, const SkPaint& paint) : rect(rect), paint(paint) {}
         SkRect  rect;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawRect(rect, paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawRect(rect, paint); }
     };
     struct DrawRegion final : Op {
         static const auto kType = Type::DrawRegion;
         DrawRegion(const SkRegion& region, const SkPaint& paint) : region(region), paint(paint) {}
         SkRegion region;
         SkPaint  paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawRegion(region, paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawRegion(region, paint); }
     };
     struct DrawOval final : Op {
         static const auto kType = Type::DrawOval;
         DrawOval(const SkRect& oval, const SkPaint& paint) : oval(oval), paint(paint) {}
         SkRect  oval;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawOval(oval, paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawOval(oval, paint); }
     };
     struct DrawArc final : Op {
         static const auto kType = Type::DrawArc;
@@ -216,15 +216,15 @@ namespace {
         SkScalar sweepAngle;
         bool useCenter;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawArc(oval, startAngle, sweepAngle,
-                                                             useCenter, paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawArc(oval, startAngle, sweepAngle,
+                                                                   useCenter, paint); }
     };
     struct DrawRRect final : Op {
         static const auto kType = Type::DrawRRect;
         DrawRRect(const SkRRect& rrect, const SkPaint& paint) : rrect(rrect), paint(paint) {}
         SkRRect rrect;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawRRect(rrect, paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawRRect(rrect, paint); }
     };
     struct DrawDRRect final : Op {
         static const auto kType = Type::DrawDRRect;
@@ -232,7 +232,7 @@ namespace {
             : outer(outer), inner(inner), paint(paint) {}
         SkRRect outer, inner;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawDRRect(outer, inner, paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawDRRect(outer, inner, paint); }
     };
 
     struct DrawAnnotation final : Op {
@@ -240,7 +240,7 @@ namespace {
         DrawAnnotation(const SkRect& rect, SkData* value) : rect(rect), value(sk_ref_sp(value)) {}
         SkRect        rect;
         sk_sp<SkData> value;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawAnnotation(rect, pod<char>(this), value.get());
         }
     };
@@ -251,7 +251,7 @@ namespace {
         }
         sk_sp<SkDrawable> drawable;
         SkMatrix          matrix = SkMatrix::I();
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawDrawable(drawable.get(), &matrix);
         }
     };
@@ -266,7 +266,7 @@ namespace {
         SkMatrix               matrix = SkMatrix::I();
         SkPaint                paint;
         bool                   has_paint = false;  // TODO: why is a default paint not the same?
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawPicture(picture.get(), &matrix, has_paint ? &paint : nullptr);
         }
     };
@@ -283,7 +283,7 @@ namespace {
         SkMatrix               matrix = SkMatrix::I();
         SkPaint                paint;
         SkShadowParams         params;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
         #ifdef SK_EXPERIMENTAL_SHADOWING
             c->drawShadowedPicture(picture.get(), &matrix, &paint, params);
         #endif
@@ -299,7 +299,7 @@ namespace {
         sk_sp<const SkImage> image;
         SkScalar x,y;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) { c->drawImage(image.get(), x,y, &paint); }
+        void draw(SkCanvas* c, const SkMatrix&) const { c->drawImage(image.get(), x,y, &paint); }
     };
     struct DrawImageNine final : Op {
         static const auto kType = Type::DrawImageNine;
@@ -312,7 +312,7 @@ namespace {
         SkIRect center;
         SkRect  dst;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawImageNine(image.get(), center, dst, &paint);
         }
     };
@@ -328,7 +328,7 @@ namespace {
         SkRect src, dst;
         SkPaint paint;
         SkCanvas::SrcRectConstraint constraint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawImageRect(image.get(), src, dst, &paint, constraint);
         }
     };
@@ -344,7 +344,7 @@ namespace {
         SkIRect              src;
         SkRect               dst;
         SkPaint              paint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             auto xdivs = pod<int>(this, 0),
                  ydivs = pod<int>(this, xs*sizeof(int));
             auto flags = (0 == fs) ? nullptr :
@@ -360,7 +360,7 @@ namespace {
         size_t bytes;
         SkScalar x,y;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawText(pod<void>(this), bytes, x,y, paint);
         }
     };
@@ -371,7 +371,7 @@ namespace {
         size_t bytes;
         SkPaint paint;
         int n;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             auto points = pod<SkPoint>(this);
             auto text   = pod<void>(this, n*sizeof(SkPoint));
             c->drawPosText(text, bytes, points, paint);
@@ -385,7 +385,7 @@ namespace {
         SkScalar y;
         SkPaint  paint;
         int n;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             auto xs   = pod<SkScalar>(this);
             auto text = pod<void>(this, n*sizeof(SkScalar));
             c->drawPosTextH(text, bytes, xs, y, paint);
@@ -402,7 +402,7 @@ namespace {
         SkPath   path;
         SkMatrix matrix = SkMatrix::I();
         SkPaint  paint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawTextOnPath(pod<void>(this), bytes, path, &matrix, paint);
         }
     };
@@ -415,7 +415,7 @@ namespace {
         size_t  bytes;
         SkRect  cull = kUnset;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawTextRSXform(pod<void>(this), bytes, pod<SkRSXform>(this, bytes),
                                maybe_unset(cull), paint);
         }
@@ -427,7 +427,7 @@ namespace {
         sk_sp<const SkTextBlob> blob;
         SkScalar x,y;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawTextBlob(blob.get(), x,y, paint);
         }
     };
@@ -449,7 +449,7 @@ namespace {
         SkPaint           paint;
         bool              has_colors = false;
         bool              has_texs   = false;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawPatch(cubics, has_colors ? colors : nullptr, has_texs ? texs : nullptr,
                          xfermode, paint);
         }
@@ -461,7 +461,7 @@ namespace {
         SkCanvas::PointMode mode;
         size_t              count;
         SkPaint             paint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawPoints(mode, count, pod<SkPoint>(this), paint);
         }
     };
@@ -472,7 +472,7 @@ namespace {
         sk_sp<SkVertices> vertices;
         SkBlendMode mode;
         SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             c->drawVertices(vertices, mode, paint);
         }
     };
@@ -490,7 +490,7 @@ namespace {
         SkRect               cull = kUnset;
         SkPaint              paint;
         bool                 has_colors;
-        void draw(SkCanvas* c, const SkMatrix&) {
+        void draw(SkCanvas* c, const SkMatrix&) const {
             auto xforms = pod<SkRSXform>(this, 0);
             auto   texs = pod<SkRect>(this, count*sizeof(SkRSXform));
             auto colors = has_colors
@@ -522,10 +522,10 @@ void* SkLiteDL::push(size_t pod, Args&&... args) {
 }
 
 template <typename Fn, typename... Args>
-inline void SkLiteDL::map(const Fn fns[], Args... args) {
+inline void SkLiteDL::map(const Fn fns[], Args... args) const {
     auto end = fBytes.get() + fUsed;
-    for (uint8_t* ptr = fBytes.get(); ptr < end; ) {
-        auto op = (Op*)ptr;
+    for (const uint8_t* ptr = fBytes.get(); ptr < end; ) {
+        auto op = (const Op*)ptr;
         auto type = op->type;
         auto skip = op->skip;
         if (auto fn = fns[type]) {  // We replace no-op functions with nullptrs
@@ -691,11 +691,13 @@ void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const S
                 colors, colors ? count : 0);
 }
 
-typedef void(*draw_fn)(void*,  SkCanvas*, const SkMatrix&);
-typedef void(*void_fn)(void*);
+typedef void(*draw_fn)(const void*,  SkCanvas*, const SkMatrix&);
+typedef void(*void_fn)(const void*);
 
 // All ops implement draw().
-#define M(T) [](void* op, SkCanvas* c, const SkMatrix& original) { ((T*)op)->draw(c, original); },
+#define M(T) [](const void* op, SkCanvas* c, const SkMatrix& original) { \
+    ((const T*)op)->draw(c, original);                                         \
+},
 static const draw_fn draw_fns[] = { TYPES(M) };
 #undef M
 
@@ -707,11 +709,12 @@ static const draw_fn draw_fns[] = { TYPES(M) };
 #endif
 
 // Most state ops (matrix, clip, save, restore) have a trivial destructor.
-#define M(T) !can_skip_destructor<T>::value ? [](void* op) { ((T*)op)->~T(); } : (void_fn)nullptr,
+#define M(T) !can_skip_destructor<T>::value ? [](const void* op) { ((const T*)op)->~T(); } \
+                                            : (void_fn)nullptr,
 static const void_fn dtor_fns[] = { TYPES(M) };
 #undef M
 
-void SkLiteDL::draw(SkCanvas* canvas) {
+void SkLiteDL::draw(SkCanvas* canvas) const {
     SkAutoCanvasRestore acr(canvas, false);
     this->map(draw_fns, canvas, canvas->getTotalMatrix());
 }
