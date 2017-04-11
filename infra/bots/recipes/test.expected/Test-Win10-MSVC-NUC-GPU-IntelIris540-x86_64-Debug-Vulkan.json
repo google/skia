@@ -593,6 +593,7 @@
       "--match",
       "~ApplyGamma",
       "~ComposedImageFilterBounds_Gpu",
+      "~DeferredTextureImage",
       "~ImageFilterFailAffectsTransparentBlack_Gpu",
       "~ImageFilterZeroBlurSigma_Gpu",
       "~ImageNewShader_GPU",
