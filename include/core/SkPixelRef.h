@@ -35,7 +35,11 @@ class SkDiscardableMemory;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
     explicit SkPixelRef(const SkImageInfo&);
+#endif
+    explicit SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes,
+                        sk_sp<SkColorTable> = nullptr);
     virtual ~SkPixelRef();
 
     const SkImageInfo& info() const {
@@ -214,6 +218,7 @@ public:
     bool isLazyGenerated() const { return this->onIsLazyGenerated(); }
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
     /**
      *  On success, returns true and fills out the LockRec for the pixels. On
      *  failure returns false and ignores the LockRec parameter.
@@ -232,6 +237,15 @@ protected:
      *  method need not do that.
      */
     virtual void onUnlockPixels() = 0;
+#else
+    bool onNewLockPixels(LockRec*) {
+        SkASSERT(false);    // should never be called
+        return true;
+    }
+    void onUnlockPixels() {
+        SkASSERT(false);    // should never be called
+    }
+#endif
 
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
@@ -255,16 +269,19 @@ protected:
     */
     SkBaseMutex* mutex() const { return &fMutex; }
 
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.
     // Performance tweak to avoid those calls (esp. in multi-thread use case).
     void setPreLocked(void*, size_t rowBytes, SkColorTable*);
+#endif
 
 private:
     mutable SkMutex fMutex;
 
     // mostly const. fInfo.fAlpahType can be changed at runtime.
     const SkImageInfo fInfo;
+    sk_sp<SkColorTable> fCTable;    // duplicated in LockRec, will unify later
 
     // LockRec is only valid if we're in a locked state (isLocked())
     LockRec         fRec;
