@@ -22,6 +22,29 @@
       "revId": "f1fb26e801cd162c9ec28b81b2047e32ce3b9532",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ed81085_87c23875",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-11T19:59:31Z",
+      "side": 1,
+      "message": "minor nit: Skia uses int when it counts/indexes something, and size_t when it talks about bytes. See any of our array classes.",
+      "range": {
+        "startLine": 645,
+        "startChar": 22,
+        "endLine": 645,
+        "endChar": 28
+      },
+      "revId": "f1fb26e801cd162c9ec28b81b2047e32ce3b9532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
