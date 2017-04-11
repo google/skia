@@ -25,7 +25,8 @@ public:
 
     bool decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocator,
                       const SkIRect& desiredSubset, int sampleSize,
-                      SkColorType colorType, bool requireUnpremul) override;
+                      SkColorType colorType, bool requireUnpremul,
+                      sk_sp<SkColorSpace> prefColorSpace) override;
 
     bool conversionSupported(SkColorType colorType) override;
 
