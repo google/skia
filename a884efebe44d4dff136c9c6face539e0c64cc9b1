@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "398b1fbf_dafc64dc",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-11T15:54:04Z",
+      "side": 1,
+      "message": "Subtle bug fix on this line.",
+      "range": {
+        "startLine": 260,
+        "startChar": 8,
+        "endLine": 260,
+        "endChar": 35
+      },
+      "revId": "a884efebe44d4dff136c9c6face539e0c64cc9b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
