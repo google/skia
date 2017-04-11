@@ -79,8 +79,7 @@ public:
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override;
 
-    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc, bool* rectsMustMatch,
-                            bool* disallowSubrect) const override;
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
