@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6714d468_928630fb",
+        "filename": "include/gpu/GrBackendSemaphore.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-11T15:29:43Z",
+      "side": 1,
+      "message": "So this include ends up include \u003cvulkan/vulkan.h\u003e which we need for the VkSemaphore and VK_NULL_HANDLE. However, currently this fails Skia compile in two spots, when compiling fiddle and public_headers_warnings_check.cpp, both cause vulkan.h doesn\u0027t exists (this does build fine in none vulkan builds cause of the ifdef\u0027s).\n\nHow do we want to approach this problem in general. I\u0027d really prefer to not make GrVk wrappers around all the vulkan objects in vulkan.h similar to what GL does. Its nice being able to use them directly. Any thoughts? Currently we include vulkan.h via $VulkanSDK/include and add it to the include directories when building with vulkan.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 25
+      },
+      "revId": "15306440fe26bcbd723c3e197ef34c612268ee61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
