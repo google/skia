@@ -107,7 +107,7 @@ protected:
                                           padRight, padBottom);
         image_to_bitmap(image.get(), &bitmap);
 
-        const SkTSize<SkScalar> size[] = {
+        const SkSize size[] = {
             {  50,  50, }, // shrink in both axes
             {  50, 200, }, // shrink in X
             { 200,  50, }, // shrink in Y
