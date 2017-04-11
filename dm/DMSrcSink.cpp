@@ -242,10 +242,10 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
 SkISize BRDSrc::size() const {
     std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
     if (brd) {
-        return SkISize::Make(SkTMax(1, brd->width() / (int) fSampleSize),
-                SkTMax(1, brd->height() / (int) fSampleSize));
+        return {SkTMax(1, brd->width() / (int)fSampleSize),
+                SkTMax(1, brd->height() / (int)fSampleSize)};
     }
-    return SkISize::Make(0, 0);
+    return {0, 0};
 }
 
 static SkString get_scaled_name(const Path& path, float scale) {
@@ -750,7 +750,7 @@ SkISize CodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
 
     auto imageSize = codec->getScaledDimensions(fScale);
@@ -856,7 +856,7 @@ SkISize AndroidCodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
     if (nullptr == codec) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
     return codec->getSampledDimensions(fSampleSize);
 }
@@ -975,7 +975,7 @@ SkISize ImageGenSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
     return codec->getInfo().dimensions();
 }
@@ -1079,9 +1079,9 @@ SkISize ColorCodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
-    return SkISize::Make(codec->getInfo().width(), codec->getInfo().height());
+    return {codec->getInfo().width(), codec->getInfo().height()};
 }
 
 Name ColorCodecSrc::name() const {
@@ -1113,15 +1113,15 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
 SkISize SKPSrc::size() const {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
-        return SkISize::Make(0,0);
+        return {0, 0};
     }
     SkPictInfo info;
     if (!SkPicture::InternalOnly_StreamIsSKP(stream.get(), &info)) {
-        return SkISize::Make(0,0);
+        return {0, 0};
     }
     SkRect viewport = kSKPViewport;
     if (!viewport.intersect(info.fCullRect)) {
-        return SkISize::Make(0,0);
+        return {0, 0};
     }
     return viewport.roundOut().size();
 }
@@ -1131,10 +1131,10 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 #if defined(SK_XML)
 // Used when the image doesn't have an intrinsic size.
-static const SkSize kDefaultSVGSize = SkSize::Make(1000, 1000);
+static const SkSize kDefaultSVGSize = {1000, 1000};
 
 // Used to force-scale tiny fixed-size images.
-static const SkSize kMinimumSVGSize = SkSize::Make(128, 128);
+static const SkSize kMinimumSVGSize = {128, 128};
 
 SVGSrc::SVGSrc(Path path)
     : fName(SkOSPath::Basename(path.c_str()))
@@ -1173,11 +1173,11 @@ Error SVGSrc::draw(SkCanvas* canvas) const {
 
 SkISize SVGSrc::size() const {
     if (!fDom) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
 
-    return SkSize::Make(fDom->containerSize().width()  * fScale,
-                        fDom->containerSize().height() * fScale).toRound();
+    return SkSize{fDom->containerSize().width() * fScale, fDom->containerSize().height() * fScale}
+            .toRound();
 }
 
 Name SVGSrc::name() const { return fName; }
@@ -1206,7 +1206,7 @@ int MSKPSrc::pageCount() const { return fPages.count(); }
 
 SkISize MSKPSrc::size() const { return this->size(0); }
 SkISize MSKPSrc::size(int i) const {
-    return i >= 0 && i < fPages.count() ? fPages[i].fSize.toCeil() : SkISize::Make(0, 0);
+    return i >= 0 && i < fPages.count() ? fPages[i].fSize.toCeil() : SkISize{0, 0};
 }
 
 Error MSKPSrc::draw(SkCanvas* c) const { return this->draw(0, c); }
@@ -1521,7 +1521,7 @@ static SkISize auto_compute_translate(SkMatrix* matrix, int srcW, int srcH) {
     SkRect bounds = SkRect::MakeIWH(srcW, srcH);
     matrix->mapRect(&bounds);
     matrix->postTranslate(-bounds.x(), -bounds.y());
-    return SkISize::Make(SkScalarRoundToInt(bounds.width()), SkScalarRoundToInt(bounds.height()));
+    return {SkScalarRoundToInt(bounds.width()), SkScalarRoundToInt(bounds.height())};
 }
 
 ViaMatrix::ViaMatrix(SkMatrix matrix, Sink* sink) : Via(sink), fMatrix(matrix) {}
