@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b3364a7_9b881581",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T13:26:20Z",
+      "side": 1,
+      "message": "passed in ...",
+      "revId": "32278b250315dbebd146c41f9be9058157c8cfaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5156101_60a01325",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 918,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T13:26:20Z",
+      "side": 1,
+      "message": "!\u003d ?",
+      "revId": "32278b250315dbebd146c41f9be9058157c8cfaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
