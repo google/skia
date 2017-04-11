@@ -82,7 +82,15 @@ class SkiaStepApi(recipe_api.RecipeApi):
                fail_build_on_failure=True, **kwargs):
     """Run a step. If it fails, keep going but mark the build status failed."""
     env = self.m.step.get_from_context('env', {})
+    # If PATH is defined in both, merge them together, merging default_env into
+    # path by replacing %(PATH)s
+    path = env.get('PATH', '')
     env.update(self.m.vars.default_env)
+    default_path = self.m.vars.default_env.get('PATH', '')
+    if path and default_path and path != default_path:
+      path = path.replace(r'%(PATH)s', default_path)
+      env['PATH'] = path
+
     try:
       with self.m.step.context({'env': env}):
         return steptype(name=name, **kwargs)
