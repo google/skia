@@ -35,7 +35,7 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format);
 /**
 * Returns the GrPixelConfig for the given vulkan texture format
 */
-bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config);
+GrPixelConfig GrVkFormatToPixelConfig(VkFormat format);
 
 /**
  * Returns true if the given vulkan texture format is sRGB encoded.

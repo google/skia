@@ -14,6 +14,7 @@
 
 class SkCanvas;
 class SkPaint;
+class GrBackendRenderTarget;
 class GrContext;
 class GrRenderTarget;
 
@@ -88,12 +89,28 @@ public:
                                                    sk_sp<SkColorSpace>, const SkSurfaceProps*);
 
     /**
+     *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. Skia will not assume
+     *  ownership of the texture and the client must ensure the texture is valid for the lifetime
+     *  of the SkSurface. If sampleCnt > 0, then we will create an intermediate mssa surface which
+     *  we will use for rendering. We then resolve into the passed in texture.
+     */
+    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*);
+
+    /**
      *  Used to wrap a pre-existing 3D API rendering target as a SkSurface. Skia will not assume
      *  ownership of the render target and the client must ensure the render target is valid for the
      *  lifetime of the SkSurface.
      */
     static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext*,
                                                         const GrBackendRenderTargetDesc&,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*);
+
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin origin,
                                                         sk_sp<SkColorSpace>,
                                                         const SkSurfaceProps*);
 
@@ -107,6 +124,13 @@ public:
      */
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(
         GrContext*, const GrBackendTextureDesc&, sk_sp<SkColorSpace>, const SkSurfaceProps*);
+
+    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*,
+                                                                 const GrBackendTexture&,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 sk_sp<SkColorSpace>,
+                                                                 const SkSurfaceProps*);
 
     /**
      * Legacy versions of the above factories, without color space support. These create "legacy"
