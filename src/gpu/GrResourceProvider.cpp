@@ -58,12 +58,17 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
                                                       SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
+    if (!mipLevelCount) {
+        if (texels) {
+            return nullptr;
+        }
+        return GrSurfaceProxy::MakeDeferred(this, desc, budgeted, nullptr, 0);
+    }
+
     if (this->isAbandoned()) {
         return nullptr;
     }
-    if (mipLevelCount && !texels) {
-        return nullptr;
-    }
+
     for (int i = 0; i < mipLevelCount; ++i) {
         if (!texels[i].fPixels) {
             return nullptr;
@@ -82,8 +87,8 @@ sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
             sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
             if (tex) {
                 sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex);
-                if (!mipLevelCount ||
-                    fGpu->getContext()->contextPriv().writeSurfacePixels(
+
+                if (fGpu->getContext()->contextPriv().writeSurfacePixels(
                                 proxy.get(), nullptr, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                 nullptr, texels[0].fPixels, texels[0].fRowBytes)) {
                     if (SkBudgeted::kNo == budgeted) {
@@ -143,12 +148,13 @@ GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, ui
     if (this->isAbandoned()) {
         return nullptr;
     }
+
     // Currently we don't recycle compressed textures as scratch.
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         return nullptr;
-    } else {
-        return this->refScratchTexture(desc, flags);
     }
+
+    return this->refScratchTexture(desc, flags);
 }
 
 GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
@@ -182,10 +188,6 @@ GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
                                                                    scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
-            GrRenderTarget* rt = surface->asRenderTarget();
-            if (rt && fGpu->caps()->discardRenderTargetSupport()) {
-                rt->discard();
-            }
             return surface->asTexture();
         }
     }

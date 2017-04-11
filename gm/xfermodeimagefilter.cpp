@@ -201,17 +201,16 @@ protected:
 
 private:
     static void DrawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint,
-                           int x, int y) {
+                                  int x, int y) {
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-        canvas->clipRect(SkRect::MakeWH(
-            SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height())));
+        canvas->clipRect(SkRect::MakeIWH(bitmap.width(), bitmap.height()));
         canvas->drawBitmap(bitmap, 0, 0, &paint);
         canvas->restore();
     }
 
     static void DrawClippedPaint(SkCanvas* canvas, const SkRect& rect, const SkPaint& paint,
-                          int x, int y) {
+                                 int x, int y) {
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
         canvas->clipRect(rect);

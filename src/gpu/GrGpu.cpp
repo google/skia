@@ -188,14 +188,6 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
                 fStats.incTextureUploads();
             }
         }
-        // This is a current work around to get discards into newly created textures. Once we are in
-        // MDB world, we should remove this code a rely on the draw target having specified load
-        // operations.
-        if (isRT && texels.empty()) {
-            GrRenderTarget* rt = tex->asRenderTarget();
-            SkASSERT(rt);
-            rt->discard();
-        }
     }
     return tex;
 }
