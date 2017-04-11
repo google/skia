@@ -112,6 +112,19 @@ public:
     */
     explicit SkCanvas(const SkBitmap& bitmap);
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    enum class ColorBehavior {
+        kLegacy,
+    };
+
+    /**
+     *  Android framework only constructor.
+     *  Allows the creation of a legacy SkCanvas even though the |bitmap|
+     *  and its pixel ref may have an SkColorSpace.
+     */
+    SkCanvas(const SkBitmap& bitmap, ColorBehavior);
+#endif
+
     /** Construct a canvas with the specified bitmap to draw into.
         @param bitmap   Specifies a bitmap for the canvas to draw into. Its
                         structure are copied to the canvas.
