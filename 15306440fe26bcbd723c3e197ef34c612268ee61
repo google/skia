@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5c66478b_6c2db551",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-11T17:53:24Z",
+      "side": 1,
+      "message": "Ahhhhh I completely forgot and dropped the array-ness when I updated. Will revert that back on the next update.",
+      "parentUuid": "99e85894_1c346696",
+      "revId": "15306440fe26bcbd723c3e197ef34c612268ee61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6714d468_928630fb",
         "filename": "include/gpu/GrBackendSemaphore.h",
         "patchSetId": 3
@@ -54,6 +72,30 @@
       "side": 1,
       "message": "The viable options I see are:\n1) Do what we did for GL and define our own compatible set of values, function signatures, etc.\n2) Checkin vulkan.h into third_party and make all our #includes refer to that one.\n3) Define small set of things here (e.g. GR_VK_NULL_HANDLE) and document that they\u0027re equivalent to the regular VK names. This seems icky as it\u0027s somewhat trying to split the difference between 1 and 2.\n4) Like 3) but using void*, int64_t, etc with documentation about what they mean. Also icky.\n\nTBH, I think we will eventually wind up wanting to be able to build the vulkan backend without an SDK an dynamically load the shared library in our test tools (assuming this is possible) by either 1) or 2). I don\u0027t know what the extension situation looks like in Vulkan but being able to incorporate extensions in to the GL backend without having to worry about repulling or modifying headers from the original source or becoming dependent on platform-specific GL headers was what led us to 1) for GL. Maybe that will be easier with Vulkan because of differences in how extensions are published, etc.\n\nIf we don\u0027t rely on having the vulkan sdk installed then it may be possible for use to be a little more lax about #ifdef SK_VULKAN at the interface level and just use the macro to make interfaces fail in source files.",
       "parentUuid": "6714d468_928630fb",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 25
+      },
+      "revId": "15306440fe26bcbd723c3e197ef34c612268ee61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fda263e_b3db69a0",
+        "filename": "include/gpu/GrBackendSemaphore.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-11T17:53:24Z",
+      "side": 1,
+      "message": "So for now, it looks like I could get the vulkan.h included in our tools (fiddle, and public_headers specifically) if we wanted.\n\nAs to your comment, I think we do need to do something as the spec evolves to new versions and extensions.\n\nI feel like option 1) gets significantly harder and ugly looking in vulkan beacause of all the structs and how enums are just global values but placed into actual enums types. If you look at at vulkan.h there is a lot of ugliness that goes on especially around platform specific things that we\u0027d probably need to replicate.\n\nFor 2), it could be done, but we would also need to include vulkan_platform.h which obvisouly isn\u0027t a big deal. Now we use to do this, but at some point we removed them from third_party cause someone gave a good reason why. But I don\u0027t recall what that reason was or if it is still a good reason.",
+      "parentUuid": "1804d91d_a282e451",
       "range": {
         "startLine": 15,
         "startChar": 0,
