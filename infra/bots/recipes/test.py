@@ -772,7 +772,7 @@ def GenTests(api):
       )
     )
     if 'Trybot' in builder:
-      test += api.properties(patch_storage='gerrit') 
+      test += api.properties(patch_storage='gerrit')
       test += api.properties.tryserver(
           buildername=builder,
           gerrit_project='skia',
