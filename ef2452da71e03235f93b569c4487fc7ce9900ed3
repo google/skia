@@ -234,6 +234,24 @@
       "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0167722_56bfe244",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-11T13:48:42Z",
+      "side": 1,
+      "message": "Don\u0027t we want to not allow specifying of fConfig for Vulkan but rather infer it from the VkImageInfo? Having it publicly settable seems counter to that.\n\nFor width height I don\u0027t have a real problem with them being publicly modifiable but does seem unnecessary given that one must provide them to the constructor anyway. If they were unmodifiable post-contruction that wouldn\u0027t be a problem and would allow us to shuffle things around in the future without changing clients (e.g. if we decided we\u0027d be better off storing w/h on GrVkImageInfo and the GL equivalent instead of in this wrapper).",
+      "parentUuid": "40cf10ad_ea322a6e",
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
