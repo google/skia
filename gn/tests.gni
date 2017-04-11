@@ -148,7 +148,6 @@ tests_sources = [
   "$_tests/PDFDeflateWStreamTest.cpp",
   "$_tests/PDFDocumentTest.cpp",
   "$_tests/PDFGlyphsToUnicodeTest.cpp",
-  "$_tests/PDFInvalidBitmapTest.cpp",
   "$_tests/PDFJpegEmbedTest.cpp",
   "$_tests/PDFMetadataAttributeTest.cpp",
   "$_tests/PDFOpaqueSrcModeToSrcOverTest.cpp",
