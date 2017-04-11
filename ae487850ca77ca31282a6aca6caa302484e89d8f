@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6bfbe77_f8a87481",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "distance -\u003e d0 \u0026 d1 ?\ndir -\u003e side ?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6983533_c5fadbc5",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "maybe pull 0.01f out into a constant shared with the following use ?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0d3c199_666de02d",
+        "filename": "src/utils/SkInsetConvexPolygon.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "space all the \u0027*\u0027s over 1 ?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81002cfc_a4d42e8a",
+        "filename": "src/utils/SkInsetConvexPolygon.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "tab over to \u0027(\u0027 ?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ccda8d7_b14913d6",
+        "filename": "src/utils/SkInsetConvexPolygon.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "space the \u0027*\u0027s over 1 ?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4237b68_2a8c32cb",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "We don\u0027t have a method that can do this ?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bb0eb03_4dbbcd96",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "tab over ?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10f2ac1b_5abed9a9",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "400? Where did that come from?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e92676d_30b471bf",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "same here - magic",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c2dc7c5_02814681",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-04-11T15:08:26Z",
+      "side": 1,
+      "message": "Could this be a find_min_Z(const SkRect\u0026, heightFunc) helper ?",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
