@@ -114,7 +114,7 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-ASAN",
+      "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
       "swarming_bot_id",
       "",
       "swarming_task_id",
@@ -125,7 +125,7 @@
       "arch",
       "x86_64",
       "compiler",
-      "GCC",
+      "Clang",
       "configuration",
       "Debug",
       "cpu_or_gpu",
@@ -133,7 +133,7 @@
       "cpu_or_gpu_value",
       "AVX2",
       "extra_config",
-      "ASAN",
+      "MSAN",
       "model",
       "GCE",
       "os",
@@ -443,17 +443,18 @@
       "tiles_rt-8888",
       "gm",
       "_",
-      "complexclip4_aa"
+      "complexclip4_aa",
+      "--match",
+      "~Once",
+      "~Shared"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
+      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/msan",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
-      "SKIA_OUT": "[START_DIR]/out",
-      "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "symbolized dm"
   },
