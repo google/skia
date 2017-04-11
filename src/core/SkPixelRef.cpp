@@ -36,10 +36,22 @@ static SkImageInfo validate_info(const SkImageInfo& info) {
     return info.makeAlphaType(newAlphaType);
 }
 
+static void validate_pixels_ctable(const SkImageInfo& info, const SkColorTable* ctable) {
+    if (info.isEmpty()) {
+        return; // can't require ctable if the dimensions are empty
+    }
+    if (kIndex_8_SkColorType == info.colorType()) {
+        SkASSERT(ctable);
+    } else {
+        SkASSERT(nullptr == ctable);
+    }
+}
+
 #ifdef SK_TRACE_PIXELREF_LIFETIME
     static int32_t gInstCounter;
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
 SkPixelRef::SkPixelRef(const SkImageInfo& info)
     : fInfo(validate_info(info))
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -55,6 +67,31 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info)
     this->needsNewGenID();
     fMutability = kMutable;
     fPreLocked = false;
+    fAddedToCache.store(false);
+}
+#endif
+
+SkPixelRef::SkPixelRef(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                       sk_sp<SkColorTable> ctable)
+    : fInfo(validate_info(info))
+    , fCTable(std::move(ctable))
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    , fStableID(SkNextID::ImageID())
+#endif
+{
+    validate_pixels_ctable(fInfo, fCTable.get());
+    SkASSERT(rowBytes >= info.minRowBytes());
+#ifdef SK_TRACE_PIXELREF_LIFETIME
+    SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
+#endif
+    fRec.fPixels = pixels;
+    fRec.fRowBytes = rowBytes;
+    fRec.fColorTable = fCTable.get();
+
+    fLockCount = SKPIXELREF_PRELOCKED_LOCKCOUNT;
+    this->needsNewGenID();
+    fMutability = kMutable;
+    fPreLocked = true;
     fAddedToCache.store(false);
 }
 
@@ -88,17 +125,7 @@ void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     SkASSERT(!that. genIDIsUnique());
 }
 
-static void validate_pixels_ctable(const SkImageInfo& info, const SkColorTable* ctable) {
-    if (info.isEmpty()) {
-        return; // can't require ctable if the dimensions are empty
-    }
-    if (kIndex_8_SkColorType == info.colorType()) {
-        SkASSERT(ctable);
-    } else {
-        SkASSERT(nullptr == ctable);
-    }
-}
-
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
 void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable) {
     SkASSERT(pixels);
     validate_pixels_ctable(fInfo, ctable);
@@ -110,6 +137,7 @@ void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctabl
     fLockCount = SKPIXELREF_PRELOCKED_LOCKCOUNT;
     fPreLocked = true;
 }
+#endif
 
 // Increments fLockCount only on success
 bool SkPixelRef::lockPixelsInsideMutex() {

@@ -19,46 +19,6 @@
 #include "SkSurface.h"
 #include "Test.h"
 
-class FailurePixelRef : public SkPixelRef {
-public:
-    FailurePixelRef(const SkImageInfo& info) : SkPixelRef(info) {}
-protected:
-    bool onNewLockPixels(LockRec*) override { return false; }
-    void onUnlockPixels() override {}
-};
-
-// crbug.com/295895
-// Crashing in skia when a pixelref fails in lockPixels
-//
-static void test_faulty_pixelref(skiatest::Reporter* reporter) {
-    // need a cache, but don't expect to use it, so the budget is not critical
-    sk_sp<SkDiscardableMemoryPool> pool(
-        SkDiscardableMemoryPool::Create(10 * 1000, nullptr));
-
-    SkBitmap bm;
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    bm.setInfo(info);
-    bm.setPixelRef(sk_make_sp<FailurePixelRef>(info), 0, 0);
-    // now our bitmap has a pixelref, but we know it will fail to lock
-
-    auto surface(SkSurface::MakeRasterN32Premul(200, 200));
-    SkCanvas* canvas = surface->getCanvas();
-
-    const SkFilterQuality levels[] = {
-        kNone_SkFilterQuality,
-        kLow_SkFilterQuality,
-        kMedium_SkFilterQuality,
-        kHigh_SkFilterQuality,
-    };
-
-    SkPaint paint;
-    canvas->scale(2, 2);    // need a scale, otherwise we may ignore filtering
-    for (size_t i = 0; i < SK_ARRAY_COUNT(levels); ++i) {
-        paint.setFilterQuality(levels[i]);
-        canvas->drawBitmap(bm, 0, 0, &paint);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static void rand_matrix(SkMatrix* mat, SkRandom& rand, unsigned mask) {
@@ -308,5 +268,4 @@ DEF_TEST(DrawBitmapRect, reporter) {
     test_giantrepeat_crbug118018(reporter);
 
     test_treatAsSprite(reporter);
-    test_faulty_pixelref(reporter);
 }
