@@ -2042,9 +2042,7 @@ int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
     return resourceIndex;
 }
 
-static SkSize rect_to_size(const SkRect& r) {
-    return SkSize::Make(r.width(), r.height());
-}
+static SkSize rect_to_size(const SkRect& r) { return {r.width(), r.height()}; }
 
 static sk_sp<SkImage> color_filter(const SkImageSubset& imageSubset,
                                    SkColorFilter* colorFilter) {

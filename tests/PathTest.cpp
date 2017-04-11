@@ -4531,7 +4531,7 @@ DEF_TEST(Paths, reporter) {
     test_path_crbugskia6003();
     test_fuzz_crbug_668907();
 
-    SkTSize<SkScalar>::Make(3,4);
+    SkSize::Make(3, 4);
 
     SkPath  p, empty;
     SkRect  bounds, bounds2;

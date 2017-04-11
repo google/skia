@@ -209,7 +209,7 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
 
 SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
     if (!is_valid_sample_size(sampleSize)) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
 
     // Fast path for when we are not scaling.
@@ -230,7 +230,7 @@ bool SkAndroidCodec::getSupportedSubset(SkIRect* desiredSubset) const {
 
 SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect& subset) const {
     if (!is_valid_sample_size(sampleSize)) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
 
     // We require that the input subset is a subset that is supported by SkAndroidCodec.
@@ -238,7 +238,7 @@ SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect
     // are made to the subset.
     SkIRect copySubset = subset;
     if (!this->getSupportedSubset(&copySubset) || copySubset != subset) {
-        return SkISize::Make(0, 0);
+        return {0, 0};
     }
 
     // If the subset is the entire image, for consistency, use getSampledDimensions().
@@ -248,8 +248,8 @@ SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect
 
     // This should perhaps call a virtual function, but currently both of our subclasses
     // want the same implementation.
-    return SkISize::Make(get_scaled_dimension(subset.width(), sampleSize),
-                get_scaled_dimension(subset.height(), sampleSize));
+    return {get_scaled_dimension(subset.width(), sampleSize),
+            get_scaled_dimension(subset.height(), sampleSize)};
 }
 
 SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* pixels,

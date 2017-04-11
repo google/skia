@@ -37,10 +37,9 @@ static constexpr char kEndPage[] = "SkMultiPictureEndPage";
 const uint32_t kVersion = 2;
 
 static SkSize join(const SkTArray<SkSize>& sizes) {
-    SkSize joined = SkSize::Make(0, 0);
+    SkSize joined = {0, 0};
     for (SkSize s : sizes) {
-        joined = SkSize::Make(SkTMax(joined.width(), s.width()),
-                              SkTMax(joined.height(), s.height()));
+        joined = SkSize{SkTMax(joined.width(), s.width()), SkTMax(joined.height(), s.height())};
     }
     return joined;
 }
@@ -189,10 +188,10 @@ bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
     if (!SkMultiPictureDocumentReadPageSizes(stream, dstArray, dstArrayCount)) {
         return false;
     }
-    SkSize joined = SkSize::Make(0.0f, 0.0f);
+    SkSize joined = {0.0f, 0.0f};
     for (int i = 0; i < dstArrayCount; ++i) {
-        joined = SkSize::Make(SkTMax(joined.width(), dstArray[i].fSize.width()),
-                              SkTMax(joined.height(), dstArray[i].fSize.height()));
+        joined = SkSize{SkTMax(joined.width(), dstArray[i].fSize.width()),
+                        SkTMax(joined.height(), dstArray[i].fSize.height())};
     }
 
     auto picture = SkPicture::MakeFromStream(stream);

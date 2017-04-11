@@ -1269,10 +1269,10 @@ SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
         rasterScale *= SkScalarSqrt(kMaxBitmapArea / bitmapArea);
     }
 
-    SkISize size = SkISize::Make(SkScalarRoundToInt(rasterScale * bbox.width()),
-                                 SkScalarRoundToInt(rasterScale * bbox.height()));
-    SkSize scale = SkSize::Make(SkIntToScalar(size.width()) / shaderRect.width(),
-                                SkIntToScalar(size.height()) / shaderRect.height());
+    SkISize size = {SkScalarRoundToInt(rasterScale * bbox.width()),
+                    SkScalarRoundToInt(rasterScale * bbox.height())};
+    SkSize scale = {SkIntToScalar(size.width()) / shaderRect.width(),
+                    SkIntToScalar(size.height()) / shaderRect.height()};
 
     imageDst->allocN32Pixels(size.width(), size.height());
     imageDst->eraseColor(SK_ColorTRANSPARENT);
