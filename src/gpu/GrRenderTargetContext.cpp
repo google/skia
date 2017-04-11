@@ -192,13 +192,6 @@ void GrRenderTargetContext::discard() {
 
     AutoCheckFlush acf(this->drawingManager());
 
-    // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
-    sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->resourceProvider())));
-    if (!rt) {
-        return;
-    }
-
     this->getOpList()->discard(this);
 }
 
