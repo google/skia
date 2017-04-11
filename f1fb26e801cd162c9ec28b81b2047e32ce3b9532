@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0faa0a34_be9c1b44",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-11T18:11:38Z",
+      "side": 1,
+      "message": "The reason I went with this behavior is because I implemented the version that returns a vector by calling this one, and this means we do not attempt to parse the stream on each iteration of the loop. That said, parse will exit quickly if there is nothing more to parse.\n\n(I also imagined that a typical client would call getFrameCount() first, but I suppose they could just call getFrameInfo(i, \u0026info) until it returns false.)",
+      "range": {
+        "startLine": 642,
+        "startChar": 46,
+        "endLine": 643,
+        "endChar": 57
+      },
+      "revId": "f1fb26e801cd162c9ec28b81b2047e32ce3b9532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

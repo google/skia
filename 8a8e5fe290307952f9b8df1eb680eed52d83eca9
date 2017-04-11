@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee23f689_ede15b65",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-04-11T18:11:38Z",
+      "side": 0,
+      "message": "The rest of this supposedly deleted block is just indented further, down below.",
+      "range": {
+        "startLine": 162,
+        "startChar": 8,
+        "endLine": 162,
+        "endChar": 40
+      },
+      "revId": "8a8e5fe290307952f9b8df1eb680eed52d83eca9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
