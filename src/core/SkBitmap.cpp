@@ -468,61 +468,6 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool copy_pixels_to(const SkPixmap& src, void* const dst, size_t dstSize,
-                           size_t dstRowBytes, bool preserveDstPad) {
-    const SkImageInfo& info = src.info();
-
-    if (0 == dstRowBytes) {
-        dstRowBytes = src.rowBytes();
-    }
-    if (dstRowBytes < info.minRowBytes()) {
-        return false;
-    }
-
-    if (!preserveDstPad && static_cast<uint32_t>(dstRowBytes) == src.rowBytes()) {
-        size_t safeSize = src.getSafeSize();
-        if (safeSize > dstSize || safeSize == 0)
-            return false;
-        else {
-            // This implementation will write bytes beyond the end of each row,
-            // excluding the last row, if the bitmap's stride is greater than
-            // strictly required by the current config.
-            memcpy(dst, src.addr(), safeSize);
-            return true;
-        }
-    } else {
-        // If destination has different stride than us, then copy line by line.
-        if (info.getSafeSize(dstRowBytes) > dstSize) {
-            return false;
-        } else {
-            // Just copy what we need on each line.
-            size_t rowBytes = info.minRowBytes();
-            const uint8_t* srcP = reinterpret_cast<const uint8_t*>(src.addr());
-            uint8_t* dstP = reinterpret_cast<uint8_t*>(dst);
-            for (int row = 0; row < info.height(); ++row) {
-                memcpy(dstP, srcP, rowBytes);
-                srcP += src.rowBytes();
-                dstP += dstRowBytes;
-            }
-
-            return true;
-        }
-    }
-}
-
-bool SkBitmap::copyPixelsTo(void* dst, size_t dstSize, size_t dstRB, bool preserveDstPad) const {
-    if (nullptr == dst) {
-        return false;
-    }
-    SkAutoPixmapUnlock result;
-    if (!this->requestLock(&result)) {
-        return false;
-    }
-    return copy_pixels_to(result.pixmap(), dst, dstSize, dstRB, preserveDstPad);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 bool SkBitmap::isImmutable() const {
     return fPixelRef ? fPixelRef->isImmutable() : false;
 }
