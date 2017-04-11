@@ -122,11 +122,11 @@ void test_sampleLocations(skiatest::Reporter* reporter, TestSampleLocationsInter
     for (int i = 0; i < numTestPatterns; ++i) {
         int numSamples = (int)kTestPatterns[i].size();
         GrAlwaysAssert(numSamples > 1 && SkIsPow2(numSamples));
-        bottomUps[i] = ctx->makeDeferredRenderTargetContextWithFallback(
+        bottomUps[i] = ctx->makeRenderTargetContextWithFallback(
                            SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig, nullptr,
                            rand.nextRangeU(1 + numSamples / 2, numSamples),
                            kBottomLeft_GrSurfaceOrigin);
-        topDowns[i] = ctx->makeDeferredRenderTargetContextWithFallback(
+        topDowns[i] = ctx->makeRenderTargetContextWithFallback(
                           SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig, nullptr,
                           rand.nextRangeU(1 + numSamples / 2, numSamples),
                           kTopLeft_GrSurfaceOrigin);

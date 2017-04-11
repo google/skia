@@ -392,7 +392,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
         return proxy;
     }
 
-    sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContextWithFallback(
+    sk_sp<GrRenderTargetContext> rtc(context->makeRenderTargetContextWithFallback(
                                                                              SkBackingFit::kApprox,
                                                                              reducedClip.width(),
                                                                              reducedClip.height(),
