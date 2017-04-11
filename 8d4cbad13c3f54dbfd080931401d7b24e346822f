@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9283ba63_10bc24c8",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-11T20:06:03Z",
+      "side": 0,
+      "message": "Removed intentionally?  We still have Nexus6 bots running...",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 72
+      },
+      "revId": "8d4cbad13c3f54dbfd080931401d7b24e346822f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c5d2c2d_a5b94624",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-11T20:06:03Z",
+      "side": 0,
+      "message": "I wonder if these should apply to \u0027Win\u0027 ?",
+      "range": {
+        "startLine": 243,
+        "startChar": 0,
+        "endLine": 249,
+        "endChar": 0
+      },
+      "revId": "8d4cbad13c3f54dbfd080931401d7b24e346822f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
