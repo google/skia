@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "963a747e_99fdbbb5",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T14:22:24Z",
+      "side": 1,
+      "message": "You can\u0027t pass a member variable into a lambda, but I can use this-\u003efHeightFunc(0,0);",
+      "parentUuid": "089a3719_26013ddc",
+      "revId": "df5b22d65e2f76697570bbd4c41ed9e383ba0fb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "706ea1a1_b887914d",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 18
@@ -33,6 +51,24 @@
       "revId": "df5b22d65e2f76697570bbd4c41ed9e383ba0fb8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5738173c_0bc25aae",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T14:22:24Z",
+      "side": 1,
+      "message": "Done. I couldn\u0027t pass the arrays into the lambda (DevStudio doesn\u0027t seem to like that,) so left them as member variables and passed \u0027this\u0027.",
+      "parentUuid": "706ea1a1_b887914d",
+      "revId": "df5b22d65e2f76697570bbd4c41ed9e383ba0fb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
