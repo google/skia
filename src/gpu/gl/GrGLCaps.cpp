@@ -1029,7 +1029,6 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // is available.
         if (ctxInfo.version() >= GR_GL_VER(3, 0)) {
             fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
-                                    kNoMSAADst_BlitFramebufferFlag |
                                     kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
                    ctxInfo.hasExtension("GL_ANGLE_framebuffer_blit")) {
@@ -1038,8 +1037,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fBlitFramebufferFlags = kNoScalingOrMirroring_BlitFramebufferFlag |
                                     kResolveMustBeFull_BlitFrambufferFlag |
                                     kNoMSAADst_BlitFramebufferFlag |
-                                    kNoFormatConversion_BlitFramebufferFlag |
-                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
+                                    kNoFormatConversion_BlitFramebufferFlag;
         }
     } else {
         if (fUsesMixedSamples) {

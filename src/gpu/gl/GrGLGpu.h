@@ -75,8 +75,7 @@ public:
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
-    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc, bool* rectsMustMatch,
-                            bool* disallowSubrect) const override;
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
