@@ -98,8 +98,6 @@ public:
                                          SkData* data);
 #endif
 
-    void* getAddr() const { return fStorage; }
-
 protected:
     // The ownPixels version of this constructor is deprecated.
     SkMallocPixelRef(const SkImageInfo&, void* addr, size_t rb, SkColorTable*,
@@ -117,11 +115,8 @@ private:
                                        size_t rowBytes,
                                        sk_sp<SkColorTable>);
 
-    void*               fStorage;
-    sk_sp<SkColorTable> fCTable;
-    size_t              fRB;
-    ReleaseProc         fReleaseProc;
-    void*               fReleaseProcContext;
+    ReleaseProc fReleaseProc;
+    void*       fReleaseProcContext;
 
     SkMallocPixelRef(const SkImageInfo&, void* addr, size_t rb, sk_sp<SkColorTable>,
                      ReleaseProc proc, void* context);
