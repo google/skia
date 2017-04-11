@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4dc63bdd_c1ccd276",
+        "filename": "include/core/SkPixelRef.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-11T21:46:30Z",
+      "side": 1,
+      "message": "Not sure why we keep these stubs around - wouldn\u0027t a compile time failure be better?",
+      "revId": "d7a0b1134ff8fdf98a310b15973d2681cf25fbb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
