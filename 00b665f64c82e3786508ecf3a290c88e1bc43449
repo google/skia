@@ -19,6 +19,52 @@
     },
     {
       "key": {
+        "uuid": "9d2646c4_f62e29f0",
+        "filename": "src/core/SkBitmapCache.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-11T14:58:43Z",
+      "side": 1,
+      "message": "Looks like this is now only used by the mipmap cache?  Can you move it closer to there?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 98
+      },
+      "revId": "00b665f64c82e3786508ecf3a290c88e1bc43449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed5eb930_eb41155a",
+        "filename": "src/core/SkBitmapCache.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-11T14:58:43Z",
+      "side": 1,
+      "message": "What does this do?",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 142,
+        "endChar": 9
+      },
+      "revId": "00b665f64c82e3786508ecf3a290c88e1bc43449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1981eca8_d542f15c",
         "filename": "src/core/SkBitmapCache.cpp",
         "patchSetId": 23
@@ -36,6 +82,29 @@
     },
     {
       "key": {
+        "uuid": "21dcb4fd_b8b7ed4b",
+        "filename": "src/core/SkBitmapCache.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-11T14:58:43Z",
+      "side": 1,
+      "message": "Still necessary?",
+      "range": {
+        "startLine": 228,
+        "startChar": 8,
+        "endLine": 228,
+        "endChar": 35
+      },
+      "revId": "00b665f64c82e3786508ecf3a290c88e1bc43449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83ce826d_444ef841",
         "filename": "src/core/SkBitmapCache.cpp",
         "patchSetId": 23
@@ -47,6 +116,75 @@
       "writtenOn": "2017-04-11T14:54:25Z",
       "side": 1,
       "message": "nit: alignment",
+      "revId": "00b665f64c82e3786508ecf3a290c88e1bc43449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b7fea83_4aee40b1",
+        "filename": "src/core/SkBitmapCache.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-11T14:58:43Z",
+      "side": 1,
+      "message": "Indentation?",
+      "range": {
+        "startLine": 264,
+        "startChar": 0,
+        "endLine": 265,
+        "endChar": 74
+      },
+      "revId": "00b665f64c82e3786508ecf3a290c88e1bc43449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "121e034f_2947974b",
+        "filename": "src/core/SkBitmapCache.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-11T14:58:43Z",
+      "side": 1,
+      "message": "// Is the caller being self-consistent",
+      "range": {
+        "startLine": 266,
+        "startChar": 4,
+        "endLine": 266,
+        "endChar": 60
+      },
+      "revId": "00b665f64c82e3786508ecf3a290c88e1bc43449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72826206_49bdd705",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-11T14:58:43Z",
+      "side": 1,
+      "message": "Because this is actually a std::unique_ptr, it will automatically be initialized to nullptr?  Might be more readable to do it explicitly.",
+      "range": {
+        "startLine": 80,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 29
+      },
       "revId": "00b665f64c82e3786508ecf3a290c88e1bc43449",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
