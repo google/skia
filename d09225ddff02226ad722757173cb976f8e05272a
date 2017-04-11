@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "6e392977_7948ba86",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-11T01:16:41Z",
+      "side": 1,
+      "message": "nit: don\u0027t think you need explicit if there are more than 1 parameters",
+      "range": {
+        "startLine": 125,
+        "startChar": 12,
+        "endLine": 125,
+        "endChar": 13
+      },
+      "revId": "d09225ddff02226ad722757173cb976f8e05272a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "09088c7c_7fdb7181",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 1
