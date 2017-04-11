@@ -136,7 +136,7 @@ public:
 
     /**
      * Writes a rectangle of pixels to a surface.
-     * @param surface       the surface to write to.
+     * @param dst           the surface to write to.
      * @param dstColorSpace color space of the surface
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
@@ -151,7 +151,7 @@ public:
      * @return true if the write succeeded, false if not. The write can fail because of an
      *         unsupported combination of surface and src configs.
      */
-    bool writeSurfacePixels(GrSurfaceProxy* src, SkColorSpace* dstColorSpace,
+    bool writeSurfacePixels(GrSurfaceProxy* dst, SkColorSpace* dstColorSpace,
                             int left, int top, int width, int height,
                             GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,
