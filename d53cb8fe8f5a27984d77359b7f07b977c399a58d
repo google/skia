@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "569d806d_9453a933",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-11T11:44:56Z",
+      "side": 1,
+      "message": "Can this line be deleted?",
+      "range": {
+        "startLine": 431,
+        "startChar": 10,
+        "endLine": 431,
+        "endChar": 18
+      },
+      "revId": "d53cb8fe8f5a27984d77359b7f07b977c399a58d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
