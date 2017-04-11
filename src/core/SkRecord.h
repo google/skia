@@ -26,17 +26,8 @@
 // get this wrong.
 
 class SkRecord : public SkRefCnt {
-    enum {
-        // TODO: tune these two constants.
-        kInlineRecords      = 4, // Ideally our lower limit on recorded ops per picture.
-        kInlineAllocLgBytes = 8, // 1<<8 == 256 bytes inline, then SkVarAlloc starting at 512 bytes.
-    };
 public:
-    SkRecord()
-        : fCount(0)
-        , fReserved(kInlineRecords)
-        , fAlloc(kInlineAllocLgBytes+1,  // First malloc'd block is 2x as large as fInlineAlloc.
-                 fInlineAlloc, sizeof(fInlineAlloc)) {}
+    SkRecord();
     ~SkRecord();
 
     // Returns the number of canvas commands in this SkRecord.
@@ -187,12 +178,11 @@ private:
     // fRecords needs to be a data structure that can append fixed length data, and need to
     // support efficient random access and forward iteration.  (It doesn't need to be contiguous.)
     int fCount, fReserved;
-    SkAutoSTMalloc<kInlineRecords, Record> fRecords;
+    SkAutoTMalloc<Record> fRecords;
 
     // fAlloc needs to be a data structure which can append variable length data in contiguous
     // chunks, returning a stable handle to that data for later retrieval.
     SkVarAlloc fAlloc;
-    char fInlineAlloc[1 << kInlineAllocLgBytes];
 };
 
 #endif//SkRecord_DEFINED
