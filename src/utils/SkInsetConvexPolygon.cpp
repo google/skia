@@ -49,17 +49,46 @@ static int get_winding(const SkPoint* polygonVerts, int polygonSize) {
     return 0;
 }
 
-// Perpendicularly offset line segment p0-p1 'distance' units in the direction specified by 'dir'
-static void inset_edge(const SkPoint& p0, const SkPoint& p1, SkScalar distance, int dir,
-                       InsetSegment* inset) {
-    SkASSERT(dir == -1 || dir == 1);
-    // compute perpendicular
-    SkVector perp;
-    perp.fX = p0.fY - p1.fY;
-    perp.fY = p1.fX - p0.fX;
-    perp.setLength(distance*dir);
-    inset->fP0 = p0 + perp;
-    inset->fP1 = p1 + perp;
+// Offset line segment p0-p1 'd0' and 'd1' units in the direction specified by 'side'
+bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar d1,
+                     int side, SkPoint* offset0, SkPoint* offset1) {
+    SkASSERT(side == -1 || side == 1);
+    SkVector perp = SkVector::Make(p0.fY - p1.fY, p1.fX - p0.fX);
+    if (SkScalarNearlyEqual(d0, d1)) {
+        // if distances are equal, can just outset by the perpendicular
+        perp.setLength(d0*side);
+        *offset0 = p0 + perp;
+        *offset1 = p1 + perp;
+    } else {
+        // Otherwise we need to compute the outer tangent.
+        // See: http://www.ambrsoft.com/TrigoCalc/Circles2/Circles2Tangent_.htm
+        if (d0 < d1) {
+            side = -side;
+        }
+        SkScalar dD = d0 - d1;
+        // if one circle is inside another, we can't compute an offset
+        if (dD*dD >= p0.distanceToSqd(p1)) {
+            return false;
+        }
+        SkPoint outerTangentIntersect = SkPoint::Make((p1.fX*d0 - p0.fX*d1) / dD,
+                                                      (p1.fY*d0 - p0.fY*d1) / dD);
+
+        SkScalar d0sq = d0*d0;
+        SkVector dP = outerTangentIntersect - p0;
+        SkScalar dPlenSq = dP.lengthSqd();
+        SkScalar discrim = SkScalarSqrt(dPlenSq - d0sq);
+        offset0->fX = p0.fX + (d0sq*dP.fX - side*d0*dP.fY*discrim) / dPlenSq;
+        offset0->fY = p0.fY + (d0sq*dP.fY + side*d0*dP.fX*discrim) / dPlenSq;
+
+        SkScalar d1sq = d1*d1;
+        dP = outerTangentIntersect - p1;
+        dPlenSq = dP.lengthSqd();
+        discrim = SkScalarSqrt(dPlenSq - d1sq);
+        offset1->fX = p1.fX + (d1sq*dP.fX - side*d1*dP.fY*discrim) / dPlenSq;
+        offset1->fY = p1.fY + (d1sq*dP.fY + side*d1*dP.fX*discrim) / dPlenSq;
+    }
+
+    return true;
 }
 
 // Compute the intersection 'p' between segments s0 and s1, if any.
@@ -148,7 +177,8 @@ static bool is_convex(const SkTDArray<SkPoint>& poly) {
 // Note: the assumption is that inputPolygon is convex and has no coincident points.
 //
 bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
-                          SkScalar insetDistance, SkTDArray<SkPoint>* insetPolygon) {
+                          std::function<SkScalar(int index)> insetDistanceFunc,
+                          SkTDArray<SkPoint>* insetPolygon) {
     if (inputPolygonSize < 3) {
         return false;
     }
@@ -169,8 +199,10 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     SkAutoSTMalloc<64, EdgeData> edgeData(inputPolygonSize);
     for (int i = 0; i < inputPolygonSize; ++i) {
         int j = (i + 1) % inputPolygonSize;
-        inset_edge(inputPolygonVerts[i], inputPolygonVerts[j], insetDistance, winding,
-                   &edgeData[i].fInset);
+        SkOffsetSegment(inputPolygonVerts[i], inputPolygonVerts[j],
+                        insetDistanceFunc(i), insetDistanceFunc(j),
+                        winding,
+                        &edgeData[i].fInset.fP0, &edgeData[i].fInset.fP1);
         edgeData[i].fIntersection = edgeData[i].fInset.fP0;
         edgeData[i].fTValue = SK_ScalarMin;
         edgeData[i].fValid = true;
@@ -232,13 +264,26 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
         }
     }
 
-    // store all the valid intersections
+    // store all the valid intersections that aren't nearly coincident
+    // TODO: look at the main algorithm and see if we can detect these better
+    static constexpr SkScalar kCleanupTolerance = 0.01f;
+
     insetPolygon->reset();
     insetPolygon->setReserve(insetVertexCount);
+    currIndex = -1;
     for (int i = 0; i < inputPolygonSize; ++i) {
-        if (edgeData[i].fValid) {
+        if (edgeData[i].fValid && (currIndex == -1 ||
+            !edgeData[i].fIntersection.equalsWithinTolerance((*insetPolygon)[currIndex],
+                                                             kCleanupTolerance))) {
             *insetPolygon->push() = edgeData[i].fIntersection;
+            currIndex++;
         }
+    }
+    // make sure the first and last points aren't coincident
+    if (currIndex >= 1 &&
+        (*insetPolygon)[0].equalsWithinTolerance((*insetPolygon)[currIndex],
+                                                 kCleanupTolerance)) {
+        insetPolygon->pop();
     }
     SkASSERT(is_convex(*insetPolygon));
 
