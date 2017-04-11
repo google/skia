@@ -55,14 +55,17 @@ public:
     const char* name() const override { return "Clear"; }
 
     SkString dumpInfo() const override {
-        SkString string("Scissor [");
+        SkString string;
+        string.appendf("rtID: %d proxyID: %d Scissor [",
+                       fRenderTarget.get()->uniqueID().asUInt(),
+                       fProxyUniqueID.asUInt());
         if (fClip.scissorEnabled()) {
             const SkIRect& r = fClip.scissorRect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         } else {
             string.append("disabled");
         }
-        string.appendf("], Color: 0x%08x, RT: %d", fColor, fProxyUniqueID.asUInt());
+        string.appendf("], Color: 0x%08x ", fColor);
         string.append(INHERITED::dumpInfo());
         return string;
     }
