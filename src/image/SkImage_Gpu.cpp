@@ -77,8 +77,17 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, Cachin
 
     SkImageInfo ii = make_info(this->width(), this->height(), this->alphaType(),
                                sk_ref_sp(dstColorSpace));
-    if (!dst->tryAllocPixels(ii)) {
-        return false;
+    SkBitmapCache::RecPtr rec = nullptr;
+    SkPixmap pmap;
+    if (kAllow_CachingHint == chint) {
+        rec = SkBitmapCache::Alloc(desc, ii, &pmap);
+        if (!rec) {
+            return false;
+        }
+    } else {
+        if (!dst->tryAllocPixels(ii)) {
+            return false;
+        }
     }
 
     sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
@@ -88,13 +97,12 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, Cachin
         return false;
     }
 
-    if (!sContext->readPixels(dst->info(), dst->getPixels(), dst->rowBytes(), 0, 0)) {
+    if (!sContext->readPixels(pmap.info(), pmap.writable_addr(), pmap.rowBytes(), 0, 0)) {
         return false;
     }
 
-    dst->pixelRef()->setImmutableWithID(this->uniqueID());
-    if (kAllow_CachingHint == chint) {
-        SkBitmapCache::Add(desc, *dst);
+    if (rec) {
+        SkBitmapCache::Add(std::move(rec), dst);
         fAddedRasterVersionToCache.store(true);
     }
     return true;
