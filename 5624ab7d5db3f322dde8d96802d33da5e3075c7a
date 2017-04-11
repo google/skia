@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a695ff6_4ba4d3ca",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-04-11T14:37:57Z",
+      "side": 1,
+      "message": "For the ARM Chromebook, this isn\u0027t a PCI ID, because there is no PCI bus.  \n\nMaps human-friendly names of GPUs to their swarming dimensions, which is typically the GPU\u0027s PCI ID.",
+      "range": {
+        "startLine": 29,
+        "startChar": 62,
+        "endLine": 29,
+        "endChar": 69
+      },
+      "revId": "5624ab7d5db3f322dde8d96802d33da5e3075c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
