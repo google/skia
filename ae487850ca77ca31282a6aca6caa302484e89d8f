@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "a3a544ee_e742c5c3",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-11T16:11:50Z",
+      "side": 1,
+      "message": "This seems unnecessary - d0 ~\u003d d1, so perp * d0 * side ~\u003d perp * d1 * side.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 26
+      },
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6983533_c5fadbc5",
         "filename": "src/utils/SkInsetConvexPolygon.cpp",
         "patchSetId": 19
