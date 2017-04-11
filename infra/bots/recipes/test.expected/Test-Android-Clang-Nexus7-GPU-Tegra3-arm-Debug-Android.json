@@ -602,7 +602,6 @@
     "infra_step": true,
     "name": "get uninteresting hashes",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
       "@@@STEP_LOG_LINE@python.inline@import math@@@",
@@ -633,8 +632,7 @@
       "@@@STEP_LOG_LINE@python.inline@    waittime = WAIT_BASE * math.pow(2, retry)@@@",
       "@@@STEP_LOG_LINE@python.inline@    print 'Retry in %d seconds.' % waittime@@@",
       "@@@STEP_LOG_LINE@python.inline@    time.sleep(waittime)@@@",
-      "@@@STEP_LOG_END@python.inline@@@",
-      "@@@STEP_EXCEPTION@@@"
+      "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
   {
