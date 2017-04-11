@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2e83fa6e_1cefcc0a",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6bfbe77_f8a87481",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3a544ee_e742c5c3",
         "filename": "src/utils/SkInsetConvexPolygon.cpp",
         "patchSetId": 19
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "b074ee15_908f5cae",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3a544ee_e742c5c3",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 26
+      },
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6983533_c5fadbc5",
         "filename": "src/utils/SkInsetConvexPolygon.cpp",
         "patchSetId": 19
@@ -56,6 +98,24 @@
       "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5c6ca66_4128f549",
+        "filename": "src/utils/SkInsetConvexPolygon.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6983533_c5fadbc5",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "e77250bd_d7bfcae9",
+        "filename": "src/utils/SkInsetConvexPolygon.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0d3c199_666de02d",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "81002cfc_a4d42e8a",
         "filename": "src/utils/SkInsetConvexPolygon.h",
         "patchSetId": 19
@@ -90,6 +168,24 @@
       "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1de4ea0b_ea0b67d4",
+        "filename": "src/utils/SkInsetConvexPolygon.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81002cfc_a4d42e8a",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "c264330e_fcb72053",
+        "filename": "src/utils/SkInsetConvexPolygon.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ccda8d7_b14913d6",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4237b68_2a8c32cb",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 19
@@ -124,6 +238,24 @@
       "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07cffa33_e2ca025c",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Nope.",
+      "parentUuid": "f4237b68_2a8c32cb",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -144,6 +276,24 @@
     },
     {
       "key": {
+        "uuid": "87b8fc3b_437653dc",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bb0eb03_4dbbcd96",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "10f2ac1b_5abed9a9",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 19
@@ -158,6 +308,24 @@
       "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c237b5d_19e71881",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10f2ac1b_5abed9a9",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -178,6 +346,24 @@
     },
     {
       "key": {
+        "uuid": "f8ddd833_b0d6f980",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e92676d_30b471bf",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c2dc7c5_02814681",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 19
@@ -192,6 +378,24 @@
       "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b96377ee_fad9c7e2",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-11T18:18:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c2dc7c5_02814681",
+      "revId": "ae487850ca77ca31282a6aca6caa302484e89d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
