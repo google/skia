@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e67dff26_a80c66fb",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2017-04-11T21:02:06Z",
+      "side": 1,
+      "message": "Do you mean getFrameCount() will read through the stream then?\n\nI am able to look through the code and confirm that, but maybe call that out in the comments with something like:\nDoes not read through the stream. Normally, you probably want to first call getFrameCount() once to 1.) read through the stream, and 2.) get the updated frame count after more data has arrived. After the call to getFrameCount() you can getFrameInfo() for each of the new frames.\n\nI feel like I worded that poorly and it could be more concise. But somehow pointing out that you can call getFrameCount() to read further and then get info from new frames would perhaps clarify what is going on.",
+      "parentUuid": "0faa0a34_be9c1b44",
+      "range": {
+        "startLine": 642,
+        "startChar": 46,
+        "endLine": 643,
+        "endChar": 57
+      },
+      "revId": "f1fb26e801cd162c9ec28b81b2047e32ce3b9532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1ed81085_87c23875",
         "filename": "include/codec/SkCodec.h",
         "patchSetId": 1
@@ -41,6 +65,29 @@
         "startChar": 22,
         "endLine": 645,
         "endChar": 28
+      },
+      "revId": "f1fb26e801cd162c9ec28b81b2047e32ce3b9532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b964863_1d072c9b",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2017-04-11T21:02:06Z",
+      "side": 1,
+      "message": "I love when people do this.\nThank you.",
+      "range": {
+        "startLine": 503,
+        "startChar": 15,
+        "endLine": 503,
+        "endChar": 19
       },
       "revId": "f1fb26e801cd162c9ec28b81b2047e32ce3b9532",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
