@@ -19,7 +19,7 @@ class SkLiteDL final {
 public:
     ~SkLiteDL();
 
-    void draw(SkCanvas* canvas);
+    void draw(SkCanvas* canvas) const;
 
     void reset();
     bool empty() const { return fUsed == 0; }
@@ -83,7 +83,7 @@ private:
     void* push(size_t, Args&&...);
 
     template <typename Fn, typename... Args>
-    void map(const Fn[], Args...);
+    void map(const Fn[], Args...) const;
 
     SkAutoTMalloc<uint8_t> fBytes;
     size_t                 fUsed = 0;
