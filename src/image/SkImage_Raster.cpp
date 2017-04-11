@@ -117,10 +117,6 @@ public:
         SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
     }
 
-    bool onIsLazyGenerated() const override {
-        return fBitmap.pixelRef() && fBitmap.pixelRef()->isLazyGenerated();
-    }
-
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
 #if SK_SUPPORT_GPU

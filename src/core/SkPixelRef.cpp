@@ -206,7 +206,7 @@ bool SkPixelRef::requestLock(const LockRequest& request, LockResult* result) {
         result->fSize.set(fInfo.width(), fInfo.height());
     } else {
         SkAutoMutexAcquire  ac(fMutex);
-        if (!this->onRequestLock(request, result)) {
+        if (!this->internalRequestLock(request, result)) {
             return false;
         }
     }
@@ -314,7 +314,7 @@ static void unlock_legacy_result(void* ctx) {
     pr->unref();    // balancing the Ref in onRequestLoc
 }
 
-bool SkPixelRef::onRequestLock(const LockRequest& request, LockResult* result) {
+bool SkPixelRef::internalRequestLock(const LockRequest& request, LockResult* result) {
     if (!this->lockPixelsInsideMutex()) {
         return false;
     }
