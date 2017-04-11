@@ -78,7 +78,7 @@ protected:
         // amount of bm that should not be stretched (unless we have to)
         const SkScalar fixed = SkIntToScalar(fBitmap.width() - fCenter.width());
 
-        const SkTSize<SkScalar> size[] = {
+        const SkSize size[] = {
             { fixed * 4 / 5, fixed * 4 / 5 },   // shrink in both axes
             { fixed * 4 / 5, fixed * 4 },       // shrink in X
             { fixed * 4,     fixed * 4 / 5 },   // shrink in Y
