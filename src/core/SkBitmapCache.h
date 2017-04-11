@@ -45,23 +45,20 @@ struct SkBitmapCacheDesc {
 class SkBitmapCache {
 public:
     /**
-     * Use this allocator for bitmaps, so they can use ashmem when available.
-     * Returns nullptr if the ResourceCache has not been initialized with a DiscardableFactory.
-     */
-    static SkBitmap::Allocator* GetAllocator();
-
-    /**
      *  Search based on the desc. If found, returns true and
      *  result will be set to the matching bitmap with its pixels already locked.
      */
-    static bool Find(const SkBitmapCacheDesc&, SkBitmap* result,
-                    SkResourceCache* localCache = nullptr);
+    static bool Find(const SkBitmapCacheDesc&, SkBitmap* result);
 
-    /*
-     *  result must be marked isImmutable()
-     */
-    static bool Add(const SkBitmapCacheDesc&, const SkBitmap& result,
-                    SkResourceCache* localCache = nullptr);
+    class Rec;
+    struct RecDeleter { void operator()(Rec* r) { PrivateDeleteRec(r); } };
+    typedef std::unique_ptr<Rec, RecDeleter> RecPtr;
+
+    static RecPtr Alloc(const SkBitmapCacheDesc&, const SkImageInfo&, SkPixmap*);
+    static void Add(RecPtr, SkBitmap*);
+
+private:
+    static void PrivateDeleteRec(Rec*);
 };
 
 class SkMipMapCache {

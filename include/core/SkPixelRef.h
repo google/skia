@@ -316,6 +316,7 @@ private:
     friend class SkImage_Gpu;
     friend class SkImageCacherator;
     friend class SkSpecialImage_Gpu;
+    friend void SkBitmapCache_setImmutableWithID(SkPixelRef*, uint32_t);
 
     typedef SkRefCnt INHERITED;
 };
