@@ -160,7 +160,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         case kFullImage_Mode: {
             SkBitmap bitmap;
             if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(0, 0, width, height),
-                    fSampleSize, colorType, false)) {
+                    fSampleSize, colorType, false, SkColorSpace::MakeSRGB())) {
                 return "Cannot decode (full) region.";
             }
             alpha8_to_gray8(&bitmap);
@@ -214,7 +214,8 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     const uint32_t decodeHeight = subsetHeight + unscaledBorder * 2;
                     SkBitmap bitmap;
                     if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(decodeLeft,
-                            decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false)) {
+                            decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false,
+                            SkColorSpace::MakeSRGB())) {
                         return "Cannot decode region.";
                     }
 

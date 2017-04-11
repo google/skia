@@ -169,13 +169,19 @@ SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
     return requestedUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
 }
 
-sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType) {
+sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType,
+                                                            sk_sp<SkColorSpace> prefColorSpace) {
     switch (outputColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kIndex_8_SkColorType: {
-            SkColorSpace* encodedSpace = fCodec->getInfo().colorSpace();
+            // If |prefColorSpace| is supported, choose it.
             SkColorSpaceTransferFn fn;
+            if (prefColorSpace && prefColorSpace->isNumericalTransferFn(&fn)) {
+                return prefColorSpace;
+            }
+
+            SkColorSpace* encodedSpace = fCodec->getInfo().colorSpace();
             if (encodedSpace->isNumericalTransferFn(&fn)) {
                 // Leave the pixels in the encoded color space.  Color space conversion
                 // will be handled after decode time.
@@ -190,8 +196,10 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
             return SkColorSpace::MakeSRGB();
         }
         case kRGBA_F16_SkColorType:
+            // Note that |prefColorSpace| is ignored, F16 is always linear sRGB.
             return SkColorSpace::MakeSRGBLinear();
         case kRGB_565_SkColorType:
+            // Note that |prefColorSpace| is ignored, 565 is always sRGB.
             return SkColorSpace::MakeSRGB();
         default:
             // Color correction not supported for kGray.
