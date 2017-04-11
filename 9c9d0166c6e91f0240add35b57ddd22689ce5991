@@ -22,6 +22,30 @@
       "revId": "9c9d0166c6e91f0240add35b57ddd22689ce5991",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c16af325_09879f10",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-11T15:19:00Z",
+      "side": 1,
+      "message": "We don\u0027t, but there\u0027s logic below which feeds tryjob-like properties (issue, patchset, etc) into the test if the name ends in \"-Trybot\" (line 765).  At the moment there\u0027s no other way to determine that the test case should be a try job.",
+      "parentUuid": "dd6a6a02_488360de",
+      "range": {
+        "startLine": 741,
+        "startChar": 48,
+        "endLine": 741,
+        "endChar": 54
+      },
+      "revId": "9c9d0166c6e91f0240add35b57ddd22689ce5991",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
