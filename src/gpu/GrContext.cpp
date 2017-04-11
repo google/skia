@@ -280,8 +280,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
     SkASSERT(dstProxy);
     GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::writeSurfacePixels");
 
-    GrSurface* surface = dstProxy->instantiate(fContext->resourceProvider());
-    if (!surface) {
+    GrSurface* dstSurface = dstProxy->instantiate(fContext->resourceProvider());
+    if (!dstSurface) {
         return false;
     }
 
@@ -289,7 +289,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
 
     // Trim the params here so that if we wind up making a temporary surface it can be as small as
     // necessary and because GrGpu::getWritePixelsInfo requires it.
-    if (!GrSurfacePriv::AdjustWritePixelParams(surface->width(), surface->height(),
+    if (!GrSurfacePriv::AdjustWritePixelParams(dstSurface->width(), dstSurface->height(),
                                                GrBytesPerPixel(srcConfig), &left, &top, &width,
                                                &height, &buffer, &rowBytes)) {
         return false;
@@ -300,7 +300,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
         return false;
     }
     // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(srcConfig)) {
+    if (GrPixelConfigIsSint(dstSurface->config()) != GrPixelConfigIsSint(srcConfig)) {
         return false;
     }
 
@@ -312,12 +312,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
     }
 
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getWritePixelsInfo(surface, width, height, srcConfig,
+    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, width, height, srcConfig,
                                             &drawPreference, &tempDrawInfo)) {
         return false;
     }
 
-    if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && surface->surfacePriv().hasPendingIO()) {
+    if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && dstSurface->surfacePriv().hasPendingIO()) {
         this->flush(nullptr); // MDB TODO: tighten this
     }
 
@@ -383,10 +383,10 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
             // TODO: Need to decide the semantics of this function for color spaces. Do we support
             // conversion from a passed-in color space? For now, specifying nullptr means that this
             // path will do no conversion, so it will match the behavior of the non-draw path.
-            GrRenderTarget* renderTarget = surface->asRenderTarget();
-            SkASSERT(renderTarget);
+            GrRenderTargetProxy* dstRenderTargetProxy = dstProxy->asRenderTargetProxy();
+            SkASSERT(dstRenderTargetProxy);
             sk_sp<GrRenderTargetContext> renderTargetContext(
-                this->makeWrappedRenderTargetContext(sk_ref_sp(renderTarget), nullptr));
+                this->makeWrappedRenderTargetContext(sk_ref_sp(dstRenderTargetProxy), nullptr));
             if (!renderTargetContext) {
                 return false;
             }
@@ -415,7 +415,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceProxy* dstProxy, SkColorSpace* d
             buffer = tmpPixels.get();
             applyPremulToSrc = false;
         }
-        return fContext->fGpu->writePixels(surface, left, top, width, height, srcConfig,
+        return fContext->fGpu->writePixels(dstSurface, left, top, width, height, srcConfig,
                                            buffer, rowBytes);
     }
     return true;
@@ -621,22 +621,6 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
     return chosenSampleCount <= fGpu->caps()->maxSampleCount() ? chosenSampleCount : 0;
 }
 
-sk_sp<GrRenderTargetContext> GrContextPriv::makeWrappedRenderTargetContext(
-                                                               sk_sp<GrRenderTarget> rt,
-                                                               sk_sp<SkColorSpace> colorSpace,
-                                                               const SkSurfaceProps* surfaceProps) {
-    ASSERT_SINGLE_OWNER_PRIV
-
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(rt)));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
-                                                           std::move(colorSpace),
-                                                           surfaceProps);
-}
-
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
@@ -650,15 +634,13 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
     }
 }
 
-sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface> surface) {
+sk_sp<GrRenderTargetContext>  GrContextPriv::makeWrappedRenderTargetContext(
+                                                                sk_sp<GrRenderTargetProxy> proxy,
+                                                                sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->makeWrappedSurfaceContext(std::move(proxy), nullptr);
+    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                           std::move(colorSpace), nullptr);
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
