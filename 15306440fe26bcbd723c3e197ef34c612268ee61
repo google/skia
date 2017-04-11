@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "99e85894_1c346696",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-11T16:50:19Z",
+      "side": 1,
+      "message": "int n, const\u0026 Sem? Will we take the address of signalSemaphores and treat it as an array?",
+      "revId": "15306440fe26bcbd723c3e197ef34c612268ee61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6714d468_928630fb",
         "filename": "include/gpu/GrBackendSemaphore.h",
         "patchSetId": 3
@@ -13,6 +30,30 @@
       "writtenOn": "2017-04-11T15:29:43Z",
       "side": 1,
       "message": "So this include ends up include \u003cvulkan/vulkan.h\u003e which we need for the VkSemaphore and VK_NULL_HANDLE. However, currently this fails Skia compile in two spots, when compiling fiddle and public_headers_warnings_check.cpp, both cause vulkan.h doesn\u0027t exists (this does build fine in none vulkan builds cause of the ifdef\u0027s).\n\nHow do we want to approach this problem in general. I\u0027d really prefer to not make GrVk wrappers around all the vulkan objects in vulkan.h similar to what GL does. Its nice being able to use them directly. Any thoughts? Currently we include vulkan.h via $VulkanSDK/include and add it to the include directories when building with vulkan.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 25
+      },
+      "revId": "15306440fe26bcbd723c3e197ef34c612268ee61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1804d91d_a282e451",
+        "filename": "include/gpu/GrBackendSemaphore.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-11T16:50:19Z",
+      "side": 1,
+      "message": "The viable options I see are:\n1) Do what we did for GL and define our own compatible set of values, function signatures, etc.\n2) Checkin vulkan.h into third_party and make all our #includes refer to that one.\n3) Define small set of things here (e.g. GR_VK_NULL_HANDLE) and document that they\u0027re equivalent to the regular VK names. This seems icky as it\u0027s somewhat trying to split the difference between 1 and 2.\n4) Like 3) but using void*, int64_t, etc with documentation about what they mean. Also icky.\n\nTBH, I think we will eventually wind up wanting to be able to build the vulkan backend without an SDK an dynamically load the shared library in our test tools (assuming this is possible) by either 1) or 2). I don\u0027t know what the extension situation looks like in Vulkan but being able to incorporate extensions in to the GL backend without having to worry about repulling or modifying headers from the original source or becoming dependent on platform-specific GL headers was what led us to 1) for GL. Maybe that will be easier with Vulkan because of differences in how extensions are published, etc.\n\nIf we don\u0027t rely on having the vulkan sdk installed then it may be possible for use to be a little more lax about #ifdef SK_VULKAN at the interface level and just use the macro to make interfaces fail in source files.",
+      "parentUuid": "6714d468_928630fb",
       "range": {
         "startLine": 15,
         "startChar": 0,
