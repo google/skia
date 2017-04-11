@@ -168,8 +168,7 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->caps());
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
-    return context->makeDeferredRenderTargetContext(
-                                    SkBackingFit::kExact,
+    return context->makeRenderTargetContext(SkBackingFit::kExact,
                                     origInfo.width(), origInfo.height(),
                                     config, origInfo.refColorSpace(), sampleCount,
                                     origin, surfaceProps, budgeted);
@@ -1336,6 +1335,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
     const SkImageInfo ii = this->imageInfo();
     const SkIRect srcRect = SkIRect::MakeWH(ii.width(), ii.height());
 
+    SkASSERT(proxy->priv().isExact());
     return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                srcRect,
                                                kNeedNewImageUniqueID_SpecialImage,
@@ -1766,13 +1766,13 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     SkBackingFit fit = kNever_TileUsage == cinfo.fTileUsage ? SkBackingFit::kApprox
                                                             : SkBackingFit::kExact;
 
-    sk_sp<GrRenderTargetContext> rtc(fContext->makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc(fContext->makeRenderTargetContext(
                                                    fit,
                                                    cinfo.fInfo.width(), cinfo.fInfo.height(),
-                                                   fRenderTargetContext->config(),
-                                                   fRenderTargetContext->refColorSpace(),
-                                                   fRenderTargetContext->desc().fSampleCnt,
-                                                   kBottomLeft_GrSurfaceOrigin,
+                                                   fRenderTargetContext->config(), 
+                                                   fRenderTargetContext->refColorSpace(), 
+                                                   fRenderTargetContext->desc().fSampleCnt, 
+                                                   kDefault_GrSurfaceOrigin,
                                                    &props));
     if (!rtc) {
         return nullptr;

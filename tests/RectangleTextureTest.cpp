@@ -21,9 +21,9 @@
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
                                    sk_sp<GrSurfaceProxy> rectProxy, uint32_t expectedPixelValues[]) {
     sk_sp<GrRenderTargetContext> rtContext(
-            context->makeDeferredRenderTargetContext(SkBackingFit::kExact, rectProxy->width(),
-                                                     rectProxy->height(), rectProxy->config(),
-                                                     nullptr));
+            context->makeRenderTargetContext(SkBackingFit::kExact, rectProxy->width(),
+                                             rectProxy->height(), rectProxy->config(),
+                                             nullptr));
     for (auto filter : {GrSamplerParams::kNone_FilterMode,
                         GrSamplerParams::kBilerp_FilterMode,
                         GrSamplerParams::kMipMap_FilterMode}) {
