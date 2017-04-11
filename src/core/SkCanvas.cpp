@@ -747,6 +747,21 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, std::unique_ptr<SkRasterHandleAllocat
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap, nullptr, nullptr) {}
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+SkCanvas::SkCanvas(const SkBitmap& bitmap, ColorBehavior)
+    : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
+    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
+    , fAllocator(nullptr)
+{
+    inc_canvas();
+
+    SkBitmap tmp(bitmap);
+    *const_cast<SkImageInfo*>(&tmp.info()) = tmp.info().makeColorSpace(nullptr);
+    sk_sp<SkBaseDevice> device(new SkBitmapDevice(tmp, fProps, nullptr));
+    this->init(device.get(), kDefault_InitFlags);
+}
+#endif
+
 SkCanvas::~SkCanvas() {
     // free up the contents of our deque
     this->restoreToCount(1);    // restore everything but the last
