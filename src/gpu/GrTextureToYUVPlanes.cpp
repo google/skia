@@ -73,7 +73,7 @@ bool GrTextureToYUVPlanes(GrContext* context, sk_sp<GrTextureProxy> proxy,
         // sizes however we optimize for two other cases - all planes are the same (1 draw to YUV),
         // and U and V are the same but Y differs (2 draws, one for Y, one for UV).
         if (sizes[0] == sizes[1] && sizes[1] == sizes[2]) {
-            yuvRenderTargetContext = context->makeRenderTargetContextWithFallback(
+            yuvRenderTargetContext = context->makeDeferredRenderTargetContextWithFallback(
                                                                            SkBackingFit::kApprox,
                                                                            sizes[0].fWidth,
                                                                            sizes[0].fHeight,
@@ -83,7 +83,7 @@ bool GrTextureToYUVPlanes(GrContext* context, sk_sp<GrTextureProxy> proxy,
                 return false;
             }
         } else {
-            yRenderTargetContext = context->makeRenderTargetContextWithFallback(
+            yRenderTargetContext = context->makeDeferredRenderTargetContextWithFallback(
                                                                              SkBackingFit::kApprox,
                                                                              sizes[0].fWidth,
                                                                              sizes[0].fHeight,
@@ -94,7 +94,7 @@ bool GrTextureToYUVPlanes(GrContext* context, sk_sp<GrTextureProxy> proxy,
             }
             if (sizes[1] == sizes[2]) {
                 // TODO: Add support for GL_RG when available.
-                uvRenderTargetContext = context->makeRenderTargetContextWithFallback(
+                uvRenderTargetContext = context->makeDeferredRenderTargetContextWithFallback(
                                                                            SkBackingFit::kApprox,
                                                                            sizes[1].fWidth,
                                                                            sizes[1].fHeight,
@@ -104,13 +104,13 @@ bool GrTextureToYUVPlanes(GrContext* context, sk_sp<GrTextureProxy> proxy,
                     return false;
                 }
             } else {
-                uRenderTargetContext = context->makeRenderTargetContextWithFallback(
+                uRenderTargetContext = context->makeDeferredRenderTargetContextWithFallback(
                                                                              SkBackingFit::kApprox,
                                                                              sizes[1].fWidth,
                                                                              sizes[1].fHeight,
                                                                              kAlpha_8_GrPixelConfig,
                                                                              nullptr);
-                vRenderTargetContext = context->makeRenderTargetContextWithFallback(
+                vRenderTargetContext = context->makeDeferredRenderTargetContextWithFallback(
                                                                              SkBackingFit::kApprox,
                                                                              sizes[2].fWidth,
                                                                              sizes[2].fHeight,

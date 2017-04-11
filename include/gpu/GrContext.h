@@ -183,25 +183,13 @@ public:
      */
     int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
 
-    /**
-     * Create both a GrRenderTarget and a matching GrRenderTargetContext to wrap it.
-     * We guarantee that "asTexture" will succeed for renderTargetContexts created
-     * via this entry point.
+    /*
+     * Create a new render target context backed by a deferred-style
+     * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
+     * renderTargetContexts created via this entry point.
      */
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(
-                                                 SkBackingFit fit,
-                                                 int width, int height,
-                                                 GrPixelConfig config,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 0,
-                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-                                                 const SkSurfaceProps* surfaceProps = nullptr,
-                                                 SkBudgeted = SkBudgeted::kYes);
-
-    // Create a new render target context as above but have it backed by a deferred-style
-    // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
-                                                 SkBackingFit fit, 
+                                                 SkBackingFit fit,
                                                  int width, int height,
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,
@@ -215,18 +203,6 @@ public:
      * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
      * SRGB-ness will be preserved.
      */
-    sk_sp<GrRenderTargetContext> makeRenderTargetContextWithFallback(
-                                                 SkBackingFit fit,
-                                                 int width, int height,
-                                                 GrPixelConfig config,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 0,
-                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-                                                 const SkSurfaceProps* surfaceProps = nullptr,
-                                                 SkBudgeted budgeted = SkBudgeted::kYes);
-
-    // Create a new render target context as above but have it backed by a deferred-style
-    // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
                                                  SkBackingFit fit,
                                                  int width, int height,
