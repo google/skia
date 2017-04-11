@@ -453,7 +453,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "symbolized dm"
