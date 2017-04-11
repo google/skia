@@ -619,6 +619,12 @@ public:
          *  There could be an error in the stream.
          */
         bool fFullyReceived;
+
+        /**
+         *  This is conservative; it will still return non-opaque if e.g. a
+         *  color index-based frame has a color with alpha but does not use it.
+         */
+        SkAlphaType fAlphaType;
     };
 
     /**

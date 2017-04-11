@@ -760,8 +760,8 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                     m_firstFrameSupportsIndex8 = true;
                 } else {
                     const bool frameIsSubset = xOffset > 0 || yOffset > 0
-                            || width < m_screenWidth
-                            || height < m_screenHeight;
+                            || xOffset + width < m_screenWidth
+                            || yOffset + height < m_screenHeight;
                     m_firstFrameHasAlpha = frameIsSubset;
                     m_firstFrameSupportsIndex8 = !frameIsSubset;
                 }
@@ -799,7 +799,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 break;
             }
 
-            setRequiredFrame(currentFrame);
+            setAlphaAndRequiredFrame(currentFrame);
             GETN(1, SkGIFLZWStart);
             break;
         }
@@ -809,7 +809,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
             auto* currentFrame = m_frames.back().get();
             auto& cmap = currentFrame->localColorMap();
             cmap.setTablePosition(m_streamBuffer.markPosition());
-            setRequiredFrame(currentFrame);
+            setAlphaAndRequiredFrame(currentFrame);
             GETN(1, SkGIFLZWStart);
             break;
         }
@@ -891,55 +891,107 @@ void SkGifImageReader::addFrameIfNecessary()
     }
 }
 
-void SkGifImageReader::setRequiredFrame(SkGIFFrameContext* frame) {
+static SkIRect frame_rect_on_screen(SkIRect frameRect,
+                                    const SkIRect& screenRect) {
+    if (!frameRect.intersect(screenRect)) {
+        return SkIRect::MakeEmpty();
+    }
+
+    return frameRect;
+}
+
+static bool independent(const SkGIFFrameContext& frame) {
+    return frame.getRequiredFrame() == SkCodec::kNone;
+}
+
+static bool restore_bg(const SkGIFFrameContext& frame) {
+    return frame.getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod;
+}
+
+void SkGifImageReader::setAlphaAndRequiredFrame(SkGIFFrameContext* frame) {
     const size_t i = frame->frameId();
     if (0 == i) {
+        frame->setHasAlpha(m_firstFrameHasAlpha);
+        frame->setRequiredFrame(SkCodec::kNone);
+        return;
+    }
+
+    // Note: We could correct these after decoding - i.e. some frames may turn out to be
+    // independent and opaque if they do not use the transparent pixel, but that would require
+    // checking whether each pixel used the transparent index.
+    const SkGIFColorMap& localMap = frame->localColorMap();
+    const bool transValid = hasTransparentPixel(i, localMap.isDefined(), localMap.numColors());
+
+    const auto screenRect = SkIRect::MakeWH(m_screenWidth, m_screenHeight);
+    const auto frameRect = frame_rect_on_screen(frame->frameRect(), screenRect);
+
+    if (!transValid && frameRect == screenRect) {
+        frame->setHasAlpha(false);
         frame->setRequiredFrame(SkCodec::kNone);
         return;
     }
 
     const SkGIFFrameContext* prevFrame = m_frames[i - 1].get();
-    if (prevFrame->getDisposalMethod() == SkCodecAnimation::RestorePrevious_DisposalMethod) {
-        frame->setRequiredFrame(prevFrame->getRequiredFrame());
+    while (prevFrame->getDisposalMethod() == SkCodecAnimation::RestorePrevious_DisposalMethod) {
+        const size_t prevId = prevFrame->frameId();
+        if (0 == prevId) {
+            frame->setHasAlpha(true);
+            frame->setRequiredFrame(SkCodec::kNone);
+            return;
+        }
+
+        prevFrame = m_frames[prevId - 1].get();
+    }
+
+    const bool clearPrevFrame = restore_bg(*prevFrame);
+    auto prevFrameRect = frame_rect_on_screen(prevFrame->frameRect(), screenRect);
+
+    if (clearPrevFrame) {
+        if (prevFrameRect == screenRect || independent(*prevFrame)) {
+            frame->setHasAlpha(true);
+            frame->setRequiredFrame(SkCodec::kNone);
+            return;
+        }
+    }
+
+    if (transValid) {
+        // Note: We could be more aggressive here. If prevFrame clears
+        // to background color and covers its required frame (and that
+        // frame is independent), prevFrame could be marked independent.
+        // Would this extra complexity be worth it?
+        frame->setRequiredFrame(prevFrame->frameId());
+        frame->setHasAlpha(prevFrame->hasAlpha() || clearPrevFrame);
         return;
     }
 
-    // Note: We could correct these after decoding - i.e. some frames may turn out to be
-    // independent if they do not use the transparent pixel, but that would require
-    // checking whether each pixel used the transparent pixel.
-    const SkGIFColorMap& localMap = frame->localColorMap();
-    const bool transValid = hasTransparentPixel(i, localMap.isDefined(), localMap.numColors());
+    while (frameRect.contains(prevFrameRect)) {
+        const size_t prevRequiredFrame = prevFrame->getRequiredFrame();
+        if (prevRequiredFrame == SkCodec::kNone) {
+            frame->setRequiredFrame(SkCodec::kNone);
+            frame->setHasAlpha(true);
+            return;
+        }
 
-    const SkIRect prevFrameRect = prevFrame->frameRect();
-    const bool frameCoversPriorFrame = frame->frameRect().contains(prevFrameRect);
+        prevFrame = m_frames[prevRequiredFrame].get();
+        prevFrameRect = frame_rect_on_screen(prevFrame->frameRect(), screenRect);
+    }
 
-    if (!transValid && frameCoversPriorFrame) {
-        frame->setRequiredFrame(prevFrame->getRequiredFrame());
+    if (restore_bg(*prevFrame)) {
+        frame->setHasAlpha(true);
+        if (prevFrameRect == screenRect || independent(*prevFrame)) {
+            frame->setRequiredFrame(SkCodec::kNone);
+        } else {
+            // Note: As above, frame could still be independent, e.g. if
+            // prevFrame covers its required frame and that frame is
+            // independent.
+            frame->setRequiredFrame(prevFrame->frameId());
+        }
         return;
     }
 
-    switch (prevFrame->getDisposalMethod()) {
-        case SkCodecAnimation::Keep_DisposalMethod:
-            frame->setRequiredFrame(i - 1);
-            break;
-        case SkCodecAnimation::RestorePrevious_DisposalMethod:
-            // This was already handled above.
-            SkASSERT(false);
-            break;
-        case SkCodecAnimation::RestoreBGColor_DisposalMethod:
-            // If the prior frame covers the whole image
-            if (prevFrameRect == SkIRect::MakeWH(m_screenWidth, m_screenHeight)
-                    // Or the prior frame was independent
-                    || prevFrame->getRequiredFrame() == SkCodec::kNone)
-            {
-                // This frame is independent, since we clear everything in the
-                // prior frame to the BG color
-                frame->setRequiredFrame(SkCodec::kNone);
-            } else {
-                frame->setRequiredFrame(i - 1);
-            }
-            break;
-    }
+    SkASSERT(prevFrame->getDisposalMethod() == SkCodecAnimation::Keep_DisposalMethod);
+    frame->setRequiredFrame(prevFrame->frameId());
+    frame->setHasAlpha(prevFrame->hasAlpha());
 }
 
 // FIXME: Move this method to close to doLZW().
