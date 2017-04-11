@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b4942c76_1c97fe8b",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-11T13:41:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b3364a7_9b881581",
+      "revId": "32278b250315dbebd146c41f9be9058157c8cfaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5156101_60a01325",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 5
@@ -33,6 +51,24 @@
       "revId": "32278b250315dbebd146c41f9be9058157c8cfaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59ec9436_27688a9d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 918,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-11T13:41:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5156101_60a01325",
+      "revId": "32278b250315dbebd146c41f9be9058157c8cfaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
