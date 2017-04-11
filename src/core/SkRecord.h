@@ -25,7 +25,7 @@
 // only with SkRecords::* structs defined in SkRecords.h.  Your compiler will helpfully yell if you
 // get this wrong.
 
-class SkRecord : public SkNVRefCnt<SkRecord> {
+class SkRecord : public SkRefCnt {
     enum {
         // TODO: tune these two constants.
         kInlineRecords      = 4, // Ideally our lower limit on recorded ops per picture.
