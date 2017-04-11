@@ -252,6 +252,24 @@
       "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d68ae24_87f62774",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-04-11T13:52:26Z",
+      "side": 1,
+      "message": "Perhaps a shorter more abstract version of this is that if we expose things in the public API that look like interfaces with methods rather than data types it gives us more flexibility to change the underlying organization of data types used to implement the interface without client code modification.",
+      "parentUuid": "a0167722_56bfe244",
+      "revId": "ef2452da71e03235f93b569c4487fc7ce9900ed3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
