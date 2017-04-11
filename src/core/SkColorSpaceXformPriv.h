@@ -39,6 +39,8 @@ static inline uint8_t clamp_normalized_float_to_byte(float v) {
 }
 
 static inline float clamp_0_1(float v) {
+    // The ordering of the logic is a little strange here in order
+    // to make sure we convert NaNs to 0.
     if (v >= 1.0f) {
         return 1.0f;
     } else if (v >= 0.0f) {
