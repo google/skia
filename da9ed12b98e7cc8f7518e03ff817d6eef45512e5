@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdcfdec0_44dc6b91",
+        "filename": "infra/bots/recipe_modules/run/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-11T11:12:18Z",
+      "side": 1,
+      "message": "This only works if %(PATH)s is not the last element.  I\u0027d recommend something like:\n\npath \u003d env.get(\u0027PATH\u0027, \u0027\u0027)\ndefault_path \u003d self.m.vars.default_env.get(\u0027PATH\u0027, \u0027\u0027)\nif default_path:\n  path \u003d path.replace(r\u0027%(PATH)s\u0027, default_path)\n\nThat would also respect the position of the %(PATH)s marker within the variable, which is usually important.",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 89,
+        "endChar": 41
+      },
+      "revId": "da9ed12b98e7cc8f7518e03ff817d6eef45512e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
