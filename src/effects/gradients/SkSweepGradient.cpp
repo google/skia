@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include <cmath>
+#include <algorithm>
+
 #include "SkSweepGradient.h"
 
 static SkMatrix translate(SkScalar dx, SkScalar dy) {
@@ -55,12 +58,24 @@ SkSweepGradient::SweepGradientContext::SweepGradientContext(
         const SkSweepGradient& shader, const ContextRec& rec)
     : INHERITED(shader, rec) {}
 
+static float ATan2v3(float y, float x) {
+    const float kPi = 3.14159265358979323846264338327950288f;
+    const float kPiOver2 = 1.57079632679489661923132169163975144f;
+    float a = std::min(sk_float_abs(x), sk_float_abs(y)) / std::max(sk_float_abs(x), sk_float_abs(y));
+    float s = a * a;
+    float r = ((-0.0464964749f * s + 0.15931422f) * s - 0.327622764f) * s * a + a;
+    if (std::abs(y) > std::abs(x)) { r = kPiOver2 - r; }
+    if (x < 0.0f) { r = kPi - r; }
+    if (y < 0.0f) { r = -r; }
+    return r;
+}
+
 //  returns angle in a circle [0..2PI) -> [0..255]
 static unsigned SkATan2_255(float y, float x) {
     //    static const float g255Over2PI = 255 / (2 * SK_ScalarPI);
     static const float g255Over2PI = 40.584510488433314f;
 
-    float result = sk_float_atan2(y, x);
+    float result = ATan2v3(y, x);
     if (!SkScalarIsFinite(result)) {
         return 0;
     }
