@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9cc91813_44890d80",
+        "filename": "infra/bots/recipe_modules/run/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-11T13:25:48Z",
+      "side": 1,
+      "message": "In the future we may want to do this in multiple places, so we might want to move this into a helper function.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 24
+      },
+      "revId": "f8a1e387c5c199271ea64b8c5c8e58bb6c923811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
