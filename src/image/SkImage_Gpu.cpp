@@ -849,6 +849,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
                                               const GrMipLevel* texels, int mipLevelCount,
                                               SkBudgeted budgeted,
                                               SkDestinationSurfaceColorMode colorMode) {
+    SkASSERT(mipLevelCount >= 1);
     if (!ctx) {
         return nullptr;
     }
