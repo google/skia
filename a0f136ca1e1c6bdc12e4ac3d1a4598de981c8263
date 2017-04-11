@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4f65c60b_7aefcf6c",
+        "filename": "src/core/SkImageCacherator.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-11T13:47:08Z",
+      "side": 1,
+      "message": "Important? I consider that, but chose the other for better (to me) encapsulation when its being used (and to me makes it clearer that you shouldn\u0027t *just* access the IDs w/o going through the onceler).",
+      "parentUuid": "b2d2482c_696623f7",
+      "range": {
+        "startLine": 155,
+        "startChar": 4,
+        "endLine": 155,
+        "endChar": 18
+      },
+      "revId": "a0f136ca1e1c6bdc12e4ac3d1a4598de981c8263",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a275c116_54d125ce",
         "filename": "src/core/SkResourceCache.h",
         "patchSetId": 22
@@ -45,6 +69,30 @@
       "revId": "a0f136ca1e1c6bdc12e4ac3d1a4598de981c8263",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e408d1be_22144958",
+        "filename": "src/core/SkResourceCache.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-11T13:47:08Z",
+      "side": 1,
+      "message": "Dun",
+      "parentUuid": "a275c116_54d125ce",
+      "range": {
+        "startLine": 90,
+        "startChar": 26,
+        "endLine": 90,
+        "endChar": 44
+      },
+      "revId": "a0f136ca1e1c6bdc12e4ac3d1a4598de981c8263",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
