@@ -74,6 +74,7 @@ skia_public_includes = [
   "include/svg",
   "include/utils",
   "include/utils/mac",
+  skia_vulkan_headers_path,
 ]
 
 # Skia public API, generally provided by :skia.
@@ -139,8 +140,6 @@ config("skia_private") {
   libs = []
   lib_dirs = []
   if (skia_use_vulkan) {
-    include_dirs += [ skia_vulkan_headers_path ]
-
     if (skia_vulkan_sdk != "" && !is_android) {
       if (is_win) {
         lib_dirs += [
@@ -743,8 +742,15 @@ if (skia_enable_tools) {
     public_configs = [ ":skia.h_config" ]
     skia_h = "$target_gen_dir/skia.h"
     script = "gn/find_headers.py"
-    args = [ rebase_path(skia_h, root_build_dir) ] +
-           rebase_path(skia_public_includes)
+    if (skia_use_vulkan) {
+      use_vulkan_string = "True"
+    } else {
+      use_vulkan_string = "False"
+    }
+    args = [
+             rebase_path(skia_h, root_build_dir),
+             use_vulkan_string,
+           ] + rebase_path(skia_public_includes - [ skia_vulkan_headers_path ])
     depfile = "$skia_h.deps"
     outputs = [
       skia_h,
