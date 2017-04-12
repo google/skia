@@ -16,6 +16,24 @@
       "revId": "0db8ce519df2712a6ebee45eec563b787838422e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ec48b79_9d7fab5b",
+        "filename": "src/core/SkPixelRef.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-12T15:38:01Z",
+      "side": 1,
+      "message": "Perhaps. The code for changeAlphaType (a pre-existing api) explicitly does not do that, but makes the caller take responsibility).\n\nWhat if the new config isn\u0027t in fact different? That\u0027s non-trivial to detect in some cases.",
+      "parentUuid": "41dbae14_4fc1dd02",
+      "revId": "0db8ce519df2712a6ebee45eec563b787838422e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
