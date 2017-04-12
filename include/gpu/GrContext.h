@@ -253,6 +253,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
+    GrBackend getBackend() const { return fBackend; }
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
     GrAtlasGlyphCache* getAtlasGlyphCache() { return fAtlasGlyphCache; }
@@ -333,6 +334,8 @@ private:
     std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
     GrAuditTrail                            fAuditTrail;
+
+    GrBackend                               fBackend
 
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
