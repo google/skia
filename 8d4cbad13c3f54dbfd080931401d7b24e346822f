@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1c3fd9bb_49643f8e",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-12T11:57:46Z",
+      "side": 0,
+      "message": "Sorry for the noise.",
+      "parentUuid": "7f842e54_9d56e07a",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 72
+      },
+      "revId": "8d4cbad13c3f54dbfd080931401d7b24e346822f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c5d2c2d_a5b94624",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 2
@@ -84,6 +108,30 @@
       "side": 0,
       "message": "I\u0027ll keep an eye on it after it lands.  Bug 5636 is marked resolved.",
       "parentUuid": "9c5d2c2d_a5b94624",
+      "range": {
+        "startLine": 243,
+        "startChar": 0,
+        "endLine": 249,
+        "endChar": 0
+      },
+      "revId": "8d4cbad13c3f54dbfd080931401d7b24e346822f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d063b949_758a6716",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-12T11:57:46Z",
+      "side": 0,
+      "message": "I mean, we no longer have bots named with \"Win8\" so your CL won\u0027t change the behavior, but I\u0027m wondering if we should\u0027ve generalized the rule at some point.",
+      "parentUuid": "2d823ac6_e3c230a2",
       "range": {
         "startLine": 243,
         "startChar": 0,
