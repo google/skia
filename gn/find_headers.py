@@ -15,14 +15,11 @@ import sys
 # very same mechanism Ninja uses to know which .h files affect which .cpp files.
 
 skia_h       = sys.argv[1]
-include_dirs = sys.argv[2:]
+use_vulkan   = eval(sys.argv[2])
+include_dirs = sys.argv[3:]
 
 blacklist = {
   "GrGLConfig_chrome.h",
-  "GrVkBackendContext.h",
-  "GrVkDefines.h",
-  "GrVkInterface.h",
-  "GrVkTypes.h",
   "SkFontMgr_fontconfig.h",
 }
 
@@ -30,8 +27,9 @@ headers = []
 for directory in include_dirs:
   for d, _, files in os.walk(directory):
     for f in files:
-      if f.endswith('.h') and f not in blacklist:
-        headers.append(os.path.join(d,f))
+      if not d.endswith('vk') or use_vulkan:
+        if f.endswith('.h') and f not in blacklist:
+          headers.append(os.path.join(d,f))
 headers.sort()
 
 with open(skia_h, "w") as f:
