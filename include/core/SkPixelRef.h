@@ -214,6 +214,8 @@ public:
 
 protected:
 #ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
+    virtual
+#endif
     /**
      *  On success, returns true and fills out the LockRec for the pixels. On
      *  failure returns false and ignores the LockRec parameter.
@@ -221,8 +223,14 @@ protected:
      *  The caller will have already acquired a mutex for thread safety, so this
      *  method need not do that.
      */
-    virtual bool onNewLockPixels(LockRec*) = 0;
+    bool onNewLockPixels(LockRec*) {
+        SkASSERT(false);    // should never be called
+        return true;
+    }
 
+#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
+    virtual
+#endif
     /**
      *  Balancing the previous successful call to onNewLockPixels. The locked
      *  pixel address will no longer be referenced, so the subclass is free to
@@ -231,16 +239,9 @@ protected:
      *  The caller will have already acquired a mutex for thread safety, so this
      *  method need not do that.
      */
-    virtual void onUnlockPixels() = 0;
-#else
-    bool onNewLockPixels(LockRec*) {
-        SkASSERT(false);    // should never be called
-        return true;
-    }
     void onUnlockPixels() {
         SkASSERT(false);    // should never be called
     }
-#endif
 
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
