@@ -345,27 +345,6 @@ public:
     */
     void setPixels(void* p, SkColorTable* ctable = NULL);
 
-    /** Copies the bitmap's pixels to the location pointed at by dst and returns
-        true if possible, returns false otherwise.
-
-        In the case when the dstRowBytes matches the bitmap's rowBytes, the copy
-        may be made faster by copying over the dst's per-row padding (for all
-        rows but the last). By setting preserveDstPad to true the caller can
-        disable this optimization and ensure that pixels in the padding are not
-        overwritten.
-
-        Always returns false for RLE formats.
-
-        @param dst      Location of destination buffer.
-        @param dstSize  Size of destination buffer. Must be large enough to hold
-                        pixels using indicated stride.
-        @param dstRowBytes  Width of each line in the buffer. If 0, uses
-                            bitmap's internal stride.
-        @param preserveDstPad Must we preserve padding in the dst
-    */
-    bool copyPixelsTo(void* const dst, size_t dstSize, size_t dstRowBytes = 0,
-                      bool preserveDstPad = false) const;
-
     /** Use the standard HeapAllocator to create the pixelref that manages the
         pixel memory. It will be sized based on the current ImageInfo.
         If this is called multiple times, a new pixelref object will be created
