@@ -24,6 +24,8 @@ public:
     void apply(SkColor dst[], const SkColor src[], int n);
     SkColor apply(SkColor srgb);
 
+    sk_sp<SkColorSpace> dst() const { return fDst; }
+
 private:
     sk_sp<SkShader> apply(const SkShader* shader);
 
