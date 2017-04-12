@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7ae708a_b7dec22c",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-12T16:01:54Z",
+      "side": 1,
+      "message": "I think you can remove this now?",
+      "revId": "26c577dc2a1901a008ca0609a24f7add2c805f2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d96a210_fd434147",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-12T16:01:54Z",
+      "side": 1,
+      "message": "probably better to replace ] + [ with a comma?",
+      "range": {
+        "startLine": 752,
+        "startChar": 49,
+        "endLine": 752,
+        "endChar": 54
+      },
+      "revId": "26c577dc2a1901a008ca0609a24f7add2c805f2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2ed9a4f_0dead54a",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-12T16:01:54Z",
+      "side": 1,
+      "message": "I forgot the really easy way to write this:\n\n  use_vulkan \u003d eval(sys.argv[2])",
+      "revId": "26c577dc2a1901a008ca0609a24f7add2c805f2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
