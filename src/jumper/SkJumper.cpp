@@ -12,7 +12,7 @@
 #include "SkTemplates.h"
 
 // A debugging mode that helps prioritize porting stages to SkJumper.
-#if 0
+#if 1
     #include "SkOnce.h"
     #include <atomic>
 
@@ -80,6 +80,8 @@ static K kConstants = {
     M(to_srgb)            \
     M(from_2dot2)         \
     M(to_2dot2)           \
+    M(rgb_to_hsl)         \
+    M(hsl_to_rgb)         \
     M(scale_1_float)      \
     M(scale_u8)           \
     M(lerp_1_float)       \
