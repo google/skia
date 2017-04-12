@@ -34,6 +34,24 @@
       "revId": "0db8ce519df2712a6ebee45eec563b787838422e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96de5456_5cc4c119",
+        "filename": "src/core/SkPixelRef.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-04-12T15:59:07Z",
+      "side": 1,
+      "message": "I would rather we inc the genID 2x in some cases where the caller also does an increment and ensure we don\u0027t hit a case where the caller forgets.  If the new config is in fact not different then the worst thing that will happen is we upload the content to the GPU a second time.",
+      "parentUuid": "8ec48b79_9d7fab5b",
+      "revId": "0db8ce519df2712a6ebee45eec563b787838422e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
