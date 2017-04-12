@@ -106,6 +106,23 @@ SkPixelRef::~SkPixelRef() {
     this->callGenIDChangeListeners();
 }
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+// This is undefined if there are clients in-flight trying to use us
+void SkPixelRef::android_only_reset(const SkImageInfo& info, size_t rowBytes,
+                                    sk_sp<SkColorTable> ctable) {
+    validate_pixels_ctable(info, ctable.get());
+
+    *const_cast<SkImageInfo*>(&fInfo) = info;
+    fCTable = std::move(ctable);
+    // note: we do not change fRec.fPixels
+    fRec.fRowBytes = rowBytes;
+    fRec.fColorTable = fCTable.get();
+
+    // conservative, since its possible the "new" settings are the same as the old.
+    this->notifyPixelsChanged();
+}
+#endif
+
 void SkPixelRef::needsNewGenID() {
     fTaggedGenID.store(0);
     SkASSERT(!this->genIDIsUnique()); // This method isn't threadsafe, so the assert should be fine.
