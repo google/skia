@@ -30,35 +30,14 @@ public:
 
         // Aggressively round to the nearest exact (N / 255) floating point value. This lets us
         // find a round-trip preserving pair on some GPUs that do odd byte to float conversion.
-        fragBuilder->codeAppendf("vec4 color = floor(%s * 255.0 + 0.5) / 255.0;",
-                                args.fInputColor);
+        fragBuilder->codeAppendf("vec4 color = floor(%s * 255.0 + 0.5) / 255.0;", args.fInputColor);
 
         switch (cce.pmConversion()) {
-            case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
-                fragBuilder->codeAppend(
-                    "color.rgb = ceil(color.rgb * color.a * 255.0) / 255.0;");
-                break;
-            case GrConfigConversionEffect::kMulByAlpha_RoundDown_PMConversion:
-                // Add a compensation(0.001) here to avoid the side effect of the floor operation.
-                // In Intel GPUs, the integer value converted from floor(%s.r * 255.0) / 255.0
-                // is less than the integer value converted from  %s.r by 1 when the %s.r is
-                // converted from the integer value 2^n, such as 1, 2, 4, 8, etc.
-                fragBuilder->codeAppend(
-                    "color.rgb = floor(color.rgb * color.a * 255.0 + 0.001) / 255.0;");
-                break;
             case GrConfigConversionEffect::kMulByAlpha_RoundNearest_PMConversion:
                 fragBuilder->codeAppend(
                     "color.rgb = floor(color.rgb * color.a * 255.0 + 0.5) / 255.0;");
                 break;
 
-            case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
-                fragBuilder->codeAppend(
-                    "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : ceil(color.rgb / color.a * 255.0) / 255.0;");
-                break;
-            case GrConfigConversionEffect::kDivByAlpha_RoundDown_PMConversion:
-                fragBuilder->codeAppend(
-                    "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : floor(color.rgb / color.a * 255.0) / 255.0;");
-                break;
             case GrConfigConversionEffect::kDivByAlpha_RoundNearest_PMConversion:
                 fragBuilder->codeAppend(
                     "color.rgb = color.a <= 0.0 ? vec3(0,0,0) : floor(color.rgb / color.a * 255.0 + 0.5) / 255.0;");
@@ -153,7 +132,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     sk_sp<GrRenderTargetContext> tempRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
                                                                           kSize, kSize,
                                                                           kConfig, nullptr));
-    if (!readRTC || !tempRTC) {
+    if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
         return;
     }
     GrSurfaceDesc desc;
@@ -168,86 +147,62 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         return;
     }
 
-    static const PMConversion kConversionRules[][2] = {
-        {kDivByAlpha_RoundNearest_PMConversion, kMulByAlpha_RoundNearest_PMConversion},
-        {kDivByAlpha_RoundDown_PMConversion, kMulByAlpha_RoundUp_PMConversion},
-        {kDivByAlpha_RoundUp_PMConversion, kMulByAlpha_RoundDown_PMConversion},
-    };
+    *pmToUPMRule = kDivByAlpha_RoundNearest_PMConversion;
+    *upmToPMRule = kMulByAlpha_RoundNearest_PMConversion;
 
-    uint32_t bestFailCount = 0xFFFFFFFF;
-    size_t bestRule = 0;
+    static const SkRect kRect = SkRect::MakeIWH(kSize, kSize);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kConversionRules) && bestFailCount; ++i) {
-        *pmToUPMRule = kConversionRules[i][0];
-        *upmToPMRule = kConversionRules[i][1];
+    // We do a PM->UPM draw from dataTex to readTex and read the data. Then we do a UPM->PM draw
+    // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
+    // We then verify that two reads produced the same values.
 
-        static const SkRect kDstRect = SkRect::MakeIWH(kSize, kSize);
-        static const SkRect kSrcRect = SkRect::MakeIWH(kSize, kSize);
-        // We do a PM->UPM draw from dataTex to readTex and read the data. Then we do a UPM->PM draw
-        // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
-        // We then verify that two reads produced the same values.
+    GrPaint paint1;
+    GrPaint paint2;
+    GrPaint paint3;
+    sk_sp<GrFragmentProcessor> pmToUPM(new GrConfigConversionEffect(*pmToUPMRule));
+    sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(*upmToPMRule));
 
-        if (!readRTC->asTextureProxy()) {
-            continue;
-        }
-        GrPaint paint1;
-        GrPaint paint2;
-        GrPaint paint3;
-        sk_sp<GrFragmentProcessor> pmToUPM(new GrConfigConversionEffect(*pmToUPMRule));
-        sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(*upmToPMRule));
+    paint1.addColorTextureProcessor(resourceProvider, dataProxy, nullptr, SkMatrix::I());
+    paint1.addColorFragmentProcessor(pmToUPM);
+    paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        paint1.addColorTextureProcessor(resourceProvider, dataProxy, nullptr, SkMatrix::I());
-        paint1.addColorFragmentProcessor(pmToUPM);
-        paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect, kRect);
+    if (!readRTC->readPixels(ii, firstRead, 0, 0, 0)) {
+        return;
+    }
 
-        readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kDstRect,
-                                kSrcRect);
+    paint2.addColorTextureProcessor(resourceProvider, readRTC->asTextureProxyRef(), nullptr,
+                                    SkMatrix::I());
+    paint2.addColorFragmentProcessor(std::move(upmToPM));
+    paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        if (!readRTC->readPixels(ii, firstRead, 0, 0, 0)) {
-            continue;
-        }
+    tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect, kRect);
 
-        paint2.addColorTextureProcessor(resourceProvider, readRTC->asTextureProxyRef(), nullptr,
-                                        SkMatrix::I());
-        paint2.addColorFragmentProcessor(std::move(upmToPM));
-        paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    paint3.addColorTextureProcessor(resourceProvider, tempRTC->asTextureProxyRef(), nullptr,
+                                    SkMatrix::I());
+    paint3.addColorFragmentProcessor(std::move(pmToUPM));
+    paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kDstRect,
-                                kSrcRect);
+    readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kRect, kRect);
 
-        paint3.addColorTextureProcessor(resourceProvider, tempRTC->asTextureProxyRef(), nullptr,
-                                        SkMatrix::I());
-        paint3.addColorFragmentProcessor(std::move(pmToUPM));
-        paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    if (!readRTC->readPixels(ii, secondRead, 0, 0, 0)) {
+        return;
+    }
 
-        readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kDstRect,
-                                kSrcRect);
-
-        if (!readRTC->readPixels(ii, secondRead, 0, 0, 0)) {
-            continue;
-        }
-
-        uint32_t failCount = 0;
-        for (int y = 0; y < kSize; ++y) {
-            for (int x = 0; x <= y; ++x) {
-                if (firstRead[kSize * y + x] != secondRead[kSize * y + x]) {
-                    if (++failCount >= bestFailCount) {
-                        break;
-                    }
-                }
+    uint32_t failCount = 0;
+    for (int y = 0; y < kSize; ++y) {
+        for (int x = 0; x <= y; ++x) {
+            if (firstRead[kSize * y + x] != secondRead[kSize * y + x]) {
+                ++failCount;
             }
         }
-        if (failCount < bestFailCount) {
-            bestFailCount = failCount;
-            bestRule = i;
-        }
     }
-    if (bestFailCount > 0) {
+
+    if (failCount > 0) {
+        SkDebugf("PM Fail count: %d\n", failCount);
+        SkFAIL("ABORT");
         *pmToUPMRule = kPMConversionCnt;
         *upmToPMRule = kPMConversionCnt;
-    } else {
-        *pmToUPMRule = kConversionRules[bestRule][0];
-        *upmToPMRule = kConversionRules[bestRule][1];
     }
 }
 
