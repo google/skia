@@ -53,11 +53,12 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
+    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 private:
     explicit SkPictureImageFilter(sk_sp<SkPicture> picture);
     SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cropRect,
-                         PictureResolution, SkFilterQuality);
+                         PictureResolution, SkFilterQuality, sk_sp<SkColorSpace>);
 
     void drawPictureAtDeviceResolution(SkCanvas* canvas,
                                        const SkIRect& deviceBounds,
@@ -71,6 +72,7 @@ private:
     SkRect                fCropRect;
     PictureResolution     fPictureResolution;
     SkFilterQuality       fFilterQuality;
+    sk_sp<SkColorSpace>   fColorSpace;
 
     typedef SkImageFilter INHERITED;
 };
