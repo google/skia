@@ -103,7 +103,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			task_os = "Ubuntu"
 			ec = "Chromecast"
 		} else if strings.Contains(task_os, "ChromeOS") {
-			ec = parts["model"]
+			ec = "Chromebook_C100p" //dirty ugly hack undo before landing
 			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
 			ec = task_os
