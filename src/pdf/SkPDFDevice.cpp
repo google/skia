@@ -1460,7 +1460,8 @@ void SkPDFDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
     // TODO: implement drawVertices
 }
 
-void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
+void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint,
+                             SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!paint.getImageFilter());
 
     // Check if the source device is really a bitmapdevice (because that's what we returned

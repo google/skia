@@ -112,8 +112,8 @@ public:
     void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                       const SkPaint &, SkDrawFilter*) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
+    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&, SkImage* clip,
+                    const SkMatrix& clipMatrix) override;
 
     // PDF specific methods.
 

@@ -86,6 +86,8 @@ public:
         this->drawPath(src, paint, NULL, false, true, customBlitter);
     }
 
+    void drawDevMask(const SkMask& mask, const SkPaint&) const;
+
     /** Helper function that creates a mask from a path and an optional maskfilter.
         Note however, that the resulting mask will not have been actually filtered,
         that must be done afterwards (by calling filterMask). The maskfilter is provided
@@ -122,7 +124,6 @@ public:
                                     const SkPaint&, const SkSurfaceProps*) const;
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
-    void    drawDevMask(const SkMask& mask, const SkPaint&) const;
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
