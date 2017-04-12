@@ -45,8 +45,15 @@ protected:
 
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
-    SkImage* onIsAImage(SkMatrix* matrix, TileMode* mode) const override {
-        return fProxyShader->isAImage(matrix, mode);
+    SkImage* onIsAImage(SkMatrix* outMatrix, TileMode* mode) const override {
+        SkMatrix imageMatrix;
+        SkImage* image = fProxyShader->isAImage(&imageMatrix, mode);
+        if (outMatrix) {
+            *outMatrix = this->getLocalMatrix();
+            outMatrix->preConcat(imageMatrix);
+        }
+
+        return image;
     }
 
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
