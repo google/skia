@@ -1770,11 +1770,13 @@ void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
     }
 
     // We don't have this method (yet), but technically this is what we should
-    // be able to assert...
-    // SkASSERT(outer.contains(inner));
+    // be able to return ...
+    // if (!outer.contains(inner))) {
     //
     // For now at least check for containment of bounds
-    SkASSERT(outer.getBounds().contains(inner.getBounds()));
+    if (!outer.getBounds().contains(inner.getBounds())) {
+        return;
+    }
 
     this->onDrawDRRect(outer, inner, paint);
 }
