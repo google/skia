@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a87edf9_dffdf5d7",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-12T21:26:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39d54fb4_e418c849",
+      "revId": "bd0a7b9c274c62ce84f13e3cb8b1eaa63691459e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06112b17_de145f95",
         "filename": "src/effects/gradients/SkSweepGradient.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-12T14:23:28Z",
       "side": 1,
       "message": "if (yabs \u003e xabs) { ... }\n\nActually, it\u0027s likely worth branching on yabs \u003e xabs higher up to avoid std::min \u0026 std::max.",
+      "revId": "bd0a7b9c274c62ce84f13e3cb8b1eaa63691459e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfb55fa3_46436262",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-12T21:26:15Z",
+      "side": 1,
+      "message": "I\u0027m trying to have this mirror the stage code I\u0027m about to write, so I\u0027m avoiding those kinds of if statements.",
+      "parentUuid": "06112b17_de145f95",
       "revId": "bd0a7b9c274c62ce84f13e3cb8b1eaa63691459e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4dfbed6c_50e5a888",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-12T21:26:15Z",
+      "side": 1,
+      "message": "I don\u0027t understand the problem here. Are you saying that -0.0 should have a different answer than 0.0?",
+      "parentUuid": "2cfbdb81_ce79fe42",
+      "revId": "bd0a7b9c274c62ce84f13e3cb8b1eaa63691459e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dbf4d221_aa6be70f",
         "filename": "src/effects/gradients/SkSweepGradient.cpp",
         "patchSetId": 1
@@ -67,6 +121,24 @@
       "revId": "bd0a7b9c274c62ce84f13e3cb8b1eaa63691459e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4946c9f_9efba44e",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-12T21:26:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dbf4d221_aa6be70f",
+      "revId": "bd0a7b9c274c62ce84f13e3cb8b1eaa63691459e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
