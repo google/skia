@@ -52,6 +52,24 @@
       "revId": "0db8ce519df2712a6ebee45eec563b787838422e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32bb0f78_5f6afbcc",
+        "filename": "src/core/SkPixelRef.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-12T16:57:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96de5456_5cc4c119",
+      "revId": "0db8ce519df2712a6ebee45eec563b787838422e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
