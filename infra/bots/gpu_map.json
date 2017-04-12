@@ -14,5 +14,6 @@
   "IntelIris540":  "8086:1926",
   "IntelIris6100": "8086:162b",
   "MaliT764":      "MaliT764",
+  "MaliT860":      "MaliT860",
   "RadeonR9M470X": "1002:6646"
 }
