@@ -52,14 +52,26 @@
 //   - the _i and _f user-defined literal operators call C() for you in a prettier way; or
 //   - you can load values from this struct.
 
+static const int SkJumper_kMaxStride = 8;
+
 struct SkJumper_constants {
-    float iota[8];      //  0,1,2,3,4,5,6,7
+    float iota[SkJumper_kMaxStride];   //  0,1,2,3,4,...
 };
 
 struct SkJumper_GatherCtx {
     const void*     pixels;
     const uint32_t* ctable;
     int             stride;
+};
+
+// State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
+struct SkJumper_SamplerCtx {
+    float      x[SkJumper_kMaxStride];
+    float      y[SkJumper_kMaxStride];
+    float     fx[SkJumper_kMaxStride];
+    float     fy[SkJumper_kMaxStride];
+    float scalex[SkJumper_kMaxStride];
+    float scaley[SkJumper_kMaxStride];
 };
 
 #endif//SkJumper_DEFINED
