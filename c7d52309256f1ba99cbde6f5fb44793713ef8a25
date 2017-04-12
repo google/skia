@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5566843a_49670632",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-12T15:19:03Z",
+      "side": 1,
+      "message": "Yes, this and the recipes simulation test are run as part of infra_test.py which also runs on the InfraTests bot (on the CQ).",
+      "parentUuid": "b0159684_8982b9f1",
+      "revId": "c7d52309256f1ba99cbde6f5fb44793713ef8a25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "161f81aa_816b70bb",
         "filename": "infra/bots/README.md",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-12T15:06:36Z",
       "side": 1,
       "message": "Can we put these in a Makefile in the infra/bots directory?",
+      "revId": "c7d52309256f1ba99cbde6f5fb44793713ef8a25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d437868_5192f9c8",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-12T15:19:03Z",
+      "side": 1,
+      "message": "Err, I guess so.  What would be the benefit of that?",
+      "parentUuid": "161f81aa_816b70bb",
       "revId": "c7d52309256f1ba99cbde6f5fb44793713ef8a25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
