@@ -31,6 +31,13 @@ static void write_bm(const char* name, const SkBitmap& bm) {
     }
 }
 
+DEF_TEST(Codec_trunc, r) {
+    sk_sp<SkData> data(GetResourceAsData("box.gif"));
+    data = SkData::MakeSubset(data.get(), 0, 23);
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    codec->getFrameInfo();
+}
+
 DEF_TEST(Codec_frames, r) {
     #define kOpaque     kOpaque_SkAlphaType
     #define kUnpremul   kUnpremul_SkAlphaType
