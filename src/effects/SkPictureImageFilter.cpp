@@ -8,6 +8,8 @@
 #include "SkPictureImageFilter.h"
 
 #include "SkCanvas.h"
+#include "SkColorSpaceXformCanvas.h"
+#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -23,7 +25,8 @@ sk_sp<SkImageFilter> SkPictureImageFilter::Make(sk_sp<SkPicture> picture,
     return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture), 
                                                          cropRect,
                                                          kDeviceSpace_PictureResolution,
-                                                         kLow_SkFilterQuality));
+                                                         kLow_SkFilterQuality,
+                                                         nullptr));
 }
 
 sk_sp<SkImageFilter> SkPictureImageFilter::MakeForLocalSpace(sk_sp<SkPicture> picture,
@@ -32,7 +35,8 @@ sk_sp<SkImageFilter> SkPictureImageFilter::MakeForLocalSpace(sk_sp<SkPicture> pi
     return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture),
                                                          cropRect,
                                                          kLocalSpace_PictureResolution,
-                                                         filterQuality));
+                                                         filterQuality,
+                                                         nullptr));
 }
 
 SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
@@ -45,12 +49,14 @@ SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
 
 SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cropRect,
                                            PictureResolution pictureResolution,
-                                           SkFilterQuality filterQuality)
+                                           SkFilterQuality filterQuality,
+                                           sk_sp<SkColorSpace> colorSpace)
     : INHERITED(nullptr, 0, nullptr)
     , fPicture(std::move(picture))
     , fCropRect(cropRect)
     , fPictureResolution(pictureResolution)
-    , fFilterQuality(filterQuality) {
+    , fFilterQuality(filterQuality)
+    , fColorSpace(std::move(colorSpace)) {
 }
 
 sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -126,6 +132,14 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
     SkCanvas* canvas = surf->getCanvas();
     SkASSERT(canvas);
 
+    std::unique_ptr<SkCanvas> xformCanvas = nullptr;
+    if (fColorSpace) {
+        // Only non-null in the case where onMakeColorSpace() was called.  This instructs
+        // us to do the color space xform on playback.
+        xformCanvas = SkCreateColorSpaceXformCanvas(canvas, fColorSpace);
+        canvas = xformCanvas.get();
+    }
+
     canvas->clear(0x0);
 
     if (kDeviceSpace_PictureResolution == fPictureResolution ||
@@ -138,6 +152,11 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
     return surf->makeImageSnapshot();
+}
+
+sk_sp<SkImageFilter> SkPictureImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    return sk_sp<SkImageFilter>(new SkPictureImageFilter(fPicture, fCropRect, fPictureResolution,
+            fFilterQuality, xformer->dst()));
 }
 
 void SkPictureImageFilter::drawPictureAtDeviceResolution(SkCanvas* canvas,
