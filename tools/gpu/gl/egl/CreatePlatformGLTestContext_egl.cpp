@@ -307,7 +307,9 @@ std::unique_ptr<EGLFenceSync> EGLFenceSync::MakeIfSupported(EGLDisplay display) 
 }
 
 sk_gpu_test::PlatformFence EGLFenceSync::insertFence() const {
+    SkDebugf("in insert fence\n");
     EGLSyncKHR eglsync = eglCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
+    SkDebugf("after insert fence\n");
     return reinterpret_cast<sk_gpu_test::PlatformFence>(eglsync);
 }
 
