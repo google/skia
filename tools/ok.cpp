@@ -220,13 +220,11 @@ int main(int argc, char** argv) {
                        dst_help = help_for(   dst_types),
                        via_help = help_for(   via_types);
 
-        printf("%s [-j N] [-m regex] [-s regex] [-w dir] [-h]                        \n"
-                "  src[:k=v,...] dst[:k=v,...] [via[:k=v,...] ...]                   \n"
+        printf("%s [-j N] src[:k=v,...] dst[:k=v,...] [via[:k=v,...] ...]            \n"
                 "  -j: Run at most N processes at any time.                          \n"
                 "      If <0, use -N threads instead.                                \n"
                 "      If 0, use one thread in one process.                          \n"
                 "      If 1 (default) or -1, auto-detect N.                          \n"
-                "  -h: Print this message and exit.                                  \n"
                 " src: content to draw%s                                             \n"
                 " dst: how to draw that content%s                                    \n"
                 " via: wrappers around dst%s                                         \n"
@@ -236,8 +234,9 @@ int main(int argc, char** argv) {
     };
 
     for (int i = 1; i < argc; i++) {
-        if (0 == strcmp("-j", argv[i])) { jobs = atoi(argv[++i]); }
-        if (0 == strcmp("-h", argv[i])) { return help(); }
+        if (0 == strcmp("-j",     argv[i])) { jobs = atoi(argv[++i]); }
+        if (0 == strcmp("-h",     argv[i])) { return help(); }
+        if (0 == strcmp("--help", argv[i])) { return help(); }
 
         for (auto s : stream_types) {
             size_t len = strlen(s.name);
