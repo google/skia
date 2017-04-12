@@ -123,6 +123,11 @@ static K kConstants = {
     M(repeat_y)           \
     M(mirror_x)           \
     M(mirror_y)           \
+    M(save_xy)            \
+    M(accumulate)         \
+    M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)  \
+    M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)  \
+    M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
     M(linear_gradient)    \
     M(linear_gradient_2stops)
 
