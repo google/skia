@@ -176,6 +176,8 @@ def nanobench_flags(bot):
     args.append('--match')
     args.extend(match)
 
+  args.append('--verbose')
+
   return args
 
 
