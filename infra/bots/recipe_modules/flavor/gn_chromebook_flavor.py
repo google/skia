@@ -70,15 +70,13 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     configuration = self.m.vars.builder_cfg.get('configuration')
     os            = self.m.vars.builder_cfg.get('os')
     target_arch   = self.m.vars.builder_cfg.get('target_arch')
-    extra_config  = self.m.vars.builder_cfg.get('extra_config', '')
 
     clang_linux = self.m.vars.slave_dir.join('clang_linux')
     # This is a pretty typical arm-linux-gnueabihf sysroot
     sysroot_dir = self.m.vars.slave_dir.join('armhf_sysroot')
     # This is the extra things needed to link against for the chromebook.
     #  For example, the Mali GL drivers.
-    if extra_config == 'Chromebook_C100p':
-      gl_dir   = self.m.vars.slave_dir.join('chromebook_c100p_lib')
+    gl_dir   = self.m.vars.slave_dir.join('chromebook_arm_gles')
 
     extra_asmflags = [
       '--target=armv7a-linux-gnueabihf',

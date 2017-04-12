@@ -103,7 +103,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			task_os = "Ubuntu"
 			ec = "Chromecast"
 		} else if strings.Contains(task_os, "ChromeOS") {
-			ec = parts["model"]
+			ec = "Chromebook_ARM_GLES"
 			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
 			ec = task_os
@@ -270,9 +270,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	} else if strings.Contains(name, "Chromebook") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
-		if strings.Contains(name, "Chromebook_C100p") {
-			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_c100p_lib"))
-		}
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 	} else if strings.Contains(name, "Ubuntu") {
 		if strings.Contains(name, "Clang") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
