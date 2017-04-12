@@ -338,14 +338,9 @@ struct CacheCaps {
         return !fCaps ||
             (fCaps->srgbSupport() && fCaps->isConfigTexturable(kSRGBA_8888_GrPixelConfig));
     }
-
-    bool supportsSBGR() const {
-        return !fCaps || fCaps->srgbSupport();
-    }
 #else
     bool supportsHalfFloat() const { return true; }
     bool supportsSRGB() const { return true; }
-    bool supportsSBGR() const { return true; }
 #endif
 
     const GrCaps* fCaps;
@@ -385,6 +380,7 @@ SkImageCacherator::CachedFormat SkImageCacherator::chooseCacheFormat(SkColorSpac
             }
 
         case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             if (cs->gammaCloseToSRGB()) {
                 if (caps.supportsSRGB()) {
                     return kSRGB8888_CachedFormat;
@@ -400,39 +396,6 @@ SkImageCacherator::CachedFormat SkImageCacherator::chooseCacheFormat(SkColorSpac
                     return kSRGB8888_CachedFormat;
                 } else {
                     return kLegacy_CachedFormat;
-                }
-            }
-
-        case kBGRA_8888_SkColorType:
-            // Odd case. sBGRA isn't a real thing, so we may not have this texturable.
-            if (caps.supportsSBGR()) {
-                if (cs->gammaCloseToSRGB()) {
-                    return kSBGR8888_CachedFormat;
-                } else if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else {
-                    // sBGRA support without sRGBA is highly unlikely (impossible?) Nevertheless.
-                    return kLegacy_CachedFormat;
-                }
-            } else {
-                if (cs->gammaCloseToSRGB()) {
-                    if (caps.supportsSRGB()) {
-                        return kSRGB8888_CachedFormat;
-                    } else if (caps.supportsHalfFloat()) {
-                        return kLinearF16_CachedFormat;
-                    } else {
-                        return kLegacy_CachedFormat;
-                    }
-                } else {
-                    if (caps.supportsHalfFloat()) {
-                        return kLinearF16_CachedFormat;
-                    } else if (caps.supportsSRGB()) {
-                        return kSRGB8888_CachedFormat;
-                    } else {
-                        return kLegacy_CachedFormat;
-                    }
                 }
             }
 
@@ -464,14 +427,6 @@ SkImageInfo SkImageCacherator::buildCacheInfo(CachedFormat format) {
                 return fInfo.makeColorType(kRGBA_8888_SkColorType);
             } else {
                 return fInfo.makeColorType(kRGBA_8888_SkColorType)
-                            .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
-            }
-        case kSBGR8888_CachedFormat:
-            // See note above about not-quite-sRGB transfer functions.
-            if (fInfo.colorSpace()->gammaCloseToSRGB()) {
-                return fInfo.makeColorType(kBGRA_8888_SkColorType);
-            } else {
-                return fInfo.makeColorType(kBGRA_8888_SkColorType)
                             .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
             }
         default:
