@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24d2a8da_c1c8ab44",
+        "filename": "src/core/SkLocalMatrixShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-12T12:09:56Z",
+      "side": 0,
+      "message": "Has this just been broken all the time, and nothing calling it until now?",
+      "range": {
+        "startLine": 48,
+        "startChar": 13,
+        "endLine": 48,
+        "endChar": 23
+      },
+      "revId": "0f3fdfacf32261f943dcac5cdfd14475011f40db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

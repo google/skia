@@ -22,6 +22,30 @@
       "revId": "41a40da8eb200ba1b6f017d2d627c69e1156631f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28321f3c_e9a48507",
+        "filename": "src/core/SkLocalMatrixShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-04-12T12:09:56Z",
+      "side": 1,
+      "message": "I can never keep this straight.  I never know if pre means written first (on the left) or happens first (on the right), or if the pre is talking about *this or the function argument.  Any of those could make sense to me if I think long enough.\n\nIf we say\n\n  w \u003d ABv\n\nwhere A and B are matrices and v and w are column vectors, linear algebra says\n\n  w \u003d (AB)v \u003d\u003d A(Bv) \u003d\u003d Mv where M \u003d AB\n\nright?  If I\u0027m reading the docs correctly, A.preConcat(B) produces the matrix AB,  with the argument matrix happening before the baseline.\n\nI almost always give up and write it out long way with SkMatrix::Concat(A,B).",
+      "parentUuid": "b72da402_269fd893",
+      "range": {
+        "startLine": 53,
+        "startChar": 23,
+        "endLine": 53,
+        "endChar": 32
+      },
+      "revId": "41a40da8eb200ba1b6f017d2d627c69e1156631f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
