@@ -41,6 +41,9 @@ protected:
                                         SkIPoint* offset) const override {
         return nullptr;
     }
+    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override {
+        return nullptr;
+    }
 
 private:
     typedef SkImageFilter INHERITED;
@@ -82,6 +85,9 @@ protected:
                                         SkIPoint* offset) const override {
         offset->set(0, 0);
         return sk_ref_sp<SkSpecialImage>(source);
+    }
+    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override {
+        return sk_ref_sp(const_cast<IdentityImageFilter*>(this));
     }
 
 private:

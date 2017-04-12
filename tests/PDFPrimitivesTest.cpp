@@ -366,6 +366,9 @@ protected:
         offset->fX = offset->fY = 0;
         return sk_ref_sp<SkSpecialImage>(source);
     }
+    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override {
+        return sk_ref_sp(const_cast<DummyImageFilter*>(this));
+    }
 
 private:
     DummyImageFilter(bool visited) : INHERITED(nullptr, 0, nullptr), fVisited(visited) {}
