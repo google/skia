@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83fc3e44_93181be4",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-12T17:21:02Z",
+      "side": 1,
+      "message": "not huge fan on this, but we don\u0027t want to include everything that is in the folder explicitly since we end up get redefinition of stupid windows macros. When we move to having the headers be part of skia/third_party this issue should go away and we can delete this line.",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 80
+      },
+      "revId": "ae420135c4017910648f22497f88a79d002e381e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
