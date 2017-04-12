@@ -71,8 +71,7 @@ SkColor SkColorSpaceXformer::apply(SkColor srgb) {
 sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
     SkColor color;
     if (shader->isConstant() && shader->asLuminanceColor(&color)) {
-        return SkShader::MakeColorShader(this->apply(color))
-                ->makeWithLocalMatrix(shader->getLocalMatrix());
+        return SkShader::MakeColorShader(this->apply(color));
     }
 
     SkShader::TileMode xy[2];
@@ -86,8 +85,7 @@ sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
         auto A = this->apply(compose.fShaderA),
              B = this->apply(compose.fShaderB);
         if (A && B) {
-            return SkShader::MakeComposeShader(std::move(A), std::move(B), compose.fBlendMode)
-                    ->makeWithLocalMatrix(shader->getLocalMatrix());
+            return SkShader::MakeComposeShader(std::move(A), std::move(B), compose.fBlendMode);
         }
     }
 
@@ -149,7 +147,7 @@ sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
         }
     }
 
-    return sk_ref_sp(const_cast<SkShader*>(shader));
+    return nullptr;
 }
 
 const SkPaint& SkColorSpaceXformer::apply(const SkPaint& src) {
