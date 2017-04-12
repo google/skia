@@ -26,19 +26,15 @@ The RoboCop's job is NOT to address issues in Perf and Gold. You'll get your cha
 Android Autoroller
 ------------------
 
-The Android autoroller runs on the [client.skia.internal](https://chromegw.corp.google.com/i/client.skia.internal/console) master using the [merge_into_android.py](https://chrome-internal.googlesource.com/chrome/tools/build_limited/scripts/slave/+/master/skia/merge_into_android.py) recipe.
+The Android autoroller runs on [https://android-master-roll.skia.org](android-master-roll.skia.org) and is accessible only to Googlers.<br/>
+The autoroller's status is displayed on Skia's [status page](https://status.skia.org/).
 
-If you need to stop the autoroller then do the following steps:
+You can send the autoroller into dry run mode via the UI. The uploaded change will not autosubmit when it is in dry run mode.
 
-* echo stop > /tmp/action
-* gsutil cp /tmp/action gs://skia-android-autoroller/action
+You can also stop the autoroller via the UI. This is useful in cases where a failure needs to be investigated and you do not want to waste TH resources by running unnecessary tests.
 
-To turn the autoroller back on:
+If you need any more information about the autoroller please look at [skia:5538](https://bugs.chromium.org/p/skia/issues/detail?id=5538) or ask rmistry@ / skiabot@.
 
-* echo start > /tmp/action
-* gsutil cp /tmp/action gs://skia-android-autoroller/action
-
-If you need any more information about the autoroller please look at [skia:6065](https://bugs.chromium.org/p/skia/issues/detail?id=6065) or ask rmistry@ / skiabot@.
 
 <a name="view_current_upcoming_robocops"></a>
 View current and upcoming RoboCops
