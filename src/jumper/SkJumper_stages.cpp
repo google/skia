@@ -910,3 +910,115 @@ STAGE(linear_gradient_2stops) {
     b = mad(t, c->f[2], c->b[2]);
     a = mad(t, c->f[3], c->b[3]);
 }
+
+STAGE(save_xy) {
+    auto c = (SkJumper_SamplerCtx*)ctx;
+
+    // Whether bilinear or bicubic, all sample points are at the same fractional offset (fx,fy).
+    // They're either the 4 corners of a logical 1x1 pixel or the 16 corners of a 3x3 grid
+    // surrounding (x,y) at (0.5,0.5) off-center.
+    auto fract = [](F v) { return v - floor_(v); };
+    F fx = fract(r + 0.5_f),
+      fy = fract(g + 0.5_f);
+
+    // Samplers will need to load x and fx, or y and fy.
+    memcpy(c->x,  &r,  sizeof(F));
+    memcpy(c->y,  &g,  sizeof(F));
+    memcpy(c->fx, &fx, sizeof(F));
+    memcpy(c->fy, &fy, sizeof(F));
+}
+
+STAGE(accumulate) {
+    auto c = (const SkJumper_SamplerCtx*)ctx;
+
+    // Bilinear and bicubic filters are both separable, so we produce independent contributions
+    // from x and y, multiplying them together here to get each pixel's total scale factor.
+    auto scale = unaligned_load<F>(c->scalex)
+               * unaligned_load<F>(c->scaley);
+    dr = mad(scale, r, dr);
+    dg = mad(scale, g, dg);
+    db = mad(scale, b, db);
+    da = mad(scale, a, da);
+}
+
+// In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
+// are combined in direct proportion to their area overlapping that logical query pixel.
+// At positive offsets, the x-axis contribution to that rectangle is fx, or (1-fx) at negative x.
+// The y-axis is symmetric.
+
+template <int kScale>
+SI void bilinear_x(SkJumper_SamplerCtx* ctx, F* x) {
+    *x = unaligned_load<F>(ctx->x) + C(kScale * 0.5f);
+    F fx = unaligned_load<F>(ctx->fx);
+
+    F scalex;
+    if (kScale == -1) { scalex = 1.0_f - fx; }
+    if (kScale == +1) { scalex =         fx; }
+    memcpy(ctx->scalex, &scalex, sizeof(F));
+}
+template <int kScale>
+SI void bilinear_y(SkJumper_SamplerCtx* ctx, F* y) {
+    *y = unaligned_load<F>(ctx->y) + C(kScale * 0.5f);
+    F fy = unaligned_load<F>(ctx->fy);
+
+    F scaley;
+    if (kScale == -1) { scaley = 1.0_f - fy; }
+    if (kScale == +1) { scaley =         fy; }
+    memcpy(ctx->scaley, &scaley, sizeof(F));
+}
+
+STAGE(bilinear_nx) { bilinear_x<-1>(ctx, &r); }
+STAGE(bilinear_px) { bilinear_x<+1>(ctx, &r); }
+STAGE(bilinear_ny) { bilinear_y<-1>(ctx, &g); }
+STAGE(bilinear_py) { bilinear_y<+1>(ctx, &g); }
+
+
+// In bicubic interpolation, the 16 pixels and +/- 0.5 and +/- 1.5 offsets from the sample
+// pixel center are combined with a non-uniform cubic filter, with higher values near the center.
+//
+// We break this function into two parts, one for near 0.5 offsets and one for far 1.5 offsets.
+// See GrCubicEffect for details of this particular filter.
+
+SI F bicubic_near(F t) {
+    // 1/18 + 9/18t + 27/18t^2 - 21/18t^3 == t ( t ( -21/18t + 27/18) + 9/18) + 1/18
+    return mad(t, mad(t, mad(C(-21/18.0f), t, C(27/18.0f)), C(9/18.0f)), C(1/18.0f));
+}
+SI F bicubic_far(F t) {
+    // 0/18 + 0/18*t - 6/18t^2 + 7/18t^3 == t^2 (7/18t - 6/18)
+    return (t*t)*mad(C(7/18.0f), t, C(-6/18.0f));
+}
+
+template <int kScale>
+SI void bicubic_x(SkJumper_SamplerCtx* ctx, F* x) {
+    *x = unaligned_load<F>(ctx->x) + C(kScale * 0.5f);
+    F fx = unaligned_load<F>(ctx->fx);
+
+    F scalex;
+    if (kScale == -3) { scalex = bicubic_far (1.0_f - fx); }
+    if (kScale == -1) { scalex = bicubic_near(1.0_f - fx); }
+    if (kScale == +1) { scalex = bicubic_near(        fx); }
+    if (kScale == +3) { scalex = bicubic_far (        fx); }
+    memcpy(ctx->scalex, &scalex, sizeof(F));
+}
+template <int kScale>
+SI void bicubic_y(SkJumper_SamplerCtx* ctx, F* y) {
+    *y = unaligned_load<F>(ctx->y) + C(kScale * 0.5f);
+    F fy = unaligned_load<F>(ctx->fy);
+
+    F scaley;
+    if (kScale == -3) { scaley = bicubic_far (1.0_f - fy); }
+    if (kScale == -1) { scaley = bicubic_near(1.0_f - fy); }
+    if (kScale == +1) { scaley = bicubic_near(        fy); }
+    if (kScale == +3) { scaley = bicubic_far (        fy); }
+    memcpy(ctx->scaley, &scaley, sizeof(F));
+}
+
+STAGE(bicubic_n3x) { bicubic_x<-3>(ctx, &r); }
+STAGE(bicubic_n1x) { bicubic_x<-1>(ctx, &r); }
+STAGE(bicubic_p1x) { bicubic_x<+1>(ctx, &r); }
+STAGE(bicubic_p3x) { bicubic_x<+3>(ctx, &r); }
+
+STAGE(bicubic_n3y) { bicubic_y<-3>(ctx, &g); }
+STAGE(bicubic_n1y) { bicubic_y<-1>(ctx, &g); }
+STAGE(bicubic_p1y) { bicubic_y<+1>(ctx, &g); }
+STAGE(bicubic_p3y) { bicubic_y<+3>(ctx, &g); }

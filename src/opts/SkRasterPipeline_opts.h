@@ -13,7 +13,6 @@
 #include "SkColorSpaceXform_A2B.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
-#include "SkImageShaderContext.h"
 #include "SkMSAN.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
@@ -883,7 +882,7 @@ STAGE_CTX( clamp_y, const float*) { g = clamp (g, *ctx); }
 STAGE_CTX(repeat_y, const float*) { g = repeat(g, *ctx); }
 STAGE_CTX(mirror_y, const float*) { g = mirror(g, *ctx); }
 
-STAGE_CTX(save_xy, SkImageShaderContext*) {
+STAGE_CTX(save_xy, SkJumper_SamplerCtx*) {
     r.store(ctx->x);
     g.store(ctx->y);
 
@@ -895,7 +894,7 @@ STAGE_CTX(save_xy, SkImageShaderContext*) {
     fract(g + 0.5f).store(ctx->fy);
 }
 
-STAGE_CTX(accumulate, const SkImageShaderContext*) {
+STAGE_CTX(accumulate, const SkJumper_SamplerCtx*) {
     // Bilinear and bicubic filtering are both separable, so we'll end up with independent
     // scale contributions in x and y that we multiply together to get each pixel's scale factor.
     auto scale = SkNf::Load(ctx->scalex) * SkNf::Load(ctx->scaley);
@@ -910,21 +909,21 @@ STAGE_CTX(accumulate, const SkImageShaderContext*) {
 // At positive offsets, the x-axis contribution to that rectangular area is fx; (1-fx)
 // at negative x offsets.  The y-axis is treated symmetrically.
 template <int Scale>
-SI void bilinear_x(SkImageShaderContext* ctx, SkNf* x) {
+SI void bilinear_x(SkJumper_SamplerCtx* ctx, SkNf* x) {
     *x = SkNf::Load(ctx->x) + Scale*0.5f;
     auto fx = SkNf::Load(ctx->fx);
     (Scale > 0 ? fx : (1.0f - fx)).store(ctx->scalex);
 }
 template <int Scale>
-SI void bilinear_y(SkImageShaderContext* ctx, SkNf* y) {
+SI void bilinear_y(SkJumper_SamplerCtx* ctx, SkNf* y) {
     *y = SkNf::Load(ctx->y) + Scale*0.5f;
     auto fy = SkNf::Load(ctx->fy);
     (Scale > 0 ? fy : (1.0f - fy)).store(ctx->scaley);
 }
-STAGE_CTX(bilinear_nx, SkImageShaderContext*) { bilinear_x<-1>(ctx, &r); }
-STAGE_CTX(bilinear_px, SkImageShaderContext*) { bilinear_x<+1>(ctx, &r); }
-STAGE_CTX(bilinear_ny, SkImageShaderContext*) { bilinear_y<-1>(ctx, &g); }
-STAGE_CTX(bilinear_py, SkImageShaderContext*) { bilinear_y<+1>(ctx, &g); }
+STAGE_CTX(bilinear_nx, SkJumper_SamplerCtx*) { bilinear_x<-1>(ctx, &r); }
+STAGE_CTX(bilinear_px, SkJumper_SamplerCtx*) { bilinear_x<+1>(ctx, &r); }
+STAGE_CTX(bilinear_ny, SkJumper_SamplerCtx*) { bilinear_y<-1>(ctx, &g); }
+STAGE_CTX(bilinear_py, SkJumper_SamplerCtx*) { bilinear_y<+1>(ctx, &g); }
 
 
 // In bilinear interpolation, the 16 pixels at +/- 0.5 and +/- 1.5 offsets from the sample
@@ -945,7 +944,7 @@ SI SkNf bicubic_far(const SkNf& t) {
 }
 
 template <int Scale>
-SI void bicubic_x(SkImageShaderContext* ctx, SkNf* x) {
+SI void bicubic_x(SkJumper_SamplerCtx* ctx, SkNf* x) {
     *x = SkNf::Load(ctx->x) + Scale*0.5f;
     auto fx = SkNf::Load(ctx->fx);
     if (Scale == -3) { return bicubic_far (1.0f - fx).store(ctx->scalex); }
@@ -955,7 +954,7 @@ SI void bicubic_x(SkImageShaderContext* ctx, SkNf* x) {
     SkDEBUGFAIL("unreachable");
 }
 template <int Scale>
-SI void bicubic_y(SkImageShaderContext* ctx, SkNf* y) {
+SI void bicubic_y(SkJumper_SamplerCtx* ctx, SkNf* y) {
     *y = SkNf::Load(ctx->y) + Scale*0.5f;
     auto fy = SkNf::Load(ctx->fy);
     if (Scale == -3) { return bicubic_far (1.0f - fy).store(ctx->scaley); }
@@ -964,15 +963,15 @@ SI void bicubic_y(SkImageShaderContext* ctx, SkNf* y) {
     if (Scale == +3) { return bicubic_far (       fy).store(ctx->scaley); }
     SkDEBUGFAIL("unreachable");
 }
-STAGE_CTX(bicubic_n3x, SkImageShaderContext*) { bicubic_x<-3>(ctx, &r); }
-STAGE_CTX(bicubic_n1x, SkImageShaderContext*) { bicubic_x<-1>(ctx, &r); }
-STAGE_CTX(bicubic_p1x, SkImageShaderContext*) { bicubic_x<+1>(ctx, &r); }
-STAGE_CTX(bicubic_p3x, SkImageShaderContext*) { bicubic_x<+3>(ctx, &r); }
+STAGE_CTX(bicubic_n3x, SkJumper_SamplerCtx*) { bicubic_x<-3>(ctx, &r); }
+STAGE_CTX(bicubic_n1x, SkJumper_SamplerCtx*) { bicubic_x<-1>(ctx, &r); }
+STAGE_CTX(bicubic_p1x, SkJumper_SamplerCtx*) { bicubic_x<+1>(ctx, &r); }
+STAGE_CTX(bicubic_p3x, SkJumper_SamplerCtx*) { bicubic_x<+3>(ctx, &r); }
 
-STAGE_CTX(bicubic_n3y, SkImageShaderContext*) { bicubic_y<-3>(ctx, &g); }
-STAGE_CTX(bicubic_n1y, SkImageShaderContext*) { bicubic_y<-1>(ctx, &g); }
-STAGE_CTX(bicubic_p1y, SkImageShaderContext*) { bicubic_y<+1>(ctx, &g); }
-STAGE_CTX(bicubic_p3y, SkImageShaderContext*) { bicubic_y<+3>(ctx, &g); }
+STAGE_CTX(bicubic_n3y, SkJumper_SamplerCtx*) { bicubic_y<-3>(ctx, &g); }
+STAGE_CTX(bicubic_n1y, SkJumper_SamplerCtx*) { bicubic_y<-1>(ctx, &g); }
+STAGE_CTX(bicubic_p1y, SkJumper_SamplerCtx*) { bicubic_y<+1>(ctx, &g); }
+STAGE_CTX(bicubic_p3y, SkJumper_SamplerCtx*) { bicubic_y<+3>(ctx, &g); }
 
 
 template <typename T>
