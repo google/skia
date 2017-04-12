@@ -20,14 +20,8 @@ public:
      * The PM->UPM or UPM->PM conversions to apply.
      */
     enum PMConversion {
-        kMulByAlpha_RoundUp_PMConversion = 0,
-        kMulByAlpha_RoundDown_PMConversion,
-        kMulByAlpha_RoundNearest_PMConversion,
-
-        kDivByAlpha_RoundUp_PMConversion,
-        kDivByAlpha_RoundDown_PMConversion,
+        kMulByAlpha_RoundNearest_PMConversion = 0,
         kDivByAlpha_RoundNearest_PMConversion,
-
         kPMConversionCnt
     };
 
