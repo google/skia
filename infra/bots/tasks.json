@@ -66,10 +66,10 @@
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p": {
+    "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p"
+        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES"
       ]
     },
     "Build-Ubuntu-Clang-arm-Release-Android": {
@@ -78,10 +78,10 @@
         "Build-Ubuntu-Clang-arm-Release-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm-Release-Chromebook_C100p": {
+    "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_C100p"
+        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES"
       ]
     },
     "Build-Ubuntu-Clang-arm64-Debug-Android": {
@@ -2153,7 +2153,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p": {
+    "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES": {
       "cipd_packages": [
         {
           "name": "skia/bots/clang_linux",
@@ -2166,9 +2166,9 @@
           "version": "version:3"
         },
         {
-          "name": "skia/bots/chromebook_c100p_lib",
-          "path": "chromebook_c100p_lib",
-          "version": "version:2"
+          "name": "skia/bots/chromebook_arm_gles",
+          "path": "chromebook_arm_gles",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -2182,7 +2182,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p",
+        "buildername=Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
@@ -2221,7 +2221,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm-Release-Chromebook_C100p": {
+    "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES": {
       "cipd_packages": [
         {
           "name": "skia/bots/clang_linux",
@@ -2234,9 +2234,9 @@
           "version": "version:3"
         },
         {
-          "name": "skia/bots/chromebook_c100p_lib",
-          "path": "chromebook_c100p_lib",
-          "version": "version:2"
+          "name": "skia/bots/chromebook_arm_gles",
+          "path": "chromebook_arm_gles",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -2250,7 +2250,7 @@
         "../../..",
         "compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm-Release-Chromebook_C100p",
+        "buildername=Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
@@ -5688,7 +5688,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p",
+        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -5734,7 +5734,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_C100p",
+        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11287,7 +11287,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-Chromebook_C100p",
+        "Build-Ubuntu-Clang-arm-Debug-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11333,7 +11333,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-Chromebook_C100p",
+        "Build-Ubuntu-Clang-arm-Release-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
