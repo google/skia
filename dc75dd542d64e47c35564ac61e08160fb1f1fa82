@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b76e8f8_c6220d57",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-12T13:49:57Z",
+      "side": 1,
+      "message": "Nit: You mention it later, but I think you should add a sentence here like:\n\n\"Note that tasks.json is NEVER edited by hand but generated via gen_task.go and the \ninput files enumerated below.\"\n\nIt\u0027s ok to be a bit redundant it makes this much more intuitive IMO.",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 13
+      },
+      "revId": "dc75dd542d64e47c35564ac61e08160fb1f1fa82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5392af1_d7842d69",
+        "filename": "infra/bots/recipe_modules/README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-12T13:49:57Z",
+      "side": 1,
+      "message": "Can you add something that explains that example.py is used by running the simulation_test mentioned above?",
+      "range": {
+        "startLine": 29,
+        "startChar": 15,
+        "endLine": 30,
+        "endChar": 74
+      },
+      "revId": "dc75dd542d64e47c35564ac61e08160fb1f1fa82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e157d219_538f57f6",
+        "filename": "infra/bots/recipes/README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-04-12T13:49:57Z",
+      "side": 1,
+      "message": "Nit: Maybe add something to the effect that changed expectations files are also checked in and the simulation_test needs to be run before a CL can land.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 66
+      },
+      "revId": "dc75dd542d64e47c35564ac61e08160fb1f1fa82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
