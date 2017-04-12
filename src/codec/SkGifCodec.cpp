@@ -132,19 +132,29 @@ SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
     reader->setClient(this);
 }
 
-std::vector<SkCodec::FrameInfo> SkGifCodec::onGetFrameInfo() {
+size_t SkGifCodec::onGetFrameCount() {
     fReader->parse(SkGifImageReader::SkGIFFrameCountQuery);
-    const size_t size = fReader->imagesCount();
-    std::vector<FrameInfo> result(size);
-    for (size_t i = 0; i < size; i++) {
-        const SkGIFFrameContext* frameContext = fReader->frameContext(i);
-        result[i].fDuration = frameContext->delayTime();
-        result[i].fRequiredFrame = frameContext->getRequiredFrame();
-        result[i].fFullyReceived = frameContext->isComplete();
-        result[i].fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
-                                                        : kOpaque_SkAlphaType;
+    return fReader->imagesCount();
+}
+
+bool SkGifCodec::onGetFrameInfo(size_t i, SkCodec::FrameInfo* frameInfo) const {
+    if (i >= fReader->imagesCount()) {
+        return false;
     }
-    return result;
+
+    const SkGIFFrameContext* frameContext = fReader->frameContext(i);
+    if (!frameContext->reachedStartOfData()) {
+        return false;
+    }
+
+    if (frameInfo) {
+        frameInfo->fDuration = frameContext->delayTime();
+        frameInfo->fRequiredFrame = frameContext->getRequiredFrame();
+        frameInfo->fFullyReceived = frameContext->isComplete();
+        frameInfo->fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
+                                                         : kOpaque_SkAlphaType;
+    }
+    return true;
 }
 
 int SkGifCodec::onGetRepetitionCount() {
