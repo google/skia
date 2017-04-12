@@ -491,6 +491,12 @@ def dm_flags(bot):
       blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
 
+  if 'IntelHD2000' in bot and 'Win' in bot:
+    match.append('~OverdrawSurface_Gpu')
+    match.append('~SurfacePartialDraw_Gpu')
+    match.append('~TessellatingPathRendererTests')
+    match.append('~WritePixels_Gpu')
+
   if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
     match.append('~ImageStorageLoad') # skia:6358
 
@@ -737,6 +743,7 @@ TEST_BUILDERS = [
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
+  'Test-Win10-MSVC-ShuttleA-GPU-IntelHD2000-x86_64-Release-ANGLE',
   'Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
   'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release',
