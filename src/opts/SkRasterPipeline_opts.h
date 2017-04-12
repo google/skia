@@ -20,6 +20,7 @@
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkSRGB.h"
+#include "../jumper/SkJumper.h"
 
 namespace {
 
@@ -975,7 +976,7 @@ STAGE_CTX(bicubic_p3y, SkImageShaderContext*) { bicubic_y<+3>(ctx, &g); }
 
 
 template <typename T>
-SI SkNi offset_and_ptr(T** ptr, const SkImageShaderContext* ctx, const SkNf& x, const SkNf& y) {
+SI SkNi offset_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, const SkNf& x, const SkNf& y) {
     SkNi ix = SkNx_cast<int>(x),
          iy = SkNx_cast<int>(y);
     SkNi offset = iy*ctx->stride + ix;
@@ -984,47 +985,47 @@ SI SkNi offset_and_ptr(T** ptr, const SkImageShaderContext* ctx, const SkNf& x, 
     return offset;
 }
 
-STAGE_CTX(gather_a8, const SkImageShaderContext*) {
+STAGE_CTX(gather_a8, const SkJumper_GatherCtx*) {
     const uint8_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     r = g = b = 0.0f;
     a = SkNf_from_byte(gather(tail, p, offset));
 }
-STAGE_CTX(gather_i8, const SkImageShaderContext*) {
+STAGE_CTX(gather_i8, const SkJumper_GatherCtx*) {
     const uint8_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     SkNi ix = SkNx_cast<int>(gather(tail, p, offset));
     from_8888(gather(tail, ctx->ctable, ix), &r, &g, &b, &a);
 }
-STAGE_CTX(gather_g8, const SkImageShaderContext*) {
+STAGE_CTX(gather_g8, const SkJumper_GatherCtx*) {
     const uint8_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     r = g = b = SkNf_from_byte(gather(tail, p, offset));
     a = 1.0f;
 }
-STAGE_CTX(gather_565, const SkImageShaderContext*) {
+STAGE_CTX(gather_565, const SkJumper_GatherCtx*) {
     const uint16_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     from_565(gather(tail, p, offset), &r, &g, &b);
     a = 1.0f;
 }
-STAGE_CTX(gather_4444, const SkImageShaderContext*) {
+STAGE_CTX(gather_4444, const SkJumper_GatherCtx*) {
     const uint16_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     from_4444(gather(tail, p, offset), &r, &g, &b, &a);
 }
-STAGE_CTX(gather_8888, const SkImageShaderContext*) {
+STAGE_CTX(gather_8888, const SkJumper_GatherCtx*) {
     const uint32_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     from_8888(gather(tail, p, offset), &r, &g, &b, &a);
 }
-STAGE_CTX(gather_f16, const SkImageShaderContext*) {
+STAGE_CTX(gather_f16, const SkJumper_GatherCtx*) {
     const uint64_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
