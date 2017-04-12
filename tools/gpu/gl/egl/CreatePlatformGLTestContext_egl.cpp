@@ -300,14 +300,16 @@ static bool supports_egl_extension(EGLDisplay display, const char* extension) {
 }
 
 std::unique_ptr<EGLFenceSync> EGLFenceSync::MakeIfSupported(EGLDisplay display) {
-    if (!display || !supports_egl_extension(display, "EGL_KHR_fence_sync")) {
+    if (!display || !supports_egl_extension(display, "EGL_KHR_fence_sync") || true) {
         return nullptr;
     }
     return std::unique_ptr<EGLFenceSync>(new EGLFenceSync(display));
 }
 
 sk_gpu_test::PlatformFence EGLFenceSync::insertFence() const {
+    SkDebugf("in insert fence\n");
     EGLSyncKHR eglsync = eglCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
+    SkDebugf("after insert fence\n");
     return reinterpret_cast<sk_gpu_test::PlatformFence>(eglsync);
 }
 
