@@ -228,6 +228,13 @@ public:
         return kNoLayer_SaveLayerStrategy;
     }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+    SkDrawFilter* setDrawFilter(SkDrawFilter* filter) override {
+        SkCanvas::setDrawFilter(filter);
+        return fTarget->setDrawFilter(filter);
+    }
+#endif
+
     // Everything from here on should be uninteresting strictly proxied state-change calls.
     void willSave()    override { fTarget->save(); }
     void willRestore() override { fTarget->restore(); }
