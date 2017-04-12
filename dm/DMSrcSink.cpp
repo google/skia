@@ -465,11 +465,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
             // Used to cache a frame that future frames will depend on.
             SkAutoMalloc priorFramePixels;
-            size_t cachedFrame = SkCodec::kNone;
-            for (size_t i = 0; i < frameInfos.size(); i++) {
+            int cachedFrame = SkCodec::kNone;
+            for (int i = 0; static_cast<size_t>(i) < frameInfos.size(); i++) {
                 options.fFrameIndex = i;
                 // Check for a prior frame
-                const size_t reqFrame = frameInfos[i].fRequiredFrame;
+                const int reqFrame = frameInfos[i].fRequiredFrame;
                 if (reqFrame != SkCodec::kNone && reqFrame == cachedFrame
                         && priorFramePixels.get()) {
                     // Copy into pixels
@@ -514,7 +514,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
                 // If a future frame depends on this one, store it in priorFrame.
                 // (Note that if i+1 does *not* depend on i, then no future frame can.)
-                if (i+1 < frameInfos.size() && frameInfos[i+1].fRequiredFrame == i) {
+                if (static_cast<size_t>(i+1) < frameInfos.size()
+                        && frameInfos[i+1].fRequiredFrame == i) {
                     memcpy(priorFramePixels.reset(safeSize), pixels.get(), safeSize);
                     cachedFrame = i;
                 }
