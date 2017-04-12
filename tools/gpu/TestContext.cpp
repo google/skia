@@ -34,11 +34,14 @@ void TestContext::makeCurrent() const { this->onPlatformMakeCurrent(); }
 void TestContext::swapBuffers() { this->onPlatformSwapBuffers(); }
 
 void TestContext::waitOnSyncOrSwap() {
+    SkDebugf("In wait on sync or swap\n");
     if (!fFenceSync) {
+        SkDebugf("fallback\n");
         // Fallback on the platform SwapBuffers method for synchronization. This may have no effect.
         this->swapBuffers();
         return;
     }
+    SkDebugf("not fallback\n");
 
     this->submit();
     if (fFrameFences[fCurrentFenceIdx]) {
@@ -47,8 +50,10 @@ void TestContext::waitOnSyncOrSwap() {
         }
         fFenceSync->deleteFence(fFrameFences[fCurrentFenceIdx]);
     }
+    SkDebugf("going to insert fence\n");
 
     fFrameFences[fCurrentFenceIdx] = fFenceSync->insertFence();
+    SkDebugf("after insert fence\n");
     fCurrentFenceIdx = (fCurrentFenceIdx + 1) % SK_ARRAY_COUNT(fFrameFences);
 }
 
