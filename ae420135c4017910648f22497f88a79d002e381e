@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "a77dc22b_5a733a4a",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-04-12T17:26:44Z",
+      "side": 1,
+      "message": "Can you do it as rebase_path(skia_public_includes - [skia_vulkan_headers_path]) here?",
+      "revId": "ae420135c4017910648f22497f88a79d002e381e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "83fc3e44_93181be4",
         "filename": "gn/find_headers.py",
         "patchSetId": 2
