@@ -51,6 +51,17 @@ SkShader::Context* SkLocalMatrixShader::onMakeContext(
     return fProxyShader->makeContext(newRec, alloc);
 }
 
+SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, enum TileMode* mode) const {
+    SkMatrix imageMatrix;
+    SkImage* image = fProxyShader->isAImage(&imageMatrix, mode);
+    if (image && outMatrix) {
+        // Local matrix must be applied first so it is on the right side of the concat.
+        *outMatrix = SkMatrix::Concat(imageMatrix, this->getLocalMatrix());
+    }
+
+    return image;
+}
+
 bool SkLocalMatrixShader::onAppendStages(SkRasterPipeline* p,
                                          SkColorSpace* dst,
                                          SkArenaAlloc* scratch,
