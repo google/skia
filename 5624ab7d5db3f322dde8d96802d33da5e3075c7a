@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c4e7e143_cbcd01dd",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-12T11:58:41Z",
+      "side": 1,
+      "message": "Added a link to the Task Scheduler README",
+      "parentUuid": "d2f68b72_8106deb2",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 14
+      },
+      "revId": "5624ab7d5db3f322dde8d96802d33da5e3075c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4a695ff6_4ba4d3ca",
         "filename": "infra/bots/README.md",
         "patchSetId": 3
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "159c0fa8_d98fdc20",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-12T11:58:41Z",
+      "side": 1,
+      "message": "Took Kevin\u0027s suggestion.  Regarding a single combined file, I prefer this format:\n\n{\n  \"model\": {\n    \"AndroidOne\": [\"device_type:sprout\", \"device_os:MOB30Q\"],\n    \"Chorizo\": [\"device_type:chorizo\", \"device_os:1.24_82923\"]\n  },\n  \"cpu_or_gpu_value\": {\n    \"AMDHD7770\": [\"gpu:1002:683d\"],\n    \"MaliT764\": [\"gpu:MaliT764\"]\n  },\n  \"os\": {\n    \"Win10\": [\"os:Windows-10-14393\"]\n  }\n}\n\nYou\u0027re right in that some conditionals are harder.  I think the way around that is to include more information in the task name, ie:\n  \"Win10Golo\": [\"os:Windows-10-10586\"]",
+      "parentUuid": "4f6bbefb_55d2b51a",
+      "range": {
+        "startLine": 29,
+        "startChar": 62,
+        "endLine": 29,
+        "endChar": 69
+      },
+      "revId": "5624ab7d5db3f322dde8d96802d33da5e3075c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ffa1e264_04756361",
         "filename": "infra/bots/README.md",
         "patchSetId": 3
@@ -92,6 +140,30 @@
       "revId": "5624ab7d5db3f322dde8d96802d33da5e3075c7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76cf6cf3_e40e83fe",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-04-12T11:58:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ffa1e264_04756361",
+      "range": {
+        "startLine": 64,
+        "startChar": 39,
+        "endLine": 64,
+        "endChar": 51
+      },
+      "revId": "5624ab7d5db3f322dde8d96802d33da5e3075c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
