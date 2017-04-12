@@ -810,8 +810,8 @@ void SkSVGDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
     SkDebugf("unsupported operation: drawVertices()\n");
 }
 
-void SkSVGDevice::drawDevice(SkBaseDevice*, int x, int y,
-                             const SkPaint&) {
+void SkSVGDevice::drawDevice(SkBaseDevice*, int x, int y, const SkPaint&, SkImage* clipImage,
+                             const SkMatrix& clipMatrix) {
     // todo
     SkDebugf("unsupported operation: drawDevice()\n");
 }

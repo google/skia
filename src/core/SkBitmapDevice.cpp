@@ -383,9 +383,49 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
                               vertices->indices(), vertices->indexCount(), paint);
 }
 
-void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
+static bool compute_bounds(SkIRect* result, const SkIRect& limit,
+                           const SkMatrix& mat, const SkIRect& src) {
+    SkRect tmp;
+    if (!mat.mapRect(&tmp, SkRect::Make(src))) {
+        return false;
+    }
+    return result->intersect(limit, tmp.roundOut());
+}
+
+void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint,
+                                SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!paint.getImageFilter());
-    BDDraw(this).drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
+    BDDraw draw(this);
+
+    if (clipImage) {
+        SkIRect bounds;
+        if (!compute_bounds(&bounds, draw.fRC->getBounds(), clipMatrix, clipImage->bounds())) {
+            return;
+        }
+        auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(bounds.width(), bounds.height()));
+        SkCanvas* canvas = surf->getCanvas();
+        canvas->concat(clipMatrix);
+        canvas->drawImage(clipImage, 0, 0, nullptr);
+        auto snap = surf->makeImageSnapshot();
+        SkPixmap pmap;
+        if (!snap->peekPixels(&pmap)) {
+            SkASSERT(false);
+            return;
+        }
+        SkMask mask;
+        mask.fImage = pmap.writable_addr8(0, 0);
+        mask.fBounds = bounds;
+        mask.fRowBytes = pmap.rowBytes();
+        mask.fFormat = SkMask::kA8_Format;
+
+        SkPaint paint;
+        paint.setShader(SkShader::MakeBitmapShader(static_cast<SkBitmapDevice*>(device)->fBitmap,
+                                                   SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode, nullptr));
+        draw.drawDevMask(mask, paint);
+    } else {
+        draw.drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
