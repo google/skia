@@ -279,7 +279,7 @@ SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
 }
 
 template <typename T>
-SI U32 ix_and_ptr(T** ptr, const GatherCtx* ctx, F x, F y) {
+SI U32 ix_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, F x, F y) {
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
 }
@@ -678,7 +678,7 @@ STAGE(gather_g8) {
 }
 
 STAGE(gather_i8) {
-    auto c = (const GatherCtx*)ctx;
+    auto c = (const SkJumper_GatherCtx*)ctx;
     const uint8_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
     ix = expand(gather(ptr, ix));
