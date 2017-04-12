@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include <cmath>
+#include <algorithm>
+
 #include "SkSweepGradient.h"
 
 static SkMatrix translate(SkScalar dx, SkScalar dy) {
@@ -57,20 +60,20 @@ SkSweepGradient::SweepGradientContext::SweepGradientContext(
 
 //  returns angle in a circle [0..2PI) -> [0..255]
 static unsigned SkATan2_255(float y, float x) {
-    //    static const float g255Over2PI = 255 / (2 * SK_ScalarPI);
-    static const float g255Over2PI = 40.584510488433314f;
+    if (y == 0 && x == 0) return 0;
+    float yabs = sk_float_abs(y),
+          xabs = sk_float_abs(x);
+    float little, big;
+    std::tie(little, big) = std::minmax(yabs, xabs);
+    float a = little/big;
+    float s = a * a;
+    float r = a*(40.57589784014689f
+                 + s*(-13.222755844396332f + s*(6.314046289038564f - s*1.7989502668982151f)));
+    r = xabs < yabs ? 255/4.0f - r : r;
+    r = x < 0.0f    ? 255/2.0f - r : r;
+    r = y < 0.0f    ? 255      - r : r;
 
-    float result = sk_float_atan2(y, x);
-    if (!SkScalarIsFinite(result)) {
-        return 0;
-    }
-    if (result < 0) {
-        result += 2 * SK_ScalarPI;
-    }
-    SkASSERT(result >= 0);
-    // since our value is always >= 0, we can cast to int, which is faster than
-    // calling floorf()
-    int ir = (int)(result * g255Over2PI);
+    int ir = (int)r;
     SkASSERT(ir >= 0 && ir <= 255);
     return ir;
 }
