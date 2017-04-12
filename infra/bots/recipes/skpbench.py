@@ -106,11 +106,9 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench',
-  ('Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench'
-   '-Trybot'),
+  'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench',
   ('Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-'
-  'GN_Android_Vulkan_Skpbench'),
+   'Android_Vulkan_Skpbench'),
 ]
 
 
@@ -132,12 +130,29 @@ def GenTests(api):
       api.step_data('get swarming task id',
           stdout=api.raw_io.output('123456'))
     )
-    if 'Trybot' in builder:
-      test += api.properties(patch_storage='gerrit')
-      test += api.properties.tryserver(
-          buildername=builder,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      )
 
     yield test
+
+  b = 'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench'
+  yield (
+    api.test('trybot') +
+    api.properties(buildername=b,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.path.exists(
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                   'skp', 'VERSION'),
+    ) +
+    api.step_data('get swarming bot id',
+        stdout=api.raw_io.output('skia-bot-123')) +
+    api.step_data('get swarming task id',
+        stdout=api.raw_io.output('123456')) +
+    api.properties(patch_storage='gerrit') +
+    api.properties.tryserver(
+        buildername=b,
+        gerrit_project='skia',
+        gerrit_url='https://skia-review.googlesource.com/',
+    )
+  )

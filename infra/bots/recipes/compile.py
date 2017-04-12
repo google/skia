@@ -75,18 +75,18 @@ for p in psutil.process_iter():
 
 
 TEST_BUILDERS = [
+  'Build-Mac-Clang-arm64-Debug-Android',
   'Build-Mac-Clang-arm64-Debug-iOS',
-  'Build-Mac-Clang-mipsel-Debug-GN_Android',
   'Build-Mac-Clang-x64-Release-iOS',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
-  'Build-Mac-Clang-x86_64-Release-GN',
+  'Build-Mac-Clang-x86_64-Release',
   'Build-Ubuntu-Clang-arm-Release-Chromebook_C100p',
-  'Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot',
-  'Build-Ubuntu-Clang-arm64-Debug-GN_Android_FrameworkDefs',
-  'Build-Ubuntu-Clang-arm64-Release-GN_Android',
-  'Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan',
+  'Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs',
+  'Build-Ubuntu-Clang-arm64-Release-Android',
+  'Build-Ubuntu-Clang-arm64-Release-Android_Vulkan',
+  'Build-Ubuntu-Clang-mipsel-Debug-Android',
+  'Build-Ubuntu-Clang-x86_64-Debug',
   'Build-Ubuntu-Clang-x86_64-Debug-ASAN',
-  'Build-Ubuntu-Clang-x86_64-Debug-GN',
   'Build-Ubuntu-Clang-x86_64-Release-Mini',
   'Build-Ubuntu-Clang-x86_64-Release-Vulkan',
   'Build-Ubuntu-GCC-arm-Release-Chromecast',
@@ -102,8 +102,7 @@ TEST_BUILDERS = [
   'Build-Ubuntu-GCC-x86_64-Release-PDFium',
   'Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths',
   'Build-Ubuntu-GCC-x86_64-Release-Shared',
-  'Build-Ubuntu-GCC-x86_64-Release-Valgrind',
-  'Build-Win-Clang-arm64-Release-GN_Android',
+  'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-MSVC-x86-Debug',
   'Build-Win-MSVC-x86-Debug-ANGLE',
   'Build-Win-MSVC-x86-Debug-Exceptions',
@@ -132,15 +131,28 @@ def GenTests(api):
       test += api.platform('mac', 64)
     else:
       test += api.platform('linux', 64)
-    if 'Trybot' in builder:
-      test += api.properties(patch_storage='gerrit')
-      test += api.properties.tryserver(
-          buildername=builder,
+
+    yield test
+
+
+  buildername = 'Build-Win-MSVC-x86_64-Release-Vulkan'
+  yield (
+      api.test("trybot") +
+      api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(
+          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+      ) +
+      api.properties(patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=buildername,
           gerrit_project='skia',
           gerrit_url='https://skia-review.googlesource.com/',
       )
-
-    yield test
+    )
 
   buildername = 'Build-Win-MSVC-x86_64-Release-Vulkan'
   yield (

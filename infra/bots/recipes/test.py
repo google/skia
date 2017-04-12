@@ -240,13 +240,6 @@ def dm_flags(bot):
     # Android and iOS. skia:5438
     blacklist('_ test _ GrShape')
 
-  if 'Win8' in bot:
-    # bungeman: "Doesn't work on Windows anyway, produces unstable GMs with
-    # 'Unexpected error' from DirectWrite"
-    blacklist('_ gm _ fontscalerdistortable')
-    # skia:5636
-    blacklist('_ svg _ Nebraska-StateSeal.svg')
-
   # skia:4095
   bad_serialize_gms = ['bleed_image',
                        'c_gms',
@@ -384,9 +377,6 @@ def dm_flags(bot):
 
   if 'Nexus10' in bot:
     match.append('~CopySurface') # skia:5509
-    match.append('~SRGBReadWritePixels') # skia:6097
-
-  if 'GalaxyJ5' in bot:
     match.append('~SRGBReadWritePixels') # skia:6097
 
   if 'GalaxyS6' in bot:
@@ -712,50 +702,44 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android',
-  'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android',
+  'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android',
   'Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android',
-  'Test-Android-Clang-GalaxyJ5-GPU-Adreno306-arm-Release-Android',
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android',
   'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android',
-  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android',
-  'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android',
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android',
+  'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android',
-  'Test-Android-Clang-Nexus6-GPU-Adreno420-arm-Debug-GN_Android',
-  'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan',
-  'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
-  'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android',
-  ('Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-'
-   'GN_Android_Vulkan'),
-  'Test-Android-Clang-PixelC-GPU-TegraX1-arm64-Debug-GN_Android',
+  'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan',
+  'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android',
+  'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-Android',
+  'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
+  'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android',
   'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug',
   'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
   'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
+  'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
+  'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
+  'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
-  'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-ASAN',
-  'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
-  'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
-  'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
   'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
   ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
    '_AbandonGpuContext'),
   ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
    '_PreAbandonGpuContext'),
-  'Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan',
-  'Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release',
-  'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug',
-  'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug',
-  'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan',
-  'Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE',
-  'Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan',
-  'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
-  'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
-  'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot',
-  'Test-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
-  'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release',
   ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_' +
     'SCALEDIMAGECACHE'),
+  'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug',
+  'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
+  'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
+  'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug',
+  'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan',
+  'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE',
+  'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
+  'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
+  'Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
+  'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
+  'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release',
 ]
 
 
@@ -778,13 +762,6 @@ def GenTests(api):
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
     )
-    if 'Trybot' in builder:
-      test += api.properties(patch_storage='gerrit')
-      test += api.properties.tryserver(
-          buildername=builder,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      )
     if 'Win' in builder:
       test += api.platform('win', 64)
 
@@ -795,6 +772,31 @@ def GenTests(api):
 
 
     yield test
+
+  builder = 'Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release'
+  yield (
+    api.test('trybot') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.properties(patch_storage='gerrit') +
+    api.properties.tryserver(
+          buildername=builder,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      )+
+    api.path.exists(
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+    )
+  )
 
   builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
@@ -816,7 +818,7 @@ def GenTests(api):
     api.step_data('symbolized dm', retcode=1)
   )
 
-  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android'
+  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android'
   yield (
     api.test('failed_get_hashes') +
     api.properties(buildername=builder,
@@ -836,7 +838,7 @@ def GenTests(api):
     api.step_data('get uninteresting hashes', retcode=1)
   )
 
-  builder = 'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Debug-GN_Android'
+  builder = 'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Debug-Android'
   yield (
     api.test('failed_push') +
     api.properties(buildername=builder,
