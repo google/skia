@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fc04445_104792b0",
+        "filename": "src/effects/SkPictureImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-12T20:30:49Z",
+      "side": 1,
+      "message": "This idea of playback in the \"local space\" prevented me from just converting to a SkImage backed SkImageFilter.  This implementation is a little strange... but it is maybe nice to preserve the fact that this is a \"picture\" image filter.",
+      "range": {
+        "startLine": 32,
+        "startChar": 43,
+        "endLine": 32,
+        "endChar": 60
+      },
+      "revId": "263386a2d24f4f7958459c7e264f6f415a139616",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
