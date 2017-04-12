@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0159684_8982b9f1",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-04-12T15:06:36Z",
+      "side": 1,
+      "message": "This is checked by a presubmit?",
+      "revId": "c7d52309256f1ba99cbde6f5fb44793713ef8a25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "161f81aa_816b70bb",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-04-12T15:06:36Z",
+      "side": 1,
+      "message": "Can we put these in a Makefile in the infra/bots directory?",
+      "revId": "c7d52309256f1ba99cbde6f5fb44793713ef8a25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59847978_1ec71ed5",
+        "filename": "infra/bots/recipes/README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-04-12T15:06:36Z",
+      "side": 1,
+      "message": "Can we add this to a Makefile?",
+      "revId": "c7d52309256f1ba99cbde6f5fb44793713ef8a25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
