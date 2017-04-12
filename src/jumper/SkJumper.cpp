@@ -80,6 +80,8 @@ static K kConstants = {
     M(to_srgb)            \
     M(from_2dot2)         \
     M(to_2dot2)           \
+    M(rgb_to_hsl)         \
+    M(hsl_to_rgb)         \
     M(scale_1_float)      \
     M(scale_u8)           \
     M(lerp_1_float)       \
