@@ -188,6 +188,7 @@ gm_sources = [
   "$_gm/lightingshaderbevel.cpp",
   "$_gm/linepaths.cpp",
   "$_gm/localmatriximagefilter.cpp",
+  "$_gm/localmatriximageshader.cpp",
   "$_gm/lumafilter.cpp",
   "$_gm/manypaths.cpp",
   "$_gm/matrixconvolution.cpp",
