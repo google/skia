@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3932a137_0ef0220e",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-04-12T14:22:16Z",
+      "side": 1,
+      "message": "Can you move this to before the first if_then_else that way it is obvious that it applies to the whole thing.\nC(1/6.0f) *\nif_then_else(....",
+      "range": {
+        "startLine": 525,
+        "startChar": 15,
+        "endLine": 525,
+        "endChar": 16
+      },
+      "revId": "93f1e885239fdfa8b43468c217a74511692e5cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
