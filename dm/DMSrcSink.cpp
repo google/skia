@@ -1296,6 +1296,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         factory.abandonContexts();
     }
     SkCanvas* canvas = surface->getCanvas();
+    SkDebugf("drawing: %s\n", src.name().c_str());
     Error err = src.draw(canvas);
     if (!err.isEmpty()) {
         return err;

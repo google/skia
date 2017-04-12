@@ -220,7 +220,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
     GrResourceIOProcessor::TextureSampler dstTextureSampler;
     if (dstTexture) {
-        dstTextureSampler.reset(dstTexture);
+//        dstTextureSampler.reset(dstTexture);
         textureBindings.push_back(&dstTextureSampler);
     }
 

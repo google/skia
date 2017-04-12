@@ -35,9 +35,9 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
+        string.append(INHERITED::dumpInfo());
         string.printf("rtID: %d proxyID: %d ", fRenderTarget.get()->uniqueID().asUInt(),
                                                fProxyUniqueID.asUInt());
-        string.append(INHERITED::dumpInfo());
         return string;
     }
 

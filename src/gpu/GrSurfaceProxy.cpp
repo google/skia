@@ -99,8 +99,8 @@ int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
     if (fLastOpList) {
         // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
-        SkASSERT(fLastOpList->isClosed());
+#if 1
+        SkASSERT(fLastOpList->isClosed1());
 #endif
         fLastOpList->clearTarget();
     }
