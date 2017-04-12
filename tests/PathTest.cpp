@@ -4751,3 +4751,27 @@ DEF_TEST(path_tight_bounds, reporter) {
         }
     }
 }
+
+    #include "SkNullCanvas.h"
+
+    DEF_TEST(skbug_6450, r) {
+        SkRect ri = { 0.18554693f, 195.26283f, 0.185784385f, 752.644409f };
+        SkVector rdi[4] = {
+            { 1.81159976e-09f, 7.58768801e-05f },
+            { 0.000118725002f, 0.000118725002f },
+            { 0.000118725002f, 0.000118725002f },
+            { 0.000118725002f, 0.486297607f }
+        };
+        SkRRect irr;
+        irr.setRectRadii(ri, rdi);
+        SkRect ro = { 9.18354821e-39f, 2.1710848e+9f, 2.16945843e+9f, 3.47808128e+9f };
+        SkVector rdo[4] = {
+            { 0, 0 },
+            { 0.0103298295f, 0.185887396f },
+            { 2.52999727e-29f, 169.001938f },
+            { 195.262741f, 195.161255f }
+        };
+        SkRRect orr;
+        orr.setRectRadii(ro, rdo);
+        SkMakeNullCanvas()->drawDRRect(orr, irr, SkPaint());
+    }
