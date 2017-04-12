@@ -919,16 +919,20 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrFragmentProces
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    if (kRGBA_half_GrPixelConfig == config) {
-        return GrFragmentProcessor::UnpremulOutput(std::move(fp));
-    } else if (kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config) {
+    // We have specialized effects that guarantee round-trip conversion for these formats
+    if (kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config) {
         GrConfigConversionEffect::PMConversion pmToUPM =
             static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
         if (GrConfigConversionEffect::kPMConversionCnt != pmToUPM) {
             return GrConfigConversionEffect::Make(std::move(fp), pmToUPM);
+        } else {
+            return nullptr;
         }
+    } else {
+        // For everything else (sRGB, half-float, etc...), it doesn't make sense to try and
+        // explicitly round the results. Just do the obvious, naive thing in the shader.
+        return GrFragmentProcessor::UnpremulOutput(std::move(fp));
     }
-    return nullptr;
 }
 
 sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrFragmentProcessor> fp,
@@ -936,16 +940,20 @@ sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrFragmentProces
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
-    if (kRGBA_half_GrPixelConfig == config) {
-        return GrFragmentProcessor::PremulOutput(std::move(fp));
-    } else if (kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config) {
+    // We have specialized effects that guarantee round-trip conversion for these formats
+    if (kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config) {
         GrConfigConversionEffect::PMConversion upmToPM =
             static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
         if (GrConfigConversionEffect::kPMConversionCnt != upmToPM) {
             return GrConfigConversionEffect::Make(std::move(fp), upmToPM);
+        } else {
+            return nullptr;
         }
+    } else {
+        // For everything else (sRGB, half-float, etc...), it doesn't make sense to try and
+        // explicitly round the results. Just do the obvious, naive thing in the shader.
+        return GrFragmentProcessor::PremulOutput(std::move(fp));
     }
-    return nullptr;
 }
 
 bool GrContext::validPMUPMConversionExists(GrPixelConfig config) const {
