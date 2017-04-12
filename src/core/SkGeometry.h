@@ -158,19 +158,26 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
 bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar y, SkPoint dst[7]);
 bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar x, SkPoint dst[7]);
 
-enum SkCubicType {
-    kSerpentine_SkCubicType,
-    kCusp_SkCubicType,
-    kLoop_SkCubicType,
-    kQuadratic_SkCubicType,
-    kLine_SkCubicType,
-    kPoint_SkCubicType
+enum class SkCubicType {
+    kSerpentine,
+    kLoop,
+    kLocalCusp,     // Cusp at a non-infinite parameter value with an inflection at t=infinity.
+    kInfiniteCusp,  // Cusp with a cusp at t=infinity and a local inflection.
+    kQuadratic,
+    kLineOrPoint
 };
 
-/** Returns the cubic classification. Pass scratch storage for computing inflection data,
-    which can be used with additional work to find the loop intersections and so on.
+/** Returns the cubic classification.
+
+    d[] is filled with the cubic inflection function coefficients. Furthermore, since d0 is always
+    zero for integral curves, if the cubic type is kSerpentine, kLoop, or kLocalCusp then d[0] will
+    instead contain the cubic discriminant: 3*d2^2 - 4*d1*d3.
+
+    See "Resolution Independent Curve Rendering using Programmable Graphics Hardware",
+    4.2 Curve Categorization
+    https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
 */
-SkCubicType SkClassifyCubic(const SkPoint p[4], SkScalar inflection[3]);
+SkCubicType SkClassifyCubic(const SkPoint p[4], SkScalar d[4]);
 
 ///////////////////////////////////////////////////////////////////////////////
 
