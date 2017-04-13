@@ -148,8 +148,11 @@
   },
   {
     "cmd": [
-      "python",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/infra_tests.py"
+      "make",
+      "-v",
+      "-C",
+      "infra/bots",
+      "test"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

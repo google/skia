@@ -25,20 +25,26 @@ def test(cmd, cwd):
     return e.output
 
 
-def python_unit_tests():
+def python_unit_tests(train):
+  if train:
+    return None
   return test(
       ['python', '-m', 'unittest', 'discover', '-s', '.', '-p', '*_test.py'],
       INFRA_BOTS_DIR)
 
 
-def recipe_simulation_test():
-  return test(
-      ['python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'simulation_test'],
-      SKIA_DIR)
+def recipe_simulation_test(train):
+  cmd = [
+      'python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'simulation_test']
+  if train:
+    cmd.append('train')
+  return test(cmd, SKIA_DIR)
 
 
-def gen_tasks_test():
-  cmd = ['go', 'run', 'gen_tasks.go', '--test']
+def gen_tasks_test(train):
+  cmd = ['go', 'run', 'gen_tasks.go']
+  if not train:
+    cmd.append('--test')
   try:
     output = test(cmd, INFRA_BOTS_DIR)
   except OSError:
@@ -51,6 +57,10 @@ def gen_tasks_test():
 
 
 def main():
+  train = False
+  if '--train' in sys.argv:
+    train = True
+
   tests = (
       python_unit_tests,
       recipe_simulation_test,
@@ -58,7 +68,7 @@ def main():
   )
   errs = []
   for t in tests:
-    err = t()
+    err = t(train)
     if err:
       errs.append(err)
 
@@ -70,7 +80,10 @@ def main():
       print >> sys.stderr, '=============================='
     sys.exit(1)
 
-  print 'All tests passed!'
+  if train:
+    print 'Trained tests successfully.'
+  else:
+    print 'All tests passed!'
 
 
 if __name__ == '__main__':

@@ -15,6 +15,10 @@ When you change a recipe, you generally need to re-train the simulation test:
 
 	$ python infra/bots/recipes.py simulation_test train
 
+Or:
+
+        $ cd infra/bots; make train
+
 The simulation_test generates expectations files for the tests contained within
 each recipe which illustrate which steps would run, given a particular set of
 inputs. Pay attention to the diffs in these files when making changes to ensure
