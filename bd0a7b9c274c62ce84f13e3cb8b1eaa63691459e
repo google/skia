@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "2a309830_50e1a0e9",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-04-13T12:47:56Z",
+      "side": 1,
+      "message": "Theoretically - we have a discontinuity at 0, no?  But likely not important in practice.\n\n(I got bitten by -0.0 vs.0 comparisons before, where the sign was important.  Here it doesn\u0027t seem to matter if we bundle -0 and 0 together.)",
+      "parentUuid": "4dfbed6c_50e5a888",
+      "revId": "bd0a7b9c274c62ce84f13e3cb8b1eaa63691459e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dbf4d221_aa6be70f",
         "filename": "src/effects/gradients/SkSweepGradient.cpp",
         "patchSetId": 1
