@@ -1529,24 +1529,6 @@ DEF_TEST(Codec_InvalidAnimated, r) {
     }
 }
 
-static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap,
-                          const SkEncodeOptions& opts, SkEncodedImageFormat format) {
-    switch (format) {
-        case SkEncodedImageFormat::kPNG:
-            SkEncodeImageAsPNG(stream, pixmap, opts);
-            break;
-        case SkEncodedImageFormat::kJPEG:
-            SkEncodeImageAsJPEG(stream, pixmap, opts);
-            break;
-        case SkEncodedImageFormat::kWEBP:
-            SkEncodeImageAsWEBP(stream, pixmap, opts);
-            break;
-        default:
-            SkASSERT(false);
-            break;
-    }
-}
-
 static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
                             SkTransferFunctionBehavior unpremulBehavior) {
     // Test with sRGB color space.
@@ -1556,21 +1538,17 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     *srgbBitmap.getAddr32(0, 0) = 0;
     SkPixmap pixmap;
     srgbBitmap.peekPixels(&pixmap);
-    SkDynamicMemoryWStream srgbBuf;
     SkEncodeOptions opts;
     opts.fUnpremulBehavior = unpremulBehavior;
-    encode_format(&srgbBuf, pixmap, opts, format);
-    sk_sp<SkData> srgbData = srgbBuf.detachAsData();
+    sk_sp<SkData> srgbData = SkEncodeImage(pixmap, format, opts);
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::NewFromData(srgbData));
     REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
 
     // Test with P3 color space.
-    SkDynamicMemoryWStream p3Buf;
     sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                    SkColorSpace::kDCIP3_D65_Gamut);
     pixmap.setColorSpace(p3);
-    encode_format(&p3Buf, pixmap, opts, format);
-    sk_sp<SkData> p3Data = p3Buf.detachAsData();
+    sk_sp<SkData> p3Data = SkEncodeImage(pixmap, format, opts);
     std::unique_ptr<SkCodec> p3Codec(SkCodec::NewFromData(p3Data));
     REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
     SkMatrix44 mat0(SkMatrix44::kUninitialized_Constructor);
