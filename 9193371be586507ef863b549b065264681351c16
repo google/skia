@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cf8e32ea_1049d15d",
+        "filename": "src/core/SkPictureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-13T19:18:41Z",
+      "side": 1,
+      "message": "Does now :)",
+      "parentUuid": "434d9abe_a6dfe6e0",
+      "range": {
+        "startLine": 63,
+        "startChar": 28,
+        "endLine": 63,
+        "endChar": 44
+      },
+      "revId": "9193371be586507ef863b549b065264681351c16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb7af53a_608195e4",
         "filename": "tests/ImageGeneratorTest.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-04-13T17:50:10Z",
       "side": 1,
       "message": "... and you\u0027re promising that both of these will expect success soon, right? :)",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 100
+      },
+      "revId": "9193371be586507ef863b549b065264681351c16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "691ec775_82ffe44f",
+        "filename": "tests/ImageGeneratorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-04-13T19:18:41Z",
+      "side": 1,
+      "message": "Don\u0027t want to steal tomorrow\u0027s thunder",
+      "parentUuid": "fb7af53a_608195e4",
       "range": {
         "startLine": 88,
         "startChar": 0,
