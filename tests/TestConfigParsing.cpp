@@ -314,6 +314,8 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsSurprises, reporter) {
 #endif
     }
 }
+
+#if SK_SUPPORT_GPU
 DEF_TEST(ParseConfigs_ViaParsing, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
         "a-b-c-8888",
@@ -344,6 +346,7 @@ DEF_TEST(ParseConfigs_ViaParsing, reporter) {
         }
     }
 }
+#endif
 
 DEF_TEST(ParseConfigs_ViaParsingExtendedForm, reporter) {
     SkCommandLineFlags::StringArray config1 = make_string_array({
