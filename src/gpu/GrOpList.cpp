@@ -21,23 +21,25 @@ uint32_t GrOpList::CreateUniqueID() {
     return id;
 }
 
-GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
-    : fUniqueID(CreateUniqueID())
+GrOpList::GrOpList(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail)
+    : fTarget1(surfaceProxy)
+    , fUniqueID(CreateUniqueID())
     , fFlags(0)
-    , fTarget(surfaceProxy)
     , fAuditTrail(auditTrail) {
 
     surfaceProxy->setLastOpList(this);
 }
 
 GrOpList::~GrOpList() {
-    if (fTarget && this == fTarget->getLastOpList()) {
-        fTarget->setLastOpList(nullptr);
+    if (fTarget1 && this == fTarget1->getLastOpList()) {
+        fTarget1->setLastOpList(nullptr);
     }
 }
 
 // Add a GrOpList-based dependency
 void GrOpList::addDependency(GrOpList* dependedOn) {
+    return;
+
     SkASSERT(!dependedOn->dependsOn(this));  // loops are bad
 
     if (this->dependsOn(dependedOn)) {
@@ -48,10 +50,10 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurface* dependedOn) {
+void GrOpList::addDependency(GrSurfaceProxy* dependedOn) {
     if (dependedOn->getLastOpList()) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
-        SkASSERT(!this->isClosed());
+        SkASSERT(!this->isClosed1());
 
         GrOpList* opList = dependedOn->getLastOpList();
         if (opList == this) {
@@ -68,7 +70,7 @@ void GrOpList::addDependency(GrSurface* dependedOn) {
 #ifdef SK_DEBUG
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget ? fTarget->uniqueID().asUInt() : -1);
+    SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget1 ? fTarget1->uniqueID().asUInt() : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
         SkDebugf("%d, ", fDependencies[i]->fUniqueID);

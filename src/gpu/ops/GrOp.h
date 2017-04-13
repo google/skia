@@ -62,6 +62,8 @@ public:
     GrOp(uint32_t classID);
     virtual ~GrOp();
 
+    virtual bool isFoo() const { return false; }
+
     virtual const char* name() const = 0;
 
     bool combineIfPossible(GrOp* that, const GrCaps& caps) {

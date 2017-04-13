@@ -1267,6 +1267,8 @@ static void gather_tests() {
 }
 
 static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) {
+    SkDebugf("--------------Running test %s\n", test.name);
+
     struct : public skiatest::Reporter {
         void reportFailed(const skiatest::Failure& failure) override {
             fail(failure.toString());

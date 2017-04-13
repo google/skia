@@ -216,6 +216,7 @@ public:
      */
     TextureSampler();
 
+#if 0
     TextureSampler(GrTexture*, const GrSamplerParams&);
     explicit TextureSampler(GrTexture*,
                             GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
@@ -227,6 +228,7 @@ public:
                GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
+#endif
 
     // MDB TODO: ultimately we shouldn't need the resource provider parameter
     TextureSampler(GrResourceProvider*, sk_sp<GrTextureProxy>, const GrSamplerParams&);
@@ -249,20 +251,22 @@ public:
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
-    GrTexture* texture() const { return fTexture.get(); }
+    GrOpList* opList() const { return fOpList; }
+    GrTexture* texture() const { return fTexture1.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerParams& params() const { return fParams; }
 
     /**
      * For internal use by GrProcessor.
      */
-    const GrGpuResourceRef* programTexture() const { return &fTexture; }
+    const GrGpuResourceRef* programTexture() const { return &fTexture1; }
 
 private:
 
     typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
 
-    ProgramTexture                  fTexture;
+    GrOpList*                       fOpList;
+    ProgramTexture                  fTexture1;
     GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
 

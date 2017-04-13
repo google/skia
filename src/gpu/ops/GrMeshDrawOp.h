@@ -66,7 +66,7 @@ protected:
 
 private:
     void onPrepare(GrOpFlushState* state) final;
-    void onExecute(GrOpFlushState* state) final;
+    void onExecute(GrOpFlushState* state);
 
     virtual void onPrepareDraws(Target*) const = 0;
 
@@ -117,6 +117,10 @@ public:
                       GrColor overrideColor) {
         fPipeline.init(args);
         this->applyPipelineOptimizations(PipelineOptimizations(analysis, overrideColor));
+    }
+
+    void foo(GrRenderTargetProxy* rtp) {
+        fPipeline.addDependenciesTo(rtp);
     }
 
     /**

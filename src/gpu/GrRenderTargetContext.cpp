@@ -26,6 +26,7 @@
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
+#include "ops/GrDiscardOp.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawVerticesOp.h"
@@ -81,7 +82,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              GrSingleOwner* singleOwner)
     : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fRenderTargetProxy(std::move(rtp))
-    , fOpList(SkSafeRef(fRenderTargetProxy->getLastRenderTargetOpList()))
+    , fOpList1(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
@@ -98,15 +99,14 @@ void GrRenderTargetContext::validate() const {
     SkASSERT(fRenderTargetProxy);
     fRenderTargetProxy->validate(fContext);
 
-    if (fOpList && !fOpList->isClosed()) {
-        SkASSERT(fRenderTargetProxy->getLastOpList() == fOpList);
+    if (fOpList1 && !fOpList1->isClosed1()) {
+        SkASSERT(fRenderTargetProxy->getLastOpList() == fOpList1.get());
     }
 }
 #endif
 
 GrRenderTargetContext::~GrRenderTargetContext() {
     ASSERT_SINGLE_OWNER
-    SkSafeUnref(fOpList);
 }
 
 GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
@@ -121,11 +121,11 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newOpList(fRenderTargetProxy.get());
+    if (!fOpList1 || fOpList1->isClosed1()) {
+        fOpList1 = this->drawingManager()->newRTOpList(fRenderTargetProxy);
     }
 
-    return fOpList;
+    return fOpList1.get();
 }
 
 // TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
@@ -138,7 +138,7 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::onCopy");
 
     return this->getOpList()->copySurface(fContext->resourceProvider(),
-                                          fRenderTargetProxy.get(), srcProxy, srcRect, dstPoint);
+                                          this, srcProxy, srcRect, dstPoint);
 }
 
 void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
@@ -192,7 +192,15 @@ void GrRenderTargetContext::discard() {
 
     AutoCheckFlush acf(this->drawingManager());
 
-    this->getOpList()->discard(this);
+    // Currently this just inserts a discard op. However, once in MDB this can remove all the
+    // previously recorded ops and change the load op to discard.
+    if (this->caps()->discardRenderTargetSupport()) {
+        std::unique_ptr<GrOp> op(GrDiscardOp::Make(this));
+        if (!op) {
+            return;
+        }
+        this->getOpList()->addOp(std::move(op), this);
+    }
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
@@ -1667,6 +1675,9 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
         }
     }
     op->initPipeline(args, analysis, overrideColor);
+
+    op->foo(fRenderTargetProxy.get());
+
     // TODO: We need to add pipeline dependencies on textures, etc before recording this op.
     op->setClippedBounds(bounds);
     return this->getOpList()->addOp(std::move(op), this);
