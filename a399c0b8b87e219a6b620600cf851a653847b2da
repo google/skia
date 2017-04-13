@@ -94,6 +94,30 @@
       "revId": "a399c0b8b87e219a6b620600cf851a653847b2da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58f1b0bf_7191c11c",
+        "filename": "src/core/SkDistanceFieldGen.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6705
+      },
+      "writtenOn": "2017-04-13T14:55:38Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "beac8d05_4f96f96c",
+      "range": {
+        "startLine": 13,
+        "startChar": 46,
+        "endLine": 13,
+        "endChar": 71
+      },
+      "revId": "a399c0b8b87e219a6b620600cf851a653847b2da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
