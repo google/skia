@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08d03d4d_64c59cff",
+        "filename": "src/core/SkDistanceFieldGen.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-04-13T13:35:11Z",
+      "side": 1,
+      "message": "I don\u0027t think this is right. -4 maps to 255, 4 maps to 0.",
+      "range": {
+        "startLine": 13,
+        "startChar": 46,
+        "endLine": 13,
+        "endChar": 71
+      },
+      "revId": "a399c0b8b87e219a6b620600cf851a653847b2da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
