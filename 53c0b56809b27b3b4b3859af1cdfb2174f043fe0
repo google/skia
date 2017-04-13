@@ -22,6 +22,30 @@
       "revId": "53c0b56809b27b3b4b3859af1cdfb2174f043fe0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94f2305d_8b99ddee",
+        "filename": "src/effects/SkLightingImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-04-13T14:04:42Z",
+      "side": 1,
+      "message": "Yes, I had to track this down.  See a few lines above:\n\n    SkImageFilterLight(SkColor color) {\n        fColor \u003d SkPoint3::Make(SkIntToScalar(SkColorGetR(color)),\n                                SkIntToScalar(SkColorGetG(color)),\n                                SkIntToScalar(SkColorGetB(color)));\n    }",
+      "parentUuid": "ce8eb347_d26f0af9",
+      "range": {
+        "startLine": 801,
+        "startChar": 43,
+        "endLine": 801,
+        "endChar": 48
+      },
+      "revId": "53c0b56809b27b3b4b3859af1cdfb2174f043fe0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
