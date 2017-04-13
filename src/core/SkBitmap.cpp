@@ -1055,19 +1055,7 @@ void SkBitmap::toString(SkString* str) const {
     }
     str->append(")");
 
-    SkPixelRef* pr = this->pixelRef();
-    if (nullptr == pr) {
-        // show null or the explicit pixel address (rare)
-        str->appendf(" pixels:%p", this->getPixels());
-    } else {
-        const char* uri = pr->getURI();
-        if (uri) {
-            str->appendf(" uri:\"%s\"", uri);
-        } else {
-            str->appendf(" pixelref:%p", pr);
-        }
-    }
-
+    str->appendf(" pixelref:%p", this->pixelRef());
     str->append(")");
 }
 #endif
