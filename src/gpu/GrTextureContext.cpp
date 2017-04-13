@@ -26,7 +26,7 @@ GrTextureContext::GrTextureContext(GrContext* context,
                                    GrSingleOwner* singleOwner)
     : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fTextureProxy(std::move(textureProxy))
-    , fOpList(SkSafeRef(fTextureProxy->getLastTextureOpList())) {
+    , fOpList(sk_ref_sp(fTextureProxy->getLastTextureOpList())) {
     SkDEBUGCODE(this->validate();)
 }
 
@@ -36,14 +36,13 @@ void GrTextureContext::validate() const {
     fTextureProxy->validate(fContext);
 
     if (fOpList && !fOpList->isClosed()) {
-        SkASSERT(fTextureProxy->getLastOpList() == fOpList);
+        SkASSERT(fTextureProxy->getLastOpList() == fOpList.get());
     }
 }
 #endif
 
 GrTextureContext::~GrTextureContext() {
     ASSERT_SINGLE_OWNER
-    SkSafeUnref(fOpList);
 }
 
 GrRenderTargetProxy* GrTextureContext::asRenderTargetProxy() {
@@ -63,10 +62,10 @@ GrTextureOpList* GrTextureContext::getOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newOpList(fTextureProxy.get());
+        fOpList = this->drawingManager()->newTextureOpList(fTextureProxy);
     }
 
-    return fOpList;
+    return fOpList.get();
 }
 
 // TODO: move this (and GrRenderTargetContext::copy) to GrSurfaceContext?

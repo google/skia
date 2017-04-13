@@ -39,7 +39,7 @@ public:
         int fMaxOpCombineLookahead = -1;
     };
 
-    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*,
+    GrRenderTargetOpList(sk_sp<GrSurfaceProxy>, GrGpu*, GrResourceProvider*,
                          GrAuditTrail*, const Options&);
 
     ~GrRenderTargetOpList() override;
