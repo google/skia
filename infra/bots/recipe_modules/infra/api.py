@@ -12,18 +12,44 @@ UPDATE_GO_ATTEMPTS = 5
 
 class InfraApi(recipe_api.RecipeApi):
   @property
+  def go_bin(self):
+    return self.m.vars.slave_dir.join('go', 'go', 'bin')
+
+  @property
+  def go_exe(self):
+    return self.go_bin.join('go')
+
+  @property
   def go_env(self):
-    return {'GOPATH': self.gopath}
+    return {
+        'GOPATH': self.gopath,
+        'PATH': '%s:%%(PATH)s' % self.go_bin,
+    }
 
   @property
   def gopath(self):
-    return self.m.vars.checkout_root.join('gopath')
+    return self.m.vars.slave_dir.join('gopath')
+
+  def go_version(self):
+    """Print the Go version."""
+    env = self.m.step.get_from_context('env', {})
+    env.update(self.go_env)
+    with self.m.step.context({'env': env}):
+      self.m.run(
+          self.m.step,
+          'go version',
+          cmd=[self.go_exe, 'version'])
+      self.m.run(
+          self.m.step,
+          'env go version',
+          cmd=['go', 'version'])
 
   def update_go_deps(self):
     """Attempt to update go dependencies.
 
     This fails flakily sometimes, so perform multiple attempts.
     """
+    self.go_version()
     env = self.m.step.get_from_context('env', {})
     env.update(self.go_env)
     with self.m.step.context({'env': env}):
@@ -31,4 +57,4 @@ class InfraApi(recipe_api.RecipeApi):
           self.m.step,
           'update go pkgs',
           UPDATE_GO_ATTEMPTS,
-          cmd=['go', 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG])
+          cmd=[self.go_exe, 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG])
