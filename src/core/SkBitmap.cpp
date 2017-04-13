@@ -197,8 +197,6 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
 void SkBitmap::updatePixelsFromRef() const {
     if (fPixelRef) {
         if (fPixelLockCount > 0) {
-            SkASSERT(fPixelRef->isLocked());
-
             void* p = fPixelRef->pixels();
             if (p) {
                 p = (char*)p
@@ -1018,7 +1016,6 @@ void SkBitmap::validate() const {
     if (fPixels) {
         SkASSERT(fPixelRef);
         SkASSERT(fPixelLockCount > 0);
-        SkASSERT(fPixelRef->isLocked());
         SkASSERT(fPixelRef->rowBytes() == fRowBytes);
         SkASSERT(fPixelRefOrigin.fX >= 0);
         SkASSERT(fPixelRefOrigin.fY >= 0);

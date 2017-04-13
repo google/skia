@@ -27,17 +27,11 @@ class SkDiscardableMemory;
 
 /** \class SkPixelRef
 
-    This class is the smart container for pixel memory, and is used with
-    SkBitmap. A pixelref is installed into a bitmap, and then the bitmap can
-    access the actual pixel memory by calling lockPixels/unlockPixels.
-
+    This class is the smart container for pixel memory, and is used with SkBitmap.
     This class can be shared/accessed between multiple threads.
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
-#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
-    explicit SkPixelRef(const SkImageInfo&);
-#endif
     explicit SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes,
                         sk_sp<SkColorTable> = nullptr);
     virtual ~SkPixelRef();
@@ -46,15 +40,8 @@ public:
         return fInfo;
     }
 
-    /** Return the pixel memory returned from lockPixels, or null if the
-        lockCount is 0.
-    */
     void* pixels() const { return fRec.fPixels; }
-
-    /** Return the current colorTable (if any) if pixels are locked, or null.
-    */
     SkColorTable* colorTable() const { return fRec.fColorTable; }
-
     size_t rowBytes() const { return fRec.fRowBytes; }
 
     /**
@@ -75,14 +62,8 @@ public:
         }
     };
 
-    SkDEBUGCODE(bool isLocked() const { return fLockCount > 0; })
-    SkDEBUGCODE(int getLockCount() const { return fLockCount; })
-
-    /**
-     *  Call to access the pixel memory. Return true on success. Balance this
-     *  with a call to unlockPixels().
-     */
-    bool lockPixels();
+    bool lockPixels() { return true; }
+    void unlockPixels() {}
 
     /**
      *  Call to access the pixel memory. On success, return true and fill out
@@ -91,12 +72,6 @@ public:
      */
     bool lockPixels(LockRec* rec);
 
-    /** Call to balanace a previous call to lockPixels(). Returns the pixels
-        (or null) after the unlock. NOTE: lock calls can be nested, but the
-        matching number of unlock calls must be made in order to free the
-        memory (if the subclass implements caching/deferred-decoding.)
-    */
-    void unlockPixels();
 
     /** Returns a non-zero, unique value corresponding to the pixels in this
         pixelref. Each time the pixels are changed (and notifyPixelsChanged is
@@ -192,36 +167,6 @@ public:
     virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
-    virtual
-#endif
-    /**
-     *  On success, returns true and fills out the LockRec for the pixels. On
-     *  failure returns false and ignores the LockRec parameter.
-     *
-     *  The caller will have already acquired a mutex for thread safety, so this
-     *  method need not do that.
-     */
-    bool onNewLockPixels(LockRec*) {
-        SkASSERT(false);    // should never be called
-        return true;
-    }
-
-#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
-    virtual
-#endif
-    /**
-     *  Balancing the previous successful call to onNewLockPixels. The locked
-     *  pixel address will no longer be referenced, so the subclass is free to
-     *  move or discard that memory.
-     *
-     *  The caller will have already acquired a mutex for thread safety, so this
-     *  method need not do that.
-     */
-    void onUnlockPixels() {
-        SkASSERT(false);    // should never be called
-    }
-
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
 
@@ -245,13 +190,6 @@ protected:
     */
     SkBaseMutex* mutex() const { return &fMutex; }
 
-#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
-    // only call from constructor. Flags this to always be locked, removing
-    // the need to grab the mutex and call onLockPixels/onUnlockPixels.
-    // Performance tweak to avoid those calls (esp. in multi-thread use case).
-    void setPreLocked(void*, size_t rowBytes, SkColorTable*);
-#endif
-
 private:
     mutable SkMutex fMutex;
 
@@ -261,10 +199,6 @@ private:
 
     // LockRec is only valid if we're in a locked state (isLocked())
     LockRec         fRec;
-    int             fLockCount;
-
-    bool lockPixelsInsideMutex();
-    bool internalRequestLock(const LockRequest&, LockResult*);
 
     // Bottom bit indicates the Gen ID is unique.
     bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }

@@ -101,10 +101,6 @@ public:
 protected:
     ~SkMallocPixelRef() override;
 
-#ifdef SK_SUPPORT_LEGACY_NO_ADDR_PIXELREF
-    bool onNewLockPixels(LockRec*) override;
-    void onUnlockPixels() override;
-#endif
     size_t getAllocatedSizeInBytes() const override;
 
 private:
