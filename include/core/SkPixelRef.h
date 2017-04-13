@@ -11,7 +11,6 @@
 #include "../private/SkAtomics.h"
 #include "../private/SkMutex.h"
 #include "../private/SkTDArray.h"
-#include "SkBitmap.h"
 #include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 #include "SkPixmap.h"

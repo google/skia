@@ -12,6 +12,7 @@
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
+#include "SkPixelRef.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
@@ -140,7 +141,7 @@ public:
 
     /** Return the address of the pixels for this SkBitmap.
     */
-    void* getPixels() const { return fPixels; }
+    void* getPixels() const { return fPixelRef ? fPixelRef->pixels() : nullptr; }
 
     /** Return the byte size of the pixels, based on the height and rowBytes.
         Note this truncates the result to 32bits. Call getSize64() to detect
@@ -423,13 +424,13 @@ public:
         in the pixelref. Balance it with a call to unlockPixels(). These calls
         are harmless if there is no pixelref.
     */
-    void lockPixels() const;
+    void lockPixels() const {}
     /** When you are finished access the pixel memory, call this to balance a
         previous call to lockPixels(). This allows pixelrefs that implement
         cached/deferred image decoding to know when there are active clients of
         a given image.
     */
-    void unlockPixels() const;
+    void unlockPixels() const {}
 
     bool requestLock(SkAutoPixmapUnlock* result) const;
 
@@ -439,7 +440,7 @@ public:
     */
     bool readyToDraw() const {
         return this->getPixels() != NULL &&
-               (this->colorType() != kIndex_8_SkColorType || fColorTable);
+               (this->colorType() != kIndex_8_SkColorType || this->getColorTable());
     }
 
     /** Return the bitmap's colortable, if it uses one (i.e. colorType is
@@ -447,7 +448,7 @@ public:
         Otherwise returns NULL. Does not affect the colortable's
         reference count.
     */
-    SkColorTable* getColorTable() const { return fColorTable; }
+    SkColorTable* getColorTable() const { return fPixelRef ? fPixelRef->colorTable() : nullptr; }
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
         pixelref. Each time the pixels are changed (and notifyPixelsChanged
@@ -732,11 +733,7 @@ public:
 
 private:
     mutable sk_sp<SkPixelRef> fPixelRef;
-    mutable int               fPixelLockCount;
-    // These are just caches from the locked pixelref
-    mutable void*             fPixels;
-    mutable SkColorTable*     fColorTable;    // only meaningful for kIndex8
-
+    SkImageInfo               fInfo;
     SkIPoint                  fPixelRefOrigin;
 
     enum Flags {
@@ -750,7 +747,8 @@ private:
 #endif
     };
 
-    SkImageInfo               fInfo;
+    // needed (for now) for clients that set it before alloc.
+    // can we eliminate this, and just rely on the rowbytes of the pixelref?
     uint32_t                  fRowBytes;
     uint8_t                   fFlags;
 
@@ -796,32 +794,37 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 inline uint32_t* SkBitmap::getAddr32(int x, int y) const {
-    SkASSERT(fPixels);
+    uint8_t* pixels = (uint8_t*)this->getPixels();
+    SkASSERT(pixels);
     SkASSERT(4 == this->bytesPerPixel());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
-    return (uint32_t*)((char*)fPixels + y * fRowBytes + (x << 2));
+    return (uint32_t*)(pixels + y * fRowBytes + (x << 2));
 }
 
 inline uint16_t* SkBitmap::getAddr16(int x, int y) const {
-    SkASSERT(fPixels);
+    uint8_t* pixels = (uint8_t*)this->getPixels();
+    SkASSERT(pixels);
     SkASSERT(2 == this->bytesPerPixel());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
-    return (uint16_t*)((char*)fPixels + y * fRowBytes + (x << 1));
+    return (uint16_t*)(pixels + y * fRowBytes + (x << 1));
 }
 
 inline uint8_t* SkBitmap::getAddr8(int x, int y) const {
-    SkASSERT(fPixels);
+    uint8_t* pixels = (uint8_t*)this->getPixels();
+    SkASSERT(pixels);
     SkASSERT(1 == this->bytesPerPixel());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
-    return (uint8_t*)fPixels + y * fRowBytes + x;
+    return pixels + y * fRowBytes + x;
 }
 
 inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
-    SkASSERT(fPixels);
+    uint8_t* pixels = (uint8_t*)this->getPixels();
+    SkColorTable* ctable = this->getColorTable();
+    SkASSERT(pixels);
     SkASSERT(kIndex_8_SkColorType == this->colorType());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
-    SkASSERT(fColorTable);
-    return (*fColorTable)[*((const uint8_t*)fPixels + y * fRowBytes + x)];
+    SkASSERT(ctable);
+    return (*ctable)[*(pixels + y * fRowBytes + x)];
 }
 
 #endif
