@@ -18,7 +18,7 @@ void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const S
     static constexpr SkScalar kSpotAlpha = 0.25f;
 
     auto heightFunc = [] (SkScalar, SkScalar) { return 4; };
-    
+
     auto verts = SkShadowTessellator::MakeAmbient(path, ctm, heightFunc, kAmbientAlpha, true);
     if (expectSuccess != SkToBool(verts)) {
         ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
@@ -45,11 +45,10 @@ void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const S
 
 DEF_TEST(ShadowUtils, reporter) {
     SkCanvas canvas(100, 100);
-    // Currently SkShadowUtils doesn't really support cubics when compiled without SK_SUPPORT_GPU.
-    // However, this should now not crash.
+
     SkPath path;
     path.cubicTo(100, 50, 20, 100, 0, 0);
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), (bool)SK_SUPPORT_GPU);
+    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), true);
 
     // This line segment has no area and no shadow.
     path.reset();
