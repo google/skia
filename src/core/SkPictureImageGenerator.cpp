@@ -59,19 +59,13 @@ SkPictureImageGenerator::SkPictureImageGenerator(const SkImageInfo& info, sk_sp<
 
 bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                           SkPMColor ctable[], int* ctableCount) {
-    if (ctable || ctableCount) {
+    // Rely on SkCanvas factory to know what configs can and cannot be drawn into.
+    auto canvas = SkCanvas::MakeRasterDirect(info, pixels, rowBytes);
+    if (!canvas) {
         return false;
     }
-
-    SkBitmap bitmap;
-    if (!bitmap.installPixels(info, pixels, rowBytes)) {
-        return false;
-    }
-
-    bitmap.eraseColor(SK_ColorTRANSPARENT);
-    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
-    canvas.drawPicture(fPicture.get(), &fMatrix, fPaint.getMaybeNull());
-
+    canvas->clear(0);
+    canvas->drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
     return true;
 }
 
