@@ -280,11 +280,6 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size
     SkASSERT(srcSurface);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(srcSurface->config()) != GrPixelConfigIsSint(readConfig)) {
-        return false;
-    }
-
     // We currently do not support reading into a compressed buffer
     if (GrPixelConfigIsCompressed(readConfig)) {
         return false;
@@ -323,11 +318,6 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
 
     if (GrPixelConfigIsCompressed(dstSurface->desc().fConfig) &&
         dstSurface->desc().fConfig != srcConfig) {
-        return false;
-    }
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(dstSurface->config()) != GrPixelConfigIsSint(srcConfig)) {
         return false;
     }
 
