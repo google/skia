@@ -248,17 +248,18 @@ int SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
     if (cubic.monotonicInX() && cubic.monotonicInY()) {
         return 0;
     }
-    SkScalar d[3];
+    SkScalar d[4];
     SkCubicType cubicType = SkClassifyCubic(pointsPtr, d);
     switch (cubicType) {
-        case kLoop_SkCubicType: {
+        case SkCubicType::kLoop: {
             // crib code from gpu path utils that finds t values where loop self-intersects
             // use it to find mid of t values which should be a friendly place to chop
-            SkScalar tempSqrt = SkScalarSqrt(4.f * d[0] * d[2] - 3.f * d[1] * d[1]);
-            SkScalar ls = d[1] - tempSqrt;
-            SkScalar lt = 2.f * d[0];
-            SkScalar ms = d[1] + tempSqrt;
-            SkScalar mt = 2.f * d[0];
+            SkASSERT(d[0] < 0);
+            SkScalar tempSqrt = SkScalarSqrt(-d[0]);
+            SkScalar ls = d[2] - tempSqrt;
+            SkScalar lt = 2.f * d[1];
+            SkScalar ms = d[2] + tempSqrt;
+            SkScalar mt = 2.f * d[1];
             if (roughly_between(0, ls, lt) && roughly_between(0, ms, mt)) {
                 ls = ls / lt;
                 ms = ms / mt;
@@ -269,8 +270,9 @@ int SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
             }
         }
         // fall through if no t value found
-        case kSerpentine_SkCubicType:
-        case kCusp_SkCubicType: {
+        case SkCubicType::kSerpentine:
+        case SkCubicType::kLocalCusp:
+        case SkCubicType::kInfiniteCusp: {
             double inflectionTs[2];
             int infTCount = cubic.findInflections(inflectionTs);
             double maxCurvature[3];
