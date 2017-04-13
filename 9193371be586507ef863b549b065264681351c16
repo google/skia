@@ -22,6 +22,29 @@
       "revId": "9193371be586507ef863b549b065264681351c16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb7af53a_608195e4",
+        "filename": "tests/ImageGeneratorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-13T17:50:10Z",
+      "side": 1,
+      "message": "... and you\u0027re promising that both of these will expect success soon, right? :)",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 100
+      },
+      "revId": "9193371be586507ef863b549b065264681351c16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

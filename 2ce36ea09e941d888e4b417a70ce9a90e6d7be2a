@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7725ab4d_73f7a5e4",
+        "filename": "src/core/SkPictureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-04-13T17:50:10Z",
+      "side": 0,
+      "message": "Do we still want this?",
+      "revId": "2ce36ea09e941d888e4b417a70ce9a90e6d7be2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
