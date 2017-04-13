@@ -99,7 +99,7 @@ public:
      * limitations.
      */
     bool copySurface(GrResourceProvider* resourceProvider,
-                     GrSurfaceProxy* dst,
+                     GrRenderTargetContext* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);

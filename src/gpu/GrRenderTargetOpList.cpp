@@ -113,6 +113,28 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
     }
 }
 
+static std::unique_ptr<GrGpuCommandBuffer> create_command_buffer(GrGpu* gpu) {
+    static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo {
+        GrGpuCommandBuffer::LoadOp::kLoad,
+        GrGpuCommandBuffer::StoreOp::kStore,
+        GrColor_ILLEGAL
+    };
+
+    std::unique_ptr<GrGpuCommandBuffer> buffer(
+                            gpu->createCommandBuffer(kBasicLoadStoreInfo,   // Color
+                                                     kBasicLoadStoreInfo)); // Stencil
+    return buffer;
+}
+
+static inline void finish_command_buffer(GrGpuCommandBuffer* buffer) {
+    if (!buffer) {
+        return;
+    }
+
+    buffer->end();
+    buffer->submit();
+}
+
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
@@ -121,46 +143,51 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
         return false;
     }
     // Draw all the generated geometry.
-    SkRandom random;
-    const GrRenderTarget* currentRenderTarget = nullptr;
+    const GrRenderTarget* currentRenderTarget = fRecordedOps[0].fRenderTarget.get();
+    SkASSERT(currentRenderTarget);
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
+
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
-        if (fRecordedOps[i].fRenderTarget.get() != currentRenderTarget) {
-            if (commandBuffer) {
-                commandBuffer->end();
-                commandBuffer->submit();
-                commandBuffer.reset();
-            }
+
+        SkASSERT(fRecordedOps[i].fRenderTarget.get());
+
+        if (fRecordedOps[i].fOp->needsCommandBufferIsolation()) {
+            // This op is a special snowflake and must occur between command buffers
+            // TODO: make this go through the command buffer
+            finish_command_buffer(commandBuffer.get());
             currentRenderTarget = fRecordedOps[i].fRenderTarget.get();
-            if (currentRenderTarget) {
-                static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
-                    { GrGpuCommandBuffer::LoadOp::kLoad,GrGpuCommandBuffer::StoreOp::kStore,
-                      GrColor_ILLEGAL };
-                commandBuffer.reset(fGpu->createCommandBuffer(kBasicLoadStoreInfo,   // Color
-                                                              kBasicLoadStoreInfo)); // Stencil
-            }
+
+            commandBuffer.reset();
+            flushState->setCommandBuffer(commandBuffer.get());
+        } else if (fRecordedOps[i].fRenderTarget.get() != currentRenderTarget) {
+            // Changing renderTarget
+            // MDB TODO: this code path goes away
+            finish_command_buffer(commandBuffer.get());
+            currentRenderTarget = fRecordedOps[i].fRenderTarget.get();
+
+            commandBuffer = create_command_buffer(fGpu);
+            flushState->setCommandBuffer(commandBuffer.get());
+        } else if (!commandBuffer) {
+            commandBuffer = create_command_buffer(fGpu);
             flushState->setCommandBuffer(commandBuffer.get());
         }
-        GrOpFlushState::DrawOpArgs opArgs;
-        if (fRecordedOps[i].fRenderTarget) {
-            opArgs = {
-                fRecordedOps[i].fRenderTarget.get(),
-                fRecordedOps[i].fAppliedClip,
-                fRecordedOps[i].fDstTexture
-            };
-            flushState->setDrawOpArgs(&opArgs);
-        }
+
+        GrOpFlushState::DrawOpArgs opArgs {
+            fRecordedOps[i].fRenderTarget.get(),
+            fRecordedOps[i].fAppliedClip,
+            fRecordedOps[i].fDstTexture
+        };
+
+        flushState->setDrawOpArgs(&opArgs);
         fRecordedOps[i].fOp->execute(flushState);
         flushState->setDrawOpArgs(nullptr);
     }
-    if (commandBuffer) {
-        commandBuffer->end();
-        commandBuffer->submit();
-        flushState->setCommandBuffer(nullptr);
-    }
+
+    finish_command_buffer(commandBuffer.get());
+    flushState->setCommandBuffer(nullptr);
 
     fGpu->finishOpList();
     return true;
@@ -239,11 +266,12 @@ void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
-                                       GrSurfaceProxy* dst,
+                                       GrRenderTargetContext* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst->asSurfaceProxy(),
+                                                     src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -251,10 +279,7 @@ bool GrRenderTargetOpList::copySurface(GrResourceProvider* resourceProvider,
     this->addDependency(src);
 #endif
 
-    // Copy surface doesn't work through a GrGpuCommandBuffer. By passing nullptr for the context we
-    // force this to occur between command buffers and execute directly on GrGpu. This workaround
-    // goes away with MDB.
-    this->recordOp(std::move(op), nullptr);
+    this->recordOp(std::move(op), dst);
     return true;
 }
 
@@ -290,9 +315,11 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                                      GrRenderTargetContext* renderTargetContext,
                                      GrAppliedClip* clip,
                                      const DstTexture* dstTexture) {
-    GrRenderTarget* renderTarget =
-            renderTargetContext ? renderTargetContext->accessRenderTarget()
-                                : nullptr;
+    GrRenderTarget* renderTarget = renderTargetContext->accessRenderTarget();
+    if (!renderTarget) {
+        SkASSERT(false);
+        return nullptr;
+    }
 
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
