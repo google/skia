@@ -16,6 +16,8 @@ class SkColorTable;
 class SkData;
 struct SkMask;
 
+#define SK_SUPPORT_OBSOLETE_PIXELREF_LOCKPIXELS
+
 /**
  *  Pairs SkImageInfo with actual pixels and rowbytes. This class does not try to manage the
  *  lifetime of the pixel memory (nor the colortable if provided).
@@ -223,6 +225,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_OBSOLETE_PIXELREF_LOCKPIXELS
 class SK_API SkAutoPixmapUnlock : ::SkNoncopyable {
 public:
     SkAutoPixmapUnlock() : fUnlockProc(NULL), fIsLocked(false) {}
@@ -268,5 +271,6 @@ private:
 
     friend class SkBitmap;
 };
+#endif
 
 #endif

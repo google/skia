@@ -502,11 +502,10 @@ sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
 
     if (pixelSerializer) {
         SkBitmap bm;
-        SkAutoPixmapUnlock apu;
+        SkPixmap pmap;
         SkColorSpace* legacyColorSpace = nullptr;
-        if (as_IB(image.get())->getROPixels(&bm, legacyColorSpace) &&
-            bm.requestLock(&apu)) {
-            data.reset(pixelSerializer->encode(apu.pixmap()));
+        if (as_IB(image.get())->getROPixels(&bm, legacyColorSpace) && bm.peekPixels(&pmap)) {
+            data.reset(pixelSerializer->encode(pmap));
             if (data && SkIsJFIF(data.get(), &info)) {
                 bool yuv = info.fType == SkJFIFInfo::kYCbCr;
                 if (info.fSize == image->dimensions()) {  // Sanity check.

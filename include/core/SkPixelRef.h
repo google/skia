@@ -32,18 +32,16 @@ class SkDiscardableMemory;
 */
 class SK_API SkPixelRef : public SkRefCnt {
 public:
-    explicit SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes,
-                        sk_sp<SkColorTable> = nullptr);
-    virtual ~SkPixelRef();
+    SkPixelRef(const SkImageInfo&, void* addr, size_t rowBytes, sk_sp<SkColorTable> = nullptr);
+    ~SkPixelRef() override;
 
-    const SkImageInfo& info() const {
-        return fInfo;
-    }
+    const SkImageInfo& info() const { return fInfo; }
+    void* pixels() const { return fPixels; }
+    size_t rowBytes() const { return fRowBytes; }
+    SkColorTable* colorTable() const { return fCTable.get(); }
+    sk_sp<SkColorTable> refColorTable() const { return fCTable; }
 
-    void* pixels() const { return fRec.fPixels; }
-    SkColorTable* colorTable() const { return fRec.fColorTable; }
-    size_t rowBytes() const { return fRec.fRowBytes; }
-
+#ifdef SK_SUPPORT_OBSOLETE_PIXELREF_LOCKPIXELS
     /**
      *  To access the actual pixels of a pixelref, it must be "locked".
      *  Calling lockPixels returns a LockRec struct (on success).
@@ -71,6 +69,7 @@ public:
      *  Balance this with a call to unlockPixels().
      */
     bool lockPixels(LockRec* rec);
+#endif
 
 
     /** Returns a non-zero, unique value corresponding to the pixels in this
@@ -116,6 +115,7 @@ public:
     */
     void setImmutable();
 
+#ifdef SK_SUPPORT_OBSOLETE_PIXELREF_LOCKPIXELS
     struct LockRequest {
         SkISize         fSize;
         SkFilterQuality fQuality;
@@ -141,6 +141,7 @@ public:
     };
 
     bool requestLock(const LockRequest&, LockResult*);
+#endif
 
     // Register a listener that may be called the next time our generation ID changes.
     //
@@ -195,10 +196,9 @@ private:
 
     // mostly const. fInfo.fAlpahType can be changed at runtime.
     const SkImageInfo fInfo;
-    sk_sp<SkColorTable> fCTable;    // duplicated in LockRec, will unify later
-
-    // LockRec is only valid if we're in a locked state (isLocked())
-    LockRec         fRec;
+    void*             fPixels;
+    sk_sp<SkColorTable> fCTable;
+    size_t            fRowBytes;
 
     // Bottom bit indicates the Gen ID is unique.
     bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }

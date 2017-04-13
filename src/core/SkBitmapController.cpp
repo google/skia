@@ -129,15 +129,15 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
         if (!provider.asBitmap(&orig)) {
             return false;
         }
-        SkAutoPixmapUnlock src;
-        if (!orig.requestLock(&src)) {
+        SkPixmap src;
+        if (!orig.peekPixels(&src)) {
             return false;
         }
 
         SkPixmap dst;
         SkBitmapCache::RecPtr rec;
         const SkImageInfo info = SkImageInfo::MakeN32(desc.fScaledWidth, desc.fScaledHeight,
-                                                      src.pixmap().alphaType());
+                                                      src.alphaType());
         if (provider.isVolatile()) {
             if (!fResultBitmap.tryAllocPixels(info)) {
                 return false;
@@ -151,7 +151,7 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
                 return false;
             }
         }
-        if (!SkBitmapScaler::Resize(dst, src.pixmap(), kHQ_RESIZE_METHOD)) {
+        if (!SkBitmapScaler::Resize(dst, src, kHQ_RESIZE_METHOD)) {
             return false; // we failed to create fScaledBitmap
         }
         if (rec) {

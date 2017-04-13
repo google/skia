@@ -217,8 +217,8 @@ public:
      *  "unknown" pixels.
      */
     static bool ComputeIsOpaque(const SkBitmap& bm) {
-        SkAutoPixmapUnlock result;
-        return bm.requestLock(&result) && result.pixmap().computeIsOpaque();
+        SkPixmap pmap;
+        return bm.peekPixels(&pmap) && pmap.computeIsOpaque();
     }
 
     /**
@@ -431,7 +431,9 @@ public:
     */
     void unlockPixels() const;
 
+#ifdef SK_SUPPORT_OBSOLETE_PIXELREF_LOCKPIXELS
     bool requestLock(SkAutoPixmapUnlock* result) const;
+#endif
 
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
         it has non-null pixels, and if required by its colortype, it has a
