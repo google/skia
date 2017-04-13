@@ -155,6 +155,7 @@ extern "C" {
     #undef M
 
 #elif defined(__arm__)
+    __attribute__((target("arm")))
     size_t ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,vfp4);
     #define M(st) StageFn ASM(st,vfp4);
@@ -275,6 +276,36 @@ static StageFn* lookup_portable(SkRasterPipeline::StockStage st) {
     }
 }
 
+template <typename StartFn> // We keep this generic to preserve __attribute__((target("arm"))).
+static bool build_and_run(size_t min_stride,
+                          StageFn* (*lookup)(SkRasterPipeline::StockStage),
+                          StageFn* just_return,
+                          StartFn start_pipeline,
+                          const SkRasterPipeline::Stage* stages, int nstages,
+                          size_t* x, size_t limit,
+                          void** program) {
+    if (*x + min_stride <= limit) {
+        // Build the program.
+        void** ip = program;
+        for (int i = 0; i < nstages; i++) {
+            const auto& st = stages[i];
+            auto fn = lookup(st.stage);
+            if (!fn) {
+                return false;
+            }
+            *ip++ = (void*)fn;
+            if (st.ctx) {
+                *ip++ = st.ctx;
+            }
+        }
+        *ip = (void*)just_return;
+
+        // Run it.
+        *x = start_pipeline(*x, program, &kConstants, limit);
+    }
+    return true;
+}
+
 bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
 #ifdef WHATS_NEXT
     static SkOnce once;
@@ -292,68 +323,52 @@ bool SkRasterPipeline::run_with_jumper(size_t x, size_t n) const {
     SkAutoSTMalloc<64, void*> program(2*fStages.size() + 1);
     const size_t limit = x+n;
 
-    auto build_and_run = [&](size_t   min_stride,
-                             StageFn* (*lookup)(SkRasterPipeline::StockStage),
-                             StageFn* just_return,
-                             size_t   (*start_pipeline)(size_t, void**, K*, size_t)) {
-        if (x + min_stride <= limit) {
-            void** ip = program.get();
-            for (auto&& st : fStages) {
-                auto fn = lookup(st.stage);
-                if (!fn) {
-                    return false;
-                }
-                *ip++ = (void*)fn;
-                if (st.ctx) {
-                    *ip++ = st.ctx;
-                }
-            }
-            *ip = (void*)just_return;
-
-            x = start_pipeline(x, program.get(), &kConstants, limit);
-        }
-        return true;
-    };
-
     // While possible, build and run at full vector stride.
 #if __has_feature(memory_sanitizer)
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
-    if (!build_and_run(4, lookup_aarch64, ASM(just_return,aarch64), ASM(start_pipeline,aarch64))) {
+    if (!build_and_run(4, lookup_aarch64, ASM(just_return,aarch64), ASM(start_pipeline,aarch64),
+                       fStages.data(), SkToInt(fStages.size()), &x, limit, program.get())) {
         return false;
     }
 
 #elif defined(__arm__)
     if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
-        if (!build_and_run(2, lookup_vfp4, ASM(just_return,vfp4), ASM(start_pipeline,vfp4))) {
+        if (!build_and_run(2, lookup_vfp4, ASM(just_return,vfp4), ASM(start_pipeline,vfp4),
+                           fStages.data(), SkToInt(fStages.size()), &x, limit, program.get())) {
             return false;
         }
     }
 
 #elif defined(__x86_64__) || defined(_M_X64)
     if (1 && SkCpu::Supports(SkCpu::HSW)) {
-        if (!build_and_run(1, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw))) {
+        if (!build_and_run(1, lookup_hsw, ASM(just_return,hsw), ASM(start_pipeline,hsw),
+                           fStages.data(), SkToInt(fStages.size()), &x, limit, program.get())) {
             return false;
         }
     }
     if (1 && SkCpu::Supports(SkCpu::AVX)) {
-        if (!build_and_run(1, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx))) {
+        if (!build_and_run(1, lookup_avx, ASM(just_return,avx), ASM(start_pipeline,avx),
+                           fStages.data(), SkToInt(fStages.size()), &x, limit, program.get())) {
             return false;
         }
     }
     if (1 && SkCpu::Supports(SkCpu::SSE41)) {
-        if (!build_and_run(4, lookup_sse41, ASM(just_return,sse41), ASM(start_pipeline,sse41))) {
+        if (!build_and_run(4, lookup_sse41, ASM(just_return,sse41), ASM(start_pipeline,sse41),
+                           fStages.data(), SkToInt(fStages.size()), &x, limit, program.get())) {
             return false;
         }
     }
     if (1 && SkCpu::Supports(SkCpu::SSE2)) {
-        if (!build_and_run(4, lookup_sse2, ASM(just_return,sse2), ASM(start_pipeline,sse2))) {
+        if (!build_and_run(4, lookup_sse2, ASM(just_return,sse2), ASM(start_pipeline,sse2),
+                           fStages.data(), SkToInt(fStages.size()), &x, limit, program.get())) {
             return false;
         }
     }
 #endif
 
     // Finish up any leftover with portable code one pixel at a time.
-    return build_and_run(1, lookup_portable, sk_just_return, sk_start_pipeline);
+    return build_and_run(1, lookup_portable, sk_just_return, sk_start_pipeline,
+                         fStages.data(), SkToInt(fStages.size()), &x, limit, program.get());
 }
