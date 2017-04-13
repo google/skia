@@ -924,6 +924,7 @@
       "--writePath",
       "/home/chronos/user/dm_out",
       "--nocpu",
+      "--randomProcessorTest",
       "--config",
       "gles",
       "--src",
