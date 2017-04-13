@@ -46,7 +46,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cxx = clang_linux + '/bin/clang++'
       extra_cflags .append('-B%s/bin' % clang_linux)
       extra_ldflags.append('-B%s/bin' % clang_linux)
-      extra_ldflags.append('-fuse-ld=lld')
+      if extra_config != 'MSAN':
+        # lld seems to be causing problems with MSAN's libc interceptors.
+        extra_ldflags.append('-fuse-ld=lld')
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
     elif compiler == 'GCC':
