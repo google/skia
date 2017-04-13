@@ -22,6 +22,30 @@
       "revId": "6d2cf4726c0aa63c7ca5f17dba0b93d3534d9cb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "594aa4bf_f0c2757e",
+        "filename": "infra/bots/infra_tests.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-04-13T13:25:40Z",
+      "side": 0,
+      "message": "Don\u0027t remove infra_tests.py, just invoke it from the Makefile.",
+      "parentUuid": "4706ad4f_17a2ff9a",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 57
+      },
+      "revId": "6d2cf4726c0aa63c7ca5f17dba0b93d3534d9cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbe27c4e_668959c5",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-04-13T13:25:40Z",
+      "side": 1,
+      "message": "cd infra/bots; make tasks_train",
+      "revId": "6371cae20693c82c98b1d16ec745fbab19622e0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
