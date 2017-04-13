@@ -30,8 +30,10 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
         return nullptr;
     }
 
+    // MDB TODO: This explicit resource creation is required in the pre-MDB world so that the
+    // pre-Flush ops are placed in their own opList.
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
-                                                    proxy->asRenderTargetProxy(),
+                                                    sk_ref_sp(proxy->asRenderTargetProxy()),
                                                     fDrawingMgr->fContext->getGpu(),
                                                     fDrawingMgr->fContext->resourceProvider(),
                                                     fDrawingMgr->fContext->getAuditTrail(),
@@ -58,9 +60,10 @@ sk_sp<GrRenderTargetContext> GrPreFlushResourceProvider::makeRenderTargetContext
                                                         sk_sp<GrSurfaceProxy> proxy,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
-
+    // MDB TODO: This explicit resource creation is required in the pre-MDB world so that the
+    // pre-Flush ops are placed in their own opList.
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
-                                                    proxy->asRenderTargetProxy(),
+                                                    sk_ref_sp(proxy->asRenderTargetProxy()),
                                                     fDrawingMgr->fContext->getGpu(),
                                                     fDrawingMgr->fContext->resourceProvider(),
                                                     fDrawingMgr->fContext->getAuditTrail(),

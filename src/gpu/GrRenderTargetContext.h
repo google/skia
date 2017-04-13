@@ -479,7 +479,7 @@ private:
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
-    GrRenderTargetOpList*             fOpList;
+    sk_sp<GrRenderTargetOpList>       fOpList;
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
     sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;

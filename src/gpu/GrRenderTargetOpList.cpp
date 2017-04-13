@@ -25,16 +25,15 @@ using gr_instanced::InstancedRendering;
 static const int kDefaultMaxOpLookback = 10;
 static const int kDefaultMaxOpLookahead = 10;
 
-GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
+GrRenderTargetOpList::GrRenderTargetOpList(sk_sp<GrRenderTargetProxy> proxy, GrGpu* gpu,
                                            GrResourceProvider* resourceProvider,
                                            GrAuditTrail* auditTrail, const Options& options)
-        : INHERITED(rtp, auditTrail)
+        : INHERITED(std::move(proxy), auditTrail)
         , fGpu(SkRef(gpu))
         , fResourceProvider(resourceProvider)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         , fClipAllocator(fClipAllocatorStorage, sizeof(fClipAllocatorStorage),
                          sizeof(fClipAllocatorStorage)) {
-
     fMaxOpLookback = (options.fMaxOpCombineLookback < 0) ? kDefaultMaxOpLookback
                                                          : options.fMaxOpCombineLookback;
     fMaxOpLookahead = (options.fMaxOpCombineLookahead < 0) ? kDefaultMaxOpLookahead

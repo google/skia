@@ -82,7 +82,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              GrSingleOwner* singleOwner)
     : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fRenderTargetProxy(std::move(rtp))
-    , fOpList(SkSafeRef(fRenderTargetProxy->getLastRenderTargetOpList()))
+    , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
@@ -100,14 +100,13 @@ void GrRenderTargetContext::validate() const {
     fRenderTargetProxy->validate(fContext);
 
     if (fOpList && !fOpList->isClosed()) {
-        SkASSERT(fRenderTargetProxy->getLastOpList() == fOpList);
+        SkASSERT(fRenderTargetProxy->getLastOpList() == fOpList.get());
     }
 }
 #endif
 
 GrRenderTargetContext::~GrRenderTargetContext() {
     ASSERT_SINGLE_OWNER
-    SkSafeUnref(fOpList);
 }
 
 GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
@@ -123,10 +122,10 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newOpList(fRenderTargetProxy.get());
+        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy);
     }
 
-    return fOpList;
+    return fOpList.get();
 }
 
 // TODO: move this (and GrTextContext::copy) to GrSurfaceContext?

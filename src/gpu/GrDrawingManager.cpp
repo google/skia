@@ -197,7 +197,7 @@ void GrDrawingManager::addPreFlushCallbackObject(sk_sp<GrPreFlushCallbackObject>
     fPreFlushCBObjects.push_back(preFlushCBObject);
 }
 
-GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
+sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetProxy> rtp) {
     SkASSERT(fContext);
 
 #ifndef ENABLE_MDB
@@ -210,7 +210,7 @@ GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
         // DrawingManager gets the creation ref - this ref is for the caller
 
         // TODO: although this is true right now it isn't cool
-        return SkRef((GrRenderTargetOpList*) fOpLists[0]);
+        return sk_ref_sp((GrRenderTargetOpList*) fOpLists[0]);
     }
 #endif
 
@@ -219,18 +219,19 @@ GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
                                                             fContext->resourceProvider(),
                                                             fContext->getAuditTrail(),
                                                             fOptionsForOpLists);
+    SkASSERT(rtp->getLastOpList() == opList);
 
     *fOpLists.append() = opList;
 
     // DrawingManager gets the creation ref - this ref is for the caller
-    return SkRef(opList);
+    return sk_ref_sp(opList);
 }
 
-GrTextureOpList* GrDrawingManager::newOpList(GrTextureProxy* textureProxy) {
+sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> textureProxy) {
     SkASSERT(fContext);
 
-    GrTextureOpList* opList = new GrTextureOpList(textureProxy, fContext->getGpu(),
-                                                  fContext->getAuditTrail());
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(std::move(textureProxy), fContext->getGpu(),
+                                                      fContext->getAuditTrail()));
 
 #ifndef ENABLE_MDB
     // When MDB is disabled we still create a new GrOpList, but don't store or ref it - we rely
@@ -240,7 +241,7 @@ GrTextureOpList* GrDrawingManager::newOpList(GrTextureProxy* textureProxy) {
     *fOpLists.append() = opList;
 
     // Drawing manager gets the creation ref - this ref is for the caller
-    return SkRef(opList);
+    return opList;
 #endif
 }
 

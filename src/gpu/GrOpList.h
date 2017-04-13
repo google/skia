@@ -22,7 +22,7 @@ class GrTextureOpList;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail);
+    GrOpList(sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail);
     ~GrOpList() override;
 
     // These two methods are invoked as flush time
@@ -80,6 +80,10 @@ public:
      */
     SkDEBUGCODE(virtual void dump() const;)
 
+protected:
+    GrSurfaceProxy*      fTarget;
+    GrAuditTrail*        fAuditTrail;
+
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
 
@@ -132,13 +136,9 @@ private:
 
     uint32_t             fUniqueID;
     uint32_t             fFlags;
-    GrSurfaceProxy*      fTarget;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkTDArray<GrOpList*> fDependencies;
-
-protected:
-    GrAuditTrail*        fAuditTrail;
 
     typedef SkRefCnt INHERITED;
 };
