@@ -15,7 +15,6 @@
 #include "GrResourceProvider.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
-#include "ops/GrDiscardOp.h"
 #include "instanced/InstancedRendering.h"
 
 using gr_instanced::InstancedRendering;
@@ -248,18 +247,6 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
         fLastFullClearOp = static_cast<GrClearOp*>(clearOp);
         fLastFullClearResourceID = renderTarget->uniqueID();
         fLastFullClearProxyID = renderTargetContext->asRenderTargetProxy()->uniqueID();
-    }
-}
-
-void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
-    // Currently this just inserts a discard op. However, once in MDB this can remove all the
-    // previously recorded ops and change the load op to discard.
-    if (this->caps()->discardRenderTargetSupport()) {
-        std::unique_ptr<GrOp> op(GrDiscardOp::Make(renderTargetContext));
-        if (!op) {
-            return;
-        }
-        this->recordOp(std::move(op), renderTargetContext);
     }
 }
 

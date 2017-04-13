@@ -26,6 +26,7 @@
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
+#include "ops/GrDiscardOp.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawVerticesOp.h"
@@ -192,7 +193,15 @@ void GrRenderTargetContext::discard() {
 
     AutoCheckFlush acf(this->drawingManager());
 
-    this->getOpList()->discard(this);
+    // Currently this just inserts a discard op. However, once in MDB this can remove all the
+    // previously recorded ops and change the load op to discard.
+    if (this->caps()->discardRenderTargetSupport()) {
+        std::unique_ptr<GrOp> op(GrDiscardOp::Make(this));
+        if (!op) {
+            return;
+        }
+        this->getOpList()->addOp(std::move(op), this);
+    }
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
