@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f2a9958_c6b1cc15",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-04-13T20:31:35Z",
+      "side": 1,
+      "message": "These are the negatives I was talking about. If we flip the convention these could be +copysign and +abs.",
+      "range": {
+        "startLine": 879,
+        "startChar": 49,
+        "endLine": 879,
+        "endChar": 57
+      },
+      "revId": "899968b1788147d1f075a39244858460356fe15f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
