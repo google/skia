@@ -46,6 +46,30 @@
       "revId": "a399c0b8b87e219a6b620600cf851a653847b2da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "814a1537_a454a47f",
+        "filename": "src/core/SkDistanceFieldGen.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6705
+      },
+      "writtenOn": "2017-04-13T14:07:27Z",
+      "side": 1,
+      "message": "Jim\u0027s 3rd version: https://groups.google.com/d/msg/skia-discuss/XqJggJ4L_FM/trYF83CFAQAJ\n:-)",
+      "parentUuid": "ce2d24d6_3b20ff66",
+      "range": {
+        "startLine": 13,
+        "startChar": 46,
+        "endLine": 13,
+        "endChar": 71
+      },
+      "revId": "a399c0b8b87e219a6b620600cf851a653847b2da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
