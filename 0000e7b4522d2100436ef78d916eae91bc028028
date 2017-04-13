@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b10a12a9_4f8403f2",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-04-13T14:39:27Z",
+      "side": 1,
+      "message": "assuming previous ops have not silly side effects like buffer writes or stencil writes",
+      "range": {
+        "startLine": 196,
+        "startChar": 86,
+        "endLine": 197,
+        "endChar": 30
+      },
+      "revId": "0000e7b4522d2100436ef78d916eae91bc028028",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
