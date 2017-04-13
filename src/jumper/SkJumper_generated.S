@@ -2931,6 +2931,7 @@ _sk_bicubic_p3y_aarch64:
 
 HIDDEN _sk_start_pipeline_vfp4
 .globl _sk_start_pipeline_vfp4
+.type _sk_start_pipeline_vfp4,%function
 _sk_start_pipeline_vfp4:
   .long  0xe92d41f0                          // push          {r4, r5, r6, r7, r8, lr}
   .long  0xe1a04000                          // mov           r4, r0
@@ -2962,11 +2963,13 @@ _sk_start_pipeline_vfp4:
 
 HIDDEN _sk_just_return_vfp4
 .globl _sk_just_return_vfp4
+.type _sk_just_return_vfp4,%function
 _sk_just_return_vfp4:
   .long  0xe12fff1e                          // bx            lr
 
 HIDDEN _sk_seed_shader_vfp4
 .globl _sk_seed_shader_vfp4
+.type _sk_seed_shader_vfp4,%function
 _sk_seed_shader_vfp4:
   .long  0xee800b90                          // vdup.32       d16, r0
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -2989,6 +2992,7 @@ _sk_seed_shader_vfp4:
 
 HIDDEN _sk_constant_color_vfp4
 .globl _sk_constant_color_vfp4
+.type _sk_constant_color_vfp4,%function
 _sk_constant_color_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -3005,6 +3009,7 @@ _sk_constant_color_vfp4:
 
 HIDDEN _sk_clear_vfp4
 .globl _sk_clear_vfp4
+.type _sk_clear_vfp4,%function
 _sk_clear_vfp4:
   .long  0xe4913004                          // ldr           r3, [r1], #4
   .long  0xf2800010                          // vmov.i32      d0, #0
@@ -3015,6 +3020,7 @@ _sk_clear_vfp4:
 
 HIDDEN _sk_srcatop_vfp4
 .globl _sk_srcatop_vfp4
+.type _sk_srcatop_vfp4,%function
 _sk_srcatop_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3034,6 +3040,7 @@ _sk_srcatop_vfp4:
 
 HIDDEN _sk_dstatop_vfp4
 .globl _sk_dstatop_vfp4
+.type _sk_dstatop_vfp4,%function
 _sk_dstatop_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3054,6 +3061,7 @@ _sk_dstatop_vfp4:
 
 HIDDEN _sk_srcin_vfp4
 .globl _sk_srcin_vfp4
+.type _sk_srcin_vfp4,%function
 _sk_srcin_vfp4:
   .long  0xf3000d17                          // vmul.f32      d0, d0, d7
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3064,6 +3072,7 @@ _sk_srcin_vfp4:
 
 HIDDEN _sk_dstin_vfp4
 .globl _sk_dstin_vfp4
+.type _sk_dstin_vfp4,%function
 _sk_dstin_vfp4:
   .long  0xf3030d14                          // vmul.f32      d0, d3, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3074,6 +3083,7 @@ _sk_dstin_vfp4:
 
 HIDDEN _sk_srcout_vfp4
 .globl _sk_srcout_vfp4
+.type _sk_srcout_vfp4,%function
 _sk_srcout_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3086,6 +3096,7 @@ _sk_srcout_vfp4:
 
 HIDDEN _sk_dstout_vfp4
 .globl _sk_dstout_vfp4
+.type _sk_dstout_vfp4,%function
 _sk_dstout_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3098,6 +3109,7 @@ _sk_dstout_vfp4:
 
 HIDDEN _sk_srcover_vfp4
 .globl _sk_srcover_vfp4
+.type _sk_srcover_vfp4,%function
 _sk_srcover_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3110,6 +3122,7 @@ _sk_srcover_vfp4:
 
 HIDDEN _sk_dstover_vfp4
 .globl _sk_dstover_vfp4
+.type _sk_dstover_vfp4,%function
 _sk_dstover_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3130,6 +3143,7 @@ _sk_dstover_vfp4:
 
 HIDDEN _sk_modulate_vfp4
 .globl _sk_modulate_vfp4
+.type _sk_modulate_vfp4,%function
 _sk_modulate_vfp4:
   .long  0xf3000d14                          // vmul.f32      d0, d0, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3140,6 +3154,7 @@ _sk_modulate_vfp4:
 
 HIDDEN _sk_multiply_vfp4
 .globl _sk_multiply_vfp4
+.type _sk_multiply_vfp4,%function
 _sk_multiply_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3169,6 +3184,7 @@ _sk_multiply_vfp4:
 
 HIDDEN _sk_plus__vfp4
 .globl _sk_plus__vfp4
+.type _sk_plus__vfp4,%function
 _sk_plus__vfp4:
   .long  0xf2000d04                          // vadd.f32      d0, d0, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3179,6 +3195,7 @@ _sk_plus__vfp4:
 
 HIDDEN _sk_screen_vfp4
 .globl _sk_screen_vfp4
+.type _sk_screen_vfp4,%function
 _sk_screen_vfp4:
   .long  0xf2400d04                          // vadd.f32      d16, d0, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3197,6 +3214,7 @@ _sk_screen_vfp4:
 
 HIDDEN _sk_xor__vfp4
 .globl _sk_xor__vfp4
+.type _sk_xor__vfp4,%function
 _sk_xor__vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3218,6 +3236,7 @@ _sk_xor__vfp4:
 
 HIDDEN _sk_darken_vfp4
 .globl _sk_darken_vfp4
+.type _sk_darken_vfp4,%function
 _sk_darken_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3242,6 +3261,7 @@ _sk_darken_vfp4:
 
 HIDDEN _sk_lighten_vfp4
 .globl _sk_lighten_vfp4
+.type _sk_lighten_vfp4,%function
 _sk_lighten_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3266,6 +3286,7 @@ _sk_lighten_vfp4:
 
 HIDDEN _sk_difference_vfp4
 .globl _sk_difference_vfp4
+.type _sk_difference_vfp4,%function
 _sk_difference_vfp4:
   .long  0xf3430d14                          // vmul.f32      d16, d3, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3293,6 +3314,7 @@ _sk_difference_vfp4:
 
 HIDDEN _sk_exclusion_vfp4
 .globl _sk_exclusion_vfp4
+.type _sk_exclusion_vfp4,%function
 _sk_exclusion_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3314,6 +3336,7 @@ _sk_exclusion_vfp4:
 
 HIDDEN _sk_colorburn_vfp4
 .globl _sk_colorburn_vfp4
+.type _sk_colorburn_vfp4,%function
 _sk_colorburn_vfp4:
   .long  0xed2d8b08                          // vpush         {d8-d11}
   .long  0xf2670d04                          // vsub.f32      d16, d7, d4
@@ -3380,6 +3403,7 @@ _sk_colorburn_vfp4:
 
 HIDDEN _sk_colordodge_vfp4
 .globl _sk_colordodge_vfp4
+.type _sk_colordodge_vfp4,%function
 _sk_colordodge_vfp4:
   .long  0xed2d8b0e                          // vpush         {d8-d14}
   .long  0xf2238d02                          // vsub.f32      d8, d3, d2
@@ -3440,6 +3464,7 @@ _sk_colordodge_vfp4:
 
 HIDDEN _sk_hardlight_vfp4
 .globl _sk_hardlight_vfp4
+.type _sk_hardlight_vfp4,%function
 _sk_hardlight_vfp4:
   .long  0xf2c71f10                          // vmov.f32      d17, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3493,6 +3518,7 @@ _sk_hardlight_vfp4:
 
 HIDDEN _sk_overlay_vfp4
 .globl _sk_overlay_vfp4
+.type _sk_overlay_vfp4,%function
 _sk_overlay_vfp4:
   .long  0xf2c71f10                          // vmov.f32      d17, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3546,6 +3572,7 @@ _sk_overlay_vfp4:
 
 HIDDEN _sk_softlight_vfp4
 .globl _sk_softlight_vfp4
+.type _sk_softlight_vfp4,%function
 _sk_softlight_vfp4:
   .long  0xed2d8b06                          // vpush         {d8-d10}
   .long  0xeec58aa7                          // vdiv.f32      s17, s11, s15
@@ -3681,6 +3708,7 @@ _sk_softlight_vfp4:
 
 HIDDEN _sk_clamp_0_vfp4
 .globl _sk_clamp_0_vfp4
+.type _sk_clamp_0_vfp4,%function
 _sk_clamp_0_vfp4:
   .long  0xf2c00010                          // vmov.i32      d16, #0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3692,6 +3720,7 @@ _sk_clamp_0_vfp4:
 
 HIDDEN _sk_clamp_1_vfp4
 .globl _sk_clamp_1_vfp4
+.type _sk_clamp_1_vfp4,%function
 _sk_clamp_1_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3703,6 +3732,7 @@ _sk_clamp_1_vfp4:
 
 HIDDEN _sk_clamp_a_vfp4
 .globl _sk_clamp_a_vfp4
+.type _sk_clamp_a_vfp4,%function
 _sk_clamp_a_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3714,6 +3744,7 @@ _sk_clamp_a_vfp4:
 
 HIDDEN _sk_set_rgb_vfp4
 .globl _sk_set_rgb_vfp4
+.type _sk_set_rgb_vfp4,%function
 _sk_set_rgb_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -3727,6 +3758,7 @@ _sk_set_rgb_vfp4:
 
 HIDDEN _sk_swap_rb_vfp4
 .globl _sk_swap_rb_vfp4
+.type _sk_swap_rb_vfp4,%function
 _sk_swap_rb_vfp4:
   .long  0xeef00b40                          // vmov.f64      d16, d0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3736,6 +3768,7 @@ _sk_swap_rb_vfp4:
 
 HIDDEN _sk_swap_vfp4
 .globl _sk_swap_vfp4
+.type _sk_swap_vfp4,%function
 _sk_swap_vfp4:
   .long  0xeef00b43                          // vmov.f64      d16, d3
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3754,6 +3787,7 @@ _sk_swap_vfp4:
 
 HIDDEN _sk_move_src_dst_vfp4
 .globl _sk_move_src_dst_vfp4
+.type _sk_move_src_dst_vfp4,%function
 _sk_move_src_dst_vfp4:
   .long  0xeeb04b40                          // vmov.f64      d4, d0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3764,6 +3798,7 @@ _sk_move_src_dst_vfp4:
 
 HIDDEN _sk_move_dst_src_vfp4
 .globl _sk_move_dst_src_vfp4
+.type _sk_move_dst_src_vfp4,%function
 _sk_move_dst_src_vfp4:
   .long  0xeeb00b44                          // vmov.f64      d0, d4
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3774,6 +3809,7 @@ _sk_move_dst_src_vfp4:
 
 HIDDEN _sk_premul_vfp4
 .globl _sk_premul_vfp4
+.type _sk_premul_vfp4,%function
 _sk_premul_vfp4:
   .long  0xf3000d13                          // vmul.f32      d0, d0, d3
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3783,6 +3819,7 @@ _sk_premul_vfp4:
 
 HIDDEN _sk_unpremul_vfp4
 .globl _sk_unpremul_vfp4
+.type _sk_unpremul_vfp4,%function
 _sk_unpremul_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xeeb78a00                          // vmov.f32      s16, #112
@@ -3801,6 +3838,7 @@ _sk_unpremul_vfp4:
 
 HIDDEN _sk_from_srgb_vfp4
 .globl _sk_from_srgb_vfp4
+.type _sk_from_srgb_vfp4,%function
 _sk_from_srgb_vfp4:
   .long  0xeddf3b20                          // vldr          d19, [pc, #128]
   .long  0xf3408d10                          // vmul.f32      d24, d0, d0
@@ -3847,6 +3885,7 @@ _sk_from_srgb_vfp4:
 
 HIDDEN _sk_to_srgb_vfp4
 .globl _sk_to_srgb_vfp4
+.type _sk_to_srgb_vfp4,%function
 _sk_to_srgb_vfp4:
   .long  0xf3fb0582                          // vrsqrte.f32   d16, d2
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -3925,6 +3964,7 @@ _sk_to_srgb_vfp4:
 
 HIDDEN _sk_from_2dot2_vfp4
 .globl _sk_from_2dot2_vfp4
+.type _sk_from_2dot2_vfp4,%function
 _sk_from_2dot2_vfp4:
   .long  0xf3fb0580                          // vrsqrte.f32   d16, d0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -4022,6 +4062,7 @@ _sk_from_2dot2_vfp4:
 
 HIDDEN _sk_to_2dot2_vfp4
 .globl _sk_to_2dot2_vfp4
+.type _sk_to_2dot2_vfp4,%function
 _sk_to_2dot2_vfp4:
   .long  0xf3fb0580                          // vrsqrte.f32   d16, d0
   .long  0xe4913004                          // ldr           r3, [r1], #4
@@ -4129,6 +4170,7 @@ _sk_to_2dot2_vfp4:
 
 HIDDEN _sk_rgb_to_hsl_vfp4
 .globl _sk_rgb_to_hsl_vfp4
+.type _sk_rgb_to_hsl_vfp4,%function
 _sk_rgb_to_hsl_vfp4:
   .long  0xed2d8b08                          // vpush         {d8-d11}
   .long  0xf2401f01                          // vmax.f32      d17, d0, d1
@@ -4185,6 +4227,7 @@ _sk_rgb_to_hsl_vfp4:
 
 HIDDEN _sk_hsl_to_rgb_vfp4
 .globl _sk_hsl_to_rgb_vfp4
+.type _sk_hsl_to_rgb_vfp4,%function
 _sk_hsl_to_rgb_vfp4:
   .long  0xf2c72f10                          // vmov.f32      d18, #1
   .long  0xeddf0b4f                          // vldr          d16, [pc, #316]
@@ -4279,6 +4322,7 @@ _sk_hsl_to_rgb_vfp4:
 
 HIDDEN _sk_scale_1_float_vfp4
 .globl _sk_scale_1_float_vfp4
+.type _sk_scale_1_float_vfp4,%function
 _sk_scale_1_float_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -4291,6 +4335,7 @@ _sk_scale_1_float_vfp4:
 
 HIDDEN _sk_scale_u8_vfp4
 .globl _sk_scale_u8_vfp4
+.type _sk_scale_u8_vfp4,%function
 _sk_scale_u8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4317,6 +4362,7 @@ _sk_scale_u8_vfp4:
 
 HIDDEN _sk_lerp_1_float_vfp4
 .globl _sk_lerp_1_float_vfp4
+.type _sk_lerp_1_float_vfp4,%function
 _sk_lerp_1_float_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xf2600d04                          // vsub.f32      d16, d0, d4
@@ -4337,6 +4383,7 @@ _sk_lerp_1_float_vfp4:
 
 HIDDEN _sk_lerp_u8_vfp4
 .globl _sk_lerp_u8_vfp4
+.type _sk_lerp_u8_vfp4,%function
 _sk_lerp_u8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4371,6 +4418,7 @@ _sk_lerp_u8_vfp4:
 
 HIDDEN _sk_lerp_565_vfp4
 .globl _sk_lerp_565_vfp4
+.type _sk_lerp_565_vfp4,%function
 _sk_lerp_565_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4419,6 +4467,7 @@ _sk_lerp_565_vfp4:
 
 HIDDEN _sk_load_tables_vfp4
 .globl _sk_load_tables_vfp4
+.type _sk_load_tables_vfp4,%function
 _sk_load_tables_vfp4:
   .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4463,6 +4512,7 @@ _sk_load_tables_vfp4:
 
 HIDDEN _sk_byte_tables_vfp4
 .globl _sk_byte_tables_vfp4
+.type _sk_byte_tables_vfp4,%function
 _sk_byte_tables_vfp4:
   .long  0xe92d4bf0                          // push          {r4, r5, r6, r7, r8, r9, fp, lr}
   .long  0xeddf0b37                          // vldr          d16, [pc, #220]
@@ -4529,6 +4579,7 @@ _sk_byte_tables_vfp4:
 
 HIDDEN _sk_byte_tables_rgb_vfp4
 .globl _sk_byte_tables_rgb_vfp4
+.type _sk_byte_tables_rgb_vfp4,%function
 _sk_byte_tables_rgb_vfp4:
   .long  0xe92d41f0                          // push          {r4, r5, r6, r7, r8, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4585,6 +4636,7 @@ _sk_byte_tables_rgb_vfp4:
 
 HIDDEN _sk_load_a8_vfp4
 .globl _sk_load_a8_vfp4
+.type _sk_load_a8_vfp4,%function
 _sk_load_a8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4611,6 +4663,7 @@ _sk_load_a8_vfp4:
 
 HIDDEN _sk_gather_a8_vfp4
 .globl _sk_gather_a8_vfp4
+.type _sk_gather_a8_vfp4,%function
 _sk_gather_a8_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4641,6 +4694,7 @@ _sk_gather_a8_vfp4:
 
 HIDDEN _sk_store_a8_vfp4
 .globl _sk_store_a8_vfp4
+.type _sk_store_a8_vfp4,%function
 _sk_store_a8_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
   .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
@@ -4663,6 +4717,7 @@ _sk_store_a8_vfp4:
 
 HIDDEN _sk_load_g8_vfp4
 .globl _sk_load_g8_vfp4
+.type _sk_load_g8_vfp4,%function
 _sk_load_g8_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4689,6 +4744,7 @@ _sk_load_g8_vfp4:
 
 HIDDEN _sk_gather_g8_vfp4
 .globl _sk_gather_g8_vfp4
+.type _sk_gather_g8_vfp4,%function
 _sk_gather_g8_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4719,6 +4775,7 @@ _sk_gather_g8_vfp4:
 
 HIDDEN _sk_gather_i8_vfp4
 .globl _sk_gather_i8_vfp4
+.type _sk_gather_i8_vfp4,%function
 _sk_gather_i8_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe1a0e001                          // mov           lr, r1
@@ -4771,6 +4828,7 @@ _sk_gather_i8_vfp4:
 
 HIDDEN _sk_load_565_vfp4
 .globl _sk_load_565_vfp4
+.type _sk_load_565_vfp4,%function
 _sk_load_565_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4809,6 +4867,7 @@ _sk_load_565_vfp4:
 
 HIDDEN _sk_gather_565_vfp4
 .globl _sk_gather_565_vfp4
+.type _sk_gather_565_vfp4,%function
 _sk_gather_565_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4855,6 +4914,7 @@ _sk_gather_565_vfp4:
 
 HIDDEN _sk_store_565_vfp4
 .globl _sk_store_565_vfp4
+.type _sk_store_565_vfp4,%function
 _sk_store_565_vfp4:
   .long  0xf2c30f1f                          // vmov.f32      d16, #31
   .long  0xeddf1b15                          // vldr          d17, [pc, #84]
@@ -4885,6 +4945,7 @@ _sk_store_565_vfp4:
 
 HIDDEN _sk_load_4444_vfp4
 .globl _sk_load_4444_vfp4
+.type _sk_load_4444_vfp4,%function
 _sk_load_4444_vfp4:
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4929,6 +4990,7 @@ _sk_load_4444_vfp4:
 
 HIDDEN _sk_gather_4444_vfp4
 .globl _sk_gather_4444_vfp4
+.type _sk_gather_4444_vfp4,%function
 _sk_gather_4444_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -4979,6 +5041,7 @@ _sk_gather_4444_vfp4:
 
 HIDDEN _sk_store_4444_vfp4
 .globl _sk_store_4444_vfp4
+.type _sk_store_4444_vfp4,%function
 _sk_store_4444_vfp4:
   .long  0xf2c20f1e                          // vmov.f32      d16, #15
   .long  0xe5913000                          // ldr           r3, [r1]
@@ -5011,6 +5074,7 @@ _sk_store_4444_vfp4:
 
 HIDDEN _sk_load_8888_vfp4
 .globl _sk_load_8888_vfp4
+.type _sk_load_8888_vfp4,%function
 _sk_load_8888_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xf3c7001f                          // vmov.i32      d16, #255
@@ -5039,6 +5103,7 @@ _sk_load_8888_vfp4:
 
 HIDDEN _sk_gather_8888_vfp4
 .globl _sk_gather_8888_vfp4
+.type _sk_gather_8888_vfp4,%function
 _sk_gather_8888_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5077,6 +5142,7 @@ _sk_gather_8888_vfp4:
 
 HIDDEN _sk_store_8888_vfp4
 .globl _sk_store_8888_vfp4
+.type _sk_store_8888_vfp4,%function
 _sk_store_8888_vfp4:
   .long  0xeddf0b1a                          // vldr          d16, [pc, #104]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
@@ -5111,6 +5177,7 @@ _sk_store_8888_vfp4:
 
 HIDDEN _sk_load_f16_vfp4
 .globl _sk_load_f16_vfp4
+.type _sk_load_f16_vfp4,%function
 _sk_load_f16_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -5128,6 +5195,7 @@ _sk_load_f16_vfp4:
 
 HIDDEN _sk_gather_f16_vfp4
 .globl _sk_gather_f16_vfp4
+.type _sk_gather_f16_vfp4,%function
 _sk_gather_f16_vfp4:
   .long  0xe92d4c10                          // push          {r4, sl, fp, lr}
   .long  0xe28db008                          // add           fp, sp, #8
@@ -5164,6 +5232,7 @@ _sk_gather_f16_vfp4:
 
 HIDDEN _sk_store_f16_vfp4
 .globl _sk_store_f16_vfp4
+.type _sk_store_f16_vfp4,%function
 _sk_store_f16_vfp4:
   .long  0xf2630113                          // vorr          d16, d3, d3
   .long  0xe5913000                          // ldr           r3, [r1]
@@ -5185,6 +5254,7 @@ _sk_store_f16_vfp4:
 
 HIDDEN _sk_load_u16_be_vfp4
 .globl _sk_load_u16_be_vfp4
+.type _sk_load_u16_be_vfp4,%function
 _sk_load_u16_be_vfp4:
   .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5247,6 +5317,7 @@ _sk_load_u16_be_vfp4:
 
 HIDDEN _sk_store_u16_be_vfp4
 .globl _sk_store_u16_be_vfp4
+.type _sk_store_u16_be_vfp4,%function
 _sk_store_u16_be_vfp4:
   .long  0xeddf0b2a                          // vldr          d16, [pc, #168]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
@@ -5297,6 +5368,7 @@ _sk_store_u16_be_vfp4:
 
 HIDDEN _sk_load_f32_vfp4
 .globl _sk_load_f32_vfp4
+.type _sk_load_f32_vfp4,%function
 _sk_load_f32_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -5307,6 +5379,7 @@ _sk_load_f32_vfp4:
 
 HIDDEN _sk_store_f32_vfp4
 .globl _sk_store_f32_vfp4
+.type _sk_store_f32_vfp4,%function
 _sk_store_f32_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xe5933000                          // ldr           r3, [r3]
@@ -5319,6 +5392,7 @@ _sk_store_f32_vfp4:
 
 HIDDEN _sk_clamp_x_vfp4
 .globl _sk_clamp_x_vfp4
+.type _sk_clamp_x_vfp4,%function
 _sk_clamp_x_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xf2c00010                          // vmov.i32      d16, #0
@@ -5332,6 +5406,7 @@ _sk_clamp_x_vfp4:
 
 HIDDEN _sk_clamp_y_vfp4
 .globl _sk_clamp_y_vfp4
+.type _sk_clamp_y_vfp4,%function
 _sk_clamp_y_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xf2c00010                          // vmov.i32      d16, #0
@@ -5345,6 +5420,7 @@ _sk_clamp_y_vfp4:
 
 HIDDEN _sk_repeat_x_vfp4
 .globl _sk_repeat_x_vfp4
+.type _sk_repeat_x_vfp4,%function
 _sk_repeat_x_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5373,6 +5449,7 @@ _sk_repeat_x_vfp4:
 
 HIDDEN _sk_repeat_y_vfp4
 .globl _sk_repeat_y_vfp4
+.type _sk_repeat_y_vfp4,%function
 _sk_repeat_y_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5401,6 +5478,7 @@ _sk_repeat_y_vfp4:
 
 HIDDEN _sk_mirror_x_vfp4
 .globl _sk_mirror_x_vfp4
+.type _sk_mirror_x_vfp4,%function
 _sk_mirror_x_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5433,6 +5511,7 @@ _sk_mirror_x_vfp4:
 
 HIDDEN _sk_mirror_y_vfp4
 .globl _sk_mirror_y_vfp4
+.type _sk_mirror_y_vfp4,%function
 _sk_mirror_y_vfp4:
   .long  0xed2d8b04                          // vpush         {d8-d9}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5465,6 +5544,7 @@ _sk_mirror_y_vfp4:
 
 HIDDEN _sk_luminance_to_alpha_vfp4
 .globl _sk_luminance_to_alpha_vfp4
+.type _sk_luminance_to_alpha_vfp4,%function
 _sk_luminance_to_alpha_vfp4:
   .long  0xeddf0b0a                          // vldr          d16, [pc, #40]
   .long  0xeddf1b0b                          // vldr          d17, [pc, #44]
@@ -5487,6 +5567,7 @@ _sk_luminance_to_alpha_vfp4:
 
 HIDDEN _sk_matrix_2x3_vfp4
 .globl _sk_matrix_2x3_vfp4
+.type _sk_matrix_2x3_vfp4,%function
 _sk_matrix_2x3_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
@@ -5513,6 +5594,7 @@ _sk_matrix_2x3_vfp4:
 
 HIDDEN _sk_matrix_3x4_vfp4
 .globl _sk_matrix_3x4_vfp4
+.type _sk_matrix_3x4_vfp4,%function
 _sk_matrix_3x4_vfp4:
   .long  0xe92d4800                          // push          {fp, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
@@ -5557,6 +5639,7 @@ _sk_matrix_3x4_vfp4:
 
 HIDDEN _sk_matrix_4x5_vfp4
 .globl _sk_matrix_4x5_vfp4
+.type _sk_matrix_4x5_vfp4,%function
 _sk_matrix_4x5_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5625,6 +5708,7 @@ _sk_matrix_4x5_vfp4:
 
 HIDDEN _sk_matrix_perspective_vfp4
 .globl _sk_matrix_perspective_vfp4
+.type _sk_matrix_perspective_vfp4,%function
 _sk_matrix_perspective_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
@@ -5663,6 +5747,7 @@ _sk_matrix_perspective_vfp4:
 
 HIDDEN _sk_linear_gradient_vfp4
 .globl _sk_linear_gradient_vfp4
+.type _sk_linear_gradient_vfp4,%function
 _sk_linear_gradient_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
@@ -5748,6 +5833,7 @@ _sk_linear_gradient_vfp4:
 
 HIDDEN _sk_linear_gradient_2stops_vfp4
 .globl _sk_linear_gradient_2stops_vfp4
+.type _sk_linear_gradient_2stops_vfp4,%function
 _sk_linear_gradient_2stops_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe8911008                          // ldm           r1, {r3, ip}
@@ -5777,6 +5863,7 @@ _sk_linear_gradient_2stops_vfp4:
 
 HIDDEN _sk_save_xy_vfp4
 .globl _sk_save_xy_vfp4
+.type _sk_save_xy_vfp4,%function
 _sk_save_xy_vfp4:
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
   .long  0xeddf7b17                          // vldr          d23, [pc, #92]
@@ -5809,6 +5896,7 @@ _sk_save_xy_vfp4:
 
 HIDDEN _sk_accumulate_vfp4
 .globl _sk_accumulate_vfp4
+.type _sk_accumulate_vfp4,%function
 _sk_accumulate_vfp4:
   .long  0xe8911008                          // ldm           r1, {r3, ip}
   .long  0xe2811008                          // add           r1, r1, #8
@@ -5823,6 +5911,7 @@ _sk_accumulate_vfp4:
 
 HIDDEN _sk_bilinear_nx_vfp4
 .globl _sk_bilinear_nx_vfp4
+.type _sk_bilinear_nx_vfp4,%function
 _sk_bilinear_nx_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -5839,6 +5928,7 @@ _sk_bilinear_nx_vfp4:
 
 HIDDEN _sk_bilinear_px_vfp4
 .globl _sk_bilinear_px_vfp4
+.type _sk_bilinear_px_vfp4,%function
 _sk_bilinear_px_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
@@ -5853,6 +5943,7 @@ _sk_bilinear_px_vfp4:
 
 HIDDEN _sk_bilinear_ny_vfp4
 .globl _sk_bilinear_ny_vfp4
+.type _sk_bilinear_ny_vfp4,%function
 _sk_bilinear_ny_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -5869,6 +5960,7 @@ _sk_bilinear_ny_vfp4:
 
 HIDDEN _sk_bilinear_py_vfp4
 .globl _sk_bilinear_py_vfp4
+.type _sk_bilinear_py_vfp4,%function
 _sk_bilinear_py_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
@@ -5883,6 +5975,7 @@ _sk_bilinear_py_vfp4:
 
 HIDDEN _sk_bicubic_n3x_vfp4
 .globl _sk_bicubic_n3x_vfp4
+.type _sk_bicubic_n3x_vfp4,%function
 _sk_bicubic_n3x_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -5909,6 +6002,7 @@ _sk_bicubic_n3x_vfp4:
 
 HIDDEN _sk_bicubic_n1x_vfp4
 .globl _sk_bicubic_n1x_vfp4
+.type _sk_bicubic_n1x_vfp4,%function
 _sk_bicubic_n1x_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -5937,6 +6031,7 @@ _sk_bicubic_n1x_vfp4:
 
 HIDDEN _sk_bicubic_p1x_vfp4
 .globl _sk_bicubic_p1x_vfp4
+.type _sk_bicubic_p1x_vfp4,%function
 _sk_bicubic_p1x_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c71f18                          // vmov.f32      d17, #1.5
@@ -5961,6 +6056,7 @@ _sk_bicubic_p1x_vfp4:
 
 HIDDEN _sk_bicubic_p3x_vfp4
 .globl _sk_bicubic_p3x_vfp4
+.type _sk_bicubic_p3x_vfp4,%function
 _sk_bicubic_p3x_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
@@ -5985,6 +6081,7 @@ _sk_bicubic_p3x_vfp4:
 
 HIDDEN _sk_bicubic_n3y_vfp4
 .globl _sk_bicubic_n3y_vfp4
+.type _sk_bicubic_n3y_vfp4,%function
 _sk_bicubic_n3y_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -6011,6 +6108,7 @@ _sk_bicubic_n3y_vfp4:
 
 HIDDEN _sk_bicubic_n1y_vfp4
 .globl _sk_bicubic_n1y_vfp4
+.type _sk_bicubic_n1y_vfp4,%function
 _sk_bicubic_n1y_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
@@ -6039,6 +6137,7 @@ _sk_bicubic_n1y_vfp4:
 
 HIDDEN _sk_bicubic_p1y_vfp4
 .globl _sk_bicubic_p1y_vfp4
+.type _sk_bicubic_p1y_vfp4,%function
 _sk_bicubic_p1y_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xf2c71f18                          // vmov.f32      d17, #1.5
@@ -6063,6 +6162,7 @@ _sk_bicubic_p1y_vfp4:
 
 HIDDEN _sk_bicubic_p3y_vfp4
 .globl _sk_bicubic_p3y_vfp4
+.type _sk_bicubic_p3y_vfp4,%function
 _sk_bicubic_p3y_vfp4:
   .long  0xe5913000                          // ldr           r3, [r1]
   .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
