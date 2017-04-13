@@ -100,8 +100,8 @@ def parse_object_file(dot_o, directive, target=None):
       if hidden:
         print hidden + ' _' + m.group(1)
       print globl + ' _' + m.group(1)
-      if 'vfp4' in dot_o:
-        print '.type _' + m.group(1) + ',%function'
+      if 'win' not in dot_o:
+        print 'FUNCTION(_' + m.group(1) + ')'
       print '_' + m.group(1) + label
       continue
 
@@ -132,8 +132,10 @@ print '''# Copyright 2017 Google Inc.
 '''
 print '#if defined(__MACH__)'
 print '    #define HIDDEN .private_extern'
+print '    #define FUNCTION(name)'
 print '#else'
 print '    #define HIDDEN .hidden'
+print '    #define FUNCTION(name) .type name,%function'
 print '    .section .note.GNU-stack,"",%progbits'
 print '#endif'
 
