@@ -44,7 +44,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if compiler == 'Clang' and os == 'Ubuntu':
       cc  = clang_linux + '/bin/clang'
       cxx = clang_linux + '/bin/clang++'
-      extra_ldflags.append('-fuse-ld=lld')
+      if 'MSAN' not in extra_config:
+        extra_ldflags.append('-fuse-ld=lld')
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
     elif compiler == 'GCC':
