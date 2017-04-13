@@ -491,6 +491,20 @@ def dm_flags(bot):
       blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
 
+  if 'IntelHD2000' in bot and 'Win' in bot:
+    match.append('~OverdrawSurface_Gpu')
+    match.append('~SpecialImage_Gpu')
+    match.append('~ResourceCacheCache')
+    match.append('~SpecialSurface_Gpu1')
+    match.append('~SurfaceCopyOnWrite_Gpu')
+    match.append('~SurfacePartialDraw_Gpu')
+    match.append('~TessellatingPathRendererTests')
+    match.append('~WritePixels_Gpu')
+    match.append('~SpecialImage_DeferredGpu')
+    match.append('~RectangleTexture')
+    match.append('~ReadPixels_Texture')
+    match.append('~ReadPixels_Gpu')
+
   if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
     match.append('~ImageStorageLoad') # skia:6358
 
@@ -679,7 +693,17 @@ def test_steps(api):
     args.append('--preAbandonGpuContext')
 
   with api.step.context({'env': env}):
-    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+    api.run(api.flavor.step,  'dm0', cmd=args+['--shard',  '0', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm1', cmd=args+['--shard',  '1', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm2', cmd=args+['--shard',  '2', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm3', cmd=args+['--shard',  '3', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm4', cmd=args+['--shard',  '4', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm5', cmd=args+['--shard',  '5', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm6', cmd=args+['--shard',  '6', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm7', cmd=args+['--shard',  '7', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm8', cmd=args+['--shard',  '8', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step,  'dm9', cmd=args+['--shard',  '9', '--shards', '11'], abort_on_failure=False)
+    api.run(api.flavor.step, 'dm10', cmd=args+['--shard', '10', '--shards', '11'], abort_on_failure=False)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
@@ -737,6 +761,7 @@ TEST_BUILDERS = [
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
+  'Test-Win10-MSVC-ShuttleA-GPU-IntelHD2000-x86_64-Release-ANGLE',
   'Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
   'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release',
