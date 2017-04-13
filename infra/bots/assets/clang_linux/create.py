@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 
 REPO = "https://llvm.googlesource.com/"
-BRANCH = "release_39"
+BRANCH = "release_40"
 
 def create_asset(target_dir):
   # Build Clang, lld, compiler-rt (sanitizer support) and libc++.
